@@ -1,0 +1,39 @@
+flowchart LR
+    subgraph  s1 [step1]
+        direction TB
+    check_SDT(SDT系统设备表)--find-->dct["DCT设备控制表by指针"]
+    dct --"设备状态(status)"--- is_busy_device{busy?}
+    append_device(挂到PCB任务队列)
+    safety[计算本次分配安全性]
+    is_busy_device -->|yes|append_device
+    is_busy_device -->|no|safety
+    is_safe{safe?}
+    safety-->is_safe
+    is_safe-->|yes|assign_device(执行分配step2)
+    is_safe-->|No|append_device
+    end
+
+    %%assign_device
+    subgraph s2 [step2]
+        direction TB
+    dct2(DCT设备控制表) --在DCT中查找与设备连接的控制器-->coct([COCT])
+    coct --"控制器状态(status)"--> is_busy_controller{busy?}
+    append_controller(挂到该控制器的等待队列)
+    is_busy_controller -->|yes|append_controller 
+    is_busy_controller -->|no|assign_controller(执行分配step3)
+    end
+  
+
+
+    subgraph s3 [step3]
+        direction TB
+
+    %%use the square bracket `[]` to name the group(subgraph) to be connect with other part of the flowchart
+    coct2(COCT控制器控制表)--查找-->chct(CHCT)
+    is_chct_busy{busy?}
+    append_chct(挂到该通道的等待队列)
+    assign_chct(将通道分配给进程)
+    chct--检查CHCT状态字段-->is_chct_busy-->|yes|append_chct
+    is_chct_busy-->|no|assign_chct
+    end
+    s1-->s2-->s3

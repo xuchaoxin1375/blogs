@@ -1,0 +1,17 @@
+{
+    "created_time": "2022-06-29T23:27:46Z",
+    "files": [
+    ],
+    "folders": [
+        {
+            "name": "aliyunECS安全组"
+        },
+        {
+            "name": "bindDN"
+        }
+    ],
+    "id": "186",
+    "modified_time": "2022-06-29T23:27:46Z",
+    "signature": "119994452860914",
+    "version": 3
+}

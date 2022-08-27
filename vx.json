@@ -1,0 +1,162 @@
+{
+    "created_time": "2022-06-29T23:27:37Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:27:45Z",
+            "id": "166",
+            "modified_time": "2022-06-29T23:27:45Z",
+            "name": "04_初等函数图形.md",
+            "signature": "27845929525233",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:27:46Z",
+            "id": "182",
+            "modified_time": "2022-06-29T23:27:46Z",
+            "name": "cdn.md",
+            "signature": "20334031724530",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:27:48Z",
+            "id": "216",
+            "modified_time": "2022-06-29T23:27:48Z",
+            "name": "dck.html",
+            "signature": "140455677059060",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:09Z",
+            "id": "571",
+            "modified_time": "2022-06-29T23:28:09Z",
+            "name": "readme.md",
+            "signature": "49758852669449",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+        {
+            "name": ".ToDo"
+        },
+        {
+            "name": ".vscode"
+        },
+        {
+            "name": "00_讲义"
+        },
+        {
+            "name": "androidDev"
+        },
+        {
+            "name": "blogWriting"
+        },
+        {
+            "name": "browsers"
+        },
+        {
+            "name": "c_cpp"
+        },
+        {
+            "name": "CloudVps"
+        },
+        {
+            "name": "computerScienceCourses"
+        },
+        {
+            "name": "database_Sql_mysql"
+        },
+        {
+            "name": "deploy"
+        },
+        {
+            "name": "developmentTechnologies"
+        },
+        {
+            "name": "drawio_flow_charts"
+        },
+        {
+            "name": "editorSkills"
+        },
+        {
+            "name": "git_github"
+        },
+        {
+            "name": "image"
+        },
+        {
+            "name": "latex_materials"
+        },
+        {
+            "name": "learnSkills"
+        },
+        {
+            "name": "lifeSkills"
+        },
+        {
+            "name": "linux"
+        },
+        {
+            "name": "materials"
+        },
+        {
+            "name": "math_j"
+        },
+        {
+            "name": "miniProgramDev"
+        },
+        {
+            "name": "Modao_Design墨刀"
+        },
+        {
+            "name": "neep"
+        },
+        {
+            "name": "npm"
+        },
+        {
+            "name": "powershell_pwsh"
+        },
+        {
+            "name": "proxy_mirrors_git"
+        },
+        {
+            "name": "python"
+        },
+        {
+            "name": "reflectionLog"
+        },
+        {
+            "name": "resources"
+        },
+        {
+            "name": "screen"
+        },
+        {
+            "name": "softwares"
+        },
+        {
+            "name": "styles"
+        },
+        {
+            "name": "temp"
+        },
+        {
+            "name": "windows"
+        },
+        {
+            "name": "yaml"
+        }
+    ],
+    "id": "1",
+    "modified_time": "2022-06-29T23:27:37Z",
+    "signature": "177750204393",
+    "version": 3
+}

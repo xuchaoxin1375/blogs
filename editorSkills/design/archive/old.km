@@ -1,0 +1,179 @@
+{
+    "root": {
+        "data": {
+            "id": "ciare6in47s0",
+            "created": 1646364178848,
+            "text": "materialSharing",
+            "expandState": "expand"
+        },
+        "children": [
+            {
+                "data": {
+                    "id": "ciaqqvu8d4g0",
+                    "created": 1646362353229,
+                    "text": "资料分享",
+                    "layout": null
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "ciar2nae5z40",
+                            "created": 1646363274985,
+                            "text": "专业学科资料"
+                        },
+                        "children": [
+                            {
+                                "data": {
+                                    "id": "ciarb56chsw0",
+                                    "created": 1646363940836,
+                                    "text": "数学"
+                                },
+                                "children": []
+                            },
+                            {
+                                "data": {
+                                    "id": "ciarb7rpd6o0",
+                                    "created": 1646363946480,
+                                    "text": "英语"
+                                },
+                                "children": []
+                            },
+                            {
+                                "data": {
+                                    "id": "ciarbbypdco0",
+                                    "created": 1646363955611,
+                                    "text": "政治"
+                                },
+                                "children": []
+                            },
+                            {
+                                "data": {
+                                    "id": "ciarbe8aks00",
+                                    "created": 1646363960544,
+                                    "text": "专业课"
+                                },
+                                "children": []
+                            }
+                        ]
+                    },
+                    {
+                        "data": {
+                            "id": "ciar2zlpx5c0",
+                            "created": 1646363301791,
+                            "text": "院校信息"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciar3h3pa3k0",
+                            "created": 1646363339884,
+                            "text": "复试资料"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciara7hheeg0",
+                            "created": 1646363867498,
+                            "text": "考试技巧"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "ciaqqxj8p2w0",
+                    "created": 1646362356918,
+                    "text": "资料/资讯获取",
+                    "layout_mind_offset": {
+                        "x": -40,
+                        "y": -48
+                    },
+                    "layout": null
+                },
+                "children": []
+            },
+            {
+                "data": {
+                    "id": "ciaqtx7s9fc0",
+                    "created": 1646362591317,
+                    "text": "用户中心",
+                    "layout_mind_offset": {
+                        "x": 479,
+                        "y": -180
+                    },
+                    "layout": null
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "ciar1llv62w0",
+                            "created": 1646363192961,
+                            "text": "信息编辑/修改"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciar1te25tc0",
+                            "created": 1646363209903,
+                            "text": "评论管理"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciar223qux40",
+                            "created": 1646363228870,
+                            "text": "发布的资料管理"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciar2c03oq00",
+                            "created": 1646363250418,
+                            "text": "订阅"
+                        },
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "ciaqu1li6k00",
+                    "created": 1646362600854,
+                    "text": "经验交流(论坛)",
+                    "layout_mind_offset": {
+                        "x": 627,
+                        "y": 82
+                    },
+                    "layout": null
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "ciar7j7pvqg0",
+                            "created": 1646363657937,
+                            "text": "针对资料进行评论"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "ciar7uohb3s0",
+                            "created": 1646363682895,
+                            "text": "针对特定话题(模块)发表经验"
+                        },
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    },
+    "template": "default",
+    "theme": "fresh-blue",
+    "version": "1.4.43"
+}

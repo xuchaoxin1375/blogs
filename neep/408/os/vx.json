@@ -1,0 +1,54 @@
+{
+    "created_time": "2022-06-29T23:28:03Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:03Z",
+            "id": "442",
+            "modified_time": "2022-06-29T23:28:03Z",
+            "name": "bankerAlgorithm.md",
+            "signature": "110640014090243",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:03Z",
+            "id": "443",
+            "modified_time": "2022-06-29T23:28:03Z",
+            "name": "exercise5.md",
+            "signature": "81159358570499",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:03Z",
+            "id": "444",
+            "modified_time": "2022-06-29T23:28:03Z",
+            "name": "IO.md",
+            "signature": "20046268915715",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:04Z",
+            "id": "460",
+            "modified_time": "2022-06-29T23:28:04Z",
+            "name": "TLB.md",
+            "signature": "97037852663812",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+        {
+            "name": "OS"
+        }
+    ],
+    "id": "441",
+    "modified_time": "2022-06-29T23:28:03Z",
+    "signature": "84659756916739",
+    "version": 3
+}

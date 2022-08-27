@@ -1,0 +1,1 @@
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qpicture 1(images/02ffe2716be804b32fc08213d6bfc4dd39472e8631a9c7d3f9c69a914d5d6721.\\E$"}
