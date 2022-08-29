@@ -1,4 +1,6 @@
+@[toc]
 ## 重要极限
+
 $$
 \lim_{x\rightarrow 0}{\frac{sin(x)}{x}}=1
 \\
@@ -274,12 +276,12 @@ $$
 ### 凑微分
 
 #### 常用配凑技巧
-
 $$
-dx=a\cdot d\frac{x}{a}
-\\dx=d(x\pm a)
+dx=\frac{1}{a}d(ax)或者dx=a\cdot d\frac{x}{a}
+\\dx=d(x\pm a)或者dx=-d(a-x)
 \\sinxdx=d(-cosx)=-d(cosx)
 \\cosxdx=d(sinx)
+\\xdx=d({\frac{1}{2}x^2})=\frac{1}{2}dx^2
 $$
 
 - $+0\Leftrightarrow(+a-a)=(-a+a)$
@@ -297,7 +299,7 @@ $$
   &\int \frac{1}{x}dx=\int x^{-1}dx=ln|x|+C\\
   &\int \frac{1}{x^2}dx=\int x^{-2}dx=-x^{-1}+C=-\frac{1}{x}+C\\
   &\int \frac{1}{\sqrt{x}}dx=\int x^{-\frac{1}{2}}dx=2x^{\frac{1}{2}}+C=2\sqrt{x}+C\\
-  &\int \sqrt{x} dx=\int x^{\frac{1}{2}}dx=\frac{2}{3}x^{\frac{3}{2}}
+  &\int \sqrt{x} dx=\int x^{\frac{1}{2}}dx=\frac{2}{3}x^{\frac{3}{2}}+C
   \end{aligned}
   \quad
   \begin{aligned}
