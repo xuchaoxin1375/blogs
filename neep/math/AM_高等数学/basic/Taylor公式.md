@@ -1,13 +1,7 @@
 @[toc]
-
-
-
 ## 泰勒级数(series)&泰勒多项式
 
 ![image-20220706113309910](https://img-blog.csdnimg.cn/img_convert/961fb783fae0e310b511037c85fccaa5.png)
-
-> power series:幂级数 
-
 - 实际应用中，泰勒级数需要截断，只取有限项，可以用[泰勒定理](https://zh.wikipedia.org/wiki/泰勒定理)估算这种近似的误差。
 - 一个函数的有限项的泰勒级数叫做[泰勒多项式](https://zh.wikipedia.org/wiki/泰勒多項式)。
   - 譬如n次泰勒多项式
@@ -77,17 +71,28 @@ $$
 \\每个等式可以求解出一个项a_i,a_i是关于f^{(i)}的表达式
 $$
 
+
 ### 高阶导数
 
 #### 高阶导数求导法则和常见的高阶导数公式
 
-![image-20220706154402509](https://raw.githubusercontent.com/xuchaoxin1375/pictures/main/imagesimage-20220706154402509.png)
+![image-20220706154402509](https://img-blog.csdnimg.cn/img_convert/0feef97b4516bc962ae14a5320c375bd.png)
 
-求
+- | n(deriv(n)) | $f(x)=\frac{1}{x}=x^{-1}$                              |
+  | ----------- | ------------------------------------------------------ |
+  | 1           | $-1x^{-2}$                                             |
+  | 2           | $(-1)(-2)x^{-3}$                                       |
+  | 3           | $(-1)(-2)(-3)x^{-4}$                                   |
+  | ...         | ...                                                    |
+  | n           | $(-1)(-2)(-3)\cdots(-n)x^{-(n+1)}=(-1)^n n!x^{-(n+1)}$ |
+  
+  
+
+
 $$
 求sin(kx)的高阶导数时,利用诱导公式cos(\phi(x))=sin(\frac{\pi}{2}+\phi(x))
 \\
-求sin(kx)的高阶导数时,利用-sin(\phi(x))=cos(\phi(x)+\frac{\pi}{2})
+求cos(kx)的高阶导数时,利用-sin(\phi(x))=cos(\phi(x)+\frac{\pi}{2})
 $$
 
 
@@ -118,7 +123,6 @@ $$
 便得:
 \\((x+a)^k)^{(k)}=k!
 $$
-
 #### $P_i的k阶导数$
 
 $$
@@ -275,7 +279,6 @@ $$
 
 
 $$
-\\
 \def\ltzero{\lim_{x\rightarrow 0}} 
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
@@ -297,7 +300,6 @@ $$
 - 其中,极限转换为导数的过程:
 
 $$
-\\
 \def\ltzero{\lim_{x\rightarrow 0}} 
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
@@ -510,7 +512,7 @@ $$
 
 
 
-## 常用的函数:麦克劳林级数
+## 常用数:麦克劳林级数
 
 ### 几何级数
 
@@ -533,9 +535,3 @@ $$
 ### 三角函数
 
 ![image-20220706113800982](https://img-blog.csdnimg.cn/img_convert/9fc3c908fbff500b944794f6dd43dcbd.png)
-
-
-
-
-
-

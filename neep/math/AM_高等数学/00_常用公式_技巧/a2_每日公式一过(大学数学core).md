@@ -254,8 +254,11 @@ $$
 
   - 它的通项和sinx的展开式十分相似,除了分母少了一个阶乘号,几乎一样
 
+### 配亚诺型余项
 
 ![image-20220705092218320](https://img-blog.csdnimg.cn/img_convert/78a27f367d56eb799835ca5c8283607b.png)
+
+### 拉格朗日型余项
 
 ![image-20220705092611036](https://img-blog.csdnimg.cn/img_convert/d8c13424f5b5825895ab7ae17a09a778.png)
 
