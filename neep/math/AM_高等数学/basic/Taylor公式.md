@@ -35,7 +35,7 @@
 
 ### $i阶逼近函数P_i$
 
-- 
+-
 
   - $$
     n阶逼近函数P_n表示为多项式:
@@ -48,9 +48,9 @@
 
 - [Zero to the power of zero - Wikipedia](https://en.wikipedia.org/wiki/Zero_to_the_power_of_zero)
 
-  - **Zero to the power of zero**, denoted by $0^0=1$, is a [mathematical expression](https://en.wikipedia.org/wiki/Expression_(mathematics)) with no agreed-upon [value](https://en.wikipedia.org/wiki/Value_(mathematics)). 
+  - **Zero to the power of zero**, denoted by $0^0=1$, is a [mathematical expression](https://en.wikipedia.org/wiki/Expression_(mathematics)) with no agreed-upon [value](https://en.wikipedia.org/wiki/Value_(mathematics)).
 
-  - The most common possibilities are [1](https://en.wikipedia.org/wiki/1#Mathematics) or leaving the expression [undefined](https://en.wikipedia.org/wiki/Undefined_(mathematics)), with justifications existing for each, depending on context. In [algebra](https://en.wikipedia.org/wiki/Algebra) and [combinatorics](https://en.wikipedia.org/wiki/Combinatorics), the generally agreed upon value is $0^0 = 1$, whereas in [mathematical analysis](https://en.wikipedia.org/wiki/Mathematical_analysis), the expression is sometimes left undefined. 
+  - The most common possibilities are [1](https://en.wikipedia.org/wiki/1#Mathematics) or leaving the expression [undefined](https://en.wikipedia.org/wiki/Undefined_(mathematics)), with justifications existing for each, depending on context. In [algebra](https://en.wikipedia.org/wiki/Algebra) and [combinatorics](https://en.wikipedia.org/wiki/Combinatorics), the generally agreed upon value is $0^0 = 1$, whereas in [mathematical analysis](https://en.wikipedia.org/wiki/Mathematical_analysis), the expression is sometimes left undefined.
 
   - Computer programming languages and software also have [differing ways](https://en.wikipedia.org/wiki/Zero_to_the_power_of_zero#Treatment_on_computers) of handling this expression.
 
@@ -63,8 +63,11 @@
     $$
 
 $$
-\\P_n^{(i)}{(x_0)}=f^{(i)}{(x_0)} \tag{cf\ (constraint family(i)}
+\\P_n^{(i)}{(x_0)}=f^{(i)}{(x_0)} \tag{cf}
 $$
+
+
+
 
 $$
 这里将i\in N^*的各个i值带入上式(cf),可以得到一系列的约束等式,
@@ -76,74 +79,11 @@ $$
 
 #### 高阶导数求导法则和常见的高阶导数公式
 
-![image-20220706154402509](https://img-blog.csdnimg.cn/img_convert/0feef97b4516bc962ae14a5320c375bd.png)
-
-- | n(deriv(n)) | $f(x)=\frac{1}{x}=x^{-1}$                              |
-  | ----------- | ------------------------------------------------------ |
-  | 1           | $-1x^{-2}$                                             |
-  | 2           | $(-1)(-2)x^{-3}$                                       |
-  | 3           | $(-1)(-2)(-3)x^{-4}$                                   |
-  | ...         | ...                                                    |
-  | n           | $(-1)(-2)(-3)\cdots(-n)x^{-(n+1)}=(-1)^n n!x^{-(n+1)}$ |
-  
-  
+- 参见:<a href="https://blog.csdn.net/xuchaoxin1375/article/details/126746469">math_高阶导数求导法则和公式_xuchaoxin1375的博客-CSDN博客</a>
 
 
-$$
-求sin(kx)的高阶导数时,利用诱导公式cos(\phi(x))=sin(\frac{\pi}{2}+\phi(x))
-\\
-求cos(kx)的高阶导数时,利用-sin(\phi(x))=cos(\phi(x)+\frac{\pi}{2})
-$$
-
-
-#### 对于$(x+a)^k$形式的高阶导数$((x+a)^k)^{(n)}$
-
-$$
-(x^n)^{(n)}=n!;
-\\(x^n)^{(n+1)}=0
-\\可以得到
-\\
-((x+a)^n)^{(n)}
-=(\sum\limits_{i=0}^{n}{x^{i}a^{n-i}}))^{(n)}=1\cdot (x^{n})^{(n)}=n!
-$$
-
-
-$$
-更一般的,我们可以推导:
-\\
-记y=(x+a)^k
-\\y^{(n)}=((x+a)^k)^{(n)}
-\\1\leqslant n\leqslant k;k,n\in N^+时,
-\\((x+a)^k)^{(n)}=\frac{k!}{(k-n)!}(x+a)^{k-n}
-=P^{n}_{k}{(x+a)}^{k-n}
-$$
-
-$$
-\\特别的,当n=k时,(常数a的值在此时无关紧要)
-便得:
-\\((x+a)^k)^{(k)}=k!
-$$
-#### $P_i的k阶导数$
-
-$$
-P_i(x)=a_0+\sum\limits_{k=1}^{n}
-{a_k}(x-x_0)^{k};
-$$
-
-
-$$
-对于i阶逼近函数P_i,对其求k阶导数;
-\\
-P_i^{(k)}(x_0)=0+\sum\limits0+a_{k}k!+\sum\limits0=a_kk!
-\\
-根据约束条件
-\\=f^{(k)}{(x_0)}
-\\从而得到a_k=\frac{f^{(k)}{(x_0)}}{k!}
-$$
-
-
-
-### 泰勒多项式$P_n$ $函数f(x)在点x=x_0处的\mathbb{n次Taylor多项式}$
+### 泰勒多项式
+- $P_n$ $函数f(x)在点x=x_0处的\mathbb{n次Taylor多项式}$
 
 ####  $a_k:逼近函数P_i各项系数a_k的值$
 
@@ -167,13 +107,13 @@ $$
 a_k=\frac{f^{(k)}{(x_0)}}{k!}
 $$
 
-#### 系数特点
+##### 系数特点
 
 - 可见,$a_k$$是关于f(x)在x_0处的k阶导数f^{(k)}(x_0)z以及k!的表达式$
 
 - 多项式中的各项**系数**有相同的特点:包含两个部分
-  - k阶导
-  - k阶乘
+  - $k阶导$
+  - $k阶乘$
 
 #### 通项
 
@@ -189,7 +129,7 @@ $$
     \\
     R_n(x)=T(x_0,n+1,\xi)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1}
     $$
-    
+
 
 
 
@@ -224,7 +164,7 @@ $$
     \end{cases}
     $$
 
-    
+
 
 - 佩亚诺(Peano)型余项
 
@@ -234,11 +174,11 @@ $$
     \\R_n(x)=o((x-x_0)^n)
     $$
 
-    
+
 
 公式宏定义(部分编辑器不支持,则导致公式无法渲染,typora 支持)
 $$
-\def\ltzero{\lim_{x\rightarrow 0}} 
+\def\ltzero{\lim_{x\rightarrow 0}}
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
 \def\ltxi#1{\lim_{x\rightarrow x_{#1}}}
@@ -268,7 +208,7 @@ $$
 #### 余项和无穷小的关系
 
 $$
-\def\ltzero{\lim_{x\rightarrow 0}} 
+\def\ltzero{\lim_{x\rightarrow 0}}
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
 \def\ltxi#1{\lim_{x\rightarrow x_{#1}}}
@@ -279,7 +219,7 @@ $$
 
 
 $$
-\def\ltzero{\lim_{x\rightarrow 0}} 
+\def\ltzero{\lim_{x\rightarrow 0}}
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
 \def\ltxi#1{\lim_{x\rightarrow x_{#1}}}
@@ -300,7 +240,7 @@ $$
 - 其中,极限转换为导数的过程:
 
 $$
-\def\ltzero{\lim_{x\rightarrow 0}} 
+\def\ltzero{\lim_{x\rightarrow 0}}
 \def\ltxzero#1{\lim_{x\rightarrow x_0}}
 \def\ltx#1{\lim_{x\rightarrow #1}}
 \def\ltxi#1{\lim_{x\rightarrow x_{#1}}}
@@ -320,13 +260,13 @@ $$
 
 
 
-### 泰勒公式
+### 泰勒(展开)公式(抽象公式)
 
 
 $$
 f(x)=P_n(x)+R_n(x)
 \\从程序设计的角度,为了强调x_0对公式的影响,可以写作
-\\\bigstar\ 
+\\\bigstar\
 f(x)=g(x,x_0,\xi)=P_n(x,x_0)+R_n(x,x_0,\xi);(constant\ \xi \in (x_0,x))
 $$
 
@@ -351,7 +291,7 @@ $$
 $$
 
 
-### 麦克劳林(Maclaurin)公式
+### 麦克劳林(Maclaurin)公式(抽象公式)
 
 当泰勒公式
 $$
@@ -389,7 +329,7 @@ $$
 \\则,R_{n}{(x)}=\frac{f^{(n+1)}(\theta x)x^{n+1}}{(n+1)!}
 $$
 
-### 泰勒公式(麦克劳林公式)的应用
+### 展开公式相关的应用
 
 #### $sin(x)带有largrange型余项的n阶maclaurin公式(展开)$
 
@@ -414,7 +354,7 @@ $$
   \\f(x)=x-\frac{x^3}{3!}+\frac{x^5}{5!}+\cdots
   $$
 
-  
+
 
   | k                          | 1              | 2                | 3                  | 4                | 5                  | 6              | ...  | n=2m |
   | -------------------------- | -------------- | ---------------- | ------------------ | ---------------- | ------------------ | -------------- | ---- | ---- |
@@ -447,25 +387,25 @@ $$
   $$
   sinx\approx x
   $$
-  
+
 
   $此时用P(x)=x估算f(x)=sin(x)产生的误差为$:
   $$
   |R_2|=|-\frac{cos(\theta x)}{3!}x^3|\leqslant\frac{|x^3|}{6}
   $$
-  
+
 
   可见,当要估算的f(x),x取值较小的时候,使用P(x)=x估算f(x)=sin(x)差生的误差很有限
 
   当x取值较大时,误差上限会变大,估算效果可能很不靠谱,这时,可以考虑使用高阶的逼近函数
 
-  
+
 
   m=2;得到
   $$
   sinx\approx x-\frac{1}{3!}x^3
   $$
-  
+
 
   m=3;得到
   $$
@@ -512,9 +452,9 @@ $$
 
 
 
-## 常用数:麦克劳林级数
-
-### 几何级数
+## 常见函数的幂级数(series)展开(具体公式):
+- 麦克劳林形式比较常见
+### 几何级数(等比级数)
 
 $$
 \frac{1}{1-x}=\sum\limits_{n=0}^{\infin}x^n=1+x+x^2+\cdots+x^n;\forall x:|x|<1
@@ -535,3 +475,24 @@ $$
 ### 三角函数
 
 ![image-20220706113800982](https://img-blog.csdnimg.cn/img_convert/9fc3c908fbff500b944794f6dd43dcbd.png)
+#### 特点
+- 三角函数的幂级数展开公式的累加下限大多从$n=0$开始计算
+  - 注意到两个公差$d=2$的数列:($n=0,1,2,...$)
+  - 借助这几个序列,我们可以快速地准确地流水地写出幂级数展开式`😁😎☆*: .｡. o(≧▽≦)o .｡.:*☆`
+- 
+  $$
+    \begin{cases}
+    {p=2n}=0,2,4,6,...
+    \\
+    {q=2n+1}=1,3,5,7,...
+  \end{cases}
+  $$
+  交错符号sg(n);
+  $sg=(-1)^n=1,-1,1,-1,...$
+- 两个交错级数可以写成
+  $cosx=\sum\limits_{n=0}^{\infin}\frac{(-1)^{n}}{p!}\cdot x^{p}$
+  $sinx=\sum\limits_{n=0}^{\infin}\frac{(-1)^{n}}{q!}\cdot x^{q}$
+  $进一步,可以抽象出T(t)=\sum\limits_{n=0}^{\infin}\frac{(-1)^{n}}{t!}\cdot x^{t}
+  ,cosx=T(p)=T(2n),sinx=T(q)=T(2n+1)$
+- $最后,流水的写出展开式的各项的因子:$
+  - $符号sg,系数绝对值\frac{1}{t!},x的幂x^t;$
