@@ -2,6 +2,9 @@
 
 ## cdn加速
 
+- **内容分发网络**（英语：**C**ontent **D**elivery **N**etwork或**C**ontent **D**istribution **N**etwork，缩写：**CDN**）
+  - 是指一种透过[互联网](https://zh.wikipedia.org/wiki/互聯網)互相连接的电脑网络系统，利用**最靠近每位用户的服务器**，更快、更可靠地将音乐、图片、视频、应用程序及其他文件发送给用户，来提供高性能、可扩展性及低成本的网络内容传递给用户
+
 - [jsDelivr - A free, fast, and reliable CDN for open source](https://www.jsdelivr.com/)
 
 - [Content delivery network - Wikipedia](https://en.wikipedia.org/wiki/Content_delivery_network)
@@ -69,14 +72,27 @@
 3. **增加内容可用性和冗余** – 大流量或硬件故障可能会扰乱正常的网站功能。由于 CDN 具有分布式特性，因此与许多源服务器相比，CDN 可以处理更多流量并更好地承受硬件故障。
 4. **改善网站安全性** – CDN 可以通过提供 [DDoS 缓解](https://www.cloudflare.com/learning/ddos/ddos-mitigation/)、安全证书的改进以及其他优化措施来提高安全性。
 
+- 内容分发网络的总承载量可以比单一骨干最大的带宽还要大。这使得内容分发网络可以承载的用户数量比起传统单一服务器多。也就是说，若把有100Gbps处理能力的服务器放在只有10Gbps带宽的数据中心，则亦只能发挥出10Gbps的承载量。但如果放到十个有10Gbps的地点，整个系统的承载量就可以到10*10Gbps。
 
+- 同时，将服务器放到不同地点，可以减少互连的流量，进而降低带宽成本。
 
-### CDN 如何工作？
+- 对于[TCP](https://zh.wikipedia.org/wiki/传输控制协议)传输而言，TCP的速度（throughput）会受到延迟时间（latency）与数据包漏失率（packet loss）影响。
+  - 为了改善这些负面因素，内容分发网络通常会指派较近、较顺畅的服务器节点将资料传输给用户。
+  - 虽然距离并不是绝对因素，但这么做可以尽可能提高性能，用户将会觉得比较顺畅。
+  - 这使得一些比较高带宽的应用（传输[高清视频](https://zh.wikipedia.org/w/index.php?title=高清影片&action=edit&redlink=1)）更容易推动。
+
+- 内容分发网络另外一个好处在于有异地备援。当某个服务器故障时，系统将会调用其他邻近地区的服务器服务，进而**提供接近100%的可靠度**。
+- 除此之外，内容分发网络提供给服务提供者**更多的控制权**。提供服务的人可以针对客户、地区，或是其他因子调整。
+
+### CDN 技术&如何工作？
 
 - CDN 的核心是一个服务器网络，目的是尽可能快速、便宜、可靠和安全地交付内容。
 - 为了提高速度和连接性，CDN 会将服务器放置在不同网络之间的交换点。
+  - 这些[互联网交换点（IXP）](https://www.cloudflare.com/learning/cdn/glossary/internet-exchange-point-ixp/)是不同互联网提供商连接的主要位置，以便彼此提供对来自其不同网络的流量的访问。
+  - 这些节点之间会动态的互相传输内容，对用户的下载行为优化，并借此减少内容供应者所需要的带宽成本，改善用户的下载速度，提高系统的稳定性。
+  - 内容分发网络所需要的节点数量随着需求而不同，依照所需要服务的对象大小，有可能有数万台服务器。
+    - 服务器的运作方式一般是基于[nginx](https://zh.wikipedia.org/wiki/Nginx)的模式，也就是仅仅缓存网站的静态内容，不过，随着2017年世界各地CDN服务商纷纷推出HTTPS加速功能，运作方式也变得略有不同，变成了nginx+SNI（一个CDN节点上可以借此技术绑定N个域名），同时，[BGP](https://zh.wikipedia.org/wiki/BGP) [anycast](https://zh.wikipedia.org/wiki/Anycast)技术也逐渐引入了CDN领域中。
 
-- 这些[互联网交换点（IXP）](https://www.cloudflare.com/learning/cdn/glossary/internet-exchange-point-ixp/)是不同互联网提供商连接的主要位置，以便彼此提供对来自其不同网络的流量的访问。
 - 通过连接到这些高速且高度互连的位置，CDN 提供商可以减少高速数据传输中的成本和传输时间。
 
 ![什么是 CDN](https://cf-assets.www.cloudflare.com/slt3lc6tev37/540CpDkqSDg6QAPi5nO1AP/b44a3edb5abc4e115ddab9b4d9bf7a32/Learning-How-does-a-CDN-work.svg)
