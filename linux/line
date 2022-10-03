@@ -1,7 +1,0 @@
-$ ./bootstrap
-$ export CFLAGS=-DNO_TRUE_COLOURS=1 # Execute this line _only_ if your terminal doesn't support true colours
-$ export CC=clang CXX=clang++
-$ ./configure --prefix=/opt/coreutils
-$ make
-$ make install
-$ /opt/coreutils/bin/ls

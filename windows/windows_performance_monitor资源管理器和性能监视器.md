@@ -1,3 +1,4 @@
+
 @[toc]
 # windows_性能监视器&资源监视器&任务管理器:指标阅读与使用
 
@@ -83,7 +84,7 @@
 - On some computers, processors are **organized** in **NUMA nodes** that share hardware resources such as physical memory. 
 - The Processor Information counter set represents each processor as **a pair of numbers**, where
   -  **the first number is the NUMA node number** and 
-  - t**he second number is the zero-based index of the processor within that NUMA node**. 
+  - **the second number is the zero-based index of the processor within that NUMA node**. 
 - If the computer does not use NUMA nodes, **the first number is zero.**
 
 #### C1 Times
@@ -102,7 +103,7 @@
 #### Processor Time
 
 - % Processor Time is the percentage of **elapsed time** that the processor spends to **execute** a **non-Idle thread**.
--  It is calculated by measuring **the percentage of time that the processor spends executing the idle thread **and then subtracting that value from 100%.
+-  It is calculated by measuring **the percentage of time that the processor spends executing the idle thread** and then subtracting that value from 100%.
 -  (Each **processor** has an **idle thread** to which **time** is **accumulated** when <u>no other threads are ready to run</u>). 
 - This counter is **the primary indicator of processor activity**, and displays **the average percentage** of busy time <u>observed during the sample interval.</u>
 -  It should be noted that the accounting calculation of whether the processor is idle is performed at an internal sampling interval of the system **clock tick**. 
@@ -119,7 +120,7 @@
 
 #### Processor Utility 
 
-- **Processor Utility **is <u>the amount of work</u> a processor is **completing**, as a **percentage** of the amount of work the processor could complete <u>if it were running at its nominal performance and never idle</u>.
+- **Processor Utility** is <u>the amount of work</u> a processor is **completing**, as a **percentage** of the amount of work the processor could complete <u>if it were running at its nominal performance and never idle</u>.
 -  On some processors, **Processor Utility may exceed 100%.**
 
 #### Processor Frequency
@@ -135,17 +136,7 @@
 - windows 希望至少分配400MB的虚拟内存用于系统记录错误
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/dc0ad8b49c3f4b2cbcc3d9066f955241.png)
 
-##  android 内存管理
-- [进程间的内存分配  | Android 开发者  | Android Developers](https://developer.android.com/topic/performance/memory-management)
-	- Android 设备包含三种不同类型的内存：RAM、zRAM 和存储器。请注意，CPU 和 GPU 访问同一个 RAM。
-	![在这里插入图片描述](https://img-blog.csdnimg.cn/19ea0da8572342f595380dd5d8226aef.png)
+## android 内存管理
 
+- [android 内存管理客](https://blog.csdn.net/xuchaoxin1375/article/details/127108972?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"127108972"%2C"source"%3A"xuchaoxin1375"})
 
--  [How much RAM do I need in my phone in 2022? We have the answer. (androidauthority.com)](https://www.androidauthority.com/how-much-ram-do-i-need-phone-3086661/)          
-  - 内容:                                                                                
-    - How much RAM does your Android phone really need in 2022?
-      - RAM vs swap space: Memory management explained
-      - Testing to find the ideal amount of RAM
-	      - Galaxy S21 Ultra and Pixel 3XL tests
-	      - OnePlus 9 Pro test
-      - how much RAM do you need on your Android phone?
