@@ -1,0 +1,11 @@
+[
+    {
+        "name": "nfc",
+        "description": "switch nfc(开关)",
+        "priority": 2,
+        "condition": "if(shortcutLaunched == true && shortcutValue == \"NFC\"&& hw.isNfcEnabled() == false){(ui.showShortToast(\"打开NFC\") + hw.enableNfc())}else if (shortcutLaunched == true && shortcutValue == \"NFC\"&& hw.isNfcEnabled() == true) {(ui.showShortToast(\"关闭NFC\")+hw.disableNfc())}",
+        "actions": [
+            "ui.showShortToast(\"NFC状态切换完成!🙂😋😋😊\")"
+        ]
+    }
+]
