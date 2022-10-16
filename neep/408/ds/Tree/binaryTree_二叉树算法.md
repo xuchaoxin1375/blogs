@@ -5,7 +5,7 @@
 
 ![image-20220926151355527](https://img-blog.csdnimg.cn/img_convert/72e7f20c2f50756d25f382c4f1f65e7a.png)
 
-![image-20220926151450178](https://img-blog.csdnimg.cn/img_convert/778daaf35b01d14a9a70f19508fbb03.png)
+![image-20220926151450178](https://img-blog.csdnimg.cn/img_convert/778daaf3b5b01d14a9a70f19508fbb03.png)
 
 - pre (NLR)=A{B(DHI)(EJK)}{C(FLM)(GNO)}:$\angle$
   - ![image-20220926155205000](https://img-blog.csdnimg.cn/img_convert/e3957f28d343e14ce43dda5fdfae5ca2.png)

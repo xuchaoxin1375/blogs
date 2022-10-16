@@ -337,27 +337,64 @@ $$
       \end{cases}
       $$
 
-      
 
-    - 注意,一般的
-      $$
-      当x\in\mathbb{Z}时,\lfloor x \rfloor=\lceil x \rceil
-      \\x\notin\mathbb Z时,\lfloor x \rfloor+1 =\lceil x \rceil
-      $$
-      
-      $$
-      上面的公式中,\log_2{n+1}>\log_2 n;
-      \\当\log_2 n\in \mathbb{Z}时,\log_2 n<\log_2 {(n+1)}\leqslant(\log_2 {n})+1
-      =\log_2 2n
-      \\当且仅当n=1时上式可以取等号
-      \\令y=2n-(n+1)=n-1;在n\in\mathbb N^+范围内y\geqslant0
-      \\当且仅当n=1时上式可以取等号
-      \\因此仍然有\lceil\log_2(n+1)\rceil=\lfloor \log_2 n\rfloor+1
-      $$
+#### 取整函数的性质
+
+- 注意,一般的
+  $$
+  当x\in\mathbb{Z}时,\lfloor x \rfloor=\lceil x \rceil
+  \\x\notin\mathbb Z时,\lfloor x \rfloor+1 =\lceil x \rceil
+  $$
+
+  $$
+  上面的公式中,\log_2{n+1}>\log_2 n;
+  \\当\log_2 n\in \mathbb{Z}时,\log_2 n<\log_2 {(n+1)}\leqslant(\log_2 {n})+1
+  =\log_2 2n
+  \\当且仅当n=1时上式可以取等号
+  \\令y=2n-(n+1)=n-1;在n\in\mathbb N^+范围内y\geqslant0
+  \\当且仅当n=1时上式可以取等号
+  \\因此仍然有\lceil\log_2(n+1)\rceil=\lfloor \log_2 n\rfloor+1
+  $$
 
 
       - 抽查验证:
         - 构建一棵3层以内的矮树,验证临界结点
+
+
+
+### 有u个叶子结点的二叉树的高度问题
+
+- $$
+  假设叶子结点处于第h层
+  \\h层结点数量满足u\leqslant 2^{h-1}
+  那么可以得到\log_2u\leqslant h-1
+  $$
+
+  
+  $$
+  1+\log_2u\leqslant h\tag{base}
+  $$
+  
+  $$
+  \\由于h一定是一个整数,我们可以对不等式坐标进行取整(进行放缩)
+  \\根据取整函数的性质:
+  \\floor(x)\leqslant x\leqslant ceil(x)
+  \\当且仅当x\in \mathbb{Z}可以取等号(而且两个同时取等)
+  \\floor(x)+1\leqslant x+1\leqslant ceil(x)+1
+  \\(\log_2u)+1 \leqslant ceil(\log_2u)+1\leqslant h
+  \\h不应取floor(\log_2u)+1,因为这可能违背了base式
+  $$
+  
+
+- 因此
+
+  - $$
+    h\geqslant 1+ceil(\log_2u)
+    $$
+
+    
+
+  
 
 ### 具有n个结点的m叉树的高度问题
 

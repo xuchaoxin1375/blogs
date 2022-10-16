@@ -87,7 +87,95 @@ USER_SITE: '/home/cxxu/.local/lib/python3.6/site-packages' (doesn't exist)
 ENABLE_USER_SITE: True
 ```
 
-## pip安装到/usr/local/lib/python3.xx/dist-packages 还是/home/user_name/.local/site-package?
+
+
+### 利用软连接(symlink)强制修改python包的存放路径
+
+- 这是一种优雅的修改路径的方式,对于一般的软件也有效果
+
+  - 它不需要软件自身支持(提供)修改依赖存放路径的入口
+  - 对于android studio的依赖也可以类似的处理
+
+- ```bash
+  
+          Directory: C:\Users\cxxu\AppData\Roaming
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  l----        10/10/2022   4:03 PM                  python  D:\pythonPacks_Home_Conv
+  ```
+
+  
+
+- 下面讲怎么做的
+
+  
+
+
+
+#### 创建软连接函数代码(powershell 7 version)
+
+```powershell
+    param(
+        $Path,
+        $Target,
+        $IsSudo = ''
+    )
+    Write-Output 'if failed(access Denied), please run the terminal with administor permission.(考虑到部署的门槛，scoope未必可用，您需要手动打开带有管理员权限的terminal进行操作（而不在这里使用sudo;这里提供了参数，您可以传入sudo选项）'
+    if (Test-Path $path)
+    {
+        Remove-Item -Force -Verbose $path
+        Write-Output 'removing the existing dir/symbolicLink!'
+        countdown_timer;
+    }
+    if ($IsSudo -eq '')
+    {
+
+        New-Item -Verbose -Force -ItemType junction -Path $Path -Target (getAbsolutePath $Target)
+    }
+    else
+    {
+        sudo New-Item -Verbose -Force -ItemType junction -Path $Path -Target $Target
+    }
+
+```
+
+
+
+- 将其粘贴到powershell 7+,然后就可以利用`junction`来创建软连接了
+- 例如,在当前目录创建软连接指向:`junction python $pythonPacks_Home_Conv`
+
+### 检查效果
+
+- 现在检查效果:
+
+  - ```bash
+    PS C:\Users\cxxu\AppData\Roaming> python -m site
+    sys.path = [
+        'C:\\Users\\cxxu\\AppData\\Roaming',
+        'D:\\Program Files\\Python310\\python310.zip',
+        'D:\\Program Files\\Python310\\DLLs',
+        'D:\\Program Files\\Python310\\lib',
+        'D:\\Program Files\\Python310',
+        'C:\\Users\\cxxu\\AppData\\Roaming\\Python\\Python310\\site-packages',
+        'C:\\Users\\cxxu\\AppData\\Roaming\\Python\\Python310\\site-packages\\win32',
+        'C:\\Users\\cxxu\\AppData\\Roaming\\Python\\Python310\\site-packages\\win32\\lib',
+        'C:\\Users\\cxxu\\AppData\\Roaming\\Python\\Python310\\site-packages\\Pythonwin',
+        'D:\\Program Files\\Python310\\lib\\site-packages',
+    ]
+    ```
+
+  - 看似没有变化,但其实具有`C:\\Users\\cxxu\\AppData\\Roaming\\Python`的后面几条路径都被指向变量`$pythonPacks_Home_Conv`所代表的路径
+
+    - 我的实际情况,该值等于`D:\pythonPacks_Home_Conv`
+    - 哪里存放这用使用的所有python包,比如通过pip下载的包,都将引导到该目录下,占用的不是原来目录下(C盘的空间)
+
+
+
+## pip安装到哪里?(linux)
+
+- <u>/usr/local/lib/python3.xx/dist-packages 还是/home/user_name/.local/site-package?</u>
 
 ###  root用户下安装python
 
