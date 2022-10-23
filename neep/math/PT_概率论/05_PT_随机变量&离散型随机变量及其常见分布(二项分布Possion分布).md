@@ -253,6 +253,7 @@
 - 大量试验中的稀有事件的发生次数,近似的用Possion分布描述
 - $P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!}$
   - $k=0,1,\cdots$
+    - $k\in\mathbb{N^*}$
   - $常数\lambda>0$
   - $X服从参数为\lambda的Possion分布:X\sim  P(\lambda)$
 

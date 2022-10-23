@@ -1,28 +1,127 @@
 @[toc]
-# linux_supplement of man(manpages)/获取linux命令用法示例的若干辅助命令行工具/网站/linux_python/pip检查
-
-
-
-> - bropages
->
->   DESCRIPTION:
->
->     Highly readable supplement to man pages.
->
->     Shows simple, concise examples for commands.
+# linux_命令行助手:(manpages supplement)/获取linux命令用法示例的若干辅助命令行工具(cheat/tldr)
 
 ## references
 
-- [Good Alternatives To Man Pages Every Linux User Needs To Know (ostechnix.com)](https://ostechnix.com/3-good-alternatives-man-pages-every-linux-user-know/)
-  - 简单的安装ruby:[How to Install Ruby on Ubuntu 20.04 {Step-by-Step} (phoenixnap.com)](https://phoenixnap.com/kb/install-ruby-ubuntu)
-- [Install Cheat Command on Ubuntu 20.04 - kifarunix.com](https://kifarunix.com/install-cheat-command-on-ubuntu-20-04/)
-- cheat vs tldr:[cheat vs tldr - compare differences and reviews? | LibHunt](https://www.libhunt.com/compare-cheat-vs-tldr)
+- [CLI cheat sheets - which one do you prefer? | Linux.org](https://www.linux.org/threads/cli-cheat-sheets-which-one-do-you-prefer.21422/)
 
-## #安装bropages(gem&ruby based)
+- [linux_/linux_python报警warning/pip检查/提示找不到pip安装的包/将python包安装路径加入到系统变量(linux PATH)](https://blog.csdn.net/xuchaoxin1375/article/details/124101857?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"124101857"%2C"source"%3A"xuchaoxin1375"}&ctrtid=3P4Wv)
 
-- #直接复制本section(#用于注释,勿删)
+  - linux下如果有多个版本的python3,容易出现各种,问题,可以通过这个链接排查/解决问题
 
-### #ruby 环境安装
+  - > 本文介绍的工具有些需要使用python pip 来安装,故在此一提.
+
+## 我的推荐(两个)
+
+- 推荐两个:
+  - tldr
+  - eg
+
+- tldr
+
+  - > - tldr 相对较全,几乎都可以查到,甚至可以查找bash中的运算符
+    >
+    > - 可以任选一个版本使用
+    > - [tldr vs tealdeer - compare differences and reviews? | LibHunt](https://www.libhunt.com/compare-tldr-vs-tealdeer)
+
+  - 该工具有许多版本的实现
+
+  - npm版的安装简单,反应速度稍慢
+
+    - 自动更新缓存
+
+  - Rust版,安装时占用许多资源,但是使用的时候性能好,有色彩
+
+    - 又叫`tealdeer`
+    - 需要手动更新缓存
+    - 可以取别名简化命令(下方查询双中括号的用法)
+    - ![image-20220430184300650](https://img-blog.csdnimg.cn/img_convert/615f8e17d9f7364beb7043bbd2a6c577.png)
+
+  - 其中python版的不太稳定
+
+- `eg`(by python)
+
+## 🎈ltdr(python pip/nodejs based)
+
+### ltdr工具介绍
+
+
+
+> - too long don't read(tldr)
+>
+> Simplified and community-driven man pages
+
+#### 获取帮助
+
+```
+┌─[cxxu@cxxuAli] - [~] - [2022-04-11 02:08:13]
+└─[0] <>  tldr -h
+- Usage: tldr command [options]
+Simplified and community-driven man pages...
+```
+
+### 在线版tldr
+
+> - 在线tldr工具[tldr | simplified, community driven man pages (ostera.io)](https://tldr.ostera.io/)
+
+### 使用npm安装一个本地版本
+
+- 环境预备:安装/配置nodejs&npm
+- `npm -g install tldr`
+  - 如果卡住不动,尝试使用root权限(sudo执行)
+
+  - `sudo npm -g install tldr`
+
+- python 下也有相应的tldr
+  - 但是不太管用
+
+
+## 🎈manly(python based)
+
+> - 解释您的命令所带的选项
+> - 类似工具还有`explainshells`
+>   - 还有在线网站
+
+```bash
+bash┌─[cxxu@cxxuAli] - [~/.local/lib/python3.8/site-packages] - [2022-04-11 02:27:24]
+└─[0] <> manly -h
+usage: manly [-h] [-v] ...
+
+Explain how FLAGS modify a COMMAND's behaviour.
+
+positional arguments:
+  command
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --version  display version information and exit.
+# 例子
+example:
+    $ manly rm --preserve-root -rf
+
+    rm - remove files or directories
+    ================================
+
+        -f, --force
+                ignore nonexistent files and arguments, never prompt
+
+        --preserve-root
+                do not remove '/' (default)
+
+        -r, -R, --recursive
+                remove directories and their contents recursively
+```
+
+### 安装manly
+
+- 您的linux计算机需要安装有python,pip
+  - 执行:`pip3 install manly`
+
+## bropages(gem&ruby based)
+
+> - 使用体验:一般
+
+### ruby 环境安装
 
 ```bash
 sudo apt install ruby-full
@@ -84,30 +183,153 @@ top -n 1 | head -n 15
 
 
 
-## cheat(dependent/go based/python pip based)
+## 🎈cheat(dependent/go based/python pip based)
 
 - [Installing and Using the cheat Command on Linux | Linode](https://www.linode.com/docs/guides/linux-cheat-command/)
 
 ### install from github release
 
+#### cheat 脚本化安装(预备:获取cheat包)
+
+
 > -  可以安装到最新版本
-> - 分为两部分
->   - cheat 程序工具
->   - cheatsheet/管理工具+ 数据字典(可以手动下载,也可以由cheat自动clone)
->     - [cheat/cheat: cheatsheet)](https://github.com/cheat/cheat#cheatsheets)
+> -  分为两部分
+>    - cheat 程序工具
+>    - cheatsheet/管理工具+ 数据字典(可以手动下载,也可以由cheat自动clone)
+>      - [cheat/cheat: cheatsheet)](https://github.com/cheat/cheat#cheatsheets)
 
 - 手动选择下载包
 
   - [Releases · cheat/cheat (github.com)](https://github.com/cheat/cheat/releases)
     - 可以使用wget 下载合适自己版本的包
-  - https://gitee.com/mirrors_cheat/cheat.git
-    - 国内镜像
+    - 如果下不下来,可以在windows浏览器下载,然后用`scp`等方式发送的linux
+  - [https://gitee.com/mirrors_cheat/cheat.git](https://gitee.com/mirrors_cheat/cheat.git)
+    -  国内镜像(可以clone,但似乎没有release可以下载)
+   - cheatsheet(数据源:gitee镜像)
+   - [mirrors_cheat/cheatsheets (gitee.com)](https://gitee.com/mirrors_cheat/cheatsheets)
+
+#####  reference(optional)
 
 - 包的解压与权限修改+使用
 
   - [Installing and Using the cheat Command on Linux | Linode](https://www.linode.com/docs/guides/linux-cheat-command/)
 
-  - 中途可能提示没有配置文件而需要从 github clone
+###  🎈正式安装
+
+> 获取到合适自己系统的包后
+> 我整合了安装脚本,可以复制粘贴直接运行
+
+- 下例子中以`cheat-linux-amd64.gz`为例进行安装(最主流的包)
+####  目录结构(~/.config/cheat为树的根节点)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/ccfea38ddb944b25ae5207c1e5c1c5ed.png)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/6aceb18140bb4e3fbd5825fc0db17e9c.png)
+
+
+```bash
+gzip -dk cheat-linux-amd64.gz
+sudo mv cheat-linux-amd64 /usr/local/bin/cheat
+sudo chmod +x /usr/local/bin/cheat
+cheat --version
+# 随便让cheat 搜索一个命令的示例,激活该工具
+cheat ls
+# 将会遇到如下创建&clone提示
+```
+>┌─[cxxu@CxxuWin11] - [/mnt/c/Users/cxxu] - [2022-05-01 06:42:00]
+>└─[0] <> cheat ls
+>A config file was not found. Would you like to create one now? [Y/n]: y
+>Would you like to download the community cheatsheets? [Y/n]: y
+>Cloning into '/home/cxxu/.config/cheat/cheatsheets/community'...
+- 建议稍等片刻,尝试能否克隆下来(克隆不下啦也没事,我们有变通方法)
+```bash
+# 准备cheatsheet 数据源以及配置
+#mkdir -p ~/.config/cheat #如果报错,请删除掉这一行
+git clone https://gitee.com/mirrors_cheat/cheatsheets ~/.config/cheat/cheatsheets/community
+
+mkdir -p ~/.config/cheat/cheatsheets/personal
+cd ~/.config/cheat
+# 创建config.yml文件
+> conf.yml <<eof
+---
+# The editor to use with 'cheat -e <sheet>'. Defaults to $EDITOR or $VISUAL.
+editor: vim
+
+# Should 'cheat' always colorize output?
+colorize: true
+
+# Which 'chroma' colorscheme should be applied to the output?
+# Options are available here:
+#   https://github.com/alecthomas/chroma/tree/master/styles
+style: monokai
+
+# Which 'chroma' "formatter" should be applied?
+# One of: "terminal", "terminal256", "terminal16m"
+formatter: terminal16m
+
+# Through which pager should output be piped? (Unset this key for no pager.)
+pager: less -FRX
+
+# The paths at which cheatsheets are available. Tags associated with a cheatpath
+# are automatically attached to all cheatsheets residing on that path.
+#
+# Whenever cheatsheets share the same title (like 'tar'), the most local
+# cheatsheets (those which come later in this file) take precedent over the
+# less local sheets. This allows you to create your own "overides" for
+# "upstream" cheatsheets.
+#
+# But what if you want to view the "upstream" cheatsheets instead of your own?
+# Cheatsheets may be filtered via 'cheat -t <tag>' in combination with other
+# commands. So, if you want to view the 'tar' cheatsheet that is tagged as
+# 'community' rather than your own, you can use: cheat tar -t community
+cheatpaths:
+
+  # Paths that come earlier are considered to be the most "global", and will
+  # thus be overridden by more local cheatsheets. That being the case, you
+  # should probably list community cheatsheets first.
+  #
+  # Note that the paths and tags listed below are placeholders. You may freely
+  # change them to suit your needs.
+  #
+  # Community cheatsheets must be installed separately, though you may have
+  # downloaded them automatically when installing 'cheat'. If not, you may
+  # download them here:
+  #
+  # https://github.com/cheat/cheatsheets
+  #
+  # Once downloaded, ensure that 'path' below points to the location at which
+  # you downloaded the community cheatsheets.
+  - name: community
+    path: /home/cxxu/.config/cheat/cheatsheets/community
+    tags: [ community ]
+    readonly: true
+
+  # If you have personalized cheatsheets, list them last. They will take
+  # precedence over the more global cheatsheets.
+  - name: personal
+    path: /home/cxxu/.config/cheat/cheatsheets/personal
+    tags: [ personal ]
+    readonly: false
+
+  # While it requires no configuration here, it's also worth noting that
+  # 'cheat' will automatically append directories named '.cheat' within the
+  # current working directory to the 'cheatpath'. This can be very useful if
+  # you'd like to closely associate cheatsheets with, for example, a directory
+  # containing source code.
+  #
+  # Such "directory-scoped" cheatsheets will be treated as the most "local"
+  # cheatsheets, and will override less "local" cheatsheets. Likewise,
+  # directory-scoped cheatsheets will always be editable ('readonly: false').%" 
+
+eof
+  
+
+
+```
+
+###  🎋cheat 检查安装情况
+
+> 可能因为网络问题,导致clone失败,如果这样,可以多试几次,或者采用上述的脚本安装
+>
+> - 中途可能提示没有配置文件而需要从 github clone
 
   - ```
     # cxxu @ CxxuWin11 in ~ [20:04:13] C:130
@@ -152,290 +374,10 @@ top -n 1 | head -n 15
       
       ```
 
-    - 
 
-### install by python
 
-- pip 可以安装的版本较老,而且容易报错!
+## 🎈eg(by python)
 
-#### 检查pip3/python 可执行文件对应关系/别名
-
-- `type pip3 pip py python3 python`
-
-```bash
-┌─[cxxu@cxxuAli] - [~/.local/lib/python3.8/site-packages] - [2022-04-11 02:31:18]
-└─[0] <> type pip3 pip py python3 python
-pip3 is /usr/bin/pip3
-pip is an alias for sudo py -m pip
-py is /usr/bin/py
-python3 is /usr/bin/python3
-python is /usr/bin/python
-```
-
-#### 检查pip版本
-
-- `pip[3] -V`(大写的V选项)
-
-```
-┌─[cxxu@cxxuAli] - [~/.local/lib/python3.8/site-packages] - [2022-04-11 02:33:01]
-└─[0] <> pip3 -V
-pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.6)
-┌─[cxxu@cxxuAli] - [~/.local/lib/python3.8/site-packages] - [2022-04-11 02:33:07]
-└─[0] <> pip -V
-pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.8)
-```
-
-
-
-- `type pip3`
-
-- `sudo pip3 install cheat`
-- 版本检查:`cheat -v`
-- 获取帮助`cheat -h`
-
-#### pip/python软连接检查
-
-- `type/whereis `可以用以查找python/pip路径
-- `ls -l `可以用来检查找到的路径是否为某个link
-
-```
-#( 04/11/22@ 3:30PM )( cxxu@cxxuAli ):~
-   type python
-python is /usr/bin/python
-#( 04/11/22@ 3:30PM )( cxxu@cxxuAli ):~
-   ls -l /usr/bin/python
-lrwxrwxrwx 1 root root 9 Apr  5 17:52 /usr/bin/python -> python3.8
-#( 04/11/22@ 3:31PM )( cxxu@cxxuAli ):~
-   cd /usr/bin
-#( 04/11/22@ 3:31PM )( cxxu@cxxuAli ):/usr/bin
-   ls -l python
-lrwxrwxrwx 1 root root 9 Apr  5 17:52 python -> python3.8
-#( 04/11/22@ 3:31PM )( cxxu@cxxuAli ):/usr/bin
-   ls -l py
-lrwxrwxrwx 1 root root 9 Apr  5 16:18 py -> python3.8
-#( 04/11/22@ 3:31PM )( cxxu@cxxuAli ):/usr/bin
-   ls -l python3
-lrwxrwxrwx 1 root root 9 Feb  8 14:51 python3 -> python3.6
-```
-
-#### 更新pip版本
-
-- 根据上述查看方式,选择合适的python版,执行`py -m pip install --upgrade pip`进行安装(py可以自行指定已安装的python版本)
-
-#### 更换安装来源(对于较新版本的pip)
-
-- 较新版本支持 pip config
-  - 譬如更换为阿里源
-  - `pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/`
-
-### pip问题排除
-
-> - 某些情况下,pip会将包安装到site-package(例如 `/home/cxxu/.local/lib/python3.8/site-packages/usr/share/`)中,这样即使成功安装,shell也无法直接运行
->
-> - linux 自带的python 调用的pip 安装应该没有找不到的问题
->
->   - ```bash
->     ┌─[cxxu@cxxuAli] - [/usr/local/bin] - [2022-04-11 03:44:19]
->     └─[0] <> python3 -m pip -V
->     pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.6)
->     ```
->
->   - 
->
-> - 如果`type cheat`无法找到`cheat`,则借助以下命令来查找
->   - `updatedb`
->   - `locate cheat`
-> - 根据情况来选择是否配置永久别名或者加入环境变量(但这不是推荐的方法)
-> ####  自带的python pip 和自己安装的python pip的对比
-> 在下载包的时候,两者的行为默认不同
-> 下方的python3.6是系统自带
-> python3.8系我自己用`sudo apt install python3.8` 安装的
-> 因此,分别使用这两个python调用pip安装就发现安装目录不同
-```
-┌─[cxxu@cxxuAli] - [~] - [2022-04-11 06:57:02]
-└─[0] <> locate manly
-/home/cxxu/.local/bin/manly
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info
-/home/cxxu/.local/lib/python3.8/site-packages/manly.py
-/home/cxxu/.local/lib/python3.8/site-packages/__pycache__/manly.cpython-38.pyc
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/INSTALLER
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/LICENSE
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/METADATA
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/RECORD
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/WHEEL
-/home/cxxu/.local/lib/python3.8/site-packages/manly-0.4.1.dist-info/entry_points.txt
-/usr/local/bin/manly
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info
-/usr/local/lib/python3.6/dist-packages/manly.py
-/usr/local/lib/python3.6/dist-packages/__pycache__/manly.cpython-36.pyc
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/INSTALLER
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/LICENSE
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/METADATA
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/RECORD
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/WHEEL
-/usr/local/lib/python3.6/dist-packages/manly-0.4.1.dist-info/entry_points.txt
-```
-
-#### 环境变量法
-
-- 如果使用自行安装/升级的python,安装的目录/home/usrName/.local/... 默认情况下是系统找不到里面的包
-- 所以将其添加到`PATH`
-  - `export PATH="$HOME/.local/bin":$PATH`(建议使用双引号,单引号效果不同,无法解释$HOME)
-    - 建议配置成永久有效,写入`/etc/profile`或者简单的`.bashrc`中,放置失效
-- 安装某个python包的时候要找一个可靠的源(譬如清华源)
-
-```
-##  将相关路径(形如上述)的格式键入到系统变量(PATH)中后,安装一个python包体验一下(我用-i指定清华源加速安装)
-# cxxu_kali @ CxxuWin11 in /mnt/c/Users/cxxu on git:main x [20:54:42]
-$ python3 -m pip install manly -i https://pypi.tuna.tsinghua.edu.cn/simple
-Defaulting to user installation because normal site-packages is not writeable
-Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
-Collecting manly
-  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/88/ca/3a214a7b2f4a4590205d6489663f90fbbd7862a9ef1f7d8229be6033ef10/manly-0.4.1-py2.py3-none-any.whl (8.8 kB)
-Installing collected packages: manly
-Successfully installed manly-0.4.1
-
-
-##  尝试直接使用被安装的python包
-
-# cxxu_kali @ CxxuWin11 in /mnt/c/Users/cxxu on git:main x [20:54:59]
-$ manly ls -la
-
-ls - list directory contents
-============================
-
-      -a, --all
-              do not ignore entries starting with .
-
-      -l     use a long listing format
-
-```
-
-- 检查一下这个被安装的包所在路径
-
-  - ```
-    # cxxu_kali @ CxxuWin11 in /mnt/c/Users/cxxu on git:main x [20:55:05]
-    $ type cheat
-    cheat is /home/cxxu_kali/.local/bin/cheat
-    
-    ###
-    
-    # cxxu_kali @ CxxuWin11 in /mnt/c/Users/cxxu on git:main x [21:02:06]
-    $ python3 -m site
-    sys.path = [
-        '/mnt/c/Users/cxxu',
-        '/usr/lib/python39.zip',
-        '/usr/lib/python3.9',
-        '/usr/lib/python3.9/lib-dynload',
-        '/home/cxxu_kali/.local/lib/python3.9/site-packages',
-        '/usr/local/lib/python3.9/dist-packages',
-        '/usr/lib/python3/dist-packages',
-    ]
-    USER_BASE: '/home/cxxu_kali/.local' (exists)
-    USER_SITE: '/home/cxxu_kali/.local/lib/python3.9/site-packages' (exists)
-    ENABLE_USER_SITE: True
-    ```
-
-  - 
-
-#### sudo -H (强改,不推荐)
-
-##### refenrences
-
-- [python - How do I install a pip package globally instead of locally? - Stack Overflow](https://stackoverflow.com/questions/36936212/how-do-i-install-a-pip-package-globally-instead-of-locally)
-
-- `sudo -H py -m pip install cheat`
-
-  - 为了得到预期的效果,您需要做一系列的准备/清理工作
-
-  - `pip uninstall cheat`(根据您安装的时候,pip可能需要写完整:`python -m pip uninstall cheat`   
-
-  - `type cheat`
-
-    - 找到相关目录文件并删除
-
-  - `whereis cheat`
-
-    - 找到相关目录并删除
-
-  - ```bash
-    ┌─[cxxu@cxxuAli] - [~] - [2022-04-11 06:33:59]
-    └─[0] <> sudo -H py -m pip install cheat
-    Collecting cheat
-    Requirement already satisfied: docopt>=0.6.1 in /usr/local/lib/python3.8/dist-packages (from cheat)
-    Requirement already satisfied: pygments>=1.6.0 in /usr/local/lib/python3.8/dist-packages (from cheat)
-    Requirement already satisfied: termcolor>=1.1.0 in /usr/local/lib/python3.8/dist-packages (from cheat)
-    Installing collected packages: cheat
-    Successfully installed cheat-2.5.1
-    ```
-
-    - 可见,包被安装到了`/user/local/lib/..`下面
-    - 注意,安装的时候可能有Waring 目录的权限问题/提示root用户安装可能破坏目录结构
-
-- 确保pip3安装且可用(`sudo apt install python3-pip` )
-
-## ltdr(python pip/nodejs based)
-
-
-
-### ltdr工具介绍
-
-
-
-> - too long don't read(tldr)
->
-> Simplified and community-driven man pages
-
-#### 获取帮助
-
-```
-┌─[cxxu@cxxuAli] - [~] - [2022-04-11 02:08:13]
-└─[0] <>  tldr -h
-- Usage: tldr command [options]
-Simplified and community-driven man pages...
-```
-
-### 在线版tldr
-
-> - 在线tldr工具[tldr | simplified, community driven man pages (ostera.io)](https://tldr.ostera.io/)
-
-### 安装一个本地版本
-
-- 环境预备:安装/配置nodejs&npm
-- `npm -g install tldr`
-
-- python 下也有相应的tldr
-
-## manly(python based)
-
-- 解释您的命令所带的选项
-
-```
-┌─[cxxu@cxxuAli] - [~/.local/lib/python3.8/site-packages] - [2022-04-11 02:27:24]
-└─[0] <> manly -h
-usage: manly [-h] [-v] ...
-
-Explain how FLAGS modify a COMMAND's behaviour.
-
-positional arguments:
-  command
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -v, --version  display version information and exit.
-# 例子
-example:
-    $ manly rm --preserve-root -rf
-
-    rm - remove files or directories
-    ================================
-
-        -f, --force
-                ignore nonexistent files and arguments, never prompt
-
-        --preserve-root
-                do not remove '/' (default)
-
-        -r, -R, --recursive
-                remove directories and their contents recursively
-```
+- `pip install eg`
+  - 使用体验:较好
+  - ![image-20220430184902677](https://img-blog.csdnimg.cn/img_convert/965ee0ca0bd918305651e926aa630a15.png)

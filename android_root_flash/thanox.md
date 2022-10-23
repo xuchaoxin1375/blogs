@@ -113,7 +113,23 @@
 
     
 
-    
+
+### 时间段内让NFC快捷方式有效
+
+```json
+[
+  {
+    "name": "NFC快捷开关:在指定时段内让NFC桌面快捷方式启动有效),关闭则总是有效的",
+    "description": "采用一天24时记法;本例子中，在早上5:10分～22:40内，亮屏开启5g，息屏关闭5g（变成4g）其余时间，不作妖;可以自行设定延时执行delay字段(单位是毫秒，也就是说1分钟要设置成60*1000=60000秒)，或者讲代码中的时间点改成你想要的;如果需要秒级精确度，可以照样子添加条件链 您可在代码中找到start_hour,start_minute,end_hour,end_minute变量(默认值分别为5,10,7,40,将这几个值修改为你需要的时间段,分别代表开始时间的小时,分钟;结束时间的小时,分钟);振动效果可能需要打开系统震动反馈，比如MIUI，chaptic feedback,才可以成功振动",
+    "priority": 2,
+    "delay": 100,
+    "condition": "  if(shortcutLaunched == true && shortcutValue == 'NFC'&& hw.isNfcEnabled() == false){import java.util.Date;Date date=new Date();int hour=date.getHours(),minute=date.getMinutes(),second=date.getSeconds();int start_hour=5,start_minute=10,end_hour=7,end_minute=40,start_minute_of_day=start_hour*60+start_minute*1,end_minute_of_day=(end_hour)*60+(end_minute)*1,now_minute_of_day=hour*60+minute;ui.showShortToast(\"now_time:\"+hour+\":\"+minute+\":\"+second);if(start_minute_of_day<=now_minute_of_day&&now_minute_of_day<=end_minute_of_day){ui.showShortToast('当前时刻处于情景有效期,执行任务:'+'...');ui.showShortToast('调试信息:任务有效时间[分钟化统计]:'+start_minute_of_day+' ~ '+end_minute_of_day+' now:'+now_minute_of_day)};ui.showShortToast('打开NFC') + hw.enableNfc()+ringtone.wengwengweng(1)}else if (shortcutLaunched == true && shortcutValue == 'NFC'&& hw.isNfcEnabled() == true) {(ui.showShortToast('关闭NFC🧔')+hw.disableNfc()+ringtone.dingdingding(1))} ",
+    "actions": [
+      ""
+    ]
+  }
+]
+```
 
 
 
@@ -219,22 +235,27 @@
   }
 ]
 
+```
 
+#### 集合化(全局变量自动5g切换)
+
+```json
 [
   {
-    "name": "nokeep",
-    "description": "nokeep",
-    "priority": 2,
-    "condition": "screenOff==true",
+    "name": "smart 5g for MIUI13",
+    "description": "需要创建叫smart5gApps的全局变量!（往里面添加需要启动后需要自动5g允许） 默认情况下，如果划掉后台相应APP后台，会被认为不再需要5g，变成4g。 为了不影响下载型APP使用，建立另一个全局变量keepLocation,用来指定豁免清单(可将应用商店加入其中)，（使用thanox的pick来添加APP包名到环境变量里比较方便.)",
+    "priority": 1,
+    "delay": 0,
+    "condition": " if(frontPkgChanged&&globalVarOf$smart5gApps.contains(to)){ui.showShortToast(\"即将开启5g,for\"+to);su.exe('service call miui.radio.extphone 28 i32 1 i32 0');} if(taskRemoved == true && globalVarOf$smart5gApps.contains(pkgName) ){foreach(app:globalVarOf$keep5g){if(task.hasTaskFromPackage(app)){ui.showShortToast(\"5g下载型APP在运行，不关闭5g\");break}}ui.showShortToast(\"即将关闭5g,by\"+pkgName);su.exe('service call miui.radio.extphone 28 i32 0 i32 0');}}",
     "actions": [
-      "foreach(tsk:globalVarOf$nokeep){killer.killPackage(tsk)}",
-      "ui.showShortToast('kill nokeep apps')"
+      ""
     ]
   }
 ]
 
-
 ```
+
+
 
 #### 自动打开定位
 
@@ -250,7 +271,7 @@
     [
       {
         "name": "为定位打卡签到类和导航APP自动启动定位 v1",
-        "description": "需要创建叫locationapps的全局变量!（往里面添加需要启动后需要自动打开导航的APP）   默认情况下，如果划掉后台相应APP后台，会被认为不再需要导航了，会关闭导航。  为了不影响导航地图类APP使用，建立另一个全局变量keepLocation,用来指定豁免清单(可讲高德或者百度地图加入其中)，（使用thanox的pick来添加APP包名到环境变量里比较方便.)",
+        "description": "需要创建叫locationapps的全局变量!（往里面添加需要启动后需要自动打开导航的APP）   默认情况下，如果划掉后台相应APP后台，会被认为不再需要导航了，会关闭导航。  为了不影响导航地图类APP使用，建立另一个全局变量keepLocation,用来指定豁免清单(将高德或者百度地图加入其中)，（使用thanox的pick来添加APP包名到环境变量里比较方便.)",
         "priority": 1,
         "delay": 0,
         "condition": " if(frontPkgChanged&&globalVarOf$locationApps.contains(to)){ui.showShortToast(\"即将开启定位,for\"+to);hw.enableLocation();} if(taskRemoved == true && globalVarOf$locationApps.contains(pkgName) ){foreach(app:globalVarOf$keepLocation){if(task.hasTaskFromPackage(app)){ui.showShortToast(\"地图类APP在运行，不关闭导航\");break}}ui.showShortToast(\"即将关闭定位,by\"+pkgName);hw.disableLocation();}}",
@@ -348,7 +369,7 @@
 
 - 上述网络切换中用到后台切换的监视:frontPkgChanged,这需要thanox保持后台活跃,否则无法捕获到相关信号导致无法执行自动任务
 
-### 利用thaox 保持指定应用集合后台活跃
+### 及时唤醒:保持指定应用集合后台活跃(keepActive)
 
 - 本功能不同于后台保活,但是可以在app被杀掉后立刻重启(比如通讯软件,以免遗漏消息接受)
 
@@ -356,20 +377,60 @@
 
 [
     {
-        "name": "keepbg保持进程活跃v1",
-        "description": "keepbg;保持指定应用活跃在后台😂😂😂主要是聊天通讯软件以及一些需要常驻后台的进程😂task.hasTaskFromPackage('com.tencent.mm')==false不靠谱 注意，只有开机手动启动过一次的软件才可以后续的活跃保持，否则无法保持活跃 👿👿需要创建环境变量Keepbg，将需要活跃的APP包名pick到里面，作为需要保持活跃的清单",
+        "name": "keepbg(AutoArousePackage保持进程活跃v1",
+        "description": "keepbg;保持指定应用活跃在后台😂😂😂主要是聊天通讯软件以及一些需要常驻后台的进程😂task.hasTaskFromPackage在这里不靠谱(不准确) 注意，只有开机手动启动过一次的软件才可以后续的活跃保持，否则无法保持活跃 👿👿需要创建环境变量Keepbg，将需要活跃的APP包名pick到里面，作为需要保持活跃的清单",
         "priority": 1,
         "condition": "pkgKilled == true &&globalVarOf$keepbg.contains(pkgName)",
         "actions": [
             "//ui.showShortToast('😱😣<'+pkgName+' >was killed,try to arouse it 🍅₍˄·͈༝·͈˄*₎◞ ̑̑')",
             "activity.launchProcessForPackage(pkgName)",
             "/*Thread.sleep(1000)*/",
-            "//ui.showShortToast('try to active< '+pkgName+'>done 🍔=͟͟͞͞=͟͟͞͞(●⁰ꈊ⁰● ')",
-            "return"
+            "//ui.showShortToast('try to active< '+pkgName+'>done 🍔=͟͟͞͞=͟͟͞͞(●⁰ꈊ⁰● ')"
         ]
     }
 ]
 ```
+
+
+
+### 维持多开app的活跃(以微信为例)
+
+- 遗憾的是,上面的方案不见得可以处理好多开应用的`及时唤醒`
+
+  - 但是我们可以用adb命令指定用户id来运行多开应用:
+
+  - ```json
+    
+    [
+        {
+            "name": "keepDualWechat For MIUI(AutoArousePackage保持进程活跃v1)",
+            "description": "auto arouse;保持miui多开微信用活跃在后台;主要是通过指定用户ID:999来实现,其他系统如果是类似的化,修改对应的用户ID即可,查看方式可以通过pm list users查看全部用户id;adb shell am get-current-user查看当前默认用户",
+            "priority": 1,
+            "condition": "pkgKilled == true &&pkgName=='com.tencent.mm'",
+            "actions": [
+                "ui.showShortToast('😱😣 the dual weChat was killed,try to arouse it 🍅₍˄·͈༝·͈˄*₎◞ ̑̑')",
+    			"su.exe('am startservice --user 999 com.tencent.mm/com.tencent.mm.ipcinvoker.wx_extension.service.MainProcessIPCService')",
+                "su.exe(' am startservice --user 999 com.tencent.mm/com.tencent.mm.ipcinvoker.wx_extension.service.PushProcessIPCService')",
+                "ui.showShortToast('唤醒多开微信的主进程完毕(包括mm&push)🎈')"
+        
+            ]
+        }
+    ]
+    ```
+
+  - 这似乎不是一个聪明的版本,幸运的是,需要及时唤醒的多开app通常不会很多
+
+    - 主要是少数通讯聊天软件:
+
+      - 比如上面列举的微信
+
+      - qq可以自行琢磨
+
+        - 配合thanox获取dual app的信息
+
+          - 包括主要服务/进程
+
+            
 
 
 
