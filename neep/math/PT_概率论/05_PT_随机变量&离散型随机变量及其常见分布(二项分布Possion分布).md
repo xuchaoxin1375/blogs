@@ -251,11 +251,23 @@
 ### 🎈Possion分布
 
 - 大量试验中的稀有事件的发生次数,近似的用Possion分布描述
-- $P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!}$
+
+- $P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!}=e^{-\lambda}\cdot\frac{\lambda^{k}}{k!}$
   - $k=0,1,\cdots$
     - $k\in\mathbb{N^*}$
+  
   - $常数\lambda>0$
+  
   - $X服从参数为\lambda的Possion分布:X\sim  P(\lambda)$
+  
+  - 为了加强记忆,换种符号:
+  
+    - $$
+      P(X=x_k)=\frac{\lambda^{x_k}e^{-\lambda}}{x_k!}
+      =\frac{\alpha^{x_k}e^{-\alpha}}{x_k!}
+      $$
+  
+      
 
 #### 例
 
