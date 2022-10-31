@@ -1,4 +1,5 @@
 @[toc]
+
 # linux_命令行助手:(manpages supplement)/获取linux命令用法示例的若干辅助命令行工具(cheat/tldr)
 
 ## references
@@ -74,6 +75,25 @@ Simplified and community-driven man pages...
 
 - python 下也有相应的tldr
   - 但是不太管用
+
+### 安装位置
+
+- 安装完可能无法直接运行tldr
+
+  - 可以到npm安装路径下检查:
+
+    - 例如:` ll /usr/node/node-v*/lib/node_modules/|grep tldr`
+
+    - ```bash
+       ll /usr/node/node-v*/lib/node_modules/|grep tldr
+       cd /bin
+       #尝试用tldr查询 ls
+       tldr ls
+      ```
+
+  - 尝试将间模块路径添加到环境变量
+
+    - 或者创建别名
 
 
 ## 🎈manly(python based)

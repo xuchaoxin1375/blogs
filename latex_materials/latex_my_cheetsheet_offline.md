@@ -18,9 +18,41 @@
 	- `\frac{\mathrm{d}x}{\mathrm{d}y}`
 - 可以定义宏来简写
 
+
+
+### 高度自适应大竖线$\left.\right|_{a}^{b}$
+
+- 例如:
+
+  - ```tex
+    \left.
+    	\left(x\cdot{e^{-\lambda{x}}}
+        -\int_{0}^{+\infin}{e^{-\lambda{x}}} \mathrm{d}(x)
+        \right)
+    \right|%后面的内容就是大竖线的上下界角标啦
+    _{0} ^{+\infty}
+    ```
+
+    
+    $$
+    \left.
+    	\left(x\cdot{e^{-\lambda{x}}}
+        -\int_{0}^{+\infin}{e^{-\lambda{x}}} \mathrm{d}(x)
+        \right)
+    \right|%后面的内容就是大竖线的上下界角标啦
+    _{0} ^{+\infty}
+    \\
+    $$
+    
+
 ## 字体变体(fonts)
 
 - google 搜索:`latex a sign looks like F`
+
+### 🎈简写
+
+- $\rm{d}x$
+  - 但是会使得x也收到\rm作用
 
 ### mathsrc
 
@@ -46,9 +78,124 @@
 - `$\frac{\mathrm{d}x}{\mathrm{d}y}$`
   - $\frac{\mathrm{d}x}{\mathrm{d}y}$
 
+### 强制样式displaystyle
 
+- $$
+  特别是对于内联与文本内的积分号,可以使用\displaystyle{}来换源应有的样式(高度)
+  \\
+  \begin{cases}
+  \int_{a}^{b}
+  \\
+  \\\sum_{i=1}
+  \end{cases}
+  \\
+  使用\text{\\displaystyle}:
+  \\
+  \begin{cases}
+  \displaystyle{\int_{a}^{b}}
+  \\
+  \\\sum_{i=1}
+  \end{cases}
+  $$
 
-##  可变长等号
+  - 原码:
+
+    - ```tex
+      特别是对于内联与文本内的积分号,可以使用\displaystyle{}来换源应有的样式(高度)
+      \\
+      \begin{cases}
+      \int_{a}^{b}
+      \\
+      \\\sum_{i=1}
+      \end{cases}
+      \\
+      使用\text{\\displaystyle}:
+      \\
+      \begin{cases}
+      \displaystyle{\int_{a}^{b}}
+      \\
+      \\\sum_{i=1}
+      \end{cases}
+      ```
+
+      
+
+## 大号/小号字体(文本段)
+
+  
+
+- $$
+  \\横向对比:\\
+  \tiny{smallest}%最小
+  \scriptsize{very small}%很小
+  %\footnotesize{smaller}%较小(相对于small,有的不支持!)
+  \small{small}%小
+  \normalsize{normalsize}%正常
+  \large{large}%大
+  \Large{Large}%更大
+  \LARGE{LARGE}%很大
+  \huge{huge}%巨大
+  \Huge{Huge}%巨无霸
+  \\\\纵向对比:
+  \\
+  \begin{aligned}
+  \tiny{tiny:A}
+  \\\scriptsize{very small:A}
+  \\\small{small:A}
+  \\\normalsize{normalsize:A}%正常
+  \\\large{large:A}%大
+  \\\Large{Large:A}%更大
+  \\\LARGE{LARGE:A}%很大
+  \\\huge{huge:A}%巨大
+  \\\Huge{Huge:A}%巨无霸
+  \end{aligned}
+  \\
+  混合大小:
+  \\
+  \small小\normalsize中\large大
+  $$
+
+  - 原码:
+
+    - ```tex
+      \\横向对比:\\
+      \tiny{smallest}%最小
+      \scriptsize{very small}%很小
+      %\footnotesize{smaller}%较小(相对于small,有的不支持!)
+      \small{small}%小
+      \normalsize{normalsize}%正常
+      \large{large}%大
+      \Large{Large}%更大
+      \LARGE{LARGE}%很大
+      \huge{huge}%巨大
+      \Huge{Huge}%巨无霸
+      \\\\纵向对比:
+      \\
+      \begin{aligned}
+      \tiny{tiny:A}
+      \\\scriptsize{very small:A}
+      \\\small{small:A}
+      \\\normalsize{normalsize:A}%正常
+      \\\large{large:A}%大
+      \\\Large{Large:A}%更大
+      \\\LARGE{LARGE:A}%很大
+      \\\huge{huge:A}%巨大
+      \\\Huge{Huge:A}%巨无霸
+      \end{aligned}
+      \\
+      混合大小:
+      \small小\normalsize中\large大
+      ```
+  
+- 通常而言,小字体会用的更少,因为tex会自动将需要变小的地方(比如角标显示的比较小)
+
+  - 但是大字体可以用来更好的强调我们需要强调的部分
+    - 当然还有下划线等强调方式
+  - 也可以用来优化公式的显示,例如,某些指数非常长,比如二维正态分布的密度函数,这时候用Huge来使得e这个字母显得清晰可见
+
+  
+
+##  可变长等号(自适应长度等号)
 
 - `before \xlongequal{oversetContents} later`
 $before \xlongequal{OversetContents} later$
