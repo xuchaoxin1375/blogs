@@ -2,38 +2,75 @@
 
 # cpu执行指令过程中涉及的各种周期间的关系/主频&超频/同步cpu频率&发热
 
-## references
 
-- wikipedia/baidu 
-- intel官网
-- [What is Frequency? (computerhope.com)](https://www.computerhope.com/jargon/f/frequenc.htm)
-- 书籍
-  - [<<Computer Organization and Design, Fourth Edition: The Hardware/Software Interface >>| David A. Patterson, John L. Hennessy | download (tw1lib.club)](https://zh.tw1lib.club/book/2330319/89dde9?dsource=recommend)
-  - [<<Computer Systems. A Programmer’s Perspective 3rd Edition Global Edition >>| Randal E. Bryant, David R. O’Hallaron | download (hk1lib.org)](https://zh.hk1lib.org/book/3645425/869729)
 
-## 时钟周期(节拍/T周期)
+## 三种周期
 
-* 时钟周期。它是 `CPU`操作的 `最基本单位`,用 `时钟信号`控制 `节拍发生器`，可以产生节拍，每个 `节拍的宽度`正好对应一个 `时钟周期`。
-* 在每个节拍内 `机器可完成一个或几个`需 `同时执行的操作`
-* 时钟周期是(计算机CPU操作的)最小的时间单位
-* `时钟周期`由即主频的倒数
+- 下面这个图从小到达涵盖了:时钟周期(一定等长),机器周期(不一定等长),指令周期(不一定等长)间的层次关系
+
+### 定长机器周期
+
 * ![1646833640283.png](https://img-blog.csdnimg.cn/img_convert/36cddf86c8ae2c8550b1749b6dc36876.png)
 
-### 参考图
 
-$$
-(a)为定长的机器周期，每个机器周期包含4个节拍(T);
-$$
 
-![a](https://img-blog.csdnimg.cn/20210624135933809.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+### 不定长机器周期
 
-$$
-(b)所示为不定长的机器周期，\\每个机器周期包含的节拍数可以为4个，\\也可以为3个
-$$
+- 所示为不定长的机器周期，每个机器周期包含的节拍数可以为4个，也可以为3个
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210624135943357.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
-### 时钟周期&机器周期&指令周期&中断查询
+## 时钟周期
+
+* 时钟周期T:
+  * **时钟周期**是(计算机CPU操作的)最小的时间单位,也叫**节拍**
+  * 它是 `CPU`操作的 `最基本单位`,用 `时钟信号`控制 `节拍发生器`，可以产生节拍，每个 `节拍的宽度`正好对应一个 `时钟周期`。
+  * 在每个节拍内 `机器可完成一个或几个`需 `同时执行的操作`
+    * 这是实现流水指令的基础条件
+* 时钟周期和主频的互为倒数
+  * $T=\frac{1}{f}$
+  * $f=\frac{1}{T}$
+
+### 工作脉冲
+
+- 工作脉冲:控制器的最小时间单位,起**定时触发**的作用(一个时钟周期有一个工作脉冲)
+
+## 机器周期
+
+- Instruction Stage
+- 执行指令的各个阶段都可以理解为机器周期
+- 由于指令的每个阶段占用的机器周期不一定等长,随意机器周期之间也不一定等长
+
+## 指令周期
+
+- CPU 从主存中 `取出并执行`一条指令的时间称为 `指令周期 `,不同指令的指令周期可能不同。
+
+- **指令周期**，又称**提取－执行周期**（fetch-and-execute cycle）是指
+  - [CPU](https://zh.wikipedia.org/wiki/CPU)要执行一条机器指令**经过的步骤**，由若干**机器周期**组成。
+
+- 不同的机器分解**指令周期**的方式也不同，
+
+> - 有的处理器对每条指令分解出相同数量的机器周期（即使某些简单的指令可以在更少的机器周期内完成），
+> - 另一些处理器根据指令的复杂程度分解出不同数量的机器周期
+
+- 取得指令：
+  - CPU内有[程序计数器](https://zh.wikipedia.org/wiki/程序計數器)（PC），它储存下一个要执行的指令的地址。处理器按PC储存的地址，经主内存取得指令的内容，PC加1，经[数据总线](https://zh.wikipedia.org/wiki/數據匯流排)将**指令**存入[指令寄存器](https://zh.wikipedia.org/wiki/指令寄存器)（IR）。
+
+- 解码指令：
+  - 将[指令寄存器](https://zh.wikipedia.org/wiki/指令寄存器)（IR）内的**指令**译成[机器语言](https://zh.wikipedia.org/wiki/機器語言)。
+
+- 执行指令:
+  - 执行从内存(RAM/Cache)中取到的指令
+
+  - 通常我们更关心这个指令周期的这个阶段(执行阶段);区分不通指令的功能
+
+- 储存结果
+
+
+
+- 一共是4步 前两步称为**提取周期**，后两步为**执行周期**。
+
+### 指令周期的划分
 
 - 不同的指令的**指令周期划分**的**阶段可以不同**(<u>`指令周期`</u>可以分为**若干个可能有差异的cpu周期**(机器周期))
   * 例如,无条件转移**指令**仅包含 `取指阶段`和 `执行阶段`(分别对应 `取指周期`和 `执行周期`两个<u>机器周期</u>)
@@ -65,14 +102,7 @@ $$
 
 
 
-### 工作脉冲&时钟周期
-
-* [CPU 周期信号、节拍周期信号、节拍脉冲信号三者之间的关系是什么](https://www.zhihu.com/question/20392042)
-* 工作脉冲:控制器的最小时间单位,起**定时触发**的作用(一个时钟周期有一个工作脉冲)
-
-
-
-### 存取周期&存取时间
+## 内存相关的周期
 
 #### 存取周期
 
@@ -84,38 +114,29 @@ $$
 
 
 
-
-
-## 小结
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210624155223992.png)
-
-# 进一步解释概念
-
-## 指令周期
+### 参考
 
 - [Instruction cycle - Wikipedia](https://en.wikipedia.org/wiki/Instruction_cycle)
-- CPU 从主存中 `取出并执行`一条指令的时间称为 `指令周期 `,不同指令的指令周期可能不同。
 
-- **指令周期**，又称**提取－执行周期**（fetch-and-execute cycle）是指[CPU](https://zh.wikipedia.org/wiki/CPU)要执行一条机器指令经过的步骤，由若干**机器周期**组成。
-
-- 不同的机器分解**指令周期**的方式也不同，
-
-> - 有的处理器对每条指令分解出相同数量的机器周期（即使某些简单的指令可以在更少的机器周期内完成），
-> - 另一些处理器根据指令的复杂程度分解出不同数量的机器周期
-
-- 取得指令：CPU内有[程序计数器](https://zh.wikipedia.org/wiki/程序計數器)（PC），它储存下一个要执行的指令的地址。处理器按PC储存的地址，经主内存取得指令的内容，PC加1，经[数据总线](https://zh.wikipedia.org/wiki/數據匯流排)将**指令**存入[指令寄存器](https://zh.wikipedia.org/wiki/指令寄存器)（IR）。
-
-- 解码指令：将[指令寄存器](https://zh.wikipedia.org/wiki/指令寄存器)（IR）内的**指令**译成[机器语言](https://zh.wikipedia.org/wiki/機器語言)。
-
-- 执行指令
-
-- 储存结果
-
-- 一共是4步 前两步称为**提取周期**，后两步为**执行周期**。
 - In simpler CPUs, the instruction cycle is executed **sequentially**, each instruction being processed before the next one is started.
   -  In most modern CPUs, the i**nstruction cycles** are instead executed [concurrently](https://en.wikipedia.org/wiki/Concurrent_computing), and often in [parallel](https://en.wikipedia.org/wiki/Parallel_computing), through an [instruction pipeline](https://en.wikipedia.org/wiki/Instruction_pipeline): 
     - the next instruction starts being processed before the previous instruction has finished, which is possible because **the cycle is broken up into separate steps**.[[1\]](https://en.wikipedia.org/wiki/Instruction_cycle#cite_note-1)
+
+## 小结
+
+
+
+- 时钟周期=节拍脉冲=震荡周期
+  - 能完成一次微操作
+
+- 机器周期= CPU周期
+  - 从主存读出一条指令的**最短时间**
+  - 可完成复杂操作
+- 指令周期:
+  - 从主存取一条指令并执行指令的时间
+  - 取指+执行
+
+# 相关概念
 
 ## 时钟周期(时钟频率)&超频
 
@@ -323,5 +344,13 @@ $$
 - 罕见的是，所有的CPU建造在没有利用全程时钟信号的状况。
   - 两个值得注意的示例是[ARM](https://zh.wikipedia.org/wiki/ARM结构)（"Advanced RISC Machine"）顺从[AMULET](https://zh.wikipedia.org/w/index.php?title=AMULET微处理器&action=edit&redlink=1)以及[MIPS](https://zh.wikipedia.org/wiki/MIPS架構) R3000兼容MiniMIPS。与其完全移除[时脉讯号](https://zh.wikipedia.org/wiki/時脈訊號)，部分CPU的设计允许一定比例的设备不同步，比方说使用不同步[算术逻辑单元](https://zh.wikipedia.org/wiki/算術邏輯單元)连接超标量流水线以达成一部分的算术性能增进。
   - 在不将[时脉讯号](https://zh.wikipedia.org/wiki/時脈訊號)完全移除的情况下，不同步的设计可使其表现出比同步计数器更少的数学运算。因此，结合了不同步设计极佳的**能源耗损量及热能产生率**，使它更适合在[嵌入式计算机](https://zh.wikipedia.org/wiki/嵌入式计算机)上运作
-- 
+
+## references
+
+- wikipedia/baidu 
+- intel官网
+- [What is Frequency? (computerhope.com)](https://www.computerhope.com/jargon/f/frequenc.htm)
+- 书籍
+  - [<<Computer Organization and Design, Fourth Edition: The Hardware/Software Interface >>| David A. Patterson, John L. Hennessy | download (tw1lib.club)](https://zh.tw1lib.club/book/2330319/89dde9?dsource=recommend)
+  - [<<Computer Systems. A Programmer’s Perspective 3rd Edition Global Edition >>| Randal E. Bryant, David R. O’Hallaron | download (hk1lib.org)](https://zh.hk1lib.org/book/3645425/869729)
 
