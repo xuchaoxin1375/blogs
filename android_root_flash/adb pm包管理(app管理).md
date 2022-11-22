@@ -120,7 +120,16 @@
 
     
 
+### 🎈注意事项
 
+- 不是所有app都可以被冻结成功
+  - 比如某些系统核心app
+    - 以miui为例,
+      - 手机管家
+      - 应用商店
+      - 都是无法通过该方式disable
+
+- 另一方面,肆意冻结可能导致系统异常,导致无法开机
 
 ### 启用/解冻
 
@@ -150,6 +159,8 @@
 ## adb am
 
 - [How to start an application using Android ADB tools - Stack Overflow](https://stackoverflow.com/questions/4567904/how-to-start-an-application-using-android-adb-tools)
+
+
 
 ## 🎈多用户&双开app调试(multiple user adb)
 
@@ -197,11 +208,66 @@
 
       
 
-    
 
-## 应用
+## 启动/杀死app进程
 
--  待续..
+### 启动某个app
+
+- [How to start an application using Android ADB tools - Stack Overflow](https://stackoverflow.com/questions/4567904/how-to-start-an-application-using-android-adb-tools)
+
+#### 使用am启动指定app(app的某个页面activity)
+
+- `am start PackageName/activity`
+- 例如`am start com.tencent.mm/com.tencent.mm.ui.LauncherUI`
+  - 该命令将启动微信主页页面
+  - `am start`还可以其他选项可以接受其他参数,比如,`am start -n`
+  - 但是,这不总是方便的,有时我们就只需要启动默认主页面,那么Activity就不是一个很有必要写的部分
+  - 但是我们不写activity名字,就不再是用`am`,而是改用`monkey`
+
+#### monkey启动指定app
+
+- `monkey -p PackageName 1`
+
+  - 需要将`PackageName`改为包名(相比于am start方式,不需要指定具体Activity)
+
+  - 例如启动微信` monkey -p com.tencent.mm 1`
+
+    - ```bash
+      xaga:/ $ monkey -p com.tencent.mm 1
+      
+        bash arg: -p
+        bash arg: com.tencent.mm
+        bash arg: 1
+      args: [-p, com.tencent.mm, 1]		
+       arg: "-p"
+       arg: "com.tencent.mm"
+       arg: "1"
+      data="com.tencent.mm"
+      Events injected: 1
+      ## Network stats: elapsed time=18ms (0ms mobile, 0ms wifi, 18ms not connected)
+      ```
+
+  
+
+
+
+### 杀死某个app进程
+
+#### 使用am stop 杀死
+
+- [testing - Stopping an Android app from console - Stack Overflow](https://stackoverflow.com/questions/3117095/stopping-an-android-app-from-console)
+
+- 使用`adb shell am force-stop PackageName`
+
+  - 例如杀死<u>edge浏览器</u>:`adb shell am force-stop com.microsoft.emmx`
+
+- 或者进入shell
+
+- 调用`am force-stop PackageName`进行杀灭
+
+  
+
+
 
 
 

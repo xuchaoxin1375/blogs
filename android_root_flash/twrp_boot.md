@@ -34,22 +34,7 @@
 
 
 
-# google paltform-tools相关命令行工具的使用
 
-## adb命令行进行文件传输注意事项
-
-- 我们以`adb push`(推送电脑文件到手机)为例(`adb pull `拉取手机文件到电脑)遵循类似的规则,但是参数位置不同)
-  - 合法的命令行格式(合法的路径参数)
-    - 假设当前目录有一个文件名字叫做`fileName`
-    - `adb push fileName /sdcard/`(传输完成后,文件名不会改变)
-    - `adb push fileName /sdcard/Download/fileNewName.ext`
-      - 文件名被改为你指定的名字`fileNewName.ext`且目标目录为手机的`/sdcard/Download/`
-      - 同时,如果手机上没有中间路径,那么adb的此次传输会创建相应中间路径
-  
-  - 非法的路径参数
-    - `adb push file /sdcard/NotYetExistDir/`(报错)
-      - 即结尾不是文件名而是一个不存在的目录,会报错
-  
 
 # 第三方recovery(twrp篇)
 
@@ -638,7 +623,7 @@ Press any key to continue . . .
 - 传输文件到手机
 
   - 将刷机包(譬如卡刷包)传输到手机
-  - 同时将magisk app(25版本以上)也通过`adb push`传输到手机
+  - 同时将magisk app(25版本以上) 传输到手机
 
 - 开始刷入包
 

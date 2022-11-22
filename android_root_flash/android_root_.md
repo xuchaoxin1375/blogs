@@ -183,12 +183,9 @@
 ###  传输boot.img到手机(optional)
 
 - 如果只是用手机就下载/提取到了boot.img那么这一步骤就可以跳过
-
 - 如果是通过电脑获取的boot.img文件,那么将`boot.img` 通过任意一种你喜欢或你会的方式**传输到手机**
 
   - 可以用qq/微信发送
-  - 也可以用`adb push`方式传输
-    - 可选操作:(将文件拖入到默认工作目录`platform-tools`中,以便于使用adb 传输
 - 下载软件工具和修补过的.img文件都已经放置到合适的位置了,下面准备刷写
 
 ### 修补过程的操作细节(包括不同android版本)
@@ -448,59 +445,6 @@ Finished. Total time: 2.015s
   - 譬如,push 文件到android 设备目录设置为`/sdcard/`,而不必放到`/sdcard/Download/`这一子目录下
   - 只要确保你可以方便的找到该文件即可
 
-### adb 文件传输示例
-
-####  绝对路径传输文件实例
-
-- 这里我将一个压缩包传输到手机上
-  - 这里要注意,第二个路径参数的斜杠是linux规范的`/`,如果写成`\`会导致意外的结果(文件传输到意料之外的地方,找不到了)
-- 对于目录,即为可以不加斜杠,但是推荐加上,这样一目了然
-
-```bash
-PS C:\Users\cxxu\Downloads> adb push C:\Users\cxxu\downloads\Compressed\MK90.0-santoni-210620-HISTORY.zip /sdcard/Download
-C:\Users\cxxu\downloads\Compressed\MK90.0-santoni-21062...shed, 0 skipped. 25.2 MB/s (695991497 bytes in 26.315s)
-PS C:\Users\cxxu\Downloads>
-```
-
-#### 相对路径传输示例
-
-- ```powershell
-  PS C:\Users\cxxu\Downloads\Compressed> adb push  .\lineage-18.1-20220720-UNOFFICIAL-0xCAFEBABE-Mi8937.zip /sdcard/Download/
-  .\lineage-18.1-20220720-UNOFFICIAL-0xCAFEBAB...pped. 23.7 MB/s (783898135 bytes in 31.594s)
-  PS C:\Users\cxxu\Downloads\Compressed>
-  ```
-
-#### 利用adb shell 检查android 设备文件
-
-
-
-- 可选操作:检查android指定目录下是否存在某文件(下面是已经root的才有权限)
-
-  - ```bash
-    santoni:/ # cd sdcard/
-    santoni:/sdcard # ls
-    Alarms   MIUI     Music         Ringtones baidu                did    sogou
-    Android  MT2      Notifications TWRP      browser              jeejen wlan_logs
-    DCIM     MiMarket Pictures      Xiaomi    com.miui.voiceassist miad
-    Download Movies   Podcasts      backups   dctp                 mipush
-    santoni:/sdcard # cd Download/
-    santoni:/sdcard/Download # ls
-    3b515ef2c77d9f04e58c1d75a3add549-0-o_1g8cle2dk1mia12ds1vjs13eost32c-uid-408649.apk
-    DevCheck_4.37.apk
-    GitHub\ -\ yc9559_uperf_\ Userspace\ performance\ controller\ for\ android.mhtml
-    MK90.0-santoni-210620-HISTORY.zip
-    app-releas.zip
-    app-release.apk
-    app-release_mini.apk
-    boot.img
-    boots.zip
-    magisk_patched-25200_VBQAh.img
-    miui_HM4X_V11.0.1.0.NAMCNXM_7e7448fe6d_7.1.zip
-    uperf-dev-22.07.24.zip
-    ```
-
-  
-
 
 
 
@@ -537,10 +481,8 @@ PS C:\Users\cxxu\Downloads>
       - 注意`devices`的拼写
     - `adb reboot bootloader`使得开机的(并且已经允许计算机调试的android直接重启到bootloader(fastboot模式))
       - 这可以省去关机后按`音量减`&`电源键`的物理方式进入`fastboot`模式,更加高效
-    - 使用`adb push`可以用来向anroid设备传输文件
-    - 另一方面,`adb pull`可以从android 设备将文件拉取到电脑上
     - 以上都是可选,可以用你喜欢的传输方式进行传输文件
-
+  
 - 获取帮助` adb --help`
 
   - ```bash

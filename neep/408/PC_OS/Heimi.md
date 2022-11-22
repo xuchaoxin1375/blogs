@@ -58,7 +58,7 @@
     	      >- $H_D(i_D)=\sum{H_P(i_{a_P})+Hp(i_{b_P})+\cdots+H_p(i_{n_P})}$
     	      >- $H_D(i_D)=\displaystyle\sum_{i_{m_P}}^{k}{H_P(i_{1_P})+Hp(i_{2_P})+\cdots+H_p(i_{k_P})}$;
           - 形式化公式是我凭着理解尽量表达出来的(可能不是那么贴切)
-               
+            
                > last version formula:
                
           - $H_D(i_D)=\displaystyle\sum_{i_{m_P}}^{k}{H_P(i_{1_P})+Hp(i_{2_P})+\cdots}$;
@@ -99,36 +99,35 @@
 
     ![1646615731493.png](https://img-blog.csdnimg.cn/img_convert/45c789c755fbc20932e9fa635093c2f8.png)
 
+$$
+根据上述的分组有\\
+\begin{array}{l}
+P_{1}=D_{1} \oplus D_{2} \oplus D_{4}=0 \oplus 1 \oplus 1=0 \\
+P_{2}=D_{1} \oplus D_{3} \oplus D_{4}=0 \oplus 0 \oplus 1=1 \\
+P_{3}=D_{2} \oplus D_{3} \oplus D_{4}=1 \oplus 0 \oplus 1=0
+\end{array}
+$$
 
-    $$
-    根据上述的分组有\\
-    \begin{array}{l}
-    P_{1}=D_{1} \oplus D_{2} \oplus D_{4}=0 \oplus 1 \oplus 1=0 \\
-    P_{2}=D_{1} \oplus D_{3} \oplus D_{4}=0 \oplus 0 \oplus 1=1 \\
-    P_{3}=D_{2} \oplus D_{3} \oplus D_{4}=1 \oplus 0 \oplus 1=0
-    \end{array}
-    $$
+- 所以, 信息序列1010 对应的海明码为 $101 \underline{0} 0 \underline{10}$
+- (下画线为校验位, 其他为信息位)
 
-    - 所以, 信息序列1010 对应的海明码为 $101 \underline{0} 0 \underline{10}$
-    - (下画线为校验位, 其他为信息位)
+### 海明码的校验
 
-    ### 海明码的校验
+- 利用各组内的奇偶校验(也是求亦或的过程)来检查
+- 将构成K个方程
+  - Hamming Code=101`0`0`10`
 
-    - 利用各组内的奇偶校验(也是求亦或的过程)来检查
-    - 将构成K个方程
-      - Hamming Code=101`0`0`10`
+$$
+每个校验组分别利用校验位和参与形成该校验位的信息位进行奇偶校验检查, 构成  k  个校验 方程:
+\\
+\begin{array}{l}
+S_{1}=P_{1} \oplus D_{1} \oplus D_{2} \oplus D_{4} \\
+S_{2}=P_{2} \oplus D_{1} \oplus D_{3} \oplus D_{4} \\
+S_{3}=P_{3} \oplus D_{2} \oplus D_{3} \oplus D_{4}
+\end{array}
+\\
+$$
 
-    $$
-    每个校验组分别利用校验位和参与形成该校验位的信息位进行奇偶校验检查, 构成  k  个校验 方程:
-    \\
-    \begin{array}{l}
-    S_{1}=P_{1} \oplus D_{1} \oplus D_{2} \oplus D_{4} \\
-    S_{2}=P_{2} \oplus D_{1} \oplus D_{3} \oplus D_{4} \\
-    S_{3}=P_{3} \oplus D_{2} \oplus D_{3} \oplus D_{4}
-    \end{array}
-    \\
-    $$
-
-    - 若$S_{3} S_{2} S_{1}$ 的值为 “ 000 ”, 则说明无错; 
-    - 否则说明出错, 且这个数就是错误位的位号, 
-      - 如 $S_{3} S_{2} S_{1}=001$ , 说明第 1 位出错, 即  $H_{1}$  出错, 直接将该位取反就达到了纠错的目的。
+- 若$S_{3} S_{2} S_{1}$ 的值为 “ 000 ”, 则说明无错; 
+- 否则说明出错, 且这个数就是错误位的位号, 
+  - 如 $S_{3} S_{2} S_{1}=001$ , 说明第 1 位出错, 即  $H_{1}$  出错, 直接将该位取反就达到了纠错的目的。

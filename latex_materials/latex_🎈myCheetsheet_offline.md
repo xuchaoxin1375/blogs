@@ -419,3 +419,34 @@ $$
 \\ \bigcap\limits_{i=1}^{n}
 \\ \bigcup_{i=1}^{n}
 $$
+
+### 表格
+
+- markdown中的表格支持不是很完善
+
+- 不能够直接使用table
+
+- 但是可以使用基础的array
+
+  - $$
+    \begin{array}{|c|c|}
+    \hline 
+    操作码字段 & 地址码字段\\
+    \hline
+    c_1 & c_2\\
+    \hline
+    \end{array}
+    $$
+
+    - ```tex
+      \begin{array}{|c|c|}
+      \hline 
+      操作码字段 & 地址码字段\\
+      \hline
+      c_1 & c_2\\
+      \hline
+      \end{array}
+      ```
+
+  - 通常,可以结合使用`\underbrace{}_{}`或者`\overbrace{}^{}`来做基本
+
