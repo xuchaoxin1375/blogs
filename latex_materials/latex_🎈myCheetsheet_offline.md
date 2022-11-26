@@ -420,7 +420,7 @@ $$
 \\ \bigcup_{i=1}^{n}
 $$
 
-### 表格
+## 表格
 
 - markdown中的表格支持不是很完善
 
@@ -449,4 +449,19 @@ $$
       ```
 
   - 通常,可以结合使用`\underbrace{}_{}`或者`\overbrace{}^{}`来做基本
+
+
+
+
+
+## 逻辑学
+
+- $$
+  \begin{array}{l}
+  \neg(p \wedge q) \equiv(\neg p) \vee(\neg q) \\
+  \neg(p \vee q) \equiv(\neg p) \wedge(\neg q)
+  \end{array}
+  $$
+
+  
 

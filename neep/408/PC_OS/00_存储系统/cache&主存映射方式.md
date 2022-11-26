@@ -1,11 +1,13 @@
-@[toc]
+[toc]
+
+
 
 ## 直接映射
 
 * 我们将cache简称为缓存
 * `每个主存块`只与 `一个缓存块`相对应,映射关系式为
 
-  * $i = j\ mod\ C$
+  * $i = j\mod C$
   * 其中，i为缓存块号,j为主存块号,C为缓存块数。
     * 设主存共有$M=2^m$个子块,cache含有$2^c$个子块($C=2^c)$(区分C,c;m>c)
     * 自然,区分不同缓存块的地址用c位二进制数来编码区分,用m位来区分主存的不同块
@@ -58,13 +60,13 @@
 
 ### 小结
 
-![🥰03/07/2022 20:03:12](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/20220307200306.png)
+![🥰03/07/2022 20:03:12](https://img-blog.csdnimg.cn/img_convert/d17a9b4bd1edb03c137d36ea5e8b75a4.png)
 
-![🥰03/07/2022 20:03:44](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/20220307200343.png)
+![🥰03/07/2022 20:03:44](https://img-blog.csdnimg.cn/img_convert/36a44d0eca98fa427ba458e7406a539d.png)
 
-![1646657005307.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657005307.png)
+![1646657005307.png](https://img-blog.csdnimg.cn/img_convert/c2ba150bbce20b2ba5ec2c0f49e27004.png)
 
-![1646656842434.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646656842434.png)
+![1646656842434.png](https://img-blog.csdnimg.cn/img_convert/2565bbfc787e15007d56219801064bd8.png)
 
 ## 全相联映射
 
@@ -75,33 +77,42 @@
 * 这种比较通常采用“按内容寻址”的相联存储器来完成。
 * 总之,这种方式所需的逻辑电路甚多,成本较高,实际的Cache还要采用各种措施来减少地址的比较次数。
 
-![1646657418935.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657418935.png)
+![1646657418935.png](https://img-blog.csdnimg.cn/img_convert/a28a2086c3c7be05535ffb7d1de39144.png)
 
-![1646657946575.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657946575.png)
+![1646657946575.png](https://img-blog.csdnimg.cn/img_convert/13e70746ef5a8377c2926d78858e3f08.png)
 
-![1646657998977.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657998977.png)
+![1646657998977.png](https://img-blog.csdnimg.cn/img_convert/1ca24e03608851b7e1d36c8ee7c11eb9.png)
 
 ## 组相联映射
 
 * 组相联映射是对直接映射和全相联映射的一种折中。
+
   * r->row(row array of cache)
+
 * 它把Cache分为Q(=$2^q=\frac{2^c}{2^r}=2^{c-r}$)组,`每组有R块`(=C/Q=$2^r$;Q<C),并有以下关系:
+
   - $$
     i = j\ mod \ Q
     $$
+
   - 用q位(q=c-r)二进制数来区分不同的cache组(每个组内有R块)
+
     - 下图为例便于理解,将每组中的子块并排画到同一行)
     - r=1,对应的组内cache块数$R=2^r=2^1=2$块
+
   - 其中,i为缓存的 `组号`,j为主存的块号。
+
   - 某一主存块按 `模Q`将其映射到缓存的 `第i组`内
+
   - 可以认为,小写字母也是数量的一个指标(指数度量$log_2$)
+
   - $Q<C$,模变小了,直接相联的部分变得容易重合(有较高的组间冲突率,组内冲突特点类似全相联),但是组内采用全相联,有较高的cache利用率
 
-![1646657717835.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657717835.png)
+![1646657717835.png](https://img-blog.csdnimg.cn/img_convert/8470dde4d0cc39a1f6222604c645e0e7.png)
 
-![1646657731011.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657731011.png)
+![1646657731011.png](https://img-blog.csdnimg.cn/img_convert/d16cb621ff45eab1b2bf11f38bb1b2df.png)
 
-![1646657753933.png](https://cdn.jsdelivr.net/gh/xuchaoxin1375/pictures@main/images/1646657753933.png)
+![1646657753933.png](https://img-blog.csdnimg.cn/img_convert/d039f21697321f99a9c25e2b5bddeeaf.png)
 
 ### summary
 
@@ -111,4 +122,3 @@
 * 极端情况位:
   * 每个组只有一个cache,(分组的数量达到最多,仅直接相联有作用)
   * 分组数量q达到最少(仅一个分组,组内数量达到最多,此时仅全相联有作用))
-  *
