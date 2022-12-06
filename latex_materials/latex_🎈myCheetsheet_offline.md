@@ -463,5 +463,93 @@ $$
   \end{array}
   $$
 
+
+## 竖式计算
+
+- $$
+  \begin{array}{r}
+  &10010101B\\
+  +&001010B\\
+  \hline
+  &11011111B
+  \end{array}
+  $$
+
+  - 
+
+    ```tex
+    \begin{array}{r}
+    &10010101B\\
+    +&001010B\\
+    \hline
+    &11011111B
+    \end{array}
+    ```
+
+- $$
+  \underline{
+      \begin{aligned}
+      &&0.1101
+      \\&\times&0.111
+      \end{aligned}
+  }
+  $$
+
+  
+
+  - ```tex
+    \begin{aligned}
+    &&0.1101
+    \\&\times&0.111
+    \hline
+    \end{aligned}
+    ```
+
+### 横线
+
+- $$
+  test
+  \\
+  \rule{8cm}{1.4pt}
+  \\
+  test
+  \\
+  \rule{5cm}{.4pt}
+  $$
+
+  
+  
+  - ```tex
+    test
+    \\
+    \rule{8cm}{1.4pt}
+    \\
+    test
+    \\
+    \rule{5cm}{.4pt}
+    ```
+  
+    
+  
+- [rules - Horizontal line spanning the entire document in LaTeX - TeX - LaTeX Stack Exchange](https://tex.stackexchange.com/questions/19579/horizontal-line-spanning-the-entire-document-in-latex)
+
+## 线性代数@向量正交
+
+- $$
+  \mathbf{S} \bullet \mathbf{T} = \frac{1}{m} \sum_{i=1}^{m} S_{i} T_{i}=0
+  $$
+
+  
+
+  - ```tex
+    \mathbf{S} \bullet \mathbf{T} \equiv \frac{1}{m} \sum_{i=1}^{m} S_{i} T_{i}=0
+    ```
+
+    
+
+  
+
+  
+
   
 

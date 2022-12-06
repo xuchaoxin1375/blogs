@@ -39,7 +39,26 @@ flowchart TB
     z<--R-->x
 
 ```
+### 圆柱体
+
+- ```mermaid
+  flowchart LR
+  	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
+  	st1<-->st3[(stiwtch3)]<-->st2
+  ```
+
+  
+
+- ```
+  flowchart LR
+  	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
+  	st1<-->st3[(stiwtch3)]<-->st2
+  ```
+
+  
+
 ##  不稳定性
+
 ### 引擎版本
  由于引擎版本不同,同样的代码效果可能不同
 
