@@ -118,7 +118,21 @@
       \end{cases}
       ```
 
-      
+
+## 颜色
+
+- $$
+  \huge\textcolor{blue}{F=ma}
+  \\
+  \Huge\textcolor{green}{F=ma}
+  \\
+  \Huge\textcolor{red}{F=ma}
+  \\\Huge\textcolor{pink}{F=ma}
+  \\\Huge\textcolor{orange}{F=ma}
+  \\\Huge\textcolor{brown}{F=ma}
+  $$
+
+  
 
 ## 大号/小号字体(文本段)
 
@@ -193,12 +207,61 @@
     - 当然还有下划线等强调方式
   - 也可以用来优化公式的显示,例如,某些指数非常长,比如二维正态分布的密度函数,这时候用Huge来使得e这个字母显得清晰可见
 
+
+## 宏定义
+
+
+
+- 宏定义,将`\def\MacroName{express}`使得`\MacroName`成为express的别名
+
+- $$
+  \spadesuit:\\
+  definitions:
+  \def\ba#1{#1^2}
+  \\\ba{y}
+  \def\bd#1{\boxed{#1}}
+  \\\bd{test}
+  \def\lra#1#2{#1\leftrightarrow{#2}}
+  \\\lra{p}{q}
+  \\\def\lra#1#2{#1\Leftrightarrow{#2}}
+  \\\lra{p}{q}
+  $$
+
+  - ```tex
+    \spadesuit:\\
+    definitions:
+    \def\ba#1{#1^2}
+    \\\ba{y}
+    \def\bd#1{\boxed{#1}}
+    \\\bd{test}
+    \def\lra#1#2{#1\leftrightarrow{#2}}
+    \\\lra{p}{q}
+    \\\def\lra#1#2{#1\Leftrightarrow{#2}}
+    \\\lra{p}{q}
+    ```
+
+    
+
+- typora的宏定义的作用域比价广
+
+- 某些在线markdown编辑器的宏定义作用域比较窄(以下表格可能无法正常渲染;typora中可以渲染)
+
+  | `\def\bar#1{#1^2}`                    | ` \bar{y}`                   | $\ba{y}$                     |
+  | ------------------------------------- | ---------------------------- | ---------------------------- |
+  | `\def\bd#1{\boxed{#1}}`               | `\bd{text}`                  | $\bd{test}$                  |
+  | `\def\lra#1#2{#1\leftrightarrow{#2}}` | `\lra{p}{q}`<br />`\lra{}{}` | $\lra{p}{q}$<br />$\lra{}{}$ |
+
   
+
+
 
 ##  可变长等号(自适应长度等号)
 
-- `before \xlongequal{oversetContents} later`
-$before \xlongequal{OversetContents} later$
+- [Support Table · X-length](https://katex.org/docs/support_table.html#x)
+
+- $before \xlongequal{OversetContents} later$
+  - `before \xlongequal{oversetContents} later`
+
 
 # 🎈各种箭头
 
@@ -232,6 +295,19 @@ $before \xlongequal{OversetContents} later$
   $$
   \beta\Rightarrow^*\varepsilon
   $$
+
+### 逻辑推导箭头
+
+- QP⟸Q
+-  QP⟹Q
+
+$$
+\impliedby :P\impliedby Q
+\\
+\implies :P\implies Q
+$$
+
+
 
 
 ## 常用的简单箭头参考
@@ -280,6 +356,31 @@ $$
 \\
 \overrightarrow{abc}
 $$
+
+### 标记系列
+
+- 这不分很多都Markdown都不兼容
+
+- $\underset{100m}{\underleftrightarrow{A\boxed{\quad\text{test the underleftrightarrow }}B}}$
+
+  - ```text
+    \underset{100m}{\underleftrightarrow{A\boxed{\quad\text{test the underleftrightarrow }}B}}
+    ```
+
+    
+
+- 
+
+- | \underbrace          |                                                   | `\underbrace{x+⋯+x}_{n\text{ times}}` |
+  | -------------------- | ------------------------------------------------- | ------------------------------------- |
+  | \undergroup          | \undergroup{AB}*A**B*                             | `\undergroup{AB}`                     |
+  | \underleftarrow      | \underleftarrow{AB}*A**B*                         | `\underleftarrow{AB}`                 |
+  | \underleftrightarrow | \underleftrightarrow{AB}*A**B*                    | `\underleftrightarrow{AB}`            |
+  | \underrightarrow     | \underrightarrow{AB}*A**B*                        | `\underrightarrow{AB}`                |
+  | \underline           | \underline{\text{a long argument}}a long argument | `\underline{\text{a long argument}}`  |
+  | \underlinesegment    | \underlinesegment{AB}*A**B*                       | `\underlinesegment{AB}`               |
+  | \underparen          | Not supported                                     | See `\undergroup`                     |
+  | \underrightarrow     | \underrightarrow{AB}*A**B*                        | `\underrightarrow{AB}`                |
 
 ##  可扩展(高度)的括号对
 
@@ -454,7 +555,7 @@ $$
 
 
 
-## 逻辑学
+## 逻辑学🎈
 
 - $$
   \begin{array}{l}
@@ -545,11 +646,126 @@ $$
     \mathbf{S} \bullet \mathbf{T} \equiv \frac{1}{m} \sum_{i=1}^{m} S_{i} T_{i}=0
     ```
 
+
+
+
+## 删除线
+
+- $\xcancel{ABC}$
+  - `\xcancel{ABC}`
+- $\cancel{ABC}$
+  - `\cancel{ABC}`
+- $\bcancel{ABC}$
+  - `\bcancel{ABC}`
+
+- $$
+  \cancel{\bcancel{testxfsdfsdfasd}}
+  $$
+
+  
+
+## 框线图
+
+- $$
+  \boxed{\sum\limits_{i=1}^{\delta}=\spadesuit}
+  \\
+  \boxed{\boxed{\xcancel{\Huge{Net_1}}}}
+  \\
+  \boxed{\boxed{\boxed{\xcancel{\Huge{Net_1}}}}}
+  \\
+  $$
+
+  - ```tex
+    \boxed{\sum\limits_{i=1}^{\delta}=\spadesuit}
+    \\
+    \boxed{\boxed{\xcancel{\Huge{Net_1}}}}
+    \\
+    \boxed{\boxed{\boxed{\xcancel{\Huge{Net_1}}}}}
+    ```
+
+    
+
+  
+
+### 兼容性差的部分:
+
+- typora支持但是某些在线markdown不支持
+  - 效果预览
+  -  ![在这里插入图片描述](https://img-blog.csdnimg.cn/fe5522b4156941358c8792297f32c974.png)
+
+- $$
+  \\\begin{CD}
+     A @>a>> B \\
+  @VbVV @AAcA \\
+     C @= D
+  \end{CD}
+  \\
+  \\\begin{CD}
+     \\\boxed{\sum\limits_{i=1}^{\delta}=\spadesuit} @>a>> B \\
+  @VbVV @AAcA \\
+     C @= D
+  \end{CD}
+  $$
+
+  - ```tex
+    \\\begin{CD}
+       A @>a>> B \\
+    @VbVV @AAcA \\
+       C @= D
+    \end{CD}
+    \\
+    \\\begin{CD}
+       \\\boxed{\sum\limits_{i=1}^{\delta}=\spadesuit} @>a>> B \\
+    @VbVV @AAcA \\
+       C @= D
+    \end{CD}
+    ```
+
     
 
   
 
   
 
-  
+## 条件分支
+
+### 左花括号
+
+- typora支持但是某些在线markdown不支持
+
+- $$
+  \begin{cases}
+     a &\text{if } b \\
+     c &\text{if } d
+  \end{cases}
+  $$
+
+  - ```text
+    \begin{cases}
+       a &\text{if } b \\
+       c &\text{if } d
+    \end{cases}
+    ```
+
+    
+
+
+
+### 右花括号
+
+- $$
+  \begin{drcases}
+     a &\text{if } b \\
+     c &\text{if } d
+  \end{drcases}
+  $$
+
+  - ```tex
+    \begin{drcases}
+       a &\text{if } b \\
+       c &\text{if } d
+    \end{drcases}
+    ```
+
+    
 

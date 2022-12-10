@@ -208,8 +208,54 @@
 
       
 
-
 ## 启动/杀死app进程
+
+### 查找某个app/package
+
+- 例如,查找桌面启动器相关的包
+
+- ```bash
+  xaga:/ $ pm list packages|grep -e home -e launcher|nl
+       1  package:android.miui.home.launcher.res
+       2  package:com.yuk.miuihome
+       3  package:com.miui.home
+       4  package:com.miui.newhome
+       5  package:cn.fuckhome.xiaowine
+       6  package:bitpit.launcher
+  ```
+
+#### 查看某个包的信息
+
+-  `dumpsys package com.miui.home|nl`
+
+##### 查找android设备上的音乐/视频播放软件
+
+- `pm list packages|grep -e music -e player -e tv -e ku|nl`
+  - xaga:/ $ pm list packages|grep -e music -e player -e ku |nl
+         1  package:com.android.sharedstoragebackup
+         2  package:cn.kuwo.player
+         3  package:com.android.backupconfirm
+         4  package:player.normal.np
+         5  package:com.miui.cloudbackup
+         6  package:tv.danmaku.bili
+         7  package:com.android.calllogbackup
+         8  package:com.mylrc.mymusic
+         9  package:com.miui.player
+        10  package:com.android.wallpaperbackup
+        11  package:com.kugou.android.lite
+        12  package:com.android.musicfx
+        13  package:com.miui.backup
+        14  package:moe.shizuku.privileged.api
+
+#### 过滤Activitiy
+
+- ```bash
+  xaga:/ $ dumpsys package com.tencent.mm|nl|grep LauncherUI
+     487          b29e6a7 com.tencent.mm/.ui.LauncherUI filter 1484754
+     492          b29e6a7 com.tencent.mm/.ui.LauncherUI filter 7a26fd
+  ```
+
+  
 
 ### 启动某个app
 
@@ -218,13 +264,31 @@
 #### 使用am启动指定app(app的某个页面activity)
 
 - `am start PackageName/activity`
-- 例如`am start com.tencent.mm/com.tencent.mm.ui.LauncherUI`
-  - 该命令将启动微信主页页面
-  - `am start`还可以其他选项可以接受其他参数,比如,`am start -n`
-  - 但是,这不总是方便的,有时我们就只需要启动默认主页面,那么Activity就不是一个很有必要写的部分
-  - 但是我们不写activity名字,就不再是用`am`,而是改用`monkey`
 
-#### monkey启动指定app
+- 例如启动微信
+  
+  - `am start com.tencent.mm/com.tencent.mm.ui.LauncherUI`
+  
+  - 简写:`am start com.tencent.mm/.ui.LauncherUI`
+  
+    - ```bash
+      xaga:/ $ am start com.tencent.mm/.ui.LauncherUI
+      Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=com.tencent.mm/.ui.LauncherUI }
+      Warning: Activity not started, its current task has been brought to the front
+      ```
+  
+      
+  
+  - 该命令将启动微信主页页面
+  
+  - `am start`还可以其他选项可以接受其他参数,比如,`am start -n`
+  
+  - 但是,这不总是方便的,有时我们就只需要启动默认主页面,那么Activity就不是一个很有必要写的部分
+  
+  - 但是我们不写activity名字,就不再是用`am`,而是改用`monkey`
+  
+
+#### monkey启动指定app🎈
 
 - `monkey -p PackageName 1`
 
@@ -247,7 +311,10 @@
       ## Network stats: elapsed time=18ms (0ms mobile, 0ms wifi, 18ms not connected)
       ```
 
+  - 如果启动失败,您可以尝试变动参数(将数字1改为其他值再试)
   
+
+### 
 
 
 

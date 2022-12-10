@@ -96,7 +96,7 @@ flowchart TB
 	b---c & e
 	c---b 
 	c---d
-    c---e
+    c----e
 ```
 ###  端点调换
 
@@ -275,7 +275,170 @@ flowchart LR
 
         
 
+
+### VLAN
+
+```mermaid
+flowchart TB
+	subgraph ss
+	s1[s1]<-->s2[s2]
+	end
+	subgraph vlan10.
+	s1<--->A
+	s1<--->B
+	s1<--->A1
+	s1<--->B1
+	end
+	subgraph vlan20.
+    s1<--->C
+	s1<-->D
+	end
+	subgraph vlan10. 
+	s2<-->E
+	s2<-->E1
+	end
+	subgraph vlan20
+	s2<-->F
+	s2<-->F1
+	end
+```
+
+- ```tex
+  flowchart TB
+  	subgraph ss
+  	s1[s1]<-->s2[s2]
+  	end
+  	subgraph vlan10.
+  	s1<--->A
+  	s1<--->B
+  	s1<--->A1
+  	s1<--->B1
+  	end
+  	subgraph vlan20.
+      s1<--->C
+  	s1<-->D
+  	end
+  	subgraph vlan10. 
+  	s2<-->E
+  	s2<-->E1
+  	end
+  	subgraph vlan20
+  	s2<-->F
+  	s2<-->F1
+  	end
+  ```
+
+  
+
+#### 路由网络
+
+- 双路由器三网络
+
+- 
+
+  ```mermaid
+  flowchart LR
+  	subgraph net1
+  	 H1 & H2
+  	end
+  	
+  	%%subgraph R1.
+  	%%R1
+  	%%end
+  	
+  	subgraph net2
+  	 H3
+  	end
+  	
+  	subgraph net3
+  	 H4
+  	end
+  	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
+  	
+  ```
+
+  - ```tex
+    flowchart LR
+    	subgraph net1
+    	 H1 & H2
+    	end
+    	
+    	%%subgraph R1.
+    	%%R1
+    	%%end
+    	
+    	subgraph net2
+    	 H3
+    	end
+    	
+    	subgraph net3
+    	 H4
+    	end
+    	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
+    	
+    ```
+
     
+
+- 
+
+  ```mermaid
+  flowchart LR
+  	subgraph net1
+  	Net1<-->H1 & H2
+  	end
+  	
+  	%%subgraph R1.
+  	%%R1
+  	%%end
+  	
+  	subgraph net2
+  	Net2<-->H3
+  	end
+  	
+  	subgraph net3
+  	Net3<-->H4
+  	end
+  	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
+  	
+  ```
+
+  - ```tex
+    flowchart LR
+    	subgraph net1
+    	Net1<-->H1 & H2
+    	end
+    	
+    	%%subgraph R1.
+    	%%R1
+    	%%end
+    	
+    	subgraph net2
+    	Net2<-->H3
+    	end
+    	
+    	subgraph net3
+    	Net3<-->H4
+    	end
+    	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
+    	
+    ```
+
+
+### 集线器@交换机@路由器@网络混合系统
+
+```mermaid
+flowchart LR
+	S[[switch]]<-->H(hub) & H1[H1:192.168.2.2] & H2[H2:192.168.3.3]
+	style H fill:#f9f,stroke:#93,stroke-width:1px
+    style S fill:#fd926e,stroke:#93,stroke-width:1px
+	H<-.->H3[H3:192.168.3.251] & H4[H4:192.168.3.252]
+    R2[(R2)]<-->S & R1[(R1)]
+    R1<--> InternetS([InternetS])
+    style R2 fill:#fdf26e,stroke:#93,stroke-width:1px
+    R2<-->Net([Net:201.1.1.0/24])<-->DNS(DNS server:201.1.1.1)
+	
+```
 
 
 
