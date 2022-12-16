@@ -1,5 +1,7 @@
 [toc]
 
+# CN_LAN局域网@以太网Ethernet@EthernetFrame@MAC帧
+
 ## 数据链路层的子层
 
 - 为了使数据链路层能更好地适应多种局域网标准，IEEE 802 委员会就将**局域网的数据链路层**拆成**两个子层**：
@@ -180,21 +182,23 @@
 - The middle section of the frame is **payload data** including any headers for other protocols (for example, [Internet Protocol](https://en.wikipedia.org/wiki/Internet_Protocol)) carried in the frame. 
 - The frame ends with a [frame check sequence](https://en.wikipedia.org/wiki/Frame_check_sequence) (FCS), which is a 32-bit [cyclic redundancy check](https://en.wikipedia.org/wiki/Cyclic_redundancy_check) used to detect any in-transit corruption of data.
 
-- 基本结构
-  - [Layer 1](https://en.wikipedia.org/wiki/Physical_layer) Ethernet packet (72$\sim$1530)
-    - 前导码
-      - Preamble前同步码(P)
-      - Start frame delimiter帧定界符(SFD)
-    - Ehternet MAC frame([Layer 2](https://en.wikipedia.org/wiki/Data_link_layer) Ethernet frame(64$\sim$1522B(for VLAN)))
-      - MAC destination
-      - MAC source
-      - 802.1Q Tag(optional)
-      - Ehtertype(maybe)
-      - Ethernet v2
-      - IEEE 802.3
-      - payload(来自网络层的IP数据报)
-      - Frame check sequence(CRC)
-  - interpacket gap(IPG)
+
+#### 基本结构🎈
+
+- [Layer 1](https://en.wikipedia.org/wiki/Physical_layer) Ethernet packet (72$\sim$1530)
+  - 前导码
+    - Preamble前同步码(P)
+    - Start frame delimiter帧定界符(SFD)
+  - Ehternet MAC frame([Layer 2](https://en.wikipedia.org/wiki/Data_link_layer) Ethernet frame(64$\sim$1522B(for VLAN)))
+    - MAC destination
+    - MAC source
+    - 802.1Q Tag(optional)
+    - Ehtertype(maybe)
+    - Ethernet v2
+    - IEEE 802.3
+    - payload(来自网络层的IP数据报)
+    - Frame check sequence(CRC)
+- interpacket gap(IPG)
 
 #### 核心部分
 
@@ -209,6 +213,8 @@
 ### 小结:
 
 #### 802.3格式
+
+- 将VLAN考虑在内的版本!🎈
 
 - ![ ](https://img-blog.csdnimg.cn/cf15c5ba3deb458293dc957ca092e1a2.png)
 
@@ -244,17 +250,20 @@
 - 用收到的帧检验序列FCS 查出有差错；
 - 数据字段的长度不在46 ~ 1500 字节之间 
 
-### 字段详细版
+### 前导码🎈
 
-- **前导码**：
-  - 使接收端与发送端时钟同步 
-  - 在**帧**前面插入的**8字节**可再分为两个字段：
-    - 第一个字段共7字节，是**前同步码**，用来快速实现MAC帧的比特同步：
-    - 第二个字段是**帧开始定界符**，表示后面的信息就是**MAC帧** 
+- 使接收端与发送端时钟同步 
+- 在**以太网MAC帧**前面插入的**8字节**可再分为两个字段：
+  - 第一个字段共7字节，是**前同步码**，用来快速实现MAC帧的比特同步：
+  - 第二个字段是**帧开始定界符**，表示后面的信息就是**MAC帧** 
+
+### 以太网MAC帧字段详细版🎈
 
 - 地址:通常使用6字节(48bit)地址(MAC地址)
 
 - 类型：2字节，指出数据域中携带的数据应交给哪个**协议实体**处理
+  - 比如指出上层的协议用的是IP协议,那么这两个字节取值为08 00H
+
 - 数据：46~1500字节(368$\sim$12k bit)，包含**高层的协议消息** 
   - 由于CSMA/CD算法的限制，以太网帧必须满足最小长度要求64字节，
   - 数据较少时必须加以填充(0~46字节)
@@ -262,8 +271,8 @@
     - 46:由CSMA/CD算法可知以太网帧的最短帧长为64B,
       - 而MAC帧的**首部和尾部的长度为18字节**，所以数据字段最短为64-18=46字节 
     - 1500:最大的1500字节是习惯上规定的
-- 填充：0~46字节(0$\sim$368bit)
-  - 当帧长太短时填充帧，使之达到64字节的最小长度 
+  - 填充字节数🎈：0~46字节(0$\sim$368bit)
+    - 当帧长太短时填充帧，使之达到64字节的最小长度 
 - 校验码(FCS):4字节(32bit)
   - 校验范围从**目的地址段**到**数据段的末尾**，
   - 算法采用32位循环冗余码(CRC),

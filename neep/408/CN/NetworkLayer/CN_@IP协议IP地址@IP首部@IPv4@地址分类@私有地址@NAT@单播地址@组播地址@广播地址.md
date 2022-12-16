@@ -1,30 +1,47 @@
 [toc]
 
-# CN_@IP协议IP地址@IP首部@IPv4@地址分类@私有地址@NAT@单播地址@组播地址@广播地址
 
-- IP 地址就是给每个连接在互联网上的主机（或路由器）分配一个在全世界范围是唯一的 32 位的标识符。
-- 从 IP 地址的结构来看，**IP 地址并不仅仅指明一台主机，而是还指明了主机所连接到的网络**。 
-- IP 地址现在由互联网名字和数字分配机构ICANN (Internet Corporation for Assigned Names and Numbers)进行分配。
 
-## ref
+# IP协议
+
+- [Internet Protocol - Wikipedia](https://en.wikipedia.org/wiki/Internet_Protocol)
+
+
+
+## IP数据报(Packet structure)
+
+- IP协议当前有两个版本在运行
+  - IPv4
+  - [IPv6](https://en.wikipedia.org/wiki/IPv6)
+
+- 目前来看IP数据报默认指的是IPv4数据报,将来有IPv6取代
+
+### IPv4分组的格式
 
 - [IPv4 - Wikipedia](https://en.wikipedia.org/wiki/IPv4)
-
-## PIv4分组的格式
-
 - 一个IP分组由首部和数据部分组成。
   - 首部固定部分:首部前一部分的**长度固定**，共20B,
     - 是所有IP分组必须具有的。
   - **首部固定部分**的后面是一些可选字段，其长度可变，用来提供**错误检测**及<u>安全等机制</u>
 
-## Packet structure
+- IP数据报文头部的结构是体现IP分组的核心
+- 其中,**固定部分**又是核心中的核心(共占有20B)(80bit)
+
+#### IPv4分组结构示意图
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/c7fb82111e5242b09bbe0ce34b76d181.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_16,color_FFFFFF,t_70,g_se,x_16)
+
+
 
 ### Header
 
 - The IPv4 packet header consists of 14 fields, of which 13 are required.
   -  The 14th field is optional and aptly named: options. 
-  - The fields in the header are packed with the most significant byte first ([big endian](https://en.wikipedia.org/wiki/Endianness)), and for the diagram and discussion, the most significant bits are considered to come first ([MSB 0 bit numbering](https://en.wikipedia.org/wiki/MSB0)). 
-  - The most significant bit is numbered 0, so the version field is actually found in the four most significant bits of the first byte, for example.
+  -  The fields in the header are packed with the most significant byte first ([big endian](https://en.wikipedia.org/wiki/Endianness)), and for the diagram and discussion, the most significant bits are considered to come first ([MSB 0 bit numbering](https://en.wikipedia.org/wiki/MSB0)). 
+  -  The most significant bit is numbered 0, so the version field is actually found in the four most significant bits of the first byte, for example.
+
+#### header format🎈(英版示意图)
+
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/eea2b9d9305543bcaf0401f38e5bfb4f.png)
 
 - Version
@@ -109,7 +126,7 @@
   - 占16位。
   - 指首部和数据之和的长度，**单位为字节**，因此数据报的最大长度为$2^{16}$-1=65535B。
   - 以太网帧的最大传送单元(MTU)为1500B,
-    - 因此当一个P数据报封装成帧时，数据报的总长度（首部加数据）一定不能超过下面的**数据链路层的MTU值**
+    - 因此当一个IP数据报封装成帧时，数据报的总长度（首部加数据）一定不能超过下面的**数据链路层的MTU值**
 - 4)标识。
   - 占16位。
   - 它是一个计数器，每产生一个数据报就加1，并赋值给标识字段。
@@ -146,40 +163,63 @@
 
 ### Note:
 
-- 在P数据报首部中有三个关于**长度的标记**，
+- 在IP数据报首部中有三个关于**长度的标记**，
   - 首部长度;总长度;片偏移，基本单位分别为4B;1B;8B（需要记住）。
   - 熟悉IP数据报首部的**各个字段的意义和功能**，但不需要记忆IP数据报的首部
-  - 正常情况下如果需要参考首部，题目都会直接给出。
-  - TCP;UDP的首部也是一样的
 
 ## IP数据报分片
 
 - 一个链路层数据报能承载的最大数据量称为最大传送单元(MTU)。
-- 因为P数据报被封装在链路层数据报中，因此链路层的MTU严格地限制着P数据报的长度，而且在P数据报的源与目的地路径上的各段链路可能使用不同的链路层协议，有不同的MTU。
+- 因为IP数据报被封装在链路层数据报中，因此链路层的MTU严格地限制着IP数据报的长度，而且在IP数据报的源与目的地路径上的各段链路可能使用不同的链路层协议，有不同的MTU。
 - 例如，以太网的MTU为1500B,而许多广域网的MTU不超过576B。
-  - 当P数据报的总长度大于链路MTU时，就需要将P数据报中的数据分装在多个较小的P数据报中
+  - 当IP数据报的总长度大于链路MTU时，就需要将IP数据报中的数据分装在多个较小的IP数据报中
   - 这些较小的数据报称为**片**。
+
+### IP数据报分片案例🎈
+
+- **原始数据报首部**被复制为各**数据报片的首部**，但必须修改有关字段的值。
+- 例如:
+  - 设:
+    - 一数据报的总长度为 3820 字节，其`数据部分的长度为 3800 字节`（使用固定首部）
+    - 需要`分片为长度不超过 1420 字节`的数据报片。
+  - 因固定首部长度为 20 字节，因此`每个数据报片的数据部分长度`不能超
+    过 1400 字节。
+  - 于是分为 3 个数据报片，其数据部分的长度分别为 1400、1400 和1000 字节。
+    ![在这里插入图片描述](https://img-blog.csdnimg.cn/cf6979d23ed840448183adb09a46cf20.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_18,color_FFFFFF,t_70,g_se,x_16)
+
+
+
+- IP数据报首部中与分片有关的字段中的数值
+
+|            | 总长度 | 标识  | 数据部分长度 | 分组/分片内字节范围 | MF   | DF   | 片偏移🎈         |
+| ---------- | ------ | ----- | ------------ | ------------------- | ---- | ---- | --------------- |
+| 原始数据报 | 3820   | 12345 | 3800         | 0$\sim$3799         | 0    | 0    | 0               |
+| 数据报片1  | 1420   | 12345 | 1400         | 0$\sim$1399         | 1    | 0    | 0(0/8=0)        |
+| 数据报片2  | 1420   | 12345 | 1400         | 1400$\sim$2799      | 1    | 0    | 175(1400/8=175) |
+| 数据报片3  | 1020   | 12345 | 1000         | 2800$\sim$3799      | 0    | 0    | 350(280/8=350)  |
+
+
 
 ### MTU的大小不总是可以被充分利用
 
 #### 例
 
 -  若路由器向MTU=800B的链路转发一个总长度为1580B的IP数据报(首部长度为20B)时，进行了分片，且每个分片尽可能大，则第2个分片的总长度字段和MF标志位的值分别是（）
-  - A.796,0
-    B.796,1
-    C.800,0
-    D.800,1
-- 分析:
-  - 链路层MTU=800B
-  - IP分组首部长20B
-  - 理论字节数上限为800-20=780B
-    - 但是,片偏移以8个字节为偏移单位，因此**除最后一个分片，其他每个分片的数据部分长度都是8B的整数倍**。
-    - 这句话很重要
-    - 意味着,MTU的总容量不总是可以被充分利用(实际上限比MTU更小)
-    - 780%8=4(商为97;我们只关心余数是否为0,如果不是,那么MTU容量不能够别充分利用)
-  - 所以，最大IP分片的**数据部分长度为776(=800-4)B**。
-  - 总长度1580B的P数据报中，数据部分占1560B,$(\lceil{1560B/776B}\rceil)=3$,需要分成3片
-  - 故第2个分片的总长度字段为796,MF为1（表示还有后续的分片）。
+   - A.796,0
+     B.796,1
+     C.800,0
+     D.800,1
+-  分析:
+   - 链路层MTU=800B
+   - IP分组首部长20B
+   - 理论字节数上限为800-20=780B
+     - 但是,片偏移以8个字节为偏移单位，因此**除最后一个分片，其他每个分片的数据部分长度都是8B的整数倍**。
+     - 这句话很重要
+     - 意味着,MTU的总容量不总是可以被充分利用(实际上限比MTU更小)
+     - 780%8=4(商为97;我们只关心余数是否为0,如果不是,那么MTU容量不能够别充分利用)
+   - 所以，最大IP分片的**数据部分长度为776(=800-4)B**。
+   - 总长度1580B的IP数据报中，数据部分占1560B,$(\lceil{1560B/776B}\rceil)=3$,需要分成3片
+   - 故第2个分片的总长度字段为796,MF为1（表示还有后续的分片）。
 
 ## 网络中继系统(设备)
 
@@ -205,8 +245,13 @@
 
   - `网络层以上`的中继系统：网关 (gateway)。
 
+## IP地址🎈
 
-## IP 地址的编址方法
+- IP 地址就是给每个连接在互联网上的主机（或路由器）分配一个在全世界范围是唯一的 32 位的标识符。
+- 从 IP 地址的结构来看，**IP 地址并不仅仅指明一台主机，而是还指明了主机所连接到的网络**。 
+- IP 地址现在由互联网名字和数字分配机构ICANN (Internet Corporation for Assigned Names and Numbers)进行分配。
+
+### IP 地址的编址方法
 
 - 分类的 IP 地址。
   - 这是最基本的编址方法，在1981年就通过了相应的标准协议。
@@ -218,7 +263,8 @@
   - 这是比较新的`无分类编址方法`。1993年提出后很快就得到推广应用。
 
 
-## IPv4点分十进制表示法🎈
+
+### IPv4地址的点分十进制表示法🎈
 
 - 8位一组@点分十进制IP地址表示法
 - 机器中存放的 IP 地址是 32 位二进制代码
@@ -243,7 +289,7 @@
   - 这种两级的 IP 地址可以记为： 
     - `IP 地址 ::= { <网络号>, <主机号>}` 
 
-    -  符号“::=”表示“定义为”
+    - 符号“::=”表示“定义为”
 
 - | 地址类别 | 网络号位数 | 前缀 | 前缀位数 | 后缀(理论)        | 后缀位数范围 | 主机号            | 主机号位数范围 |
   | -------- | ---------- | ---- | -------- | ----------------- | ------------ | ----------------- | -------------- |
@@ -276,11 +322,11 @@
 
 - IP 地址的指派范围
 
-   | 网络类别 | 最大可指派          | 第一个可指派的网络号 | 最后一个可指派的 网络号 | 每个网络中最大主机数 |
-   | -------- | ------------------- | -------------------- | ----------------------- | -------------------- |
-   | A        | $126=(2^7-2)$       | 1                    | 126                     | 16777214             |
-   | B        | $16383=(2^{14})$    | 128.0                | 191.255                 | 65534                |
-   | C        | $2097151=(2^{21} )$ | 192.0.0              | 223.255.255             | 254                  |
+  | 网络类别 | 最大可指派          | 第一个可指派的网络号 | 最后一个可指派的 网络号 | 每个网络中最大主机数 |
+  | -------- | ------------------- | -------------------- | ----------------------- | -------------------- |
+  | A        | $126=(2^7-2)$       | 1                    | 126                     | 16777214             |
+  | B        | $16383=(2^{14})$    | 128.0                | 191.255                 | 65534                |
+  | C        | $2097151=(2^{21} )$ | 192.0.0              | 223.255.255             | 254                  |
 
 - 从第一个可指派的网络号和最后一个可指派的网络号看各类别(A/B/C)网络最大可指派网络数
 
@@ -525,6 +571,20 @@
 #### 小结
 
 - NAT可看到端口,工作在传输层🎈
+
+#  wireshark 分析IP 数据报首部
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/fa6f20b695714572a1bdd514bf67d41f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_18,color_FFFFFF,t_70,g_se,x_16)
+
+- `Identivication`==标识==占了16位(从上面的抓包的取值0x739c(六进制数,而且是4位16进制数,每个十六进制数相当于4位二进制数,所以标识字段占2Byte:16bit
+- `Flags`==标志==
+  - 标志字段占三位
+  - 现在,仅有后面两位有用处,第一位暂时保留不用
+  - DF=1时,表示数据报不可分片(否则可)
+  - MF=1时,表示该IP分组是某个IP数据报的某个分片,且不是最后一个分片(否则就是最后一个分片)
+  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/9234a5abec7f40babbfcb6b09b6fe03a.png)
+- 偏移位占13位
+- 头部的第2行(4~7)字节中,第4字节的值是`0100 0000`,其十六进制表示为`0x40`
 
 # special address(IP)
 

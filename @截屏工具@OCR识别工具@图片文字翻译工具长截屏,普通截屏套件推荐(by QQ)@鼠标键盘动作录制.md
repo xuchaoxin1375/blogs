@@ -29,3 +29,29 @@
 
 - 五花八门的功能,包括公式识别
 
+## 鼠键录制工具🎈
+
+- [有没什么好用的鼠标键盘录制器啊？ - 问题求助 - 小众软件官方论坛 (appinn.net)](https://meta.appinn.net/t/topic/19807)
+
+### quicker系列
+
+#### 用途:
+
+- PDF取出层叠图片型水印
+- 打开指定目录
+- 批量勾选操纵
+- ....
+
+#### 文档
+
+- [录制键鼠操作 - Quicker (getquicker.net)](https://getquicker.net/kc/help/doc/record)
+  - [前方高能！利用Quicker“键鼠录制工具”轻松制作复杂动作_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1GT4y1m7Rg/?vd_source=c0a3b17a665cd2d32431213df84cd3ce)
+
+#### 相关可用动作
+
+- [录制键鼠 - 动作信息 - Quicker (getquicker.net)](https://getquicker.net/Sharedaction?code=b5cbf520-9bc5-40ba-6236-08d795644eb1)
+
+### 键鼠录制开源软件
+
+- [Releases · taojy123/KeymouseGo (github.com)](https://github.com/taojy123/KeymouseGo/releases)
+
