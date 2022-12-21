@@ -14,19 +14,22 @@
 
 ### 样本
 
+- (X_1,X_2,\cdots,X_n)$
+  
 - $\mathscr{S}=(X_1,X_2,\cdots,X_n)$
+  
   - $X_1,X_2,\cdots,X_n$
-
+  
   - $\mathscr{S_i}=(Y_1,Y_2,\cdots,Y_{n_i})$
-
+  
     - $\mathscr{S_1}=(X_1,X_2,\cdots,X_{n_1})$
     - $\mathscr{S_2}=(Y_1,Y_2,\cdots,Y_{n_2})$
-
+  
   - $\mathscr{S_i}是总体X\sim{N(\mu_i,\sigma_i^2)}的样本(i=1,2)$
-
+  
     - $\overline{X(\mathscr{S_i})}=\frac{1}{n_1}\sum\limits_{i=1}^{n_1}X_i$
       - $表示第i个样本\mathscr{S_i}的算数平均值$
-
+  
   - 
     $$
     \overline{X_{(i)}}=\frac{1}{n_2}\sum\limits_{i=1}^{n_2}X_i

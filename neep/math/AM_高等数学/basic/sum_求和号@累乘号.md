@@ -1,6 +1,6 @@
 @[toc]
 
-# 求和号的性质$\sum$
+# 求和号的性质$\sum$@累乘号$\prod$
 
 ## 累加多项式乘法
 
@@ -23,7 +23,23 @@
 
     
 
-## 求和区间的等值变化
+## 求和式包含的项数
+
+- 关于(连续逐项的)累加和累乘的总项数
+
+  - $$
+    \prod_{k=d}^{k=u}{exp}
+    \\
+    \sum_{k=d}^{k=u}{exp}
+    \\总项数为上界与下界之差+1,即:
+    \\items=d-u+1
+    \\某些情况下,我们首先知道的是items,以及d\&u中的一个,就可以利用上面等式进行计算
+    \\注意,无论表达式exp是怎样的,上述等式总是成立
+    $$
+
+    
+
+## 求和区间的等值变化🎈
 
 - 此处主要指求和区间的等值变化
 
@@ -34,12 +50,21 @@
   \\(或者:\sum\limits_{i=p}^{n}f(i)=\sum\limits_{i=p-q}^{n-q}f(i+q))
   $$
 
-  
-
   - 上面的公式可以用来改造求和公式的形式,将一个连续的求和式分为若干个片段(通常是2个)
   - 例如:$下面的例子中f(j)=j\cdot2^{j-1};那么f(j+1)=(j+1)\cdot2^{j}$
     - 新的形式可能会更加有利于推进演算
     - 例:下面的推导以错位相减法的角度来计算出t的关于h的公式(消去求和号)
+
+## 排列序列累积@二重循环
+
+#### 范德蒙行列式的展开
+
+- $$
+  |A_{V}|=\prod\limits_{1\leqslant{j}<{i}\leqslant{n}}(x_i-x_j)
+  =\prod\limits_{i=2}(\prod\limits_{j=1}(x_i-x_j))
+  $$
+
+  
 
 
 ### 例:错位相减法
@@ -85,8 +110,6 @@ $$
 
   
 
-
-
 - $$
   S=\sum\limits_{k=0}^{+\infin}
   kq^{k-1}
@@ -124,31 +147,68 @@ $$
 - $E(X)\sim{\lambda};D(X)\sim{\lambda}$
   - 假设期望已知,推导方差
 
+  - $$
+    E(X^2)=\sum\limits_{k=0}^{+\infin}
+    k^2\cdot\frac{\lambda^{k}}{k!}e^{-\lambda}
+    \\=e^{-\lambda}\sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
+    \\\\
+    \sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
+    =0+\sum\limits_{k=1}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
+    \xlongequal{k\geqslant1}\sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
+    \\=\sum\limits_{k=1}^{+\infin}k^1\cdot\frac{\lambda^{k}}{(k-1)!}
+    \\=\sum\limits_{k=1}^{+\infin}((k-1)+1)\cdot\frac{\lambda^{k}}{(k-1)!}
+    \\=\sum\limits_{k=1}^{+\infin}(k-1)\cdot\frac{\lambda^{k}}{(k-1)!}
+    +
+    \sum\limits_{k=1}^{+\infin}1\cdot\frac{\lambda^{k}}{(k-1)!}
+    \\=0+\sum\limits_{k=2}^{+\infin}(k-1)\cdot\frac{\lambda^{k}}{(k-1)!}
+    +\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k+1}}{(k)!}
+    \\
+    \xlongequal{k-1\geqslant{1}}
+    \sum\limits_{k=2}^{+\infin}\frac{\lambda^{k}}{(k-2)!}
+    +\lambda\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k}}{(k)!}
+    \\=\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k+2}}{(k)!}
+    +\lambda{e^\lambda}
+    \\=\lambda^2\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k}}{(k)!}
+    +\lambda{e^\lambda}
+    \\=\lambda^2{e^\lambda}+\lambda{e^\lambda}
+    \\\\
+    所以E(X^2)=e^{-\lambda}(\lambda^2{e^\lambda}+\lambda{e^\lambda})
+    =\lambda^2+\lambda
+    $$
+
+### 子序列记号法
+
+- 主要包括几个方面:
+  - 原序列的情况:长度
+    - n个元素的序列长度设为n
+  - 子序列的抽取方式
+  - 满足限定条件的(取法互不相同的)子序列的个数
+  - 🎢边界情况
+    - 子序列长度为1
+    - 子序列长度为n
+
 $$
-E(X^2)=\sum\limits_{k=0}^{+\infin}
-k^2\cdot\frac{\lambda^{k}}{k!}e^{-\lambda}
-\\=e^{-\lambda}\sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
-\\\\
-\sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
-=0+\sum\limits_{k=1}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
-\xlongequal{k\geqslant1}\sum\limits_{k=0}^{+\infin}k^2\cdot\frac{\lambda^{k}}{k!}
-\\=\sum\limits_{k=1}^{+\infin}k^1\cdot\frac{\lambda^{k}}{(k-1)!}
-\\=\sum\limits_{k=1}^{+\infin}((k-1)+1)\cdot\frac{\lambda^{k}}{(k-1)!}
-\\=\sum\limits_{k=1}^{+\infin}(k-1)\cdot\frac{\lambda^{k}}{(k-1)!}
-+
-\sum\limits_{k=1}^{+\infin}1\cdot\frac{\lambda^{k}}{(k-1)!}
-\\=0+\sum\limits_{k=2}^{+\infin}(k-1)\cdot\frac{\lambda^{k}}{(k-1)!}
-+\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k+1}}{(k)!}
+求和号下面的1\leqslant i_1<\cdots<i_k\leqslant n表示对序列\set{1,\cdots,n}抽取出k个元素
+\\构成长度为k的子序列
+\\这些个元素的大小关系和区分正如式子:1\leqslant i_1<\cdots<i_k\leqslant n
+所表示的那样
+\\抽取的这些序列在原序列中未必是相邻的
+\\满足条件:1\leqslant i_1<\cdots<i_k\leqslant n的不同的序列有\binom{n}{k}个
 \\
-\xlongequal{k-1\geqslant{1}}
-\sum\limits_{k=2}^{+\infin}\frac{\lambda^{k}}{(k-2)!}
-+\lambda\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k}}{(k)!}
-\\=\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k+2}}{(k)!}
-+\lambda{e^\lambda}
-\\=\lambda^2\sum\limits_{k=0}^{+\infin}\frac{\lambda^{k}}{(k)!}
-+\lambda{e^\lambda}
-\\=\lambda^2{e^\lambda}+\lambda{e^\lambda}
-\\\\
-所以E(X^2)=e^{-\lambda}(\lambda^2{e^\lambda}+\lambda{e^\lambda})
-=\lambda^2+\lambda
+\\拓展:如果取消掉大小关系的限制,要区分顺序,那么取法可达到排列数A_n^k中
 $$
+
+- 
+  $$
+  \frac{\part{z}}{\part{x_i}}=f'_y(x_1,\cdots,x_n),i\in\{1,2,\cdots,n\}
+  \\
+  \frac{\part^k{z}}{H(\theta)}
+  =f^{(k)}_{X(\theta)}(x_1,\cdots,x_n),i\in\{1,2,\cdots,n\}
+  \\\theta=i_1i_2\cdots{i_n};
+  \\\theta表示对序列的1,2,\cdots,{n}选出至少一个元素进行任意重新排列
+  \\不同的\theta有n^k种(注意,序列中的元素可以重复,所以可能的情况数是方幂级别)
+  \\这个更行列式那里的定义有所不同
+  \\H(\theta)=H\part{x}(\theta)=\part{x}_{i_1}\part{x}_{i_2}\cdots{\part{x}_{i_k}}
+  \\X(\theta)=x_{i_1}x_{i_2}\cdots{x_{i_k}}
+  $$
+  

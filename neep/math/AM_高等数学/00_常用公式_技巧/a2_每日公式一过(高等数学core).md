@@ -1,70 +1,87 @@
 @[toc]
+
 ## 重要极限
 
-$$
-\lim_{x\rightarrow 0}{\frac{sin(x)}{x}}=1
-\\
-\lim_{x\rightarrow 0}{(1+x)^{\frac{1}{x}}}=e
-$$
+- $$
+  \lim_{x\rightarrow 0}{\frac{\sin{x}}{x}}=1
+  \\
+  \large\lim_{x\rightarrow 0}{(1+x)^{\frac{1}{x}}}=e
+  $$
+
+  - 它们分别是经典的$0/0和1^{\infin}$形极限
 
 - 更有用的推广形式:
 
+  - 
+    $$
+    通常\phi(x)\rightarrow 0和
+    \begin{cases}
+    x\rightarrow 0
+    \\x\rightarrow \infin
+    \end{cases}
+    中的一个等价
+    $$
 
-$$
-通常\phi(x)\rightarrow 0和
-\begin{cases}
-x\rightarrow 0
-\\x\rightarrow \infin
-\end{cases}
-中的一个等价
-$$
-
-$$
-\lim_{x\rightarrow \infin}{(1-\frac{1}{x})}^x
-=\lim_{x\rightarrow \infin}{(1-\frac{1}{x})}^{-(-x)}
-=\lim_{x\rightarrow \infin}\frac{1}{{{(1-\frac{1}{x})}^{-x}}}
-=\frac{\lim\limits_{x\rightarrow \infin}1}{\lim\limits_{x\rightarrow \infin}(1-\frac{1}{x})^{-x}}
-=\frac{1}{e}
-\\
-\lim_{x\rightarrow \infin}{(1+\frac{a}{x})^{bx}}
-=\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{\frac{x}{a}ab}
-=\lim_{x\rightarrow \infin}
-\left (
-{(1+\frac{a}{x})}^{\frac{x}{a}}
-\right)
-^{ab}=e^{ab}
-\\
-\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{bx+c}
-=\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{bx}
-\cdot\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{c}
-=e^{ab}\cdot 1^c
-=e^{ab}\cdot 1
-=e^{ab}
-$$
-
-
-
-- 更一般的:($对于1^\infin$型的极限)
-
-  - > 有时,需要使用分离常数的技巧讲函数的形式转换为$(1+\alpha (x))^{\beta(x)}$的形式,例如:$(\frac{x+1}{x-3})^x$
-
-  - $判断指定过程的极限时1^\infin$型的
-
-  - $计算A=lim(\alpha(x)\beta(x))$
-
-  - 得到结果$\lim f(x)=e^A$
-
-$$
-\lim(1+\alpha(x))^{\beta(x)}=e^A
-\\=\lim(1+\alpha(x))^{\frac{1}{\alpha(x)}\alpha(x)\beta(x)}
-\\=\lim{(((1+\alpha(x))^\frac{1}{\alpha(x)}})^{\alpha(x)\beta(x)}
-\\记A=\lim{\alpha(x)\beta(x)};
-\\则\lim(1+\alpha(x))^{\beta(x)}=e^A
-$$
+  - $$
+    \lim_{x\rightarrow \infin}{(1-\frac{1}{x})}^x
+    =\lim_{x\rightarrow \infin}{(1-\frac{1}{x})}^{-(-x)}
+    =\lim_{x\rightarrow \infin}\frac{1}{{{(1-\frac{1}{x})}^{-x}}}
+    =\frac{\lim\limits_{x\rightarrow \infin}1}{\lim\limits_{x\rightarrow \infin}(1-\frac{1}{x})^{-x}}
+    =\frac{1}{e}
+    \\
+    \lim_{x\rightarrow \infin}{(1+\frac{a}{x})^{bx}}
+    =\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{\frac{x}{a}ab}
+    =\lim_{x\rightarrow \infin}
+    \left (
+    {(1+\frac{a}{x})}^{\frac{x}{a}}
+    \right)
+    ^{ab}=e^{ab}
+    \\
+    \lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{bx+c}
+    =\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{bx}
+    \cdot\lim_{x\rightarrow \infin}{(1+\frac{a}{x})}^{c}
+    =e^{ab}\cdot 1^c
+    =e^{ab}\cdot 1
+    =e^{ab}
+    $$
 
 
+### 小结
 
-> $上面的1^\infin$型极限都可以用$e^A$法来计算
+#### $对于1^\infin$型的极限
+
+- 有时,需要使用分离常数的技巧将函数的形式转换为$f(x)=(1+\alpha (x))^{\beta(x)}$的形式,
+
+  - 例如:$(\frac{x+1}{x-3})^x=(\frac{x-3+3+1}{x-3})^x=(1+\frac{4}{x-3})^{x}$
+
+  - 如果判断出$f(x)$的某个过程(记为$x\to{*}$)的极限属于$1^\infin$型的情况下
+
+    - 先计算出$A=\lim(\alpha(x)\beta(x))$
+
+    - 那么:$S=\lim f(x)=e^A$
+      - 也即是说,结果是$e$的幂的形式
+
+  - $$
+    S=\lim(1+\alpha(x))^{\beta(x)}
+    \\=\lim(1+\alpha(x))^{\frac{1}{\alpha(x)}\alpha(x)\beta(x)}
+    \\=\lim{(((1+\alpha(x))^\frac{1}{\alpha(x)}})^{\alpha(x)\beta(x)}
+    \\记A=\lim{\alpha(x)\beta(x)};
+    \\则S=\lim(1+\alpha(x))^{\beta(x)}=e^A
+    $$
+
+- $上面的1^\infin$型极限都可以用$e^A$模型法来计算
+
+  - 先确定$\alpha{(x)}和\beta{(x)}$
+
+  - $$
+    S_1=\lim_{x\rightarrow \infin}(1-\frac{1}{x})^x
+    \\
+    S_2=\lim_{x\rightarrow \infin}{(1+\frac{a}{x})^{bx}}
+    \\
+    S_3=\lim_{x\rightarrow \infin}(1+\frac{a}{x})^{bx+c}
+    $$
+
+    
 
 - $$
   A_1=\lim_{x\rightarrow \infin} \frac{-1}{x}x=-1
@@ -76,28 +93,34 @@ $$
 
   
 
-### 对数函数的导数公式推导(导数定义极限法)
+### 例
+
+#### 对数函数的导数公式推导(导数定义极限法)
 
 - $$
-  f(x)=log_a x
+  f(x)=\log_a x
   \\
-  f'(x)=(log_a x)'=\lim_{h\rightarrow 0}\frac{log_a{(x+h)}-log_a(x)}{h}
-  =\lim_{h\rightarrow 0}\frac{log_a(\frac{x+h}{x})}{h}
-  \\=\lim_{h\rightarrow 0}\frac{1}{h}{log_a({x+h}{x})}
-  \\=\lim_{h\rightarrow 0}{log_a{(1+\frac{h}{x})^{\frac{1}{h}}}}
-  \\记g(h)={log_a{(1+\frac{h}{x})^{\frac{1}{h}}}}
-  \\(log_a x)'=\lim_{h\rightarrow 0}g(h);g(h)的自变量是h(g(h)将x看作常量)
-  \\
-  第二重要极限的推广公式得到:A=\frac{h}{x}\frac{1}{h}=\frac{1}{x}
-  \\所以对于u=\phi(h)=(1+\frac{h}{x})^{\frac{1}{h}};
-  \\
-  u_0=\lim_{h\rightarrow 0}{u}=e^{\frac{1}{x}}
-  \\又由复合函数的极限运算法则:
-  \lim_{h\rightarrow 0}g(h)=\lim_{u\rightarrow u_0}log_a{u}=log_a u_0=log_a e^\frac{1}{x}
-  \\根据换底公式得到(log_a x)'=log_ae^{\frac{1}{x}}=\frac{\ln e^{\frac{1}{x}}}{\ln a}=\frac{1}{x}\frac{1}{\ln a}
+  f'(x)=(\log_a x)'=\lim_{h\rightarrow 0}\frac{\log_a{(x+h)}-\log_a(x)}{h}
+  =\lim_{h\rightarrow 0}\frac{\log_a(\frac{x+h}{x})}{h}
+  \\=\lim_{h\rightarrow 0}\frac{1}{h}{\log_a({x+h}{x})}
+  \\=\lim_{h\rightarrow 0}{\log_a{(1+\frac{h}{x})^{\frac{1}{h}}}}
+  \\记g(h)={\log_a{(1+\frac{h}{x})^{\frac{1}{h}}}}
+  \\(\log_a x)'=\lim_{h\rightarrow 0}g(h);
+  \\g(h)的自变量是h
+  \\g(h)将x看作常量
   $$
-
   
+  - $$
+    记u=u(h)=(1+\frac{h}{x})^{\frac{1}{h}};
+    \\
+    u_0=\lim_{h\rightarrow 0}{u}=e^{\frac{1}{x}}
+    \\第二重要极限的推广公式得到:A=\frac{h}{x}\frac{1}{h}=\frac{1}{x}
+    \\又由复合函数的极限运算法则:
+    \lim_{h\rightarrow 0}g(h)=\lim_{u\rightarrow u_0}\log_a{u}=\log_a u_0=\log_a e^\frac{1}{x}
+    \\根据换底公式得到(\log_a x)'=\log_ae^{\frac{1}{x}}=\frac{\ln e^{\frac{1}{x}}}{\ln a}=\frac{1}{x}\frac{1}{\ln a}
+    $$
+  
+    
 
 
 
@@ -106,7 +129,17 @@ $$
 
 - [math_证明常用等价无穷小&泰勒展开&案例&代换_xuchaoxin1375的博客-CSDN博客_等价无穷小替换公式证明](https://blog.csdn.net/xuchaoxin1375/article/details/125497428)
 
-![image-20220705091500418](https://img-blog.csdnimg.cn/img_convert/a5ce22c62bf069d5ad47c2d6d1001f5c.png)
+- $$
+  \sin{x}\sim\tan{x}\sim{x}\sim\arcsin{x}\sim\arctan{x}\sim\ln{(1+x)}\sim{e^{x}-1}
+  $$
+
+- $$
+  (1+x)^{a}-1\sim{ax}
+  \\1-\cos{x}=2\sin^2{\frac{x}{2}}\sim{2(\frac{x}{2})^2}=\frac{x^2}{2}
+  \\a^x-1\sim{x\ln{a}}
+  $$
+
+  
 
 ### 代换原则
 
@@ -118,9 +151,14 @@ $$
 
 ## 微分导数
 
-![image-20220705092355288](https://img-blog.csdnimg.cn/img_convert/94420cb50b8be490a55e8c8d1e427962.png)
+- $$
+  (\arcsin{x})'+(\arccos{x})'=0
+  \\
+  (\arctan{x})'+(\mathrm{arccot\ }x)'=0
+  $$
 
-![image-20220705092409293](https://img-blog.csdnimg.cn/img_convert/40701c0db25c60caa5f4588681a2ea3f.png)
+  
+
 $$
 \frac{d}{dx}e^{f(x)}g(x)=e^{f(x)}(f'(x)g(x)+g'(x)))
 \\=e^f(f'g+g')
@@ -132,9 +170,26 @@ $$
 $$
 
 
+
+### 导数积分公式表
+
+- 
+
 ### 高阶导数
 
-![image-20220705092438572](https://img-blog.csdnimg.cn/img_convert/d75276db01f68ff2dc3aa9849cc09b3d.png)
+
+
+- $$
+  (\sin{x})^{(n)}=\sin(x+n\cdot{\frac{\pi}{2}})
+  \\
+  (\cos{x})^{(n)}=\cos(x+n\cdot\frac{\pi}{2})
+  \\
+  (u+v)^{(n)}=u^{(n)}\pm{v^{(n)}}
+  \\
+  (uv)^{(n)}=\sum\limits_{i=0}^{n}\binom{n}{i}u^{(i)}v^{(n-i)}
+  $$
+
+  
 
 ![image-20220706154402509](https://img-blog.csdnimg.cn/img_convert/0feef97b4516bc962ae14a5320c375bd.png)
 
@@ -197,8 +252,6 @@ $$
 
 - $sinx$
 
-  
-
   - $$
     sinx=\sum\limits_{i=0}^{m}\frac{sin(i\frac{\pi}{2})}{i!}{x^i}
     \xlongequal{过滤掉值为恒为0的项,重新编号k}
@@ -218,7 +271,7 @@ $$
   - $$
     \\结合任意函数的maclaurin通项,可以看出,sin(0+k\frac{\pi}{2})的取值周期为
     \\T=[0,1,0,-1];将系数0对应的项过滤掉,得到符号周期T=[1,-1],
-    \\因此,从\sum_{k=0}{n}的过程中,有入下规律
+    \\因此,从\sum_{k=0}{n}的过程中,有如下规律
     \\
     $$
 
@@ -321,11 +374,9 @@ $$
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/a6871d6d74a0466dad35a6650fd723d3.png)
 
-## 积分
 
-![ ](https://img-blog.csdnimg.cn/img_convert/d48a85611cda2d97dc0296ee5b6ae922.png)
 
-## 特值公式
+## 特值公式🎈
 
 ### 凑微分
 
@@ -343,38 +394,3 @@ $$
 
 
 
-### 幂函数积分的一些常用特值扩充
-
-- $$
-  \\
-  \begin{aligned}
-  &overhead:积分升幂(特例:\frac{1}{x})\\
-  &\int x^kdx=\frac{1}{k+1}x^{k+1}+C=\frac{x^p}{p}+C,p=k+1\\
-  &\int \frac{1}{x}dx=\int x^{-1}dx=ln|x|+C\\
-  &\int \frac{1}{x^2}dx=\int x^{-2}dx=-x^{-1}+C=-\frac{1}{x}+C\\
-  &\int \frac{1}{\sqrt{x}}dx=\int x^{-\frac{1}{2}}dx=2x^{\frac{1}{2}}+C=2\sqrt{x}+C\\
-  &\int \sqrt{x} dx=\int x^{\frac{1}{2}}dx=\frac{2}{3}x^{\frac{3}{2}}+C
-  \end{aligned}
-  \quad
-  \begin{aligned}
-  &overhead:求导降幂\\
-  &(x^k)'=kx^{k-1}\\
-  &(\frac{1}{x})'=(x^{-1})'=-x^{-2}=-\frac{1}{x^2}\\
-  &(\frac{1}{x^2})'=(x^{-2})'=-2x^{-3}\\
-  &(\frac{1}{\sqrt{x}})'=(x^{-\frac{1}{2}})'=-\frac{1}{2}x^{-\frac{3}{2}}\\
-  &(\sqrt{x})'=(x^{\frac{1}{2}})'=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}};(2\sqrt{x})'=\frac{1}{\sqrt{x}}
-  \end{aligned}
-  $$
-
-
-$$
-  \int xdx=\frac{1}{2}x^2+c
-$$
-
-$$
-\int tanxdx=\ln |secx|+C
-$$
-
-$$
-\int cotxdx=- \ln |cscx|+C=\ln |sinx|+C
-$$

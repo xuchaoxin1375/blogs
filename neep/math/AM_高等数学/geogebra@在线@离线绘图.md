@@ -34,5 +34,10 @@
 ####  弧度制
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/51907e3ebece48008f4a88bd8a276117.png)
 
+### 积分计算器
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/1fd2ea16591e4e3888ff56bbd79026d8.png)
+
 ##  3D
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/0020b9df428947288335718058fd164e.png)

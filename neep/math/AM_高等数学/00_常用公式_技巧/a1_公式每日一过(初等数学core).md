@@ -5,8 +5,6 @@
 
 ## 三角函数
 
-
-
   
 
 - | <img src="https://img-blog.csdnimg.cn/dc2713ddca584548a49b8ef195845f89.png" alt="在这里插入图片描述" style="zoom:70%;" /> | ![在这里插入图片描述](https://img-blog.csdnimg.cn/1c96bdc9d7194f2fb62db5b48ebf3dd6.png) |
@@ -54,17 +52,17 @@
 
 - $$
   \begin{aligned}
-  sin2x &=2sinxcosx\\
-  &=\frac{2sinxcosx}{sin^2{x}+cos^2x}
+  \sin{2x} &=2\sin{x}\cos{x}\\
+  &=\frac{2\sin{x}\cos{x}}{\sin^2{x}+\cos^2x}
   \xlongequal{分式上下同除以cos^2x}
-  \frac{2tanx}{tan^2x+1}
+  \frac{2tanx}{\tan^2x+1}
   \\
-  cos2x &=\boxed{cos^2x-sin^2x=1-2sin^2x=2cos^2x-1}\\
-  &=\frac{cox^2x-sin^2x}{sin^2x+cos^2x}=\frac{1-tan^2x}{tan^2x+1}
+  \cos2x &=\boxed{\cos^2x-\sin^2x=1-2\sin^2x=2\cos^2x-1}\\
+  &=\frac{\cos^2x-\sin^2x}{\sin^2x+\cos^2x}=\frac{1-\tan^2x}{\tan^2x+1}
   \\
-  tan2x &=\frac{sin2x}{cos2x}=\frac{2sinxcosx}{cos^2x-sin^2x}
-  =\frac{\frac{2sinxcosx}{cos^2x}}{\frac{cos^2x}{cos^2x}-\frac{sin^2x}{cos^2x}}
-  =\frac{2tanx}{1-tan^2x}
+  \tan{2x} &=\frac{\sin2x}{\cos2x}=\frac{2\sin{x}\cos{x}}{\cos^2x-\sin^2x}
+  =\frac{\frac{2\sin{x}\cos{x}}{\cos^2x}}{\frac{\cos^2x}{\cos^2x}-\frac{\sin^2x}{\cos^2x}}
+  =\frac{2\tan{x}}{1-\tan^2x}
   \end{aligned}
   $$
 
@@ -72,7 +70,7 @@
 
 ### 降幂(倍角)公式
 
-> 积分公式的推导中使用的比较多
+- 积分公式的推导中使用的比较多
 
 1. $sin^2x=\frac{1}{2}(1-cos2x)$
 
@@ -94,7 +92,11 @@
 
 10. $sin\frac{x}{2}cos\frac{x}{2}=\frac{1}{2}\sin{x}$
 
-11. $$
+11. $\sin{x}=2\sin{\frac{x}{2}}\cos{\frac{x}{2}}$
+
+12. $\cos{x}=\cos^2{\frac{x}{2}}-\sin^2{\frac{x}{2}}=1-2\sin^2{\frac{x}{2}}=2\cos^2{\frac{x}{2}}-1$
+
+13. $$
     \begin{aligned}
     tan\frac{x}{2}&=\frac{sin(\frac{x}{2})}{cox(\frac{x}{2})}\\
     &=分式上下同时乘以sin(\frac{x}{2})\\
@@ -104,7 +106,7 @@
     \end{aligned}
     $$
 
-### 半角升幂
+### 升幂(半角)
 
 - $1-\cos{x}=2sin^2\frac{x}{2}$
 
@@ -116,7 +118,14 @@
 
 ### 相关导数&积分
 
-![img](https://img-blog.csdnimg.cn/img_convert/709b57a3b6ea94512421b3184e7f1f64.png)
+- | $f(x)$    | $f'(x)$                                        | $\displaystyle\int{f(x)}\mathrm{d}x$ |
+  | --------- | ---------------------------------------------- | ------------------------------------ |
+  | $\sin{x}$ | $\cos{x}$                                      | $-\cos{x}+C$                         |
+  | $\cos{x}$ | $-\sin{x}$                                     | $\sin{x}+C$                          |
+  | $\tan{x}$ | $\displaystyle\sec^2{x}=\frac{1}{\cos^2{x}}$   | $-\ln{|\cos{x}|}+C$                  |
+  | $\cot{x}$ | $-\csc^2{x}=-\frac{1}{\sin^2{x}}=-1-\cot^2{x}$ | $\ln{|\sin{x}|}+C$                   |
+  | $\csc{x}$ | $-\csc{x}\cot{x}$                              | $-\ln{|\csc{x}+\cot{x}|}+C$          |
+  | $\sec{x}$ | $\sec{x}\tan{x}$                               | $\ln{|\sec{x}+\tan{x}|}+C$           |
 
 
 
@@ -130,42 +139,32 @@ $$
 2!=2\quad & 6!=720\\
 3!=6\quad & 7!=5040\\
 \end{aligned}
+\\🎈
 \begin{aligned}
-\quad
+\quad🎈
 \end{aligned}
 $$
 
+- 1,1,2,6
+- 24,120,720,5040
 
 ## 排列组合
 
-$$
-\\\bigstar\ n选m排列数
-\\
-\begin{aligned}
-P_{n}^{m}
-&=n(n-1)\cdots(n-(m-1))\\
-&=n(n-1)\cdots(n-m+1)\\
-&=\prod_{k=0}^{m-1}{(n-k)}\\
-&=\frac{n!}{(n-m)!}\\
-C_{n}^{m}&=\frac{1}{m!}\frac{n!}{(n-m)!}
-\end{aligned}
-$$
+- $$
+  \bigstar\ n选m排列数
+  \\
+  \begin{aligned}
+  P_{n}^{m}
+  &=n(n-1)\cdots(n-(m-1)),\Delta=m-1\\
+  &=n(n-1)\cdots(n-m+1)\\
+  &=\prod_{k=0}^{m-1}{(n-k)}\\
+  &=\frac{n!}{(n-m)!}\\
+  C_{n}^{m}&=\binom{n}{m}=P_n^m=\frac{1}{m!}\frac{n!}{(n-m)!}
+  \end{aligned}
+  $$
 
 
 
-- 关于(连续逐项的)累加和累乘的总项数
-
-  - $$
-    \prod_{k=d}^{k=u}{exp}
-    \\
-    \sum_{k=d}^{k=u}{exp}
-    \\总项数为上界与下界之差+1,即:
-    \\items=d-u+1
-    \\某些情况下,我们首先知道的是items,以及d\&u中的一个,就可以利用上面等式进行计算
-    \\注意,无论表达式exp是怎样的,上述等式总是成立
-    $$
-
-    
 
 
 
