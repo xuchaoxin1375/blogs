@@ -81,3 +81,9 @@ $ git config --global credential.helper 'store --file ~/.my-credentials'
 ```
 ##  采用非对公钥-私钥验证方法
 - 参加github文档
+
+## 获取github账号的token
+
+- 点击下面链接直达
+  - [New Personal Access Token (Classic) (github.com)](https://github.com/settings/tokens/new)
+- 在
