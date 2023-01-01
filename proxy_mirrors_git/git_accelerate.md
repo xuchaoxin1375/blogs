@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 # fastgit_加速针对github的操作(clone&push...)
 ## references
 

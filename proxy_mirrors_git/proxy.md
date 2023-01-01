@@ -4,16 +4,14 @@
   - 免费的往往是最贵的(时间成本,除非你的时间不要钱)
   - 当然,付费也有讲究,最好找个性价比高的
 
-## 付费机场(实惠)
+## 付费j场(实惠)
 
 - [Fly Airport (nullmouse.xyz)](https://fly.nullmouse.xyz/user/shop)
 
-  - 注意本机场最后有一个白嫖套餐(稳定性不知)
-  - ![image-20220619132406710](https://raw.githubusercontent.com/xuchaoxin1375/pictures/main/imagesimage-20220619132406710.png)
+  - 注意本j场最后有一个白嫖套餐(稳定性不知)
+  - 魔戒
+  - 其他
 
-- 魔戒机场
-
-- 其他
 
   
 
@@ -50,11 +48,10 @@
 ## 订阅转换
 
 - [在线订阅转换工具 (v1.mk)](https://sub.v1.mk/)
--
 
 ## ermao
 
-- [ermaozi/get_subscribe: ✈️ 免费机场](https://github.com/ermaozi/get_subscribe)
+- [ermaozi/get_subscribe: ✈️ 免费j场](https://github.com/ermaozi/get_subscribe)
 
 ### 每 6 小时更新一次
 
@@ -71,7 +68,7 @@
 - clash 订阅链接：`https://git.io/emzclash`
 - v2ray 订阅链接：`https://git.io/emzv2ray`
 
-手机用户无法访问上方短链接时可以用下面的长链接
+手j用户无法访问上方短链接时可以用下面的长链接
 
 - clash 订阅链接：`https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml`
 - v2ray 订阅链接：`https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt`
@@ -122,7 +119,7 @@
 - 科学上网
 - 代理
 - 梯子
-- 机场
+- j场
 - 免费
 - 更新
 - github/youtube
