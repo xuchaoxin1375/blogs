@@ -61,6 +61,7 @@ Length                 : 71
   - `$Profile | Select-Object *`
 
 #  插值
+
 - 在==双引号==中可以插值
 
 
@@ -114,7 +115,9 @@ param(
 )
 ```
 ## 分配类型:
-分配类型。 例如，如果为参数分配类型，你可以指定该参数只接受字符串，而不接受布尔值。 这样，用户就知道了期望结果。 可以在参数前面加上类型（用括号括住），为该参数分配类型：
+- 分配类型。
+-  例如，如果为参数分配类型，你可以指定该参数只接受字符串，而不接受布尔值。
+-  这样，用户就知道了期望结果。 可以在参数前面加上类型（用括号括住），为该参数分配类型：
 
 
 ```powershell
@@ -126,35 +129,40 @@ Param(
 ```
 
 ## 参数说明(with `parameter[]`)
-实验环境不同,效果可能也不同(在vscode中的powershell插件控制下的PowerShell Integrated Console (v2021.10.2) 就无法使用`!?`提示`
-以下是powerhsell7.1中的结果
-![在这里插入图片描述](https://img-blog.csdnimg.cn/d0276432a7d4412ab68bbc4b33da64a3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-test code:
-```powershell
-<# the more effective and popular method is to use the parameter[] #>
-Param(
-    # to show the helpMessage tips,just type `!?`
-    #  Mandatory=$true is optional.
-    [Parameter(Mandatory=$true,HelpMessage = "input your valid path(for demonstrate,I will just output to show the path.")]
-    # [Parameter(Mandatory, HelpMessage = "Please provide a valid path")] 
-    $path
-)
-# the logic of your script,in the script ,I just use it to out put a sentence 
-Write-Output $path
+- 实验环境不同,效果可能也不同(在vscode中的powershell插件控制下的PowerShell Integrated Console (v2021.10.2) 就无法使用`!?`提示`
+- 以下是powerhsell7.1中的结果
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/d0276432a7d4412ab68bbc4b33da64a3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-```
+### test code
+
+- ```powershell
+  <# the more effective and popular method is to use the parameter[] #>
+  Param(
+      # to show the helpMessage tips,just type `!?`
+      #  Mandatory=$true is optional.
+      [Parameter(Mandatory=$true,HelpMessage = "input your valid path(for demonstrate,I will just output to show the path.")]
+      # [Parameter(Mandatory, HelpMessage = "Please provide a valid path")] 
+      $path
+  )
+  # the logic of your script,in the script ,I just use it to out put a sentence 
+  Write-Output $path
+  
+  ```
+
 ###  head.ps1
-```powershell
-param(
-	[int]$lines=5,
-	[parameter(mandatory, HelpMessage = "input a valid fileName")]
-	$fileName
-	
-)	
-Get-Content $fileName | Select-Object -First $lines 
-```
+- ```powershell
+  param(
+  	[int]$lines=5,
+  	[parameter(mandatory, HelpMessage = "input a valid fileName")]
+  	$fileName
+  	
+  )	
+  Get-Content $fileName | Select-Object -First $lines 
+  ```
+
 
 #  控制流
+
 ## overview
 [流控制 - Learn | Microsoft Docs](https://docs.microsoft.com/zh-cn/learn/modules/script-with-powershell/6-flow-control)
 ## operators
@@ -173,6 +181,7 @@ Get-Content $fileName | Select-Object -First $lines
 * [特殊运算符](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.2#special-operators)
 
 ##  表达式
+
 这是重要的一块内容,在编写`where`语句高级条件的时候,比较有用
 
 * [7.1 Primary expressions](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-07?view=powershell-7.2#71-primary-expressions)

@@ -8,6 +8,7 @@
 
 
 ## 查看发行版和内核版本号相关主题命令
+
 ### 查看自己的发行版以及版本号
 
 第一种为通用方法
@@ -66,7 +67,7 @@ uname (1)            - print system information
 uname (2)            - get name and information about current kernel
 ```
 
-#  自动化脚本部署/美化
+#  自动化脚本部署/美化🎈
 
 
 ##  下面自动化脚本使用方式
@@ -77,17 +78,24 @@ uname (2)            - get name and information about current kernel
     具体而言,比如您创建文件名为 `replaceAptSource.sh`
     那么运行:
     `source replaceAptSource.sh`
-## 更换国内镜像源(Part1:optional)
 
-> 使用前提:
+## 更换国内镜像源(Part1:optional)🎈
 
-- 适配于debian系发行版
-- 确保当前用户 `sudo`命令可用
+- 使用前提:
 
-### 自动化换源_以kali_linux换阿里源为例
+  - 适配于debian系发行版
+
+  - 确保当前用户 `sudo`命令可用
+
+
+### 换源脚本模板
+
+- 不要直接使用
+- 以kali-linux 更换国内镜像源(阿里源为例)
+- 只提供流程参考
+- 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
 
 ```bash
-#  以kali-linux 更换国内镜像源(阿里源为例)
 # 备份:backup the origin source.list(or just rename(use move command))
 # 注意sources.list 不要拼错(带s)
 cd /etc/apt
@@ -95,7 +103,7 @@ sudo mv sources.list sources.list.bak_bySh
 # 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
 #这里以阿里源为例
 cd ~
-# 多行输入
+# 多行输入[国内源]
 cat >sources.list <<EOF
 
 deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
@@ -180,12 +188,18 @@ sudo apt update
 
 ```
 #### 简化版(从默认源替换为国内源)
-#####  ubutun22(清华源为例)
+
+###  将source.list 文件修改为清华源ubutun22
+
+- (清华源为例,使用sed处理`/etc/apt/sources.list`文件)
+- 仍然建议事先备份`sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak`文件
 
 ```bash
 sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
 sudo sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
 ```
+
+- 执行刷新操作`sudo apt update`
 
 ### kali
 
@@ -219,7 +233,7 @@ Done.
 
 ```
 
-## zsh:oh my zsh(part2)
+## zsh:oh my zsh(part2)🎈🎈
 
 ```bash
 # 工作目录设定为用户家目录
@@ -248,12 +262,9 @@ cd -
 ### zsh安装失败?
 
 - 一般来说,重试一两次即可clone(install)成功
-  ![在这里插入图片描述](https://img-blog.csdnimg.cn/5576d8e418c34fd28a2fb60f56d719f4.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-- 若始终无法clone下来,可以修改 `install.sh`中的特定几行,使得拉去gitee上的文件
+- 若始终无法clone下来,可以修改 `install.sh`中的特定几行,使其去拉取gitee上的文件
 
-
-
-### 修改方案一(sed 修改)
+#### 修改方案一(sed 修改)
 
 ```bash
 #本段代码将修改install.sh中的拉取源,以便您能够冲gitee上成功将需要的文件clone下来.
@@ -266,64 +277,80 @@ REMOTE=${REMOTE:-https://gitee.com/${REPO}.git} ' -r  -iE ~/install.sh
 source install.sh
 ```
 
-### 修改方案二(手工修改)
+#### 修改方案二(手工修改)
 
 - 打开 `install.sh`文件修改如下部分:
-  ![](https://img-blog.csdnimg.cn/img_convert/17b5783e8760f8d5facd7b6819401e9c.png)
+  
+  - 大概在40多行
+  - 推荐做法是,注释掉原来的两行
+  - 将下面的两行粘贴进去
+  
+  - ```bash
+    REPO=${REPO:-mirrors/oh-my-zsh}
+    REMOTE=${REMOTE:-https://gitee.com/${REPO}.git}
+    ```
 
-```bash
-REPO=${REPO:-mirrors/oh-my-zsh}
-REMOTE=${REMOTE:-https://gitee.com/${REPO}.git}
-```
 ###  拉取报错
 
->对于某些环境(譬如我在ubuntu12 老版本上操作的时候,遇到安全设置问题)
->错误如下:
-```bash
-Cloning Oh My Zsh...
-fatal: unable to access 'https://gitee.com/mirrors/oh-my-zsh.git/': server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
-/home/cxxu
-Error: git clone of oh-my-zsh repo failed
-```
-`git config --global http.sslverify false`
-尝试执行上述语句解决
-## uninstall oh-my-zsh
+- 对于某些环境(譬如我在ubuntu12 老版本上操作的时候,遇到安全设置问题)
 
-> * [ohmyzsh/ohmyzsh:uninstall ](https://github.com/ohmyzsh/ohmyzsh#uninstalling-oh-my-zsh)
+- 错误如下:
+
+  - ```bash
+    Cloning Oh My Zsh...
+    fatal: unable to access 'https://gitee.com/mirrors/oh-my-zsh.git/': server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
+    /home/cxxu
+    Error: git clone of oh-my-zsh repo failed
+    ```
+
+- `git config --global http.sslverify false`
+- 尝试执行上述语句解决
+
+## uninstall oh-my-zsh🎈
+
+- 如果你的`oh-my-zsh`出现异常想要重装,可以尝试:
+
+- [ohmyzsh/ohmyzsh:uninstall ](https://github.com/ohmyzsh/ohmyzsh#uninstalling-oh-my-zsh)
+
+### 直接卸载
 
 - 执行命令 `uninstall_oh_my_zsh`
 
 ### 手动卸载ohmyzsh
 
-> 某些情况下(例如安装失败/错误/不完整安装),容易导致上述命令无法顺利运行
+- 某些情况下(例如安装失败/错误/不完整安装),容易导致上述命令无法顺利运行
 
-下方指令可以帮助您卸载
-
-```
-cd ~/.oh-my-zsh/tools
-source uninstall.sh -y
-# rm /home/.oh-my-zsh
-```
+- 下方指令可以帮助您卸载
 
 
+- ```bash
+  cd ~/.oh-my-zsh/tools
+  source uninstall.sh -y
+  # rm /home/.oh-my-zsh
+  ```
 
-## oh-my-zsh 插件篇
+
+
+
+## oh-my-zsh 插件篇🎈
 
 - [oh my zsh插件:命令动态提示和自动增量补全命令incr/自动补全zsh-autosuggestion安装/命令行命令高亮插件zsh-syntax-highlighting/_xuchaoxin1375的博客-CSDN博客_zsh 自动提示](https://blog.csdn.net/xuchaoxin1375/article/details/111940783?ops_request_misc=%7B%22request%5Fid%22%3A%22166342185816800192228396%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fblog.%22%7D&request_id=166342185816800192228396&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-111940783-null-null.nonecase&utm_term=zsh插件&spm=1018.2226.3001.4450)
 
-## 安装/修复vim
+## 安装/修复vim(optional)
 
-某些自带(vi/vim)会和vim 冲突,可以先卸载vi再安装vim
-`sudo apt remove vi;sudo apt install vim`
+- 某些自带(vi/vim)会和vim 冲突,可以先卸载vi再安装vim
+
+- `sudo apt remove vi;sudo apt install vim`
 
 ### vim/vi卸载与更新异常
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/141ce0f07fa2401e9ffce596ca95914f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/141ce0f07fa2401e9ffce596ca95914f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+
 
 - 执行 `sudo apt remove vim-common`再次移除造成问题的原组件
 - 重新执行安装 `sudo apt install vim`
 
-## for centOS
+## for centOS install oh-my-zsh
 
 ```bash
 # 工作目录设定为用户家目录
@@ -337,7 +364,7 @@ source install.sh
 cd -
 ```
 
-## 去除绿色背景(wsl)
+## 去除绿色背景(wsl)🎈
 
 ```bash
 

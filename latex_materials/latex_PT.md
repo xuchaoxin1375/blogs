@@ -1,20 +1,27 @@
-- 二维随机变量
+## 二维随机变量
 
-  - $$
-    P(X=x_i,Y=y_j)=p_{ij},(i,j\in{I},I=\set{1,2,\cdots})
-    $$
+- $$
+  P(X=x_i,Y=y_j)=p_{ij},(i,j\in{I},I=\set{1,2,\cdots})
+  $$
 
-    
+- $$
+  P(X\leqslant x_i,Y\leqslant y_i)=p_{ij}
+  $$
 
-  - $$
-    P(X\leqslant x_i,Y\leqslant y_i)=p_{ij}
-    $$
+### 二维连续型随机变量
+
+- $$
+  F(+\infin,+\infin)=\int_{-\infin}^{+\infin}
+  \int_{-\infin}^{+\infin}f(u,v)\mathrm{d}u\mathrm{d}v=1
+  $$
+
+  
 
 ##  多维随机变量
 
 ### 样本
 
-- (X_1,X_2,\cdots,X_n)$
+- $(X_1,X_2,\cdots,X_n)$
   
 - $\mathscr{S}=(X_1,X_2,\cdots,X_n)$
   

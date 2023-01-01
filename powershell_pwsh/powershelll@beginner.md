@@ -87,12 +87,14 @@
 -  powershell的命令名是`动词-名称`形式的
 - 通过`get-verb`可以获取powershell中的动词列表
 - help 将帮助分页而get-help 不会分页,而只是将内容完全输出
-#  获取相关命令
+
+##  获取相关命令
+
 - 两种方式都支持模糊搜索(help/gcm)
 - 我更喜欢用 `help`,这是个更加通用的命令
 
+###  方式1:get-help(help)
 
-##  方式1:get-help(help)
 ```ps1
 PS C:\Users\cxxu_11> help File
 
@@ -137,14 +139,17 @@ Application     profiler.bat                                       0.0.0.0    D:
 Application     profiler.exe                                       0.0.0.0    D:\exes\and…
 
 ```
-##  方式2:get-command(gcm)
+###  方式2:get-command(gcm)
+
 - 比如要获取和进程(process)相关的命令:
   - `Get-Command *process*`
 
 - 这里的`*`表示通配符
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/79ca07930935462abadee30710da7abc.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-#  powershell语言的语法帮助`about_`帮助系统
+  
+
+##  powershell语言的语法帮助`about_`帮助系统
+
 - 用help获取相关主题:
 - 例如操作符相关语法:
 ```ps1
@@ -240,33 +245,36 @@ Get-Help Stop-Process -Examples
     PS C:\> Stop-Process -InputObject $p
     PS C:\> Get-Process | Where-Object {$_.HasExited}
 
-#  获取对象类型/成员
+##  获取对象类型/成员
 
-`Get-Member`
-以Get-Date 为例
+- `Get-Member`
+- 以Get-Date 为例
+
 ```
 Get-Date | `Get-Member`
 ```
-但是,更有用的是`get-Member`获取对象的类型,然后利用`get-command`来查询可以操作对应类型的cmdlet
-[learn:发现对象](https://docs.microsoft.com/zh-cn/learn/modules/discover-commands/4-discover-objects)
+- 但是,更有用的是`get-Member`获取对象的类型,然后利用`get-command`来查询可以操作对应类型的cmdlet
 
-例如:
+- [learn:发现对象](https://docs.microsoft.com/zh-cn/learn/modules/discover-commands/4-discover-objects)
 
-```powershell
-PS D:\repos\blogs> Get-Process -Name '*edge'|Get-Member|select -First 5
+- 例如:
 
-   TypeName: System.Diagnostics.Process
+  - ```powershell
+    PS D:\repos\blogs> Get-Process -Name '*edge'|Get-Member|select -First 5
+    
+       TypeName: System.Diagnostics.Process
+    
+    Name    MemberType    Definition
+    ----    ----------    ----------
+    Handles AliasProperty Handles = Handlecount
+    Name    AliasProperty Name = ProcessName
+    NPM     AliasProperty NPM = NonpagedSystemMemorySize64
+    PM      AliasProperty PM = PagedMemorySize64
+    SI      AliasProperty SI = SessionId
+    ```
 
-Name    MemberType    Definition
-----    ----------    ----------
-Handles AliasProperty Handles = Handlecount
-Name    AliasProperty Name = ProcessName
-NPM     AliasProperty NPM = NonpagedSystemMemorySize64
-PM      AliasProperty PM = PagedMemorySize64
-SI      AliasProperty SI = SessionId
-```
+    - 为节约篇幅,只展示前5行
 
-- 为节约篇幅,只展示前5行
 
 - 注意`   TypeName: System.Diagnostics.Process`这一行指出命令行`Get-Process -Name '*edge'`的返回结果对象类型
 
@@ -296,7 +304,7 @@ SI      AliasProperty SI = SessionId
     - `stop-process`
     - `wait-process`
 
-#  处理显示内容(使用格式设置和筛选)
+##  处理显示内容(使用格式设置和筛选)
 
 - [learn link](https://docs.microsoft.com/zh-cn/learn/modules/connect-commands/4-format)
 - 类似于数据库,powershell提供了一些格式化返回内容的工具对象
