@@ -8,9 +8,8 @@
 
 - 想要了解更多关于不同验证缓存的可用选项，查看 `凭证存储` 文档。
 ##  credential store
- 如果你使用的是 SSH 方式连接远端，并且设置了一个没有口令的密钥，这样就可以在不输入用户名和密码的
-情况下安全地传输数据。 然而，这对 HTTP 协议来说是不可能的 —— 每一个连接都是需要用户名和密码的。 这
-在使用双重认证的情况下会更麻烦，因为你需要输入一个随机生成并且毫无规律的 token 作为密码。
+-  如果你使用的是 SSH 方式连接远端，并且设置了一个没有口令的密钥，这样就可以在不输入用户名和密码的情况下安全地传输数据。 然而，这对 HTTP 协议来说是不可能的 —— 每一个连接都是需要用户名和密码的。 
+- 这在使用双重认证的情况下会更麻烦，因为你需要输入一个随机生成并且毫无规律的 token 作为密码。
 
 #  two modes to solve the problems:
 
@@ -31,17 +30,20 @@ $ git config --global credential.helper 'cache --timeout 10000'
 ###  linux😊
 
 - `~/.gitconfig`
-> 获取帮助
-- `git config --help`
-```
- --global
-           For writing options: write to global ~/.gitconfig file rather than the repository .git/config, write to $XDG_CONFIG_HOME/git/config file if this file exists and the
-           ~/.gitconfig file doesn’t.
 
-           For reading options: read only from global ~/.gitconfig and from $XDG_CONFIG_HOME/git/config rather than from all available files.
+- 获取帮助
 
-           See also the section called “FILES”.
-```
+  - `git config --help`
+  - ```
+     --global
+               For writing options: write to global ~/.gitconfig file rather than the repository .git/config, write to $XDG_CONFIG_HOME/git/config file if this file exists and the
+               ~/.gitconfig file doesn’t.
+    
+               For reading options: read only from global ~/.gitconfig and from $XDG_CONFIG_HOME/git/config rather than from all available files.
+    
+               See also the section called “FILES”.
+    ```
+
 
 ### windows😊
 

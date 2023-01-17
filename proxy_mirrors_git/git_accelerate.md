@@ -86,11 +86,11 @@ remote: Compressing objects: 100% (71/71), done.
 
 #### git push(推送到github)
 
-> 注意,首次使用,会要求你输入
->
-> - github用户名
-> - github用户token(具有足够权限的)
-> - 输入(粘贴)token的时候,是不可见的
+注意,首次使用,会要求你输入
+
+- github用户名
+- github用户token(具有足够权限的)
+- 输入(粘贴)token的时候,是不可见的
 
 - ```bash
   PS D:\repos\PythonLearn> git push origin_fast main

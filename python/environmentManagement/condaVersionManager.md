@@ -358,6 +358,126 @@
 - [virtualenv - how to specify new environment location for conda create - Stack Overflow](https://stackoverflow.com/questions/37926940/how-to-specify-new-environment-location-for-conda-create)
 - [Using the .condarc conda configuration file — conda 22.11.1.post17+e3a05b6f5 documentation](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs)
 
+  - 注意,这[envs_dirs](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs)和缓存包[pkgs_dirs](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-package-directories-pkgs-dirs)不同
+
+- 编辑配置文件,设定`envs_dirs`
+- ```bash
+  envs_dirs:
+    - d:\condaPythonEnvs
+  channels:
+    - defaults
+  show_channel_urls: true
+  default_channels:
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+  custom_channels:
+  ........
+  ```
+
+  - 主要是指定`envs_dirs`的值,这里将其设置到d盘的目录`d:\condaPythonEnvs`
+
+  
+
+#### 检查配置效果
+
+- 借助命令` conda create -n test_new_env_default`,来试探配置是否成功
+
+- ```bash
+  PS C:\Users\cxxu> conda create -n test_new_env_default
+  Collecting package metadata (current_repodata.json): done
+  Solving environment: done
+  
+  ## Package Plan ##
+  
+    environment location: d:\condaPythonEnvs\test_new_env_default
+  
+  
+  
+  Proceed ([y]/n)?n
+  CondaSystemExit: Exiting.
+  
+  ```
+
+  - 可以发现,现在不指定前缀的时候,默认的环境存放目录被设定为`d:\condaPythonEnvs`
+
+- 如果你在配置文件的`envs_dirs`配置了多个值(目录字符串),且通过`-p`指定的目录(前缀)在envs_dirs中,那么可以被`conda activate` 直接以环境名称激活,而不需要输入完整的环境所在目录!
+
+  - ```bash
+     envs_dirs:
+       - C:\users\cxxu\miniconda3\envs
+       - d:\condaPythonEnvs
+    ```
+
+    - 通常我们只需要配置一个(在默认位置创建环境就不需要指定目录),或者不配置(保持默认即可)
+
+    - 事实上,存放环境的默认目录是不需要配置的
+
+      - 上面我将默认目录显式再配置进去,所以当再次扫描已创建的环境的时候,会出现该目录下的环境变量被重复列出了
+
+      - 默认目录包括conda的根目录以及conda根目录下的envs目录
+
+        - 这两个目录即使没有配置,`conda info -e`也会扫描他们
+
+        - 然后开始扫描`envs_dirs`里的环境
+
+        - 该命令目前没有智能合并,仅仅机械地逐个扫描目录
+
+        - ```bash
+          PS C:\Users\cxxu\Desktop> conda info --env
+          # conda environments:
+          #
+          base                     C:\Users\cxxu\miniconda3
+          py310                    C:\Users\cxxu\miniconda3\envs\py310
+          py310                    C:\users\cxxu\miniconda3\envs\py310
+          pytorch_ser              d:\condaPythonEnvs\pytorch_ser
+          ```
+
+          
+
+  - ```bash
+    PS C:\Users\cxxu\Desktop> conda create -p $condaPythonEnvs\test_multiple_env_dir_value
+    Collecting package metadata (current_repodata.json): done
+    Solving environment: done
+    
+    ## Package Plan ##
+    
+      environment location: d:\condaPythonEnvs\test_multiple_env_dir_value
+    
+    
+    
+    Proceed ([y]/n)? y
+    
+    Preparing transaction: done
+    Verifying transaction: done
+    Executing transaction: done
+    #
+    # To activate this environment, use
+    #
+    #     $ conda activate d:\condaPythonEnvs\test_multiple_env_dir_value
+    #
+    # To deactivate an active environment, use
+    #
+    #     $ conda deactivate
+    
+    PS C:\Users\cxxu\Desktop> conda info --env
+    # conda environments:
+    #
+    base                     C:\Users\cxxu\miniconda3
+    py310                    C:\Users\cxxu\miniconda3\envs\py310
+    py310                    C:\users\cxxu\miniconda3\envs\py310
+    pytorch_ser              d:\condaPythonEnvs\pytorch_ser
+    test_multiple_env_dir_value     d:\condaPythonEnvs\test_multiple_env_dir_value
+    
+    PS C:\Users\cxxu\Desktop> conda activate test_multiple_env_dir_value
+    (d:\condaPythonEnvs\test_multiple_env_dir_value) PS C:\Users\cxxu\Desktop> 
+    
+    ```
+
+    
+
+
+
 ### 检查新环境
 
 - 例如,我除了自带的base环境,还额外创建了py310这个环境
@@ -400,6 +520,101 @@
   
   conda commands available from other packages (legacy):
     env
+  ```
+
+- ```bash
+  PS C:\Users\cxxu> conda env remove -h
+  usage: conda-env-script.py remove [-h] [-n ENVIRONMENT | -p PATH] [--solver {classic} | --experimental-solver {classic}] [-d] [--json] [-q] [-v] [-y]
+  
+  Remove an environmentRemoves a provided environment.  You must deactivate the existing
+  environment before you can remove it.
+  
+  Options:
+  
+  optional arguments:
+    -h, --help            Show this help message and exit.
+    --solver {classic}    Choose which solver backend to use.
+    --experimental-solver {classic}
+                          DEPRECATED. Please use '--solver' instead.
+  
+  Target Environment Specification:
+    -n ENVIRONMENT, --name ENVIRONMENT
+                          Name of environment.
+    -p PATH, --prefix PATH
+                          Full path to environment location (i.e. prefix).
+  
+  Output, Prompt, and Flow Control Options:
+    -d, --dry-run         Only display what would have been done.
+    --json                Report all output as json. Suitable for using conda programmatically.
+    -q, --quiet           Do not display progress bar.
+    -v, --verbose         Can be used multiple times. Once for INFO, twice for DEBUG, three times for TRACE.
+    -y, --yes             Sets any confirmation values to 'yes' automatically. Users will not be asked to confirm any adding, deleting, backups, etc.
+  
+  Examples:
+  
+      conda env remove --name FOO
+      conda env remove -n FOO
+  ```
+
+  
+
+#### 实操:移除环境
+
+- ```bash
+  #查看当前有的环境(共有5个)
+  PS C:\Users\cxxu\Desktop> conda info --env
+  # conda environments:
+  #
+  base                     C:\Users\cxxu\miniconda3
+  py310                    C:\Users\cxxu\miniconda3\envs\py310
+  py310                    C:\users\cxxu\miniconda3\envs\py310
+  pytorch_ser              d:\condaPythonEnvs\pytorch_ser
+  test_multiple_env_dir_value     d:\condaPythonEnvs\test_multiple_env_dir_value
+  
+  #开始移除
+  PS C:\Users\cxxu> conda env remove -n test_multiple_env_dir_value
+  
+  Remove all packages in environment d:\condaPythonEnvs\test_multiple_env_dir_value:
+  #检查移除后的列表
+  PS C:\Users\cxxu> conda info --env
+  # conda environments:
+  #
+  base                     C:\Users\cxxu\miniconda3
+  py310                    C:\Users\cxxu\miniconda3\envs\py310
+  pytorch_ser              d:\condaPythonEnvs\pytorch_ser
+  ```
+
+### 重命名环境
+
+- 假设我想要把`py310`重命名为`pytorch_CCSER`
+  - `conda rename  -n py310 pytorch_CCSER `
+  - 可以通过追加`-d`选项来查看命令的执行细节:(optional)
+    - 先克隆就环境,以新名称作为克隆后的环境
+    - 删除旧环境
+
+- ```bash
+  (base) PS D:\repos\CCSER> conda rename  -n py310 pytorch_CCSER  -d
+  Dry run action: clone C:\Users\cxxu\miniconda3\envs\py310,d:\condaPythonEnvs\pytorch_CCSER
+  Dry run action: rm_rf C:\Users\cxxu\miniconda3\envs\py310
+  (base) PS D:\repos\CCSER> conda rename  -n py310 pytorch_CCSER
+  Source:      C:\Users\cxxu\miniconda3\envs\py310
+  Destination: d:\condaPythonEnvs\pytorch_CCSER
+  Packages: 131
+  Files: 539
+  
+  Downloading and Extracting Packages
+  
+  
+  Downloading and Extracting Packages
+  
+  Preparing transaction: done
+  Verifying transaction: done
+  Executing transaction: done
+  (base) PS D:\repos\CCSER> conda info --env
+  # conda environments:
+  #
+  base                  *  C:\Users\cxxu\miniconda3
+  pytorch_CCSER            d:\condaPythonEnvs\pytorch_CCSER
   ```
 
   

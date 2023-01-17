@@ -371,9 +371,7 @@ sed -f myscript.sed input.txt > output.txt
 sed --file=myscript.sed input.txt > output.txt
 ```
 
-
-
-### 正则匹配规则
+### 正则匹配选项
 
 #### 扩展正则@等价选项
 

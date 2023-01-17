@@ -313,9 +313,17 @@ Get-Date | `Get-Member`
 - `Get-Process | Where-Object CPU -gt 2 | Sort-Object CPU -Descending | Select-Object -First 3`
 - 上述命令分别涉及到记录筛选,排序以及列(投影),来获取更有针对性的查询(操作)结果
 
+## 对象@类型
 
+### bool类型
 
+- [about Booleans - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_booleans?view=powershell-7.3)
 
+### 函数
+
+- [Functions - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/09-functions?view=powershell-7.3)
+
+- [The Different Between Break, Return & Exit In PowerShell (outcompute.com)](https://outcompute.com/2014/11/27/the-difference-between-break-return-and-exit-in-powershell/)
 
 
 

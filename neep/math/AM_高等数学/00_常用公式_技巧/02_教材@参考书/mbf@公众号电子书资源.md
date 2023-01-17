@@ -4,15 +4,12 @@
 
 # 书籍概况
 
-书籍来自某秀，书库基本涵盖20年以前出版的所有书。如果你找的新书基本没什么可能了。
+- 书籍来自某秀，书库基本涵盖20年以前出版的所有书。如果你找的新书基本没什么可能了。
+
 
 # 一.书籍获取
 
-[![image-20221127221604449](https://i0.hdslb.com/bfs/album/2e50e073ea383f7a20c20b59819b7cf8e3195301.png)](https://i0.hdslb.com/bfs/album/2e50e073ea383f7a20c20b59819b7cf8e3195301.png)
-
 1.首先每本书都对应一个8位数字的ss号（注意这不是ISBN号），需要在公众号【本卡风】回复ss号即可获取书籍的百度云链接。
-
-[![image-20221127194209862](https://i0.hdslb.com/bfs/album/7a23c61eb36514b4fb08bd8505cd3f5e88460317.png)](https://i0.hdslb.com/bfs/album/7a23c61eb36514b4fb08bd8505cd3f5e88460317.png)
 
 1.公众号暂时支持ss号获取书籍，不支持ISBN/书名/作者等信息查询。所以先要获取ss号。
 
@@ -38,7 +35,7 @@
 
    - 3.https://www.duxiu.com/ （需要校园网或者相关机构可以登录）
 
-[![image-20221127200047446](https://i0.hdslb.com/bfs/album/42f7284e65566d332da7f7a5926a5dcb4b2d627a.png)](https://i0.hdslb.com/bfs/album/42f7284e65566d332da7f7a5926a5dcb4b2d627a.png)
+- ![[image-20221127200047446](https://i0.hdslb.com/bfs/album/42f7284e65566d332da7f7a5926a5dcb4b2d627a.png)](https://i0.hdslb.com/bfs/album/42f7284e65566d332da7f7a5926a5dcb4b2d627a.png)
 
 # 二.转换格式
 

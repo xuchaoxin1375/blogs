@@ -5,6 +5,65 @@
 ## references
 
 - [How to Use the xargs Command on Linux (howtogeek.com)](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/)
+  - The xargs Command
+  - [Using xargs With wc](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-12)
+  - [Using xargs With Confirmation](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-13)
+  - [Using xargs With Multiple Commands](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-14)
+  - [Copying Files To Multiple Locations](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-15)
+  - [Deleting Files in Nested Directories](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-16)
+  - [Removing Nested Directories](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-17)
+  - [Deleting All Files, Except for One File Type](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-18)
+  - [Creating an Archive File With Xargs](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-19)
+  - [The Data Mediator](https://www.howtogeek.com/435164/how-to-use-the-xargs-command-on-linux/#h5o-20)
+
+## docuemnt
+
+### online
+
+- [xargs(1) - Linux manual page (man7.org)](https://man7.org/linux/man-pages/man1/xargs.1.html)
+- [xargs options (GNU Findutils 4.9.0)](https://www.gnu.org/software/findutils/manual/html_node/find_html/xargs-options.html)
+- [Invoking the shell from xargs (GNU Findutils 4.9.0)](https://www.gnu.org/software/findutils/manual/html_node/find_html/Invoking-the-shell-from-xargs.html)
+
+### 离线版
+
+- `info xargs`
+
+## The xargs Command
+
+- `xargs` will accept piped input. 
+- It can also accept input from a file. 
+- `xargs` uses that **input** as **parameters** for the **commands** we’ve told it to work with.
+  -  If we do not tell `xargs` to work with <u>a specific command</u> it will default to use `echo`.
+
+- We can use that to demonstrate how `xargs` will always generate a single line of output, even from multi-line input.
+
+  - If we use the `-1` (list one file per line) option with `ls`, we get a [single column of filenames](https://man7.org/linux/man-pages/man1/ls.1.html).
+
+  - ```bash
+    ls -1 ./*.sh
+    
+    # cxxu_u22 @ cxxuWn11 in ~ [0:03:28]
+    $ ls -1 *.txt|xargs
+    demo.txt input.txt output.txt
+    # xargs 不跟东西(命令),则默认等价于跟上echo命令
+    # cxxu_u22 @ cxxuWn11 in ~ [0:03:36]
+    $ ls -1 *.txt|xargs echo
+    demo.txt input.txt output.txt
+    ```
+
+  - 使用`-p`选项,可以帮助我们看到命令行被转为什么
+
+  - ```bash
+    # cxxu_u22 @ cxxuWn11 in ~ [0:06:03] C:1
+    $ ls -1 *.txt|xargs -p wc
+    wc demo.txt input.txt output.txt?...
+    
+    # cxxu_u22 @ cxxuWn11 in ~ [0:06:23]
+    $ ls -1 *.txt|xargs -p
+    echo demo.txt input.txt output.txt?...
+    ```
+
+    
 
 ### examples
 
@@ -39,7 +98,7 @@ recursive_copy_file()
 ┌─[cxxu@cxxuAli] - [~] - [2022-05-04 04:47:45]
 ```
 
-#### 不带选项的xargs
+### 不带选项的xargs
 
 ```bash
 ┌─[cxxu@cxxuAli] - [~] - [2022-05-04 04:47:49]
@@ -52,18 +111,62 @@ recursive_copy_file()
  1469  2707 53851 total
 ```
 
-#### -p
+### -p@Using xargs With Confirmation
+
+- We can use the `-p` (interactive) option to have `xargs` prompt us for confirmation that we are happy for it to proceed.
+
+- If we pass a string of filenames to `touch`, through `xargs`, `touch` will [create the files](https://man7.org/linux/man-pages/man1/touch.1.html) for us.
+
+```bash
+echo 'one two three' | xargs -p touch
+```
+
+- The command that is going to be executed is displayed and `xargs` waits for us to respond by typing “y” or “Y”, or “n” or “N”, and pressing Enter.
+
+  If you just press Enter, it is treated as “n”. The command is only executed if you type “y” or “Y”.
 
 ```bash
 ┌─[cxxu@cxxuAli] - [~] - [2022-05-04 04:48:17]
 └─[0] <> echo 'one two three' | xargs -p touch
 touch one two three ?...y
 
+# cxxu_u22 @ cxxuWn11 in ~ [0:09:51] C:1
+$ ls -1 *.txt|xargs -p wc
+wc demo.txt input.txt output.txt?...y
+  6  27 209 demo.txt
+  5  25 200 input.txt
+  5  25 200 output.txt
+ 16  77 609 total
+
 ┌─[cxxu@cxxuAli] - [~] - [2022-05-04 04:50:33]
 └─[0] <> l one two three
 -rw-rw-r-- 1 cxxu cxxu 0 May  4 16:50 one
 -rw-rw-r-- 1 cxxu cxxu 0 May  4 16:50 three
 -rw-rw-r-- 1 cxxu cxxu 0 May  4 16:50 two
+
+
+#以下内容基于oh-my-zsh框架下执行,omz theme list 提供输入数据作为演示而已
+ ~/ omz theme list | xargs  -p -I % sh -c 'echo %'
+sh -c 'echo example'?...y
+example
+sh -c 'echo 3den'?...y
+3den
+sh -c 'echo Soliah'?...y
+Soliah
+sh -c 'echo adben'?...n
+sh -c 'echo af-magic'?...y
+af-magic
+sh -c 'echo afowler'?...^C
+
+ ~/ omz theme list | xargs  -I % sh -c 'echo  %'
+example
+3den
+Soliah
+adben
+af-magic
+afowler
+agnoster
+alanpeabody
 ```
 
 #### -t
@@ -91,7 +194,19 @@ removed './a.txt'
 
 
 
-#### -I
+#### -I@指定循环变量
+
+
+
+- ```bash
+  -I replace-str
+  --replace[=replace-str]
+  -i[replace-str]
+  ```
+
+- Replace occurrences of replace-str in the initial arguments with names read from standard input. Also, unquoted blanks do not terminate arguments; instead, the input is split at newlines only. 
+
+- If replace-str is omitted (omitting it is allowed only for ‘-i’), it defaults to ‘{}’ (like for ‘find -exec’). Implies ‘-x’ and ‘-l 1’. The ‘-i’ option is deprecated in favour of the ‘-I’ option.
 
 ```bash
 #( 05/04/22@ 5:31PM )( cxxu@cxxuAli ):~/sedLearn
@@ -131,17 +246,42 @@ dir3
 
 ```
 
-> ```bash
->   -I replace-str
->               Replace  occurrences  of  replace-str  in the (initial-arguments) with names
->               read from standard input. 
->               Also, unquoted blanks do  not  terminate  input items;
->               instead the separator is the newline character. 
->               Implies -x and -L
->               1.
-> ```
->
-> - -I 定义的`replace-str` 类似于插值字符串的占位符
+- ```bash
+  -I replace-str
+             Replace  occurrences  of  replace-str  in the (initial-arguments) with names
+             read from standard input. 
+             Also, unquoted blanks do  not  terminate  input items;
+             instead the separator is the newline character. 
+             Implies -x and -L
+             1.
+  ```
+
+- -I 定义的`replace-str` 类似于插值字符串的占位符
+
+- ```bash
+   ~/ omz theme list | xargs  -i% sh -c 'echo  %'
+  example
+  3den
+  Soliah
+  adben
+  af-magic
+  afowler
+  agnoster
+  ...
+   ~/ omz theme list | xargs  -I '$_' sh -c 'echo  $_'
+  example
+  3den
+  Soliah
+  adben
+  af-magic
+  afowler
+  agnoster
+  ..
+   ~/ omz theme list | xargs  -i % sh -c 'echo  %'
+  xargs: %: No such file or directory
+  ```
+
+  
 
 ####  -n
 

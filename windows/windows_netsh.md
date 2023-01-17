@@ -22,29 +22,7 @@ Commands in this context:
 add            - Adds a configuration entry to a list of entries.
 advfirewall    - Changes to the `netsh advfirewall' context.
 branchcache    - Changes to the `netsh branchcache' context.
-bridge         - Changes to the `netsh bridge' context.
-delete         - Deletes a configuration entry from a list of entries.
-dhcpclient     - Changes to the `netsh dhcpclient' context.
-dnsclient      - Changes to the `netsh dnsclient' context.
-dump           - Displays a configuration script.
-exec           - Runs a script file.
-firewall       - Changes to the `netsh firewall' context.
-help           - Displays a list of commands.
-http           - Changes to the `netsh http' context.
-interface      - Changes to the `netsh interface' context.
-ipsec          - Changes to the `netsh ipsec' context.
-lan            - Changes to the `netsh lan' context.
-mbn            - Changes to the `netsh mbn' context.
-namespace      - Changes to the `netsh namespace' context.
-netio          - Changes to the `netsh netio' context.
-p2p            - Changes to the `netsh p2p' context.
-ras            - Changes to the `netsh ras' context.
-rpc            - Changes to the `netsh rpc' context.
-set            - Updates configuration settings.
-show           - Displays information.
-trace          - Changes to the `netsh trace' context.
-wcn            - Changes to the `netsh wcn' context.
-wfp            - Changes to the `netsh wfp' context.
+...
 winhttp        - Changes to the `netsh winhttp' context.
 winsock        - Changes to the `netsh winsock' context.
 wlan           - Changes to the `netsh wlan' context.
@@ -66,19 +44,70 @@ To view help for a command, type the command, followed by a space, and then
 	- netsh 但是还是可以在不发生歧义的情况,只输入单词的前几个字符
 
 ##  使用netsh 
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/b1b594f51d194ae7a807000657f1ecb4.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_17,color_FFFFFF,t_70,g_se,x_16)
+- ```bash
+  PS C:\Users\cxxu\Desktop> netsh
+  netsh>?
+  
+  The following commands are available:
+  
+  Commands in this context:
+  ..             - Goes up one context level.
+  ?              - Displays a list of commands.
+  abort          - Discards changes made while in offline mode.
+  add            - Adds a configuration entry to a list of entries.
+  advfirewall    - Changes to the `netsh advfirewall' context.
+  alias          - Adds an alias.
+  branchcache    - Changes to the `netsh branchcache' context.
+  bridge         - Changes to the `netsh bridge' context.
+  bye            - Exits the program.
+  ...
+  The following sub-contexts are available:
+   advfirewall branchcache bridge dhcpclient dnsclient firewall http interface ipsec lan mbn namespace netio nlm p2p ras rpc trace wcn wfp winhttp winsock wlan
+  
+  To view help for a command, type the command, followed by a space, and then
+   type ?.
+  ```
+
+  
 
 
 ### netsh wlan
 
 - 进入`wlan` 模式(配置环境context)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/f08c2b9d9fb84a768134cee632c8337d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+- ```bash
+  
+  netsh>wlan
+  netsh wlan>?
+  
+  The following commands are available:
+  
+  Commands inherited from the netsh context:
+  ..             - Goes up one context level.
+  abort          - Discards changes made while in offline mode.
+  add            - Adds a configuration entry to a list of entries.
+  advfirewall    - Changes to the `netsh advfirewall' context.
+  alias          - Adds an alias.
+  ...
+  Commands in this context:
+  ?              - Displays a list of commands.
+  add            - Adds a configuration entry to a table.
+  connect        - Connects to a wireless network.
+  ...
+  start          - Start hosted network.
+  stop           - Stop hosted network.
+  
+  To view help for a command, type the command, followed by a space, and then
+   type ?.
+  
+  ```
+
+  
 
 ### show(展示当前命令的可有命令)
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/37b15faa439e463d92d0d0dcab819c67.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-##  检查/扫描当前wifi信号
+##  检查/扫描当前wifi信号🎈
 
 ### How can I display the other wireless connections?
 
@@ -103,7 +132,8 @@ netsh wlan show networks
 - These connections are available at your current location.
 - You must be disconnected from all wireless networks before running this command.
 
-Example output (names have been obscured):
+- Example output (names have been obscured):
+
 
 ```
 f:\test>netsh wlan show networks
@@ -153,7 +183,7 @@ netsh wlan show networks
 - These connections are available at your current location.
 - You must be disconnected from all wireless networks before running this command.
 
-### 输出列表分析
+### 输出wifi列表🎈
 
 - 可能会出现乱码(中文字符)
 
@@ -174,7 +204,8 @@ netsh wlan show networks
 
   
 
-Example output (names have been obscured):
+- Example output (names have been obscured):
+
 
 ```bash
 f:\test>netsh wlan show networks
@@ -215,10 +246,14 @@ PS D:\repos\scripts> wifi_list|sls "11T"
 SSID 8 : Redmi Note 11T Pro4
 ```
 
-### 深度刷新/重检查周围wifi列表
+### 深度刷新/重检查周围wifi列表🎈
 
 - 🎈🎈🎈使用管理员方式代开cmd/powershell
-- 先禁用WLAN网卡
+- 原理是重启网卡
+
+  - 先禁用WLAN网卡
+
+  - 再启用网卡
 
 - ```bash
   netsh interface set interface name="wLAN" admin=disable
@@ -228,27 +263,105 @@ SSID 8 : Redmi Note 11T Pro4
 
   - 根据具体情况,也可能是`netsh interface set interface name="wi-fi" admin=disable`
   - 可以通过:`netsh wlan show interfaces`
+
+    - ```bash
+      PS C:\Users\cxxu\Desktop> netsh wlan show interfaces|sls Name
+      
+          Name                   : Wi-Fi
+      ```
+    - 常见的Name取值为:
+
+      - `wi-fi`(无线路由器)
+      - `wlan`(比如手机热点)
+      - 下面的脚本已经为你处理好了,所以不需要你自己查看了
+
     - 检查无线网卡信息获取Name字段的值来获取
     - 大小写应该不区分
 
+#### 强力刷新当前wifi
+
 ```powershell
+
 function isAdministratorPrivilege
 {
     if (!([Security.Principal.WindowsIdentity]::GetCurrent().Groups -contains 'S-1-5-32-544'))
     {
-        Write-Output '🎈🎈🎈🎈🎈🎈🎈🎈🎈warning!🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈'
-        Write-Output '🤣😂😊current powershell run without administrator privilege!;请手动打开管理模式的terminal.'
-        return 0
+        # Write-Output '🎈🎈🎈🎈🎈🎈🎈🎈🎈warning!🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈'
+        # Write-Output '🤣current powershell run without administrator privilege!;请手动打开管理模式的terminal.'
+        return $false
     }
-    return 1
+    # Write-Output '😁current environment is @administrator privilege!'
+    #write 会影响返回值!
+    return $true
 }
 
+function wifiList_forceByDisconnect_SudoFirst
+{
+    <# 
+    .synopsis
+    务必使用管理员权限运行,否则结果依然不可靠!!!
+    #>
+    if ($(isAdministratorPrivilege) -eq $False)
+    {
+        Write-Output '🤣Ops!please try anagin by @Administrator privilege'
+        return $False
+    }
+    else
+    {
+        Write-Output '😁the current environment is @Administrator privilege'
+    }
 
+    Write-Output 'get the current working NIC informations...'
+    # netsh wlan show interfaces | Select-String Name
+    $Name = (netsh wlan show interfaces | Select-String Name).ToString() -replace '(Name.*):(.*)', '$2'; $Name = $Name.Trim()
+    Write-Output "the Name=$Name"
+    Write-Output '正在关闭无线网卡(disabling the wlan interface...'
+    netsh interface set interface name=$Name admin=disable
+    Write-Output 'waiting for the enable operation complete...'
+    #需要等待几秒,以便网卡关闭顺利执行(相对耗时,根据自己的情况来调整)
+    # Start-Sleep(3)
+    # countdown_timer
+    Write-Output 'try to enable the interface again ...'
+    #重新启动WLAN网卡
+    netsh interface set interface name=$Name admin=enable
+    Write-Output 'waiting for the enable operation complete...'
+    Start-Sleep(0.5)
+    Write-Output 'list the current wifi signals...'
+    # netsh wlan show networks
+    netsh wlan show networks | Select-String ssid
+    Write-Output 'the current connected network is:'
+    netsh wlan show interfaces | Select-String ^\s*ssid
+    
+    ping www.baidu.com | Select-Object -First 6
+}
 ```
 
+#### 调用示例
 
+- ```bash
+  PS C:\Users\cxxu\Desktop> wifiList_forceByDisconnect_SudoFirst
+  😁the current environment is @Administrator privilege
+  get the current working NIC informations...
+  the Name=Wi-Fi
+  正在关闭无线网卡(disabling the wlan interface...
+  
+  waiting for the enable operation complete...
+  try to enable the interface again ...
+  
+  waiting for the enable operation complete...
+  list the current wifi signals...
+  
+  SSID 1 : ChinaNet-95y1520598
+  SSID 2 : ChinaNet-sNRv
+  SSID 3 : FAST_0770
+  SSID 4 : CMCC-user
+  the current connected network is:
+      SSID                   : ChinaNet-95y15xxxx
+  ```
 
-## 命令行连接wifi
+  
+
+## 命令行连接wifi🎈
 
 - 常用wifi的连接通过可以考虑使用CLI进行
 
