@@ -1,31 +1,27 @@
-- cpu给出虚拟地址VA
-  - 解析逻辑地址VA的字段:
-    - 逻辑页号P
-    - 页内偏移W
-  - 检查**快表**TLB(转址旁路缓存器,是独立于内存的**硬件**)中的是否页(页表项)在TLB中
-    - 如果有,则可以**快速**完成$P0:VA\to{b}$的转换过程(取得b)
-    - 否则,意味着快表没未命中,需要访问位于内存中的**慢表**(branches)
-      - 如果要访问的页面存在于内存中,那么需要2步操作(access page table & maintain TLB)
-        - 访问内存中的慢表有望成功,可以取得b
-        - 更新快表TLB(是为了下一次访存(执行P1过程能够有更高的几率走高速通道(快表,而不是慢表)))
-          - 维护依据:局部性原理告诉我们这种`亡羊补牢`的操作是有效的
-      - 否则就处于比较坏的情况了,需要访问硬盘(IO)
-        - 空**页框**判断:检查内存中是否还有空闲页框可以分配
-          - 如果有
-            - 则可以直接从硬盘读取需要的块,调入主存中
-            - 更新内存中的**页表(包括慢表和快表TLB)**)
-              - 同时为了下一次访问方便(减少IO次数/几率)
-              - 维护根据:局部性原理
-          - 否则,需要执行页面置换算法
-            - 从主存中调出一页,然后在执行上一种情况(从硬盘调入缺失页面到内存)
-  - 执行P1过程:计算$PA=b+W$
-  - 判断物理地址PA是否在cache中存在(命中)
-    - 如果命中,那么可以直接访问cache中的数据,完成访存(指存储器)任务
-    - 否则cache缺失对应的页(块),需要将内容从主存(甚至需要先从硬盘调入内存)调入到cache.(branches):
-      - 判断cache中是否空闲行可以容纳新的块
-        - 如果是,那么直接从内存中调入调入缺失的块到cache中
-        - 否则,需要执行cache块的置换算法,从cache中调出一块内容(可能写回内存)
-          - 然后在把缺失的页面调入到刚才空出的cache行中
-      - 调整完cache行内容后还需要修改新内容的cache行对应的标记位和有效位
-  - 过程P2:从cache中将需要的内容读取使用
-
+* [Extended Syntax](https://www.markdownguide.org/extended-syntax/#extended-syntax)
+  * [Overview](https://www.markdownguide.org/extended-syntax/#overview)
+  * [Availability](https://www.markdownguide.org/extended-syntax/#availability)
+    * [Lightweight Markup Languages](https://www.markdownguide.org/extended-syntax/#lightweight-markup-languages)
+    * [Markdown Processors](https://www.markdownguide.org/extended-syntax/#markdown-processors)
+  * [Tables](https://www.markdownguide.org/extended-syntax/#tables)
+    * [Alignment](https://www.markdownguide.org/extended-syntax/#alignment)
+    * [Formatting Text in Tables](https://www.markdownguide.org/extended-syntax/#formatting-text-in-tables)
+    * [Escaping Pipe Characters in Tables](https://www.markdownguide.org/extended-syntax/#escaping-pipe-characters-in-tables)
+  * [Fenced Code Blocks](https://www.markdownguide.org/extended-syntax/#fenced-code-blocks)
+    * [Syntax Highlighting](https://www.markdownguide.org/extended-syntax/#syntax-highlighting)
+  * [Footnotes](https://www.markdownguide.org/extended-syntax/#footnotes)
+  * [Heading IDs](https://www.markdownguide.org/extended-syntax/#heading-ids)
+    * [Linking to Heading IDs](https://www.markdownguide.org/extended-syntax/#linking-to-heading-ids)
+  * [Definition Lists](https://www.markdownguide.org/extended-syntax/#definition-lists)
+  * [Strikethrough](https://www.markdownguide.org/extended-syntax/#strikethrough)
+  * [Task Lists](https://www.markdownguide.org/extended-syntax/#task-lists)
+  * [Emoji](https://www.markdownguide.org/extended-syntax/#emoji)
+    * [Copying and Pasting Emoji](https://www.markdownguide.org/extended-syntax/#copying-and-pasting-emoji)
+    * [Using Emoji Shortcodes](https://www.markdownguide.org/extended-syntax/#using-emoji-shortcodes)
+  * [Highlight](https://www.markdownguide.org/extended-syntax/#highlight)
+  * [Subscript](https://www.markdownguide.org/extended-syntax/#subscript)
+  * [Superscript](https://www.markdownguide.org/extended-syntax/#superscript)
+  * [Automatic URL Linking](https://www.markdownguide.org/extended-syntax/#automatic-url-linking)
+  * [Disabling Automatic URL Linking](https://www.markdownguide.org/extended-syntax/#disabling-automatic-url-linking)
+    * [Take your Markdown skills to the next level.](https://www.markdownguide.org/extended-syntax/#take-your-markdown-skills-to-the-next-level)
+      * [Want to learn more Markdown?]()

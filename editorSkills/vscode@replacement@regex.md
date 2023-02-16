@@ -1,12 +1,18 @@
-@[toc]
-# vscode replace content partically
-### reference
+[toc]
 
-[Case changing in regex replace#](https://code.visualstudio.com/docs/editor/codebasics#_case-changing-in-regex-replace)
+# vscode正则文本替换@处理
 
-### 正则替换
+- vscode replace content partically
+
+## refs
+
+- [Case changing in regex replace#](https://code.visualstudio.com/docs/editor/codebasics#_case-changing-in-regex-replace)
+
+## 正则替换
+
 - `ctrl+H`
-####  案例1
+
+###  案例1
 
 - 实验文本
 
@@ -21,8 +27,10 @@
   - `$2$1 \u\L$3`(指示如何操做被匹配了的文本(此处将第一次和第二组组交换,第三组的首字母大写,其余小写))
 
   ![image-20220404150444655](https://img-blog.csdnimg.cn/img_convert/417385419996ca98d42b1560dcbd4f6b.png)
-####  案例2
-- 假设谋篇markdown文章中初夏了一些问题,内容如下
+
+###  案例2
+
+- 假设谋篇markdown文章中出现了一些问题,内容如下
 - 试验文本:(假设文笔文件中有多段类似的结构)
 ```
 **函数应用**
@@ -39,7 +47,7 @@
 	- match2:`(\*\*)(!.*)(\*\*)`
 	- replacement2:`$2`
 	- 经过两轮替换,基本可以达到目的了
-### 案例三
+### 案例3
 
 - 只保留每行的`【xxx】`部分
 
@@ -92,7 +100,7 @@
   【金殿认母】
   ```
 
-### 案例四
+### 案例4
 
 - 去掉每行的中括号
 
@@ -121,7 +129,7 @@
 
   
 
-### 局部替换
+## 局部替换
 
 ### 方式1
 
@@ -133,8 +141,10 @@
 
 - 打开`find in selection`功能开关(默认快捷键为`alt+l`)
 
-  > - (只有在上述操作中选中了某一部分区域后)才可以有效的打开该开关
-  > - 如果此前已经将开关置于开启状态,则需要将开关切换为关有在开启才是有效的
+  - (只有在上述操作中选中了某一部分区域后)才可以有效的打开该开关
+
+  - 如果此前已经将开关置于开启状态,则需要将开关切换为关有在开启才是有效的
+
 
 - 执行替换
 
@@ -150,10 +160,20 @@
 
 ## vscode 目录检索_模糊匹配工作空间的目录
 
-> - `ctrl+p`启动`go to file`
-> - 匹配目录的时候在目录名后面追加`/`来表示目录名
+- `ctrl+p`启动`go to file`
+- 匹配目录的时候在目录名后面追加`/`来表示目录名
 
 - ![](https://img-blog.csdnimg.cn/img_convert/8e3b3dbc8fc99c389c8bcf8ab6c0a56c.png)
+
+## 相似变量名统一
+
+- 想要把代码中的x_array和x_arrays等统一替换为x_arrays:
+  ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210620173409966.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+
+the solution regex:
+
+- `x_array(\b|\w)`
+- 或者更通用的分组替换
 
 ## 辅助的powershell 函数
 

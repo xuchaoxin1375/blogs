@@ -161,3 +161,22 @@ Reply from 89.31.125.6: bytes=32 time=102ms TTL=47
 
 - 采用cdn加速,可以更好的加速GitHubusercontent资源
 - 详情参考其他资料
+
+
+
+## .gitconfig文件配置@为github配置push代理🎈
+
+- 例如,配置本机的10801端口为代理duan'kou
+
+- ```bash
+  
+  [user]
+  	email = 838808930@qq.com
+  # ...
+  	
+  [http "https://github.com"]
+  	proxy = socks5://127.0.0.1:10801
+  
+  ```
+
+  

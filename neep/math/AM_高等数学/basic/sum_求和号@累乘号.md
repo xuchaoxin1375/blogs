@@ -1,6 +1,26 @@
-@[toc]
+[toc]
 
 # 求和号的性质$\sum$@累乘号$\prod$
+
+## 求和符号
+
+- 例
+
+  - $$
+    {\displaystyle \sum _{i\mathop {=} m}^{n}a_{i}=a_{m}+a_{m+1}+a_{m+2}+\cdots +a_{n-1}+a_{n}}
+    $$
+
+- where *i* is the **index of summation**;
+-  *$a_i$* is an indexed variable representing each term of the sum; 
+- *m* is the **lower bound of summation**, and
+- *n* is the **upper bound of summation**.
+-  The "*i* = *m*" under the summation symbol means that the index *i* starts out equal to *m*.
+-  The index, *i*, is <u>incremented by one for each successive term</u>, stopping when *i* = *n*. 
+
+### 读法
+
+- This is read as "sum of *$a_i$*, from *i* = *m* to *n*".
+- 从$i=m到n$对$a_i$进行累加求和
 
 ## 累加多项式乘法
 
@@ -200,15 +220,49 @@ $$
 
 - 
   $$
-  \frac{\part{z}}{\part{x_i}}=f'_y(x_1,\cdots,x_n),i\in\{1,2,\cdots,n\}
+  \frac{\partial{z}}{\partial{x_i}}=f'_y(x_1,\cdots,x_n),i\in\{1,2,\cdots,n\}
   \\
-  \frac{\part^k{z}}{H(\theta)}
+  \frac{\partial^k{z}}{H(\theta)}
   =f^{(k)}_{X(\theta)}(x_1,\cdots,x_n),i\in\{1,2,\cdots,n\}
   \\\theta=i_1i_2\cdots{i_n};
   \\\theta表示对序列的1,2,\cdots,{n}选出至少一个元素进行任意重新排列
   \\不同的\theta有n^k种(注意,序列中的元素可以重复,所以可能的情况数是方幂级别)
   \\这个更行列式那里的定义有所不同
-  \\H(\theta)=H\part{x}(\theta)=\part{x}_{i_1}\part{x}_{i_2}\cdots{\part{x}_{i_k}}
+  \\H(\theta)=H\partial{x}(\theta)=\partial{x}_{i_1}\partial{x}_{i_2}\cdots{\partial{x}_{i_k}}
   \\X(\theta)=x_{i_1}x_{i_2}\cdots{x_{i_k}}
   $$
-  
+
+## 求和恒等式(小结)
+
+- [Summation - Wikipedia](https://en.wikipedia.org/wiki/Summation)
+- ${\displaystyle \sum _{n=s}^{t}C\cdot f(n)=C\cdot \sum _{n=s}^{t}f(n)\quad }$🎈
+  - (distributivity)
+- ${\displaystyle \sum _{n=s}^{t}f(n)\pm \sum _{n=s}^{t}g(n)=\sum _{n=s}^{t}\left(f(n)\pm g(n)\right)\quad }$
+  -  (commutativity and associativity)[3]
+- ${\displaystyle \sum _{n=s}^{t}f(n)=\sum _{n=s+p}^{t+p}f(n-p)\quad }$🎈
+  -  (index shift)
+- ${\displaystyle \sum _{n\in B}f(n)=\sum _{m\in A}f(\sigma (m)),\quad }$
+  - for a bijection σ from a finite set A onto a set B (index change); this generalizes the preceding formula.
+
+- ${\displaystyle \sum _{n=s}^{t}f(n)=\sum _{n=s}^{j}f(n)+\sum _{n=j+1}^{t}f(n)\quad }$ 
+  - (splitting a sum, using associativity)
+- ${\displaystyle \sum _{n=a}^{b}f(n)=\sum _{n=0}^{b}f(n)-\sum _{n=0}^{a-1}f(n)\quad }$🎈 
+  - (a variant of the preceding formula)
+- ${\displaystyle \sum _{n=s}^{t}f(n)=\sum _{n=0}^{t-s}f(t-n)\quad }=\sum\limits_{n=0}^{t-s}f(n+t)$🎈
+  -  (the sum from the first term up to the last is equal to the sum from the last down to the first)
+  - ${\displaystyle \sum _{n=0}^{t}f(n)=\sum _{n=0}^{t}f(t-n)\quad }$ (a particular case of the formula above)
+- ${\displaystyle \sum _{i=k_{0}}^{k_{1}}\sum _{j=l_{0}}^{l_{1}}a_{i,j}=\sum _{j=l_{0}}^{l_{1}}\sum _{i=k_{0}}^{k_{1}}a_{i,j}\quad }$ (commutativity and associativity, again)交换性🎈
+  - 例如矩阵中的求和所有元素,逐行求和和逐列求和结果一样
+- ${\displaystyle \sum _{k\leq j\leq i\leq n}a_{i,j}=\sum _{i=k}^{n}\sum _{j=k}^{i}a_{i,j}=\sum _{j=k}^{n}\sum _{i=j}^{n}a_{i,j}=\sum _{j=0}^{n-k}\sum _{i=k}^{n-j}a_{i+j,i}\quad }$ 🎈
+  - (another application of commutativity and associativity)
+- ${\displaystyle \sum _{n=2s}^{2t+1}f(n)=\sum _{n=s}^{t}f(2n)+\sum _{n=s}^{t}f(2n+1)\quad }$ 🎈
+  - (splitting a sum into its odd and even parts, for even indexes)
+- ${\displaystyle \sum _{n=2s+1}^{2t}f(n)=\sum _{n=s+1}^{t}f(2n)+\sum _{n=s+1}^{t}f(2n-1)\quad }$ 
+  - (splitting a sum into its odd and even parts, for odd indexes)
+- ${\displaystyle \left(\sum _{i=0}^{n}a_{i}\right)\left(\sum _{j=0}^{n}b_{j}\right)=\sum _{i=0}^{n}\sum _{j=0}^{n}a_{i}b_{j}\quad =\sum _{i=0}^{n}\left(\sum _{j=0}^{n}a_{i}b_{j}\right)}$ (distributivity)🎈
+- ${\displaystyle \sum _{i=s}^{m}\sum _{j=t}^{n}{a_{i}}{c_{j}}=\left(\sum _{i=s}^{m}a_{i}\right)\left(\sum _{j=t}^{n}c_{j}\right)\quad }$ (distributivity allows factorization)因式分解🎈
+- ${\displaystyle \sum _{n=s}^{t}\log _{b}f(n)=\log _{b}\prod _{n=s}^{t}f(n)\quad }$ 
+  - (the logarithm of a product is the sum of the logarithms of the factors)
+- ${\displaystyle C^{\sum \limits _{n=s}^{t}f(n)}=\prod _{n=s}^{t}C^{f(n)}\quad }$
+  -  (the exponential of a sum is the product of the exponential of the summands)
+

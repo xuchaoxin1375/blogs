@@ -13,7 +13,7 @@
   - 其他
 
 
-  
+
 
 ## CDN加速链接
 
@@ -57,7 +57,7 @@
 
 - clash 订阅链接：
 
-  - [https://raw.xn--p8jhe.tw/ermaozi/get_subscribe/main/subscribe/clash.yml](https://raw.fast/ermaozi/get_subscribe/main/subscribe/clash.yml)
+  - https://raw.fastgit.org/ermaozi/get_subscribe/main/subscribe/clash.yml
   - [https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml](https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml)
 
 - v2ray 订阅链接：
@@ -78,15 +78,17 @@
 - 查看最近更新
   - [镜像地址:Commits · JACKUSR2089/v2ray-subscribed · GitHub (xn--p8jhe.tw)](https://hub.xn--p8jhe.tw/JACKUSR2089/v2ray-subscribed/commits?author=JACKUSR2089)
 
-## pojiezhiyuanjun
->不知怎么的,最近不太好使,到youtube频道查看最新消息
+## pojiezhiyuanjun🎈
+
+- 不知怎么的,最近不太好使,到youtube频道查看最新消息
+
+  
 
 ### commits
 
-> 获取准确的最新更新日期
+获取准确的最新更新日期
 
 - [Commits · pojiezhiyuanjun/freev2 (github.com)](https://github.com/pojiezhiyuanjun/freev2/commits?author=pojiezhiyuanjun)
-- [Commits · pojiezhiyuanjun/freev2 · GitHub (xn--p8jhe.tw)](https://hub.xn--p8jhe.tw/pojiezhiyuanjun/freev2/commits?author=pojiezhiyuanjun)
 
 ### subscriptions:
 

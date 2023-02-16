@@ -78,7 +78,6 @@
 - [浙江省图书馆|(旧版)中国学术文献网络出版总库](http://61.175.198.136:8083/rwt/288/http/GEZC6MJZFZZUPLSSG63B/kns55/brief/result.aspx)
   - [检索-中国知网](http://61.175.198.136:8083/rwt/CNKIBK/https/NNYHGLUDN3WXTLUPMW4A/kns8/defaultresult/index)
 
-
 ### 学术翻译@术语翻译
 
 - [CNKI翻译助手](https://dict.cnki.net/index)
@@ -86,9 +85,11 @@
 #### 跨库语音情感识别
 
 - <u>Design and Implementation</u> of <u> Cross-corpus Speech Emotion Recognition System</u>
+  - `Design and Implementation of  Cross-corpus Speech Emotion Recognition System`
+
 - 跨库语音情感识别Cross-database Speech Emotion Recognition
   -  cross-corpus SER
--  the research progress of existing cross-corpus SER methods
+- the research progress of existing cross-corpus SER methods
   - 现有的语音情感识别研究进展
 
 - [检索-中国知网 (cnki.net)](https://kns.cnki.net/kns8/defaultresult/index)

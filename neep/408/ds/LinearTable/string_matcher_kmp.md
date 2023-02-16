@@ -36,17 +36,17 @@ ref
 
 ## kmp
 
-### 关键概念
+- In [computer science](https://en.wikipedia.org/wiki/Computer_science), the **Knuth–Morris–Pratt [string-searching algorithm](https://en.wikipedia.org/wiki/String-searching_algorithm)** (or **KMP algorithm**) searches for occurrences of a "word" `W` within a main "text string" `S` by employing the observation that when a mismatch occurs, the word itself embodies sufficient information to determine where the next match could begin, thus bypassing re-examination of previously matched characters.
 
-### 主串T
+### 主串(被搜索串)T
 
-1. 文本来源(算法输入的字符序列1)
+- 主串(main string)文本来源(算法输入的字符序列1)
 
-### 模式串p
+### 模式串(目标串)p
 
-- 算法输入序列2
+- 模式串(patte)
 
-1. 需要在主串中找到的第一次出现位置的串(目标串)
+1. 需要在**主串**中找到的第一次出现位置的串(目标串)
 2. $p_1p_2p_3\cdots p_{m-1}p_{m}$
 
 #### 模式串长度m
