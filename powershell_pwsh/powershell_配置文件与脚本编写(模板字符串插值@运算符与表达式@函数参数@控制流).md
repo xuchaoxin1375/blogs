@@ -1,8 +1,12 @@
-@[toc]
+[toc]
 
 #  powershell配置文件
 
-- [refs](https://docs.microsoft.com/zh-cn/learn/modules/script-with-powershell/2-introduction-scripting)
+## refs
+
+- [Everything you wanted to know about variable substitution in strings - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.3)
+
+- [编写脚本简介 - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/modules/script-with-powershell/2-introduction-scripting)
 
 ### 配置文件类型
 
@@ -60,13 +64,19 @@ Length                 : 71
   - 例如
   - `$Profile | Select-Object *`
 
-#  插值
+#  插值@引号和内插@字符串
 
 - 在==双引号==中可以插值
 
-
 ## 简单值:
-`$<expression>`
+
+- `$<expression>`
+- 这种情况于对已经存在的某个变量的**引用**
+- 除此之外的表达式应该使用`$()`来构造内插于字符串部分
+  - 例如算数四则运算
+  - 对象属性的访问(计算)
+  - ...
+
 ### 简单插值示例
 ```powershell
 PS D:\repos\blogs> "$PROFILE"
@@ -75,33 +85,69 @@ C:\Users\cxxu\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
 
 
 
+##  较复杂值:`$()`
 
-##  较复杂值:
+- `$()`. 还可在双引号内编写表达式
+
 - 通用方式
 
   - 插值可以嵌套!
 
   - `$(<complex expression>)`
 
-### 复杂插值eg1.
-```powershell
-Write-Host "Created backup at $( $DestinationPath + 'backup-' + $date).zip"
-```
-> 单引号无法插值！
-* 示例2：获取当前目录下存在的符号链接
-```ps1
-function getLinks {
-    param (
-    )
-    $step = (Get-ChildItem | Sort-Object -Property target -Descending | Select-Object name, linktype, target | Where-Object target -ne "")
-    Write-Output $step "-------------"
+- notes:
+  - 单引号无法插值！
 
-    Write-Output "itemsCount: $($step.count)"
+### 示例
 
-}
-```
+- 例1:
+
+  - ```cmd
+    PS D:\repos\blogs> "1+1=$(1+1)"
+    1+1=2
+    ```
+
+- 例2：获取当前目录下存在的符号链接
+
+  - ```powershell
+    function getLinks {
+        param (
+        )
+        $step = (Get-ChildItem | Sort-Object -Property target -Descending | Select-Object name, linktype, target | Where-Object target -ne "")
+        Write-Output $step "-------------"
+    
+        Write-Output "itemsCount: $($step.count)"
+    
+    }
+    ```
+
 ### 引用对象成员的插值示例
-![在这里插入图片描述](https://img-blog.csdnimg.cn/277b8bb625ec4437b112e4c42ddfd8f9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+
+- ```powershell
+  PS D:\repos\blogs> "check:$($PROFILE.AllUsersAllHosts)"
+  check:C:\Program Files\PowerShell\7\profile.ps1
+  ```
+
+### 避免插值混淆@界定`${}`
+
+- ```powershell
+  PS D:\repos\blogs> $test = "Bet"
+  PS D:\repos\blogs> $tester = "Better"
+  PS D:\repos\blogs> Write-Host "$test $tester $testter"
+  Bet Better
+  PS D:\repos\blogs> Write-Host "$test $tester ${test}ter"
+  Bet Better Better
+  PS D:\repos\blogs> Write-Host "$test $tester $($test)ter"
+  Bet Better Better
+  ```
+
+- 可以看到,`${}`用来告诉powershell如何正确解读紧凑的字符序列
+
+- 他的功能依然可以被`$()`所替代,但是注意语法:`${varName}`和`$($<expression>)`
+
+### 插值小结
+
+- 其实可以总是使用`$()`的方式来插值(无论是引用变量还是计算表达式,兼容性最好)
 
 #  参数
 - 分为脚本参数和函数参数
@@ -130,8 +176,6 @@ Param(
 
 ## 参数说明(with `parameter[]`)
 - 实验环境不同,效果可能也不同(在vscode中的powershell插件控制下的PowerShell Integrated Console (v2021.10.2) 就无法使用`!?`提示`
-- 以下是powerhsell7.1中的结果
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/d0276432a7d4412ab68bbc4b33da64a3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
 ### test code
 

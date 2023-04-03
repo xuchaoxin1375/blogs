@@ -232,7 +232,7 @@ $$
   \\X(\theta)=x_{i_1}x_{i_2}\cdots{x_{i_k}}
   $$
 
-## 求和恒等式(小结)
+## 求和恒等式(小结)🎈
 
 - [Summation - Wikipedia](https://en.wikipedia.org/wiki/Summation)
 - ${\displaystyle \sum _{n=s}^{t}C\cdot f(n)=C\cdot \sum _{n=s}^{t}f(n)\quad }$🎈

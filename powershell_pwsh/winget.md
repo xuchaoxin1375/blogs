@@ -1,26 +1,35 @@
-winget 使用入门
+## winget
 
 * [winget help Command | Microsoft Docs](https://docs.microsoft.com/en-us/windows/package-manager/winget/help)
 
 * [How to Use WINGET on Windows 11 - All Things How](https://allthings.how/how-to-use-winget-on-windows-11/)
 
-  * **winget** 工具的当前预览版支持以下命令。
 
-|命令|说明|
-|-|-|
-|[install](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/install)|安装指定的**应用程序**。|
-|[show](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/show)|显示指定应用程序的详细信息。|
-|[source](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/source)|添加、删除和更新 **winget** 工具访问的 Windows 程序包管理器存储库。|
-|[search](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/search)|搜索某个应用程序。|
-|[list](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/list)|显示已安装的包。|
-|[升级](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/upgrade)|升级给定的包。|
-|[uninstall](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/uninstall)|卸载给定的包。|
-|[hash](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/hash)|为安装程序生成 SHA256 哈希。|
-|[validate](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/validate)|验证要提交到 Windows 程序包管理器存储库的清单文件。|
-|[设置](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/settings)|打开设置。|
-|[功能](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/features)|显示试验功能的状态。|
-|[export](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/export)|导出已安装包的列表。|
-|[import](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/import)|将所有包安装到一个文件中。|
+## winget不可用异常
+
+- [The term 'winget' is not recognized as the name of a cmdlet, function, script file, or operable program. (techtutsonline.com)](https://www.techtutsonline.com/the-term-winget-is-not-recognized-as-the-name-of-a-cmdlet-function-script-file-or-operable-program/)
+  - 可能是环境变量Path中的`%UserProfile%\AppData\Local\Microsoft\WindowsApps`被误删导致
+
+### 概要
+
+* **winget** 工具的当前支持以下命令
+
+- |命令|说明|
+  |-|-|
+  |[install](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/install)|安装指定的**应用程序**。|
+  |[show](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/show)|显示指定应用程序的详细信息。|
+  |[source](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/source)|添加、删除和更新 **winget** 工具访问的 Windows 程序包管理器存储库。|
+  |[search](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/search)|搜索某个应用程序。|
+  |[list](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/list)|显示已安装的包。|
+  |[升级](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/upgrade)|升级给定的包。|
+  |[uninstall](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/uninstall)|卸载给定的包。|
+  |[hash](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/hash)|为安装程序生成 SHA256 哈希。|
+  |[validate](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/validate)|验证要提交到 Windows 程序包管理器存储库的清单文件。|
+  |[设置](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/settings)|打开设置。|
+  |[功能](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/features)|显示试验功能的状态。|
+  |[export](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/export)|导出已安装包的列表。|
+  |[import](https://docs.microsoft.com/zh-cn/windows/package-manager/winget/import)|将所有包安装到一个文件中。|
+
 
 ```bash
 PS C:\Users\cxxu> win -?
@@ -264,86 +273,7 @@ Successfully uninstalled
 
   * 从windows 应用商店按照软件**SiYuan**笔记
 
-## more refs(来自篇相对完善的winget使用教程)
 
-ow to Use WINGET on Windows 11
 
-* [How to Install the WINGET (Windows Package Manager) in Windows 11](https://allthings.how/how-to-use-winget-on-windows-11/#h-how-to-install-the-winget-windows-package-manager-in-windows-11)
 
-* [How to Use WINGET, the Windows Package Manager in Windows 11](https://allthings.how/how-to-use-winget-on-windows-11/#h-how-to-use-winget-the-windows-package-manager-in-windows-11)
 
-  * [Quickly Search for Apps in the Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-quickly-search-for-apps-in-the-winget)
-
-  * [Filter Your Search Results in Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-in-winget)
-
-    * [Filter Your Search Results by Name](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-name)
-
-    * [Filter Your Search Results by ID](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-id)
-
-    * [Filter Your Search Results by Tags](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-tags)
-
-    * [Filter Your Search Results by Commands](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-commands)
-
-    * [Filter Your Search Results by Moniker](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-moniker)
-
-    * [Filter Your Search Results by Source](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-source)
-
-    * [Filter Your Search Results by Count](https://allthings.how/how-to-use-winget-on-windows-11/#h-filter-your-search-results-by-count)
-
-    * [Find App Package using Exact String](https://allthings.how/how-to-use-winget-on-windows-11/#h-find-app-package-using-exact-string)
-
-    * [Search App with Multiple Filter Options](https://allthings.how/how-to-use-winget-on-windows-11/#h-search-app-with-multiple-filter-options)
-
-    * [Search Multiple Apps with a Single Command](https://allthings.how/how-to-use-winget-on-windows-11/#h-search-multiple-apps-with-a-single-command)
-
-  * [View Package Information in Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-view-package-information-in-winget)
-
-  * [Manage Sources of Packages in Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-manage-sources-of-packages-in-winget)
-
-  * [Display the List of Installed Packages](https://allthings.how/how-to-use-winget-on-windows-11/#h-display-the-list-of-installed-packages)
-
-  * [Install Apps on Your Computer using the Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-on-your-computer-using-the-winget)
-
-    * [Install Apps with Winget using the App ID](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-with-winget-using-the-app-id)
-
-    * [Install Apps with Winget by the App Name](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-with-winget-by-the-app-name)
-
-    * [Install a Specific Version of a Program with Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-a-specific-version-of-a-program-with-winget)
-
-    * [Install Apps from a Specific Source](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-from-a-specific-source)
-
-    * [Install Apps on the Current User or All User](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-on-the-current-user-or-all-user)
-
-    * [Install Apps using the Exact String in the Query](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-using-the-exact-string-in-the-query)
-
-    * [Install Apps in Interactive Mode](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-in-interactive-mode)
-
-    * [Install Apps in Silent Mode](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-apps-in-silent-mode)
-
-    * [Change the Installation Location for a Program](https://allthings.how/how-to-use-winget-on-windows-11/#h-change-the-installation-location-for-a-program)
-
-    * [Skip Installer Hash Check](https://allthings.how/how-to-use-winget-on-windows-11/#h-skip-installer-hash-check)
-
-    * [Accept License Agreements](https://allthings.how/how-to-use-winget-on-windows-11/#h-accept-license-agreements)
-
-    * [Install Multiple Applications At Once with Winget on Windows 11](https://allthings.how/how-to-use-winget-on-windows-11/#h-install-multiple-applications-at-once-with-winget-on-windows-11)
-
-  * [Update or Upgrade Applications using Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-update-or-upgrade-applications-using-winget)
-
-  * [Uninstall or Remove Applications using Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-uninstall-or-remove-applications-using-winget)
-
-  * [View the Experimental Features of Windows Package Manager](https://allthings.how/how-to-use-winget-on-windows-11/#h-view-the-experimental-features-of-windows-package-manager)
-
-  * [Configure Windows Package Manager (Winget) Settings](https://allthings.how/how-to-use-winget-on-windows-11/#h-configure-windows-package-manager-winget-settings)
-
-    * [Change Update Interval for the Source](https://allthings.how/how-to-use-winget-on-windows-11/#h-change-update-interval-for-the-source)
-
-    * [Change Visual Design of the Progress Bar](https://allthings.how/how-to-use-winget-on-windows-11/#h-change-visual-design-of-the-progress-bar)
-
-    * [Change Installation Scope of the Application](https://allthings.how/how-to-use-winget-on-windows-11/#h-change-installation-scope-of-the-application)
-
-    * [Enable or Disable Experimental Features in Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-enable-or-disable-experimental-features-in-winget)
-
-  * [Export Installed Software to Another Computer via Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-export-installed-software-to-another-computer-via-winget)
-
-  * [Import Application List from Another Computer via Winget](https://allthings.how/how-to-use-winget-on-windows-11/#h-import-application-list-from-another-computer-via-winget)

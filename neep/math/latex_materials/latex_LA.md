@@ -79,6 +79,7 @@
   	\vdots  &\vdots  &        &\vdots  	\\
   	a_{m1}  &a_{m2}  &\cdots  &a_{mn}  	\\
   \end{pmatrix}
+  \\逗号分隔下标
   \\
   A=\begin{pmatrix}
   	a_{1,1}  &a_{1,2}  &\cdots  &a_{1,n}  	\\
@@ -87,7 +88,37 @@
   	a_{m,1}  &a_{m,2}  &\cdots  &a_{m,n}  	\\
   \end{pmatrix}
   $$
-  
+
+
+### 转置
+
+- $m\times{n}$转置为$n\times{m}$
+
+- 
+  $$
+  B=A^T
+    =\begin{pmatrix}
+    	b_{11}  &b_{12}  &\cdots  &b_{1m}  	\\
+    	b_{21}  &b_{22}  &\cdots  &b_{2m}  	\\
+    	\vdots  &\vdots  &        &\vdots  	\\
+    	b_{n1}  &b_{n2}  &\cdots  &b_{nm}  	\\
+    \end{pmatrix}
+    =\begin{pmatrix}
+    	a_{11}  &a_{21}  &\cdots  &a_{m1}  	\\
+    	a_{12}  &a_{22}  &\cdots  &a_{m2}  	\\
+    	\vdots  &\vdots  &        &\vdots  	\\
+    	a_{1n}  &a_{2n}  &\cdots  &a_{mn}  	\\
+    \end{pmatrix}
+  $$
+
+  - 计算一个矩阵A的转置矩阵B=$A^T$的好方法是
+    - 确定转置后的规格(行数和列数)
+    - 把A的第i行元素(转置后)按列填为B的第i列中
+      - 这种情况下,B的第i列元素有
+        - 相同的第一下标
+        - 递增的第二下标
+    - 另外,转置完成后不妨验证一下,验证是很容易的(快速完成)
+
 - 
   $$
   \\
@@ -124,30 +155,31 @@
   	\beta_{i}	\\
   \end{pmatrix}
   $$
-  
-- 转置
 
-  - $m\times{n}$转置为$n\times{m}$
   
-  
-  $$
-  B=A^T
-  =\begin{pmatrix}
-  	b_{11}  &b_{12}  &\cdots  &b_{1m}  	\\
-  	b_{21}  &b_{22}  &\cdots  &b_{2m}  	\\
-  	\vdots  &\vdots  &        &\vdots  	\\
-  	b_{n1}  &b_{n2}  &\cdots  &b_{nm}  	\\
+
+- $$
+  C=AB=
+  \begin{pmatrix}
+  	\beta_{1}\\
+  	\beta_{2}\\
+  	\vdots		\\
+  	\beta_{m}	\\
   \end{pmatrix}
+  (\gamma_1,\gamma_2,\cdots,\gamma_s)
   =\begin{pmatrix}
-  	a_{11}  &a_{21}  &\cdots  &a_{m1}  	\\
-  	a_{12}  &a_{22}  &\cdots  &a_{m2}  	\\
-  	\vdots  &\vdots  &        &\vdots  	\\
-  	a_{1n}  &a_{2n}  &\cdots  &a_{mn}  	\\
-  \end{pmatrix}	
+  \beta_1\gamma_1&\beta_1\gamma_2&\cdots&\beta_1\gamma_s	\\
+  \beta_2\gamma_1&\beta_2\gamma_2&\cdots&\beta_2\gamma_s	\\
+  \vdots&\vdots&&\vdots\\
+  \beta_m\gamma_1&\beta_m\gamma_2&\cdots&\beta_m\gamma_s	\\
+  \end{pmatrix}_{m\times{s}}
   $$
+
   
-  
-  
+
+
+
+
 - 线性方程组的向量组写法:
 
   - $$
@@ -187,11 +219,63 @@ A=\begin{pmatrix}
     \vdots&  \vdots&  &\vdots \\
     a_{m1}&  a_{m2}&  \cdots&a_{mn} \\
 \end{pmatrix}
+=\begin{pmatrix}
+\alpha_{1}\\
+\alpha_{2}\\
+\vdots\\
+\alpha_{m}
+\end{pmatrix}
+\\
+\alpha_{i}是A的第i行元素构成的行向量
 $$
 
+- $$
+  A\mathbf{x}=\mathbf{b}
+  \\记C=A\mathbf{x},其元素为c_{ij},C\in{\mathbb{R}^{m\times{1}}}
+  \\
+  \begin{pmatrix}
+  	a_{11}  &a_{12}  &\cdots  &a_{1n}  	\\
+  	a_{21}  &a_{22}  &\cdots  &a_{2n}  	\\
+  	\vdots  &\vdots  &        &\vdots  	\\
+  	a_{m1}  &a_{m2}  &\cdots  &a_{mn}  	\\
+  \end{pmatrix}
+  \begin{pmatrix}
+  	x_{1}	\\
+  	x_{2}	\\
+  	\vdots		\\
+  	x_{n}	\\
+  \end{pmatrix}
+  $$
 
+  - $$
+    \\
+    \begin{pmatrix}
+    c_1\\
+    c_2\\
+    \vdots\\
+    c_m\\
+    \end{pmatrix}
+    =\displaystyle{
+    \begin{pmatrix}
+    \sum\limits_{k=1}^{n}a_{1k}x_k\\
+    \sum\limits_{k=1}^{n}a_{2k}x_k\\
+    \vdots\\
+    \sum\limits_{k=1}^{n}a_{mk}x_k\\
+    \end{pmatrix}
+    }
+    \\
+    c_{i}=c_i(\mathbf{x})=\alpha_i{\mathbf{x}}
+    =\sum\limits_{k=1}^{n}a_{ik}x_k
+    \quad{c_i\in{\mathbb{R}}}
+    \\
+    c_{ij}=\sum\limits_{k=1}^{n}a_{ik}x_k\\
+    i=1,2,\cdots,m\\
+    j=1,2,\cdots,n
+    $$
 
-#### 解向量
+  - 
+
+## 向量
 
 - $$
   x=\begin{pmatrix}
@@ -203,7 +287,6 @@ $$
   $$
 
   
-
 
 ### 线性表出
 

@@ -64,6 +64,7 @@ uname (2)            - get name and information about current kernel
 ```
 ##  其他工具包
 ###  系统信息查看
+
 - `sudo apt install neofetch`
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/7b079b116e7a462c9212731f044bab8d.png)
 ###  动态信息查看(进程/网络/ip)

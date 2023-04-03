@@ -2,11 +2,11 @@
 
 ## 特征值和特征向量
 
-- 许多定量分析模型中,常常需要寻求数$\lambda$和<u>非零向量$\alpha$</u>,使得$A\alpha=\lambda\alpha$
+- 许多定量分析模型中,常常需要寻求数$\lambda$和<u>非零向量$\alpha$</u>,使得$A\alpha=\lambda\alpha,(\alpha\neq{0})$
 
 - 一般特征值和特征向量是成对存在的,在概念上,是不可分割且相互依赖地同时定义出来
 
-- 设A是n阶方正
+- 设A是n阶方阵
 
   - 如果存在数$\lambda$和n维**非零**列向量$\alpha(\alpha\neq{0})$,满足
 
@@ -208,6 +208,118 @@ $$
       - 对比$n-1$次项的系数$\sum_{i=1}^{n}a_{ii}=\sum_{i=1}^{n}\lambda_{i}$
 
       - 对比$0$此项系数$|-A|=\prod_{i=1}^{n}(-\lambda_i)$,即$(-1)^n|A|=(-1)^n\prod_{i}^{n}(\lambda_i)$,$|A|=\prod_{i}^{n}\lambda_i$
+
+### 推论
+
+- 方阵A可逆的条件是A的特征值不全为0
+
+### 衍生特征值
+
+- 设$\alpha$是矩阵A属于特征值$\lambda_0$的特征向量(记为$\alpha,{A}\to{\lambda}$,或者更直接的$A\alpha=\lambda_0\alpha$)
+- 设$\alpha,\gamma,A,\lambda_0$满足$A\alpha=\lambda_{0}\alpha;A\gamma=\lambda_0\gamma$,则:
+  - $\beta=k\alpha$满足$A\beta=\lambda_0\beta$
+    - 因为$A(k\alpha)=kA\alpha=k\lambda_0{\alpha}=\lambda_{0}(k\alpha)$
+  - $\phi=\alpha+\gamma$满足$A\phi=\lambda_0\phi$
+    - $A(\alpha+\gamma)=A\alpha+A\gamma=\lambda_0\alpha+\lambda_0\gamma=\lambda_0(\alpha+\gamma)$
+  - 综合上述结论,可以得出:若$\alpha_i,i=1,2,\cdots,n$,$\lambda,A,\lambda_0$满足$A\alpha_i=\alpha_i\lambda_0$,则$\alpha_i$的任意线性组合$\theta=\sum_i{k_i\alpha_i}$满足$A\theta=\theta\lambda_0$
+
+### 更一般的
+
+- 设$\alpha,A,\lambda$满足$A\alpha=\lambda{\alpha}$,则:
+
+  - 对$A\alpha=\lambda{\alpha}$同乘以$k$,
+    - $(kA)\alpha=(k\lambda)\alpha$,
+    - $A(k\alpha)=\lambda({k\alpha})$
+  - 再次乘以$k$
+    - $(kA)(k\alpha)=(k\lambda){(k\alpha)}$
+
+  - 对$A\alpha=\lambda\alpha$两边同时左乘$A$
+    - $AA\alpha=A\lambda\alpha=\lambda{A\alpha}=\lambda{\lambda{\alpha}}$
+    - $A^2\alpha=\lambda^2\alpha$
+    - $A^3\alpha=A\lambda^2\alpha,\lambda^2A\alpha=\lambda^3\alpha$
+    - 重复m-1次得到:$A^m\alpha=\lambda^m\alpha$
+  - 当$A$可逆时
+    1. $$\lambda^{-1}\alpha=A^{-1}\alpha$$
+       - 对$A\alpha=\lambda{\alpha}$同时左乘$A^{-1}$
+       - $\alpha=\lambda A^{-1}\alpha$,两边同乘以$\lambda^{-1}$，$\lambda^{-1}\alpha=A^{-1}\alpha$
+    2. $(A^*)\alpha=\frac{|A|}{\lambda}\alpha$
+       - $A^{-1}=\frac{1}{|A|}A^*$
+       - $\lambda^{-1}\alpha=(\frac{1}{|A|}A^*)\alpha$
+       - $\frac{|A|}{\lambda}\alpha=(A^*)\alpha$
+       - $(A^*)\alpha=\frac{|A|}{\lambda}\alpha$
+
+- 推论:
+
+  - 特征向量不是被特征值所唯一确定的
+  - 特征值被特征向量唯一确定(一个特征向量只能属于一个特征值)
+    - 但这不是说不同的特征向量一定对应于不同的特征值,而是说同一个特征向量只能对应于一个特征值
+    - 假设对于给定的$\alpha_0$,$\lambda_1,\lambda_2,A$间满足:$A\alpha_0=\lambda_i\alpha_0,i=1,2$
+      - 因此$\lambda_1\alpha_0=\lambda_2\alpha_0=A\alpha_0$
+      - $(\lambda_1-\lambda_2)\alpha_0=0$
+        - 又因为$\alpha_0\neq{0}$,所以$\lambda_1-\lambda_2=0$
+        - 所以$\lambda_1=\lambda_2$
+      - 所以给定$\alpha_0$,A的特征值是唯一确定的
+    
+  
+  
+
+### 转置和特征值
+
+- 方阵A的转置$A^T$的特征值和A的特征值相同
+
+  - $A:f(\lambda)=|\lambda{E}-A|$
+  - $A^T:f(\lambda)=|\lambda{E}-A^T|=|(\lambda{E})^T-A^T|=|(\lambda{E}-A)^T|=|\lambda{E}-A|$
+
+  - 可见,$A,A^T$具有相同的特征方程,因此特征值一定像相同
+  - 但是它们的特征向量不一定相同
+    - 因为前面我们讨论过,特征值不能够唯一确定特征向量 
+
+### 其他结论(方阵多项式的特征值与方阵本身特征值的关系)
+
+- 设$p(x)=\sum\limits_{i=0}^{m}a_{i}x^i=\sum\limits_{i=0}^{m}a_{m-i}x^{m-i}$
+
+  - $\lambda,A,\alpha$满足$A\alpha=\lambda\alpha$
+  - 则$p(A)\alpha=p(\lambda)\alpha$
+
+- 证明:
+
+  - $$
+    p(A)\alpha=\sum\limits_{i=0}^{m}a_{i}A^i\alpha
+    =\sum\limits_{i=0}^{m}a_{i}\lambda^i\alpha
+    \\
+    而p(\lambda)=\sum\limits_{i=0}^{m}a_{i}\lambda^i
+    \\从而p(\lambda)\alpha=\sum\limits_{i=0}^{m}a_{i}\lambda^i\alpha
+    \\
+    因此p(A)\alpha=p(\lambda)\alpha
+    $$
+
+    
+
+### 特征向量线性相关性🎈
+
+- 设n阶方阵A的n个**不同**特征值为$\lambda_i,i=1,2,\cdots,n$,($\lambda_i\neq{\lambda_{j}}\,$if $i\neq{j}$)
+
+  - A关于$\lambda_i$对应的特征向量分别记为$\alpha_i,i=1,2,\cdots,n$;
+    - 即:$A\alpha_i=\lambda_i\alpha_i,i=1,2,\cdots,n$
+
+  - 那么$\phi=\alpha_1,\cdots,\alpha_n$线性无关
+  - <u>也就是说,方阵的属于不同特征值的特征向量线性无关</u>.
+    - 通过数学归纳法证明
+
+
+  - 更一般的,特征值$\lambda_i$的**线性无关**特征向量,记为$\Large\psi_i=\alpha_{i1},\alpha_{i2},\cdots,\alpha_{is_i}$,$\alpha_i\in\{\psi_i\}$
+    - $\psi_{i}$相当于方程$(\lambda_iE-A)x=0$的一个基础解系
+  - $\Psi=\psi_1,\psi_2,\cdots,\psi_n$依然线性无关
+  - <u>也即是说,属于各个特征值的**线性无关特征向量**合在一起构成的向量组$\Psi$</u>依然**线性无关**
+  - 对于$\psi_i$:
+    - 若$\lambda_i$是一个$k_i$重特征值
+    - 那么对应于$\lambda_i$线性无关特征向量的个数$u_i\leqslant{k_i}$
+
+- 综上推论:一个<u>n阶方阵A</u>的线性无关特征向量的个数$u(A)\leqslant{n}$
+
+  
+
+
 
 
 

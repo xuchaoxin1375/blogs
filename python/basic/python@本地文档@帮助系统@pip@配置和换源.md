@@ -129,6 +129,22 @@ Writing to /home/cxxu_kali/.config/pip/pip.conf
 
   - eg.安装numpy
     - `pip install -i https://mirrors.aliyun.com/pypi/simple/   numpy`
+  
+  - eg.安装指定版本的scipy
+  
+    - ```python
+      pip install -i https://mirrors.aliyun.com/pypi/simple/   scipy==1.3.0
+      ```
+  
+    - powershell模板:
+  
+      - ```powershell
+        $package=scipy
+        $version=1.3.0
+        pip install -i https://mirrors.aliyun.com/pypi/simple/   $scipy==$version
+        ```
+  
+        
 
 
 #  pip版本与python版本的对应关系查询
@@ -362,4 +378,37 @@ for item in sys.path:
   d:\condaPythonEnvs\pyside6\lib\site-packages
   ```
 
-  
+
+## pip依赖问题
+
+### 例
+
+- ```python
+  Installing collected packages: protobuf
+  ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+  onnx 1.13.1 requires protobuf<4,>=3.20.2, but you have protobuf 3.19.6 which is incompatible.
+  Successfully installed protobuf-3.19.6
+  ```
+
+  - 根据提示,当前要安装的新包为tensorflow,他依赖于`protobuf<3.20,>=3.9.2`,也就是介于`3.9.2`和`3.20`两个版本之间的`protobuf`
+  - 而当前环境中有一个名为`oonx`的包,它也依赖于`protobuf`,而且它要求的版本:`protobuf<4,>=3.20.2`,也就是说在`3.20.2`,和`4.xx`之间
+  - 通过比较发现,3.9.2~2.20这个区间与`3.20.2~4.xx`没有共同区间,这就导致冲突
+  - 为例解决这个问题,只能是放弃掉其中的一个包,如果新安装的包对你来说比较重要,那么就卸载引起冲突的掉旧包`oonx`
+  - 如果不想卸载`oonx`同时想要安装`tensorflow`,还有以下方案
+    - 找到一个能够兼容的`oonx`和`tensorflow`版本,它们对于公共依赖`protobuf`的版本区间不冲突
+    - 如果对于`oonx`和`tensorflow`版本有硬性要求,那么考虑在创建一个虚拟环境,将它们隔离开来
+
+### 例:python版本和包的兼容问题
+
+- ```python
+    error: subprocess-exited-with-error
+    
+    × pip subprocess to install build dependencies did not run successfully.
+    │ exit code: 1
+    ╰─> [649 lines of output]
+        Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+        Ignoring numpy: markers 'python_version == "3.5"' don't match your environment
+        Ignoring numpy: markers 'python_version == "3.6"' don't match your environment
+  ```
+
+  - 如果您的报错输出中出现了类似的信息,或许要更改当前的pythonban'b

@@ -5,12 +5,65 @@
 ## 函数注解和类型注解
 
 - [函数注解](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#function) 是可选的用户自定义函数类型的元数据完整信息（详见 [**PEP 3107**](https://peps.python.org/pep-3107/) 和 [**PEP 484**](https://peps.python.org/pep-0484/) ）。
+
   - [PEP 484 – Type Hints | peps.python.org](https://peps.python.org/pep-0484/)
+    - [typing —— 类型注解支持 — Python 文档](https://docs.python.org/zh-cn/3/library/typing.html)
+    - Python-Version:3.5
   - [PEP 3107 – Function Annotations | peps.python.org](https://peps.python.org/pep-3107/)
+    - Python-Version:3.0
 
-- [标注](https://docs.python.org/zh-cn/3/glossary.html#term-function-annotation) 以字典的形式存放在函数的 `__annotations__` 属性中，并且不会影响函数的任何其他部分。
+- Python 中有两种注解：类型注解和函数注解。
 
--  形参标注的定义方式是在形参名后加冒号，后面跟一个表达式，该表达式会被求值为标注的值。 
+  - 类型注解是用于在函数定义、变量声明等处指定变量的数据类型，以提高代码的可读性和可维护性，并帮助 IDE 和静态分析工具提供更准确的代码提示和错误检查。类型注解的语法是在变量名后面加上冒号和类型名称。
+
+  - 函数注解是用于在函数定义中指定函数参数和返回值的注释，以描述函数的行为和用法。函数注解的语法是在函数定义的参数列表和返回值前面加上冒号和注释内容。
+
+  - 虽然类型注解和函数注解的语法相似，但它们的作用和使用方式不同。类型注解是用于指定变量的数据类型，而函数注解是用于描述函数的行为和用法。类型注解在 Python 3.5 中首次引入，而函数注解在 Python 3.0 中引入。
+
+  例如，下面是一个使用类型注解和函数注解的函数定义：
+
+  ```python
+  def greet(name: str) -> str:
+      """
+      Greet the person with the given name.
+  
+      Args:
+          name: A string representing the person's name.
+  
+      Returns:
+          A string representing the greeting message.
+      """
+      return f"Hello, {name}!"
+  ```
+
+  - 在上面的代码中，`name` 的类型注解是 `str`，表示它是一个字符串类型的变量。函数的返回值也有类型注解，是 `str` 类型。同时，函数的注释中描述了函数的行为和用法，包括参数和返回值的含义和类型。
+
+  - 需要注意的是，类型注解和函数注解都不会影响代码的运行，它们只是对代码进行了注释和描述。但是，类型注解可以在一些静态类型检查工具中进行类型检查和类型推断，从而提高代码的质量和稳定性。而函数注解则可以提供更详细和准确的函数文档，帮助其他开发者理解和使用代码。
+
+## 类型注解
+
+- Python 类型注解是一种语法，用于在函数定义、变量声明等处指定变量的数据类型。类型注解不会影响代码的运行，但可以提高代码的可读性和可维护性，并帮助 IDE 和静态分析工具提供更准确的代码提示和错误检查。
+
+  类型注解的语法是在变量名后面加上冒号和类型名称。例如，下面是一个使用类型注解的函数定义：
+
+  ```python
+  def greet(name: str) -> str:
+      return f"Hello, {name}!"
+  ```
+
+  在上面的代码中，`name` 的类型注解是 `str`，表示它是一个字符串类型的变量。函数的返回值也有类型注解，是 `str` 类型。当我们调用这个函数时，IDE 和静态分析工具会根据类型注解提供更准确的代码提示和错误检查。
+
+  类型注解并不会强制执行变量的数据类型，因此在运行时，Python 解释器仍然会根据实际的类型进行处理。但是，在一些静态类型检查工具中，可以使用类型注解来进行类型检查和类型推断，以提高代码的质量和稳定性。
+
+- 类型注解在 Python 3.5 中首次引入，但它并不是强制要求的语法，因此在代码中使用类型注解是可选的。但是，对于大型项目或需要与其他开发者协作的项目，使用类型注解可以提高代码的可读性和可维护性，从而提高项目的质量和效率。
+
+##  函数注解
+
+- Python 3 提供了一种句法，用于为函数声明中的参数和返回值附加元数据。
+
+- [标注function-annotation](https://docs.python.org/zh-cn/3/glossary.html#term-function-annotation) 以字典的形式存放在函数的 `__annotations__` 属性中，并且不会影响函数的任何其他部分。
+
+- 形参标注的定义方式是在形参名后加冒号，后面跟一个表达式，该表达式会被求值为标注的值。 
 
 - 返回值标注的定义方式是加组合符号 `->`，后面跟一个表达式，该标注位于形参列表和表示 [`def`](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#def) 语句结束的冒号之间。 
 
@@ -46,15 +99,7 @@
       'spam and eggs'
       ```
 
-
-
-##  函数注解
-
-Python 3 提供了一种句法，用于为函数声明中的参数和返回值附加元数据。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210616220501406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-[https://docs.python.org/zh-cn/3/library/typing.html](https://docs.python.org/zh-cn/3/library/typing.html)
-
-##  变量注解和类型注解
+### eg
 
 ```python
 import math
@@ -76,7 +121,33 @@ def circumference(radius):
     return 2 * math.pi * radius
 ```
 
-###  额外示例:
+### eg
+
+- 返回字典类型,且key为str型,value为bool型
+
+  ```python
+  import numpy as np
+  rbs=np.random.choice(a=[False,True],size=5)
+  rbs_it=iter(rbs)
+  print(rbs,"@{rbs}")
+  # next(rbs_it)
+  
+  def ret_dict(features_list:list[str])->dict[str,bool]:
+      dict={}
+      for f in features_list:
+          dict[f]=next(rbs_it)
+      return dict
+  ret_dict(list("abcd"))
+  ```
+
+- ```bash
+  [ True  True  True False  True] @{rbs}
+  {'a': True, 'b': True, 'c': True, 'd': False}
+  ```
+
+  
+
+###  eg
 
 有注解的 clip 函数:
 ```python
@@ -96,7 +167,7 @@ def clip(text:str, max_len:'int > 0'=80) -> str:
         end = len(text)
     return text[:end].rstrip()
 ```
-### numpy.integers() 示例
+### 经典实例:numpy.integers() 示例
 
 - ```python
   def integers(  # type: ignore[misc]
@@ -163,20 +234,6 @@ def clip(text:str, max_len:'int > 0'=80) -> str:
     ```
 
   
-
-##  NewType:
-
-NewType(新类型名,类型名要对应的类型)
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210620110336620.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-
-##  泛型注解(容器):
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210620094755334.png)
-
-
-- 容器类型混用错误警告
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210620094855298.png)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210620110254263.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
 ##  Notes:
 

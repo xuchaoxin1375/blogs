@@ -1,10 +1,15 @@
-@[toc]
-# linux_文件输入输出重定向/shell写入多行文本到文件中/cat 操作文件
+[toc]
+
+
+
+# linux@powershell字符串@文件输入输出重定向/shell写入多行文本到文件中/cat 操作文件
 
 ## references
 
 - [Unix / Linux - Shell Input/Output Redirections (tutorialspoint.com)](https://www.tutorialspoint.com/unix/unix-io-redirections.htm)
+
 - [bash - What does <<< mean? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/80362/what-does-mean)
+
 - What is Redirection?
   - [Output Redirection](https://www.guru99.com/linux-redirection.html#1)
   - [Input redirection](https://www.guru99.com/linux-redirection.html#2)
@@ -12,7 +17,7 @@
   - [Error Redirection](https://www.guru99.com/linux-redirection.html#4)
   - [Why Error Redirection?](https://www.guru99.com/linux-redirection.html#5)
 
-- 
+  
 
 ## sheet
 
@@ -101,7 +106,7 @@ Following is a complete list of commands which you can use for redirection −
 
 ## 重定向多行文本输入(文本块)
 
-> 下面提到的 token 是自定义的结束符(delimiter),一般使用 eof
+- 下面提到的 token 是自定义的结束符(delimiter),一般使用 eof
 
 ### 覆盖性写入多行内容
 
@@ -232,14 +237,16 @@ lin1
 lin2
 ```
 ##  利用tee来重定向
->事实上,我最喜欢使用tee来创建多行内容,特别是在tee与sudo的配合比较方便写入到需要特殊权限的地方
+- 事实上,我最喜欢使用tee来创建多行内容,特别是在tee与sudo的配合比较方便写入到需要特殊权限的地方
+
 ###  利用tee创建多行文件
+
 #### 类似于cat 的用法
 - 从键盘上输入多行内容
 - 使用`ctrl+D`完成输入
 - 适用于手动交互输入多行内容(不适合脚本中使用)
 
->下面是一个保存清华源到一个文件的过程;在单独的空行键入`ctrl+D`完成文件的创建
+- 下面是一个保存清华源到一个文件的过程;在单独的空行键入`ctrl+D`完成文件的创建
 
 ```bash
 $ sudo tee -a ./KaliAptSourceQingHua
@@ -252,7 +259,9 @@ deb-src https://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-
 `sudo cat >> ./KaliAptSourceQingHua`
 
 #### tee也可以配合<<符使用
-> 使用<< token 来结束输入
+
+- 使用<< token 来结束输入
+
 ```bash
 # cxxu_kali @ cxxuWin11 in ~ [9:16:39]
 $ sudo tee -a  ./ustcAptSourceQingHua <<eof
@@ -278,7 +287,7 @@ $ nl ustcAptSourceQingHua
 
 ## 在脚本文件中一次性打印多行
 
-> 通过键盘输入内容来模拟文件输入,将数据传给命令
+- 通过键盘输入内容来模拟文件输入,将数据传给命令
 
 ```bash
 #!/bin/sh
@@ -303,7 +312,7 @@ cxxu_kali➜~» nl file0                                                        
 - 参数可以传递到subshell中,这没问题,但是,当我们要在current shell 中拿到subshell中的处理结果,则需要小心
 	- 要么再追加一个管道符,将需要取值的命令接在后面,要么避免使用管道符,采取变通的办法.
 - 使用`<<<`将某个字符串传递给命令行,可以不开辟subshell,从而可以避免出现意外结果
-> [bash - What does <<< mean? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/80362/what-does-mean)
+- [bash - What does <<< mean? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/80362/what-does-mean)
 
 - 利用cat来查看某些空白字符
 ```bash
@@ -317,11 +326,11 @@ cxxu_kali➜~» nl file0                                                        
 
 ```
 
-##  powershell 多行输入重定向
+##  powershell 多行输入重定向🎈
 - powershell也支持`>`号的方法进行重定任意行内容
 - 此外powershell可以不用前头的echo;
 ###  reference
-- [about Quoting Rules - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.2)
+- [about Quoting Rules - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.2)🎈
 - [Everything you wanted to know about variable substitution in strings - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#variable-substitution)
 	 * [2Variable substitution](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#variable-substitution)
 	* [2Command substitution](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#command-substitution)
@@ -338,49 +347,64 @@ cxxu_kali➜~» nl file0                                                        
 	  * [3Replace multiple tokens](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#replace-multiple-tokens)
 	  * [3ExecutionContext ExpandString](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#executioncontext-expandstring)
 	* [2Whatever works the best for you](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-string-substitutions?view=powershell-7.2#whatever-works-the-best-for-you)
+
+## powershell中的引号和字符串@多行字符的正确构造方法
+
 ###  @string(here-string)方式
+
 - 使用`" "`可以直接创建多行文本,但是如果需要阻止shell解释内部的一些特殊符号和可能引起shell解释的字符,则使用`' '`来创建
-- `' '`本身就是不解释插值变量的
-```powershell
- cxxu   ~  ﲍ                59    09:47:02 
-🚀  @"
->> line1
->> line`n@$a
->> "@
-line1
-line
-@
+- `' '`本身就是不解释插值变量的直接使用`' '`
+- 无法直接保留包含多个`'`的字符串(这时候尝试`@'`字符串
 
-```
-```powershell
- cxxu   ~  ﲍ                60    09:47:26 
-🚀  @'
->> line1
->> line`n@$a
->> '@
-line1
-line`n@$a
-```
-#### 直接使用`' '`
-> 无法直接保留包含多个`'`的字符串(这时候尝试`@'`字符串
-```powershell
-🚀  '
->> line1@{a}
->> line`n$a
->> '
+- ```powershell
+  PS D:\repos\blogs> @'
+  >> 欧拉公式（英语：Euler's formula，又称尤拉公式）是复分析领域的公式，它将三角函数与复指数函数关联起来，因其提出者莱昂哈德·欧拉而得名。欧拉公式提出，对任意实数 (Image: x)，都存在
+  >> (Image: e^{ix} = \cos x + i\sin x)
+  >> 其中 (Image: e) 是自然对数的底数，(Image: i) 是虚数单位，而 (Image: \cos) 和 (Image: \sin) 则是余弦、正弦对应的三角函数，参数 (Image: x) 则以弧度为单位[1]。这一复数指数函数有时还写作 cis x （英语：cosine plus i sine，余弦加i 乘以正弦）。由于该公式在 (Image: x) 为复数时仍然成立，所以也有人将这一更通用的版本称为欧拉公式[2]。
+  >> 欧拉公式在数学、物理和工程领域应用广泛。物理学家理查德·费曼将欧拉公式称为：“我们的珍宝”和“数学中最非凡的公式”[3]。
+  >> 当 (Image: {\displaystyle x=\pi }) 时，欧拉公式变为(Image: {\displaystyle {{{e}^{{i}\,{\pi }}}+{1}}=0})，即欧拉恒等式。
+  >> '@
+  
+  ```
 
-line1@{a}
-line`n$a
-```
-####  @'content'@ pair method
-- 对比`@'`&`' '`
-```powershell
-🚀  'don''t'
-don't
- cxxu   ~  ﲍ                79    10:04:52 
+- 构造一个多行字符串,您通常需要三行内容
 
-🚀  @'
->> 'don''t'
->> '@
-'don''t'
-```
+  - 第一行`@'`
+  - 第二行`任意内容`(不想要被powershell解读内容(不做转义和插值计算处理))
+  - 第三行`'@`
+
+- 带**插值**解释的多行字符串,类似的需要三行内容
+
+  - 第一行`@"`
+  - 第二行`任意内容`(包含需要被powershell解读和计算的内容(转义和插值计算处理))
+  - 第三行`"@`
+
+- Note:
+
+  - 上面所说的三行内容是保证最佳效果,不是必须的,(它们当然也可以拿来构造单行字符串,这是它们的功能和`""`以及`''`是相仿的
+
+- 例
+
+  - ```powershell
+    PS D:\repos\blogs> @'
+    >> test calc $PROFILE;`n
+    >> `t....
+    >> '@
+    test calc $PROFILE;`n
+    `t....
+    
+    ```
+
+  - ```powershell
+    PS D:\repos\blogs> @"
+    >> test calc $PROFILE;`n
+    >> `t....
+    >> "@
+    test calc C:\Users\cxxu\Documents\PowerShell\Microsoft.PowerShell_profile.ps1;
+    
+            ....
+    PS D:\repos\blogs>
+    ```
+
+    
+

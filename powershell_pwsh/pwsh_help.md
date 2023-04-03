@@ -1,3 +1,7 @@
+[toc]
+
+
+
 ## help help
 
 ### help -category ` <values>` 
@@ -8,7 +12,7 @@
   - 该命令返回一系列 `powershell 语法以及powershell规范的帮助信息`
     - ```
       PS C:\Users\cxxu> h -Category HelpFile
-
+      
       Name                              Category  Module                    Synopsis
       ----                              --------  ------                    --------
       default                           HelpFile                            SHORT DESCRIPTION
@@ -32,35 +36,35 @@
 >     ! The acceptable values for this parameter(Category) are as follows:
 >
 >     - Alias
->
+>    
 >     - Cmdlet
->
+>    
 >     - Provider
->
+>    
 >     - General
->
+>    
 >     - FAQ
->
+>    
 >     - Glossary
->
+>    
 >     - HelpFile
->
+>    
 >     - ScriptCommand
->
+>    
 >     - Function
->
+>    
 >     - Filter
->
+>    
 >     - ExternalScript
->
+>    
 >     - All
->
+>    
 >     - DefaultHelp
->
+>    
 >     - Workflow
->
+>    
 >     - DscResource
->
+>    
 >     - Class
->
+>    
 >     - Configuration

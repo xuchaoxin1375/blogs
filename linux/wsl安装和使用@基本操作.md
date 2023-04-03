@@ -100,34 +100,7 @@
 
     - `wsl --set-default-version 1`
 
-### msi包无法安装问题🎈
 
-- 报错内容:
-
-  - ```
-    Windows Installer
-        This installation package could not be
-        opened.Contact the application vendor to
-        verify that this is a valid Windows Installer
-        package.
-    ```
-
-  - 然而,实际情况是包能够在虚拟机中安装,安装包没有问题.
-
-- 这种情况下,您可能无法安装`wsl_update.msi`内核更新程序
-
-- 解决办法1:
-
-  - 可考虑将安装包复制一份到新建账户到桌面（可能和权限有关）
-
-- 办法2:
-
-  - 尝试创建一个新的本地管理员账户
-  - 在新账户中尝试运行安装包
-  - 重启到原账户中再次尝试wsl命令
-  - 如果依然不可用，🎈,重复方法1中复制安装包再安装
-
-    
 
 
 ##  wsl命令帮助

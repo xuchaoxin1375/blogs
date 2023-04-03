@@ -1,4 +1,5 @@
-@[toc]
+[toc]
+
 # 指定默认shell/登录shell/登录zsh shell后自动运行脚本/配置文件/zsh的配置文件
 
 ## 查看当前shell

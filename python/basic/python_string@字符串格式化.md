@@ -1,6 +1,11 @@
 
 
+[toc]
+
+
+
 # python字符串格式化操作
+
 - python的字符串插值语法,允许你在字符串中直接使用`{}`来指明一个表达式,而统一地将指示该字符串是一个插值字符串的`f`提到字符串的前面
 
 - python 提供了两种现代化的字符串格式化方法:format()和f-string
@@ -27,7 +32,7 @@
   - [字符串常量](https://docs.python.org/zh-cn/3/library/string.html#string-constants)
   - [自定义字符串格式化](https://docs.python.org/zh-cn/3/library/string.html#custom-string-formatting)
 
-##  %value@旧式(类c语言printf风格的字符串格式化)🎈
+##  %风格%value@旧式(类c语言printf风格的字符串格式化)🎈
 
 - [printf 风格的字符串格式化](https://docs.python.org/zh-cn/3/library/stdtypes.html#old-string-formatting) 
 
@@ -67,8 +72,7 @@
     print('[%d,%d],mid:%d' %(l,r, mid))#按照位置对应(3个变量)
     ```
 
-
-## string. format()方法 字符串格式化操作
+## format()方法 字符串格式化操作
 
 - [string ---对比两种字符串格式化方式](https://docs.python.org/zh-cn/3/library/string.html#format-examples)
   - [string — examples — Python 3.11.1 documentation](https://docs.python.org/3/library/string.html#format-examples)
@@ -91,12 +95,19 @@
 
   - 然后将具体的值填充到对应的位置,组织成需要的目标字符串
 
-  - ```py
-    >>> '{}, {}, {}'.format('a', 'b', 'c')  # 3.1+ only
-    'a, b, c'
-    
-    ```
+    - ```py
+      >>> '{}, {}, {}'.format('a', 'b', 'c')  # 3.1+ only
+      'a, b, c'
+      
+      ```
 
+    - ```python
+      '{}, {:^5}, {}'.format('a', 'b', 'c') 
+      # 'a,   b  , c'
+      ```
+  
+      
+  
   - 按位置访问参数:
 
     - 比如更好的支持复用以及变量插入字符串顺序调整
@@ -105,9 +116,9 @@
         >>> '{0} {1} {0}'.format('abra', 'cad')   # arguments' indices can be repeated
         'abra cad abra'
         ```
-
+  
         
-
+  
     - 支持字符串对象解包
 
       - ```py
@@ -116,9 +127,9 @@
         >>> '{1}, {1}, {0}'.format(*'abc')      # unpacking argument sequence
         'b, b, a'
         ```
-
+  
   - 按**名称**访问参数:
-
+  
     - ```python
       >>> 'Coordinates: {latitude}, {longitude}'.format(latitude='37.24N', longitude='-115.81W')
       'Coordinates: 37.24N, -115.81W'
@@ -126,11 +137,11 @@
       >>> 'Coordinates: {latitude}, {longitude}'.format(**coord)
       'Coordinates: 37.24N, -115.81W'
       ```
-
+  
   - 访问对象属性
-
+  
     - 下面一个python自带的复数对象为例
-
+  
     - ```python
       >>> c = 3-5j
       >>> c
@@ -143,7 +154,7 @@
       >>> d
       (4+2j)
       ```
-
+  
       ```python
       
       >>> ('The complex number {0} is formed from the real part {0.real} '
@@ -154,41 +165,49 @@
       'The complex number:(3-5j),(4+2j);imag parts:(-5.0),(2.0) '
       
       ```
-
+  
       - 结构字符串中的{0}表示对象c
         - {0.real}=c.real
-
+  
   - 访问参数的项:
-
+  
     - ```python
       >>> coord = (3, 5)
       >>> 'X: {0[0]};  Y: {0[1]}'.format(coord)
       'X: 3;  Y: 5'
       ```
 
-  - 代替`%s`,`%r`
 
-    - ```python
-      >>> "repr() shows quotes: {!r}; str() doesn't: {!s}".format('test1', 'test2')
-      "repr() shows quotes: 'test1'; str() doesn't: test2"
-      
-      ```
+### 代替`%s`,`%r`🎈
 
-  - 对齐文本以及指定宽度@居中设置
+- ```python
+  >>> "repr() shows quotes: {!r}; str() doesn't: {!s}".format('test1', 'test2')
+  "repr() shows quotes: 'test1'; str() doesn't: test2"
+  
+  ```
 
-    - ```py
-      >>> '{:<30}'.format('left aligned')
-      'left aligned                  '
-      >>>
-      >>> '{:>30}'.format('right aligned')
-      '                 right aligned'
-      >>>
-      >>> '{:^30}'.format('centered')
-      '           centered           '
-      >>>
-      >>> '{:*^30}'.format('centered')  # use '*' as a fill char
-      '***********centered***********'
-      ```
+- `!r`和`%r`都可以用于在字符串格式化中将一个值转换为其`repr()`形式，但它们的语法有所不同。
+  - `!r`是一种新的格式化语法，它出现在使用`str.format()`方法或者f-strings时。它的作用是对传入的值进行`repr()`处理，以便在字符串中显示它们的原始表示形式。例如，`'Hello, {!r}!'.format('world')`将产生结果`'Hello, 'world'!'`，而不是`'Hello, world!'`。
+  - `%r`是旧的格式化语法，它出现在使用`%`运算符时。它的功能与`!r`相同，即对传入的值进行`repr()`处理，并将其插入到格式化字符串中。例如，`'Hello, %r!' % 'world'`将产生结果`'Hello, 'world'!'`。
+  - 虽然这两种语法的作用基本相同，但它们的语法和用法略有不同。通常情况下，应该使用最适合你的代码风格和需求的语法。如果你在使用较新版本的Python（3.6及更高版本），那么推荐使用`!r`语法。如果使用较旧版本的Python，或者在某些情况下无法使用`!r`，则可以考虑使用`%r`。
+
+### 对齐文本以及指定宽度@居中设置
+
+- ```py
+  >>> '{:<30}'.format('left aligned')
+  'left aligned                  '
+  >>>
+  >>> '{:>30}'.format('right aligned')
+  '                 right aligned'
+  >>>
+  >>> '{:^30}'.format('centered')
+  '           centered           '
+  >>>
+  >>> '{:*^30}'.format('centered')  # use '*' as a fill char
+  '***********centered***********'
+  ```
+
+### 其他
 
 - 替代 `%+f`, `%-f` 和 `% f` 以及指定正负号:
 
@@ -294,11 +313,85 @@ f ' <text> { <expression> <optional !s, !r, or !a> <optional : format specifier>
  ```
 
 ###  format specifiers
-[https://www.python.org/dev/peps/pep-0498/#id30](https://www.python.org/dev/peps/pep-0498/#id30)
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626184610928.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+- [https://www.python.org/dev/peps/pep-0498/#id30](https://www.python.org/dev/peps/pep-0498/#id30)[Format specifiers](https://peps.python.org/pep-0498/#format-specifiers)
 
-###  Raw f-string
-[https://www.python.org/dev/peps/pep-0498/#id43](https://www.python.org/dev/peps/pep-0498/#id43)
+- Format specifiers may also contain evaluated expressions. This allows code such as:
+
+```python
+>>> width = 10
+>>> precision = 4
+>>> value = decimal.Decimal('12.34567')
+>>> f'result: {value:{width}.{precision}}'
+'result:      12.35'
+```
+
+- Once expressions in a format specifier are evaluated (if necessary), format specifiers are not interpreted by the f-string evaluator. Just as in `str.format()`, they are merely passed in to the `__format__()` method of the object being formatted.
+
+## 小结
+
+- 控制一个字符串格式,可以分为2部分
+
+  - 被控制的输出对象(变量)(object/variable)
+  - 控制格式(format)
+
+- 上述这些方式中,他们都是变量在前,而控制格式在后
+
+  - 只有f-string方式中,格式控制是在变量之后
+
+  - ```python
+    s=123
+    print("[%10s]"%s)
+    print("[%10s]"%(str(s).center(10)))
+    print("[{:^10}]".format(s))
+    print(f"[{s:^10}]")
+    print(f"[{format(s,'^10')}]")
+    ```
+
+    - ```bash
+      [       123]
+      [   123    ]
+      [   123    ]
+      [   123    ]
+      [   123    ]
+      ```
+
+  - f-string可读性强,但是由于不像shell语言(比如powershell)和`Kotlin`那样可以不许在字符串前插入`f`,写起来手感差一些
+
+  - 所以实际操作中通常建议坚持一种格式控制方式,先想好控制格式,然后开始写代码
+
+- f-strings是最简洁和易读的字符串格式化方法，同时还支持更多的功能，例如表达式求值、函数调用等。但是，它只能在Python 3.6及以上的版本中使用。而%风格的字符串格式化和str.format()方法则可以在Python 2.x和Python 3.x中使用，但是语法稍微繁琐一些。
+
+### 打印n维数组带变量标签@varName的方式打印整齐的numpy数组🎈
+
+- ```python
+  var=np.random.rand(3,4)
+  print(var,'@{var}')#这里用{}是为了能够利用IDE的变量不全提示而已,@也可以自由取舍和修改
+  ```
+
+  - ```
+    [[0.11348592 0.27222936 0.08205775 0.76527058]
+     [0.02168872 0.13725135 0.26062867 0.87108257]
+     [0.17941007 0.43327873 0.32511791 0.58340419]] @{var}
+    ```
+
+    
+
+- 对比:
+
+  - ```python
+    var=np.random.rand(3,4)
+    print(f'{var=}')
+    ```
+
+  - ```
+    var=array([[0.65701977, 0.65230895, 0.82171856, 0.40276676],
+           [0.03756505, 0.98463162, 0.44814283, 0.93763523],
+           [0.67204106, 0.26669688, 0.56406436, 0.95693298]])
+    ```
+
+##  Raw f-string
+
+- [https://www.python.org/dev/peps/pep-0498/#id43](https://www.python.org/dev/peps/pep-0498/#id43)
 
 # python@string@编码
 

@@ -96,6 +96,9 @@ Notes       : Add 7-Zip as a context menu option by running: "<root>\install-con
 - [7-Zip Start Page - 7-Zip Documentation](https://documentation.help/7-Zip/start.htm)
 - [Command Line Commands - 7-Zip Documentation](https://documentation.help/7-Zip/index5.htm)
 - `7z --help`
+  - `Usage: 7z <command> [<switches>...] <archive_name> [<file_names>...] [@listfile]`
+  - 这是基本7z 命令的基本格式,严格按顺序输入zhi'ling
+
 
 ## 解压🎈
 
@@ -226,8 +229,6 @@ d----         6/26/2022   7:53 PM                  t est
 - 压缩成7z文件
 
   - ```bash
-    PS D:\Program Files\Typora> 7z a -t7z .\winmm.dll.creack_typora.7z .\winmm.dll^C
-    
     #某些目录下执行文件操作需要管理员权限,所以,如果有需要,请通过管理员身份启动shell,然后再启动7z
     
     PS D:\Program Files\Typora> 7z a -t7z .\winmm.dll.creack_typora.7z .\winmm.dll
@@ -247,7 +248,7 @@ d----         6/26/2022   7:53 PM                  t est
     Everything is Ok
     
     ```
-
+    
   - 检查压缩结果
 
     - ```bash
@@ -261,7 +262,7 @@ d----         6/26/2022   7:53 PM                  t est
       -a---         6/17/2022   9:59 AM        4083712   winmm.dll
       -a---         6/26/2022   7:42 PM        3625220   winmm.dll.creack_typora.7z
       ```
-
+  
       
 
 ###  权限问题

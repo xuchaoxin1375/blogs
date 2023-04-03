@@ -1,6 +1,6 @@
 [toc]
 
-## 概念
+## 概念🎈
 
 - 既有**大小**(模)又有**方向**的量,称为**向量**(或**矢量**)
   - 印刷体常用黑体字母表示向量
@@ -9,36 +9,271 @@
 - 只考虑方向和大小(而不考虑起点)的向量称为**自由向量**
 - 向量的坐标(表示):
   - $a=(a_x,a_y,a_z)$,简记为$a=(x,y,z)$
-- 向量的模:$a=(a_x,a_y,a_z)$,则$|a|=\sqrt{a_x^2+a_y^2+a_z^2}$
-  - $a^2=a_x^2+a_y^2+a_z^2$
-- 零向量:模为0的向量称为零向量,其方向可以看作任意的,记为$\bold{0}$或$\vec{0}$
-- 单位向量:模为1的向量称为单位向量
-  - 通常向量$a$的同向单位向量记为$a^{0}$🎈
-  - 对于给定的一个方向$l$,记该方向的单位向量为$e_{l}$或$l_0$或$l^{0}$
 
+### 向量的模
+
+- 向量的**模**:$a=(a_x,a_y,a_z)$,则$|a|=\sqrt{a_x^2+a_y^2+a_z^2}$=$\sqrt{(a_x,a_y,z_y)\cdot(a_x,a_y,a_z)}$
+  - $a^2=a_x^2+a_y^2+a_z^2$
+  - 如果引入矩阵乘法的表示方法,还可以写作$|a|=\sqrt{x(x^T)}$
+- 零向量:模为0的向量称为零向量,其方向可以看作任意的,记为$\bold{0}$或$\vec{0}$
+
+### 单位向量
+
+- 单位向量:**模为1**的向量称为单位向量
+  - 通常向量$a$的同向单位向量记为$a^{0}$🎈
+  - 对于给定的一个方向$l$,记该方向的单位向量为$e_{l}$或$l_0$或$l^{0}$,或$\mathbf{u}$
+- 每个方向都有单位向量
 - 向量的坐标和单位向量表示加法表示
   - 取$i=(1,0,0),j=(0,1,0),k=(0,0,1)$,它们分别是x,y,z轴的方向单位向量
   - 则$a=(a_x,a_y,a_z)=a_xi+a_yj+a_zk,简记为a=xi+yj+zk$
-- 向量夹角
+
+### 非零向量的单位向量@正规化
+
+- 设非零向量$a=(a_x,a_y,a_z)$
+
+  - $$
+    a^{0}=\frac{a}{|a|}=\frac{1}{|a|}(a_x,a_y,a_z)
+    $$
+
+- 使用范数表示
+
+  - $||a||$表示向量$a$的$L^2$范数
+
+  - $$
+    \beta=\frac{1}{||\alpha||}\alpha的长度一定是1
+    \\
+    ||\beta||=\left|\left|\frac{1}{||\alpha||}\alpha\right|\right|
+    =\frac{1}{||\alpha||}||\alpha||=1
+    $$
+
+    
+
+
+### 向量夹角
+
+- 向量**夹角**
   - 设向量$a=\overrightarrow{OA},b=\overrightarrow{OB}$,则他们的夹角记为$\theta=\angle{AOB}=<a,b>,且\theta\in[0,\pi]$
     - 若$\theta=0$,则$a,b$通向
     - 若$\theta=\pi$,则$a,b$反向
     - 两者统称为$a,b$平行
+
+### 内积@点击@数量积🎈
+
 - 向量的数量积(点积,内积)🎈
   - 几何表示:$a\cdot{b}=|a||b|\cos{\theta},其中\theta={<a,b>}$
+  - $\cos{\theta}=\frac{a\cdot{b}}{|a||b|}$
+  - 在线性代数中可以表达为$\cos{\theta}=\frac{(a,b)}{||a||_2||b||_2}$
+    - $||a||_2$表示$L^2$范数
   - 代数表示:$a=(a_x,a_y,a_z),b=(b_x,b_y,b_z)$,则$a\cdot{b}=a_xb_x+a_yb_y+a_zb_z$
   - 容易看出点积满足**交换律**$a\cdot{b}=b\cdot{a}$
   - 特别的
     - $b=a$时,$a^2=|a|^2=a_x^2+a_y^2+a_z^2$
     - 当b为单位向量时:$a\cdot{b}=|a||b|\cos{\theta}=|a|\cos{\theta},(|b|=1)$
-- 数量乘的应用
-  - 求向量的模$|a|=\sqrt{a\cdot{a}}=\sqrt{a_x^2+a_y^2+a_z^2}$
-  - 求两个向量a,b的夹角余弦:$\cos{\theta}=\frac{a\cdot{b}}{|a||b|}$
-  - 判定两个向量垂直$a\perp{b}\Leftrightarrow{a\cdot{b}=0}$
+
+#### 数量乘的应用(模@夹角余弦@垂直判定)
+
+- 求向量的模$|a|=\sqrt{a\cdot{a}}=\sqrt{a_x^2+a_y^2+a_z^2}$
+- 求两个向量a,b的夹角余弦:$\cos{\theta}=\frac{a\cdot{b}}{|a||b|}$
+- 判定两个向量垂直$a\perp{b}\Leftrightarrow{a\cdot{b}=0}$
+
+### 外积@向量积@叉乘积_叉积🎈
+
+#### 几何表示
+
+- 向量$a,b$的外积(也称向量积)表示为$a\times{b}$
+- 模:$|a\times{b}|$=$|a||b|\sin{\theta}$其中$\theta=<a,b>$
+  - 该公式的推导可以有代数表示计算得到
+- 向量$c=a\times{b}$同时垂直于$a,b$,且符合**右手法则**
+
+#### 代数表示
+
+- $$
+  a\times{b}=
+  \begin{vmatrix}
+  \bold{i}&\bold{j}&\bold{k}\\
+  a_x&a_y&a_z\\
+  b_x&b_y&b_z
+  \end{vmatrix}
+  \\
+  =\begin{vmatrix}
+  a_y&a_z\\
+  b_y&b_z
+  \end{vmatrix}i
+  -\begin{vmatrix}
+  a_x&a_z\\
+  b_x&b_z
+  \end{vmatrix}j
+  +\begin{vmatrix}
+  a_x&a_y\\
+  b_x&b_y
+  \end{vmatrix}k
+  \\
+  =+(a_yb_z-b_ya_z)i-(a_xb_z-b_xa_z)j+(a_xb_y-b_xa_y)k
+  \\
+  =(a_yb_z-b_ya_z,-(a_xb_z-b_xa_z),(a_xb_y-b_xa_y))
+  \\
+  =(a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
+  \\
+  $$
+  
+  - 传统的方法是按照行列式降阶展开
+  - 或者按照三阶对角线规则
+  - 注意一般标量矩阵构成的行列式的计算结果是一个标量,而本例中行列式的第一行$i,j,k$均为向量,其计算结果也是向量
+  
+- 参考资料:[叉积  (wikipedia.org)](https://zh.wikipedia.org/wiki/叉积)
+
+  - 外积可以表达为这样的行列式：
+    ${\displaystyle \mathbf {u\times v} ={\begin{vmatrix}\mathbf {i} &\mathbf {j} &\mathbf {k} \\
+    	u_{1}&u_{2}&u_{3}\\
+    	v_{1}&v_{2}&v_{3}\\
+    	\end{vmatrix}}}$
+    这个行列式可以使用萨吕法则或拉普拉斯展开计算。使用萨吕法则可以展开为：
+    ${\displaystyle {\begin{aligned}\mathbf {u\times v} &=(u_{2}v_{3}\mathbf {i} +u_{3}v_{1}\mathbf {j} +u_{1}v_{2}\mathbf {k} )-(u_{3}v_{2}\mathbf {i} +u_{1}v_{3}\mathbf {j} +u_{2}v_{1}\mathbf {k} )\\
+    	&=(u_{2}v_{3}-u_{3}v_{2})\mathbf {i} +(u_{3}v_{1}-u_{1}v_{3})\mathbf {j} +(u_{1}v_{2}-u_{2}v_{1})\mathbf {k} \end{aligned}}}$
+    使用拉普拉斯展开可以沿第一行展开为：[2]
+    ${\displaystyle {\begin{aligned}\mathbf {u\times v} &={\begin{vmatrix}u_{2}&u_{3}\\
+    	v_{2}&v_{3}\end{vmatrix}}\mathbf {i} -{\begin{vmatrix}u_{1}&u_{3}\\
+    	v_{1}&v_{3}\end{vmatrix}}\mathbf {j} +{\begin{vmatrix}u_{1}&u_{2}\\
+    	v_{1}&v_{2}\end{vmatrix}}\mathbf {k} \\
+    	&=(u_{2}v_{3}-u_{3}v_{2})\mathbf {i} -(u_{1}v_{3}-u_{3}v_{1})\mathbf {j} +(u_{1}v_{2}-u_{2}v_{1})\mathbf {k} \end{aligned}}}$
+
+- 方向性
+  - $a\times{b}=-(b\times{a})$
+    - 这一点根据上面的展开公式(行列式的行互换一次,结果取反)均可以看出
+    - 而从右手法则也可以发现两个向量交换位置作外积后结果向量方向取反
+- 分配律
+  - $a\times{(b+c)}=a\times{b}+a\times{c}$
+  - 容易根据叉乘的展开式(行列式形式,运用行列式性质)证明
+- 叉乘和数乘结合律
+  - $\lambda{a}\times{b}=a\times{(\lambda{b})}=\lambda{(a\times{b})}$
+
+#### 推导$|a\times{b}|=|a||b|\sin{\theta}$
+
+- $$
+  |a\times{b}|^2=(a\times{b})\cdot(a\times{b})
+  \\=(a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
+  (a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
+  \\
+  =(a_yb_z-b_ya_z)^2+(b_xa_z-a_xb_z)^2+(a_xb_y-b_xa_y)^2
+  \\=(a_x^2+a_y^2+a_z^2)(b_x^2+b_y^2+b_z^2)-(a_xb_x+a_yb_y+a_zc_z)^2
+  \\=|a|^2|b|^2-(a\cdot{b})^2
+  \\=|a|^2|b|^2-(|a||b|\cos{\theta})^2
+  \\=|a|^2|b|^2\sin^2\theta
+  $$
+
+  - 计算比较有技巧性,TODO
+
+- $|a\times{b}|=|a||b|\sin{\theta}$
+
+
+
+#### 外积的应用@求法向量@判定平行@计算平行四边形面积
+
+- 利用$a,b$的向量积可以直接接近需要找到同时垂直于$a,b$的向量(法向量)
+- $a\parallel{b}\Leftrightarrow{a\times{b}=0}$
+- 设以向量a,b为临边的平行四边形面积为S,$S=|a\times{b}|=|a|\sin{\theta}|b|$
+
+### 混合积🎈
+
+- 向量$a,b,c$三个向量的混合积定义为$(a\times{b})\cdot{c}$,简记为$(abc)$或$[abc]$
+
+- $$
+  (abc)=(a\times{b})\cdot{c}
+  \\
+  =(\begin{vmatrix}
+  a_y&a_z\\
+  b_y&b_z
+  \end{vmatrix}i
+  -\begin{vmatrix}
+  a_x&a_z\\
+  b_x&b_z
+  \end{vmatrix}j
+  +\begin{vmatrix}
+  a_x&a_y\\
+  b_x&b_y
+  \end{vmatrix}k)
+  (c_xi+c_yj+c_zk)
+  \\
+  \\
+  =(\begin{vmatrix}
+  a_y&a_z\\
+  b_y&b_z
+  \end{vmatrix}c_x
+  -\begin{vmatrix}
+  a_x&a_z\\
+  b_x&b_z
+  \end{vmatrix}c_y
+  +\begin{vmatrix}
+  a_x&a_y\\
+  b_x&b_y
+  \end{vmatrix}c_z)\\
+  =\begin{vmatrix}
+  a_x&a_y&a_z\\
+  b_x&b_y&b_z\\
+  c_x&b_y&c_z
+  \end{vmatrix}
+  $$
+
+
+- 逆向观察该公式:
+
+  - $$
+    A=\begin{vmatrix}
+    a_x&a_y&a_z\\
+    b_x&b_y&b_z\\
+    c_x&b_y&c_z
+    \end{vmatrix}
+    =(abc)
+    \\
+    B=\begin{vmatrix}
+    b_x&b_y&b_z\\
+    c_x&b_y&c_z\\
+    a_x&a_y&a_z
+    \end{vmatrix}
+    =(bca)
+    \\
+    C=\begin{vmatrix}
+    c_x&b_y&c_z\\
+    a_x&a_y&a_z\\
+    b_x&b_y&b_z
+    \end{vmatrix}
+    =(cab)
+    $$
+
+  - 由行列式行(列)交换一次,结果取反的结论可知,B,C都是相对于A交换量词得到的,从而A=B=C
+
+  - 从而有以下结论
+
+#### 行向量互换,混合积变号
+
+- $(abc)=-(acb)=-(cab)=-(bac)$
+
+  
+
+#### 轮换对称性
+
+- $(abc)=(bca)=(cab)$
+
+#### 混合积的应用@平行六面体体积@三向量共面判定
+
+- $V_{parallelepiped}=|(abc)|$
+  - $V=|(a\times{b})\cdot{c}|$
+    - 记底面的法向量$d=a\times{b}$,$|d|=|a||b|\sin\theta$是平行六面体的底面积S($S=|d|$)
+    - $V=|d\cdot{c}|=|d||c|\cos{\phi}$
+    - $h=|c|\cos{\phi}$是平行六面体的高度(底面处在$a,b$所在的平面上)
+  - 平行六面体的一个特例是长方体
+  - 平行六面体有六个面,12条棱
+- $a,b,c$共面$\Leftrightarrow{(abc)=0}$(说明平行六面体的体积为0
+
+### 方向余弦
+
 - 空间向量方向余弦🎈
   - 设向量$a\neq{0}$
   - $a$和$x,y,z$轴的正方向的夹角分别为$\alpha,\beta,\gamma$,则称$\cos{\alpha},\cos{\beta},\cos{\gamma}$为向量$a$的方向余弦
   - 一个向量的方向由方向余弦决定
+
+### 投影
+
 - 向量在坐标轴上的投影🎈
   - 设向量$a=(a_x,a_{y},a_z)=(x,y,z)$
     - $\cos{\alpha}=\frac{x}{|a|}$
@@ -168,50 +403,49 @@
       \end{aligned}
       $$
       
-  
-  - 证明:
 
-    - 设$P'(x_0+\Delta{x},y_0+\Delta{y},z_0+\Delta{z})$是$l$上的点,则$l$的方向余弦可以表示为:
+- 证明:
 
-      - $\cos{\alpha}=\frac{\Delta{x}}{|PP'|}$
-      - $\cos{\beta}=\frac{\Delta{y}}{|PP'|}$
-      - $\cos{\gamma}=\frac{\Delta{z}}{|PP'|}$
-      - $|PP'|=\sqrt{(\Delta{x})^2+(\Delta{y})^2+(\Delta{z})^2}$
-  
-    - 由假设的$f(x,y,z)$可微,由可微的定义:
-  
+  - 设$P'(x_0+\Delta{x},y_0+\Delta{y},z_0+\Delta{z})$是$l$上的点,则$l$的方向余弦可以表示为:
+
+    - $\cos{\alpha}=\frac{\Delta{x}}{|PP'|}$
+    - $\cos{\beta}=\frac{\Delta{y}}{|PP'|}$
+    - $\cos{\gamma}=\frac{\Delta{z}}{|PP'|}$
+    - $|PP'|=\sqrt{(\Delta{x})^2+(\Delta{y})^2+(\Delta{z})^2}$
+
+  - 由假设的$f(x,y,z)$可微,由可微的定义:
+
+    - $$
+      \begin{aligned}
+      f(P')-f(P)=&f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}
+      \\&+o(\sqrt{(\Delta{x})^2+(\Delta{y})^2+(\Delta{z})^2})
+      \\
+      =&f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}+o(|PP'|)
+      \end{aligned}
+      $$
+
+    - 对两边同时除以$|PP'|$
+
+      - $$
+        \frac{f(P')-f(P)}{|PP'|}
+        =\frac{f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}+o(|PP'|)}{|PP'|}
+        \\=f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}+\frac{o(|PP'|)}{|PP'|}
+        $$
+
+    - 对两边取极限:
+
       - $$
         \begin{aligned}
-        f(P')-f(P)=&f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}
-        \\&+o(\sqrt{(\Delta{x})^2+(\Delta{y})^2+(\Delta{z})^2})
-        \\
-        =&f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}+o(|PP'|)
+        \frac{\partial{f}}{\partial{l}}
+        =&\lim_{P'\to{P_0}}{\frac{f(P')-f(P)}{|PP'|}}
+        \\=&\lim_{P'\to{P_0}}
+        \left(f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}+\frac{o(|PP'|)}{|PP'|}
+        \right)
+        \\=&f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}
         \end{aligned}
         $$
-  
-      - 对两边同时除以$|PP'|$
-  
-        - $$
-          \frac{f(P')-f(P)}{|PP'|}
-          =\frac{f_x(P_0)\Delta{x}+f_y(P_0)\Delta{y}+f_z(P_0)\Delta{z}+o(|PP'|)}{|PP'|}
-          \\=f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}+\frac{o(|PP'|)}{|PP'|}
-          $$
-  
-      - 对两边取极限:
-  
-        - $$
-          \begin{aligned}
-          \frac{\partial{f}}{\partial{l}}
-          =&\lim_{P'\to{P_0}}{\frac{f(P')-f(P)}{|PP'|}}
-          \\=&\lim_{P'\to{P_0}}
-          \left(f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}+\frac{o(|PP'|)}{|PP'|}
-          \right)
-          \\=&f_x(P_0)\cos{\alpha}+f_y(P_0)\cos{\beta}+f_z(P_0)\cos{\gamma}
-          \end{aligned}
-          $$
-  
-          
-  
+
+        
 
 #### 二元函数情况
 

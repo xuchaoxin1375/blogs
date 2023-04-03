@@ -79,6 +79,10 @@
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/d3c0bbae4eb847eaa20ef7b8dd8d853b.png)
 - 利用上述方法,可以一次性将正文中的citations`[xx]`调整为上标!
+- `\[[0-9]{1,}\]`
+- 强力查找:
+  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/6b3438149b254607a93c98b49902e7bd.png)
+
 
 ### 更新引用编号项
 

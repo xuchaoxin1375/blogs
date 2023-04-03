@@ -56,11 +56,11 @@
     乘法交换律:
     \prod_{k=1}^{n}{a_{i_k,j_k}}=\prod_{i=1}^{n}{a_{i,j_i}}
     \\记为\prod_{i=1}^{n}\Psi_{i}=\prod_{i=1}^{n}\theta_i
-    \\det(a_{ij})=\sum\limits_{p,q}{(-1)}^{\tau(q_k)+\tau(p_k)}\prod_{i=1}^{n}\Psi_{i}
+    \\det(a_{ij})=\sum\limits_{k=1}^{n!}{(-1)}^{\tau(q_k)+\tau(p_k)}\prod_{i=1}^{n}\Psi_{i}
     \\p_k,q_k是相互独立的两个n级排列
     \\特别的,q_k是按照自然顺序排列的:q_i=12\cdots{n},此时公式形式简化为
     \\
-    \sum\limits_{p}{(-1)}^{\tau(p_k)}\prod_{i=1}^{n}{\theta_{i}}
+    \sum\limits_{k=1}^{n!}{(-1)}^{\tau(p_k)}\prod_{i=1}^{n}{\theta_{i}}
     $$
     
     

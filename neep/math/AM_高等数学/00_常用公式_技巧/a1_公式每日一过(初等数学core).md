@@ -74,7 +74,7 @@
 
 1. $sin^2x=\frac{1}{2}(1-cos2x)$
 
-2. $cos^2x=\frac{1}{2}(1+cos2x)$
+2. $\cos^2x=\frac{1}{2}(1+\cos2x)$
 
 3. $sin^2\frac{x}{2}=\frac{1}{2}(1-\cos{x})$
 
@@ -162,7 +162,6 @@ $$
   C_{n}^{m}&=\binom{n}{m}=P_n^m=\frac{1}{m!}\frac{n!}{(n-m)!}
   \end{aligned}
   $$
-
 
 
 

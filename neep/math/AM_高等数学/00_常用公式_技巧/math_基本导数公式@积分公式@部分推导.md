@@ -6,6 +6,51 @@
 
 - [积分计算@图像](https://www.geogebra.org/calculator/rajhhca5)
 
+- [Wolfram|Alpha: Computational Intelligence (wolframalpha.com)](https://www.wolframalpha.com/)
+
+  - [Wolfram|Alpha Examples: Calculus & Analysis (wolframalpha.com)](https://www.wolframalpha.com/examples/mathematics/calculus-and-analysis)
+
+  - 该网站提供了解题步骤,(需要开会员版)
+
+  - 例:计算$\int_{-\infin}^{x}\frac{1}{1+\exp(-x)}dx$
+
+    - `https://www.wolframalpha.com/input?i=int+1%2F%281%2Be%5E%28-x%29%29+x%3D-infinity..x`
+
+    - 答案是：
+
+    - $$
+      \int_{-\infin}^{x}\frac{1}{1+\exp(-t)}dt
+      =\int_{-\infin}^{x}\frac{\exp(t)}{\exp(t)+1}dt
+      \\
+      =\int_{-\infin}^{x}\frac{1}{\exp(t)+1}\mathrm{d}({\exp(t)})
+      \\
+      =\int_{-\infin}^{x}\frac{1}{\exp(t)+1}\mathrm{d}({\exp(t)}+1)
+      \\
+      记u=\exp(t)+1,u\in(1,\exp(x)+1)
+      \\
+      =\int_{1}^{\exp(x)+1}\frac{1}{u}\mathrm{d}{u}
+      \\
+      =\left.\ln|u|\right|_{1}^{\exp(x)+1}
+      =\ln(\exp(x)+1)-\ln(1)
+      =\ln(\exp(x)+1)
+      $$
+
+## 数学工具@公式识别@计算推演工具
+
+- [Wolfram|Alpha: Computational Intelligence (wolframalpha.com)](https://www.wolframalpha.com/)
+  - 比较成熟计算工具,擅长符号计算
+- [公式识别 (simpletex.cn)](https://simpletex.cn/ai/latex_ocr)
+  - 目前识别类型设置为自动检测,用着还行
+- [Microsoft数学求解器-数学问题求解器和计算器](https://math.microsoft.com/zh)
+  - 已经支持公式识别,edge浏览器自带Microsft math图片或者pdf之类的可以拖入edge打开的,都可以截图识别
+  - 支持计算推演
+  - 目前识别精度有限,待后续发展
+- [在线LaTeX公式编辑器-编辑器 (latexlive.com)](https://www.latexlive.com/##)
+  - 公式识别和编辑
+- [截图OCR - 动作信息 - Quicker (getquicker.net)](https://getquicker.net/Sharedaction?code=ba82e11a-f845-4ca3-44ee-08d690b5076c)
+- 收费识别项目例如
+  - [Mathpix OCR User Guide: Examples of Rendered Math and Text](https://mathpix.com/docs/ocr/examples?gclid=Cj0KCQjwlPWgBhDHARIsAH2xdNeG5GT376K1BZ3f1RyF-dlJTPd6k2oaSq5yu555SD9b6eNKlZnhTicaAnf-EALw_wcB)
+
 ### pictures version
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/3e576e8236da4afaa1127bc2528ef527.png)
