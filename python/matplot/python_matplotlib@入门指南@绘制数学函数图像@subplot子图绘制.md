@@ -75,7 +75,9 @@ Types of Charts and Graphs
       fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
       ```
 
-  - It is often convenient to create the Axes together with the Figure, but you can also manually add Axes later on. Note that many [Matplotlib backends](https://matplotlib.org/stable/users/explain/backends.html) support zooming and panning on figure windows.
+  - It is often convenient to create the Axes together with the Figure, but you can also manually add Axes later on. 
+
+  - Note that many [Matplotlib backends](https://matplotlib.org/stable/users/explain/backends.html) support zooming and panning on figure windows.
 
 - [`Axes`](https://matplotlib.org/stable/api/axes_api.html#matplotlib.axes.Axes)
 

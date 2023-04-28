@@ -1,6 +1,6 @@
 [toc]
 
-# python@遍历目录内容的若干方法@dir_traverse@[文件@目录]路径操作
+# python@遍历目录内容的若干方法@[文件@目录]扫描等路径操作
 
 ## 目录扫描
 
@@ -60,6 +60,13 @@
 
 #### demos
 
+- ```mermaid
+  flowchart LR
+  	root_dir_str-->subdirs_list & files_list
+  ```
+  
+  
+  
 - 
 
   ```bash
@@ -156,6 +163,51 @@
     - [Python’s Glob Module: A tutorial for filename matching | Towards Data …](https://towardsdatascience.com/the-python-glob-module-47d82f4cbd2d)
     - [glob — Unix style pathname pattern expansion - Python](https://docs.python.org/3/library/glob.html)
     - [Glob in Python Explained | Built In - Medium](https://builtin.com/software-engineering-perspectives/glob-in-python)
+
+### 递归遍历
+
+- [Path.glob(pattern)](https://docs.python.org/3/library/pathlib.html#pathlib.Path.glob)
+
+
+####  eg.搜索目录下的具有特定扩展名的文件
+
+- ```python
+  def get_audios(folder, exts,pattern="*",recursive=False,flatten=True,verbose=1):
+      """
+      Find files in a folder with specific extensions.
+  
+      Arguments:
+      - folder (pathlib.Path): the folder to search for audio files
+      - exts (list of str): the extensions of the audio files to look for
+      - pattern (str, optional): the pattern to match for the audio files (default "*")
+      - flatten (bool, optional): whether to flatten the sub-lists of audio files (default True)
+      - verbose (int, optional): whether and how much to print information about the search (default 1)
+  
+      Returns:
+      - audio_files (list of pathlib.Path): the paths to the audio files found in the folder
+      """
+      if recursive:
+          audio_files=[list(folder.rglob(f"{pattern}{ext}")) for ext in exts]
+      else:
+          audio_files=[list(folder.glob(f"{pattern}{ext}")) for ext in exts]
+      
+      if verbose:
+          print({ext:len(audios) for audios,ext in zip(audio_files,exts)})
+      # audio_files=[audio for audio in category for category in audio_files]
+      audio_files_flatten=[]
+      if flatten:
+          for category in audio_files:
+              audio_files_flatten+=category
+          audio_files=audio_files_flatten
+          # print(f"{len(audio_files_flatten)=}")
+      return audio_files
+  ```
+
+  
+
+- [fnmatch — Unix filename pattern matching — Python documentation](https://docs.python.org/3/library/fnmatch.html#module-fnmatch)
+
+- [Path.rglob@pathlib — Object-oriented filesystem paths — Python documentation](https://docs.python.org/3/library/pathlib.html#pathlib.Path.rglob)
 
 ## 面向对象的路径操作@[文件@目录]
 

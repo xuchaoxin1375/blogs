@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 #  声明
 ## vscode(extensions)+typora组合拳配置
 

@@ -375,6 +375,73 @@ Note that a dataset sampled from a multiclass `y` or a continuous `y` may appear
 - "one-vs-all"（一对多）是一种多类别分类的策略。在这种策略中，对于每个类别，我们将其与其他所有类别分开，形成一个二元分类问题。也就是说，我们训练一个分类器来区分当前类别和其他所有类别的样本，这样就可以得到每个类别对应的二元分类器。
 - 在预测时，对于一个新的样本，我们分别使用每个二元分类器进行预测，然后选择置信度最高的那个分类器对应的类别作为预测结果。这种策略通常被用于一些二元分类器无法直接扩展到多类别分类的情况下，例如支持向量机等算法。
 
+### one-vs-rest（OvR）@OneVsRestClassifier
+
+- [sklearn.multiclass.OneVsRestClassifier — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html)
+
+- OvR是一种常用的多类分类方法，也称为one-vs-all。它的基本思想是将多类分类问题转化为多个二元分类问题，每个问题都是将其中一个类别与其他所有类别区分开来。
+
+- 具体来说，对于一个有k个类别的多类分类问题，one-vs-rest方法将建立k个二元分类器，每个分类器分别将其中一个类别作为正例，其他所有类别作为负例。在预测时，将每个分类器的概率输出进行比较，将概率最高的类别作为预测结果。
+
+- one-vs-rest方法的优点是简单、易于实现，并且可以使用任何二元分类器作为基分类器。但是，它也存在一些缺点，例如当各个类别之间存在较大重叠时，会出现预测不准确的情况。
+
+- 在scikit-learn中，one-vs-rest方法被广泛应用于多类分类问题，例如在LogisticRegression、SVM、DecisionTree等算法中。同时，scikit-learn还提供了其他一些多类分类方法，例如one-vs-one、Error-Correcting Output Codes等，可以根据具体问题选择最适合的方法。
+
+- Also known as one-vs-all, this strategy consists in fitting one **classifier** per **class**. For each classifier, the class is fitted against all the other classes. In addition to its computational efficiency (only `n_classes` classifiers are needed), one advantage of this approach is its interpretability. Since each class is represented by one and one classifier only, it is possible to gain knowledge about the class by inspecting its corresponding classifier. This is the most commonly used strategy for **multiclass** classification and is a fair default choice.
+
+  OneVsRestClassifier can also be used for **multilabel** classification. To use this feature, provide an indicator matrix for the target y when calling .fit. In other words, the target labels should be formatted as a 2D binary (0/1) matrix, where [i, j] == 1 indicates the presence of label j in sample i. This estimator uses the binary relevance method to perform multilabel classification, which involves training one binary classifier independently for each label.
+
+  也被称为一对多策略，该策略包括为每个类别拟合一个分类器。对于每个分类器，该类别与所有其他类别进行拟合。除了其计算效率（只需要n_classes个分类器），此方法的一个优点是其可解释性。由于每个类别仅由一个分类器表示，因此可以通过检查其相应的分类器来获得关于类别的知识。这是用于多类分类的最常用策略，也是一个公平的默认选择。
+
+  OneVsRestClassifier也可以用于多标签分类。要使用此功能，请在调用.fit时为目标y提供一个指示器矩阵。换句话说，目标标签应格式化为二维二进制（0/1）矩阵，其中[i，j]== 1表示样本i中存在标签j。该估计器使用二元关联方法执行多标签分类，这涉及独立地为每个标签训练一个二元分类器。
+
+#### eg 
+
+以下是一个非代码的例子，说明如何使用one-vs-rest方法实现多类分类：
+
+- 假设我们有一个文本分类的问题，需要将文本分为三个类别：体育、政治和科技。我们可以使用one-vs-rest方法来解决这个问题。
+- 首先，我们将数据集分为训练集和测试集，并使用训练集来训练3个二元分类器
+  - 3个二元分类器(基本分类器)分别将体育、政治和科技作为正例，其他类别作为负例。
+  - 更简单地说,有`a,b,c`三个类别,构建的三个二元分类器记为`c1,c2,c3`,其中`c1,c2,c3`分别用来区分`a和非a`,`b和非b`,`c和非c`
+  - 我们可以使用例如逻辑回归作为基分类器。
+- 然后，在预测时，我们将**每个分类器的概率输出进行比较**，选择概率最高的分类器作为预测结果。
+  - 例如，如果分类器1预测概率最高，则将文本分类为体育；如果分类器2预测概率最高，则将文本分类为政治；如果分类器3预测概率最高，则将文本分类为科技。
+- 需要注意的是，在使用one-vs-rest方法时，每个分类器都是独立的，因此它们之间的决策边界可能存在重叠。为了解决这个问题，我们可以使用一些方法，例如调整分类器的阈值、使用更复杂的基分类器、使用集成学习方法等，来提高分类器的性能和鲁棒性。
+
+#### eg
+
+- ```python
+  import numpy as np
+  from sklearn.multiclass import OneVsRestClassifier
+  from sklearn.svm import SVC
+  X = np.array([
+      [10, 10],
+      [8, 10],
+      [-5, 5.5],
+      [-5.4, 5.5],
+      [-20, -20],
+      [-15, -20]
+  ])
+  y = np.array([0, 0, 1, 1, 2, 2])
+  print(y,"@{y}")
+  clf = OneVsRestClassifier(SVC()).fit(X, y)
+  clf.predict([[-19, -20], [9, 9], [-5, 5]])
+  
+  ```
+
+  - ```bash
+    [0 0 1 1 2 2] @{y}
+    array([2, 0, 1])
+    ```
+
+    
+
+  - 使用了 `OneVsRestClassifier` 类，构建了一个多分类模型，并使用 `fit` 方法对训练数据进行拟合。其中：
+
+    - `SVC()` 创建一个支持向量机分类器对象。
+    - `OneVsRestClassifier(SVC())` 将支持向量机分类器包装为一个多分类模型对象。
+    - `fit(X, y)` 使用训练数据 `X` 和标签 `y` 对多分类模型进行拟合。
+
 ## 特征二元化(独热编码)
 
 ### OneHotEncoder
@@ -389,9 +456,9 @@ Note that a dataset sampled from a multiclass `y` or a continuous `y` may appear
 
 - 例如，如果有一个特征表示颜色，可能有多个不同的类别，如红色、蓝色、绿色等。为了在机器学习算法中使用这个特征，需要将每个颜色类别映射到一个数值，如红色对应0，蓝色对应1，绿色对应2等。可以使用训练数据集中的颜色样本来确定这个映射，并将其应用于整个数据集。
 
-## 标签进行二元化
+# 标签进行二元化
 
-### LabelBinarizer
+## LabelBinarizer
 
 - [sklearn.preprocessing.LabelBinarizer — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer.inverse_transform)
 
@@ -859,3 +926,362 @@ LabelBinarizer类可以将多类标签转换为二进制标签，其中每个类
     
 
 - 在这个例子中，我们使用逻辑回归模型进行二元分类，并使用 `decision_function` 方法计算每个测试样本的决策值。然后，我们通过计算精确率、召回率和 F1 分数来找到最佳阈值，并使用该阈值进行预测。
+
+
+
+## MultilabelBinarizer
+
+- [MultilableBinarizer](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html)
+
+- Transform between iterable of iterables and a multilabel format.
+
+  Although a list of sets or tuples is a very intuitive format for multilabel data, it is unwieldy to process. This transformer converts between this intuitive format and the supported multilabel format: a (samples x classes) binary matrix indicating the presence of a class label.可迭代的可迭代对象和多标签格式之间的转换。虽然以集合或元组的形式表示多标签数据是一种非常直观的格式，但它不便于处理。此转换器可以在这种直观的格式和支持的多标签格式之间进行转换：一个（样本数 x 类别数）的二进制矩阵，指示类别标签的存在。
+
+- `MultiLabelBinarizer` 是 Python 中 scikit-learn 库中的 `sklearn.preprocessing` 模块中的一个类。它用于将多标签数据转换为二进制标签表示。
+
+- 在多标签分类问题中，每个样本可以属于多个类别。例如，在图像分类问题中，一张图片可能同时包含狗和猫。`MultiLabelBinarizer` 可以将这种多标签数据转换为二进制标签表示，其中每个标签被表示为一个二进制位。
+
+`MultiLabelBinarizer` 类有两个主要方法：
+
+- `fit`：从多标签数据中获取标签集合，并将每个标签映射到一个二进制位。
+- `transform`：将多标签数据转换为二进制标签表示。
+
+`MultiLabelBinarizer` 还有几个有用的属性，例如：
+
+- `classes_`：已知的标签集合。
+- `inverse_transform`：将二进制标签表示转换回多标签格式。
+- `sparse_output`：指定是否使用稀疏矩阵表示输出。
+
+### methods
+
+- 各个方法的参考文档连接
+
+- | [`fit`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.fit)(y) | Fit the label sets binarizer, storing [classes_](https://scikit-learn.org/stable/glossary.html#term-classes_). |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | [`fit_transform`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.fit_transform)(y) | Fit the label sets binarizer and transform the given label sets. |
+  | [`get_params`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.get_params)([deep]) | Get parameters for this estimator.                           |
+  | [`inverse_transform`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.inverse_transform)(yt) | Transform the given indicator matrix into label sets.        |
+  | [`set_output`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.set_output)(*[, transform]) | Set output container.                                        |
+  | [`set_params`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.set_params)(**params) | Set the parameters of this estimator.                        |
+  | [`transform`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MultiLabelBinarizer.html#sklearn.preprocessing.MultiLabelBinarizer.transform)(y) | Transform the given label sets.                              |
+
+### eg
+
+- ```python
+  >>> from sklearn.preprocessing import MultiLabelBinarizer
+  >>> mlb = MultiLabelBinarizer()
+  >>> mlb.fit_transform([(1, 2), (3,)])
+  array([[1, 1, 0],
+         [0, 0, 1]])
+  >>> mlb.classes_
+  array([1, 2, 3])
+  >>> mlb.fit_transform([{'sci-fi', 'thriller'}, {'comedy'}])
+  array([[0, 1, 1], [1, 0, 0]]) 
+  >>> list(mlb.classes_) ['comedy', 'sci-fi', 'thriller']
+  ```
+
+  - `fit_transform`的参数y("y:iterable of iterables")是二重可迭代对象(比如元组的元组或数组的数组)
+
+### eg
+
+```python
+from sklearn.preprocessing import MultiLabelBinarizer
+
+y = [('cat', 'dog'), ('dog',), ('bird', 'cat', 'dog')]
+mlb = MultiLabelBinarizer()
+y_bin = mlb.fit_transform(y)
+
+print(y_bin)
+print(mlb.classes_)
+```
+
+这将输出以下内容：
+
+```bash
+[[0 1 1]
+ [0 0 1]
+ [1 1 1]]
+['bird' 'cat' 'dog']
+```
+
+在此示例中，`y` 是一个包含三个元组的列表，每个元组表示一个样本的多标签。使用 `MultiLabelBinarizer` 将这些多标签数据转换为二进制标签表示。转换后的二进制标签表示存储在 `y_bin` 变量中，`classes_` 属性包含已知的标签集合。
+
+### eg
+
+- With multilabel outputs, it is similarly possible for an instance to be assigned multiple labels:对于多标签输出，同样可能将一个实例分配给多个标签：
+
+- ```python
+  from sklearn.preprocessing import MultiLabelBinarizer
+  y = [[0, 1], [0, 2], [1, 3], [0, 2, 3], [2, 4]]
+  mlb = MultiLabelBinarizer()
+  ymlb=mlb.fit_transform(y)
+  # mlb.fit_transform属性只有在fit或fit_transform方法被成功调用后才被创建而存在
+  print(mlb.classes_,"@{mlb.classes_}")
+  print(ymlb,"@{ymlb}")
+  
+  ```
+
+  - ```bash
+    [0 1 2 3 4] @{mlb.classes_}
+    [[1 1 0 0 0]
+     [1 0 1 0 0]
+     [0 1 0 1 0]
+     [1 0 1 1 0]
+     [0 0 1 0 1]] @{ymlb}
+    ```
+
+- In this case, the classifier is fit upon instances each assigned multiple labels. The MultiLabelBinarizer is used to binarize the 2d array of multilabels to fit upon. As a result, predict() returns a 2d array with multiple predicted labels for each instance.
+
+  在这种情况下，分类器是根据分配了多个标签的实例来拟合的。MultiLabelBinarizer用于将多标签的2D数组二元化以适合分类器。因此，predict()返回一个2D数组，其中每个实例都有多个预测标签。"upon"可以翻译成 "在...之上"，在这句话中，可以理解为分类器是在分配了多个标签的实例之上拟合的，即基于这些实例进行拟合。
+
+## `MultiLabelBinarizer` vs `LabelBinarizer`
+
+- `MultiLabelBinarizer` 和 `LabelBinarizer` 都是 scikit-learn 库中的标签二值化工具，但它们的应用场景不同。
+- `LabelBinarizer` 用于**将单标签数据**转换为二进制标签表示，其中每个标签被表示为一个二进制位。它适用于二元分类和单标签多类别分类问题，其中每个样本只属于一个类别。例如，在图像分类问题中，一张图片只能属于一个类别，如猫、狗或鸟类。
+- `MultiLabelBinarizer` 用于将**多标签数据**转换为二进制标签表示，其中每个标签被表示为一个二进制位。它适用于多标签分类问题，其中每个样本可以属于多个类别。例如，在图像标注问题中，一张图片可以同时包含猫、狗和鸟类等多个标签。
+
+在使用这些工具时，需要注意以下几点：
+
+- `LabelBinarizer` 只能处理单标签数据，而 `MultiLabelBinarizer` 只能处理多标签数据。
+
+- 在使用 `MultiLabelBinarizer` 时，需要注意样本的标签必须以元组或列表的形式表示，其中每个元素表示一个标签。例如，对于包含三个样本的多标签数据(比如三张照片各自包含的哪些动物)，可以使用以下代码创建标签列表：
+
+  - ```
+    y = [('cat', 'dog'), ('dog',), ('bird', 'cat', 'dog')]
+    ```
+
+- 总之，`LabelBinarizer` 适用于单标签问题，`MultiLabelBinarizer` 适用于多标签问题。选择正确的工具可以帮助我们更好地处理不同类型的分类问题。
+
+## demo@multiclass-vs-multilabel-fitting
+
+- [Multiclass vs. multilabel fitting](https://scikit-learn.org/stable/tutorial/basic/tutorial.html#multiclass-vs-multilabel-fitting)
+
+### svc多元分类的例子
+
+- ```python
+  from sklearn.datasets import load_iris,load_digits
+  from sklearn.model_selection import train_test_split
+  from sklearn.svm import SVC
+  from sklearn.metrics import accuracy_score, classification_report
+  
+  # 加载鸢尾花数据集
+  # db = load_iris()
+  db=load_digits()
+  X = db.data
+  y = db.target
+  # target_names = db.target_names
+  
+  
+  # 划分训练集和测试集
+  X_train, X_test, y_train, y_test = train_test_split(
+      X, y, test_size=0.4, random_state=42)
+  
+  # 训练SVC模型
+  svc = SVC(kernel='linear', C=1, decision_function_shape='ovr')
+  svc.fit(X_train, y_train)
+  
+  # 在测试集上进行预测
+  y_pred = svc.predict(X_test)
+  y_pred
+  
+  # 计算准确率
+  acc = accuracy_score(y_test, y_pred)
+  rep=classification_report(y_test,y_pred)
+  print(rep,"@{rep}")
+  print("Accuracy:", acc)
+  
+  ```
+
+  - ```bash
+                  precision    recall  f1-score   support
+    
+               0       1.00      1.00      1.00        67
+               1       0.96      0.99      0.97        72
+               2       1.00      1.00      1.00        66
+               3       0.99      0.97      0.98        71
+               4       0.97      1.00      0.99        78
+               5       0.98      0.98      0.98        83
+               6       1.00      1.00      1.00        69
+               7       0.99      0.99      0.99        71
+               8       0.98      0.94      0.96        65
+               9       0.97      0.97      0.97        77
+    
+        accuracy                           0.98       719
+       macro avg       0.98      0.98      0.98       719
+    weighted avg       0.98      0.98      0.98       719
+     @{rep}
+    Accuracy: 0.9833101529902643
+    ```
+
+    
+
+- 这里使用~~鸢尾花~~(iris准确率太高(达到1),采用手写数字集比较真实)数据集作为示例数据集，将其划分为训练集和测试集，然后使用SVC模型进行训练，并在测试集上进行预测。最后使用准确率作为评估指标来评估模型的性能。需要注意的是，在SVC模型中使用`decision_function_shape='ovr'`来实现一对多的多分类策略。
+
+### eg🎈
+
+- 这个例子由官网改造过来的
+
+  ```python
+  from sklearn.svm import SVC
+  from sklearn.multiclass import OneVsRestClassifier
+  from sklearn.preprocessing import LabelBinarizer
+  
+  X = [[1, 2], [2, 4], [4, 5], [3, 2], [3, 1]]
+  y = [0, 0, 1, 1, 2]
+  svc = SVC(random_state=0)
+  classif = OneVsRestClassifier(estimator=svc)
+  y_pred = classif.fit(X, y).predict(X)
+  print(y_pred, "@{y_pred}")
+  y_b = LabelBinarizer().fit_transform(y)
+  
+  # 标签二进制化
+  print(y, "@{y}")
+  print(y_b, "@{y_b}")
+  # 基于二进制矩阵的标签进行拟合
+  classif2 = OneVsRestClassifier(estimator=svc)
+  y_pred_b = classif2.fit(X, y_b).predict(X)
+  print(y_pred_b, "@{y_pred_b}")
+  
+  ```
+
+  - ```bash
+    [0 0 1 1 2] @{y_pred}
+    [0, 0, 1, 1, 2] @{y}
+    [[1 0 0]
+     [1 0 0]
+     [0 1 0]
+     [0 1 0]
+     [0 0 1]] @{y_b}
+    [[1 0 0]
+     [1 0 0]
+     [0 1 0]
+     [0 0 0]
+     [0 0 0]] @{y_pred_b}
+    ```
+
+  - 在这个例子中，我们可以看到，当使用整数形式的目标值进行拟合和预测时，分类器可以正确地预测所有样本的类别。然而，当使用二进制矩阵形式的目标值时，分类器在某些样本上无法进行正确的预测。
+
+  - Here, the classifier is `fit()` on a 2d binary label representation of `y`, using the [`LabelBinarizer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer). In this case `predict()` returns a 2d array representing the corresponding multilabel predictions.
+
+    Note that the fourth and fifth instances returned all zeroes, indicating that they matched none of the three labels `fit` upon. 在这里，分类器使用 LabelBinarizer 对 y 的二元标签表示进行 fit() 训练。在这种情况下，predict() 返回一个表示相应多标签预测的二维数组。
+
+  - 请注意，第四个和第五个实例返回了全零，表明它们没有匹配到 fit() 训练时使用的三个标签中的任何一个。
+
+#### eg
+
+- ```python
+  from sklearn.datasets import load_iris
+  from sklearn.svm import SVC
+  from sklearn.multiclass import OneVsRestClassifier
+  from sklearn.preprocessing import LabelBinarizer
+  from sklearn.metrics import classification_report,accuracy_score
+  db=load_iris()
+  X=db.data
+  y=db.target
+  # X = [[1, 2], [2, 4], [4, 5], [3, 2], [3, 1]]
+  # y = [0, 0, 1, 1, 2]
+  svc=SVC(random_state=0)
+  classif = OneVsRestClassifier(estimator=svc)
+  y_pred=classif.fit(X, y).predict(X)
+  # print(y_pred,"@{y_pred}")
+  print(classification_report(y, y_pred, zero_division=1))
+  print(accuracy_score(y, y_pred))
+  
+  
+  # y_b = LabelBinarizer().fit_transform(y)
+  lf=LabelBinarizer().fit(y)
+  print(f'{lf.classes_=},{lf.y_type_}')
+  y_b=lf.transform(y)
+  #标签二进制化
+  # print(y,"@{y}")
+  # print(y_b,"@{y_b}")
+  #基于二进制矩阵的标签进行拟合
+  y_pred_b=classif.fit(X, y_b).predict(X)
+  # print(y_pred_b, "@{y_pred_b}")
+  print(classification_report(y_b,y_pred_b,zero_division=1))
+  print(accuracy_score(y_b, y_pred_b))
+  
+  ```
+
+  - ```bash
+                        precision    recall  f1-score   support
+    
+                   0       1.00      1.00      1.00        50
+                   1       0.91      0.96      0.93        50
+                   2       0.96      0.90      0.93        50
+    
+            accuracy                           0.95       150
+           macro avg       0.95      0.95      0.95       150
+        weighted avg       0.95      0.95      0.95       150
+    
+        0.9533333333333334
+                      precision    recall  f1-score   support
+    
+                   0       1.00      1.00      1.00        50
+                   1       0.89      0.96      0.92        50
+                   2       0.96      0.96      0.96        50
+    
+           micro avg       0.95      0.97      0.96       150
+           macro avg       0.95      0.97      0.96       150
+        weighted avg       0.95      0.97      0.96       150
+         samples avg       0.96      0.97      0.96       150
+    
+        0.9466666666666667
+    ```
+
+## classification_report🎈
+
+- `classification_report` 是 Python 中 scikit-learn 库中的 `sklearn.metrics` 模块中的函数之一。
+- 它用于生成一个文本报告，总结了分类问题中每个类别的精度、召回率、F1分数和支持度等指标。
+
+`classification_report` 函数接受三个参数：
+
+- `y_true`：数据的真实标签
+- `y_pred`：数据的预测标签
+- `labels`：一个可选的类别标签列表，包含在报告中。如果不提供，则报告中将包含 `y_true` 和 `y_pred` 中的所有唯一标签。
+
+`classification_report` 的输出是一个字符串，其中包括每个类别的精度、召回率、F1分数和支持度，以及所有类别的宏平均和加权平均指标。
+
+以下是 `classification_report` 的使用示例：
+
+```python
+from sklearn.metrics import classification_report
+
+y_true = [0, 1, 2, 0, 1, 2]
+y_pred = [0, 2, 1, 0, 0, 1]
+target_names = ['class 0', 'class 1', 'class 2']
+
+print(classification_report(y_true, y_pred, target_names=target_names))
+```
+
+这将输出以下报告：
+
+- ```bash
+                precision    recall  f1-score   support
+  
+       class 0       0.67      1.00      0.80         2
+       class 1       0.00      0.00      0.00         2
+       class 2       0.50      1.00      0.67         2
+  
+      accuracy                           0.50         6
+     macro avg       0.39      0.67      0.49         6
+  weighted avg       0.39      0.50      0.42         6
+  ```
+
+- 宏平均 F1 分数是 0.49，它是分类器在所有类别上的整体性能的一种度量。
+- 加权平均 F1 分数考虑了每个类别中样本的数量，本例中为 0.42。
+
+### 报告中的字段
+
+- `classification_report` 函数生成的报告包括以下字段：
+
+  - `precision`：精度，即分类器预测为某个类别的样本中，真正属于该类别的样本数占预测为该类别的样本数的比例。
+  - `recall`：召回率，即分类器正确预测为某个类别的样本数占该类别所有真实样本数的比例。
+  - `f1-score`：F1 分数，即精度和召回率的调和平均值。F1 分数越高，说明分类器对于该类别的性能越好。
+  - `support`：支持度，即该类别在数据集中的样本数。
+  - `accuracy`：准确率，即分类器在数据集上的整体分类正确率。
+  - `macro avg`：宏平均指标，即对于所有类别的指标取平均值。宏平均指标不考虑样本数量的影响，因此每个类别的性能在计算宏平均指标时被平等对待。
+  - `weighted avg`：加权平均指标，即对于所有类别的指标加权取平均值。加权平均指标考虑了每个类别在数据集中的样本数量，因此每个类别的性能对于整体指标的贡献不同。
+
+  在报告中，每个类别都有自己的一行，包括该类别的精度、召回率、F1 分数和支持度。最后两行分别是宏平均和加权平均指标。
+

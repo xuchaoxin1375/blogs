@@ -8,25 +8,25 @@
 
 - *positional-or-keyword*：位置或关键字，指定一个可以作为 [位置参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入也可以作为 [关键字参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入的实参。这是默认的形参类型，例如下面的 *foo* 和 *bar*:
 
-  ```
+  ```python
   def func(foo, bar=None): ...
   ```
 
 - *positional-only*：仅限位置，指定一个只能通过位置传入的参数。 仅限位置形参可通过在函数定义的形参列表中它们之后包含一个 `/` 字符来定义，例如下面的 *posonly1* 和 *posonly2*:
 
-  ```
+  ```python
   def func(posonly1, posonly2, /, positional_or_keyword): ...
   ```
 
 - *keyword-only*：仅限关键字，指定一个只能通过关键字传入的参数。仅限关键字形参可通过在函数定义的形参列表中包含单个可变位置形参或者在多个可变位置形参之前放一个 `*` 来定义，例如下面的 *kw_only1* 和 *kw_only2*:
 
-  ```
+  ```python
   def func(arg, *, kw_only1, kw_only2): ...
   ```
 
 - *var-positional*：可变位置，指定可以提供由一个任意数量的位置参数构成的序列（附加在其他形参已接受的位置参数之后）。这种形参可通过在形参名称前加缀 `*` 来定义，例如下面的 *args*:
 
-  ```
+  ```python
   def func(*args, **kwargs): ...
   ```
 
@@ -246,6 +246,247 @@ done!
 
 ```
 
+## 解包unpacking
+
+- [解包实参列表](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#unpacking-argument-lists)
+
+- 函数调用要求独立的位置参数，但实参在列表或元组里时，要执行相反的操作。例如，内置的 [`range()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#range) 函数要求独立的 *start* 和 *stop* 实参。如果这些参数不是独立的，则要在调用函数时，用 `*` 操作符把实参从列表或元组解包出来：
+
+  - ```python
+    list(range(3, 6))            # normal call with separate arguments
+    #[3, 4, 5]
+    args = [3, 6]
+    list(range(*args))            # call with arguments unpacked from a list
+    #[3, 4, 5]
+    ```
+
+  - 同样，字典可以用 `**` 操作符传递关键字参数
+
+- ```python
+  def parrot(voltage, state="a stiff", action="voom"):
+      print("-- This parrot wouldn't", action, end=" ")
+      print("if you put", voltage, "volts through it.", end=" ")
+      print("E's", state, "!")
+  
+  
+  d = {"voltage": "four million", "state": "bleedin' demised", "action": "VOOM"}
+  parrot(**d)
+  
+  ```
+
+### 其他解包
+
+- Python 的列表解包是一种方便的语法，可以将列表中的元素解包并分配给多个变量。以下是关于 Python 列表解包的文档：
+
+#### 列表解包@extended unpacking
+
+- [PEP 3132 – Extended Iterable Unpacking | peps.python.org](https://peps.python.org/pep-3132/)
+
+- [ More Control Flow Tools — Python documentation](https://docs.python.org/3/tutorial/controlflow.html)
+
+
+
+- 列表解包是一种将列表中的元素分配给多个变量的方法。它通过在变量前面使用星号（*）来指示 Python 将列表中的其余元素分配给该变量。例如：
+
+- ```python
+  a, b, *rest = [1, 2, 3, 4, 5]
+  print(a)    # 输出：1
+  print(b)    # 输出：2
+  print(rest) # 输出：[3, 4, 5]
+  ```
+
+- 这里，`a` 和 `b` 分别分配了列表中的前两个元素，而 `rest` 变量使用星号（*）来分配列表中的其余元素。如果列表中的元素数量不足以填满所有变量，则剩余变量将分配为一个空列表：
+
+- ```python
+  a, b, *rest = [1, 2]
+  print(a)    # 输出：1
+  print(b)    # 输出：2
+  print(rest) # 输出：[]
+  ```
+
+- 在列表解包中，星号（*）也可以在中间使用，以便只获取列表中的部分元素：
+
+- ```python
+  a, *mid, b = [1, 2, 3, 4, 5]
+  print(a)    # 输出：1
+  print(b)    # 输出：5
+  print(mid)  # 输出：[2, 3, 4]
+  ```
+
+- 这里，`a` 和 `b` 分别分配了列表中的第一个和最后一个元素，而 `mid` 变量使用星号（*）来分配列表中的中间元素。
+
+- 列表解包还可以用于函数调用中，以便将列表中的元素传递给函数的参数：
+
+- ```python
+  def my_func(a, b, c):
+      print(a, b, c)
+  
+  my_list = [1, 2, 3]
+  my_func(*my_list) # 输出：1 2 3
+  ```
+
+- 在这个例子中，使用星号（*）将列表解包，并将其作为参数传递给 `my_func` 函数。这样，列表中的第一个元素 `1` 将分配给 `a`，第二个元素 `2` 将分配给 `b`，第三个元素 `3` 将分配给 `c`。
+
+#### 二维列表
+
+- ```python
+  a=[[1,2,3]]
+  b=[[11,22,33]]
+  c=[[1,2,3],*a,*b]
+  print(f'{c=}')
+  ```
+
+  
+
+###  星号表达式
+
+- 一个简单的赋值语句中，左边的元组（或列表）最多只能包含一个使用单个星号（*）作为前缀的表达式（称为“星号表达式”），而其余表达式称为“强制的”。
+
+- 这个星号表达式将被分配为从正在解包的可迭代对象中未分配给任何强制表达式的所有项目的列表，如果没有这样的项目，则分配一个空列表。
+
+- 例如，如果`seq`是一个可切片的序列，并且`seq`至少有两个元素，则以下所有赋值都是等价的：
+
+  ```python
+  a, b, c = seq[0], list(seq[1:-1]), seq[-1]
+  a, *b, c = seq
+  [a, *b, c] = seq
+  ```
+
+- 如果可迭代对象中的项目数量不足以分配给所有强制表达式，则会引发错误。
+
+  在赋值语句中，不能将星号表达式作为单独的目标，例如：
+
+  ```python
+  *a = range(5)
+  ```
+
+  但是，以下语法是有效的：
+
+  ```python
+  *a, = range(5)
+  ```
+
+- 需要注意的是，此提案还适用于隐式赋值上下文中的元组，例如在for循环语句中：
+
+  ```python
+  for a, *b in [(1, 2, 3), (4, 5, 6, 7)]:
+      print(b)
+  ```
+
+  将打印：
+
+  ```python
+  [2, 3]
+  [5, 6, 7]
+  ```
+
+#### Warning
+
+- **星号表达式**只允许用作赋值目标，将它们用于其他任何地方（除了函数调用中的star-args）都是错误的。
+
+### starred assignment
+
+- Python 中的 starred assignment 是一种特殊的赋值语法，用于将可迭代对象中的多个值解包并分配给变量。
+
+- 在 starred assignment 中，使用单个星号（*）前缀的变量被称为 starred variable。
+
+- 在英语中，starred 通常表示带星号的、有明星的或者是非常出色的。在 Python 中，星号（*）通常用于解包序列或可迭代对象，而使用星号前缀的变量被称为 starred variable，表示一个包含多个值的列表。
+
+  因此，在 Python 中，starred 可以理解为“带星号的”，它指代的是一个带有星号前缀的变量，用于解包序列或可迭代对象。
+
+- ```python
+  a, *b = [1, 2, 3, 4, 5]
+  ```
+
+  - 变量 b 就是一个 starred variable，表示一个包含多个值的列表。在这个例子中，starred 可以理解为“带星号的变量”，或者“使用了星号前缀的变量”。
+
+下面是一些示例：
+
+```python
+# 一个简单的 starred assignment
+a, *b = [1, 2, 3, 4, 5]
+print(a)  # 输出：1
+print(b)  # 输出：[2, 3, 4, 5]
+
+# starred variable 只能在左侧的最后一个位置出现
+a, *b, c = [1, 2, 3, 4, 5]
+print(a)  # 输出：1
+print(b)  # 输出：[2, 3, 4]
+print(c)  # 输出：5
+
+# 用于 tuple 和其他可迭代对象
+a, *b = (1, 2, 3, 4, 5)
+print(a)  # 输出：1
+print(b)  # 输出：[2, 3, 4, 5]
+
+# starred variable 可以是空列表
+a, *b = [1]
+print(a)  # 输出：1
+print(b)  # 输出：[]
+
+# 使用星号运算符展开列表和元组
+a = [1, 2, 3]
+b = [4, 5, 6]
+c = [*a, *b]
+print(c)  # 输出：[1, 2, 3, 4, 5, 6]
+```
+
+需要注意的是，在 Python 3 中，starred assignment 也可以用于 for 循环中：
+
+```python
+numbers = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+for a, *b in numbers:
+    print(a)  # 输出：1, 4, 7
+    print(b)  # 输出：[2, 3], [5, 6], [8, 9]
+```
+
+在这个例子中，starred variable `*b` 将被分配为除了第一个元素以外的所有元素的列表。
+
+需要注意的是，starred assignment 只能在 Python 3 中使用。在 Python 2 中，没有这个特性。
+
+### 错误示例
+
+- 基本示例
+
+  - ```python
+    for a, b in [(1, 2),(3, 4)]:
+        print(f'{a=},{b=}')
+    ```
+
+  - ```bash
+    a=1,b=2
+    a=3,b=4
+    ```
+
+  - 本例可以成功运行,因为a,b分别试图解包(1,2),(3,4),2个元组包含的元素都相等,而且等于2,用两个变量刚好可以解包各个元组
+
+- ```python
+  for a, b in [(1, 2, 3), (4, 5, 6, 7)]:
+      print(b)
+  #ValueError: too many values to unpack (expected 2)
+  ```
+
+  - 本例无法顺利运行因为这里试图用a,b两个变量解包具有3个元素的(1,2,3)和具有4个元素的(4,5,6,7)
+
+- 如果使用扩展解包的语法,那么可以顺利执行:
+
+  - ```python
+    for a, *b in [(1, 2, 3), (4, 5, 6, 7)]:
+        print(b)
+    ```
+
+  - `*b`将接收a,装不下的部分
+
+  - 这里要求被遍历的列表的元素(元组)至少含有2个元素
+
+- ```python
+  for a, *b in [(1), (4)]:
+      print(b)
+  # cannot unpack non-iterable int object
+  ```
+
+  
+
 ##  references🎈
 
 - [参数parameter — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/glossary.html)
@@ -265,3 +506,8 @@ done!
   * [4.8.6. Lambda 表达式](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#lambda-expressions)
   * [4.8.7. 文档字符串](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#documentation-strings)
   * [4.8.8. 函数注解](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#function-annotations)
+
+
+
+
+

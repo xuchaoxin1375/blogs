@@ -101,8 +101,7 @@
     - ![在这里插入图片描述](https://img-blog.csdnimg.cn/58df1684726b4dcba4faf410dcffdbec.png)
   - `redemo.py` 在尝试调试复杂的正则时非常有用。
 
-
-### 匹配对象@常用方法🎈
+### `Match`类的常用方法🎈
 
 - 首先，运行 Python 解释器，导入 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块，然后编译一个正则,得到要给正则模式对象Pattern
 

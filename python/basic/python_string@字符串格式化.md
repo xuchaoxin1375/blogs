@@ -361,7 +361,9 @@ f ' <text> { <expression> <optional !s, !r, or !a> <optional : format specifier>
 
 - f-strings是最简洁和易读的字符串格式化方法，同时还支持更多的功能，例如表达式求值、函数调用等。但是，它只能在Python 3.6及以上的版本中使用。而%风格的字符串格式化和str.format()方法则可以在Python 2.x和Python 3.x中使用，但是语法稍微繁琐一些。
 
-### 打印n维数组带变量标签@varName的方式打印整齐的numpy数组🎈
+### 打印n维数组带变量标签@打印长内容
+
+#### varName的方式打印整齐的numpy数组🎈
 
 - ```python
   var=np.random.rand(3,4)
@@ -388,6 +390,27 @@ f ' <text> { <expression> <optional !s, !r, or !a> <optional : format specifier>
            [0.03756505, 0.98463162, 0.44814283, 0.93763523],
            [0.67204106, 0.26669688, 0.56406436, 0.95693298]])
     ```
+
+### 使用2个打印语句来打印长内容
+
+- 尽管多个打印语句总是可以合并为一个打印语句,但是在调式代码的时候,将要答应的内容写成多个答应语句有时更加高效
+
+- 特别是在notebook中打印一个超长的列表,将变量名插在后面就不容易查看
+
+  - ```python
+    print("{varName}")
+    print(varName)
+    ```
+
+  - 例如:
+
+    - ```bash
+      Ones Tensor: 
+       tensor([[1, 1],
+              [1, 1]]) 
+      ```
+
+      
 
 ##  Raw f-string
 

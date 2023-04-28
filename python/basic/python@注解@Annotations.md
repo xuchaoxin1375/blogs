@@ -167,7 +167,14 @@ def clip(text:str, max_len:'int > 0'=80) -> str:
         end = len(text)
     return text[:end].rstrip()
 ```
-### 经典实例:numpy.integers() 示例
+### 经典实例:numpy@Generator.integers() 示例
+
+- ```python
+  rng=np.random.default_rng()
+  rng.integers(1,10,size=(3,4))
+  ```
+
+  
 
 - ```python
   def integers(  # type: ignore[misc]
@@ -253,5 +260,26 @@ def clip(text:str, max_len:'int > 0'=80) -> str:
 - 换句话说，**注解对 Python 解释器没有任何意义**。
 - 注解只是**元数据**，可以供 IDE、框架和装饰器等工具使用。
 
+## IDE对python type hinting的支持
 
+- [Type hinting in IntelliJ IDEA | IntelliJ IDEA Documentation (jetbrains.com)](https://www.jetbrains.com/help/idea/type-hinting-in-product.html#stub-type-hints)
+
+### pyi文件
+
+- [stub-type-hints](https://www.jetbrains.com/help/idea/type-hinting-in-product.html#stub-type-hints)
+
+`pyi` 是 Python Interface 文件的扩展名，通常也被称为 Python Type Hint 文件。Python Type Hint 是 Python 3.5 引入的一项新特性，用于向代码中添加类型注释，以提高代码的可读性、可维护性和可重用性。
+
+Python Type Hint 文件使用 `pyi` 扩展名来区分于普通的 Python 文件。这些文件中包含了函数、类、方法等的类型注释，可以被 IDE、静态分析工具和类型检查工具等自动化工具识别和解析，以提供更好的代码补全、错误检查和文档提示等功能。
+
+Python Type Hint 文件的语法和普通的 Python 文件类似，不同之处在于添加了类型注释，例如：
+
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}!"
+```
+
+上述代码中，`greet()` 函数的参数 `name` 和返回值都添加了类型注释，表示其类型为字符串类型。这样，IDE 和类型检查工具就可以自动识别和检查这些类型注释，以提供更好的代码提示和错误检查功能。
+
+总之，Python Type Hint 文件是一种非常有用的工具，可以用于提高 Python 代码的可读性、可维护性和可重用性。建议开发者在编写 Python 代码时，尽可能地添加类型注释，并使用 IDE 和类型检查工具等自动化工具来提高代码质量和开发效率。
 

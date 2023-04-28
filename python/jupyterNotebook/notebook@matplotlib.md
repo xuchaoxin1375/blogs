@@ -4,9 +4,15 @@
 
 ##  notebook@matplotlib🎈
 
-- [Interactive figures — Matplotlib 3.7.1 documentation](https://matplotlib.org/stable/users/explain/interactive.html)
-- [Backends — Matplotlib 3.7.1 documentation](https://matplotlib.org/stable/users/explain/backends.html#what-is-a-backend)
-- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。我们建议使用IPython（详见下文）来实现这一点。
+- [Interactive figures — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/interactive.html)
+
+### matplotlib backend
+
+- [Backends — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/backends.html#what-is-a-backend)
+- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。
+- 同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。
+- 为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。
+- 我们建议使用IPython（详见下文）来实现这一点。
 
 ### IPython👌
 

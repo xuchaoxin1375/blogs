@@ -2,9 +2,11 @@
 
 
 
+python@变量作用域@装饰器@闭包@高阶函数@decorator装饰器@warning@deprecated@property
+
 ## refs
 
-- <<流程的python>>
+- `<<fluent python>>`
 
 ## 全局变量@局部变量@gl
 
@@ -575,8 +577,10 @@
 
     
 
+## demos
 
-#  simpleVersionDemo
+###  simpleVersionDemo
+
 ```python
 '''
 Description: 
@@ -603,7 +607,7 @@ def now():
 #print("do a other thing")
 now( )
 ```
-#  With parameter
+###  With parameter
 
 ```python
 '''
@@ -664,3 +668,233 @@ greet()
 #log("test invoke the log() decoration  along")
 
 ```
+
+## @deprecated
+
+### PEP 702
+
+- [PEP 702 – Marking deprecations using the type system | peps.python.org](https://peps.python.org/pep-0702/)
+
+- PEP 702是Python Enhancement Proposal（Python增强提案）的一部分，提出了一种新的语法，用于在函数参数和返回值中指定类型检查时的协变和逆变关系。
+
+  具体来说，PEP 702引入了一个新的类型标注符`~`（波浪线），用于表示逆变关系。在函数参数列表中使用`~`类型标注符，表示该参数的类型在函数调用时可以是其子类型。而在函数返回值中使用`~`类型标注符，表示该返回值的类型在函数调用时可以是其父类型。
+
+  下面是一个使用PEP 702中新语法的例子：
+
+  ```python
+  from typing import List
+  
+  class Animal:
+      def __init__(self, name: str):
+          self.name = name
+  
+  class Dog(Animal):
+      def __init__(self, name: str, breed: str):
+          super().__init__(name)
+          self.breed = breed
+  
+  def adopt_dogs(dogs: List[~Dog]) -> List[~Animal]:
+      return [dog for dog in dogs]
+  
+  d1 = Dog("Buddy", "Golden Retriever")
+  d2 = Dog("Max", "Labrador Retriever")
+  dogs = [d1, d2]
+  
+  adopted_animals = adopt_dogs(dogs)
+  ```
+
+  在上面的例子中，我们定义了一个`Animal`类和一个`Dog`类，其中`Dog`类继承自`Animal`类。接着，我们定义了一个名为`adopt_dogs`的函数，该函数接受一个`List[~Dog]`类型的参数`dogs`，表示该参数的类型在函数调用时可以是`Dog`的子类型。函数返回一个`List[~Animal]`类型的列表，表示该返回值的类型在函数调用时可以是`Animal`的父类型。
+
+  最后，我们创建了两个`Dog`对象并将它们存储在一个列表中，然后调用`adopt_dogs`函数，并将返回值存储在`adopted_animals`变量中。
+
+  需要注意的是，PEP 702目前还没有被包含在Python标准库中，因此在使用时需要安装相应的第三方库，例如`pip install typed-ast`。此外，在使用PEP 702的新语法时，应该注意遵守PEP 8风格指南，确保代码的可读性和一致性。
+
+### deprecated module
+
+- [Deprecated · PyPI](https://pypi.org/project/Deprecated/)
+
+  - `Deprecated`是一个Python库，提供了一个`@deprecated`装饰器，可以将已弃用的函数或方法标记为已弃用，并在调用时发出警告。
+
+    使用`Deprecated`库非常简单，只需要在需要标记为已弃用的函数或方法上添加`@deprecated`装饰器即可。该装饰器可以接受以下参数：
+
+    - `version`：指定该函数或方法被弃用的版本号。
+    - `reason`：指定该函数或方法被弃用的原因。
+
+    下面是一个使用`Deprecated`库标记函数为已弃用的例子：
+
+    ```python
+    from deprecated import deprecated
+    
+    @deprecated(version='1.0', reason='请使用 new_function() 代替')
+    def old_function():
+        print("这个函数已经过时了，不建议再使用")
+    
+    def new_function():
+        print("这个是新的函数，可以替代旧的函数")
+    
+    # 调用已弃用的函数
+    old_function()
+    
+    # 调用新的函数
+    new_function()
+    ```
+
+    在上面的例子中，我们首先导入了`Deprecated`库，然后使用`@deprecated`装饰器将`old_function`函数标记为已弃用，指定了版本号和原因。接着，我们定义了一个新的函数`new_function`，可以替代旧的函数。
+
+    在调用已弃用的函数`old_function`时，`Deprecated`库会发出警告，提醒我们该函数已经过时，建议使用其他替代方案。而调用新的函数`new_function`时，则不会有任何警告。
+
+    需要注意的是，`Deprecated`库只是提供了一种标记函数或方法为已弃用的方式，它并不会阻止开发者继续使用这些函数或方法。因此，开发者在使用时应该自觉遵守标记的建议，并尽早替换为推荐的替代方案。
+
+- 在Python中，如果一个函数或方法不再建议使用，可以使用`@deprecated`装饰器将其标记为已弃用。这样做的好处是，在函数或方法被调用时，Python解释器会发出警告，提醒开发者该函数或方法已经过时，建议使用其他替代方案。
+
+  下面是一个使用`@deprecated`装饰器标记函数为已弃用的例子：
+
+  ```python
+  from deprecated import deprecated
+  
+  @deprecated(version='1.0', reason='请使用 new_function() 代替')
+  def old_function():
+      print("这个函数已经过时了，不建议再使用")
+  
+  def new_function():
+      print("这个是新的函数，可以替代旧的函数")
+  
+  # 调用已弃用的函数
+  old_function()
+  
+  # 调用新的函数
+  new_function()
+  ```
+
+  在上面的例子中，我们首先导入了`deprecated`库，然后使用`@deprecated`装饰器将`old_function`函数标记为已弃用，指定了版本号和原因。接着，我们定义了一个新的函数`new_function`，可以替代旧的函数。
+
+  在调用已弃用的函数`old_function`时，Python解释器会发出警告，提醒我们该函数已经过时，建议使用其他替代方案。而调用新的函数`new_function`时，则不会有任何警告。
+
+  输出结果如下所示：
+
+  ```
+  DeprecationWarning: Call to deprecated function old_function (since version 1.0): 请使用 new_function() 代替
+    warnings.warn(msg, category=DeprecationWarning)
+  这个函数已经过时了，不建议再使用
+  这个是新的函数，可以替代旧的函数
+  ```
+
+  从输出结果可以看出，我们成功地将`old_function`函数标记为已弃用，并在调用该函数时收到了警告。同时，我们也成功地定义了一个新的函数`new_function`，可以替代旧的函数。
+
+### 用warning自定义@deprecated
+
+- [warnings —— 警告信息的控制 — Python 文档](https://docs.python.org/zh-cn/3/library/warnings.html)
+
+- 除了使用第三方库中的`@deprecated`装饰器之外，还可以自定义一个装饰器来标记方法或函数为废弃。以下是一个示例实现：
+
+  ```python
+  import warnings
+  
+  def deprecated(func):
+      def new_func(*args, **kwargs):
+          warnings.warn("Call to deprecated function {}.".format(func.__name__), category=DeprecationWarning)
+          return func(*args, **kwargs)
+      new_func.__name__ = func.__name__
+      new_func.__doc__ = func.__doc__
+      new_func.__dict__.update(func.__dict__)
+      return new_func
+  ```
+
+  这个自定义装饰器实现了类似于`@deprecated`装饰器的功能，当使用这个装饰器标记一个方法或函数时，调用它时会发出一个`DeprecationWarning`警告。例如：
+
+  ```python
+  @deprecated
+  def old_method():
+      # do something
+  ```
+
+  这个装饰器还将原始方法或函数的名称、文档字符串和字典属性复制到新函数中，以确保其行为与原始函数相同。
+
+### 小结
+
+`Deprecated`库和PEP 702提供了不同的功能，尽管它们都与Python中的类型和代码质量有关。
+
+`Deprecated`库提供了一种标记函数或方法为已弃用的方式，并在调用时发出警告。这对于开发者来说非常有用，因为它能够提醒他们哪些函数或方法不再被推荐使用，并提示他们使用其他替代方案。`Deprecated`库是一个第三方库，需要额外安装。
+
+PEP 702则提供了一种新的语法，用于在函数参数和返回值中指定类型检查时的协变和逆变关系。这非常有用，因为它可以帮助开发者更好地控制函数参数和返回值的类型，从而减少类型错误和代码质量问题。PEP 702是Python官方提出的一个改进提案，目前已经被纳入Python 3.10中。
+
+因此，`Deprecated`库和PEP 702提供了不同的功能，并且可以在不同的情况下使用。如果你想标记函数或方法为已弃用，并发出警告，可以使用`Deprecated`库。如果你想在函数参数和返回值中指定类型检查时的协变和逆变关系，可以使用PEP 702。
+
+## @property
+
+- `@property`是Python中一个用于装饰方法的装饰器，它允许将一个方法转换为一个只读属性，使得在访问该属性时可以像访问普通属性一样使用点号（`.`）语法。
+- 使用`@property`装饰器可以将方法转换为只读属性，同时提供一些计算或逻辑处理功能。
+
+以下是一个示例：
+
+```python
+class Rectangle:
+    def __init__(self, width, height):
+        self._width = width
+        self._height = height
+
+    @property
+    def area(self):
+        return self._width * self._height
+
+    @property
+    def perimeter(self):
+        return 2 * (self._width + self._height)
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        if value <= 0:
+            raise ValueError("Width must be positive")
+        self._width = value
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, value):
+        if value <= 0:
+            raise ValueError("Height must be positive")
+        self._height = value
+```
+
+- 在这个示例中，`Rectangle`类有一个只读属性`area`和`perimeter`，它们的值是通过计算`_width`和`_height`属性得出的。`Rectangle`类还有两个可读写属性`width`和`height`，它们的值可以通过`setter`方法进行设置。
+- 需要注意的是，当使用`@property`装饰器时，方法名与属性名应该相同，这样才能在访问属性时使用点号语法。同时，还需要定义一个与属性名相同的方法，用于设置属性的值。在这个示例中，`width`和`height`的设置方法分别为`width()`和`height()`。
+- 在使用`@property`装饰器时，还可以定义只读属性或只写属性，具体取决于是否定义了该属性的`setter`方法或`getter`方法。
+
+- 更多关于`@property`装饰器的信息，请参考Python官方文档：[property](https://docs.python.org/3/library/functions.html#property)。
+
+### 关于属性的弃用
+
+在Python中，通常不会标记类中的属性为废弃或弃用，而是通过文档或注释来提醒使用该类的程序员。这是因为属性通常被视为类的一部分，而不是一个独立的函数或方法。
+
+如果您仍然想将类中的属性标记为废弃或弃用，可以使用类似于在方法或函数上使用装饰器的方法。以下是一个示例：
+
+```python
+import warnings
+
+class MyClass:
+    def __init__(self):
+        self._deprecated_attribute = 'I am a deprecated attribute'
+
+    @property
+    def deprecated_attribute(self):
+        warnings.warn("The 'deprecated_attribute' attribute is deprecated and will be removed in future versions.", DeprecationWarning)
+        return self._deprecated_attribute
+
+    @deprecated_attribute.setter
+    def deprecated_attribute(self, value):
+        warnings.warn("The 'deprecated_attribute' attribute is deprecated and will be removed in future versions.", DeprecationWarning)
+        self._deprecated_attribute = value
+```
+
+在这个示例中，`MyClass`类有一个名为`deprecated_attribute`的属性，其中getter和setter方法都被装饰器`@deprecated_attribute`标记为废弃。调用`deprecated_attribute`属性时，会发出一个`DeprecationWarning`警告，提醒程序员该属性已经被废弃。
+
+需要注意的是，这种方法本质上是通过将属性转换为getter和setter方法来实现的，因此在使用该属性时需要使用相应的访问方法，而不是直接访问属性本身。
+
+
+

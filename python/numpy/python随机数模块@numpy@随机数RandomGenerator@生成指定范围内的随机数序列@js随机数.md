@@ -550,5 +550,46 @@ Random sampling ([`numpy.random`](https://numpy.org/doc/stable/reference/random/
 
   
 
+### numpy.random@shuffle&permutation
 
+- [numpy.random.shuffle — NumPy Manual](https://numpy.org/doc/stable/reference/random/generated/numpy.random.shuffle.html)
+
+- [numpy.random.permutation — NumPy Manual](https://numpy.org/doc/stable/reference/random/generated/numpy.random.permutation.html)
+
+- 新的代码应该使用`Generator`的同名api
+
+  - ```python
+    import numpy as np
+    rng=np.random.default_rng()
+    #新api
+    rng.shuffle()
+    rng.permutation()
+    ```
+
+- `np.random.permutation` 和 `np.random.shuffle` 都是 Numpy 库中用于随机打乱数组的函数，它们的作用类似，但是有一些区别。
+
+  `np.random.permutation` 函数返回一个随机排列的数组，它接受一个整数或者数组作为输入参数。如果输入参数是一个整数 `n`，则 `np.random.permutation(n)` 会返回一个包含 `0` 到 `n-1` 的随机排列的数组。如果输入参数是一个一维数组 `a`，则 `np.random.permutation(a)` 会返回一个随机排列的 `a` 的副本，而不会改变原始数组 `a`。例如：
+
+  ```python
+  import numpy as np
+  
+  a = np.array([1, 2, 3, 4, 5])
+  b = np.random.permutation(a)
+  print(a)  # [1 2 3 4 5]
+  print(b)  # [5 2 4 1 3]
+  ```
+
+  `np.random.shuffle` 函数是一个原地操作，它会随机打乱原始数组的顺序。它接受一个数组作为输入参数，然后随机打乱数组的顺序。例如：
+
+  ```python
+  import numpy as np
+  
+  a = np.array([1, 2, 3, 4, 5])
+  np.random.shuffle(a)
+  print(a)  # [2 4 1 5 3]
+  ```
+
+  可以看到，`np.random.shuffle` 函数打乱了原始数组 `a` 的顺序，并且没有返回任何结果。
+
+  因此，`np.random.permutation` 和 `np.random.shuffle` 都可以用于随机打乱数组，但是它们的作用略有不同。如果需要得到一个随机排列的数组，并且不想改变原始数组的顺序，可以使用 `np.random.permutation`。如果需要原地打乱数组的顺序，可以使用 `np.random.shuffle`。
 

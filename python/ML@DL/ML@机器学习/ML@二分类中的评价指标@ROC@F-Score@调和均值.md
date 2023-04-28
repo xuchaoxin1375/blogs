@@ -266,6 +266,303 @@
 - 一般上来说，提到F-score且没有特别的定义时，是指$\beta =1$时的F-score，亦有写作$F_1$-score。
 - 代表使用者同样的注重precision和recall的这两个指标。其分数可以说是precision和recall的调和平均
 
+### sklearn中的F1_score
+
+- [sklearn.metrics.f1_score — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html)
+- [3.3. Metrics and scoring: quantifying the quality of predictions — scikit-learn documentation](https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics)
+- [sklearn.metrics.precision_recall_fscore_support — scikit-learn  documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_fscore_support.html)
+
+  - 这个函数是其他衍生函数(`fbeta_score`和`f1_score`)的基础,包含了计算公式的运用
+  - 通过查看`f1_score`源码可以追踪到`precision_recall_fscore_support`的源码实现
+- 以下主要讨论多分类下的`f1_score`的计算行为
+- In the multi-class and multi-label case, this is the average of the F1 score of each class with weighting depending on the average parameter.
+
+  在多类别和多标签的情况下，f1_score的计算方式与二分类的情况略有不同。具体来说，它是每个类别的F1分数加权平均，其中权重取决于average参数。
+- 在sklearn中，可以使用`sklearn.metrics.f1_score`函数来计算多类别和多标签的f1_score。该函数具有以下参数：
+
+  - `y_true`：真实标签数组或稀疏矩阵
+  - `y_pred`：预测标签数组或稀疏矩阵
+  - `labels`：类别列表（可选）
+  - `average`：加权方式，可选值为None、'micro'、'macro'、'weighted'和'samples'，默认为None
+  - `sample_weight`：每个样本的权重数组（可选）
+
+#### labels参数
+
+The set of labels to include when average != 'binary', and their order if average is None. Labels present in the data can be excluded, for example to calculate a multiclass average ignoring a majority negative class, while labels not present in the data will result in 0 components in a macro average. For multilabel targets, labels are column indices. By default, all labels in y_true and y_pred are used in sorted order.
+
+- 该参数用于指定在计算精确度、召回率和F1分数时要包含的标签集合。
+
+- 当`average != 'binary'`时，通过`labels`参数指定标签集合；当`average=None`时，通过`labels`参数指定标签集合的顺序。
+
+- 如果数据中存在某些标签不需要考虑，可以通过`labels`参数将其排除在外。
+- 例如，可以计算一个多分类问题的平均值，忽略一个主要的负类别；而对于数据中不存在的标签，在宏平均中将会产生0的结果。
+
+对于多标签目标，标签是列索引。默认情况下，`y_true`和`y_pred`中的所有标签都按照排序顺序使用。
+
+- 以下是一个示例，演示如何使用`labels`参数在多分类问题中指定要包含的标签集合：
+
+```python
+from sklearn.metrics import precision_recall_fscore_support,classification_report
+import numpy as np
+
+y_true = np.array([0, 1, 2, 0, 1, 2])
+y_pred = np.array([0, 2, 1, 0, 0, 1])
+#从y_true中可以看出,输入的数组包含3个类别[0,1,2]
+# 以类别0为例,tp=2,fp=1,fn=0从而P=tp/(tp+fp)=2/(2+1)=2/3;R=tp/(tp+fn)=2/(2+0)=1
+#类别1,2由于他们的tp值都是0,所以他们的P,R值也都是0
+print(classification_report(y_true=y_true,y_pred=y_pred))
+print('use labels param in `precision_recall_fscore_support`function:')
+labels = [0,1,2]
+def labels_demo(labels=None):
+    print(f"{np.unique(y_true)=}")
+    print(labels,"@{labels}set done!")
+
+    precision, recall, f1_score, support = precision_recall_fscore_support(
+        y_true, y_pred, average=None, labels=labels)
+
+    print("Precision:", precision)
+    print("Recall:", recall)
+    print("F1 score:", f1_score)
+    print("Support:", support)
+    print()
+labels_demo(labels=[0,1,2])
+labels_demo(labels=[0,2])
+
+```
+
+- 在这个例子中，我们指定了`labels`参数为`[0, 2]`，表示只计算标签0和标签2的精确度、召回率和F1分数。
+- 为了便于比较,我在例程前调用classification_report综合展示各个metric
+
+- 输出结果为：
+
+```bash
+              precision    recall  f1-score   support
+
+           0       0.67      1.00      0.80         2
+           1       0.00      0.00      0.00         2
+           2       0.00      0.00      0.00         2
+
+    accuracy                           0.33         6
+   macro avg       0.22      0.33      0.27         6
+weighted avg       0.22      0.33      0.27         6
+
+use labels param in `precision_recall_fscore_support`function:
+np.unique(y_true)=array([0, 1, 2])
+[0, 1, 2] @{labels}set done!
+Precision: [0.66666667 0.         0.        ]
+Recall: [1. 0. 0.]
+F1 score: [0.8 0.  0. ]
+Support: [2 2 2]
+
+np.unique(y_true)=array([0, 1, 2])
+[0, 2] @{labels}set done!
+Precision: [0.66666667 0.        ]
+Recall: [1. 0.]
+F1 score: [0.8 0. ]
+Support: [2 2]
+```
+
+- 这意味着在这个例子中，我们只计算了标签0和标签2的精确度、召回率和F1分数，而标签1被排除在外。
+- 例如，标签0的精确度为1.0，召回率为0.6667，F1分数为0.8。
+- 标签2的精确度为0.5，召回率为0.3333，F1分数为0.4。
+
+#### average参数
+
+- `average{‘micro’, ‘macro’, ‘samples’, ‘weighted’, ‘binary’} or None, default=’binary’`
+  - This parameter is required for multiclass/multilabel targets. 
+- If `None`, the scores for each class are returned. Otherwise, this determines the type of averaging performed on the data:
+
+- `'binary'`:
+
+  Only report results for the class specified by `pos_label`. This is applicable only if targets (`y_{true,pred}`) are binary.
+
+- `'micro'`:
+
+  Calculate metrics **globally** by **counting** the total `true positives`, `false negatives` and `false positives`.
+
+- `'macro'`:
+
+  Calculate metrics for each label, and find their **unweighted mean**. This does not take label imbalance into account.
+
+  计算每个标签的指标，并找到它们的未加权平均值。这并没有考虑标签的不平衡
+
+- `'weighted'`:
+
+  Calculate metrics for each label, and find their **average weighted by <u>support</u>** (the number of true instances for each label). This alters ‘macro’ to account for label imbalance; it can result in an F-score that is not between precision and recall.计算每个标签的度量指标，并按每个标签的真实实例数加权计算它们的平均值。这个过程中考虑了标签的不平衡，从而修改了“macro”方法；这可能会导致F1分数不在精确率和召回率之间。
+
+- `'samples'`:
+
+  Calculate metrics for each instance, and find their average (only meaningful for multilabel classification where this differs from [`accuracy_score`](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score)).
+
+#### eg
+
+- `precision_recall_fscore_support`是Scikit-learn库中的一个函数，用于计算分类模型的精确度（precision）、召回率（recall）、F1分数（F1-score）和支持度（support）。该函数的使用方式为：
+
+  ```python
+  from sklearn.metrics import precision_recall_fscore_support
+  
+  precision, recall, f1_score, support = precision_recall_fscore_support(y_true, y_pred, average=None)
+  ```
+
+  其中，`y_true`和`y_pred`分别是真实标签和预测标签。`average`参数可以为None、'binary'、'micro'、'macro'或'weighted'，表示计算精确度、召回率和F1分数时采用的方法，具体含义如下：
+
+  - None：对每个类别分别计算精确度、召回率和F1分数。
+  - 'binary'：仅在二分类问题中使用，返回正例（positive）的精确度、召回率和F1分数。
+  - 'micro'：将所有类别的真实标签和预测标签**合并**后计算精确度、召回率和F1分数。
+  - 'macro'：对每个类别分别计算精确度、召回率和F1分数，并对它们取平均值。
+  - 'weighted'：对每个类别分别计算精确度、召回率和F1分数，并按照每个类别的样本数加权平均。
+    - Formally, the weighted mean of a non-empty finite tuple of data ${\displaystyle \left(x_{1},x_{2},\dots ,x_{n}\right)}$, with corresponding non-negative weights ${\displaystyle \left(w_{1},w_{2},\dots ,w_{n}\right)}$ is
+      ${\displaystyle {\bar {x}}={\frac {\sum \limits _{i=1}^{n}w_{i}x_{i}}{\sum \limits _{i=1}^{n}w_{i}}},}$
+      which expands to:
+      ${\displaystyle {\bar {x}}={\frac {w_{1}x_{1}+w_{2}x_{2}+\cdots +w_{n}x_{n}}{w_{1}+w_{2}+\cdots +w_{n}}}.}$
+
+  函数返回的四个值分别为每个类别的精确度、召回率、F1分数和支持度（即每个类别的样本数）。
+
+- ```python
+  import numpy as np
+  from sklearn.metrics import precision_recall_fscore_support
+  y_true = np.array(['cat', 'dog', 'pig', 'cat', 'pig','pig'])
+  y_pred = np.array(['cat', 'pig', 'dog', 'cat', 'dog','pig'])
+  prfs=precision_recall_fscore_support
+  r0=prfs(y_true, y_pred)
+  
+  r1=prfs(y_true, y_pred, average='macro')
+  
+  r2=prfs(y_true, y_pred, average='micro')
+  #tp:(cat,dog,pig)=(2,0,1)
+  #fp:(cat,dog,pig)=(0,2,1)
+  #fn:(cat,dog,pig)=(0,1,2)
+  #total:(tp,fp,fn)=(3,3,3)@就是对每一行元组求和
+  #P=tp/(fp+fn)=3/(3+3)=0.5,R=tp/(tp+nf)=3/(3+3)=0.5
+  r3=prfs(y_true, y_pred, average='weighted')
+  print(f"{r0=}@None\n{r1=}@macro\n{r2=}@micro\n{r3=}@weighted")
+  ```
+
+  - ```bash
+    r0=(array([1. , 0. , 0.5]), array([1.        , 0.        , 0.33333333]), array([1. , 0. , 0.4]), array([2, 1, 3], dtype=int64))@None
+    r1=(0.5, 0.4444444444444444, 0.4666666666666666, None)@macro
+    r2=(0.5, 0.5, 0.5, None)@micro
+    r3=(0.5833333333333334, 0.5, 0.5333333333333333, None)@weighted
+    ```
+
+- 手动计算三个不同的average参数下的结果🎈:
+
+  ```bash
+  # macro
+  ma=[item.mean() for item in r0][:-1]
+  # micro
+  tp, fp, fn = [np.count_nonzero(y_true == y_pred), np.count_nonzero(
+      y_true != y_pred), np.count_nonzero(y_true != y_pred)]
+  P, R = tp/(tp+fp), tp/(tp+fn)
+  mb=[P, R, 2/(1/P+1/R)]
+  #weighted1(method1)
+  wt=[(item*(r0[3]/r0[3].sum())).sum() for item in r0][:-1]
+  print(f"{ma=}\n{mb=}\n{wt=}")
+  #weighted2
+  [((item*r0[3])/r0[3].sum()).sum() for item in r0][:-1]
+  #weighted3
+  [((item*r0[3]).sum() / r0[3].sum())for item in r0][:-1]
+  ```
+
+  - ```bash
+    ma=[0.5, 0.4444444444444444, 0.4666666666666666]
+    mb=[0.5, 0.5, 0.5]
+    wt=[0.5833333333333333, 0.5, 0.5333333333333333]
+    ```
+
+- 随机化版本
+
+  ```python
+  import numpy as np
+  from sklearn.metrics import precision_recall_fscore_support
+  
+  categories=['dog','cat','pig']
+  y_true = np.random.choice(categories,size=10)
+  y_pred = np.random.choice(categories,size=10)
+  print(y_true,"@{y_true}\n",y_pred,"@{y_pred}")
+  prfs = precision_recall_fscore_support
+  r0 = prfs(y_true, y_pred)
+  
+  r1 = prfs(y_true, y_pred, average='macro')
+  
+  r2 = prfs(y_true, y_pred, average='micro')
+  
+  r3 = prfs(y_true, y_pred, average='weighted')
+  print(f"{r0=}@None\n{r1=}@macro\n{r2=}@micro\n{r3=}@weighted")
+  
+  ```
+
+  - ```bash
+    r0=(array([0.66666667, 0.        , 0.        ]), array([1., 0., 0.]), array([0.8, 0. , 0. ]), array([2, 2, 2], dtype=int64))
+    r1=(0.2222222222222222, 0.3333333333333333, 0.26666666666666666, None)
+    r2=(0.3333333333333333, 0.3333333333333333, 0.3333333333333333, None)
+    r3=(0.2222222222222222, 0.3333333333333333, 0.26666666666666666, None)
+    ```
+
+  - ```bash
+    ['pig' 'dog' 'cat' 'cat' 'cat' 'cat' 'dog' 'cat' 'dog' 'cat'] @{y_true}
+     ['dog' 'cat' 'cat' 'dog' 'dog' 'pig' 'dog' 'cat' 'cat' 'dog'] @{y_pred}
+    r0=(array([0.5, 0.2, 0. ]), array([0.33333333, 0.33333333, 0.        ]), array([0.4 , 0.25, 0.  ]), array([6, 3, 1], dtype=int64))@None
+    r1=(0.2333333333333333, 0.2222222222222222, 0.21666666666666667, None)@macro
+    r2=(0.3, 0.3, 0.3, None)@micro
+    r3=(0.36, 0.3, 0.31500000000000006, None)@weighted
+    ```
+
+    
+
+#### eg
+
+以下是一个示例，演示如何使用`sklearn.metrics.f1_score`函数计算多类别和多标签的f1_score：
+
+```python
+from sklearn.metrics import f1_score
+
+# 假设模型的预测结果保存在y_pred变量中，真实标签保存在y_true变量中
+y_true = [[1, 0, 0],
+          [0, 1, 1],
+          [1, 0, 1],
+          [0, 0, 1]]
+y_pred = [[1, 0, 1],
+          [1, 1, 0],
+          [0, 0, 1],
+          [0, 0, 1]]
+
+# 计算不同加权方式下的f1_score
+f1_micro = f1_score(y_true, y_pred, average='micro')
+f1_macro = f1_score(y_true, y_pred, average='macro')
+f1_weighted = f1_score(y_true, y_pred, average='weighted')
+
+print("f1_score (micro):", f1_micro)
+print("f1_score (macro):", f1_macro)
+print("f1_score (weighted):", f1_weighted)
+```
+
+- 在这个例子中，我们假设模型对4个样本进行了标签预测，每个样本都有3个可能的标签。真实标签和预测标签分别保存在y_true和y_pred变量中。然后，我们使用`f1_score`函数计算不同加权方式下的f1_score。
+
+- 输出结果为：
+
+  - ```bash
+    f1_score (micro): 0.6666666666666666
+    f1_score (macro): 0.7222222222222222
+    f1_score (weighted): 0.6666666666666666
+    ```
+
+- 这意味着，在micro加权方式下，所有类别的F1分数被平均，得到了一个总体的F1分数；
+- 在macro加权方式下，每个类别的F1分数被计算并加权平均，而不考虑类别的样本数量；
+- 在weighted加权方式下，每个类别的F1分数被计算并加权平均，考虑类别的样本数量。在本例中，模型的f1_score值相对较低，但可能取决于所选择的加权方式。
+
+### precision_recall_curve@thresholds
+
+- [sklearn.metrics.precision_recall_curve — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html)
+
+- The `precision_recall_curve` computes a precision-recall curve from the ground truth label and a score given by the classifier by varying a decision threshold.
+
+  `precision_recall_curve`函数可以从分类器给出的得分和真实标签中，通过改变决策阈值来计算出一个精度-召回率曲线。
+
+- 在机器学习中，分类器通常会输出一个得分（score），用于表示样本属于某个类别的概率。通过将得分与决策阈值进行比较，可以将每个样本分配到不同的类别中。在二分类问题中，通常将得分大于阈值的样本视为正类，将得分小于阈值的样本视为负类。
+
+- 但是，决策阈值的选择会影响到分类器的性能指标，如准确率和召回率。因此，为了评估分类器在不同决策阈值下的性能，可以使用精度-召回率曲线。
+
 ### $F_β$ score🎈
 
 - A more general F score, $F_{\beta }$, that uses a positive real factor $\beta$, where $\beta$ is chosen such that recall is considered $\beta$ times as important as precision, is:

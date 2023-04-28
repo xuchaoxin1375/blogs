@@ -158,6 +158,44 @@
 
   这个示例代码中，首先定义了一个Python对象`data`，其中包含了数字、字符串、列表和字典等数据类型。然后，使用Pickle将`data`对象序列化为二进制数据并写入到文件`data.pkl`中。最后，再从`data.pkl`文件中读取数据并反序列化成Python对象`data_loaded`，并打印该对象以验证反序列化操作的正确性。
 
+- ```bash
+  [(SVC(C=10, gamma=0.001),
+    {'C': 10, 'gamma': 0.001, 'kernel': 'rbf'},
+    0.9381835473133618),
+   (RandomForestClassifier(max_depth=7, max_features=0.5, n_estimators=40),
+    {'max_depth': 7,
+     'max_features': 0.5,
+     'min_samples_leaf': 1,
+     'min_samples_split': 2,
+     'n_estimators': 40},
+    0.8854018069424631),
+   (GradientBoostingClassifier(learning_rate=0.3, max_depth=7, subsample=0.7),
+    {'learning_rate': 0.3,
+     'max_depth': 7,
+     'max_features': None,
+     'min_samples_leaf': 1,
+     'min_samples_split': 2,
+     'n_estimators': 100,
+     'subsample': 0.7},
+    0.9476937708036139),
+   (KNeighborsClassifier(n_neighbors=3, p=1, weights='distance'),
+    {'n_neighbors': 3, 'p': 1, 'weights': 'distance'},
+    0.9320019020446981),
+   (MLPClassifier(alpha=0.01, batch_size=512, hidden_layer_sizes=(300,),
+                  learning_rate='adaptive', max_iter=400),
+    {'alpha': 0.01,
+     'batch_size': 512,
+     'hidden_layer_sizes': (300,),
+     'learning_rate': 'adaptive',
+     'max_iter': 400},
+    0.9358059914407989),
+   (BaggingClassifier(max_features=0.5, n_estimators=50),
+    {'max_features': 0.5, 'max_samples': 1.0, 'n_estimators': 50},
+    0.9210651450309082)]
+  ```
+
+  
+
 #### 相关api
 
 - [`pickle`](https://docs.python.org/zh-cn/3/library/pickle.html#module-pickle) 模块提供了以下方法，让封存过程更加方便：
@@ -214,53 +252,11 @@
 
 - [numpy.save — NumPy Manual](https://numpy.org/doc/stable/reference/generated/numpy.save.html)
 
-### SVC
 
-- Scikit-learn中的SVC是一种支持向量机（Support Vector Machine）分类器，用于解决二分类和多分类问题。SVC是一种非常强大的模型，可以处理高维度的数据，并且能够有效地处理非线性可分的数据。
-
-- SVC的主要思想是在特征空间中找到一个最优的超平面（hyperplane），将不同类别的数据分开。在二维空间中，超平面是一条直线，而在高维空间中，超平面是一个超平面。
-- SVC的训练过程是通过寻找一个**最大间隔**（maximum margin）的超平面来实现的，即找到一个超平面，使得所有训练样本离该超平面的距离最大化。这个最大间隔的超平面是通过拉格朗日乘子法（Lagrange multipliers）求解一个二次规划（quadratic programming）问题来实现的。
-- SVC可以使用不同的**核函数**（kernel function）来学习非线性的决策边界。
-  - 常用的核函数包括线性核函数、多项式核函数、径向基函数（Radial Basis Function，RBF）核函数等。
-  - 这些核函数可以将低维空间中的数据映射到高维空间中，从而使得<u>数据在高维空间中变得线性可分</u>。
-- SVC还具有一些重要的超参数，包括C、kernel、gamma等。
-  - C是正则化参数，用于控制模型的复杂度和对训练数据的拟合程度。
-  - kernel是核函数的选择，
-  - gamma是径向基函数核的系数，它们都影响着模型的性能和复杂度。
-- 在Scikit-learn中，SVC的使用非常简单，只需要创建一个SVC对象，设置一些超参数，然后调用fit()方法训练模型。可以使用predict()方法对新数据进行分类预测。
-- 总之，SVC是一种强大的分类器，适用于解决二分类和多分类问题，尤其擅长处理高维度和非线性可分的数据。
-
-#### sklearn.svm.svc
-
-- [`sklearn.svm`](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm).SVC
-
-- SVC类是一种支持向量机分类器，用于二元和多元分类。
-- 它的实现基于libsvm。拟合时间至少与样本数的平方成比例，并且在数万个样本之外可能是不切实际的。
-- 对于大型数据集，请考虑使用LinearSVC或SGDClassifier，可能需要使用Nystroem转换器或其他核逼近。多类支持根据一对一方案处理。
-- 有关提供的核函数的精确数学公式以及gamma、coef0和degree如何相互影响的详细信息，请参见叙述性文档中的相应部分：[kernel-function核函数](https://scikit-learn.org/stable/modules/kernel_approximation.html#kernel-approximation)。
-- 在机器学习中，核函数是一种用于度量数据点之间相似性的方法，它可以将低维的非线性数据映射到高维的线性空间，从而使得一些线性算法，如支持向量机（SVM），能够处理非线性问题。然而，核函数的一个缺点是计算复杂度很高，尤其是当数据集很大时，因为需要计算每对数据点之间的核值。
-- 为了解决这个问题，scikit-learn提供了一些核近似方法，它们可以用低维的特征向量来近似高维的核空间，从而降低计算成本和内存需求。
-- `sklearn.kernel_approximation`模块包含一些函数，用于近似与某些内核（如支持向量机中使用的内核）相对应的特征映射。
-  - 以下特征函数执行输入的非线性变换，可以作为线性分类或其他算法的基础。
-  - 使用近似显式特征映射的优点与使用内核技巧相比，内核技巧隐式地使用特征映射，显式映射可以更适合在线学习，并且可以显著降低使用非常大的数据集进行学习的成本。标准的核化支持向量机不适用于大型数据集，但是使用近似核映射可以使用更高效的线性支持向量机。特别是，将核映射近似与 SGDClassifier 结合可以使大型数据集上的非线性学习成为可能。
-
-#### 补充
-
-- "Nystroem" 是一种用于解决大规模机器学习问题的方法，它是由计算机科学家 William N. Nystrom 在2002年提出的。该方法主要用于解决核矩阵的计算问题，可以大大减少计算复杂度和内存使用，从而使得处理大规模数据集的机器学习问题变得更加高效和可行。
-
-  在传统的核方法中，需要计算样本之间的核矩阵，这个矩阵往往是比较大且密集的，计算和存储都会带来很大的困难。而 Nystroem 方法则是通过随机采样的方式来估计核矩阵，从而避免了计算和存储大型矩阵的问题。具体来说，该方法先从原始数据集中随机选择一部分样本，然后计算这些样本之间的核矩阵，再利用这个估计的核矩阵来近似计算全部样本之间的核矩阵。
-
-  Nystroem 方法在实践中被广泛应用于各种机器学习问题，如分类、回归、聚类等。它可以提高处理大规模数据集的效率，同时保持较高的预测精度
-
-- "SGDClassifier" 是 Scikit-learn （一个流行的 Python 机器学习库）中的一个分类器，它使用随机梯度下降算法来进行模型训练。
-
-  随机梯度下降（Stochastic Gradient Descent，简称 SGD）是一种常用的优化算法，它可以在大规模数据集上进行快速的模型训练。SGDClassifier 利用 SGD 算法来最小化分类误差（或者其他损失函数），从而学习出一个分类模型。
-
-  SGDClassifier 可以用于二分类问题和多分类问题，可以处理稀疏数据和高维数据。在使用 SGDClassifier 进行模型训练时，需要设置一些超参数，如学习率、正则化系数、损失函数等，这些超参数可以影响模型的性能和泛化能力。
-
-  SGDClassifier 在实践中被广泛应用于各种分类问题，如文本分类、图像分类、音频分类等。它具有高效、可扩展、灵活等优点，是机器学习领域中常用的分类器之一。
 
 - 
+
+  
 
   
 
@@ -489,20 +485,4 @@ print(f"Bagging Classifier score: {score}")
 
   -  "mpeg"是Moving Picture Experts Group的缩写，是一种数字视频压缩标准。
   - FFmpeg最初是由Fabrice Bellard编写的，目的是为了创建一个免费、开源、高质量的视频编解码器。后来，FFmpeg逐渐发展成为一个功能强大的音视频处理工具，被广泛应用于多个领域。
-
-## 优化
-
-### dropout@正则化技术@泛化能力
-
-- Dropout是一种用于深度神经网络的正则化技术，旨在减少过拟合（overfitting）的发生。
-- Dropout在训练过程中随机地将一些神经元的输出设置为0，从而强制使神经网络中的**每个神经元**都变得不可或缺，因此可以更好地泛化到新数据上。
-- 具体来说，Dropout的操作是在**每个训练批次**中，随机选择一些**神经元**，并将它们的输出设置为0。这些被选择的神经元在<u>该批次中将不会收到反向传播的梯度更新</u>。这样一来，每个神经元都必须学会与其他神经元合作来完成任务，从而使得神经网络具有更好的泛化能力。
-- Dropout通常在深度神经网络的全连接层或卷积层中使用。
-- 在实践中，Dropout的使用可以通过在模型中添加**Dropout层**来实现，例如在Keras中，可以使用`keras.layers.Dropout()`函数来添加Dropout层。
-- 需要注意的是，Dropout只应该在训练过程中使用，而不应该在测试过程中使用。在测试过程中，应该使用所有的神经元来进行预测，以获得更准确的结果。
-- 因此，在测试过程中，可以通过在训练过程中使用Dropout时，对每个神经元的输出进行缩放来实现。这种缩放可以通过在Keras中使用`model.predict()`函数的`predict()`方法来实现。
-
-### 数据平衡
-
-- `balance` 参数是一个布尔值，用于控制是否在训练和测试数据集中进行数据平衡。如果将 `balance` 设置为 `True`，则在划分训练和测试数据集之前，会对原始数据集进行重新采样，以使得每个类别的样本数量相等或接近相等。这可以避免训练和测试数据集中类别不平衡导致的模型偏差和泛化性能下降。
 

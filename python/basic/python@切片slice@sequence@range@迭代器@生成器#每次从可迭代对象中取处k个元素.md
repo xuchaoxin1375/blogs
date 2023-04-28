@@ -1,5 +1,7 @@
 [toc]
 
+# python@切片slice@sequence@range@arange@迭代器@生成器@collections@容器的抽象基类#每次从可迭代对象中取处k个元素
+
 ## python官方文档查阅tips
 
 - preface:python实在太火爆了,想通过搜索引擎搜相关的官方接口文档,往往是一些个人博客排在前面
@@ -63,14 +65,105 @@
 
   举个例子来说，如果我们只需要生成一个简单的整数序列，并且对内存要求比较高，那么可以使用Python内置函数range()；如果需要生成一维浮点数数组，并且需要进行矩阵运算等操作，那么可以使用NumPy中的arange()函数。
 
+## collections@容器的抽象基类
+
+- [collections.abc --- 容器的抽象基类 — Python 文档](https://docs.python.org/zh-cn/3/library/collections.abc.html#collections.abc.Sequence)
+
+- [collections-abstract-base-classes](https://docs.python.org/zh-cn/3/library/collections.abc.html#collections-abstract-base-classes)
+
+- [序列类型 --- list, tuple, range|内置类型 — Python 文档](https://docs.python.org/zh-cn/3/library/stdtypes.html#common-sequence-operations)
+
+- 参考`<<Fluent Python>>`中的额外的介绍
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/deb31cdd350f4241aa3fd7abd29e4fbd.png)
+
+- `collections.abc` 模块是 Python 中的一个抽象基类模块，提供了一些抽象基类，用于定义集合类型的接口和行为。开发者可以通过继承这些抽象基类，来实现自己的集合类型，并且可以保证其具有一定的规范和兼容性。
+
+- 下面是 `collections.abc` 模块中一些重要的抽象基类及其作用：
+
+  - `Container` 抽象基类
+    - `Container` 是一个抽象基类，用于定义包含元素的集合类型应该具有的行为。如果一个对象是 `Container` 的子类，那么它应该实现 `__contains__` 方法，以支持 `in` 操作符的使用。
+
+  - `Sized` 抽象基类
+    - `Sized` 是一个抽象基类，用于定义包含元素的集合类型应该具有的行为。如果一个对象是 `Sized` 的子类，那么它应该实现 `__len__` 方法，以支持 `len()` 函数的使用。
+
+  - `Iterable` 抽象基类
+    - `Iterable` 是一个抽象基类，用于定义可迭代对象应该具有的行为。如果一个对象是 `Iterable` 的子类，那么它应该实现 `__iter__` 方法，以支持迭代操作。
+
+  - `Sequence` 抽象基类
+    - `Sequence` 是一个抽象基类，用于定义序列类型应该具有的行为。如果一个对象是 `Sequence` 的子类，那么它应该实现 `__getitem__` 和 `__len__` 方法，以支持索引和切片操作。此外，`Sequence` 还提供了一些其他的方法，例如 `index()`、`count()` 等，用于在序列中查找元素和计算元素出现的次数。
+
+  - `Mapping` 抽象基类
+    - `Mapping` 是一个抽象基类，用于定义映射类型应该具有的行为。如果一个对象是 `Mapping` 的子类，那么它应该实现 `__getitem__`、`__len__` 和 `keys()` 方法，以支持键值对的访问和遍历。此外，`Mapping` 还提供了一些其他的方法，例如 `values()`、`items()` 等，用于获取映射中的值和键值对。
+
+  - `Set` 抽象基类
+    - `Set` 是一个抽象基类，用于定义集合类型应该具有的行为。如果一个对象是 `Set` 的子类，那么它应该实现 `__contains__`、`__len__`、`__iter__` 和 `add()` 方法，以支持集合中元素的访问、迭代和添加等操作。此外，`Set` 还提供了一些其他的方法，例如 `remove()`、`discard()`、`pop()` 等，用于删除集合中的元素。
+
+  总体而言，`collections.abc` 模块提供了一些抽象基类，用于定义集合类型的接口和行为，可以帮助开发者实现自己的集合类型，并保证其具有一定的规范和兼容性。建议开发者在实际应用中合理使用 `collections.abc` 模块，并根据需要选择合适的抽象基类。
+
+### eg
+
+- ```python
+  Sequence = collections.abc.Sequence  # type:ignore
+  
+  def get_features_tag(f_config):
+      """Returns label corresponding to which features are to be extracted
+      返回形如('mfcc-chroma-contrast')的特征标签链
+  
+      params
+      -
+      f_config:list[str]|dict[str,bool]|str
+          包含情感特征组合的可迭代对象
+  
+      Examples
+      -
+      eg1
+      >>> f_config1 = {'mfcc': True, 'chroma': True, 'contrast': False, 'tonnetz': False, 'mel': False}
+      >>> get_label(f_config1)
+      >>> 'mfcc-chroma'
+      >>> f_config2={'mfcc': True, 'chroma': True, 'contrast': True, 'tonnetz': False, 'mel': False}
+      >>> utils.get_label(f_config2)
+      >>> 'mfcc-chroma-contrast'
+  
+      eg2
+      >>> MCM=['chroma', 'mel', 'mfcc']
+      >>> get_features_tag(MCM)
+      >>> 'chroma-mel-mfcc'
+      """
+      res = ""
+      type_error=TypeError("Invalid type of f_config!")
+      if isinstance(f_config, dict):
+          used_features=[]
+          for f in ava_features:
+              if f_config.get(f):
+                  used_features.append(f)
+          # used_features.sort()
+          f_config=used_features
+      elif isinstance(f_config, str):
+          f_config = [f_config]
+      # elif isinstance(f_config, Sequence):
+      #     pass
+      # else:
+      #     raise type_error
+      elif(not isinstance(f_config,Sequence)):
+          raise type_error
+      
+      f_config.sort()
+      res = "-".join(f_config)
+      return res
+  ```
+
+  
+
 ## slice
 
 - An object usually containing a portion of a [sequence](https://docs.python.org/3.10/glossary.html#term-sequence). 
 - A slice is created using the subscript notation, `[]` with colons between numbers when several are given, such as in `variable_name[1:3:5]`. 
 - The bracket (subscript) notation uses [`slice`](https://docs.python.org/3.10/library/functions.html#slice) objects internally.
 
-## sequence
+## sequence🎈@python序列类型
 
+- [common-sequence-operations|Built-in Types — Python documentation](https://docs.python.org/3/library/stdtypes.html#common-sequence-operations)
 - An [iterable](https://docs.python.org/3.10/glossary.html#term-iterable) which supports efficient element access using integer indices via the `__getitem__()` special method and defines a `__len__()` method that returns the length of the sequence. 
 - Some built-in sequence types are [`list`](https://docs.python.org/3.10/library/stdtypes.html#list), [`str`](https://docs.python.org/3.10/library/stdtypes.html#str), [`tuple`](https://docs.python.org/3.10/library/stdtypes.html#tuple), and [`bytes`](https://docs.python.org/3.10/library/stdtypes.html#bytes). 
 - Note that [`dict`](https://docs.python.org/3.10/library/stdtypes.html#dict) also supports `__getitem__()` and `__len__()`, but is considered a mapping rather than a sequence because the lookups use arbitrary [immutable](https://docs.python.org/3.10/glossary.html#term-immutable) keys rather than integers.

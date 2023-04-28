@@ -480,7 +480,7 @@ In the following example, we [load the Iris dataset](https://scikit-learn.org/st
 
 #### LogisticRegression
 
-- [sklearn.linear_model.LogisticRegression — scikit-learn 1.2.2 documentation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
+- [sklearn.linear_model.LogisticRegression — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
 
 - LogisticRegression是一种经典的分类算法，用于解决**二元分类**问题。它的基本思想是通过建立一个线性函数和一个sigmoid函数的组合来预测样本的类别。
 - LogisticRegression的优点是模型简单、易于解释和实现。同时，它也可以应用于**多类分类**问题，例如使用one-vs-rest的策略。
@@ -491,25 +491,7 @@ In the following example, we [load the Iris dataset](https://scikit-learn.org/st
 - 但是，它也存在一些缺点，例如在处理高维稀疏数据时容易出现过拟合，需要进行正则化处理。
 - 在scikit-learn中，LogisticRegression是一个非常常用的分类算法，可以通过调整参数来优化模型的性能。同时，scikit-learn还提供了一些包括L1正则化、L2正则化、随机梯度下降等在内的优化方法和技巧，提高了LogisticRegression的适用性和性能。
 
-##### one-vs-rest（OvR）
 
-- [sklearn.multiclass.OneVsRestClassifier — scikit-learn 1.2.2 documentation](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html)
-
-- OvR是一种常用的多类分类方法，也称为one-vs-all。它的基本思想是将多类分类问题转化为多个二元分类问题，每个问题都是将其中一个类别与其他所有类别区分开来。
-- 具体来说，对于一个有k个类别的多类分类问题，one-vs-rest方法将建立k个二元分类器，每个分类器分别将其中一个类别作为正例，其他所有类别作为负例。在预测时，将每个分类器的概率输出进行比较，将概率最高的类别作为预测结果。
-- one-vs-rest方法的优点是简单、易于实现，并且可以使用任何二元分类器作为基分类器。但是，它也存在一些缺点，例如当各个类别之间存在较大重叠时，会出现预测不准确的情况。
-- 在scikit-learn中，one-vs-rest方法被广泛应用于多类分类问题，例如在LogisticRegression、SVM、DecisionTree等算法中。同时，scikit-learn还提供了其他一些多类分类方法，例如one-vs-one、Error-Correcting Output Codes等，可以根据具体问题选择最适合的方法。
-
-以下是一个非代码的例子，说明如何使用one-vs-rest方法实现多类分类：
-
-- 假设我们有一个文本分类的问题，需要将文本分为三个类别：体育、政治和科技。我们可以使用one-vs-rest方法来解决这个问题。
-- 首先，我们将数据集分为训练集和测试集，并使用训练集来训练3个二元分类器
-  - 3个二元分类器(基本分类器)分别将体育、政治和科技作为正例，其他类别作为负例。
-  - 更简单地说,有`a,b,c`三个类别,构建的三个二元分类器记为`c1,c2,c3`,其中`c1,c2,c3`分别用来区分`a和非a`,`b和非b`,`c和非c`
-  - 我们可以使用例如逻辑回归作为基分类器。
-- 然后，在预测时，我们将**每个分类器的概率输出进行比较**，选择概率最高的分类器作为预测结果。
-  - 例如，如果分类器1预测概率最高，则将文本分类为体育；如果分类器2预测概率最高，则将文本分类为政治；如果分类器3预测概率最高，则将文本分类为科技。
-- 需要注意的是，在使用one-vs-rest方法时，每个分类器都是独立的，因此它们之间的决策边界可能存在重叠。为了解决这个问题，我们可以使用一些方法，例如调整分类器的阈值、使用更复杂的基分类器、使用集成学习方法等，来提高分类器的性能和鲁棒性。
 
 
 

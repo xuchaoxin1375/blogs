@@ -247,7 +247,59 @@
 
 - [python - From conda create requirements.txt for pip3 - Stack Overflow](https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3)
 
+
+#### conda export
+
+- 输出预览:
+
+  - ```bash
+    (d:\condaPythonEnvs\tf2.10) PS D:\repos\CCSER\SER> conda env export 
+    name: tf2.10
+    channels:
+      - conda-forge
+      - defaults
+    dependencies:
+      - _tflow_select=2.1.0=gpu
+      - abseil-cpp=20210324.2=hd77b12b_0
+      - absl-py=1.3.0=py39haa95532_0
+    ...(省略篇幅)
+      - flit-core=3.6.0=pyhd3eb1b0_0  - yarl=1.8.1=py39h2bbff1b_0
+      - zeromq=4.3.4=hd77b12b_0
+      - zipp=3.11.0=py39haa95532_0
+      - zlib=1.2.13=h8cc25b3_0
+      - zstd=1.5.0=h6255e5f_0
+      - pip:
+          - keras==2.10.0
+          - libclang==15.0.6.1
+          - pyside6==6.4.2
+          - pyside6-addons==6.4.2
+          - pyside6-essentials==6.4.2
+          - shiboken6==6.4.2
+          - soundfile==0.9.0
+          - tensorboard==2.10.1
+          - tensorflow==2.10.0
+          - tensorflow-estimator==2.10.0
+          - tensorflow-io-gcs-filesystem==0.31.0
+    prefix: d:\condaPythonEnvs\tf2.10
+    ```
+
+    
+
+- 导出到文件:(文件名无所谓,通常为了和pip freeze导出环境相区别,我们使用environment.yml命名)
+
+  - ` conda env export --file environment.yml`
+
+    - ```
+      (d:\condaPythonEnvs\tf2.10) PS D:\repos\CCSER\SER> conda env export --file environment.yml
+      ```
+
+  - 或`conda env export > environment.yml`
+
+#### pip freeze
+
 - 在conda中依然可以用pip freeze 来导出依赖
+
+  - 但是这可能不全,因为某些用conda install的包pip无法扫描到
 
   - ```bash
     (base) PS D:\repos\blogs> cat .\requirements.txt
@@ -356,6 +408,11 @@
   ```
 
   
+
+### conda 从environment.yml创建环境
+
+- [Managing environments — conda 0.0.0.dev0+placeholder documentation](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file)
+- 
 
 ### conda 安装 requirement.txt
 

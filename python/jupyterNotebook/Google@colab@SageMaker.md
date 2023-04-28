@@ -38,6 +38,14 @@
 - SageMaker是亚马逊公司（Amazon）的一项机器学习（Machine Learning）服务，它基于云计算平台AWS（Amazon Web Services）提供了一整套的机器学习工具和框架，可以帮助开发者快速构建、训练和部署机器学习模型。SageMaker的名称中，“Sage”代表智慧和洞察力，“Maker”代表制造者或创建者，意味着SageMaker的目标是帮助开发者快速构建智能应用程序。
   - [FAQ|SageMaker Studio Lab](https://studiolab.sagemaker.aws/faq)
 
+### 运行问题🎈
+
+- 在sagemaker studio lab中,不是任意时刻都可以运行的(只有当左下角显示`Fully initialized`时,notebook才可以运行)
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/d6689e5f30d6497a8df2d3e647aeb08f.png)
+
+- 如果无法从waitting状态恢复,那么可以考虑回到sagemaker stuido lab的控制台,重启实例(stop running time+start)
+
 ### SageMaker studio vs SageMaker studio Lab🎈
 
 - 您因该注意区别两个工作是的区别
@@ -106,6 +114,8 @@
     remote: Compressing objects: 100% (102/102), done.
     Receiving objects:  53% (4072/7682), 510.11 MiB | 25.23 MiB/s
     ```
+
+
 
 ## 其他选择
 
