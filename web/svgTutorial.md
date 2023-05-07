@@ -57,7 +57,6 @@
 
 
 
-
 ## SVG Tutorial
 
 > Scalable Vector Graphics, [SVG](https://developer.mozilla.org/en-US/docs/Web/SVG), is a W3C XML dialect to mark up graphics. It is partially implemented in Firefox, Opera, WebKit browsers, Internet Explorer and other browsers.

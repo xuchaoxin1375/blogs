@@ -23,6 +23,9 @@
 
   需要注意的是，自变量和目标变量的数量和类型取决于具体的问题和数据集，不同的问题可能需要不同数量和类型的自变量和目标变量。
 
+
+## 训练集@验证集@测试集
+
 - [Training, validation, and test data sets - Wikipedia](https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets)
 - In [machine learning](https://en.wikipedia.org/wiki/Machine_learning), a common task is the study and construction of [algorithms](https://en.wikipedia.org/wiki/Algorithm) that can learn from and make predictions on [data](https://en.wikipedia.org/wiki/Data). Such algorithms function by making data-driven predictions or decisions, through building a [mathematical model](https://en.wikipedia.org/wiki/Mathematical_model) from input data. These input data used to build the model are usually divided into multiple [data sets](https://en.wikipedia.org/wiki/Data_set). In particular, three data sets are commonly used in different stages of the creation of the model:
   -  training, validation, and test sets.
@@ -30,6 +33,108 @@
 - Successively, the fitted model is used to predict the responses for the observations in a second data set called the **validation data set**. The validation data set provides an unbiased evaluation of a model fit on the training data set while tuning the model's [hyperparameters](https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)) (e.g. the number of hidden units—layers and layer widths—in a neural network  ). Validation datasets can be used for [regularization](https://en.wikipedia.org/wiki/Regularization_(mathematics)) by [early stopping](https://en.wikipedia.org/wiki/Early_stopping) (stopping training when the error on the validation data set increases, as this is a sign of [over-fitting](https://en.wikipedia.org/wiki/Overfitting) to the training data set). This simple procedure is complicated in practice by the fact that the validation dataset's error may fluctuate during training, producing multiple local minima. This complication has led to the creation of many ad-hoc rules for deciding when over-fitting has truly begun.  
 - Finally, the **test data set** is a data set used to provide an unbiased evaluation of a *final* model fit on the training data set.  If the data in the test data set has never been used in training (for example in [cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics))), the test data set is also called a **holdout data set**. The term "validation set" is sometimes used instead of "test set" in some literature (e.g., if the original data set was partitioned into only two subsets, the test set might be referred to as the validation set).
 - Deciding the sizes and strategies for data set division in training, test and validation sets is very dependent on the problem and data available.
+- 在机器学习中，一项常见的任务是研究和构建能够学习和预测数据的算法。这样的算法通过从输入数据中构建数学模型来进行数据驱动的预测或决策。
+- 用于构建模型的输入数据通常被分成多个数据集。
+  - 特别地，**训练集、验证集和测试集**通常在模型创建的不同阶段使用。
+- 模型最初在训练数据集上进行拟合，这是一组用于拟合模型参数（例如，人工神经网络中神经元之间连接的权重）的示例。模型（例如朴素贝叶斯分类器）使用监督学习方法在训练数据集上进行训练，例如使用梯度下降或随机梯度下降等优化方法。
+- 在实践中，训练数据集通常由一个输入向量（或标量）和相应的输出向量（或标量）成对组成，其中答案键通常称为目标（或标签）。当前模型在训练数据集上运行并产生结果，然后将结果与目标进行比较。根据比较的结果和使用的具体学习算法，模型参数会进行调整。
+- 模型拟合可以包括变量选择和参数估计。
+- 随后，拟合的模型用于预测第二个数据集中的观测响应，称为**验证数据集**。
+- 验证数据集在调整模型的超参数（例如神经网络中的隐藏单元数、层数和层宽）时提供了一个**无偏的评估**。通过提前停止（当验证数据集上的错误增加时停止训练，因为这是过度拟合训练数据集的信号），验证数据集可以用于正则化。
+- 在实践中，验证数据集的误差可能会在训练过程中波动，产生多个局部最小值，这增加了判断过拟合何时真正开始的许多临时规则。
+- 最后，测试数据集是用于在训练数据集上进行最终模型拟合的**无偏评估数据集**。如果测试数据集中的数据从未在训练中使用过（例如在交叉验证中），则测试数据集也称为**保留数据集**。
+- 有些文献中使用“验证集”代替“测试集”（例如，如果原始数据集被划分为仅两个子集，则<u>测试集可能被称为验证集</u>）。
+- 确定数据集在训练、测试和验证集中的大小和策略非常<u>依赖于问题和可用数据</u>。
+
+### Training data set
+
+- A training data set is a data set of examples used during the learning process and is used to fit the parameters (e.g., weights) of, for example, a classifier.
+- For classification tasks, a supervised learning algorithm looks at the training data set to determine, or learn, the optimal combinations of variables that will generate a good predictive model.[10] The goal is to produce a trained (fitted) model that generalizes well to new, unknown data.[11] The fitted model is evaluated using “new” examples from the held-out datasets (validation and test datasets) to estimate the model’s accuracy in classifying new data.[5] To reduce the risk of issues such as over-fitting, the examples in the validation and test datasets should not be used to train the model.
+
+- Most approaches that search through training data for empirical relationships tend to overfit the data, meaning that they can identify and exploit apparent relationships in the training data that do not hold in general.
+- 训练数据集是在学习过程中使用的一组样本，用于拟合分类器的参数（例如权重）等。对于分类任务，监督学习算法会查看训练数据集，以确定或学习生成良好预测模型的最佳变量组合。目标是产生一个适用于新的未知数据的训练（拟合）模型。
+- 拟合模型使用来自保留数据集（验证和测试数据集）的“新”示例来评估其在分类新数据方面的准确性。为了减少过度拟合等问题的风险，验证和测试数据集中的示例<u>不应该用于训练模型</u>。
+- 大多数在训练数据中寻找经验关系的方法往往会过度拟合数据，这意味着它们可能会识别和利用训练数据中的表面关系，这些关系在一般情况下并不成立。
+
+### Validation data set
+
+A validation data set is a data-set of examples used to tune the hyperparameters (i.e. the architecture) of a classifier. It is sometimes also called the development set or the "dev set".
+
+ An example of a hyperparameter for artificial neural networks includes the number of hidden units in each layer.It, as well as the testing set (as mentioned below), should follow the same probability distribution as the training data set.
+
+In order to avoid overfitting, when any classification parameter needs to be adjusted, it is necessary to have a validation data set in addition to the training and test datasets. For example, if the most suitable classifier for the problem is sought, the training data set is used to train the different candidate classifiers, the validation data set is used to compare their performances and decide which one to take and, finally, the test data set is used to obtain the performance characteristics such as accuracy, sensitivity, specificity, F-measure, and so on. The validation data set functions as a hybrid: it is training data used for testing, but neither as part of the low-level training nor as part of the final testing.
+
+The basic process of using a validation data set for model selection (as part of training data set, validation data set, and test data set) is:
+
+- Since our goal is to find the network having the best performance on new data, the simplest approach to the comparison of different networks is to evaluate the error function using data which is independent of that used for training. Various networks are trained by minimization of an appropriate error function defined with respect to a training data set. The performance of the networks is then compared by evaluating the error function using an independent validation set, and the network having the smallest error with respect to the validation set is selected. This approach is called the hold out method. Since this procedure can itself lead to some overfitting to the validation set, the performance of the selected network should be confirmed by measuring its performance on a third independent set of data called a test set.
+
+
+- An application of this process is in early stopping, where the candidate models are successive iterations of the same network, and training stops when the error on the validation set grows, choosing the previous model (the one with minimum error).
+
+- 验证数据集是用于调整分类器的超参数（即架构）的一组样本。它有时也被称为**开发集**或“dev集”。人工神经网络的一个超参数实例是每层中隐藏单元的数量。它以及测试数据集（如下所述）应该遵循与训练数据集相同的概率分布。
+
+- 为了避免过度拟合，当需要调整任何分类参数时，除了训练和测试数据集外，还需要一个验证数据集。例如，如果要寻找最适合问题的分类器，则使用训练数据集来训练不同的候选分类器，使用验证数据集来比较它们的性能并决定选择哪一个，最后使用测试数据集来获取性能特征，如准确性、灵敏度、特异性、F-度量等。
+- 验证数据集起到了混合的作用：它是**用于测试的训练数据**，但既不是低级训练的一部分，也不是最终测试的一部分。
+- 使用验证数据集进行模型选择（作为训练数据集、验证数据集和测试数据集的一部分）的基本过程是：
+  - 由于我们的目标是找到在新数据上表现最佳的网络，比较不同网络的最简单方法是使用独立于训练数据的数据来评估误差函数。使用与训练数据集相关的适当误差函数对各种网络进行训练。
+  - 然后通过使用独立的验证集来评估误差函数来比较网络的性能，并选择相对于验证集误差最小的网络。这种方法称为留存法。
+  - 由于这个过程本身可能会导致一些过度拟合到验证集，因此应该通过在第三个独立数据集上测量其性能来确认所选网络的性能，该数据集称为测试集。
+
+- 这个过程的一个应用是早期停止，其中候选模型是同一网络的连续迭代，当验证集上的误差增长时，训练停止，选择先前的模型（具有最小误差的模型）。
+
+### Test data set
+
+- A test data set is a data set that is independent of the training data set, but that follows the same probability distribution as the training data set. If a model fit to the training data set also fits the test data set well, minimal overfitting has taken place (see figure below). A better fitting of the training data set as opposed to the test data set usually points to over-fitting.
+- A test set is therefore a set of examples used only to assess the performance (i.e. generalization) of a fully specified classifier.To do this, the final model is used to predict classifications of examples in the test set. Those predictions are compared to the examples' true classifications to assess the model's accuracy.[10]
+
+
+- In a scenario where both validation and test datasets are used, the test data set is typically used to assess the final model that is selected during the validation process. In the case where the original data set is partitioned into two subsets (training and test datasets), the test data set might assess the model only once (e.g., in the holdout method).[14] Note that some sources advise against such a method.[11] However, when using a method such as cross-validation, two partitions can be sufficient and effective since results are averaged after repeated rounds of model training and testing to help reduce bias and variability.
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/db8df70538784224a92286b990687255.png)
+
+- 测试数据集是一组与训练数据集独立的数据集，但遵循与训练数据集相同的概率分布。如果适合训练数据集的模型也很好地适合测试数据集，则发生的过度拟合很小。相比于测试数据集，更好地拟合训练数据集通常指向过度拟合。
+- 因此，测试集是仅用于评估完全指定分类器性能（即泛化能力）的一组样本。为此，使用最终模型来预测测试集中示例的分类。将这些预测与示例的真实分类进行比较以评估模型的准确性。
+- 在使用验证和测试数据集的情况下，通常使用测试数据集来<u>评估在验证过程中选择的最终模型</u>。在将原始数据集分为两个子集（训练和测试数据集）的情况下，测试数据集可能仅评估模型一次（例如，在留存法中）。请注意，一些来源不建议使用这种方法。
+- 然而，<u>在使用交叉验证等方法时，两个分区可能足够有效，因为通过多次模型训练和测试后，结果会平均以帮助减少偏差和变异。</u>
+
+### 无偏的评估
+
+在机器学习领域，无偏的评估指的是通过使用独立于训练数据集的数据集来评估模型的性能。这是因为在训练模型时，模型可能会过度拟合训练数据集，导致模型的预测性能在训练数据集上很好，但在新数据上表现不佳。因此，需要使用一个独立的数据集来评估模型的泛化能力，以便更准确地了解模型在新数据上的性能。
+
+评估模型时，通常会将数据集分成三个部分：训练集、验证集和测试集。训练集用于训练模型，验证集用于调整模型的超参数，以便获得更好的性能，并选择最终的模型。最后，测试集用于评估最终模型的性能，以便评估模型的泛化能力和预测新数据的能力。
+
+通过使用独立于训练数据集的测试数据集，可以避免在评估模型性能时出现任何偏差或不准确的情况。因此，无偏的评估是确保模型准确性和可靠性的关键步骤。
+
+### 测试集和训练集
+
+- 在机器学习中，我们通常将数据集分为训练集、验证集和测试集三部分。
+- 其中，训练集用于训练模型，验证集用于调整模型的超参数，测试集用于评估模型的性能。
+
+验证集和测试集都用于**评估模型的性能**，但它们之间有一些区别：
+
+1. **用途不同：** 验证集用于调整模型的超参数，例如正则化系数、学习率等，以最大化模型在未见过的数据上的性能。测试集用于最终评估模型的性能，以检验模型在真实环境中的表现。
+2. **数据集不同：** 验证集和测试集通常来自同一个数据集，但是它们是互斥的，即验证集和测试集不重叠，以确保模型在未见过的数据上进行评估。
+   - 验证集通常比测试集小，因为它只用于超参数调整，而测试集需要更多的数据来评估模型的性能。
+3. **使用方式不同：** 验证集和测试集在模型训练过程中的使用方式也不同。
+   - 在训练过程中，验证集通常用于在每个训练周期结束后评估模型的性能，并根据性能指标调整超参数。
+   - 而测试集通常在模型训练完成之后使用，以检验模型在未见过的数据上的性能。
+
+以下是一个分割数据集的例子：
+
+```python
+from sklearn.model_selection import train_test_split
+
+# 假设X和y分别是特征矩阵和标签
+X_trainval, X_test, y_trainval, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 将训练集再分割为训练集和验证集
+X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.2, random_state=42)
+```
+
+- 在上面的代码中，我们使用`train_test_split`函数将原始数据集分割为训练集和测试集。具体地，我们将数据集中的20%作为测试集，剩余的80%作为训练集和验证集的组合，其中训练集和验证集的比例为64%和16%。
+- 接着，我们将训练集和验证集的组合再次使用`train_test_split`函数分割为训练集和验证集。具体地，我们将训练集和验证集的组合中的20%作为验证集，剩余的80%作为训练集。
+- 需要注意的是，我们使用`random_state`参数设置随机数种子，以确保每次运行代码时得到相同的结果。此外，我们还可以使用`stratify`参数来保证训练集、验证集和测试集中的标签分布相同，以避免因标签分布不均匀而导致的模型性能评估不准确的问题。
+- 需要根据具体情况来决定分割数据集的比例和随机数种子等参数。
 
 ### sklearn中的模型评估
 
@@ -104,6 +209,78 @@
   1. 可以充分利用数据集中的信息，避免过拟合或欠拟合的问题。
   2. 可以对模型的性能进行更准确的评估，减小评估误差。
   3. 可以在有限的数据集中，扩大训练集的规模，提高模型的泛化能力。
+
+## 交叉验证器@cross-validator
+
+- Learning the parameters of a prediction function and testing it on the same data is a methodological mistake: a model that would just repeat the labels of the samples that it has just seen would have a perfect score but would fail to predict anything useful on yet-unseen data. This situation is called **overfitting**. To avoid it, it is common practice when performing a (supervised) machine learning experiment to hold out part of the available data as a **test set** `X_test, y_test`. Note that the word “experiment” is not intended to denote academic use only, because even in commercial settings machine learning usually starts out experimentally. Here is a flowchart of typical cross validation workflow in model training. 
+
+- The best parameters can be determined by [grid search](https://scikit-learn.org/stable/modules/grid_search.html#grid-search) techniques.
+
+- 下面是一个典型的交叉验证工作流程的流程图，用于模型训练。
+
+  - 最佳参数可以通过网格搜索技术确定。
+
+  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/47bca69a22454e4795b6867754e516c9.png)
+
+- In scikit-learn a random split into training and test sets can be quickly computed with the [`train_test_split`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) helper function. Let’s load the iris data set to fit a linear support vector machine on it:
+
+- 在同一数据上学习预测函数的参数并对其进行测试是一种方法论上的错误：
+
+  - 一个仅重复刚刚看到的样本标签的模型将具有完美的分数，但将无法预测在尚未看到的数据上的任何有用信息。这种情况被称为过度拟合。
+  - 为了避免这种情况，在进行（监督）机器学习实验时，通常会保留部分可用数据作为测试集`X_test，y_test`。
+  - 需要注意的是，“实验”这个词不仅仅是指学术用途，因为即使在商业环境中，机器学习通常也是从实验开始的。
+
+- 在scikit-learn中，可以使用train_test_split辅助函数快速计算训练集和测试集的随机拆分。
+
+- 让我们加载鸢尾花数据集，对其进行线性支持向量机的拟合：
+
+  - ```python
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn import datasets
+    from sklearn import svm
+    
+    X, y = datasets.load_iris(return_X_y=True)
+    X.shape, y.shape
+    print('X.shape, y.shape: ', X.shape, y.shape)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.4, random_state=0)
+    
+    X_train.shape, y_train.shape
+    print('X_train.shape, y_train.shape: ', X_train.shape, y_train.shape)
+    
+    X_test.shape, y_test.shape
+    print('X_test.shape, y_test.shape: ', X_test.shape, y_test.shape)
+    
+    
+    clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
+    clf.score(X_test, y_test)
+    ```
+
+  - ```bash
+    X.shape, y.shape:  (150, 4) (150,)
+    X_train.shape, y_train.shape:  (90, 4) (90,)
+    X_test.shape, y_test.shape:  (60, 4) (60,)
+    0.9666666666666667
+    ```
+
+### 提高模型评估的准确性:验证集@交叉yan'zheng
+
+- When evaluating different settings ("hyperparameters")for estimators, such as the c setting that must be manually set for an SVMthere is til a risk of overfitting on the test set because the parameters can be tweaked until the estimator performs optimally. Thisway, knowledge about the test set can "leak" into the model and evaluation metics no longer report on generalization performance.
+- To solve this problem, yet another part of the dataset can be held out as a so-called "validation set : training proceeds on the train-ing set after which evaluation is done on the validation set, and when the experiment seems to be successful final evaluation can bedone on the test set.
+- However, by partitioning the available data into three sets, we drastically reduce the number of samples which can be used for learn-ing the model and the results can depend on a particular random choice for the pair of (train, validation) sets.
+- A solution to this problem is a procedure called cross-validation (CV for short). A test set should still be held out for final evaluation,but the validation set is no longer needed when doing CV. In the basic approach, called k-fold CV, the training set is split into ksmaller sets (other approaches are described below, but generally follow the same principles).The following procedure is followedfor each of the k "folds":
+  . A model is trained using k - 1 of the folds as training data;
+   the resuting model is validated on the remaining part of the data (i.e. it is used as a test set to compute a performance measuresuch as accuracy).
+  The performance measure reported by k-fold cross-validation is then the average of the values computed in the loop.This approachcan be computationally expensive, but does not waste too much data (as is the case when fixing an arbitrary validation set, which isa major advantage in problems such as inverse inference where the number of samples is very small.
+- 在评估估计器的不同设置（“超参数”）时，以SVM为例,必须手动设置的SVM中的c设置，存在过度拟合测试集的风险，因为参数可以调整直到估计器表现最佳。
+- 这样，关于测试集的知识可以“<u>**泄漏**</u>”到模型中，评估指标不再报告泛化性能。为了解决这个问题，数据集的另一部分可以作为所谓的“验证集”保留：
+  - 训练在训练集上进行，之后在验证集上进行评估
+  - 当实验似乎成功时，最终评估可以在测试集上进行。
+- 然而，通过将可用数据分成三部分，我们大大减少了可用于学习模型的样本数量，并且结果可能取决于对（训练，验证）集对的特定随机选择。
+- 解决这个问题的方法是一种称为交叉验证（CV）的过程。在k-fold CV中，训练集被分成k个小集合。模型在k-1个集合上进行训练，并在剩余的集合上进行验证。
+- 这个过程重复k次，每个集合都曾经作为验证集。 k-fold交叉验证报告的性能度量是每次循环中计算的值的平均值。
+- 交叉验证可能计算量较大，但不会浪费太多数据，并且在样本数量很小的问题中具有很大优势，这种优势体现在修正任意验证集时（这种情况下会浪费数据）。
 
 ### K-fold
 
@@ -307,7 +484,7 @@
 
 - [  Cross-validation: evaluating estimator performance — scikit-learn  documentation](https://scikit-learn.org/stable/modules/cross_validation.html#random-permutations-cross-validation-a-k-a-shuffle-split)
 
-##### eg
+#### eg
 
 - ```python
   from sklearn.model_selection import ShuffleSplit
@@ -368,12 +545,6 @@
   - 上述例子的KFold没有使用`shuffle=True`参数打乱顺序是为了放便观察
 
   - 通常建议使用`shuffle=True`,不容易受到数据集样本顺序的影响!
-
-####  小结
-
-- 从上面的直观对比中可以看出,`ShuffleSplit`参数可以接收`n_splits`和`test_set`两个相对独立的参数
-- 我们可以对同一个数据集做`n_splits`次划分,同时每次划分中`test_size`不受`n_splits`的影响
-- 而对于KFold,`n_splits`往往就决定了`test_size`的值为`1/n_splits`
 
 ### Stratified Shuffle Split
 
@@ -503,7 +674,26 @@
    [ 1  1  0]]
   ```
 
-## demo
+###  小结
+
+- KFold、ShuffleSplit 和 StratifiedShuffleSplit 都是交叉验证的方法，它们之间的区别在于数据集的划分方式和用途。
+
+  1. KFold
+     KFold 是最基本的交叉验证方法，将数据集分成 K 份，每次选取其中的一份作为验证集，其余 K-1 份作为训练集。这个过程重复 K 次，每次选不同的一份作为验证集。KFold 适用于数据集比较均衡的情况，每个类别的样本数量差不多。
+  2. ShuffleSplit
+     ShuffleSplit 是一种随机划分数据集的方法，它可以多次随机划分出不同的训练集和测试集。与 KFold 不同的是，ShuffleSplit 不需要事先将数据集分成固定数量的折叠。ShuffleSplit 适用于数据集较大，需要随机采样的情况。
+  3. StratifiedShuffleSplit
+     StratifiedShuffleSplit 是在 ShuffleSplit 的基础上增加了分层抽样的功能，它会保证每个抽样中各个类别的比例与原数据集中相同。StratifiedShuffleSplit 适用于数据集中不同类别的样本数量不平衡的情况。
+
+  总之，KFold、ShuffleSplit 和 StratifiedShuffleSplit 都是常用的交叉验证方法，具体使用哪种方法要根据数据集的特点和实际需求来选择。
+
+- 从上面的例子的对比中可以看出,`ShuffleSplit`和`StratifiedShuffleSplit`的参数可以接收`n_splits`和`test_set`两个相对独立的参数
+
+  - 他们可以对同一个数据集做`n_splits`次划分,同时每次划分中`test_size`不受`n_splits`的影响
+
+- 而对于KFold,`n_splits`往往就决定了`test_size`的值为`1/n_splits`
+
+### demos
 
 - ```python
   

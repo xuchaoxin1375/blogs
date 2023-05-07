@@ -6,14 +6,6 @@
 
 - [Interactive figures — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/interactive.html)
 
-### matplotlib backend
-
-- [Backends — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/backends.html#what-is-a-backend)
-- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。
-- 同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。
-- 为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。
-- 我们建议使用IPython（详见下文）来实现这一点。
-
 ### IPython👌
 
 - IPython是一个交互计算环境，旨在提高Python的交互性和可编程性。它提供了一个强大的交互式Shell，支持自动完成、历史记录、对象检查和许多其他特性。此外，它还包括了一些高级工具和库，例如`IPython.display`模块、Jupyter Notebook和nbconvert等，可以帮助用户快速创建漂亮的文档和报告。
@@ -25,6 +17,70 @@
 - Jupyter Notebook基于Web技术实现，可以在浏览器中运行，用户可以通过Web界面编辑和运行代码，查看输出结果并与其他用户协作。而IPython则是Jupyter Notebook的一部分，提供了交互式Shell和许多其他高级工具和库，例如`IPython.display`模块，这些工具和库可以帮助用户更方便地进行数据分析、建模和可视化等任务。
 
   因此，可以将Jupyter Notebook看作是一个包含IPython的全新交互式笔记本工具，它不仅支持Python，还支持许多其他编程语言，如R、Julia等。
+
+## matplotlib backend
+
+- [Backends — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/backends.html#what-is-a-backend)
+- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。
+- 同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。
+- 为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。
+- 我们建议使用IPython（详见下文）来实现这一点。
+
+### 检查matplotlib后端模式
+
+- 要检查Jupyter Notebook是否自动启用了`%matplotlib inline`命令，可以执行以下步骤：
+
+  1. 打开Jupyter Notebook
+
+  2. 在Notebook中新建一个代码单元格
+
+  3. 输入以下代码并执行它：
+
+     ```python
+     %matplotlib inline
+     import matplotlib.pyplot as plt
+     
+     plt.plot([1, 2, 3])
+     ```
+
+  4. 观察输出结果
+
+  如果图像显示在Notebook中，且无需调用`plt.show()`方法，那么Jupyter Notebook就已经自动启用了`%matplotlib inline`命令。否则，您需要手动使用`%matplotlib inline`命令来启用Magplotlib的嵌入式模式。
+
+  在Notebook中，您也可以通过运行以下代码来检查当前的Matplotlib后端：
+
+  ```
+  pythonCopy Codeimport matplotlib
+  print(matplotlib.get_backend())
+  ```
+
+- 如果输出结果为`'module://ipykernel.pylab.backend_inline'`，则表示当前的Matplotlib后端为内嵌式（inline）模式。
+
+### matplotlib_inline
+
+- [ipython/matplotlib-inline: Inline Matplotlib backend for Jupyter (github.com)](https://github.com/ipython/matplotlib-inline)
+- Note that in current versions of JupyterLab and Jupyter Notebook, the explicit use of the `%matplotlib inline` directive is **not needed anymore**, though other third-party clients may still require it.
+
+- ```python
+  def use_svg_display():  #@save
+      """使用svg格式在Jupyter中显示绘图"""
+      backend_inline.set_matplotlib_formats('svg')
+  ```
+
+### 更改matplotlib在notebook中出图的格式
+
+- [matplotlib - jupyter notebook inline plots as svg - Stack Overflow](https://stackoverflow.com/questions/36622237/jupyter-notebook-inline-plots-as-svg)
+- [Built-in magic commands — IPython 8.13.2 documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-matplotlib)
+
+#### eg@输出svg高清图
+
+```python
+In [1]: from matplotlib_inline.backend_inline import set_matplotlib_formats
+In [2]: set_matplotlib_formats('pdf', 'svg')
+```
+
+- notebook通过`%matplotlib`魔术命令设置matplotlib的一些行为
+- 
 
 ## notebook %command👌
 
@@ -47,10 +103,10 @@
 ### 常用notebook魔法命令
 
 - 在中文notebook中安装扩展程序：
-  %pip install 扩展程序名称
+  `%pip install 扩展程序名称`
 
 - 显示图形的方式：
-  %matplotlib inline
+  `%matplotlib inline`
 
 - 显示当前工作目录
 
@@ -170,41 +226,6 @@
 - 如果您在代码中没有使用`%matplotlib inline`或者`%matplotlib notebook`语句，但是依然可以在不调用`plt.show()`的情况下绘图，那么很可能是因为您的Python环境或者IDE默认启用了Matplotlib的交互模式。
 - 有些Python环境或者IDE（如Spyder）会自动启用Matplotlib的交互模式，以便更方便地进行数据可视化。在这种情况下，创建的图像会自动显示在Notebook或者界面上，无需显式调用`plt.show()`方法。
 - 总之，是否需要显式调用`plt.show()`方法取决于所使用的Python环境或者IDE的设置。但是，为了代码更加清晰和具有可移植性，建议在每次绘图后都调用`plt.show()`方法来显示图像。
-
-### 检查matplotlib后端模式
-
-- 要检查Jupyter Notebook是否自动启用了`%matplotlib inline`命令，可以执行以下步骤：
-
-  1. 打开Jupyter Notebook
-
-  2. 在Notebook中新建一个代码单元格
-
-  3. 输入以下代码并执行它：
-
-     ```
-     pythonCopy Code%matplotlib inline
-     import matplotlib.pyplot as plt
-     
-     plt.plot([1, 2, 3])
-     ```
-
-  4. 观察输出结果
-
-  如果图像显示在Notebook中，且无需调用`plt.show()`方法，那么Jupyter Notebook就已经自动启用了`%matplotlib inline`命令。否则，您需要手动使用`%matplotlib inline`命令来启用Magplotlib的嵌入式模式。
-
-  在Notebook中，您也可以通过运行以下代码来检查当前的Matplotlib后端：
-
-  ```
-  pythonCopy Codeimport matplotlib
-  print(matplotlib.get_backend())
-  ```
-
-- 如果输出结果为`'module://ipykernel.pylab.backend_inline'`，则表示当前的Matplotlib后端为内嵌式（inline）模式。
-
-#### matplotlib_inline
-
-- [ipython/matplotlib-inline: Inline Matplotlib backend for Jupyter (github.com)](https://github.com/ipython/matplotlib-inline)
-- Note that in current versions of JupyterLab and Jupyter Notebook, the explicit use of the `%matplotlib inline` directive is **not needed anymore**, though other third-party clients may still require it.
 
 ### 强制刷新显示图像@display(fig)
 

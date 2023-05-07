@@ -199,10 +199,11 @@
           - `_extract_feature_in_meta`
             - `load_meta`检查/创建meta文件
               - `create_csv_by_metaname`
-            - `features_save`
+            - `features_extract_save`
               - `extract_features`(utils.py)
+              - feature_transform
           - `_update_partition_attributes`
-  
+      
     - 根据meta文件提取特征
       - meta文件名格式:`{partition}_{db}_{feature_config}.csv`
       

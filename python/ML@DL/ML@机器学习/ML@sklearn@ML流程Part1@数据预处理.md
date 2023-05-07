@@ -1,18 +1,18 @@
 [toc]
 
-# ML@sklearn@ML流程@part1
+# ML@sklearn@ML流程@part1@数据预处理
 
 ## ref@documents
 
 - 英文版:更新最及时
-  - [scikit-learn: machine learning in Python — scikit-learn 1.2.2 documentation](https://scikit-learn.org/stable/index.html)
+  - [scikit-learn: machine learning in Python — scikit-learn documentation](https://scikit-learn.org/stable/index.html)
 - 中文版:存在滞后
   - [sklearn (scikitlearn.com.cn)中文](https://www.scikitlearn.com.cn/)
   - [scikit-learn中文社区](https://scikit-learn.org.cn/)
 
 ### api术语参考@glossary of common Terms and api elements
 
-- [Glossary of Common Terms and API Elements — scikit-learn 1.2.2 documentation](https://scikit-learn.org/stable/glossary.html#term-cv)
+- [Glossary of Common Terms and API Elements — scikit-learn  documentation](https://scikit-learn.org/stable/glossary.html#term-cv)
 
 ## 变量术语
 
@@ -146,7 +146,7 @@ array([0, 1])
 
 ### StandardScaler
 
-- [sklearn.preprocessing.StandardScaler — scikit-learn 1.2.2 documentation](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
+- [sklearn.preprocessing.StandardScaler — scikit-learn  documentation](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
 
 - 将特征标准化为**去除均值**并缩放到**单位方差**。样本x的标准得分计算如下：
 
@@ -172,11 +172,15 @@ array([0, 1])
 
 - 中心化和缩放是机器学习中常用的预处理步骤，用于在将输入数据输入模型之前对其进行转换。
 
-  中心化是指从每个样本中减去每个特征的平均值，从而使每个特征的平均值为零。缩放是指将每个特征除以其标准差，从而将数据缩放到具有单位方差。
+- 中心化是指从每个样本中减去每个特征的平均值，从而使每个特征的平均值为零。
+
+- 缩放是指将每个特征除以其标准差，从而将数据缩放到具有单位方差。
 
 - 中心化和缩放是针对每个特征独立进行的，即使用训练集中的样本计算每个特征的平均值和标准差。这确保了每个特征都以一致的方式进行转换，并且生成的数据在所有特征上都被归一化。
 
-- 在训练集上计算相关统计量而不是整个数据集也有助于防止数据泄露，即避免在数据预处理过程中意外地使用测试集中的信息。通过仅在训练集上计算相关统计量，我们确保模型不会偏向测试集，并且可以良好地推广到新的、未见过的数据。
+- 在训练集上计算相关统计量而不是整个数据集也有助于防止数据泄露，即避免在数据预处理过程中意外地使用测试集中的信息。
+
+- 通过仅在训练集上计算相关统计量，我们确保模型不会偏向测试集，并且可以良好地推广到新的、未见过的数据。
 
 #### 标准化相关理论推导
 

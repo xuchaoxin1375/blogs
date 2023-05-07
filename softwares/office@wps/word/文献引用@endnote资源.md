@@ -72,21 +72,12 @@
 
 - [Word中上标超链接到参考文献_Francis_Ye的博客-CSDN博客_参考文献超链接](https://blog.csdn.net/weixin_36302584/article/details/117405594)
 
-### 正则高级搜索@批量选中引用序号@上标调整
-
-- [Power User Tips and Tricks - Word, Excel, Dreamweaver (ntu.edu.sg)](https://www3.ntu.edu.sg/home/ehchua/programming/howto/PowerUser_MSOffice.html)
-- [Using wildcards - Microsoft Word 365 (officetooltips.com)](https://www.officetooltips.com/word_365/tips/using_wildcards.html)
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/d3c0bbae4eb847eaa20ef7b8dd8d853b.png)
-- 利用上述方法,可以一次性将正文中的citations`[xx]`调整为上标!
-- `\[[0-9]{1,}\]`
-- 强力查找:
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/6b3438149b254607a93c98b49902e7bd.png)
 
 
-### 更新引用编号项
+### 更新引用编号🎈
 
-- 如果word中正文的引用采用交叉引用到某个编号的方式，那么当被引用的列表发生更改（比如在中间位置新插入了几条条目，此时正文中的引用序号就不再匹配。幸运的是，得益于word的`域`特性，可以通过更新域来刷新匹配变更的有序列表编号
+- 如果word中正文的引用采用交叉引用到某个编号的方式，那么当被引用的列表发生更改（比如在中间位置新插入了几条条目，此时正文中的引用序号就不再匹配。
+- 幸运的是，得益于word的`域`特性，可以通过更新域来刷新匹配变更的有序列表编号
 - 在endnote软件中，这个特点更加明显，能够自动检测到变更执行编号更新
 - 在word自带的编号更新中，虽然可以一键更新（全选文章，按下`F9`),但是不会实时检测编号匹配是否异常，因此endnote的特性更加强大
 

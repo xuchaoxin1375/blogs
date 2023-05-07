@@ -7,46 +7,6 @@
 - [Word options (General) - Microsoft Support](https://support.microsoft.com/en-us/office/word-options-general-7bfe9d54-1821-4fc7-b661-c1caaa2e8c95)
   - 点击文件->选项
 
-## 自定义word菜单
-
-### 自定义功能区
-
-- [Customize the ribbon in Word - Microsoft Support](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us)
-  - [Customizing the source list of commands](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EFLBD)
-  - [The ribbon list](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EDJBD)
-  - [Add or remove commands](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EDHBD)
-  - [Reorder commands, groups, and tabs](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EDFBD)
-  - [Customizing Ribbon items](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EDDBD)
-  - [Finishing up](https://support.microsoft.com/en-us/office/customize-the-ribbon-in-word-077e5f5d-06b8-4498-84b6-c87c11cd3434?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=105579&ui=en-us&rs=en-us&ad=us#ID0EDBBD)
-
-- 点击右上角?查询文档
-
-- | ![在这里插入图片描述](https://img-blog.csdnimg.cn/ba7071aa18dd45179217c9c5b1a489df.png) | 查看在线文档             |                                  |
-  | ------------------------------------------------------------ | ------------------------ | -------------------------------- |
-  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/384c9589a7414031b1c713a11b496ae3.png) | 在功能区设置自己的选项卡 | 通过右侧的箭头可以调整选项卡顺序 |
-
-  - 设置自己的选项卡时,需要先点击`新建选项卡`
-    - 对新建选项卡重命名`自己的名字`
-    - 然后从左侧选择命令组或者单个命令,点击添加导右侧自定义的选项卡中
-
-#### 层次关系
-
-- 功能区->选项卡->组->命令
-
-- | ![在这里插入图片描述](https://img-blog.csdnimg.cn/d1bef609d14b40f99607479a5d0893ef.png) | 在已有的选项卡中创建自己的组 |
-  | ------------------------------------------------------------ | ---------------------------- |
-  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/b7a110de4e3c4df2be998b4c4462b0cc.png) | 效果                         |
-
-  
-
-- 
-
-### 自定义快速访问工具栏
-
-- 和自定义功能取共享一份文档
-- 但是他们修改的地方不同
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/d00ff238e31a40f9a8a7661dccfdcb5b.png)
-
 # 公式输入
 
 ## ref
@@ -92,10 +52,24 @@
 
   这些类软件大多数收费,虽然有特殊版,但是体验不是很好(比如容易出现乱码等情况)
 
-## mathType 公式转换🎈
+### MathType再word中的使用
+
+- [MathType使用入门之快速在word中插入公式的方法-MathType中文网](https://www.mathtype.cn/jiqiao/mathtype-nbyo.html)
+
+### mathType 公式转换🎈
 
 - [converting-equations|MathType 7 with Microsoft Office 2016 or later (wiris.com)](https://docs.wiris.com/mathtype/en/mathtype-office-tools/mathtype-7-for-windows-and-mac/mathtype-7-with-microsoft-office-2016-or-later.html#converting-equations)
 - [convert-equations-to-mathtype-equations|MathType 7 with Microsoft Office 2016 or later (wiris.com)](https://docs.wiris.com/mathtype/en/mathtype-office-tools/mathtype-7-for-windows-and-mac/mathtype-7-with-microsoft-office-2016-or-later.html#convert-equations-to-mathtype-equations)
+
+#### 查阅mathtype在word中的快捷键
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/861c2384b6ac476aa39119aab1e602c2.png)
+
+#### 将latex代码切换为mathtype公式:
+
+- 上一节中显示`alt+\`可以将合法的latex公式(方程)包裹为形如`$...$`或者`\[...\]`的内容切换显示为mathtype公式
+
+
 
 #### 将mathType公式(方程)转化为word可直接编辑的公式🎈
 
@@ -108,7 +82,37 @@
     - 注意`alt+shift+=`,使用来检查latex源码的!
     - ![在这里插入图片描述](https://img-blog.csdnimg.cn/84f42c7b14964aa1a244f17352c51151.png)
 
-#### 其他方案😊
+#### mathtype公式编号🎈
+
+- [怎样用MathType为word中的公式自动编号-MathType中文网](https://www.mathtype.cn/jiqiao/mathtype-iiiz.html)
+
+- [MathType公式编号怎么随章节变化 MathType公式编号不在最右边-MathType中文网](https://www.mathtype.cn/jiqiao/mathtype-jdfcf.html)该教程包含以下内容
+
+  - 一、MathType公式编号怎么随章节变化
+
+    1、插入公式编号
+
+    2、公式编号随章节自动变化
+
+  - 二、MathType公式编号不在最右边
+
+    **1、内联公式编号**
+
+    2、复制公式与编号进来后右侧不对齐
+
+    1、在新文档中直接插入编号公式
+
+    2、通过制表位调整右侧位置
+
+  - 三、修改编号格式
+
+- 尽管某些论文要求使用特定的方式插入公式(比如要求用word自带的公式工具编辑)
+
+- 但是通常用mathtype编辑公式更加高效,尤其是在公式自动编号这一块以及插入对公式号的引用
+
+- 可以先用mathtype编辑打草稿,然后再转换为其他格式
+
+#### 其他方案
 
 - [microsoft office - Convert MathType equations to native Word 2007/2010 equations - Super User](https://superuser.com/questions/403933/convert-mathtype-equations-to-native-word-2007-2010-equations)
 

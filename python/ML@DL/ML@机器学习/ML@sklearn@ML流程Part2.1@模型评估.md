@@ -145,12 +145,6 @@ for train_index, test_index in kf.split(X):
 
 - 输出的结果包括训练集得分、验证集得分、拟合时间、预测时间等信息，可以用于评估模型的性能和进行模型的选择和调优。
 
-### 关于数据随机化
-
-- `cross_val_score`函数在默认情况下不提供数据随机化功能（即不会打乱数据顺序），这是因为交叉验证的目的是评估模型的泛化能力，而不是学习数据集中的具体特征。
-- 因此，在交叉验证过程中，我们需要确保每个fold中的数据样本都是随机选择的，以避免过度拟合或欠拟合的情况发生。
-- `scikit-learn`库提供了许多用于数据随机化的函数和类，比如`shuffle`、`StratifiedShuffleSplit`等。如果需要在交叉验证过程中进行数据随机化，可以使用这些函数或类来实现。
-
 ### cross_val_score🎈
 
 - [sklearn.model_selection.cross_val_score — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html)
@@ -193,19 +187,6 @@ print("Accuracy: {:.2f} (+/- {:.2f})".format(scores.mean(), scores.std()))
 ```
 
 - 在这个例子中，我们使用`make_classification`函数生成一个二分类数据集，然后使用`LogisticRegression`作为评估模型。我们通过传递模型、特征数据集和标签数据集以及5折交叉验证来调用`cross_val_score`函数。最后，我们计算评估指标得分的平均值和标准差，并将其打印出来。
-
-### cv参数
-
-- `cv`参数是`scikit-learn`库中许多机器学习模型的交叉验证策略参数，它可以用来指定交叉验证的折数或者具体的交叉验证划分方法。`cv`参数可以传递以下几种值：
-
-  - `None`（默认值）：使用默认的5折交叉验证方法；
-  - 整数：指定KFold或StratifiedKFold的折数；
-  - `CV splitter`：自定义交叉验证生成器；
-  - 迭代器：生成训练集和测试集的索引。
-
-  对于整数或`None`类型的输入，如果模型是分类器并且y是二元或多元分类的，将使用`StratifiedKFold`方法。否则，将使用`KFold`方法。这些拆分器的`shuffle`参数默认为`False`，因此每次拆分的结果相同。
-
-  需要注意的是，不同的交叉验证策略可能适用于不同的数据集和模型，因此可以根据具体的需求选择不同的交叉验证方法。
 
 ### cross_val_predict🎈
 
@@ -274,7 +255,7 @@ print("Accuracy: {:.2f} (+/- {:.2f})".format(scores.mean(), scores.std()))
 
   
 
-## 载入@生成数据集
+## datasets@数据集的载入@生成
 
 - [sklearn.datasets](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.datasets)
 - The sklearn.datasets module includes utilities to load datasets, including methods to load and fetch popular reference datasets. It also features some artificial data generators.
@@ -504,20 +485,6 @@ print("Accuracy: {:.2f} (+/- {:.2f})".format(scores.mean(), scores.std()))
 
     - 例如，可以通过调整`n_samples`参数来控制数据集的规模，通过调整`n_informative`参数来控制有用特征的数量，通过调整`class_sep`参数来控制类之间的距离等等。
 
-
-
-## 参数说明
-
-### n_informative
-
-在机器学习中，`n_informative`通常是生成分类数据集时的一个参数，用于控制生成的数据集中有用特征的数量。
-
-具体来说，`n_informative`表示生成数据集时每个类别的特征中有多少个是有用的，也就是能够区分不同类别的特征。例如，在一个二分类问题中，如果设置`n_informative`为1，则生成的数据集中每个类别的特征中只有一个能够区分不同类别，其余的特征都是噪声或无用特征。
-
-通过调整`n_informative`参数，可以控制生成的数据集中有用特征的数量，从而控制分类问题的难度。一般来说，较少的有用特征会使分类问题更加困难，需要更复杂的模型才能解决。而较多的有用特征则会使分类问题更容易，更简单的模型就能够得到较好的结果。
-
-需要注意的是，`n_informative`不是唯一的控制生成数据集难度的参数，其他参数如`n_classes`、`n_clusters_per_class`、`class_sep`等也会对数据集的难度产生影响。因此，在生成分类数据集时，需要综合考虑多个参数的影响，调整参数来生成合适的数据集。
-
 ## sklearn metrics🎈
 
 Scikit-learn中的`metrics`模块包含了许多用于评估机器学习模型性能的度量指标，用于比较预测结果和真实结果之间的差异，以确定模型的准确性、精度、召回率、F1分数等性能。
@@ -620,3 +587,36 @@ print("Accuracy:", acc)
   - `cross_validate`函数则可以同时计算多个评估指标，例如训练得分、测试得分、拟合时间和预测时间等。这些评估指标可以帮助我们更全面地了解模型的性能和特点。此外，`cross_validate`函数还可以指定多个评估指标，例如准确率、精度、召回率、F1分数等，从而更全面地评估模型的性能。`cross_validate`还可以使用不同的交叉验证策略，例如留一交叉验证和分层K折交叉验证等，以满足不同的需求。
 
 - 综上所述，`accuracy_score`函数适用于简单的分类模型评估任务，而`cross_validate`函数适用于更复杂的模型评估任务，可以提供更全面的性能指标和更灵活的交叉验证策略。
+
+
+
+### 关于数据随机化
+
+- `cross_val_score`函数在默认情况下不提供数据随机化功能（即不会打乱数据顺序），这是因为交叉验证的目的是评估模型的泛化能力，而不是学习数据集中的具体特征。
+- 因此，在交叉验证过程中，我们需要确保每个fold中的数据样本都是随机选择的，以避免过度拟合或欠拟合的情况发生。
+- `scikit-learn`库提供了许多用于数据随机化的函数和类，比如`shuffle`、`StratifiedShuffleSplit`等。如果需要在交叉验证过程中进行数据随机化，可以使用这些函数或类来实现。
+
+## 参数说明🎈
+
+### cv
+
+- `cv`参数是`scikit-learn`库中许多机器学习模型的交叉验证策略参数，它可以用来指定交叉验证的折数或者具体的交叉验证划分方法。`cv`参数可以传递以下几种值：
+
+  - `None`（默认值）：使用默认的5折交叉验证方法；
+  - 整数：指定KFold或StratifiedKFold的折数；
+  - `CV splitter`：自定义交叉验证生成器；
+  - 迭代器：生成训练集和测试集的索引。
+
+  对于整数或`None`类型的输入，如果模型是分类器并且y是二元或多元分类的，将使用`StratifiedKFold`方法。否则，将使用`KFold`方法。这些拆分器的`shuffle`参数默认为`False`，因此每次拆分的结果相同。
+
+  需要注意的是，不同的交叉验证策略可能适用于不同的数据集和模型，因此可以根据具体的需求选择不同的交叉验证方法。
+
+### n_informative
+
+在机器学习中，`n_informative`通常是生成分类数据集时的一个参数，用于控制生成的数据集中有用特征的数量。
+
+具体来说，`n_informative`表示生成数据集时每个类别的特征中有多少个是有用的，也就是能够区分不同类别的特征。例如，在一个二分类问题中，如果设置`n_informative`为1，则生成的数据集中每个类别的特征中只有一个能够区分不同类别，其余的特征都是噪声或无用特征。
+
+通过调整`n_informative`参数，可以控制生成的数据集中有用特征的数量，从而控制分类问题的难度。一般来说，较少的有用特征会使分类问题更加困难，需要更复杂的模型才能解决。而较多的有用特征则会使分类问题更容易，更简单的模型就能够得到较好的结果。
+
+需要注意的是，`n_informative`不是唯一的控制生成数据集难度的参数，其他参数如`n_classes`、`n_clusters_per_class`、`class_sep`等也会对数据集的难度产生影响。因此，在生成分类数据集时，需要综合考虑多个参数的影响，调整参数来生成合适的数据集。

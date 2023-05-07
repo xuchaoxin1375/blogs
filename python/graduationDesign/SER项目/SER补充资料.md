@@ -1,5 +1,39 @@
 [toc]
 
+## 机器学习算法分类
+
+- 机器学习算法可以根据不同的分类标准进行分类，下面是一些常见的分类方式：
+
+  1. 监督学习算法：这种算法需要有标注数据，即每个样本都有对应的标签。监督学习算法可以分为分类算法和回归算法两类。分类算法的目标是将样本分到不同的类别中，而回归算法的目标是预测连续型变量的值。
+  2. 无监督学习算法：这种算法不需要有标注数据，它的目标是从数据中发现隐藏的结构或模式。无监督学习算法可以分为聚类算法和降维算法两类。聚类算法的目标是将相似的样本分到同一个群组中，而降维算法的目标是将高维数据映射到低维空间中。
+  3. 半监督学习算法：这种算法是介于监督学习和无监督学习之间的一种算法。半监督学习算法需要有部分标注数据和大量的未标注数据，它的目标是利用未标注数据来提高模型的性能。
+  4. 增强学习算法：这种算法是一种学习和决策的过程，它的目标是在一个复杂的环境中，通过与环境的交互来学习最优的决策策略。
+  5. 深度学习算法：这种算法是基于神经网络的一种算法，它可以用来处理大规模和复杂的数据。深度学习算法包括卷积神经网络、循环神经网络、自编码器等。
+
+  以上是一些常见的机器学习算法分类方式，不同的分类方式可以将机器学习算法分为不同的类别，有助于我们更好地理解和选择不同的算法。
+
+### 传统机器学习算法与深度学习算法
+
+- 与深度学习算法相对应的算法通常被称为<u>传统机器学习算法或浅层学习算法</u>。traditional machine learning algorithms or shallow learning algorithms. 
+- 这些算法通常基于人工设计的特征提取器和浅层的神经网络结构。
+- 相比之下，深度学习算法可以通过多层神经网络自动学习高级别的特征表示，从而提高算法的性能。
+- 传统机器学习算法包括决策树、支持向量机、朴素贝叶斯、K近邻等算法。这些算法通常需要手动设计特征提取器，而且在处理复杂数据时性能可能不如深度学习算法。
+- 需要注意的是，深度学习算法并不是传统机器学习算法的替代品，而是一种补充。在实际应用中，我们需要根据不同的任务和数据情况选择最合适的算法。
+
+
+
+基本学习模型和集成学习模型是机器学习中常见的两类模型，它们有着不同的特点和应用场景。下面是它们的详细介绍和对比：
+
+### 基本学习模型
+
+基本学习模型是机器学习中最基础的模型，通常包括决策树、支持向量机、朴素贝叶斯、K近邻等。它们通常是单一的模型，只能处理一种特定的任务，如分类、回归等。基本学习模型的优点在于简单、易于理解和解释，且有良好的泛化性能。但是当处理复杂数据时，基本学习模型可能会出现欠拟合或过拟合现象，导致性能下降。
+
+### 集成学习模型
+
+集成学习模型是一种将多个基本学习模型组合起来的方法，通常包括Bagging、Boosting、Stacking等。集成学习模型的优点在于可以将多个基本学习模型的预测结果进行综合，从而提高整体的泛化性能。例如，Bagging算法通过对基本学习模型的训练数据进行随机采样，得到多个基本学习模型，再将它们的预测结果进行平均或投票，得到最终的预测结果。而Boosting算法则是通过训练多个基本学习模型，每次让新的模型学习之前模型预测错误的样本，从而逐步提高整体的性能。Stacking算法则是将多个基本模型的预测结果作为新的特征输入到另一个模型中进行训练。
+
+对比来看，基本学习模型和集成学习模型各有优缺点。基本学习模型简单易懂，泛化性能较好，但在处理复杂数据时可能会产生欠拟合或过拟合问题。而集成学习模型可以通过组合多个基本学习模型的预测结果来提高整体性能，但需要更多的计算资源和时间，并且需要对多个模型进行调参。综合来看，基本学习模型通常适用于数据较简单的情况下，而集成学习模型适用于数据较复杂的情况下，可以提高整体的性能。
+
 ### 语谱图@功率谱图
 
 - 功率谱图和语谱图都是显示信号频率内容的图形，但它们的<u>计算方法和表示方式</u>不同。
@@ -122,143 +156,9 @@
 - 最后，选择具有最佳性能的超参数组合作为最终模型的超参数。
 - Grid Search 是一种简单而有效的调参方法，但它需要遍历所有可能的超参数组合，因此计算成本较高。为了减少计算成本，可以使用<u>随机搜索（Random Search）</u>等其他调参方法。
 
-### pickle
-
-- [pickle --- Python 对象序列化 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/library/pickle.html)
-
-- Pickle是Python中的一个模块，用于将Python中的对象序列化为二进制流并保存到文件中，或者从文件中读取出这些二进制数据并反序列化成对象。这个过程也被称为对象的持久化。
-
-  Pickle可以处理几乎所有Python数据类型，包括数字、字符串、列表、元组、字典、类和函数等。使用Pickle可以非常方便地将Python对象存储到文件中，以便于在以后的时间中使用。
-
-  在使用Pickle时，通常需要先将Python对象序列化为二进制数据并写入文件中，可以使用`pickle.dump()`函数完成这个任务。读取文件中的数据并将其反序列化成Python对象，可以使用`pickle.load()`函数。
-
-  需要注意的是，Pickle可以处理Python中的大多数对象，但并不是所有对象都可以被序列化。例如，Pickle不能序列化一些网络连接、文件句柄和进程等系统资源，也不能序列化一些Python内部对象，如函数、模块和类等。此外，在使用Pickle时，需要注意安全问题，避免不受信任的数据对系统造成风险。
-
-  以下是一个使用Pickle存储和读取Python对象的示例代码：
-
-  ```python
-  import pickle
-  
-  # 定义一个 Python 对象
-  data = {'a': [1, 2.0, 3, 4+6j],
-          'b': ("string", u"Unicode string"),
-          'c': {None, True, False}}
-  
-  # 将对象序列化为二进制数据并写入文件
-  with open('data.pkl', 'wb') as f:
-      pickle.dump(data, f)
-  
-  # 从文件中读取数据并反序列化成 Python 对象
-  with open('data.pkl', 'rb') as f:
-      data_loaded = pickle.load(f)
-  
-  # 打印反序列化后的 Python 对象
-  print(data_loaded)
-  ```
-
-  这个示例代码中，首先定义了一个Python对象`data`，其中包含了数字、字符串、列表和字典等数据类型。然后，使用Pickle将`data`对象序列化为二进制数据并写入到文件`data.pkl`中。最后，再从`data.pkl`文件中读取数据并反序列化成Python对象`data_loaded`，并打印该对象以验证反序列化操作的正确性。
-
-- ```bash
-  [(SVC(C=10, gamma=0.001),
-    {'C': 10, 'gamma': 0.001, 'kernel': 'rbf'},
-    0.9381835473133618),
-   (RandomForestClassifier(max_depth=7, max_features=0.5, n_estimators=40),
-    {'max_depth': 7,
-     'max_features': 0.5,
-     'min_samples_leaf': 1,
-     'min_samples_split': 2,
-     'n_estimators': 40},
-    0.8854018069424631),
-   (GradientBoostingClassifier(learning_rate=0.3, max_depth=7, subsample=0.7),
-    {'learning_rate': 0.3,
-     'max_depth': 7,
-     'max_features': None,
-     'min_samples_leaf': 1,
-     'min_samples_split': 2,
-     'n_estimators': 100,
-     'subsample': 0.7},
-    0.9476937708036139),
-   (KNeighborsClassifier(n_neighbors=3, p=1, weights='distance'),
-    {'n_neighbors': 3, 'p': 1, 'weights': 'distance'},
-    0.9320019020446981),
-   (MLPClassifier(alpha=0.01, batch_size=512, hidden_layer_sizes=(300,),
-                  learning_rate='adaptive', max_iter=400),
-    {'alpha': 0.01,
-     'batch_size': 512,
-     'hidden_layer_sizes': (300,),
-     'learning_rate': 'adaptive',
-     'max_iter': 400},
-    0.9358059914407989),
-   (BaggingClassifier(max_features=0.5, n_estimators=50),
-    {'max_features': 0.5, 'max_samples': 1.0, 'n_estimators': 50},
-    0.9210651450309082)]
-  ```
-
-  
-
-#### 相关api
-
-- [`pickle`](https://docs.python.org/zh-cn/3/library/pickle.html#module-pickle) 模块提供了以下方法，让封存过程更加方便：
-
-- pickle.**dump**(*obj*, *file*, *protocol=None*, ***, *fix_imports=True*, *buffer_callback=None*)
-
-  将对象 *obj* 封存以后的对象写入已打开的 [file object](https://docs.python.org/zh-cn/3/glossary.html#term-file-object) *file*。它等同于 `Pickler(file, protocol).dump(obj)`。参数 *file*、*protocol*、*fix_imports* 和 *buffer_callback* 的含义与它们在 [`Pickler`](https://docs.python.org/zh-cn/3/library/pickle.html#pickle.Pickler) 的构造函数中的含义相同。*在 3.8 版更改:* 加入了 *buffer_callback* 参数。
-
-- pickle.**dumps**(*obj*, *protocol=None*, ***, *fix_imports=True*, *buffer_callback=None*)
-
-  将 *obj* 封存以后的对象作为 [`bytes`](https://docs.python.org/zh-cn/3/library/stdtypes.html#bytes) 类型直接返回，而不是将其写入到文件。参数 *protocol*、*fix_imports* 和 *buffer_callback* 的含义与它们在 [`Pickler`](https://docs.python.org/zh-cn/3/library/pickle.html#pickle.Pickler) 的构造函数中的含义相同。*在 3.8 版更改:* 加入了 *buffer_callback* 参数。
-
-- pickle.**load**(*file*, ***, *fix_imports=True*, *encoding='ASCII'*, *errors='strict'*, *buffers=None*)
-
-  从已打开的 [file object](https://docs.python.org/zh-cn/3/glossary.html#term-file-object) *文件* 中读取封存后的对象，重建其中特定对象的层次结构并返回。它相当于 `Unpickler(file).load()`。Pickle 协议版本是自动检测出来的，所以不需要参数来指定协议。封存对象以外的其他字节将被忽略。参数 *file*、*fix_imports*、*encoding*、*errors*、*strict* 和 *buffers* 的含义与它们在 [`Unpickler`](https://docs.python.org/zh-cn/3/library/pickle.html#pickle.Unpickler) 的构造函数中的含义相同。*在 3.8 版更改:* 加入了 *buffers* 参数。
-
-  - `file` 参数是一个打开的文件对象或类似对象，用于读取二进制数据。在 Python 中，文件对象可以通过内置的 `open()` 函数创建。`open()` 函数接受文件名和文件打开模式作为参数，并返回一个文件对象。在使用 `pickle.load()` 函数时，需要将打开的文件对象作为参数传递给该函数，以便从文件中读取序列化的二进制数据并将其反序列化为 Python 对象。
-
-- pickle.**loads**(*data*, */*, ***, *fix_imports=True*, *encoding='ASCII'*, *errors='strict'*, *buffers=None*)
-
-  重建并返回一个对象的封存表示形式 *data* 的对象层级结构。 *data* 必须为 [bytes-like object](https://docs.python.org/zh-cn/3/glossary.html#term-bytes-like-object)。Pickle 协议版本是自动检测出来的，所以不需要参数来指定协议。封存对象以外的其他字节将被忽略。参数 *fix_imports*, *encoding*, *errors*, *strict* 和 *buffers* 的含义与在 [`Unpickler`](https://docs.python.org/zh-cn/3/library/pickle.html#pickle.Unpickler) 构造器中的含义相同。*在 3.8 版更改:* 加入了 *buffers* 参数。
-
-#### joblib
-
-- [Joblib: running Python functions as pipeline jobs — joblib 1.3.0.dev0 documentation](https://joblib.readthedocs.io/en/latest/)
-
-#### npy文件
-
-- npy 文件是 NumPy 的二进制文件格式，用于存储 NumPy 数组对象。它是一种高效的数据存储格式，可以快速地将大型数组保存到硬盘，并在需要时快速地读取和加载数据。
-
-  npy 文件保存的是二进制数据，因此它的存储效率比文本文件高，同时也具有更快的读写速度。与其他二进制格式相比，npy 文件具有更好的可移植性，因为它只依赖于 NumPy 库，而不依赖于特定的操作系统或硬件平台。
-
-  可以使用 NumPy 库中的 save 和 load 函数来保存和加载 npy 文件。例如，以下代码演示了如何将一个 NumPy 数组保存为 npy 文件，并读取该文件：
-
-  ```python
-  import numpy as np
-  
-  # 创建 NumPy 数组
-  arr = np.array([1, 2, 3, 4, 5])
-  
-  # 保存为 npy 文件
-  np.save('my_array.npy', arr)
-  
-  # 从 npy 文件中加载数据
-  loaded_arr = np.load('my_array.npy')
-  
-  # 打印加载后的数据
-  print(loaded_arr)  # [1 2 3 4 5]
-  ```
-
-  在上面的代码中，我们首先创建一个 NumPy 数组 `arr`，然后使用 `np.save` 函数将其保存到名为 `'my_array.npy'` 的文件中。接着，我们使用 `np.load` 函数从文件中加载数据，并将其存储在变量 `loaded_arr` 中。最后，我们打印加载后的数据，验证它与原始数组相同。
-
-- [numpy.lib.format — NumPy v1.24 Manual](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html)
-
-- [numpy.save — NumPy Manual](https://numpy.org/doc/stable/reference/generated/numpy.save.html)
 
 
 
-- 
-
-  
-
-  
 
 ### bagging@Bootstrap Aggregating
 
@@ -267,7 +167,8 @@
 - `Bagging`（Bootstrap Aggregating）是一种集成学习方法，用于提高分类或回归算法的准确性和稳定性。
 - 在分类问题中，`Bagging` 通常通过对训练集进行有放回抽样（Bootstrap）来构造多个子集，然后使用每个子集训练一个基本分类器，最终将所有基本分类器的预测结果进行投票或平均来得出最终的分类结果。这种方法可以减小模型的方差，提高泛化性能。
 
-`Bagging` 可以应用于各种分类算法，例如决策树、神经网络、支持向量机等。在 `scikit-learn` 库中，`Bagging` 方法被实现为 `BaggingClassifier` 类。`BaggingClassifier` 可以接受任何基本分类器作为参数，并通过设置一些超参数来控制 `Bagging` 过程的细节，例如子集大小、样本的采样比例、基本分类器的数量等。
+- `Bagging` 可以应用于各种分类算法，例如决策树、神经网络、支持向量机等。
+- 在 `scikit-learn` 库中，`Bagging` 方法被实现为 `BaggingClassifier` 类。`BaggingClassifier` 可以接受任何**基本分类器**作为参数，并通过设置一些超参数来控制 `Bagging` 过程的细节，例如子集大小、样本的采样比例、基本分类器的数量等。
 
 以下是一个使用 `BaggingClassifier` 的简单示例代码：
 
