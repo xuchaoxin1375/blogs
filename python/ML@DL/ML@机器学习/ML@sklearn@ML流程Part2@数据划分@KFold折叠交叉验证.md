@@ -1,6 +1,6 @@
 [toc]
 
-# ML@sklearn@ML流程Part2@数据划分@KFold折叠交叉验证
+# ML@sklearn@ML流程Part2@数据划分@叠交叉验证
 
 ## Model evaluation
 
@@ -23,8 +23,7 @@
 
   需要注意的是，自变量和目标变量的数量和类型取决于具体的问题和数据集，不同的问题可能需要不同数量和类型的自变量和目标变量。
 
-
-## 训练集@验证集@测试集
+## 概念:训练集@验证集@测试集
 
 - [Training, validation, and test data sets - Wikipedia](https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets)
 - In [machine learning](https://en.wikipedia.org/wiki/Machine_learning), a common task is the study and construction of [algorithms](https://en.wikipedia.org/wiki/Algorithm) that can learn from and make predictions on [data](https://en.wikipedia.org/wiki/Data). Such algorithms function by making data-driven predictions or decisions, through building a [mathematical model](https://en.wikipedia.org/wiki/Mathematical_model) from input data. These input data used to build the model are usually divided into multiple [data sets](https://en.wikipedia.org/wiki/Data_set). In particular, three data sets are commonly used in different stages of the creation of the model:
@@ -39,7 +38,7 @@
 - 模型最初在训练数据集上进行拟合，这是一组用于拟合模型参数（例如，人工神经网络中神经元之间连接的权重）的示例。模型（例如朴素贝叶斯分类器）使用监督学习方法在训练数据集上进行训练，例如使用梯度下降或随机梯度下降等优化方法。
 - 在实践中，训练数据集通常由一个输入向量（或标量）和相应的输出向量（或标量）成对组成，其中答案键通常称为目标（或标签）。当前模型在训练数据集上运行并产生结果，然后将结果与目标进行比较。根据比较的结果和使用的具体学习算法，模型参数会进行调整。
 - 模型拟合可以包括变量选择和参数估计。
-- 随后，拟合的模型用于预测第二个数据集中的观测响应，称为**验证数据集**。
+- 随后，拟合的模型用于预测第二个数据集中的观测相应，称为**验证数据集**。
 - 验证数据集在调整模型的超参数（例如神经网络中的隐藏单元数、层数和层宽）时提供了一个**无偏的评估**。通过提前停止（当验证数据集上的错误增加时停止训练，因为这是过度拟合训练数据集的信号），验证数据集可以用于正则化。
 - 在实践中，验证数据集的误差可能会在训练过程中波动，产生多个局部最小值，这增加了判断过拟合何时真正开始的许多临时规则。
 - 最后，测试数据集是用于在训练数据集上进行最终模型拟合的**无偏评估数据集**。如果测试数据集中的数据从未在训练中使用过（例如在交叉验证中），则测试数据集也称为**保留数据集**。
@@ -200,17 +199,33 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 
 
 
-## K-fold cross-validation🎈
+## 交叉验证
 
-- K折交叉验证（K-fold cross-validation）是一种常用的数据集划分和模型验证技术，可以用于评估机器学习模型的性能和进行模型的选择和调优。
-- K折交叉验证的基本思想是将数据集分成K个子集（一般是均等划分），然后使用其中K-1个子集作为训练集，余下的1个子集作为验证集，进行模型的训练和验证，重复K次，每次使用不同的验证集，最终将K次验证的结果进行平均或加权平均，得到最终的性能指标。
+### sklearn中的交叉验证
 
-- K折交叉验证的优点在于：
-  1. 可以充分利用数据集中的信息，避免过拟合或欠拟合的问题。
-  2. 可以对模型的性能进行更准确的评估，减小评估误差。
-  3. 可以在有限的数据集中，扩大训练集的规模，提高模型的泛化能力。
+- 交叉验证器@cross-validator@cross-validation-iterators
 
-## 交叉验证器@cross-validator
+- [ cross-validation-iterators@Cross-validation: evaluating estimator performance — scikit-learn documentation](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators)
+
+### 独立同分布假设
+
+- Assuming that some data is **Independent and Identically Distributed** (i.i.d.) is making the assumption that all samples stem from the same generative process and that the generative process is assumed to have no memory of past generated samples.
+
+  The following cross-validators can be used in such cases.
+
+- Note
+
+  While i.i.d. data is a common assumption in machine learning theory, it rarely holds in practice. If one knows that the samples have been generated using a time-dependent process, it is safer to use a [time-series aware cross-validation scheme](https://scikit-learn.org/stable/modules/cross_validation.html#timeseries-cv). Similarly, if we know that the generative process has a group structure (samples collected from different subjects, experiments, measurement devices), it is safer to use [group-wise cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html#group-cv).
+
+- 假设一些数据是独立同分布的（i.i.d.），就意味着这些样本都来自同一个生成过程，并且生成过程不会受到之前生成样本的影响。
+
+  在这种情况下，可以使用以下交叉验证器。
+
+  需要注意的是，虽然i.i.d.数据是机器学习理论中常见的假设，但**在实践中很少成立**。
+
+  如果知道样本是使用时间相关的过程生成的，最好使用时间序列感知的交叉验证方案。同样，如果我们知道生成过程具有分组结构（样本来自不同的受试者、实验、测量设备），则最好使用基于组的交叉验证。
+
+### 评估实验方法🎈流程
 
 - Learning the parameters of a prediction function and testing it on the same data is a methodological mistake: a model that would just repeat the labels of the samples that it has just seen would have a perfect score but would fail to predict anything useful on yet-unseen data. This situation is called **overfitting**. To avoid it, it is common practice when performing a (supervised) machine learning experiment to hold out part of the available data as a **test set** `X_test, y_test`. Note that the word “experiment” is not intended to denote academic use only, because even in commercial settings machine learning usually starts out experimentally. Here is a flowchart of typical cross validation workflow in model training. 
 
@@ -264,7 +279,7 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
     0.9666666666666667
     ```
 
-### 提高模型评估的准确性:验证集@交叉yan'zheng
+### 提高模型评估的准确性:
 
 - When evaluating different settings ("hyperparameters")for estimators, such as the c setting that must be manually set for an SVMthere is til a risk of overfitting on the test set because the parameters can be tweaked until the estimator performs optimally. Thisway, knowledge about the test set can "leak" into the model and evaluation metics no longer report on generalization performance.
 - To solve this problem, yet another part of the dataset can be held out as a so-called "validation set : training proceeds on the train-ing set after which evaluation is done on the validation set, and when the experiment seems to be successful final evaluation can bedone on the test set.
@@ -282,10 +297,24 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 - 这个过程重复k次，每个集合都曾经作为验证集。 k-fold交叉验证报告的性能度量是每次循环中计算的值的平均值。
 - 交叉验证可能计算量较大，但不会浪费太多数据，并且在样本数量很小的问题中具有很大优势，这种优势体现在修正任意验证集时（这种情况下会浪费数据）。
 
-### K-fold
+## 具体的评估方法(交叉验证实验方法)🎈
+
+- 以下交叉验证器都都是基于索引来划分的,这种做法有利于划分数据集的灵活性
+- 交叉验证器的不需要用户提供数据集,只需要告诉相应的构造函数的划分信息(例如,折叠数,重复数等)
+- 可通过调用交叉验证器实例的split方法来查看k次划分的(**索引**序列的划分)
+- 交叉验证器通常配合`sklearn.model_selection`模块中的`cross_validate`和`cross_val_score`使用,而较少单独使用.(交叉验证器也是`sklearn.model_selection`模块下的)
+- 以下例子大多单独使用,只是为例展示这些交叉验证器是怎么工作的
+
+### K-Fold
 
 - [sklearn.model_selection.KFold — scikit-learn  documentation](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold)
 - [Cross-validation: evaluating estimator performance — scikit-learn documentation](https://scikit-learn.org/stable/modules/cross_validation.html#k-fold)
+- K折交叉验证（K-fold cross-validation）是一种常用的数据集划分和模型验证技术，可以用于评估机器学习模型的性能和进行模型的选择和调优。
+- K折交叉验证的基本思想是将数据集分成K个子集（一般是均等划分），然后使用其中K-1个子集作为训练集，余下的1个子集作为验证集，进行模型的训练和验证，重复K次，每次使用不同的验证集，最终将K次验证的结果进行平均或加权平均，得到最终的性能指标。
+- K折交叉验证的优点在于：
+  1. 可以充分利用数据集中的信息，避免过拟合或欠拟合的问题。
+  2. 可以对模型的性能进行更准确的评估，减小评估误差。
+  3. 可以在有限的数据集中，扩大训练集的规模，提高模型的泛化能力。
 - 以下代码演示了KFold是怎么工作的
 
 #### eg
@@ -430,9 +459,9 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 
       
 
-#### eg:KFold@K-fold cross-validation
+#### eg
 
-- 下面的代码演示了如何使用Scikit-learn库中的`KFold`类进行K折交叉验证：
+- 下面的代码演示了如何使用Scikit-learn库中的`KFold`类进行K次交叉实验：
 
   - ```python
     from sklearn.datasets import make_classification
@@ -453,6 +482,14 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
         acc = accuracy_score(y_test, y_pred)
         print("Accuracy: {:.2f}".format(acc))
     ```
+    
+    - ```bash
+      Accuracy: 0.95
+      Accuracy: 0.92
+      Accuracy: 0.95
+      Accuracy: 0.95
+      Accuracy: 0.94
+      ```
 
 - 这段代码使用Scikit-learn库生成一个二分类数据集，并使用Logistic回归模型进行分类。然后使用K折交叉验证方法来评估模型的性能。具体过程如下：
 
@@ -468,6 +505,62 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 
 - 可以根据具体情况选择合适的K值和验证指标来进行模型评估。
 
+### Repeated K-Fold
+
+- [`RepeatedKFold`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RepeatedKFold.html#sklearn.model_selection.RepeatedKFold) repeats K-Fold n times. It can be used when one requires to run [`KFold`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold) n times, producing different splits in each repetition.
+
+- Repeated K-Fold 是一种交叉验证方法，它可以在 K-Fold 的基础上进一步增加重复次数，以**减少由于随机划分导致的模型性能不稳定的问题**。(可以参考西瓜书)
+
+- 在 Repeated K-Fold 中:以R次K折叠为例
+
+  - 在单次K折叠中,操作方法就是普通的K-Fold实验:首先将数据集分为 K 个子集，然后进行 K 次交叉验证。在每一次交叉验证中，将其中一个子集作为测试集，其余子集作为训练集。这样可以得到 K 个模型的性能评估结果，并计算它们的平均值作为最终性能评估结果。
+
+  - 然后，为了增加重复次数，可以重复上述过程 R 次，**每次使用不同的随机划分**，得到 R 个不同的模型性能评估结果。
+  - 这样可以更准确地评估模型的性能，并减少随机划分带来的不确定性。
+
+- 例如，假设我们使用 5-Fold 重复 3 次，我们将数据集分为 5 个子集，进行 5 次交叉验证(每次划分的数据集子集京可能互不相同,通常是独立的随机划分;如果每次划分子集都一样,就没有必要重复了,需要理解**重复**这个词在这里的意思,指的是<u>以相同的操作反复做实验</u>而非重合或相同的意思,区别不同次实验的关键在于随机划分每次划分的K个子集是不同的),并重复 3 次上述过程会得到 $3\times{5}=15$ 个不同的模型性能评估结果。
+
+- 使用 Repeated K-Fold 可以更准确地估计模型的性能，因为它减少了随机划分带来的不确定性。但是，需要注意的是，重复次数越多，计算时间和计算资源的消耗也会随之增加。因此，在实际应用中需要权衡计算成本和模型性能之间的平衡。
+
+- Example of 2-fold K-Fold repeated 2 times:
+
+  - ```python
+    import numpy as np
+    from sklearn.model_selection import RepeatedKFold
+    # X = np.array([[1, 2], [3, 4], [1, 2], [3, 4]])
+    #这里设定random_state表示对这段代码执行n次,那么n次的结果是一样的
+    random_state = 12883823
+    rng=np.random.default_rng(seed=random_state)
+    
+    X=rng.integers(10,100,size=(6,2))
+    rkf = RepeatedKFold(n_splits=3, n_repeats=2, random_state=random_state)
+    
+    print(X,"@{X}")
+    print('split result:')
+    #注意
+    rkf_splits = rkf.split(X)
+    for i,(train, test) in enumerate(rkf_splits):
+        print("fold%s:%s %s" % (i,train, test))
+    ```
+
+  - ```bash
+    [[92 94]
+     [43 88]
+     [39 44]
+     [90 33]
+     [62 95]
+     [42 64]] @{X}
+    split result:
+    fold0:[0 3 4 5] [1 2]
+    fold1:[0 1 2 4] [3 5]
+    fold2:[1 2 3 5] [0 4]
+    fold3:[0 1 3 5] [2 4]
+    fold4:[0 1 2 4] [3 5]
+    fold5:[2 3 4 5] [0 1]
+    ```
+
+    
+
 ### ShuffleSplit
 
 - [sklearn.model_selection.ShuffleSplit — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html)
@@ -480,7 +573,9 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 
   此交叉验证器将数据拆分为训练集和测试集的索引。
 
-- 注意：与其他交叉验证策略不同，**随机拆分不能保证所有的fold都是不同的**，尽管对于大型数据集来说这种情况仍然是很可能发生的。
+- 注意：与其他交叉验证策略不同，**随机拆分不能保证所有的fold都是不同的**，尽管对于大型数据集,这种情况仍然是很可能发生的。
+
+- 不过,和自举法采样不同,shuffleSplit可以保证每一次采样的两个数据集的并集是元数据集,且交集是空,只是不能保证多次划分之间互不相同.
 
 - [  Cross-validation: evaluating estimator performance — scikit-learn  documentation](https://scikit-learn.org/stable/modules/cross_validation.html#random-permutations-cross-validation-a-k-a-shuffle-split)
 
@@ -496,9 +591,17 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
       print("%s %s" % (train_index, test_index))
   ```
 
+  - ```bash
+    [1 7 3 0 5 4] [6 2]
+    [3 7 0 4 2 5] [1 6]
+    [3 4 7 0 6 1] [5 2]
+    [6 7 3 4 1 0] [2 5]
+    [1 6 3 2 0 7] [4 5]
+    ```
+  
   - 这段代码首先使用`np.arange`函数生成一个包含8个数的数组`X`，然后创建一个`ShuffleSplit`对象`ss`，将数据集分成`5`个不同的训练集和测试集，测试集的大小设置为25%，随机种子设置为0。
   - 然后，我们使用ss的`split`方法对数据集进行随机拆分，将每个fold的训练集和测试集索引分别存储在`train_index`和`test_index`变量中，并输出这两个变量。
-
+  
 - Here is a visualization of the cross-validation behavior. Note that [`ShuffleSplit`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit) is not affected by classes or groups.
 
   [![../_images/sphx_glr_plot_cv_indices_008.png](https://scikit-learn.org/stable/_images/sphx_glr_plot_cv_indices_008.png)](https://scikit-learn.org/stable/auto_examples/model_selection/plot_cv_indices.html)
@@ -693,9 +796,11 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
 
 - 而对于KFold,`n_splits`往往就决定了`test_size`的值为`1/n_splits`
 
-### demos
+### 综合例
 
-- ```python
+- 示例以各种**交叉验证器**(cross validator)结合`cross_val_score`(cross validation score)来使用这些交叉验证器对训练出来的各种模型进行**精度**分数的评估:
+  
+  ```python
   
   import numpy as np
   from sklearn.datasets import load_iris
@@ -740,6 +845,7 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
   #构造cv器的时候不需要传入数据集
   ss_cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=42)
   kf_cv=KFold(n_splits=3,shuffle=True,random_state=42)
+  
   scores = cross_val_score(
       model,
       X,
@@ -773,6 +879,65 @@ X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_s
   print("Scores:", scores)
   print("Mean score:", scores.mean())
   ```
+  
+
+## sklearn.model_selection中的api
+
+### train_test_split
+
+- [sklearn.model_selection.train_test_split — scikit-learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
+
+- Split arrays or matrices into random train and test subsets.
+
+  Quick utility that wraps input validation, `next(ShuffleSplit().split(X, y))`, and application to input data into a single call for splitting (and optionally subsampling) data into a one-liner.
+
+  将数组或矩阵随机分成训练集和测试集的快速实用程序。
+
+  这是一个快捷实用程序，它将输入验证、`next(ShuffleSplit().split(X, y))`和将其应用于输入数据的操作封装成一个单独的函数调用，用于将数据拆分（和可选地进行子采样）为一行代码。
+
+- ```python
+  In [32]: import numpy as np
+      ...: from sklearn.model_selection import train_test_split
+      ...: X, y = np.arange(10).reshape((5, 2)), range(5)
+      ...:
+  
+  In [33]: X,y
+  Out[33]:
+  (array([[0, 1],
+          [2, 3],
+          [4, 5],
+          [6, 7],
+          [8, 9]]),
+   range(0, 5))
+  
+  In [36]: X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+  
+  In [37]: X_train, X_test, y_train, y_test
+  Out[37]:
+  (array([[4, 5],
+          [0, 1],
+          [6, 7]]),
+   array([[2, 3],
+          [8, 9]]),
+   [2, 0, 3],
+   [1, 4])
+  ```
 
   
+
+### 小结
+
+- 根据文档可知,`train_test_split`借助了`ShuffleSplit`实现.而不是KFold实现,因为`train_test_split`可以接收`test_size`参数,KFold是不支持这类参数的
+
+- `train_test_split`是用于将数据集拆分为训练集和测试集的工具。它可以将数据集随机地拆分为两个部分，一部分用于训练模型，另一部分用于测试模型。
+
+  - `train_test_split`的一个主要优点是它非常容易使用，只需要一行代码就可以完成数据拆分。例如：
+
+  - ```python
+    from sklearn.model_selection import train_test_split
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    ```
+
+  - 在这个例子中，`train_test_split`将数据集X和标签y拆分为训练集和测试集，其中测试集占总数据集的20%。`random_state`参数用于设置随机数种子，以确保在多次运行代码时，得到的拆分结果相同。
 

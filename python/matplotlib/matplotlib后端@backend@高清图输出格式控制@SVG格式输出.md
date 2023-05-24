@@ -1,8 +1,17 @@
 [toc]
 
-# matplotlib backend🎈
+#  notebook@matplotlib🎈
+
+[Interactive figures — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/interactive.html)
+
+## matplotlib backend
 
 - [Backends — Matplotlib documentation](https://matplotlib.org/stable/users/explain/backends.html)
+
+- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。
+- 同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。
+- 为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。
+- 我们建议使用IPython来实现这一点。
 
 ## backend
 
@@ -199,7 +208,9 @@ For the rendering engines, users can also distinguish between [vector](https://e
 
 - Here is a summary of the Matplotlib **renderers** (there is an eponymous **backend** for each)
 
-#### 非交互式后端
+### 非交互式后端🎈
+
+- Here is a summary of the Matplotlib renderers (there is an eponymous backend for each;)
 
 - "Eponymous" 是一个形容词，用来形容一个事物的名称和这个事物本身是相同的，即名称和事物的本体相同。
 - 在Matplotlib的上下文中，每个渲染器都有一个相应的后端，这个<u>后端的名称和渲染器本身的名称相同</u>，因此可以使用 "eponymous" 来形容这种关系
@@ -215,13 +226,15 @@ For the rendering engines, users can also distinguish between [vector](https://e
 | PGF      | pgf, pdf          | [vector](https://en.wikipedia.org/wiki/Vector_graphics) graphics -- using the [pgf](https://ctan.org/pkg/pgf) package. |
 | Cairo    | png, ps, pdf, svg | [raster](https://en.wikipedia.org/wiki/Raster_graphics) or [vector](https://en.wikipedia.org/wiki/Vector_graphics) graphics -- using the [Cairo](https://www.cairographics.org/) library (requires [pycairo](https://www.cairographics.org/pycairo/) or [cairocffi](https://pythonhosted.org/cairocffi/)). |
 
-##### 保存绘图为图片的api
+#### 将输出图保存为svg图
 
-To save plots using the non-interactive backends, use the `matplotlib.pyplot.savefig('filename')` method.
+- To save plots using the non-interactive backends, use the `matplotlib.pyplot.savefig('filename')` method.
+
+### 交互式后端
 
 These are the user interfaces and renderer combinations supported;
 
- these are *interactive backends*, capable of displaying to the screen and using appropriate renderers from the table above to write to a file:这些是支持的用户界面和渲染器组合；这些是交互式后端，能够显示到屏幕并使用上面表格中适当的渲染器来写入文件：
+ these are *interactive backends*, capable of displaying to the screen and using appropriate renderers from the table above to write to a file:这些是matplotlib支持的用户界面和渲染器的组合；他们是交互式后端，能够显示到屏幕并使用上面表格中适当的渲染器来写入文件：
 
 | Backend   | Description                                                  |
 | --------- | ------------------------------------------------------------ |
@@ -259,7 +272,87 @@ These are the user interfaces and renderer combinations supported;
   plt.show()
   ```
 
-#### conda notebook环境中提示后端导入错误问题😂
+## matplotlib.backend_bases
+
+- Abstract base classes define the primitives that renderers and graphics contexts must implement to serve as a Matplotlib backend.(后端基类)
+
+## matplotlib.backends
+
+- [matplotlib.backends — Matplotlib  documentation](https://matplotlib.org/stable/api/index_backend_api.html)
+
+- A subpackage with modules for various GUI libraries and output formats.
+
+### matplotlib.backends.backend_tkagg
+
+- matplotlib.backends.backend_tkagg 是一个 Matplotlib 的后端模块，它允许将 Matplotlib 图形嵌入到 Tkinter GUI 应用程序中。
+- Tkinter 是 Python 的一个标准图形用户界面库，用于创建简单的桌面应用程序。
+- 通过使用 backend_tkagg，我们可以将 Matplotlib 图表集成到 Tkinter 应用程序中，从而实现交互式数据可视化。
+
+以下是使用 matplotlib.backends.backend_tkagg 的一个简单示例：
+
+```python
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import numpy as np
+
+def plot_graph():
+    # 创建一个简单的图形
+    fig = Figure(figsize=(5, 4), dpi=100)
+    ax = fig.add_subplot(111)
+    t = np.arange(0, 3, .01)
+    ax.plot(t, 2 * np.sin(2 * np.pi * t))
+
+    # 将图形嵌入到 Tkinter 窗口中
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+root = tk.Tk()
+root.title("Matplotlib in Tkinter")
+
+plot_button = tk.Button(master=root, text="Plot", command=plot_graph)
+plot_button.pack(side=tk.BOTTOM)
+
+root.mainloop()
+
+```
+
+- 在这个示例中，我们首先导入了所需的库，然后定义了一个名为 plot_graph 的函数。
+- 这个函数创建了一个简单的 Matplotlib 图形，并使用 FigureCanvasTkAgg 将其嵌入到 Tkinter 窗口中。
+- 最后，我们创建了一个按钮，当单击该按钮时，将调用 plot_graph 函数并显示图形。
+
+## 小结
+
+`matplotlib.backends` 模块是一个与特定的绘图后端（backends）相关的子模块，用于处理与绘图显示、保存等相关的底层任务。在 `matplotlib` 中，后端分为三类：
+
+1. 用户界面后端（User Interface backends）：用于绘制交互式图形界面，例如 Tkinter、Qt、GTK 等。
+2. 硬拷贝后端（Hardcopy backends）：用于生成图像文件（如 PNG、SVG、PDF 等）。
+3. 渲染器后端（Renderer backends）：处理矢量和栅格图形的绘制。
+
+通常情况下，你不需要直接与 `matplotlib.backends` 模块交互，因为 `matplotlib` 会自动选择合适的后端。但在某些情况下，你可能需要手动设置后端。这时，你可以使用 `matplotlib.use()` 函数。
+
+`matplotlib.use(backend)` 允许你指定使用的后端。这个函数需要在导入 `pyplot` 之前调用，因为它会设置后端相关的全局变量。例如，如果你想在生成的图像中使用 'Agg' 后端，可以这样做：
+
+
+
+```python
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+```
+
+为了避免混淆相关概念，请注意以下几点：
+
+1. `matplotlib.backends` 是一个与后端相关的子模块，而 `matplotlib.use()` 是一个用于设置后端的函数。
+2. 通常情况下，你不需要手动设置后端，除非需要使用特定的后端或解决兼容性问题。
+3. 在导入 `pyplot` 之前调用 `matplotlib.use()` 函数。
+
+希望以上解释能帮助你理解 `matplotlib.backends` 模块以及如何使用 `matplotlib.use()` 函数。在大多数情况下，你只需关注 `matplotlib.pyplot` 模块的使用，后端会自动处理好。
+
+## FAQ🎈
+
+### conda notebook环境中提示后端导入错误问题😂
 
 - Error:`Failed to import any qt binding`
 - 这可能时conda环境过于复杂或混合使用conda install 和 pip install 安装了相关包(notebook,matplotlib)
@@ -273,7 +366,21 @@ These are the user interfaces and renderer combinations supported;
     notebook
     ```
 
+  - 上述安装列表全部使用pip安装,可以减少不必要的错误
+
 - `pip install -r requirements.txt`
+
+
+### 同一个环境启动多个ipython实例引发的问题🎈
+
+- 假设我使用powershell在`tf2.0`这个环境下启动了`ipython`
+- 在vscode中用notebook执行`%matplotlib`可能会提示如下:
+  - `Using matplotlib backend: <object object at 0x0000023A7FC56CA0>`
+- 这种情况下是无法进行后端切换的,需要退出终端(powershell)中的实例然后重试
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/4e82c6d628204d7ab21604f8de3db338.png)
+
+- 此外,我还在vscode中做过试验,如果`终端`(vscode集成terminal)和vscode+notebook启用的是同一个conda环境(例如`tf2.10`),那么会导致notebook通过`%matplotlib`有几率会是一个形如:`Using matplotlib backend: <object object at 0x0000.....0>`的对象,这时候进行绘图会弹出的窗口会卡死!
+- 因此建议进行交互matplotlib不要切换为qt后端,或者不要实例多开同一个conda 环境!(使用`conda deactivate  `关闭不需要的环境)
 
 ### 查看可用后端列表:
 
@@ -300,6 +407,50 @@ These are the user interfaces and renderer combinations supported;
     ```
 
   - 如果想要二次切换后端,需要重启notebook(restart kernel)
+
+
+#### 使用matplotlib.get_backend检查当前后端
+
+- ```python
+  import matplotlib as mpl
+  mpl.get_backend()
+  ```
+
+  - `'module://matplotlib_inline.backend_inline'`
+
+- ```python
+  %matplotlib
+  ```
+
+  - `Using matplotlib backend: <object object at 0x0000027F55E1EC60>`
+
+- 两种查询方式中,如果结果是`backend_inline`,第一种更加清晰
+
+- 这种情况下,通常是有其他地方(比如终端启用了同一个环境,执行`conda deactivate  `后再试)
+
+  
+
+### 常见后端介绍
+
+Matplotlib是一个功能强大的绘图库，支持多种不同的后端，可以将图形渲染到不同的设备上。以下是Matplotlib当前可用的后端：
+
+1. tk：使用Tkinter GUI库，Matplotlib图形将显示在一个独立的Tkinter窗口中。
+2. gtk，gtk3和gtk4：使用GTK图形工具包，Matplotlib图形将显示在一个独立的GTK窗口中。
+3. wx：使用wxWidgets GUI库，Matplotlib图形将显示在一个独立的wxWidgets窗口中。
+4. qt4，qt5和qt6：使用Qt GUI库，Matplotlib图形将显示在一个独立的Qt窗口中。
+5. osx：使用Mac OS X的本地GUI库，Matplotlib图形将显示在一个独立的窗口中。
+6. nbagg：使用Notebook Agg后端，Matplotlib图形将嵌入到Jupyter Notebook中，并支持交互式绘图。
+7. webagg：使用Web Agg后端，Matplotlib图形将在Web浏览器中显示，并支持交互式绘图。
+8. notebook：使用Notebook后端，Matplotlib图形将嵌入到Jupyter Notebook中。
+9. agg：使用Anti-Grain Geometry库，Matplotlib图形将作为位图渲染。
+10. svg：使用SVG（可缩放矢量图形）格式渲染Matplotlib图形。
+11. pdf：使用PDF格式渲染Matplotlib图形。
+12. ps：使用PostScript格式渲染Matplotlib图形。
+13. inline：使用Matplotlib Inline后端，Matplotlib图形将直接嵌入到Jupyter Notebook中。
+14. ipympl：使用ipywidgets和jupyter-matplotlib库，Matplotlib图形将嵌入到Jupyter Notebook中，并支持交互式绘图。
+15. widget：使用ipywidgets库，Matplotlib图形将嵌入到Jupyter Notebook中，并支持交互式绘图。
+
+这些后端的选择取决于你的具体需求，例如是否需要交互式绘图或需要将图形保存为矢量图形。
 
 ## matplotlib@tkagg
 
@@ -356,7 +507,211 @@ These are the user interfaces and renderer combinations supported;
 
   - 你可以使用 Matplotlib 绘制各种类型的图形，并将它们嵌入到 Tkinter 窗口中。
 
+### 
+
+- [Embedding in Tk — Matplotlib  documentation](https://matplotlib.org/stable/gallery/user_interfaces/embedding_in_tk_sgskip.html#sphx-glr-gallery-user-interfaces-embedding-in-tk-sgskip-py)
+
+## 检查matplotlib后端模式🎈
+
+- 要检查Jupyter Notebook是否自动启用了`%matplotlib inline`命令，可以执行以下步骤：
+
+  1. 打开Jupyter Notebook
+
+  2. 在Notebook中新建一个代码单元格
+
+  3. 输入以下代码并执行它：
+
+     ```python
+     %matplotlib inline
+     import matplotlib.pyplot as plt
+     
+     plt.plot([1, 2, 3])
+     ```
+
+  4. 观察输出结果
+
+  如果图像显示在Notebook中，且无需调用`plt.show()`方法，那么Jupyter Notebook就已经自动启用了`%matplotlib inline`命令。否则，您需要手动使用`%matplotlib inline`命令来启用Magplotlib的嵌入式模式。
+
+  在Notebook中，您也可以通过运行以下代码来检查当前的Matplotlib后端：
+
+  ```python
+  import matplotlib
+  print(matplotlib.get_backend())
+  ```
+
+- 如果输出结果为`'module://ipykernel.pylab.backend_inline'`，则表示当前的Matplotlib后端为内嵌式（inline）模式。
+
 ### matplotlib_inline
 
+- [ipython/matplotlib-inline: Inline Matplotlib backend for Jupyter (github.com)](https://github.com/ipython/matplotlib-inline)
+
+- Note that in current versions of JupyterLab and Jupyter Notebook, the explicit use of the `%matplotlib inline` directive is **not needed anymore**, though other third-party clients may still require it.
+
+- ```python
+  def use_svg_display():  #@save
+      """使用svg格式在Jupyter中显示绘图"""
+      backend_inline.set_matplotlib_formats('svg')
+  ```
+
 - `from matplotlib_inline import backend_inline`
+
+
+
+## 更改matplotlib在notebook中出图的格式🎈
+
+- [matplotlib - jupyter notebook inline plots as svg - Stack Overflow](https://stackoverflow.com/questions/36622237/jupyter-notebook-inline-plots-as-svg)
+- [Built-in magic commands — IPython  documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-matplotlib)
+
+### 输出SVG格式的高清图像
+
+- 在Matplotlib中，可以使用多种方法将图形导出为SVG格式。
+- 以下是一些常见的方法：
+
+### 示例图像`plot_sin_demo`
+
+- 以下几种方法使用`plot_sin_demo`来演示,以便突出重点
+- 该函数返回带有正弦图像的plt对象
+
+```python
+
+def plot_sin_demo():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    # 创建一个简单的图形
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x)
+
+    plt.plot(x, y)
+    plt.xlabel('x')
+    plt.ylabel('sin(x)')
+    # 显示图像
+    return plt
+
+# plt=plot_sin_demo()
+
+```
+
+
+
+### 使用`savefig()`函数保存为SVG文件：
+
+- savefig函数文档
+
+  ```python
+  In [1]: import matplotlib.pyplot as plt
+  
+  In [2]: plt.savefig?
+  Signature: plt.savefig(*args, **kwargs)
+  Docstring:
+  Save the current figure.
+  ...
+  
+  ```
+
+- ```python
+  
+  plt=plot_sin_demo()
+  
+  # 将图形保存为SVG文件
+  plt.savefig('sin_wave_demo.svg', format='svg')
+  #注意显示函数show()应该在savefig()执行之后调用,plt.show()默认显示的像素图,而不是svg图
+  #此后调用savefig指定格式可能不生效!
+  plt.show()
+  # 关闭图形
+  plt.close()
+  ```
+
+### 在Jupyter Notebook中内联显示SVG图形：
+
+要在Jupyter Notebook中内联显示SVG图形，需要在Notebook的开头执行以下魔法命令：
+
+```python
+%config InlineBackend.figure_format = 'svg'
+```
+
+然后，您可以像往常一样创建和显示图形。这将自动将图形以SVG格式显示在Notebook中。
+
+```python
+plot_sin_demo()
+```
+
+
+
+### 利用ipython输出svg高清图
+
+```python
+from matplotlib_inline.backend_inline import set_matplotlib_formats
+set_matplotlib_formats('svg')
+
+plt=plot_sin_demo()
+plt.show()
+```
+
+- 此外,notebook通过`%matplotlib`魔术命令设置matplotlib的一些行为.
+
+
+
+### 将图形转换为SVG字符串：
+
+如果您希望将图形转换为SVG字符串，可以使用`io.StringIO`和`FigureCanvasSVG`：
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_svg import FigureCanvasSVG
+import io
+
+# 创建一个简单的图形
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+fig, ax = plt.subplots()
+ax.plot(x, y)
+ax.set_xlabel('x')
+ax.set_ylabel('sin(x)')
+
+# 将图形转换为SVG字符串
+output = io.StringIO()
+canvas = FigureCanvasSVG(fig)
+canvas.print_svg(output)
+
+# 获取SVG字符串
+svg_string = output.getvalue()
+
+# 关闭图形
+plt.close(fig)
+
+# 打印SVG字符串（或将其用于其他目的）
+print(svg_string)
+```
+
+```svg
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="460.8pt" height="345.6pt" viewBox="0 0 460.8 345.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2023-05-20T13:10:13.778014</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.7.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+        ........
+```
+
+
+
+### 小结
+
+- 在Jupyter Notebook中，建议使用方法2，因为它可以直接在Notebook中显示高质量的SVG图形。
+
+
+
+
+
+
 

@@ -1,16 +1,46 @@
 [toc]
 
-# matplotlib@notebook@魔术命令%command@独立窗口@自动关闭图表显示窗口
+# notebook@魔术命令%command@独立窗口@matplotlib@自动关闭图表显示窗口
 
-##  notebook@matplotlib🎈
+### IDLE
 
-- [Interactive figures — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/interactive.html)
+IDLE 是 Python 的官方集成开发环境，它简单易用，适合初学者入门 Python。以下是 IDLE 的优缺点：
+
+*优点：*
+
+1. 简单易用：IDLE 提供了基本的代码编辑和运行功能，界面简洁，操作直观。
+2. 官方支持：IDLE 是官方推荐的 Python 开发环境，与 Python 版本更新同步，兼容性良好。
+3. 跨平台：IDLE 支持 Windows、macOS 和 Linux 等多种操作系统。
+4. 无需安装：IDLE 随 Python 安装包一起提供，无需额外安装。
+
+*缺点：*
+
+1. 功能有限：IDLE 的功能相对较少，可能不满足一些高级用户的需求。
+2. 性能问题：在处理大型项目时，IDLE 可能会出现卡顿和延迟的情况。
 
 ### IPython👌
+
+- [Jupyter and the future of IPython — IPython](https://ipython.org/)
 
 - IPython是一个交互计算环境，旨在提高Python的交互性和可编程性。它提供了一个强大的交互式Shell，支持自动完成、历史记录、对象检查和许多其他特性。此外，它还包括了一些高级工具和库，例如`IPython.display`模块、Jupyter Notebook和nbconvert等，可以帮助用户快速创建漂亮的文档和报告。
 
   IPython原本是一个基于Python的交互式Shell，后来发展成为一个功能更加强大的交互式计算环境，广泛应用于数据科学、机器学习、统计学和其他相关领域
+
+IPython 是一个强大的 Python 交互式解释器，它提供了更丰富的功能，适合高级用户。以下是 IPython 的优缺点：
+
+*优点：*
+
+1. 强大的交互功能：IPython 提供了 Tab 补全、语法高亮、内嵌图像等丰富的交互功能。
+2. 魔法命令：IPython 支持一系列有用的魔法命令，可以方便地执行系统命令、测量代码执行时间等。
+3. 扩展性：IPython 可以与其他工具集成，例如 Jupyter Notebook，以提供更丰富的功能。
+4. 良好的社区支持：IPython 有活跃的社区支持，用户可以在社区中找到许多有用的资源和教程。
+
+*缺点：*
+
+1. 入门门槛较高：对于初学者来说，IPython 的功能和操作可能显得较为复杂。
+2. 需要额外安装：IPython 不随 Python 安装包提供，需要单独安装。
+
+### Notebook
 
 - IPython是Jupyter Notebook的前身，最初是一个基于Python的交互式Shell，后来发展成为一个功能更加强大的交互式计算环境。随着时间的推移，IPython团队开发了一个新的浏览器端交互式笔记本工具Jupyter Notebook，它支持多种编程语言，并且提供了许多新特性和功能。
 
@@ -18,69 +48,11 @@
 
   因此，可以将Jupyter Notebook看作是一个包含IPython的全新交互式笔记本工具，它不仅支持Python，还支持许多其他编程语言，如R、Julia等。
 
-## matplotlib backend
+### 小结
 
-- [Backends — Matplotlib  documentation](https://matplotlib.org/stable/users/explain/backends.html#what-is-a-backend)
-- Matplotlib是一个Python绘图库，它包含多个GUI工具包的后端绑定，包括Qt、Tk、Wx、GTK、macOS和JavaScript等。
-- 同时，第三方软件包也提供了与Kivy和Jupyter Lab的绑定。
-- 为了使图形能够响应鼠标、键盘和绘图事件，GUI事件循环需要与交互式提示符集成。
-- 我们建议使用IPython（详见下文）来实现这一点。
-
-### 检查matplotlib后端模式
-
-- 要检查Jupyter Notebook是否自动启用了`%matplotlib inline`命令，可以执行以下步骤：
-
-  1. 打开Jupyter Notebook
-
-  2. 在Notebook中新建一个代码单元格
-
-  3. 输入以下代码并执行它：
-
-     ```python
-     %matplotlib inline
-     import matplotlib.pyplot as plt
-     
-     plt.plot([1, 2, 3])
-     ```
-
-  4. 观察输出结果
-
-  如果图像显示在Notebook中，且无需调用`plt.show()`方法，那么Jupyter Notebook就已经自动启用了`%matplotlib inline`命令。否则，您需要手动使用`%matplotlib inline`命令来启用Magplotlib的嵌入式模式。
-
-  在Notebook中，您也可以通过运行以下代码来检查当前的Matplotlib后端：
-
-  ```
-  pythonCopy Codeimport matplotlib
-  print(matplotlib.get_backend())
-  ```
-
-- 如果输出结果为`'module://ipykernel.pylab.backend_inline'`，则表示当前的Matplotlib后端为内嵌式（inline）模式。
-
-### matplotlib_inline
-
-- [ipython/matplotlib-inline: Inline Matplotlib backend for Jupyter (github.com)](https://github.com/ipython/matplotlib-inline)
-- Note that in current versions of JupyterLab and Jupyter Notebook, the explicit use of the `%matplotlib inline` directive is **not needed anymore**, though other third-party clients may still require it.
-
-- ```python
-  def use_svg_display():  #@save
-      """使用svg格式在Jupyter中显示绘图"""
-      backend_inline.set_matplotlib_formats('svg')
-  ```
-
-### 更改matplotlib在notebook中出图的格式
-
-- [matplotlib - jupyter notebook inline plots as svg - Stack Overflow](https://stackoverflow.com/questions/36622237/jupyter-notebook-inline-plots-as-svg)
-- [Built-in magic commands — IPython 8.13.2 documentation](https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-matplotlib)
-
-#### eg@输出svg高清图
-
-```python
-In [1]: from matplotlib_inline.backend_inline import set_matplotlib_formats
-In [2]: set_matplotlib_formats('pdf', 'svg')
-```
-
-- notebook通过`%matplotlib`魔术命令设置matplotlib的一些行为
-- 
+- 总之，如果你是初学者或者需要一个简单易用的环境，IDLE 可能是更好的选择。而如果你是高级用户，需要更丰富功能的交互式解释器，那么 IPython 可能更适合你。如果需要更多功能,notebook更适合你
+- 他们需要安装的东西依次增多.
+- 对于Ipython vs notebook,许多python计算库提供的示例是用ipython进行的,因此因为他们比notebook更容易进行代码片段的复制粘贴,同时有具有比基础的IDLE更具多的功能
 
 ## notebook %command👌
 

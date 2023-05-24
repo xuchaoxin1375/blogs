@@ -1,5 +1,7 @@
 [toc]
 
+- word快捷键@域和交叉引用@样式设置@字号和单位@语言设置@粘贴格式设置
+
 ##  word跳转@引用@标注
 
 - 编号@列标
@@ -210,7 +212,7 @@
 ### 正文@间距@行距
 
 - [在 Word 中更改行距 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/在-word-中更改行距-04ada056-b8ef-4b84-87dd-5d7c28a85712)
-- 影响实际行与行之间距离视觉效果的因素包括行距倍数，还和网格对齐有关
+- 影响实际行与行之间距离视觉效果的因素包括行距倍数，还和**网格对齐**有关
   - [word中一样的格式行间距的大小不一样 (baidu.com)](https://jingyan.baidu.com/article/9c69d48f93f61d13c8024e62.html)
   - 在段落-间距中包含行距和网格的设置
 - 正文样式可能要求具有同一大小的字体，当我们打完草稿开始样式化时有以下需要注意
@@ -255,9 +257,28 @@
 - [将图表、图片和对象对齐到网格以在 Word 中对齐它们 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/将图表-图片和对象对齐到网格以在-word-中对齐它们-d9c687fc-926e-4eca-8cef-952eed714012)
 - [调整缩进和间距 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/调整缩进和间距-36239d98-14c5-411e-a880-1ddf25d65cd6?ns=winword&version=19&syslcid=2052&uilcid=2052&appver=zwd190&helpid=323&ui=zh-cn&rs=zh-cn&ad=cn)
 
+- | illustration                                                 | notes                                                        |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/05d5c370de914e62a666d760ac5071cb.png) | 点击文档中的某个对象（图片或表格）<br />以图片为例，点击临时选项卡（图片工具）（`pictures tools`下方的`Picture Format`<br />点击`Arrange`组中的`Align`选择`Grid settings` |
+  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/fce9c4cfa38a4566ac91fb339a14c429.png) | 绘制网格，可以用来对齐插入的形状，比如矩形                   |
+
+- Make pictures, charts, or other objects align on the page, or with each other, by using “snap to” commands.
+
+  **Snap to** options only work in Print Layout.
+
 ### 第三方参考
 
 - [WORD中如何设置网格线_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Vq4y1376V/?spm_id_from=333.337.search-card.all.click&vd_source=c0a3b17a665cd2d32431213df84cd3ce)
+
+### 借助网格线体会间距设置
+
+|                                                              |                                       |
+| ------------------------------------------------------------ | ------------------------------------- |
+| ![在这里插入图片描述](https://img-blog.csdnimg.cn/9808f0ce3b6a4521b372ba3e752dc358.png) | 单倍行距                              |
+| ![在这里插入图片描述](https://img-blog.csdnimg.cn/2cd3fc5d7668444da5cc836304258b52.png) | 1.5倍行距，2行文字内容占用3个单倍距离 |
+| ![在这里插入图片描述](https://img-blog.csdnimg.cn/370d370863fb419d887e4bd8ca4ef196.png) | 2.0倍行距                             |
+
+
 
 ## 复制粘贴内容的样式设置
 

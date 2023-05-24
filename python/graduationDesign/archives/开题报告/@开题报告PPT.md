@@ -62,9 +62,12 @@ class: lead
 - 共振峰和MFCC 是语音情感识别中两种常用的特征, 共振峰(音质特征)是音质的决定因素, 可以反映声道的物理特征; MFCC 可以在很大程度上模拟人的听觉感知系统, 从而提高语音情感识别的性能。可以采用传统的特征提取器openSMILE，提取包括 共振峰、MFCC等浅层特征。
 
 - 本系统拟将 VMD（变分模态分解） 算法应用于 GFCC 的提取过程，得到 VGFCC特征。再通过特征级融合（韵律特征、非线性特征、VGFCC特征）得到包含更全面信息的全局特征GF
+
 ---
+
 ### 分类模型的构建
 
+___
 
 <!-- class: default  -->
 ![ Schematic diagram of automatic encoder; ](https://img-blog.csdnimg.cn/457d8e29cd074d6a90126238ce5fd73e.png)
@@ -72,18 +75,21 @@ class: lead
 本系统拟采用栈式堆叠稀疏自编码器与核函数极限学习机结合的复合网络模型（SSAE-KELM）作为识别模型。
 Stack Sparse Automatic Encoders - Kernel Extreme Learning Machine
 
+
+
 <!-- class: lead  -->
 
 复合网络SSAE-KELM 的结构图解
 ![bg contain right:70% ](https://img-blog.csdnimg.cn/63f31dd95c74414dbde9804b71b73811.png)
 
+
 ---
-![image-20230112193055545](D:\repos\blogs\graduationDesign\assets\image-20230112193055545.png)
 
 识别的流程
 ![  在这里插入图片描述](https://img-blog.csdnimg.cn/17fd1086b50043b2aaab511b6a675151.png)
 
 ---
+
 基于复合网络 SSAE-KELM 语音情感识别的详细步骤如下： 
 1) 多层稀疏自编码器堆叠构成栈式稀疏自编码网络，初始化 SSAE 网络参数； 
 2) 选择情感语音库，按照大致 2：1 的比例将其分为训练集与测试集，并提取语音情感全局特征 GF； 

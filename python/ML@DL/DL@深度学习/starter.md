@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 #  参考资料
 ##  overview
 - [[深度学习\]什么是深度学习 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/72415675)

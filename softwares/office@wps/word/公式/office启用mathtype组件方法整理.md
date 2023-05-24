@@ -23,7 +23,9 @@
   - 使用第三方工具,例如[voidtools|everything](https://www.voidtools.com/zh-cn/)
   - 它们都是很有用的工具
 
-### 文件操作法
+### 命令行法
+
+- 首选,用**管理员权限(方式**打开powershell
 
 - 本方法默认对office 2016或者更高的版本有效(安装路径默认的情况下,建议按照上述方法查找到office安装目录)
 

@@ -247,10 +247,47 @@
 
 - [python - From conda create requirements.txt for pip3 - Stack Overflow](https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3)
 
-
 #### conda export
 
-- 输出预览:
+- ```bash
+  (d:\condaPythonEnvs\tf2.10) PS D:\repos\CCSER\SER> conda env export --help
+  usage: conda-env-script.py export [-h] [-c CHANNEL] [--override-channels] [-n ENVIRONMENT | -p PATH] [-f FILE] [--no-builds]
+                                    [--ignore-channels] [--json] [-v] [-q] [--from-history]
+  
+  Export a given environment
+  
+  Options:
+  
+  optional arguments:
+    -h, --help            Show this help message and exit.
+    -c CHANNEL, --channel CHANNEL
+                          Additional channel to include in the export
+    --override-channels   Do not include .condarc channels
+    -f FILE, --file FILE  File name or path for the exported environment. Note: This will silently overwrite any existing file of the
+                          same name in the current directory.
+    --no-builds           Remove build specification from dependencies
+    --ignore-channels     Do not include channel names with package names.
+    --from-history        Build environment spec from explicit specs in history
+  
+  Target Environment Specification:
+    -n ENVIRONMENT, --name ENVIRONMENT
+                          Name of environment.
+    -p PATH, --prefix PATH
+                          Full path to environment location (i.e. prefix).
+  
+  Output, Prompt, and Flow Control Options:
+    --json                Report all output as json. Suitable for using conda programmatically.
+    -v, --verbose         Use once for info, twice for debug, three times for trace.
+    -q, --quiet           Do not display progress bar.
+  
+  examples:
+      conda env export
+      conda env export --file SOME_FILE
+  ```
+
+  
+
+- 输出预览:`conda env export `
 
   - ```bash
     (d:\condaPythonEnvs\tf2.10) PS D:\repos\CCSER\SER> conda env export 

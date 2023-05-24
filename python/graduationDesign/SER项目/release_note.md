@@ -21,7 +21,28 @@
 
 ### versions with time
 
+- **<u>input version under this line:</u>**
+  - new notes:"Sort update records in descending order of time".That would be convenient to update new version notes in the future.
+- *<u>current modifing:</u>*
+  - ...
+  - improve the UI alignment(make almost all `input` and `frame` type elements using the expand_x=True,to autofit the width availible)
+  - fix the audio file viewer language inconsistent bugs.
+  
+- 2023-05-10@20:06:02
+  - initially support the interface language switch:between Chinese and English
+    - the approch to achieve the multilanguage support depending on language string resource py file:
+      - `zh.py` for Chinese
+      - `en.py` for english
+    - for convenience,these module was managed by the `multilanguage.py`module.
+    - unfortunately,these features was test in `fviewer.py`,the main gui was still unable to work normally because the `windows.close` caused the program broken!
+  - improve the regex_filter performance by using `re.compile` instead `re.<function>`
+- 2023-05-09@19:10:05
+  - fix some bugs.
+  - certain adjustments to the project code.
 
+### old notes
+
+- old notes:"Sort update records in ascending order of time".
 
 - 2023-04-25@21:35:50
   - new:

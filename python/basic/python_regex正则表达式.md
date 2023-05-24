@@ -4,7 +4,11 @@
 
 ##  references
 ###  标准文档(library)
-- [正则表达式操作](https://docs.python.org/zh-cn/3.9/library/re.html?highlight=findall#re.findall)
+
+- [re — Regular expression operations — Python  documentation](https://docs.python.org/3/library/re.html)
+
+- 中文文档:[re --- 正则表达式操作 — Python  文档](https://docs.python.org/zh-cn/3/library/re.html)
+
 ###  补充教程(howTo)
 
 - [HOWTO本文档是在Python中使用 re 模块使用正则表达式的入门教程。 它提供了比“标准库参考”中相应部分更平和的介绍。](https://docs.python.org/zh-cn/3/howto/regex.html#regex-howto)
@@ -42,7 +46,7 @@
 
 ## 使用python正则表达式
 
-### 编译正则表达式
+### 编译正则表达式🎈
 
 - 正则表达式被编译成模式对象，模式对象具有各种操作的方法，例如搜索模式匹配或执行字符串替换。:
 
@@ -92,7 +96,7 @@
 
 - 借助模式对象的`finditer()`方法,再迭代它可以获取索引信息,末尾的例子中使用了`finditer`
 
-### redemo.py
+## 辅助GUI程序redemo.py
 
 - 如果你有 [`tkinter`](https://docs.python.org/zh-cn/3/library/tkinter.html#module-tkinter)，你可能还想查看 [Tools/demo/redemo.py](https://github.com/python/cpython/tree/3.11/Tools/demo/redemo.py)，这是 Python 发行附带的演示程序。
 
@@ -101,9 +105,404 @@
     - ![在这里插入图片描述](https://img-blog.csdnimg.cn/58df1684726b4dcba4faf410dcffdbec.png)
   - `redemo.py` 在尝试调试复杂的正则时非常有用。
 
-### `Match`类的常用方法🎈
+## re模块内容@Module Contents[¶](https://docs.python.org/3/library/re.html?highlight=findall#module-contents)
 
-- 首先，运行 Python 解释器，导入 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块，然后编译一个正则,得到要给正则模式对象Pattern
+- The module defines several functions, constants, and an exception. Some of the functions are simplified versions of the full featured methods for compiled regular expressions. Most non-trivial applications always use the compiled form.
+- 该模块定义了几个函数、常量和一个异常。
+  - 其中**一些函数**是编译正则表达式的完整功能方法的**简化版本**。
+    - 提供这些简化后的函数是为了以更简洁的方式处理简单的问题,而不需要编译形式
+  - 大多数复杂的应用程序始终使用**编译形式**。
+
+## `re.[functions]`
+
+- re.**compile**(*pattern*, *flags=0*)
+
+  Compile a regular expression pattern into a [regular expression object](https://docs.python.org/3/library/re.html?highlight=findall#re-objects), which can be used for matching using its [`match()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.match), [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.search) and other methods, described below.
+
+  - The expression’s behaviour can be modified by specifying a *flags* value. Values can be any of the following variables, combined using bitwise OR (the `|` operator).
+  - The sequence:
+    - `prog = re.compile(pattern);result = prog.match(string) `
+    - is equivalent to`result = re.match(pattern, string) `but using [`re.compile()`](https://docs.python.org/3/library/re.html?highlight=findall#re.compile) and saving the resulting regular expression object for **reuse** is more **efficient** when the expression will be used several times in a single program.
+    - Note The compiled versions of the most recent patterns passed to [`re.compile()`](https://docs.python.org/3/library/re.html?highlight=findall#re.compile) and the module-level matching functions are cached, so programs that use only a few regular expressions at a time needn’t worry about compiling regular expressions.
+
+- re.**search**(*pattern*, *string*, *flags=0*)
+
+  Scan through *string* looking for <u>**the first location** where the regular expression *pattern* produces a match</u>, and return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if no position in the string matches the pattern; note that this is different from finding a zero-length match at some point in the string.
+
+- re.**match**(*pattern*, *string*, *flags=0*)
+  - If zero or more characters <u>at the beginning of *string*</u> match the regular expression *pattern*, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.
+  - Note that even in [`MULTILINE`](https://docs.python.org/3/library/re.html?highlight=findall#re.MULTILINE) mode, [`re.match()`](https://docs.python.org/3/library/re.html?highlight=findall#re.match) will only match at the beginning of the string and <u>not at the beginning of each line</u>.
+  - If you want to locate a match anywhere in *string*, use [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.search) instead (see also [search() vs. match()](https://docs.python.org/3/library/re.html?highlight=findall#search-vs-match)).
+
+- re.**fullmatch**(*pattern*, *string*, *flags=0*)
+
+  If <u>the whole *string*</u> matches the regular expression *pattern*, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.
+
+- re.**split**(*pattern*, *string*, *maxsplit=0*, *flags=0*)
+
+  - Split *string* by the occurrences of *pattern*. If capturing **parentheses** are used in *pattern*, then the text of all groups in the pattern are also returned as part of the resulting list. 
+  - If *maxsplit* is nonzero, at most *maxsplit* splits occur, and the remainder of the string is returned as the final element of the list.
+
+  ```python
+  >>> re.split(r'\W+', 'Words, words, words.')
+  ['Words', 'words', 'words', '']
+  >>> re.split(r'(\W+)', 'Words, words, words.')
+  ['Words', ', ', 'words', ', ', 'words', '.', '']
+  >>> re.split(r'\W+', 'Words, words, words.', 1)
+  ['Words', 'words, words.']
+  >>> re.split('[a-f]+', '0a3B9', flags=re.IGNORECASE)
+  ['0', '3', '9']
+  ```
+
+  - If there are **capturing groups** in the separator and it matches at the start of the string, the result will start with an empty string. The same holds for the end of the string:
+  - 如果分隔符里有捕获组合，并且匹配到字符串的开始，那么结果将会以一个空字符串开始。对于结尾也是一样
+
+  ```python
+  >>> re.split(r'(\W+)', '...words, words...')
+  ['', '...', 'words', ', ', 'words', '...', '']
+  ```
+
+  That way, separator components are always found at the same relative indices within the result list.
+
+  **Empty matches** for the pattern **split** the string only when <u>not adjacent to a previous **empty match**</u>.
+
+  该句话的含义为：对于正则表达式模式中的**空匹配**，只有当其<u>不与前一个空匹配相邻时，才会将其用于分割字符串。</u>
+
+  具体来说，当正则表达式模式中存在连续的空匹配时，只有第一个空匹配会被用于分割字符串，后续的空匹配不会被用于分割字符串，因为它们与前一个空匹配相邻。
+
+  换句话说，正则表达式模式中的空匹配只有在不相邻的情况下才会被用于分割字符串，以避免出现重复的分割结果。
+
+  ```python
+  >>> re.split(r'\b', 'Words, words, words.')
+  ['', 'Words', ', ', 'words', ', ', 'words', '.']
+  >>> re.split(r'\W*', '...words...')
+  ['', '', 'w', 'o', 'r', 'd', 's', '', '']
+  >>> re.split(r'(\W*)', '...words...')
+  ['', '...', '', '', 'w', '', 'o', '', 'r', '', 'd', '', 's', '...', '', '', '']
+  ```
+
+### re.split的分割过程
+
+- ```bash
+  Signature: re.split(pattern, string, maxsplit=0, flags=0)
+  
+  Docstring:
+  Split the source string by the occurrences of the pattern,
+  returning a list containing the resulting substrings.  If
+  capturing parentheses are used in pattern, then the text of all
+  groups in the pattern are also returned as part of the resulting
+  list.  If maxsplit is nonzero, at most maxsplit splits occur,
+  and the remainder of the string is returned as the final element
+  of the list.
+  ```
+
+  
+
+- ```python
+  In [8]: re.split(r'\W', '...words...')
+  Out[8]: ['', '', '', 'words', '', '', '']
+  ```
+
+  - 我们以上面的例子为例,大致地描述re.split是如何从头处理一个主串的
+  - `\W`会匹配`'...words...'`的第一个字符(第一个`.`字符),从而划分为两组:`""`和`'..words...'`,我们称每次划分得到的第2组为剩余串,剩余串的长度会随着分割<u>越来越短</u>
+  - `\W`会匹配剩余串的第一个`.`,分割为`""`和`'.words...'`
+  - `\W`再次匹配剩余串`.`,分割为`""`和`word...`
+  - 依次类推...
+  - 收集所有分割组,得到`['', '', '', 'words', '', '', '']`
+
+### 检查所有发生匹配的位置@re.finditer
+
+- ```python
+  In [27]: it=p.finditer('ab')
+  
+  In [28]: list(it)
+  Out[28]:
+  [<re.Match object; span=(0, 0), match=''>,
+   <re.Match object; span=(1, 1), match=''>,
+   <re.Match object; span=(2, 2), match=''>]
+  ```
+
+  
+
+## 模糊重复
+
+### `*`
+
+- Causes the resulting RE to match <u>0 or more repetitions of the preceding RE</u>, as many repetitions as are possible.
+
+-  `ab*` will match ‘a’, ‘ab’, or ‘a’ followed by any number of ‘b’s.
+
+- 又比如:`x*`,可以匹配的字符串集合为`S={'','x','xx','xxx',...}`
+
+- 此外`a`,`ab`这类不属于S的字符串表面上看不会产生匹配,但是由于带`*`(被`*`修饰)的模式串总是可以匹配空字符的,因此所有字符都至少可以认为存在一个空字符成分(不可见)
+
+- 下面的例子会更具清除的说明这点(使用ipython shell进行演示,略去了不关紧要的内容)
+
+- ```python
+  In [33]: px=re.compile("x*")
+  
+  In [34]: px.search("xx")
+  Out[34]: <re.Match object; span=(0, 2), match='xx'>
+  
+  In [35]: sl=['','x','xxx','a','ab','abx']
+  
+  In [39]: for x in sl:
+      ...:     res=p.search(x)
+      ...:     print(repr(x),res)
+      ...:
+  '' <re.Match object; span=(0, 0), match=''>
+  'x' <re.Match object; span=(0, 1), match='x'>
+  'xxx' <re.Match object; span=(0, 3), match='xxx'>
+  'a' <re.Match object; span=(0, 0), match=''>
+  'ab' <re.Match object; span=(0, 0), match=''>
+  'abx' <re.Match object; span=(0, 0), match=''>
+  
+  In [41]: for x in sl:
+      ...:     #res=p.search(x)
+      ...:     print(repr(x),list(p.finditer(x)))
+      ...:
+  '' [<re.Match object; span=(0, 0), match=''>]
+  'x' [<re.Match object; span=(0, 1), match='x'>, <re.Match object; span=(1, 1), match=''>]
+  'xxx' [<re.Match object; span=(0, 3), match='xxx'>, <re.Match object; span=(3, 3), match=''>]
+  'a' [<re.Match object; span=(0, 0), match=''>, <re.Match object; span=(1, 1), match=''>]
+  'ab' [<re.Match object; span=(0, 0), match=''>, <re.Match object; span=(1, 1), match=''>, <re.Match object; span=(2, 2), match=''>]
+  'abx' [<re.Match object; span=(0, 0), match=''>, <re.Match object; span=(1, 1), match=''>, <re.Match object; span=(2, 3), match='x'>, <re.Match object; span=(3, 3), match=''>]
+  ```
+
+## 补充概念
+
+### 空匹配@empty match
+
+- "Empty matches" 是正则表达式中的一个概念，指的是一个匹配不包含任何字符的情况。在正则表达式中，有一些特殊的元字符和量词可以匹配空字符串或空白字符，例如 `*`、`?`、`{0,1}` 等。当使用这些元字符和量词进行匹配时，**有可能**会出现空匹配的情况。
+
+  例如，正则表达式模式 `a*` 可以匹配任意数量的字符 "a"，包括零个 "a"。当匹配的字符串中包含连续的 "a" 时，正则表达式会匹配所有的 "a" 字符，但当匹配的字符串中不包含 "a" 时，正则表达式也会返回一个空匹配。
+
+- 以下试验用`ipython` shell进行:
+
+- `\W`可以匹配非单词字符,而`\W*`可以匹配<u>0个或多个非单词字符</u>,这里我们尝试得到**空匹配**结果,也就是`\W*`去匹配若干个<u>单词字符</u>,由于`\W*`可以匹配0个非单词字符,因此当被匹配的字符串为"w"这个字母的时候其实是可以匹配成功的,只不过匹配的内容长度为0(也就是发生`空匹配`)
+
+- 为什么说匹配的部分长度为0也可以算作匹配成功?
+
+  - 这取决于`*`特殊的作用(它能够匹配(包括了)主串中出现了0次模式串的情况),人们为这特殊的情况取了个名字叫空匹配(empty match)
+
+- ```python
+  In [14]: re.search(r'\W*', 'w')
+  Out[14]: <re.Match object; span=(0, 0), match=''>
+  #
+  In [13]: re.findall(r'\W*', 'word')
+  Out[13]: ['', '', '', '', '']
+  ```
+
+### 空字符@增广字符😎
+
+- 为例更好的描述空匹配,我们定义空字符(串)是长度为0的字符串对象(不同于None)
+- 以字符串`abxd`为例,`x*`匹配字符串`abxd`(这是一个包含4个非空字符的字符串),如果算上空字符,那么包含`2n+1`个**增广字符**(我将其定义为非空字符两侧都各有一个空字符),增广字符只在允许匹配0次的情况下有意义
+  - `·a·b·x·d·`
+
+### 例：
+
+- `x*`,可以匹配的字符串集合为`S={'','x','xx','xxx',...}`，写作增广的形式：`S={'·','·x·','·x·x·','·x·x·x·',...}`或简洁的曾广：`S={'·','x·','xx·','xxx·',...}`
+
+- ```python
+  
+  In [33]: px=re.compile("x*")
+  
+  In [43]: px
+  Out[43]: re.compile(r'x*', re.UNICODE)
+  
+  In [44]: px.finditer('x')
+  Out[44]: <callable_iterator at 0x18b09f4e520>
+  
+  In [45]: list(px.finditer('x'))
+  Out[45]:
+  [<re.Match object; span=(0, 1), match='x'>,
+   <re.Match object; span=(1, 1), match=''>]
+  
+  In [46]: list(px.finditer('xx'))
+  Out[46]:
+  [<re.Match object; span=(0, 2), match='xx'>,
+   <re.Match object; span=(2, 2), match=''>]
+  
+  In [49]: px.subn("-","")
+  Out[49]: ('-', 1)
+  
+  In [47]: px.subn("-","x")
+  Out[47]: ('--', 2)
+  
+  In [48]: px.subn("-","xxx")
+  Out[48]: ('--', 2)
+  
+  
+  ```
+
+  
+
+## 带转义符模式(`\<ASCII>`)
+
+- The special sequences consist of `'\'` and a character from the list below. 
+- If the ordinary character is not an ASCII digit or an ASCII letter, then the resulting RE will match <u>the second character</u>. For example, `\$` matches the character `'$'`.
+
+- `\number`:
+
+  1. Matches the contents of the **group** of the same number.
+  2. Groups are numbered starting from `1`
+  3. For example, `(.+) \1` matches `'the the'` or `'55 55'`, but not `'thethe'` (note the space after the group). 
+  4. This special sequence can only be used to match <u>one of the first 99 groups</u>.
+  5. If the first digit of *number* is 0, or *number* is 3 octal digits long, it will not be interpreted as a group match, but as the character with octal value *number*. 
+  6. Inside the `'['` and `']'` of a character class, all numeric escapes are treated as characters.
+
+- `\A`
+
+  Matches only at the start of the string.
+
+- `\b`
+  - <u>Matches the **empty string**, but only at the beginning or end of a word.</u> 
+  - A word is defined as a sequence of word characters. Note that formally, `\b` is defined as the **boundary** between a `\w` and a `\W` character (or vice versa), or between `\w` and the beginning/end of the string. 
+  - This means that `r'\bfoo\b'` matches `'foo'`, `'foo.'`, `'(foo)'`, `'bar foo baz'` but not `'foobar'` or `'foo3'`.By default Unicode alphanumerics are the ones used in Unicode patterns, but this can be changed by using the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag. 
+  - Word boundaries are determined by the current locale if the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used. Inside a character range, `\b` represents the backspace character, for compatibility with Python’s string literals.
+
+- `\B`
+
+  Matches the empty string, but only when it is *not* at the beginning or end of a word. This means that `r'py\B'` matches `'python'`, `'py3'`, `'py2'`, but not `'py'`, `'py.'`, or `'py!'`. `\B` is just the opposite of `\b`, so word characters in Unicode patterns are Unicode alphanumerics or the underscore, although this can be changed by using the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag. Word boundaries are determined by the current locale if the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used.
+
+- `\d`
+
+  For Unicode (str) patterns:Matches any Unicode decimal digit (that is, any character in Unicode character category [Nd]). This includes `[0-9]`, and also many other digit characters. If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used only `[0-9]` is matched.For 8-bit (bytes) patterns:Matches any decimal digit; this is equivalent to `[0-9]`.
+
+- `\D`
+
+  Matches any character which is not a decimal digit. This is the opposite of `\d`. If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used this becomes the equivalent of `[^0-9]`.
+
+- `\s`
+
+  For Unicode (str) patterns:Matches Unicode whitespace characters (which includes `[ \t\n\r\f\v]`, and also many other characters, for example the non-breaking spaces mandated by typography rules in many languages). If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used, only `[ \t\n\r\f\v]` is matched.For 8-bit (bytes) patterns:Matches characters considered whitespace in the ASCII character set; this is equivalent to `[ \t\n\r\f\v]`.
+
+- `\S`
+
+  Matches any character which is not a whitespace character. This is the opposite of `\s`. If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used this becomes the equivalent of `[^ \t\n\r\f\v]`.
+
+- `\w`
+  - For Unicode (str) patterns:Matches <u>Unicode word characters</u>; 
+    - this includes alphanumeric characters (as defined by [`str.isalnum()`](https://docs.python.org/3/library/stdtypes.html#str.isalnum)) as well as the underscore (`_`). 
+    - If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used, only `[a-zA-Z0-9_]` is matched.
+  - For 8-bit (bytes) patterns:Matches characters considered alphanumeric in the ASCII character set; 
+    - this is equivalent to `[a-zA-Z0-9_]`.
+    -  If the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used, matches characters considered alphanumeric in the current locale and the underscore.
+
+- `\W`
+
+  <u>Matches any character which is not a word character</u>. This is the opposite of `\w`. If the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag is used this becomes the equivalent of `[^a-zA-Z0-9_]`. If the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used, matches characters which are neither alphanumeric in the current locale nor the underscore.
+
+- `\Z`
+
+  Matches only at the end of the string.
+
+Most of the standard escapes supported by Python string literals are also accepted by the regular expression parser:
+
+```
+\a      \b      \f      \n
+\N      \r      \t      \u
+\U      \v      \x      \\
+```
+
+(Note that `\b` is used to represent word boundaries, and means “backspace” only inside character classes.)
+
+`'\u'`, `'\U'`, and `'\N'` escape sequences are only recognized in Unicode patterns. In bytes patterns they are errors. Unknown escapes of ASCII letters are reserved for future use and treated as errors.
+
+## `re.Pattern`类@Regular Expression Objects
+
+- [re — re-object— Python documentation](https://docs.python.org/3/library/re.html?highlight=findall#re-objects)
+
+- 这个类不是必须的,但是对于复杂的正则表达式,可以提高处理速度.
+
+- Pattern.**search**(*string*[, *pos*[, *endpos*]])
+
+  Scan through *string* looking for <u>the first location where this regular expression produces a **match**</u>, and return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). 
+
+  Return `None` if no position in the string matches the pattern; note that this is different from finding a zero-length match at some point in the string.
+
+  The optional second parameter *pos* gives an index in the string <u>where the search is to start;</u> it defaults to `0`. 
+
+  - This is not completely equivalent to slicing the string; the `'^'` pattern character matches at the real beginning of the string and at positions just after a newline, but not necessarily at the index where the search is to start.
+
+  - The optional parameter *endpos* limits how far the string will be searched; it will be as if the string is *endpos* characters long, so only the characters from *pos* to `endpos - 1` will be searched for a match. If *endpos* is less than *pos*, no match will be found; otherwise, if *rx* is a compiled regular expression object, `rx.search(string, 0, 50)` is equivalent to `rx.search(string[:50], 0)`.
+
+  - ```python
+    pattern = re.compile("d")
+    pattern.search("dog")     # Match at index 0
+    #<re.Match object; span=(0, 1), match='d'>
+    pattern.search("dog", 1)  # No match; search doesn't include the "d"
+    ```
+
+    
+
+- Pattern.**match**(*string*[, *pos*[, *endpos*]])
+
+  - If zero or more characters at the *beginning* of *string* match this regular expression, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.The optional *pos* and *endpos* parameters have the same meaning as for the [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.search) method.>>>
+  - If you want to locate a match anywhere in *string*, use [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.search) instead (see also [search() vs. match()](https://docs.python.org/3/library/re.html?highlight=findall#search-vs-match)).
+
+  - ```python
+    pattern = re.compile("o")
+    pattern.match("dog")      # No match as "o" is not at the start of "dog".
+    pattern.match("dog", 1)   # Match as "o" is the 2nd character of "dog".
+    #<re.Match object; span=(1, 2), match='o'>
+    ```
+
+    
+
+- Pattern.**fullmatch**(*string*[, *pos*[, *endpos*]])
+
+  If <u>the whole *string*</u> matches this regular expression, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.The optional *pos* and *endpos* parameters have the same meaning as for the [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.search) method.
+
+  - ```python
+    pattern = re.compile("o[gh]")
+    pattern.fullmatch("dog")      # No match as "o" is not at the start of "dog".
+    pattern.fullmatch("ogre")     # No match as not the full string matches.
+    pattern.fullmatch("doggie", 1, 3)   # Matches within given limits.
+    #<re.Match object; span=(1, 3), match='og'>
+    ```
+
+- Pattern.**split**(*string*, *maxsplit=0*)
+
+  Identical to the [`split()`](https://docs.python.org/3/library/re.html?highlight=findall#re.split) function, using the compiled pattern.
+
+- Pattern.**findall**(*string*[, *pos*[, *endpos*]])
+
+  Similar to the [`findall()`](https://docs.python.org/3/library/re.html?highlight=findall#re.findall) function, using the compiled pattern, but also accepts optional *pos* and *endpos* parameters that limit the search region like for [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.search).
+
+- Pattern.**finditer**(*string*[, *pos*[, *endpos*]])
+
+  Similar to the [`finditer()`](https://docs.python.org/3/library/re.html?highlight=findall#re.finditer) function, using the compiled pattern, but also accepts optional *pos* and *endpos* parameters that limit the search region like for [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.search).
+
+- Pattern.**sub**(*repl*, *string*, *count=0*)
+
+  Identical to the [`sub()`](https://docs.python.org/3/library/re.html?highlight=findall#re.sub) function, using the compiled pattern.
+
+- Pattern.**subn**(*repl*, *string*, *count=0*)
+
+  Identical to the [`subn()`](https://docs.python.org/3/library/re.html?highlight=findall#re.subn) function, using the compiled pattern.
+
+- Pattern.**flags**
+
+  The regex matching flags. This is a combination of the flags given to [`compile()`](https://docs.python.org/3/library/re.html?highlight=findall#re.compile), any `(?...)` inline flags in the pattern, and implicit flags such as `UNICODE` if the pattern is a Unicode string.
+
+- Pattern.**groups**
+
+  The number of capturing groups in the pattern.
+
+- Pattern.**groupindex**
+
+  A dictionary mapping any symbolic group names defined by `(?P<id>)` to group numbers. The dictionary is empty if no symbolic groups were used in the pattern.
+
+- Pattern.**pattern**
+
+  The pattern string from which the pattern object was compiled.
+
+## `re.Match`类🎈
+
+- [re — match-object — Python  documentation](https://docs.python.org/3/library/re.html?highlight=findall#match-objects)
+
+- 首先，运行 Python 解释器，导入 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块，然后编译一个正则,得到要给正则**模式对象**`Pattern`
 
 - 调用某个Pattern的方法,得到匹配对象(Match),检查 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) 以获取有关匹配字符串的信息。 
 
@@ -197,7 +596,7 @@
 
 -  they group together the expressions contained inside them, and you can repeat the contents of a group with a quantifier, such as `*`, `+`, `?`, or `{m,n}`. For example, `(ab)*` will match zero or more repetitions of `ab`.
 
-- ```
+- ```python
   >>> p = re.compile('(ab)*')
   >>> print(p.match('ababababab').span())
   (0, 10)
@@ -208,22 +607,23 @@
   - 这可以通过将参数传递给 [`group()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.group)、[`start()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.start)、[`end()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.end) 以及 [`span()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.span)。 组从 0 开始编号。
   - 组 0 **始终存在**；它表示整个正则，所以 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) 方法都将组 0 作为默认参数。
 
-- ```
+- ```python
   >>> p = re.compile('(a)b')
   >>> m = p.match('ab')
   >>> m.group()
   'ab'
+  #m.group()等价于m.group(0)
   >>> m.group(0)
   'ab'
   ```
-
+  
 - **子组**从左到右编号，从 1 向上编号。**组0**不需要括号,是整个正则表达式匹配的最大部分(最大组)
 
   - 子组的内容是组0的某个部分
 
--  组可以嵌套；要确定编号，只需计算从左到右的左括号字符。:
+-  组可以**嵌套**；要确定编号，只需计算从左到右的左括号字符。:
 
-- ```
+- ```python
   >>> p = re.compile('(a(b)c)d')
   >>> m = p.match('abcd')
   >>> m.group(0)
@@ -236,12 +636,12 @@
 
 - [`group()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.group) 可以一次传递多个组号，在这种情况下，它将返回一个包含这些组的相应值的元组。:
 
-- ```
+- ```python
   >>> m.group(2,1,2)
   ('b', 'abc', 'b')
   ```
 
-- [`groups()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.groups) 方法返回一个元组，其中包含所有子组的字符串，从1到最后一个子组。:
+- [`groups()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.groups) 方法返回一个元组，其中包含所有**子组**的字符串，即,从`1`(而不是从0)到最后一个子组。:
 
 - ```
   >>> m.groups()
@@ -282,8 +682,6 @@
 - 有时你会想要使用组来表示正则表达式的一部分，但是对检索组的内容不感兴趣。
 
 -  你可以通过使用**非捕获组**来显式表达这个事实: `(?:...)`，你可以用任何其他正则表达式替换 `...`。:
-
-\>>>
 
 - ```py
   >>> m = re.match("([abc])+", "abc")
@@ -363,9 +761,7 @@
 
   -  处理捕获组的 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) 方法都接受按编号引用组的整数或包含所需组名的字符串。 命名组仍然是给定的数字，因此你可以通过两种方式检索有关组的信息:
 
-- \>>>
-
-- ```
+- ```python
   >>> p = re.compile(r'(?P<word>\b\w+\b)')
   >>> m = p.search( '(((( Lots of punctuation )))' )
   >>> m.group('word')
@@ -379,9 +775,7 @@
 
 - 此外，你可以通过 [`groupdict()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.groupdict) 将**命名分组**提取为一个字典:
 
-- \>>>
-
-- ```
+- ```python
   >>> m = re.match(r'(?P<first>\w+) (?P<last>\w+)', 'Jane Doe')
   >>> m.groupdict()
   {'first': 'Jane', 'last': 'Doe'}
@@ -410,7 +804,7 @@
 'the the'
 ```
 
-## 修改字符串
+## 修改字符串😎
 
 - 正则表达式通常也用于以各种方式**修改字符串**，使用以下模式方法：
 
@@ -430,8 +824,6 @@
 
 你可以通过传递 *maxsplit* 的值来限制分割的数量。 当 *maxsplit* 非零时，将最多进行 *maxsplit* 次拆分，并且字符串的其余部分将作为列表的最后一个元素返回。 在以下示例中，分隔符是任何非字母数字字符序列。:
 
-\>>>
-
 ```python
 >>> p = re.compile(r'\W+')
 >>> p.split('This is a test, short and sweet, of split().')
@@ -444,8 +836,6 @@
 
 如果在正则中使用**捕获括号**，则它们的值也将作为列表的一部分返回。 比较以下调用:
 
-\>>>
-
 ```python
 >>> p = re.compile(r'\W+')
 >>> p2 = re.compile(r'(\W+)')
@@ -456,8 +846,6 @@
 ```
 
 模块级函数 [`re.split()`](https://docs.python.org/zh-cn/3/library/re.html#re.split) 添加要正则作为第一个参数，但在其他方面是相同的。:
-
-\>>>
 
 ```python
 >>> re.split(r'[\W]+', 'Words, words, words.')
@@ -471,17 +859,15 @@
 ### 搜索和替换🎈
 
 - 另一个常见任务是找到模式的所有匹配项，并用不同的字符串替换它们。
--  [`sub()`](https://docs.python.org/zh-cn/3/library/re.html#re.Pattern.sub) 方法接受一个替换值，可以是字符串或函数，也可以是要处理的字符串。
+-  [`sub()`](https://docs.python.org/zh-cn/3/library/re.html#re.Pattern.sub) 方法接受一个**替换值**，可以是<u>字符串或函数</u>，也可以是要处理的字符串。
 
 - .**sub**(*replacement*, *string*[, *count=0*])
 
-  - 返回通过替换 *replacement* 替换 *string* 中正则的最左边非重叠出现而获得的字符串。 如果未找到模式，则 *string* 将保持不变。
+  - 返回通过 *replacement* 替换 *string* 中正则的最左边非重叠出现而获得的字符串。 如果未找到模式，则 *string* 将保持不变。
 
   - 可选参数 *count* 是要替换的模式最大的出现次数；*count* 必须是非负整数。 默认值 0 表示替换所有。
 
 - 这是一个使用 [`sub()`](https://docs.python.org/zh-cn/3/library/re.html#re.Pattern.sub) 方法的简单示例。 它用 `colour` 这个词取代颜色名称:
-
-\>>>
 
 ```python
 >>> p = re.compile('(blue|white|red)')
@@ -493,8 +879,6 @@
 
 - [`subn()`](https://docs.python.org/zh-cn/3/library/re.html#re.Pattern.subn) 方法完成相同的工作，但返回一个包含新字符串值和已执行的替换次数的 2 元组:
 
-\>>>
-
 ```python
 >>> p = re.compile('(blue|white|red)')
 >>> p.subn('colour', 'blue socks and red shoes')
@@ -503,15 +887,29 @@
 ('no colours at all', 0)
 ```
 
-- 仅当空匹配与前一个空匹配不相邻时，才会替换空匹配。:
+- 仅当空匹配与<u>前一个空匹配</u>不相邻时，才会替换空匹配。:
 
-\>>>
+- ```python
+  >>> p = re.compile('x*')
+  >>> p.sub('-', 'abxd')
+  '-a-b--d-'
+  
+  In [16]: p = re.compile('x*')
+  
+  In [17]: p.sub('-', 'abxd')
+  Out[17]: '-a-b--d-'
+  
+  In [18]: p.sub('-', 'a')
+  Out[18]: '-a-'
+  
+  In [19]: p.sub('-', '')
+  Out[19]: '-'
+  
+  In [21]: p.search('')
+  Out[21]: <re.Match object; span=(0, 0), match=''>
+  ```
 
-```python
->>> p = re.compile('x*')
->>> p.sub('-', 'abxd')
-'-a-b--d-'
-```
+  - 本例中的字符(增广形式):`·a·b·x·d·`
 
 - 如果 *replacement* (sub第1个参数)是一个字符串，则处理其中的任何反斜杠转义。
 -  也就是说，`\n` 被转换为单个换行符，`\r` 被转换为回车符，依此类推。 
@@ -534,8 +932,6 @@
 -  因此 `\g<2>` 等同于 `\2`，但在诸如 `\g<2>0` 之类的替换字符串中并不模糊。
 -  (`\20` 将被解释为对组 20 的引用，而不是对组 2 的引用，后跟字面字符 `'0'`。) 以下替换都是等效的，但使用所有三种变体替换字符串。:
 
-\>>>
-
 ```python
 >>> p = re.compile('section{ (?P<name> [^}]* ) }', re.VERBOSE)
 >>> p.sub(r'subsection{\1}','section{First}')
@@ -549,9 +945,6 @@
 - *replacement* 也可以是一个函数，它可以为你提供更多控制。 如果 *replacement* 是一个函数，则为 *pattern* 的每次非重叠出现将调用该函数。 在每次调用时，函数都会传递一个匹配的 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) 参数，并可以使用此信息计算所需的替换字符串并将其返回。
 
 - 在以下示例中，替换函数将小数转换为十六进制:
-
-
-\>>>
 
 ```python
 >>> def hexrepl(match):
@@ -593,276 +986,3 @@ pat = re.compile(r"""
 pat = re.compile(r"\s*(?P<header>[^:]+)\s*:(?P<value>.*?)\s*$")
 ```
 
-
-
-## 例
-
-### 使用正则表达式将wikipedia的段落转为markdown文本
-
-- 从文件中读取文本
-
-  - ```python
-    # import os
-    import os.path as op
-    
-    
-    dirName = "./"
-    fileName = 'tt'
-    filePath = op.join(dirName, fileName)
-    if op.exists(filePath):
-        print("file exist!")
-    else:
-        print("file does not exist!")
-    print("\n"*2)
-    with open(fileName, encoding="utf-8") as f:
-        read_data = f.read()
-    # print(read_data)
-    ```
-
-  - 用于测试程序的文本内容
-
-    - 段落1
-
-    ```txt
-    向量(Image: {\displaystyle \mathbf {y} ={\begin{bmatrix}y_{1}&y_{2}&\cdots &y_{m}\end{bmatrix}}^{\mathsf {T}}})关于标量 x的导数可以（用分子记法）写成
-    (Image: {\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}={\begin{bmatrix}{\frac {\partial y_{1}}{\partial x}}\\{\frac {\partial y_{2}}{\partial x}}\\\vdots \\{\frac {\partial y_{m}}{\partial x}}\\\end{bmatrix}}})
-    在向量微积分中，向量(Image: \mathbf {y})关于标量(Image: x)的导数也被称为向量(Image: \mathbf {y})的切向量，(Image: {\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}})。注意这里(Image: {\displaystyle \mathbf {y} :\mathbb {R} \rightarrow \mathbb {R} ^{n}})。
-    例子 简单的样例包括欧式空间中的速度向量，它是位移向量（看作关于时间的函数）的切向量。更进一步而言， 加速度是速度的切向量。
-    ```
-
-    - 段落2
-
-    ```
-    假设X是一个定义在可数样本空间S上的离散随机变量 S ⊆ R，则其概率质量函数 fX(x) 为
-    (Image: f_{X}(x)={\begin{cases}\Pr(X=x),&x\in S,\\0,&x\in {\mathbb  {R}}\backslash S.\end{cases}})
-    注意这在所有实数上，包括那些X不可能等于的实数值上，都定义了 fX(x)。在那些X不可能等于的实数值上， fX(x)取值为0 ( x ∈ R\S，取Pr(X = x) 为0)。
-    离散随机变量概率质量函数的不连续性决定了其累积分布函数也不连续。
-    ```
-
-    
-
-  - 任务:
-
-    - 将`(Image: xxx  )`全部替换为`$xxx$`
-
-  - 源文本特点:
-
-    - 这些被替换的结构相互不嵌套
-    - 需要注意`xxx`可以有多重括号
-    - 为了使得转换后的markdown文本更加严格,应当将潜在的`xxx`两侧的不确定数量的空格全部移除
-    - 完成这个任务可以不用正则(例如replace,trim函数搭配),此处用正则作为演示
-    - 包含模式对象的`finditer`等方法,获取所有匹配的子串的**索引**
-
-- 直接运行下面代码之前,请将测试文本调整调整一下,比如将变量`test_text`改为`read_data`
-
-  ```python
-  
-  import re
-  ##
-  test_text = r"w(Image: f_{X}(x))xx(Image: f_{Y}(Y))={\begin{cases}\Pr(X=x),&x\in S,\\0,&x\in {\mathbb  {R}}\backslash S.\end{cases}}  )j111"
-  contents = read_data
-  # 分片策略
-  indexes_token = []
-  p = re.compile(r"\(Image:")
-  matches = p.finditer(contents)
-  # matches
-  for match in matches:
-      span = match.span()
-      start = span[0]
-      indexes_token.append(start)
-  # print(indexes_token)
-  seg_tuples = [i for i in indexes_token]
-  refine_segs = []
-  
-  bl = list('([{')  # brackets_left
-  br = list(')]}')  # brackets_right
-  
-  # def get_last_rp(s):
-  #     """ get right parenthesis index """
-  #     return s.rfind(')')
-  
-  
-  def puts(s):
-      print(s, end='')
-  
-  
-  # indexes_token.insert(0,0)
-  indexes_token.append(len(contents))
-  indexes_seg = indexes_token
-  puts(read_data[:indexes_token[0]])
-  p1 = re.compile(r'\(Image:\s*')
-  for i in range(len(indexes_seg)-1):
-  
-      start = indexes_seg[i]
-      end = indexes_seg[i+1]
-      # end_rp=s1[:end].rfind(')')+1
-      end_rp = start+contents[start:end].rfind(')')
-      end_rp_next = end_rp+1
-      # print(start,end_rp)
-      seg = contents[start:end]
-      # print(seg)
-      # 处理`(imag: `
-      t = p1.sub(r'$', seg)
-      # 处理各段最后一个右括号`)`
-      # 方法1:
-      # seg_rp = t[:end].rfind(')')
-      # seg_rp_next=seg_rp+1
-      # # print(seg_rp)
-      # puts(t[:seg_rp_next]+'$'+t[seg_rp_next+1:])
-      # # refine_segs.append(s1[start:end_rp])
-      # 放法2:用正则方法(兼容性不足)
-      # print(t)
-      # p2 = re.compile(r'(.*[^\s])(\s*\))')
-      # res = p2.sub(r'\1$', t)
-      # 方法3:括号对数计数法
-      cntl=0
-      close_rp=0
-      # print(t,"\n")
-      for i in range(len(t)):
-          if(t[i] =='('):
-              cntl+=1
-              # print(i)
-          elif (t[i] ==')'):
-              close_rp+=1
-              # print(i)
-          if close_rp==cntl+1:
-              break
-      # print(cntl,close_rp)
-      print(t[:i]+'$'+t[i+1:])
-  
-  
-  ```
-
-- 替换处理结果:
-
-  - ```text
-    向量${\displaystyle \mathbf {y} ={\begin{bmatrix}y_{1}&y_{2}&\cdots &y_{m}\end{bmatrix}}^{\mathsf {T}}}$关于标量 x的导数可以（用分子记法）写成
-    ${\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}={\begin{bmatrix}{\frac {\partial y_{1}}{\partial x}}\\{\frac {\partial y_{2}}{\partial x}}\\\vdots \\{\frac {\partial y_{m}}{\partial x}}\\\end{bmatrix}}}$
-    在向量微积分中，向量$\mathbf {y}$关于标量$x$的导数也被称为向量$\mathbf {y}$的切向量，${\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}}$。注意这里${\displaystyle \mathbf {y} :\mathbb {R} \rightarrow \mathbb {R} ^{n}}$。
-    例子 简单的样例包括欧式空间中的速度向量，它是位移向量（看作关于时间的函数）的切向量。更进一步而言， 加速度是速度的切向量。
-    ```
-
-- 渲染结果
-
-  - 向量${\displaystyle \mathbf {y} ={\begin{bmatrix}y_{1}&y_{2}&\cdots &y_{m}\end{bmatrix}}^{\mathsf {T}}}$关于标量 x的导数可以（用分子记法）写成 ${\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}={\begin{bmatrix}{\frac {\partial y_{1}}{\partial x}}\\{\frac {\partial y_{2}}{\partial x}}\\\vdots \\{\frac {\partial y_{m}}{\partial x}}\\\end{bmatrix}}}$ 在向量微积分中，向量$\mathbf {y}$关于标量$x$的导数也被称为向量$\mathbf {y}$的切向量，${\displaystyle {\frac {\partial \mathbf {y} }{\partial x}}}$。注意这里${\displaystyle \mathbf {y} :\mathbb {R} \rightarrow \mathbb {R} ^{n}}$。 例子 简单的样例包括欧式空间中的速度向量，它是位移向量（看作关于时间的函数）的切向量。更进一步而言， 加速度是速度的切向量。
-
-- 测试2:
-
-  - 假设X是一个定义在可数样本空间S上的离散随机变量 S ⊆ R，则其概率质量函数 fX(x) 为
-    $f_{X}(x)={\begin{cases}\Pr(X=x),&x\in S,\\0,&x\in {\mathbb  {R}}\backslash S.\end{cases}}$
-    注意这在所有实数上，包括那些X不可能等于的实数值上，都定义了 fX(x)。在那些X不可能等于的实数值上， fX(x)取值为0 ( x ∈ R\S，取Pr(X = x) 为0)。
-    离散随机变量概率质量函数的不连续性决定了其累积分布函数也不连续。
-
-- 说明:本程序并不完美,对于复杂情况,可能需要自行手动调整
-
-### 使用re正则编写一个生成latex矩阵的程序
-
-- ```python
-  ## 
-  import re
-  import numpy as np
-  from functools import reduce
-  size=[5,5]
-  type="pmatrix"
-  s=reduce(lambda x,y:x*y,size)
-  # 整形元素矩阵(arange()的参数是整数时,产生的时整形元素;参数是浮点数时,则产生浮点数矩阵)
-  mat=np.arange(s).reshape(size)
-  #浮点型元素的矩阵(numpy默认为浮点型)
-  # mat=np.ones(size)
-  mat=np.array(
-      [[1,-2,-3.1],[3,5,-1],[7.2,1,-1]]
-  )
-  
-  ## 
-  begin=r"\begin{"+type+"}"
-  end=r"\end{"+type+"}"
-  integer=False
-  # integer=True
-  # print(begin,end)# (str(begin),end)
-  
-  #使用元素遍历的方案
-  ## 
-  print(begin)
-  for i in mat:
-      l=[str(j) for j in i]
-      line="&\t".join(l)+"\t"+r"\\"
-      print("\t"+line)
-  print(end)
-  
-  
-  #使用正则表达式的方案:
-  ##
-  latex_mat_body=[]
-  print(begin)
-  if(integer):
-      p=re.compile(r'(\d+)(\.?)')
-      for i in mat:
-          # print(str(i))
-          line=str(i)
-          line=re.sub(r'\[|\]','',line)
-          # print(type)
-          latex_mat_line = p.sub(r'\t\1&', line)
-          latex_mat_line = latex_mat_line[:-1]+"\t"+r"\\"
-          #注意使用`r'\1'`原始字符串便于处理分组引用\1组
-          print(latex_mat_line)
-          # latex_mat_body.append(latex_mat_line)
-          # body="\n".join(latex_mat_body)
-  else:
-      for i in mat:
-          # p=re.compile(r'(-?\d+(\.*\d*))')
-          line=str(i)
-          # print(line)
-          p=re.compile(r'(-?\d+\.*\d*)')
-          # 去除中括号(注意`]`前潜在的空格)
-          line=re.sub(r'\[|\s*\]','',line)
-          # print(type)
-          #注意使用`r'\1'`原始字符串便于处理分组引用\1组
-          latex_mat_line = p.sub(r'\t\1&', line)
-          #去掉末尾的&,防止空列产生
-          latex_mat_line = latex_mat_line[:-1]+"\t"+r"\\"
-          print(latex_mat_line)
-  print(end)
-  ##
-  
-  ```
-  
-  - ```tex
-    \begin{pmatrix}
-    	0& 	1& 	2& 	3& 	4	\\
-    	5& 	6& 	7& 	8& 	9	\\	
-    	10& 	11& 	12& 	13& 	14	\\
-    	15& 	16& 	17& 	18& 	19	\\
-    	20& 	21& 	22& 	23& 	24	\\
-    \end{pmatrix}
-    ```
-  
-  - ```tex
-    \begin{pmatrix}
-     	1.&  	-2.&  	-3.1	\\
-     	3.&  	5.& 	-1.	\\
-     	7.2&  	1.&  	-1.	\\
-    \end{pmatrix}
-    ```
-  
-    
-  
-  
-  
-- $$
-  \\
-  \begin{pmatrix}
-  	0& 	1& 	2& 	3& 	4	\\
-  	5& 	6& 	7& 	8& 	9	\\
-  	10& 	11& 	12& 	13& 	14	\\
-  	15& 	16& 	17& 	18& 	19	\\
-  	20& 	21& 	22& 	23& 	24	\\
-  \end{pmatrix}
-  \\
-  \begin{pmatrix}
-   	1.&  	-2.&  	-3.1	\\
-   	3.&  	5.& 	-1.	\\
-   	7.2&  	1.&  	-1.	\\
-  \end{pmatrix}
-  $$
-
-  

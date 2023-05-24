@@ -126,23 +126,102 @@ Python 面向对象编程中的不好的做法包括：
 
 ### 获取对象的属性和成员值
 
-#### 获取对象的属性名/方法名:dir()
+#### getattr()
 
-- **另一种是在Python解释器中输入dir()**函数，然后输入模块名，可以看到模块的所有成员（包括变量、函数和类)
+- ```python
+  In [10]: vars??
+  Docstring:
+  vars([object]) -> dictionary
+  
+  Without arguments, equivalent to locals().
+  With an argument, equivalent to object.__dict__.
+  Type:      builtin_function_or_method
+  ```
+
+- ```python
+  
+  In [2]: getattr("ab","xx","notExist")
+  Out[2]: 'notExist'
+  
+  In [4]: getattr("ab","xx")
+  ---------------------------------------------------------------------------
+  AttributeError                            Traceback (most recent call last)
+  Cell In[4], line 1
+  ----> 1 getattr("ab","xx")
+  
+  AttributeError: 'str' object has no attribute 'xx'
+  ```
+
+  
+
+#### callable()
+
+- ```python
+  In [5]: callable??
+  Signature: callable(obj, /)
+  Docstring:
+  Return whether the object is callable (i.e., some kind of function).
+  
+  Note that classes are callable, as are instances of classes with a
+  __call__() method.
+  Type:      builtin_function_or_method
+  
+  ```
+
+- ```python
+  In [8]: len?
+  Signature: len(obj, /)
+  Docstring: Return the number of items in a container.
+  Type:      builtin_function_or_method
+  
+  In [6]: callable(len)
+  Out[6]: True
+  
+  In [7]: callable("abc")
+  Out[7]: False
+  ```
+
+- ```python
+  In [36]: obj="abc"
+  
+  In [37]: obj.__class__
+  Out[37]: str
+  
+  In [38]: obj.__class__(123)
+  Out[38]: '123'
+  ```
+
+  
+
+#### dir()
+
+- 获取对象的属性名/方法名
+
+- 使用`dir()`函数，然后输入模块名作为参数，可以看到模块的所有成员（包括变量、函数和类)
 
 - 如果您只想知道方法而不需要知道属性，您可以使用callable()函数来过滤模块的成员。
 
-- 例如，如果您想查询math模块的方法，您可以在Python解释器中输入以下代码：
+- ```python
+  In [19]: dir??
+  Docstring:
+  dir([object]) -> list of strings
+  
+  If called without an argument, return the names in the current scope.
+  Else, return an alphabetized list of names comprising (some of) the attributes
+  of the given object, and of attributes reachable from it.
+  
+  If the object supplies a method named __dir__, it will be used; otherwise
+  the default dir() logic is used and returns:
+    for a module object: the module's attributes.
+    for a class object:  its attributes, and recursively the attributes
+      of its bases.
+    for any other object: its attributes, its class's attributes, and
+      recursively the attributes of its class's base classes.
+  Type:      builtin_function_or_method
+  ```
 
-  - **getattr()**函数是Python的内置函数，用于返回一个对象的属性或者方法。
+  
 
-  - 如果属性或者方法存在，就返回它的值，如果不存在，就返回默认值（如果有指定的话）
-
-  - ```python
-    import os
-    methods = [member for member in dir(os) if callable(getattr(os, member))]
-    print(methods)
-    ```
 
 #### vars()
 
@@ -150,7 +229,21 @@ Python 面向对象编程中的不好的做法包括：
 
 - `vars()`是一个内置函数，用于返回对象的属性和属性值的字典。
 
-  当你调用 `vars()`函数时不传递参数，它会返回当前作用域的局部变量和值的字典。例如：
+- 基本信息
+
+- ```python
+  In [10]: vars??
+  Docstring:
+  vars([object]) -> dictionary
+  
+  Without arguments, equivalent to locals().
+  With an argument, equivalent to object.__dict__.
+  Type:      builtin_function_or_method
+  ```
+
+  
+
+- 当你调用 `vars()`函数时不传递参数，它会返回**当前作用域**的局部变量和值的字典。例如：
 
   ```python
   def example_function():
@@ -167,9 +260,9 @@ Python 面向对象编程中的不好的做法包括：
 
   
 
-  在上面的示例中，调用`vars()`函数将返回`example_function()`函数的所有局部变量和它们的值的字典。
+  - 在上面的示例中，调用`vars()`函数将返回`example_function()`函数的所有局部变量和它们的值的字典。
 
-  你也可以将一个对象作为参数传递给`vars()`函数，它将返回该对象的属性和属性值的字典。例如：
+- 你也可以将一个对象作为参数传递给`vars()`函数，它将返回该对象的属性和属性值的字典。例如：
 
   ```python
   class ExampleClass:
@@ -185,9 +278,147 @@ Python 面向对象编程中的不好的做法包括：
     {'x': 10, 'y': 'hello'}
     ```
 
-    
 
-  在上面的示例中，调用`vars()`函数将返回 `ExampleClass` 对象的所有属性和它们的值的字典。
+  - 在上面的示例中，调用`vars()`函数将返回 `ExampleClass` 对象的所有属性和它们的值的字典。
+
+- 但不是所有对象都可以通过`vars(obj)`的方式获取`属性:值`,例如`vars("abc")`会提示:
+
+  - `TypeError: vars() argument must have __dict__ attribute`
+
+  - ```python
+    In [9]: vars("abc")
+    ---------------------------------------------------------------------------
+    TypeError                                 Traceback (most recent call last)
+    Cell In[9], line 1
+    ----> 1 vars("abc")
+    
+    TypeError: vars() argument must have __dict__ attribute
+    
+    ```
+
+
+### 查看某个模块(对象)的成员方法或成员变量
+
+- 例如，如果您想查询math模块的方法，您可以在Python解释器中输入以下代码：
+
+  - **getattr()**函数是Python的内置函数，用于返回一个对象的属性或者方法。
+
+  - 如果属性或者方法存在，就返回它的值，如果不存在，就返回默认值（如果有指定的话）
+
+  - ```python
+    import os
+    methods = [member for member in dir(os) if callable(getattr(os, member))]
+    print(methods)
+    ```
+
+  - ```bash
+    In [12]: import os
+        ...: methods = [member for member in dir(os) if callable(getattr(os, member))]
+    
+    In [13]: methods
+    Out[13]:
+    ['DirEntry',
+     'GenericAlias',
+     'Mapping',
+     'MutableMapping',
+     'PathLike',
+     '_AddedDllDirectory',
+     '_Environ',
+     '_check_methods',
+     '_execvpe',
+     ...
+     'open',
+     'pipe',
+     'popen',
+     'putenv',
+     'read',
+    ...
+     'waitstatus_to_exitcode',
+     'walk',
+     'write']
+    ```
+
+  - ```python
+    def get_attrs(obj, magic=True):
+        """获取对象的属性Key:Value
+        key是不可调用的属性(成员变量而非成员方法)
+    
+        Parameters
+        ----------
+        obj : any
+            需要查询对象属性key:value的对象
+        magic: bool
+            是否包括魔术属性`__doc__`这类属性
+        Returns
+        -------
+        list[tuple[str, any]]
+    
+        """
+        res = []
+        if "__dict__" in dir(obj):
+            res =[('__dict__',vars(obj))]
+        if magic:
+            print(
+                "[I] obj does not exsit does not have __dict__ attribute to be argument of vars()!\n"
+            )
+            # res=get_attrs_magic(obj)
+            res = [
+                (attr, getattr(obj, attr))
+                for attr in dir(obj)
+                if not callable(getattr(obj, attr))
+            ]
+        return res
+    
+    
+    def get_methods(obj, magic=False):
+        """获取对象的属性Key:Value
+        key是可调用的属性(成员方法)
+    
+        Parameters
+        ----------
+        obj : any
+            需要查询对象属性key:value的对象
+        magic: bool
+            是否包括魔术属性`__xx__`这可调用属性
+        Returns
+        -------
+        list[str]
+    
+        """
+        # res = [attr for attr in dir(obj) if callable(getattr(obj, attr)) and magic and attr.startswith("__")]
+        res = []
+    
+        for attr_name in dir(obj):
+            if callable(getattr(obj, attr_name)):
+                if magic == False:
+                    if attr_name.startswith("__"):
+                        continue
+                res.append(attr_name)
+    
+        return res
+    
+    
+    class DemoClass:
+        """用于测试用的类,包含简单的属性和方法"""
+    
+        def __init__(self, name, age):
+            self.name = name
+            self.age = age
+    
+        def get_name(self):
+            return self.name
+    
+    
+    if __name__ == "__main__":
+        obj = DemoClass("John", 30)
+        # res=get_attrs("good")
+        attrs = get_attrs(obj,magic=False)
+        methods = get_methods(obj, magic=False)
+        print("res: ", attrs)
+    
+    ```
+
+    
 
 ### 默认参数@关键字参数的调用规范
 

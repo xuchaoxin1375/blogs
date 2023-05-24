@@ -1,119 +1,12 @@
 [toc]
 
-# word@段落排版@缩进设置@标题编号@表格设置@图片表格自动编号@不满行换行问题@ye'ma
+# word@段落排版@缩进设置@题注图片表格自动编号@不满行换行问题@ye'ma
 
 ## refs
 
 - [对标题编号 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/对标题编号-ce24e028-4cb4-4d4a-bf25-fb2c61fc6585)
 
 - [只需3步，轻松实现Word标题段落自动编号(zhihu.com)](https://zhuanlan.zhihu.com/p/150309959)
-
-
-
-## 标题(大纲)编号
-
-### 样式重置
-
-- [reset Word Style Heading 2 back to default Style - Microsoft Community](https://answers.microsoft.com/en-us/msoffice/forum/all/reset-word-style-heading-2-back-to-default-style/47988cd8-7087-407d-9527-512c6c855e33)
-
-### 多级列表@使用文档🎈
-
-- [Number your headings - Microsoft Support](https://support.microsoft.com/en-us/office/number-your-headings-ce24e028-4cb4-4d4a-bf25-fb2c61fc6585)
-- 自定义多级列表
-  - [Define new bullets, numbers, and multilevel lists - Microsoft Support](https://support.microsoft.com/en-us/office/define-new-bullets-numbers-and-multilevel-lists-6c06ef65-27ad-4893-80c9-0b944cb81f5f?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=506&ui=en-us&rs=en-us&ad=us#bkmk_turnoffautonumber)
-
-### 参考word自带的列表编号
-
-- | ![](https://img-blog.csdnimg.cn/fa5ad0aaa3c04e17be2f214319386357.png) | 中文版 |
-  | ------------------------------------------------------------ | ------ |
-  | ![](https://img-blog.csdnimg.cn/4f81a1f6d9304ef1871523de92a70033.png) | 英文版 |
-
-- note:
-
-  - 使用英文界面和中文创作语言的同学需要注意,`heading` 和`标题`两个可能是不一样的,所以要看清楚预览窗口和`link level to style`,英文版的一`heading`为准
-
-- 要点如下:
-
-  - 单击要修改的级别这里,设置指定级别标题的编号时,关注第一纵栏中的$1\sim{9}$的级别
-
-    - $$
-      \begin{pmatrix}
-      1\\2\\3\\4\\\vdots\\9
-      \end{pmatrix}
-      $$
-
-      
-
-  - 第二纵览中的内容主要提供预览,再不太复杂的文档中,设置三个级别的编号基本足够
-
-    - 对于论文这种的,一般设置3到5个级别
-
-  - 第三个纵栏中,主要关注`将级别引用到样式`,通常我们可以从word提供的这个自带模板来稍加修改编号样式就可以用了
-
-### 编号格式的设置
-
-- 关注编号格式中的内容,在没有动手修改之前,里面有些区域带有灰色带,这里的内容是可以自动编号的
-- 假设你正在设置第k级别标题的编号,该编号包括$n_k$个字段,那么就保留相应个数的灰色带,其余删除
-- 然后修改灰色带中的内容,通常,里面的内容是有序符号,比如1,2,3或中文一,二,三
-  - 修改方式是,先单击某个灰色带,然后从下一行中的`此级别样式`中选取需要的编号样式
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20e3cf65c24b478b9e7daf48dcd5c855.png)
-
-
-
-### 编号之后的空白符设置@文本缩进
-
-- 编号之后的空格可以设置为`空格`,`制表符`,等,一般用空格的比较多,这还会影响到目录生成
-
-- 文本缩进,根据需要设置,可以点击`设置所有级别`,将各级编号的缩进同时设置为同一个值,通常设置为0即可
-
-### 不小心将域给删除了怎么办🎈@重新自定义多级列表
-
-- 在文档中的一个空白地方单击鼠标
-- 回到功能区,在多级列表窗口中选中一个比较近接近预期的word自带的样式
-- 然后开始重新自定义一个多级列表(注意`将级别链接到样式`各个级别的编号要设置好)
-- 如果只是想要对现有的自定义列表稍加改进,那么直接点击自定义多级列表,可以继续上一次的定制(或者用鼠标点中已有的代编号标题,然后再自定义多级列表)
-
-### 例
-
-- 假设我需要前三个级别标题的编号,那么从4级别标题以及更深的级别就不用去修改
-- 现在假设我的需求如下:
-  - 一级标题用中文`一,二,三,...`编号
-  - 二级标题用带括号的中文`(一),(二),(三),...`
-  - 三级标题用`1,2,3,...`编号
-  - 同时,对于同级别的标题,它们管辖的子标题的编号相对独立编号
-- 总体效果:
-  - 一
-    - (一)
-      - 1
-      - 2
-    - (二)
-      - 1
-      - 2
-  - 二
-    - (一)
-      - 1
-      - 2
-    - (二)
-      - 1
-      - 2
-      - ...
-    - ...
-  - ...
-
-- 设置方法:参看上一节的插图
-
-### 添加自定义的编号到库中
-
-- 从当前文档中的列表选择刚才定义过的列表,右键添加到库中
-- **当前列表**和**当前文档列表**
-  - 当您的鼠标点击在某一带有编号的列表(比如带有编号的标题),然后再去点击**多级列表**,可以检查到当前列表是什么样的
-  - 多级列表弹出的窗口右上角可以筛选(这样只显示您想看到的列表)
-
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e4b6feb644694e20b42da1adbae713a0.png)
-
-
 
 ## 题注@Caption(图片表格自动编号)
 
@@ -171,7 +64,7 @@
 在Word中，插入目录、图表目录等功能可以帮助您组织和导航文档。以下是这些功能的详细介绍：
 
 1. 插入目录：
-  目录是文档中的章节、标题和子标题的列表。要在Word中插入目录，请按照以下步骤操作：
+    目录是文档中的章节、标题和子标题的列表。要在Word中插入目录，请按照以下步骤操作：
 
   - a. 首先，确保您已为文档中的各个章节和标题应用了正确的样式（例如，标题1、标题2等）。
 
@@ -183,7 +76,7 @@
   - d. 在下拉菜单中选择一个目录样式，单击它以插入目录。
 
 2. 插入图表目录：
-  图表目录是文档中所有图表的列表，通常包括图表编号、标题和页码。要在Word中插入图表目录，请按照以下步骤操作：
+    图表目录是文档中所有图表的列表，通常包括图表编号、标题和页码。要在Word中插入图表目录，请按照以下步骤操作：
 
   - a. 首先，确保您已为文档中的所有图表添加了图表标题。要添加图表标题，请单击图表，然后在“引用”选项卡中单击“插入标题”按钮。在弹出的对话框中，选择“图表”作为标题类型，然后输入标题文本。
 
@@ -195,7 +88,7 @@
   - d. 在下拉菜单中选择“插入图表目录”，然后在弹出的对话框中设置选项，单击“确定”以插入图表目录。
 
 3. 更新目录和图表目录：
-  当您对文档进行更改（例如，添加新章节、更改标题或移动图表）时，您需要更新目录和图表目录以反映这些更改。要更新目录或图表目录，请按照以下步骤操作：
+    当您对文档进行更改（例如，添加新章节、更改标题或移动图表）时，您需要更新目录和图表目录以反映这些更改。要更新目录或图表目录，请按照以下步骤操作：
 
   - a. 单击目录或图表目录以选中它。
 
@@ -304,38 +197,4 @@
 - "悬挂缩进"（也称为第二行缩进）将段落的第一行定位在边距上，然后缩进段落的每一行。
   - [创建悬挂缩进 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/创建悬挂缩进-7bdfb86a-c714-41a8-ac7a-3782a91ccad5)
   - [Create a hanging indent - Microsoft Support](https://support.microsoft.com/en-us/office/create-a-hanging-indent-7bdfb86a-c714-41a8-ac7a-3782a91ccad5)
-
-## 表格设计
-
-- [Format a table - Microsoft Support](https://support.microsoft.com/en-us/office/format-a-table-e6e77bc6-1f4e-467e-b818-2e2acc488006)
-- [Customize or create new styles - Microsoft Support](https://support.microsoft.com/en-us/office/customize-or-create-new-styles-d38d6e47-f6fc-48eb-a607-1eb120dec563?ns=winword&version=19&syslcid=1033&uilcid=1033&appver=zwd190&helpid=348&ui=en-us&rs=en-us&ad=us)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/014aaebf525d4159bbd14a7e489cfd03.png)
-
-### 三线表设计
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/7dba1adb32a444f7ad26a55682914163.png)
-
-- 名字随意取(可以叫中文三线表(我简写为TLT))
-- 主要是Formatting下的`Apply formatting to`
-  - Whole table
-    - 可以设置三线表的第一条线和第三条线
-    - 线条样式可以设置的粗一些
-  - Header line
-    - 可以设置第二条线
-    - 线条样式可以改细一些
-- Note:上述设置一遍可能不符合预期,可以再设置一遍
-  - 线条粗细可能和第二条线可能都要设置两边才有效,应该是软件的bug
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/66d26098a7924d4fb3874f7e900e2561.png)
-
-### 页面设置（page setup ）
-
-- [更改页边距 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/更改页边距-da21a474-99d8-4e54-b12d-a8a14ea7ce02)
-
-
-
-
-
-
-
-
 
