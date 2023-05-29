@@ -84,3 +84,26 @@
 ## 显卡驱动下载@更新
 
 - [官方驱动 | NVIDIA](https://www.nvidia.cn/Download/index.aspx?lang=cn)
+
+- 例如MX系列显卡中的MX250:(GRD版本)
+
+  - [Download NVIDIA, GeForce, Quadro, and Tesla Drivers](https://www.nvidia.cn/content/DriverDownloads/confirmation.php?url=/Windows/532.03/532.03-notebook-win10-win11-64bit-international-dch-whql.exe&lang=us&type=geforcem)
+
+  - ## GeForce Game Ready Driver
+
+     
+
+    | Version:          | 532.03 **WHQL**               |
+    | ----------------- | ----------------------------- |
+    | Release Date:     | 2023.5.24                     |
+    | Operating System: | Windows 10 64-bit, Windows 11 |
+    | Language:         | English (US)                  |
+    | File Size:        | 855.18 MB                     |
+
+- SD / GRD
+
+  所有的 NVIDIA 驱动程序均为优秀的游戏和创意应用程序提供完善的功能与支持。
+
+  如果您是游戏玩家，希望在新游戏、新补丁和游戏追加下载内容 (DLC) 的发布日第一时间获得支持，请选择 Game Ready 驱动程序。
+
+  如果您是内容创作者，优先考虑创意工作流程的稳定性和质量，例如视频编辑、动画、摄影、图形设计和直播等，请选择 **Studio** 驱动程序。

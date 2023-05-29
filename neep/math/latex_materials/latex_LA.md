@@ -1,4 +1,6 @@
-### 矩阵
+## 矩阵@行列式
+
+### 3阶矩阵
 
 - $$
   \\
@@ -9,7 +11,27 @@
   \end{pmatrix}
   $$
 
-### 行列式
+  
+
+
+### 对角行列式
+
+- $$
+  \begin{vmatrix}
+     {{\lambda _1}} & {} & {} & {}  \cr 
+     {} & {{\lambda _2}} & {} & {}  \cr 
+     {} & {} &  \ddots  & {}  \cr 
+     {} & {} & {} & {{\lambda _n}}  \cr 
+  \end{vmatrix}
+  =\lambda_1\lambda_2\cdots\lambda_n
+  =\prod_{i=1}^{n}\lambda_i
+  $$
+
+  
+
+
+
+
 
 - $$
   \\
@@ -67,8 +89,44 @@
       a_{n1}& a_{n2}& \cdots  & a_{nn}  
     \end{pmatrix}
     $$
-    
-    
+  
+  - $$
+    |A|_{n}=  
+    \begin{vmatrix}  
+      a_{11}& a_{12}& \cdots  & a_{1n} \\  
+      a_{21}& a_{22}& \cdots  & a_{2n} \\  
+      \vdots & \vdots & \ddots & \vdots \\  
+      a_{n1}& a_{n2}& \cdots  & a_{nn}  
+    \end{vmatrix}
+    $$
+  
+  - $$
+    x_{n}=  
+    \begin{pmatrix}  
+      x_{11}& x_{12}& \cdots  & x_{1n} \\  
+      x_{21}& x_{22}& \cdots  & x_{2n} \\  
+      \vdots & \vdots & \ddots & \vdots \\  
+      x_{n1}& x_{n2}& \cdots  & x_{nn}  
+    \end{pmatrix}
+    $$
+  
+  - $$
+    \mathbf{X}=  
+    \begin{pmatrix}  
+      x_{11}& x_{12}& \cdots  & x_{1d}&1 \\  
+      x_{21}& x_{22}& \cdots  & x_{2d}&1 \\  
+      \vdots & \vdots & \ddots & \vdots&\vdots \\  
+      x_{m1}& x_{m2}& \cdots  & x_{md}&1  
+    \end{pmatrix}
+    =\begin{pmatrix}
+    \boldsymbol{x}_1^T&1\\
+    \boldsymbol{x}_2^T&1\\
+    \vdots&\vdots\\
+    \boldsymbol{x}_m^T&1
+    \end{pmatrix}
+    $$
+  
+    - 
 
 ### mxn矩阵@向量组
 
@@ -89,8 +147,7 @@
   \end{pmatrix}
   $$
 
-
-### 转置
+### 转置🎈
 
 - $m\times{n}$转置为$n\times{m}$
 
@@ -203,16 +260,16 @@ $$
     a_{n 1} x_{1}+a_{n 2} x_{2}+\cdots+a_{n n} x_{n}&=b_{n}
     \end{aligned}
 \right.
-\\
+\\\\
 \left
     \{\begin{aligned}{}
     a_{11} x_{1}+a_{12} x_{2}+\cdots+a_{1 n} x_{n}&=b_{1}, \\
     a_{21} x_{1}+a_{22} x_{2}+\cdots+a_{2 n} x_{n}&=b_{2}, \\
 	\vdots&\\
-    a_{m1} x_{1}+a_{m 2} x_{2}+\cdots+a_{m n} x_{n}&=b_{n}
+    a_{m1} x_{1}+a_{m 2} x_{2}+\cdots+a_{m n} x_{n}&=b_{m}
     \end{aligned}
 \right.
-\\ 
+\\\\
 A=\begin{pmatrix}
    a_{11}&  a_{12}&  \cdots&a_{1n} \\
     a_{21}&  a_{22}&  \cdots&a_{2n} \\
@@ -230,6 +287,33 @@ A=\begin{pmatrix}
 $$
 
 - $$
+  A\boldsymbol{x}=b
+  \\
+  \left \{
+      \begin{aligned}{}
+      \cdots+a_{1i} x_{i}+\cdots+a_{1j} x_{j}+\cdots&=b_{1}, \\
+      \cdots+a_{2i}x_{i}+\cdots+a_{2j} x_{j}+\cdots&=b_{2}, \\
+  	&\vdots\\
+      \cdots+a_{ni} x_{i}+\cdots+a_{nj} x_{j}+\cdots&=b_{n}
+      \end{aligned}
+  \right.
+  \\\\
+  \left \{
+      \begin{aligned}{}
+      \cdots+a_{1j} x_{j}+\cdots+a_{1 i} x_{i}+\cdots&=b_{1}, \\
+      \cdots+a_{2j}x_{j}+\cdots+a_{2 i} x_{i}+\cdots&=b_{2}, \\
+  	&\vdots\\
+      \cdots+a_{nj} x_{j}+\cdots+a_{n i} x_{i}+\cdots&=b_{n}
+      \end{aligned}
+  \right.
+  \\
+  A'\boldsymbol{x'}=b
+  $$
+  
+  
+  
+- 
+  $$
   A\mathbf{x}=\mathbf{b}
   \\记C=A\mathbf{x},其元素为c_{ij},C\in{\mathbb{R}^{m\times{1}}}
   \\
@@ -246,7 +330,7 @@ $$
   	x_{n}	\\
   \end{pmatrix}
   $$
-
+  
   - $$
     \\
     \begin{pmatrix}
@@ -272,7 +356,7 @@ $$
     i=1,2,\cdots,m\\
     j=1,2,\cdots,n
     $$
-
+  
   - 
 
 ## 向量
@@ -439,13 +523,26 @@ $$
   \begin{vmatrix}  
     \vdots & \vdots & \cdots & \vdots\\
     a_{j1}+ka_{i1}& a_{j2}+ka_{i2}& \cdots  & a_{jn}+ka_{in} \\  
-    \vdots & \vdots & \ddots & \vdots \\  
+    \vdots & \vdots & \cdots & \vdots \\  
   \end{vmatrix}
   =\begin{vmatrix}  
     \vdots & \vdots & \cdots & \vdots\\
     a_{j1} & a_{j2} & \cdots  & a_{jn}  \\   
-    \vdots & \vdots & \ddots & \vdots \\  
+    \vdots & \vdots & \dots & \vdots \\  
   \end{vmatrix},(i\neq{j})
+  $$
+
+- $$
+  \begin{vmatrix}  
+    \vdots & \vdots & \cdots & \vdots\\
+    ka_{i1}& ka_{i2}& \cdots  & ka_{in} \\  
+    \vdots & \vdots & \cdots & \vdots \\  
+  \end{vmatrix}
+  =k\begin{vmatrix}  
+    \vdots & \vdots & \cdots & \vdots\\
+    a_{i1}& a_{i2}& \cdots  & a_{in} \\  
+    \vdots & \vdots & \cdots & \vdots \\  
+  \end{vmatrix}
   $$
 
   
@@ -470,6 +567,42 @@ $$
     a_{n1}& \cdots & a_{n,j-1}& a_{n,j+1}& \cdots  & a_{nn}  
   \end{vmatrix}_{n-1}
   $$
+
+
+
+## 矩阵函数
+
+- $$
+  A(t)=\begin{pmatrix}
+     a_{11}(t)&  a_{12}(t)&  \cdots&a_{1n}(t) \\
+      a_{21}(t)&  a_{22}(t)&  \cdots&a_{2n}(t) \\
+      \vdots&  \vdots&  &\vdots \\
+      a_{m1}(t)&  a_{m2}(t)&  \cdots&a_{mn}(t) \\
+  \end{pmatrix}
+  \\
+  B(t)=\begin{pmatrix}
+     b_{11}(t)&  b_{12}(t)&  \cdots&b_{1p}(t) \\
+      b_{21}(t)&  b_{22}(t)&  \cdots&b_{2p}(t) \\
+      \vdots&  \vdots&  &\vdots \\
+      b_{n1}(t)&  b_{n2}(t)&  \cdots&b_{np}(t) \\
+  \end{pmatrix}
+  \\
+  A(t)B(t)
+  =(c_{ij})_{m\times{p}}
+  \\
+  c_{ij}=\sum_{i=k}^{n}a_{ik}(t)b_{kj}(t)
+  \\
+  (c'_{ij})_{m\times{n}}=\sum_{i=k}^{n}
+  (
+  a'_{ik}(t)b_{kj}(t)+a_{ik}(t)b'_{kj}(t)
+  )
+  \\=\sum_{i=k}^{n}a'_{ik}(t)b_{kj}(t)
+  +\sum_{i=k}^{n}a_{ik}(t)b'_{kj}(t)
+  \\
+  (c'_{ij})_{m\times{n}}=A'(t)B(t)+A(t)B'(t)
+  $$
+
+  
 
 
 

@@ -2,6 +2,10 @@
 
 - [微软 Win10 21H1 正式版官方 ISO 镜像下载大全 - IT之家 (ithome.com)](https://www.ithome.com/0/552/319.htm)
 
+## win11
+
+- [Download Windows 11 (microsoft.com)](https://www.microsoft.com/software-download/windows11)
+
 ## win10
 
 

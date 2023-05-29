@@ -1,8 +1,5 @@
 [toc]
 
-- scikit-learn中的线性模型是一类机器学习算法，用于建立目标变量与一组解释变量之间的线性关系，包括回归和分类问题。
-- 在这些模型中，目标变量与输入特征之间的关系被建模为线性函数，模型的目标是拟合数据集并产生最佳的预测结果。
-
 ## scikit-learn中的线性模型
 
 1. 线性回归模型：用于拟合连续型目标变量和一组解释变量之间的线性关系
@@ -290,26 +287,57 @@
 
 ### 一般化TODO
 
-- 通过$f(\boldsymbol{x})$和$y$之间的差别来确定$\boldsymbol{w},b$
+- 试图学得$\boldsymbol{w},{b}$:$f(\boldsymbol{x}_i)=\boldsymbol{w}^T\boldsymbol{x}_i+b$
 
-- 可以通过均方误差(MSE)来衡量,试图让MSE最小化
+  使得$f(\boldsymbol{x}_i)\simeq{y_i}$,称为**多元线性回归**(multivariate linear regression)
+
+- 依然使用最小二乘法对$\boldsymbol{w},b$进行估计,
+
+  - 记$\hat{\boldsymbol{w}}=(\boldsymbol{w};b)$,$\hat{\boldsymbol{w}}$是一个$d+1$为列向量,将数据集D表示为一个$m\times{(d+1)}$的矩阵$\mathbf{X}$
+
+    - 其中每行对应于一个示例,前d个元素对应示例的d个属性,最后一个元素置为1
 
   - $$
-    \begin{aligned}
-    (\boldsymbol{w}^*,b^*)
-    &=\underset{(\boldsymbol{w},b)}{\arg}\min
-    \sum_{i=1}^{m}(f(\boldsymbol{x}_i)-y_i)^2
-    \\
-    &=\underset{(\boldsymbol{w},b)}{\arg}\min
-    \sum_{i=1}^{m}(\boldsymbol{w}^{T}\boldsymbol{x}_i+b-y_i)^2
-    \\
-    &=\underset{(\boldsymbol{w},b)}{\arg}\min
-    \sum_{i=1}^{m}(y_i-(\boldsymbol{w}^{T}\boldsymbol{x}_i+b))^2
-    \\
-    &=\underset{(\boldsymbol{w},b)}{\arg}\min
-    \sum_{i=1}^{m}(y_i-\boldsymbol{w}^{T}\boldsymbol{x}_i-b))^2
-    \end{aligned}
+    \mathbf{X}=  
+    \begin{pmatrix}  
+      x_{11}& x_{12}& \cdots  & x_{1d}&1 \\  
+      x_{21}& x_{22}& \cdots  & x_{2d}&1 \\  
+      \vdots & \vdots & \ddots & \vdots&\vdots \\  
+      x_{m1}& x_{m2}& \cdots  & x_{md}&1  
+    \end{pmatrix}
+    =\begin{pmatrix}
+    \boldsymbol{x}_1^T&1\\
+    \boldsymbol{x}_2^T&1\\
+    \vdots&\vdots\\
+    \boldsymbol{x}_m^T&1
+    \end{pmatrix}
     $$
+
+  - 将m个样本的标记写作向量的形式$\boldsymbol{y}=(y_1;y_2;\cdots;y_m)$
+
+- 均方误差目标的向量点积形式为:
+
+  - $$
+    \hat{\boldsymbol{w}}^{*}=\underset{\hat{\boldsymbol{w}}}{\arg\min}\;
+    (\boldsymbol{y}-\mathbf{X}\hat{\boldsymbol{w}})^{T}
+    (\boldsymbol{y}-\mathbf{X}\hat{\boldsymbol{w}})
+    $$
+
+    - 记$\alpha=\boldsymbol{y}-\mathbf{X}\hat{\boldsymbol{w}}$,$\alpha\in{\mathbb{R}^{d+1}}$
+
+    - $E_{\hat{\boldsymbol{w}}}=\alpha^{T}\alpha$
+
+    - 则$\hat{\boldsymbol{w}}^{*}=\underset{\hat{\boldsymbol{w}}}{\arg\min}\;E$
+
+    - $E_{\hat{\boldsymbol{w}}}$对$\hat{\boldsymbol{w}}$求导:
+
+      - $$
+        \frac{\partial{E_{\hat{\boldsymbol{w}}}}}
+        {\partial{\hat{\boldsymbol{w}}}}
+        =2\mathbf{X}^T(\mathbf{X}\hat{\boldsymbol{w}}-\boldsymbol{y})
+        $$
+
+        
 
   - MSE对应常用的欧几里得距离(欧式距离,Euclidean distance)
 

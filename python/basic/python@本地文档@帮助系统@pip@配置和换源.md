@@ -8,11 +8,13 @@
 
 - (省事的话还是安装版方便,便携版的python在手动安装pip时如果版本和python的版本不兼容,容易翻车)
 
-##  永久配置
+##  永久配置(长期有效配置)
 
-- 清华源为例
+- 清华源为例,配置命令为:
 
-- `pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple`
+  - `pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple`
+
+- 相关命令行文档:
 
   - ```bash
     python -m pip config [<file-option>] list
@@ -31,7 +33,16 @@
 
 ### 配置检查
 
-- ```bash
+- 执行完命令后,pip会告诉你配置写到哪里去了,一般会写入`%appData%\pip\pip.ini`
+  
+  ```bash
+  (base) PS C:\Users\cxxu\Desktop> pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+  Writing to C:\Users\cxxu\AppData\Roaming\pip\pip.ini
+  ```
+  
+- 
+  
+  ```bash
   (d:\condaPythonEnvs\pyside6) PS C:\Users\cxxu\Desktop> pip config list
   global.index-url='https://pypi.tuna.tsinghua.edu.cn/simple'
   #或者:
@@ -54,7 +65,53 @@
        ━━━━━━━━━━━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━ 43.2/77.2 MB 2.6 MB/s eta 0:00:14
   ```
 
-  
+
+### 使用conda
+
+- 激活conda环境,然后执行`where.exe python`查找python可执行程序的所在目录:
+
+  - ```bash
+    (base) PS C:\Users\cxxu\Desktop> where.exe python
+    C:\ProgramData\miniconda3\python.exe
+    C:\Users\cxxu\AppData\Local\Microsoft\WindowsApps\python.exe
+    ```
+
+  - 上述操作是在windows上执行的,第一条的优先级更高.(是conda默认python路径)
+
+- 对于pip,也是类似的
+
+  - ```bash
+    PS C:\Users\cxxu\Desktop> where.exe pip
+    C:\ProgramData\miniconda3\Scripts\pip.exe
+    ```
+
+- 假设您安装了conda,且不想用独立安装的python,而是像使用独立版的python那样使用conda提供的python,也就是没有激活conda环境的情况下使用python,可以手动得执行环境变量配置,形如上面的例子,将:
+
+  - ```bash
+    C:\ProgramData\miniconda3
+    C:\ProgramData\miniconda3\Scripts
+    ```
+
+  - 分别添加到Path变量的值中.
+
+- 此外以下命令用powershell执行得到的结果也一并加入到Path变量的值中
+
+  - ```bash
+    (rvpa $env:appdata\Python\Python*\Scripts)
+    ```
+
+  - 例如:
+
+    ```bash
+    PS C:\Users\cxxu\Desktop> (rvpa $env:appdata\Python\Python*\Scripts)
+    
+    Path
+    ----
+    C:\Users\cxxu\AppData\Roaming\Python\Python310\Scripts
+    C:\Users\cxxu\AppData\Roaming\Python\Python39\Scripts
+    ```
+
+  - 如果有多个版本,则以conda的python版本为主,或者全部添加到Path也是可以的
 
 ## 国内源
 
@@ -67,12 +124,6 @@
 
 - (更新没有清华源勤快)
 - `https://mirrors.aliyun.com/pypi/simple/`
-
-###  windows
-
-- 执行完命令后,pip会告诉你配置写到哪里去了
-  (比如,pip提醒我:`Writing to C:\Users\cxxu_11\AppData\Roaming\pip\pip.ini`)
-  - 一般会写入`%appData%\pip\pip.ini`
 
 ###  linux ubuntu
 ####  设置pip别名(推荐)

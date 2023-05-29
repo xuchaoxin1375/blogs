@@ -145,9 +145,9 @@
     }
     ```
 
-### 配置软件国内源
+### 配置软件国内源🎈
 
-- 执行脚本powershell脚本:
+- 执行一下powershell脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
 
   - ```powershell
     conda config --set show_channel_urls yes
@@ -175,7 +175,7 @@
     
     ```
 
-    
+  - 如果需要更灵活的配置(不希望覆盖掉已有的配置),可以考虑使用文本编辑器编辑`.condarc`文件
 
 - 执行效果:
 
@@ -783,7 +783,7 @@
 
 - 通常conda可用的python版本会落后最新的python版本0或1个版本
 
-### 用conda启动(激活)指定python环境@conda activate🎈
+## conda启动(激活)指定python环境@conda activate🎈
 
 #### powershell方式启动
 
@@ -793,18 +793,50 @@
 
 - [anaconda - How to activate conda environment from powershell? - Stack Overflow](https://stackoverflow.com/questions/64149680/how-to-activate-conda-environment-from-powershell)
 
-- 当您从开始菜单中启动`Anaconda Powershell Prompt (miniconda3)`
+- 从开始菜单中**使用管理方式**启动`Anaconda Powershell Prompt (miniconda3)`
 
-  - 或者直接在powershell中执行以下代码启动:
-  - ` .(Resolve-Path "$env:appdata\Microsoft\Windows\Start*Menu\Programs\Anaconda3*\*conda*powershell*.lnk")`
+  - 或者在管理员方式启动的powershell中执行以下代码启动:
+
+  - ```bash
+    .(Resolve-Path "$env:appdata\Microsoft\Windows\Start*Menu\Programs\Anaconda3*\*conda*powershell*.lnk")
+    #另一种可能
+    . (rvpa "C:\ProgramData\Microsoft\Windows\Start*\Programs\Miniconda3*\*conda*powershell*.lnk")
+    
+    
+    ```
+
+    
+
+  - 非管理员权限可能会失败
+
+    ```bash
+    (base) PS C:\Users\cxxu> conda init powershell
+    ERROR during elevated execution.
+      rc: [WinError 0] The operation completed successfully.
+    no change     C:\ProgramData\miniconda3\Scripts\conda.exe
+    no change     C:\ProgramData\miniconda3\Scripts\conda-env.exe
+    no change     C:\ProgramData\miniconda3\Scripts\conda-script.py
+    no change     C:\ProgramData\miniconda3\Scripts\conda-env-script.py
+    ...
+    no change     C:\ProgramData\miniconda3\shell\condabin\Conda.psm1
+    needs sudo    C:\ProgramData\miniconda3\shell\condabin\conda-hook.ps1
+    no change     C:\ProgramData\miniconda3\Lib\site-packages\xontrib\conda.xsh
+    needs sudo    C:\ProgramData\miniconda3\etc\profile.d\conda.csh
+    no change     C:\Users\cxxu\Documents\PowerShell\profile.ps1
+    no change     C:\Users\cxxu\Documents\WindowsPowerShell\profile.ps1
+    No action taken.
+    Operation failed.
+    ```
+
+    
 
 - 粘贴以下代码回车执行
+
+  - 前提是上面一节的代码成功运行!
 
   - ```powershell
     conda init powershell
     conda config --set auto_activate_base false
-    
-    
     ```
 
   - 关闭终端,此后再打开powershell,就可以直接使用`conda activate`相关命令了

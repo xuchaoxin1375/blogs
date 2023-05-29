@@ -116,11 +116,13 @@
 
 #### jupyter notebook 使用文档
 
-- [The Jupyter Notebook — Jupyter Notebook 6.5.3 documentation (jupyter-notebook.readthedocs.io)](https://jupyter-notebook.readthedocs.io/en/stable/index.html)
+- [The Jupyter Notebook — Jupyter Notebook   documentation (jupyter-notebook.readthedocs.io)](https://jupyter-notebook.readthedocs.io/en/stable/index.html)
 
 ### jupyter 安装信息
 
-- ```bash
+- 版本信息:
+
+  ```bash
   PS C:\Users\cxxu\Desktop> jupyter --version
   Selected Jupyter core packages...
   IPython          : 8.8.0
@@ -138,6 +140,53 @@
   traitlets        : 5.8.1
   ```
 
+- 本地帮助文档:
+
+  - ```bash
+    (base) PS D:\repos\PythonLearn> jupyter -h
+    usage: jupyter [-h] [--version] [--config-dir] [--data-dir] [--runtime-dir] [--paths] [--json] [--debug] [subcommand]
+    
+    Jupyter: Interactive Computing
+    
+    positional arguments:
+      subcommand     the subcommand to launch
+    
+    optional arguments:
+      -h, --help     show this help message and exit
+      --version      show the versions of core jupyter packages and exit
+      --config-dir   show Jupyter config dir
+      --data-dir     show Jupyter data dir
+      --runtime-dir  show Jupyter runtime dir
+      --paths        show all Jupyter paths. Add --json for machine-readable format.
+      --json         output paths as machine-readable json
+      --debug        output debug information about paths
+    
+    Available subcommands: bundlerextension dejavu events execute kernel kernelspec migrate nbclassic nbconvert nbextension notebook run server serverextension
+    troubleshoot trust
+    ```
+
+
+#### Available subcommands: 
+
+常用的部分高亮:
+
+- bundlerextension
+- dejavu
+- events
+- execute
+- `kernel`
+- kernelspec
+- migrate
+- nbclassic
+- `nbconvert`
+- nbextension
+- `notebook`
+- run
+- server
+- serverextension
+- troubleshoot
+- trust
+
 - 上面查询出的有版本号的packages可以作为有效的`subcommand`
 
   - 例如`jupyter notebook`
@@ -145,7 +194,7 @@
 
 - `jupyter <subcommand> `命令帮助:
 
-  - 例如
+  - 例如`jupyter nbconvert -h`:
 
     ```bash
     (d:\condaPythonEnvs\pt2.0) PS D:\repos\CCSER\d2l-zh> jupyter nbconvert -h
@@ -183,6 +232,8 @@
         Equivalent to: [--FilesWriter.build_directory]
     ```
 
+## notebook格式转换
+
 ### notebook(.ipynb)导出为其他格式@markdown等格式@格式转换🎈
 
 - [nbconvert: Convert Notebooks to other formats — nbconvert 7.2.10 documentation](https://nbconvert.readthedocs.io/en/latest/)
@@ -203,7 +254,7 @@
 
 - 打开notebook,选择download as ,选择格式即可
 
-### conda 安装🎈notebook
+## conda 安装🎈notebook
 
 - Install Anaconda or Miniconda if you don’t have it already
 
@@ -289,40 +340,37 @@
 
 ##  配置相关快捷键:
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626195722466.png)
+- `Jupyter:`系列
 
-##  eg:(自用方案)
+- 一下是本人自用方案:
 
-###  run above:
+run above:
+
 - Ctrl+k Ctrl+t
 
-###  run current cell:
+run current cell:
+
 - ctrl+k ctrl+c
 
-###  insert cell below position:
+insert cell below position:
+
 - ctrl+k ctrl+j
 
 - 或者
 - ctrl+k ctrl+p
 
-###  insert cell below:
+insert cell below:
+
 - ctrl+k ctrl+j
 
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626202022640.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
-
-
-#  直接编辑.jpynb文件
-
-- 我更喜欢传统界面,许多快捷键比较习惯,其他插件的效果也能不受影响:
-
-##  直接编辑.jpynb文件
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626195820354.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
 #  notebook 异常排除
 
-- 当您的jupyter页面中含有多段代码的时候,如果发现在尝试执行全部执行的时候无法全部执行,那么可以看前面的代码中是否有出错(这会打断执行流)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/8f4532c9fbfc412fbb16d49047986ca7.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+- 当您的jupyter页面中含有多段代码的时候,如果发现在尝试执行全部执行的时候无法全部执行,那么可以**检查前面的代码单元**中是否有出错(这会打断执行流)
+- 也可以用**Prombles**来辅助检查基本错误(但是无法检测运行时错误)
+  - 通过command palette`problems:Focus on problems view`
+
 
 ##  使用建议
 

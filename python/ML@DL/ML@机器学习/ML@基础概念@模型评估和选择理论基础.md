@@ -325,6 +325,12 @@
     E(f;D)=\frac{1}{m}\sum_{i=1}^{m}(f(\boldsymbol{x_i})-y_i)^2
     $$
 
+  - 记$\theta_i=f(\boldsymbol{x}_i)-y_i$,$\alpha=(\theta_1;\theta_2;\cdots;\theta_n)$
+
+  - 用向量点积表示法:$E=\frac{1}{m}\sum_{i=1}^{m}\theta_i^2=\frac{1}{m}\alpha^{T}\alpha$
+
+    
+
 - 对于数据分布D和概率密度函数p,MSE描述为:
 
   - $$

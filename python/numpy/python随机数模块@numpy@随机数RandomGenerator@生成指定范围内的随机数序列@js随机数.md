@@ -280,7 +280,7 @@ print("@rand_sample_immutable2:", seq_sample, '<-', population)
     print(f'{D=}\n{RTD=}\n{RFD=}')
     ```
 
-  - ```
+  - ```python
     D=array([8, 2, 8, 6, 1, 8, 3, 9, 7, 8, 6, 6, 1, 4, 7], dtype=int64)
     RTD=array([[1, 1, 8, 1],
            [9, 7, 8, 8],
@@ -290,5 +290,34 @@ print("@rand_sample_immutable2:", seq_sample, '<-', population)
            [9, 6, 7, 7]], dtype=int64)
     ```
 
-    
+
+### numpy.random.shuffle方法
+
+- 生成20个数,reshape为(4,5),最后用shuffle方法随机打乱顺序
+
+  ```python
+  In [14]: a=np.arange(20).reshape(4,5)
+  
+  In [15]: a
+  Out[15]:
+  array([[ 0,  1,  2,  3,  4],
+         [ 5,  6,  7,  8,  9],
+         [10, 11, 12, 13, 14],
+         [15, 16, 17, 18, 19]])
+  
+  In [16]: rng=np.random.default_rng()
+  
+  In [17]: rng.shuffle(a)
+  
+  In [18]: a
+  Out[18]:
+  array([[15, 16, 17, 18, 19],
+         [ 0,  1,  2,  3,  4],
+         [ 5,  6,  7,  8,  9],
+         [10, 11, 12, 13, 14]])
+  ```
+
+
+
+
 

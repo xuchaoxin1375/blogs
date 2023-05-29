@@ -9,10 +9,16 @@
 - [ 深度学习中的矩阵微积分学 - Dezeming Family https://dezeming.top › uploads › 2022/02 › 深度...](https://dezeming.top/wp-content/uploads/2022/02/深度学习中的矩阵微积分学.pdf)
   - [The Matrix Calculus You Need For Deep Learning (explained.ai)](https://explained.ai/matrix-calculus/index.html)
 
+
+### 图书资料
+
 - [矩阵论 第2版_图书搜索 (superlib.net)](http://book.ucdrs.superlib.net/views/specific/2929/bookDetail.jsp?dxNumber=000013753954&d=3F605BB25FC118047ADE2EC1E04E041E&fenlei=130109010201)
   - **作者:**方保镕，周继东，李医民编著 **页数:**401 **出版社:**北京：清华大学出版社 **出版日期:**2013.12 
   - 简介:本书比较全面、系统地介绍了矩阵的基本理论、方法及其应用。
   - 全书分上、下两篇，上篇为基础篇，下篇为应用篇。
+
+### 在线资料
+
 - [Matrix calculus - Wikipedia](https://en.wikipedia.org/wiki/Matrix_calculus)
 - [矩阵微积分 (wikipedia.org)](https://zh.wikipedia.org/wiki/矩阵微积分)
 - [2.4. 微积分 — 动手学深度学习 2.0.0 documentation (d2l.ai)](https://zh-v2.d2l.ai/chapter_preliminaries/calculus.html#id5)
@@ -152,7 +158,7 @@
   - 同时,将$\mathbf{X}$的列数n作为结果矩阵的列数(如果$\mathbf{X}$是一个向量或标量,则认为n=1)
 - 分母记法于分子记法相反(他们互为转置矩阵)
 
-## 分子记法@分子布局
+## 分子记法
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/724149263fe441deb2b2cf4bac87df2b.png)
 
@@ -535,8 +541,12 @@
 
   
 
-
 ## Types of matrix derivative
+
+### refs
+
+- [ 动手学深度学习课程 (d2l.ai)](https://courses.d2l.ai/zh-v2/)
+  - https://courses.d2l.ai/zh-v2/assets/pdfs/part-0_6.pdf
 
 | Types  | Scalar                                   | Vector                                            | Matrix                                   |
 | ------ | ---------------------------------------- | ------------------------------------------------- | ---------------------------------------- |
@@ -556,11 +566,6 @@
   - 在机器学习和数据分析中，聚合是一种常见的操作，用于将数据进行汇总和归纳，例如计算数据的均值、方差、最大值、最小值等统计量，或者将数据进行分组、聚类等操作。
   - 总之，聚合是一种重要的概念，广泛应用于数学、计算机科学、统计学、机器学习、数据分析等领域。
 
-### 矩阵计算@矩阵微分refs
-
-- [ 动手学深度学习课程 (d2l.ai)](https://courses.d2l.ai/zh-v2/)
-  - https://courses.d2l.ai/zh-v2/assets/pdfs/part-0_6.pdf
-
 ## 数量函数和向量函数
 
 - 下面的内容将反复涉及到`数量函数`和`向量函数`(以及`矩阵函数`)
@@ -571,6 +576,10 @@
 - preface:
   - 数量函数和向量函数之间的区分主要根据输出对象(是标量还是向量)
   - 它们都可能接收向量作为输入
+
+# 补充
+
+## 概念
 
 ### 数量函数
 
@@ -593,4 +602,104 @@
   - A **vector-valued function**, also referred to as a **vector function**, is a [mathematical function](https://en.wikipedia.org/wiki/Function_(mathematics)) of one or more [variables](https://en.wikipedia.org/wiki/Variable_(mathematics)) whose [range](https://en.wikipedia.org/wiki/Range_of_a_function) is a set of **multidimensional** [vectors](https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)) or [infinite-dimensional vectors](https://en.wikipedia.org/wiki/Infinite-dimensional-vector-valued_function). 
   - The input of a vector-valued function could be a scalar or a vector (that is, the [dimension](https://en.wikipedia.org/wiki/Dimension) of the [domain](https://en.wikipedia.org/wiki/Domain_of_a_function) could be 1 or greater than 1);
   - the dimension of the function's domain has no relation to the dimension of its range.
+
+## 性质
+
+- 函数矩阵微积分的运算性质
+- 通常导数性质更加常用
+
+### 导数性质
+
+- 和普通函数的性质相仿,函数矩阵的导数性质如下:
+
+- $A(t)$为常数矩阵的充要条件是$A'(t)=0$
+
+- 设$A(t)=(a_{ij}(t))_{m\times{n}}$和$B(t)=(b_{ij}(t))_{m\times{n}}$可导:
+
+  - $$
+    \frac{\mathrm{d}}{\mathrm{d}t}
+    (A(t)\pm{B(t)})
+    =\frac{\mathrm{d}}{\mathrm{d}t}A(t)\pm
+    \frac{\mathrm{d}}{\mathrm{d}t}{B(t)}
+    $$
+
+- 若$k(t)$是可导的实函数,$A(t)$可导:
+
+  - $$
+    \frac{\mathrm{d}}{\mathrm{d}t}
+    (k(t)A(t))
+    =(\frac{\mathrm{d}}{\mathrm{d}t}k(t)){A(t)}
+    +k(t)(\frac{\mathrm{d}}{\mathrm{d}t}A'(t))
+    $$
+
+- 设$A(t),B(t)$均可导:
+
+  - $$
+    A(t)=\begin{pmatrix}
+       a_{11}(t)&  a_{12}(t)&  \cdots&a_{1n}(t) \\
+        a_{21}(t)&  a_{22}(t)&  \cdots&a_{2n}(t) \\
+        \vdots&  \vdots&  &\vdots \\
+        a_{m1}(t)&  a_{m2}(t)&  \cdots&a_{mn}(t) \\
+    \end{pmatrix}
+    \\
+    B(t)=\begin{pmatrix}
+       b_{11}(t)&  b_{12}(t)&  \cdots&b_{1p}(t) \\
+        b_{21}(t)&  b_{22}(t)&  \cdots&b_{2p}(t) \\
+        \vdots&  \vdots&  &\vdots \\
+        b_{n1}(t)&  b_{n2}(t)&  \cdots&b_{np}(t) \\
+    \end{pmatrix}
+    \\
+    A(t)B(t)
+    =(c_{ij})_{m\times{p}}
+    \\
+    c_{ij}=\sum_{i=k}^{n}a_{ik}(t)b_{kj}(t)
+    \\
+    (c'_{ij})_{m\times{n}}=\sum_{i=k}^{n}
+    (
+    a'_{ik}(t)b_{kj}(t)+a_{ik}(t)b'_{kj}(t)
+    )
+    \\=\sum_{i=k}^{n}a'_{ik}(t)b_{kj}(t)
+    +\sum_{i=k}^{n}a_{ik}(t)b'_{kj}(t)
+    \\
+    (c'_{ij})_{m\times{n}}=A'(t)B(t)+A(t)B'(t)
+    $$
+
+- 若方阵$A(t)$的逆矩阵$A^{-1}(t)$都可导:
+
+  - $$
+    \frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)
+    =-A^{-1}(t)(\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+    $$
+
+  - 利用上一条性质来推导这个式子:
+
+    - 对于可逆矩阵:$AA^{-1}=E$,对于可逆函数矩阵:$A(t)A^{-1}(t)=E$
+
+    - $$
+      (\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+      +A(t)\frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)
+      =\frac{\mathrm{d}}{\mathrm{d}t}E=0
+      $$
+
+    - 移项:
+
+    - $$
+      A(t)\frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)
+      =-(\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+      $$
+
+    - 两边同时左乘$A^{-1}(t)$
+
+    - $$
+      A^{-1}(t)A(t)\frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)
+      =-A^{-1}(t)(\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+      \\
+      E\frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)=-A^{-1}(t)(\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+      \\\therefore
+      \frac{\mathrm{d}}{\mathrm{d}t}A^{-1}(t)=-A^{-1}(t)(\frac{\mathrm{d}}{\mathrm{d}t}A(t))A^{-1}(t)
+      $$
+
+      
+
+    
 
