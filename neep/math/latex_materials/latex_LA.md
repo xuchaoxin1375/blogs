@@ -31,8 +31,6 @@
 
 
 
-
-
 - $$
   \\
   \begin{vmatrix}
@@ -90,6 +88,18 @@
     \end{pmatrix}
     $$
   
+    
+    $$
+    B_{n}=  
+    \begin{pmatrix}  
+      b_{11}& b_{12}& \cdots  & b_{1n} \\  
+      b_{21}& b_{22}& \cdots  & b_{2n} \\  
+      \vdots & \vdots & \ddots & \vdots \\  
+      b_{n1}& b_{n2}& \cdots  & b_{nn}  
+    \end{pmatrix}
+    $$
+    
+    
   - $$
     |A|_{n}=  
     \begin{vmatrix}  
@@ -137,8 +147,18 @@
   	\vdots  &\vdots  &        &\vdots  	\\
   	a_{m1}  &a_{m2}  &\cdots  &a_{mn}  	\\
   \end{pmatrix}
-  \\逗号分隔下标
   \\
+  B=\begin{pmatrix}
+  	b_{11}  &b_{12}  &\cdots  &b_{1n}  	\\
+  	b_{21}  &b_{22}  &\cdots  &b_{2n}  	\\
+  	\vdots  &\vdots  &        &\vdots  	\\
+  	b_{m1}  &b_{m2}  &\cdots  &b_{mn}  	\\
+  \end{pmatrix}
+  $$
+
+#### 逗号分隔下标
+
+- $$
   A=\begin{pmatrix}
   	a_{1,1}  &a_{1,2}  &\cdots  &a_{1,n}  	\\
   	a_{2,1}  &a_{2,2}  &\cdots  &a_{2,n}  	\\
@@ -147,7 +167,9 @@
   \end{pmatrix}
   $$
 
-### 转置🎈
+  
+
+#### 转置🎈
 
 - $m\times{n}$转置为$n\times{m}$
 
@@ -277,16 +299,41 @@ A=\begin{pmatrix}
     a_{m1}&  a_{m2}&  \cdots&a_{mn} \\
 \end{pmatrix}
 =\begin{pmatrix}
-\alpha_{1}\\
-\alpha_{2}\\
-\vdots\\
-\alpha_{m}
+    \alpha_{1}\\
+    \alpha_{2}\\
+    \vdots\\
+    \alpha_{m}
 \end{pmatrix}
 \\
 \alpha_{i}是A的第i行元素构成的行向量
 $$
 
 - $$
+  B=\begin{pmatrix}
+      \beta_{1}\\
+      \beta_{2}\\
+      \vdots\\
+      \beta_{n}
+  \end{pmatrix}
+  \\
+  AB=\begin{pmatrix}
+     a_{11}&  a_{12}&  \cdots&a_{1n} \\
+      a_{21}&  a_{22}&  \cdots&a_{2n} \\
+      \vdots&  \vdots&  &\vdots \\
+      a_{m1}&  a_{m2}&  \cdots&a_{mn} \\
+  \end{pmatrix}
+  \begin{pmatrix}
+      \beta_{1}\\
+      \beta_{2}\\
+      \vdots\\
+      \beta_{n}
+  \end{pmatrix}
+  $$
+  
+  
+  
+- 
+  $$
   A\boldsymbol{x}=b
   \\
   \left \{
