@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 
 
 
@@ -38,7 +38,7 @@
 
 # 第三方recovery(twrp篇)
 
-> - twrp是当下流行的第三方recovery,功能十分丰富
+- twrp是流行的第三方recovery,功能十分丰富
 
 - 第三方recovery也叫custom recovery
   - [TWRP (software) - Wikipedia](https://en.wikipedia.org/wiki/TWRP_(software))

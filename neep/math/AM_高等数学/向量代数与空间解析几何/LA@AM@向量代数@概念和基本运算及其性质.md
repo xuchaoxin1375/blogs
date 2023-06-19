@@ -1,6 +1,8 @@
 [toc]
 
-## 概念🎈
+## 概念
+
+### 向量
 
 - 既有**大小**(模)又有**方向**的量,称为**向量**(或**矢量**)
   - 印刷体常用黑体字母表示向量
@@ -99,12 +101,13 @@
 
   - **分配律**:👺
     - $\boldsymbol{(a+b)\cdot{c}=a\cdot{c}+b\cdot{c}}$
-      - LHS=$|c|Prj\boldsymbol{_{c}{(a+b)}}=|c|Prj_{\boldsymbol{c}}\boldsymbol{a}+|c|Prj_\boldsymbol{c}\boldsymbol{b}$
-        - 更具投影的分配律以及实数加法的分配律
+      - $LHS=|c|\text{Prj}_{\boldsymbol{c}}{{(a+b)}}
+        =|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{a}
+        +|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{b}$
+        - 根据投影的分配律以及实数加法的分配律
       - RHS=$|c|Prj_ca+|c|Prj_cb$
       - 因此LHS=RHS
     - 向量分配律
-
   - **结合律**:
     - $(\lambda\boldsymbol{a})\cdot{\boldsymbol{b}}=\lambda(\boldsymbol{a\cdot b})$
     - 根据数量的定义:
@@ -121,14 +124,7 @@
   - $\boldsymbol{a}\cdot(\lambda\boldsymbol{b})=\lambda(\boldsymbol{a}\cdot\boldsymbol{b})$
   - $(\lambda\boldsymbol{{a}})\cdot{(\mu\boldsymbol{b})}=\lambda\mu(\boldsymbol{a\cdot{b}})$
 
-#### 数量乘的应用(模@夹角余弦@垂直判定)
 
-- 求向量的模$|\boldsymbol{a}|=\sqrt{\boldsymbol{a}\cdot{\boldsymbol{a}}}=\sqrt{a_x^2+a_y^2+a_z^2}$
-- 求两个向量a,b的夹角余弦:$\cos{\theta}=\frac{\boldsymbol{a}\cdot{\boldsymbol{b}}}{|\boldsymbol{a}||\boldsymbol{b}|}$
-- 判定两个向量垂直$\boldsymbol{a}\perp{\boldsymbol{b}}\Leftrightarrow{\boldsymbol{a}\cdot{\boldsymbol{b}}=0}$
-  - 因为两个向量垂直,则他们的夹角为$\theta=\frac{\pi}{2}$,$\cos{\theta}=0$
-  - 根据夹角余弦公式,得出$\boldsymbol{a\cdot{b}}=0$的结论
-  - 反之,如果$\boldsymbol{a\cdot{b}}=0$则$\cos\theta=0,\theta\in[0,\pi]$,从而$\theta=\frac{\pi}{2}$,推出向量$\boldsymbol{a\perp{b}}$
 
 
 ### 外积@向量积@叉乘积_叉积🎈
@@ -140,284 +136,55 @@
   - 该公式的推导可以有代数表示计算得到
 - 向量$c=a\times{b}$同时垂直于$a,b$,且符合**右手法则**
 
+#### 同时垂直与不同线的两个向量
+
+- 同时垂直于不共线的2个向量的第3个向量一定不共面
+  - 假设$\theta=<\boldsymbol{a,b}>\in(0,\pi)$
+  - $\alpha=<\boldsymbol{b,c}>=\frac{\pi}{2}$
+  - $\beta=<\boldsymbol{a,c}>=\theta+\alpha>\frac{\pi}{2}$
+  - 从而$\boldsymbol{c}$和$\boldsymbol{a,b}$不共面
+- 通常要找到垂直于给定的不共面的2个向量$\boldsymbol{a,b}$所在平面的法向量$\boldsymbol{d}$,可以使用$\boldsymbol{d=\pm a\times{b}}$来获得
+- 根据需要可以将$\boldsymbol{d}$进行单位化$\boldsymbol{c}^{0}=\frac{1}{|\boldsymbol{d}|}\boldsymbol{d}$
+
 #### 代数表示
 
 - $$
-  a\times{b}=
-  \begin{vmatrix}
+  \begin{aligned}
+  \boldsymbol{a}\times{\boldsymbol{b}}
+  &=\begin{vmatrix}
   \bold{i}&\bold{j}&\bold{k}\\
   a_x&a_y&a_z\\
   b_x&b_y&b_z
   \end{vmatrix}
   \\
-  =\begin{vmatrix}
+  &=\begin{vmatrix}
   a_y&a_z\\
   b_y&b_z
-  \end{vmatrix}i
+  \end{vmatrix}\bold{i}
   -\begin{vmatrix}
   a_x&a_z\\
   b_x&b_z
-  \end{vmatrix}j
+  \end{vmatrix}\bold{j}
   +\begin{vmatrix}
   a_x&a_y\\
   b_x&b_y
-  \end{vmatrix}k
+  \end{vmatrix}\bold{k}
   \\
-  =+(a_yb_z-b_ya_z)i-(a_xb_z-b_xa_z)j+(a_xb_y-b_xa_y)k
+  &=+(a_yb_z-b_ya_z)\bold{i}-(a_xb_z-b_xa_z)\bold{j}+(a_xb_y-b_xa_y)\bold{k}
   \\
-  =(a_yb_z-b_ya_z,-(a_xb_z-b_xa_z),(a_xb_y-b_xa_y))
+  &=(a_yb_z-b_ya_z,-(a_xb_z-b_xa_z),(a_xb_y-b_xa_y))
   \\
-  =(a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
-  \\
+  &=(a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
+  \end{aligned}
   $$
-  
+
   - 传统的方法是按照行列式降阶展开
   - 或者按照三阶对角线规则
-  - 注意一般标量矩阵构成的行列式的计算结果是一个标量,而本例中行列式的第一行$i,j,k$均为向量,其计算结果也是向量
-  
-- 参考资料:[叉积  (wikipedia.org)](https://zh.wikipedia.org/wiki/叉积)
-
-  - 外积可以表达为这样的行列式：
-    ${\displaystyle \mathbf {u\times v} ={\begin{vmatrix}\mathbf {i} &\mathbf {j} &\mathbf {k} \\
-    	u_{1}&u_{2}&u_{3}\\
-    	v_{1}&v_{2}&v_{3}\\
-    	\end{vmatrix}}}$
-    这个行列式可以使用萨吕法则或拉普拉斯展开计算。使用萨吕法则可以展开为：
-    ${\displaystyle {\begin{aligned}\mathbf {u\times v} &=(u_{2}v_{3}\mathbf {i} +u_{3}v_{1}\mathbf {j} +u_{1}v_{2}\mathbf {k} )-(u_{3}v_{2}\mathbf {i} +u_{1}v_{3}\mathbf {j} +u_{2}v_{1}\mathbf {k} )\\
-    	&=(u_{2}v_{3}-u_{3}v_{2})\mathbf {i} +(u_{3}v_{1}-u_{1}v_{3})\mathbf {j} +(u_{1}v_{2}-u_{2}v_{1})\mathbf {k} \end{aligned}}}$
-    使用拉普拉斯展开可以沿第一行展开为：[2]
-    ${\displaystyle {\begin{aligned}\mathbf {u\times v} &={\begin{vmatrix}u_{2}&u_{3}\\
-    	v_{2}&v_{3}\end{vmatrix}}\mathbf {i} -{\begin{vmatrix}u_{1}&u_{3}\\
-    	v_{1}&v_{3}\end{vmatrix}}\mathbf {j} +{\begin{vmatrix}u_{1}&u_{2}\\
-    	v_{1}&v_{2}\end{vmatrix}}\mathbf {k} \\
-    	&=(u_{2}v_{3}-u_{3}v_{2})\mathbf {i} -(u_{1}v_{3}-u_{3}v_{1})\mathbf {j} +(u_{1}v_{2}-u_{2}v_{1})\mathbf {k} \end{aligned}}}$
-
-- 方向性
-  - $a\times{b}=-(b\times{a})$
-    - 这一点根据上面的展开公式(行列式的行互换一次,结果取反)均可以看出
-    - 而从右手法则也可以发现两个向量交换位置作外积后结果向量方向取反
-- 分配律
-  - $a\times{(b+c)}=a\times{b}+a\times{c}$
-  - 容易根据叉乘的展开式(行列式形式,运用行列式性质)证明
-- 叉乘和数乘结合律
-  - $\lambda{a}\times{b}=a\times{(\lambda{b})}=\lambda{(a\times{b})}$
-
-#### 推导$|a\times{b}|=|a||b|\sin{\theta}$
-
-- $$
-  |a\times{b}|^2=(a\times{b})\cdot(a\times{b})
-  \\=(a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
-  (a_yb_z-b_ya_z,b_xa_z-a_xb_z,a_xb_y-b_xa_y)
-  \\
-  =(a_yb_z-b_ya_z)^2+(b_xa_z-a_xb_z)^2+(a_xb_y-b_xa_y)^2
-  \\=(a_x^2+a_y^2+a_z^2)(b_x^2+b_y^2+b_z^2)-(a_xb_x+a_yb_y+a_zc_z)^2
-  \\=|a|^2|b|^2-(a\cdot{b})^2
-  \\=|a|^2|b|^2-(|a||b|\cos{\theta})^2
-  \\=|a|^2|b|^2\sin^2\theta
-  $$
-
-  - 计算比较有技巧性,TODO
-
-- $|a\times{b}|=|a||b|\sin{\theta}$
+  - 注意一般标量矩阵构成的行列式的计算结果是一个标量,而本例中行列式的第一行$\boldsymbol{i,j,k}$均为向量,其计算结果也是向量
 
 
 
-#### 外积的应用@求法向量@判定平行@计算平行四边形面积
-
-- 利用$a,b$的向量积可以直接接近需要找到同时垂直于$a,b$的向量(法向量)
-- $a\parallel{b}\Leftrightarrow{a\times{b}=0}$
-- 设以向量a,b为临边的平行四边形面积为S,$S=|a\times{b}|=|a|\sin{\theta}|b|$
-
-#### 平行定理
-
-- 设向量$\boldsymbol{a}\neq{\bold{0}}$,则向量$\boldsymbol{b}$平行于$\boldsymbol{a}$的充分必要体条件是:存在唯一的实数$\lambda$,使$\boldsymbol{b}=\lambda{\boldsymbol{a}}$
-- 证明:
-  - 条件的充分性显然
-  - 必要性:根据$\boldsymbol{b}//\boldsymbol{a}$推导$\boldsymbol{b}=\lambda\boldsymbol{a}$中$\lambda$存在且唯一
-    - 两个向量相等需要满足2个条件:
-      - 方向平行(可以是同向或者反向(即夹角是0或者$\pi$))
-        - 满足该条件的两个向量$\boldsymbol{a},\boldsymbol{b}$的关系可以描述为$\boldsymbol{b}=\lambda\boldsymbol{a}$
-      - 两个向量的模相等
-    - 设$\boldsymbol{b}//\boldsymbol{a}$,向量平行包含同向和反向两种可能
-      - 令$|\lambda|=\frac{|\boldsymbol{b}|}{|\boldsymbol{a}|}=t$,则$|\lambda\boldsymbol{a}|=|\lambda||\boldsymbol{a}|=|\boldsymbol{b}|$
-      - 当$\boldsymbol{b},\boldsymbol{a}$同向时,$\lambda=t$,反向时$\lambda=-t$,因此存在$\boldsymbol{b}=\lambda\boldsymbol{a}$,
-    - 唯一性:
-      - 设$\boldsymbol{b}=\lambda{\boldsymbol{a}}$,$\boldsymbol{b}=\mu{\boldsymbol{a}}$,将两式子相减:$(\lambda-\mu)\boldsymbol{a}=\bold{0}$,分别求两边的摸
-      - 则$|\lambda-\mu||\boldsymbol{a}|=0$
-      - 而$|\boldsymbol{a}|\neq{0}$,从而$\lambda-\mu=0$,即$\lambda=\mu$
-      - 因此$\lambda$唯一
-
-### 混合积🎈
-
-- 向量$a,b,c$三个向量的混合积定义为$(a\times{b})\cdot{c}$,简记为$(abc)$或$[abc]$
-
-- $$
-  (abc)=(a\times{b})\cdot{c}
-  \\
-  =(\begin{vmatrix}
-  a_y&a_z\\
-  b_y&b_z
-  \end{vmatrix}i
-  -\begin{vmatrix}
-  a_x&a_z\\
-  b_x&b_z
-  \end{vmatrix}j
-  +\begin{vmatrix}
-  a_x&a_y\\
-  b_x&b_y
-  \end{vmatrix}k)
-  (c_xi+c_yj+c_zk)
-  \\
-  \\
-  =(\begin{vmatrix}
-  a_y&a_z\\
-  b_y&b_z
-  \end{vmatrix}c_x
-  -\begin{vmatrix}
-  a_x&a_z\\
-  b_x&b_z
-  \end{vmatrix}c_y
-  +\begin{vmatrix}
-  a_x&a_y\\
-  b_x&b_y
-  \end{vmatrix}c_z)\\
-  =\begin{vmatrix}
-  a_x&a_y&a_z\\
-  b_x&b_y&b_z\\
-  c_x&b_y&c_z
-  \end{vmatrix}
-  $$
-
-
-- 逆向观察该公式:
-
-  - $$
-    A=\begin{vmatrix}
-    a_x&a_y&a_z\\
-    b_x&b_y&b_z\\
-    c_x&b_y&c_z
-    \end{vmatrix}
-    =(abc)
-    \\
-    B=\begin{vmatrix}
-    b_x&b_y&b_z\\
-    c_x&b_y&c_z\\
-    a_x&a_y&a_z
-    \end{vmatrix}
-    =(bca)
-    \\
-    C=\begin{vmatrix}
-    c_x&b_y&c_z\\
-    a_x&a_y&a_z\\
-    b_x&b_y&b_z
-    \end{vmatrix}
-    =(cab)
-    $$
-
-  - 由行列式行(列)交换一次,结果取反的结论可知,B,C都是相对于A交换量词得到的,从而A=B=C
-
-  - 从而有以下结论
-
-#### 行向量互换,混合积变号
-
-- $(abc)=-(acb)=-(cab)=-(bac)$
-
-  
-
-#### 轮换对称性
-
-- $(abc)=(bca)=(cab)$
-
-#### 混合积的应用@平行六面体体积@三向量共面判定
-
-- $V_{parallelepiped}=|(abc)|$
-  - $V=|(a\times{b})\cdot{c}|$
-    - 记底面的法向量$d=a\times{b}$,$|d|=|a||b|\sin\theta$是平行六面体的底面积S($S=|d|$)
-    - $V=|d\cdot{c}|=|d||c|\cos{\phi}$
-    - $h=|c|\cos{\phi}$是平行六面体的高度(底面处在$a,b$所在的平面上)
-  - 平行六面体的一个特例是长方体
-  - 平行六面体有六个面,12条棱
-- $a,b,c$共面$\Leftrightarrow{(abc)=0}$(说明平行六面体的体积为0
-
-
-
-### 投影
-
-- (三维)向量在坐标轴上的投影🎈
-
-  - 假设三维空间向量$\boldsymbol{a}$的起点位于坐标系原点O,重点设为P,该向量在$x$轴上的投影点设为A,则$RT\triangle{OAP}$的直角为$\angle{OAP}$,设其中的$\angle{PAO}=\alpha$,线段$a_x=|OA|=|\boldsymbol{a}|\cos{\alpha}$,是$\boldsymbol{a}$在$x$轴上的投影,同时也是$\boldsymbol{a}$在$x$轴上的坐标值
-
-  - 类似的,$\boldsymbol{a}$在$x,y,z$轴上的投影为$a_y=|\boldsymbol{a}|\cos\beta$,$a_z=|\boldsymbol{a}|\cos{\gamma}$
-
-  - 投影的符号记法:向量$\boldsymbol{r}$在坐标轴$u$上的投影可以记为$\text{Prj}_{u}\boldsymbol{r}$或$(\boldsymbol{r})_{u}$,即把坐标轴写作角标
-
-    - 向量$\boldsymbol{r}$在向量$\boldsymbol{a}(\boldsymbol{a}\neq{\boldsymbol{0}})$上的投影$\text{Prj}_{\boldsymbol{a}}\boldsymbol{r}$是指,$\boldsymbol{r}$在(某条)与$\boldsymbol{a}$同方向的轴上的投影
-
-  - 根据向量$\overrightarrow{OA}$在$x,y,z$轴上的投影和$A=(a_x,a_y,a_z)$在坐标轴上的投影的相等关系
-
-    - $$
-      \boldsymbol{a}=(a_x,a_y,a_z)
-      =((\boldsymbol{a}_x),(\boldsymbol{a}_y),(\boldsymbol{a}_z))
-      =(|\boldsymbol{a}|\cos{\alpha},|\boldsymbol{a}|\cos{\beta},
-      |\boldsymbol{a}|\cos{\gamma})
-      $$
-
-#### 投影性质小结
-
-- 设2个向量(坐标分解式)$\boldsymbol{a}=(\cdots,a_u,\cdots),\boldsymbol{b}=(\cdots,b_u,\cdots)$
-  - $(\cdots,a_u+b_u,\cdots)=(\cdots,a_u,\cdots)+(\cdots,b_u,\cdots)$
-  - $\lambda(\cdots,a_{u},\cdots)=(\cdots,\lambda a_{u},\cdots)$
-
-1. $(\boldsymbol{a})_u=|\boldsymbol{a}|\cos{\theta}$,($\theta=<\boldsymbol{a},u>$)这里u表示一个方向或者轴
-2. 在u轴上的投影的关系$(\boldsymbol{a}+\boldsymbol{b})_u=(\boldsymbol{a})_u+(\boldsymbol{b})_u$
-3. $(\lambda\boldsymbol{a})_u=\lambda(\boldsymbol{a})_u$
-
-
-
-### 方向角@方向余弦👺
-
-- 空间向量方向余弦🎈
-  - 设向量$\boldsymbol{a}\neq{0}$
-  - $\boldsymbol{a}$和$x,y,z$轴的**正方向**的夹角(称为**方向角**)分别为$\alpha,\beta,\gamma$,则称$\cos{\alpha},\cos{\beta},\cos{\gamma}$为向量$\boldsymbol{a}$的方向余弦
-  - 一个向量的方向由方向余弦决定
-    - $\boldsymbol{a}^0=(\cos{\alpha},\cos{\beta},\cos{\gamma})$
-
-#### 方向余弦和投影
-
-- 设向量$\boldsymbol{a}=(a_x,a_{y},a_z)$
-  - $\cos{\alpha}=\frac{a_x}{|a|}$
-  - $\cos{\beta}=\frac{a_y}{|a|}$
-  - $\cos{\gamma}=\frac{a_z}{|a|}$
-  - $|\boldsymbol{a}|^2=a_x^2+a_y^2+a_z^2$
-
-  - 容易看出$\cos^2{\alpha}+\cos^2{\beta}+\cos^2{\gamma}=1$
-  - 因此,$\boldsymbol{a}$ 的单位方向向量$\boldsymbol{a}^{0}=(\cos{\alpha},\cos{\beta},\cos{\gamma})$
-
-
-
-- 一个向量可以由其方向(**单位向量**)和**模**共同确定:$\boldsymbol{a}=|\boldsymbol{a}|\boldsymbol{\boldsymbol{a}^0}$
-  - $\boldsymbol{a}=|\boldsymbol{a}|(\cos{\alpha},\cos{\beta},\cos{\gamma})$
-  - 其中${e(\boldsymbol{a})}$表示$\boldsymbol{a}$的方向向量
-
-
-#### 例
-
-- 假设$A$位于空间直角坐标系的第$1$卦限,向径$\overrightarrow{OA}$与$x$轴,$y$轴的夹角依次为$\frac{\pi}{3},\frac{\pi}{4}$,$|\overrightarrow{OA}|=6$;求$A$的坐标?
-
-- 解:
-
-  - $\alpha=\frac{\pi}{3},\beta=\frac{\pi}{4}$,由关系是$\cos^2{\alpha}+\cos^2{\beta}+\cos^2{\gamma}=1$,得$\cos^2{\gamma}=1-(\frac{1}{2})^2-(\frac{\sqrt{2}}{2})^2=\frac{1}{4}$
-
-  - 因为$A$在第1卦限,所以$\cos\gamma>0$,$\cos\gamma=\frac{1}{2}$
-
-  - $$
-    \overrightarrow{OA}=|\overrightarrow{OA}|(\cos\alpha,\cos\beta,\cos\gamma)
-    =6(\frac{1}{2},\frac{\sqrt{2}}{2},\frac{1}{2})
-    =(3,3\sqrt{2},3)
-    $$
-
-
-
+## 向量的线性运算
 
 ### 向量的加减运算
 
@@ -501,6 +268,8 @@
 - 上例中任意两点$A,B$为例,$\overrightarrow{AB}=\overrightarrow{OB}-\overrightarrow{OA}=(x_2-x_1,y_2-y_1,z_2-z_1)$
 - $|\overrightarrow{AB}|=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}$
 
+
+
 ## 线性代数中的向量👺
 
 ### 向量长度
@@ -570,6 +339,8 @@
 
   - 其他性质:
     - $(\alpha+\beta,\gamma)=(\alpha,\gamma)+(\beta,\gamma)$
+
+
 
 
 
