@@ -24,11 +24,29 @@
 
 ## 累加多项式乘法
 
+### 乘法对加法的分配律在求和号中表示
+
+- $$
+  f\cdot\sum{g}=\sum{f\cdot g}
+  $$
+
+- Note:
+
+  - $$
+    A=\sum_{i}{p}q(i)
+    \\
+    B=q(i)\sum_{i}p
+    $$
+
+    - 其中p是任意表达式,$q(i)$表示带有求和指标$i$的表达式因子,这种情况下不像分配律那样可以提取公共因子,因为不同的$i$的取值(比如$i=1,2,\cdots$)下的$q(i)$往往是不相等的,即($h(i)\neq{h(j)},i\neq{j}$)
+    - 表达式B的形式式不是一种正确的写法,除非$q(i),i\in{\mathbb{Z}}$始终取同一个值k,那么可以写作$B=k\sum{p}$
+
 - 在程序设计中,相当于一个二重循环:
   $$
   (\sum\limits_{i=1}^{n}x_i)(\sum\limits_{i=j}^{m}y_j)
   =\sum\limits_{i=1}^{n}(x_i\sum\limits_{i=j}^{m}y_j)
   =\sum\limits_{i=1}^{n}(\sum\limits_{i=j}^{m}x_iy_j)
+  =\sum\limits_{i=1}^{n}\sum\limits_{i=j}^{m}x_iy_j
   $$
 
   - ```c
@@ -41,7 +59,15 @@
     }
     ```
 
-    
+### 更一般的情况
+
+- $$
+  \sum{f_1}\sum{f_2}\cdots\sum{f_n}=\sum\sum\cdots\sum{f_1f_2\cdots{f_n}}
+  \\
+  \prod_{i=1}^{n}{(\sum{f_i})}=\sum\sum\cdots\sum(\prod_{i=1}^{n}f_i)
+  $$
+
+  
 
 ## 求和式包含的项数
 
