@@ -95,6 +95,8 @@
     - 也可以不使用任何选项,默认行为就是执行app包文件安装
     - 吐槽一下原文档第一个子命令install没有换行的问题,容易漏看,可以结合grep来看文档
 
+
+
 ### 可能出现的问题
 
 
@@ -107,7 +109,6 @@
   ```
 
   - adb install 是adb可执行文件提供,而不是adb shell 提供的(toybox)
-
 
 #### more than one device/emulator
 

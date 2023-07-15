@@ -2,7 +2,7 @@
 
 
 
-## 多项式@求和式乘法
+## 求和式乘法
 
 - $$
   \begin{aligned}
@@ -19,63 +19,61 @@
 
   1. S展开后具有多少项?(不做任何合并项操作和值为零的项的省略)
 
-     - 首先,乘法对加法满足分配律关系:$a(b+c)=ab+ac$
-
-       - 利用该规律展开多项式之间的乘法
+     - 首先,乘法对加法满足分配律关系:$a(b+c)=ab+ac$,利用该规律展开多项式之间的乘法
 
      - $S=(a_1+a_2)(b_1+b_2)$
 
        - 可以记$B=b_1+b_2$
-       - $S=a_1B+a_2B=a_1(b_1+b_2)+a_2(b_1+b_2)=a_1b_1+a_1b_2+a_2b_1+a_2b_2$
+  - $S=a_1B+a_2B=a_1(b_1+b_2)+a_2(b_1+b_2)=a_1b_1+a_1b_2+a_2b_1+a_2b_2$
        - 共有4项
-
+     
      - $S=(a_1+\cdots+a_m)(b_1+\cdots+b_n)=(\sum_{i=1}^{m}a_i)(\sum_{i=1}^{n}b_i)$
 
        - 记$B=\sum_{i=1}^{n}b_i$
-       - $S=(\sum_{i=1}^{m}a_i)B=\sum_{i}^{m}Ba_i$
+  - $S=(\sum_{i=1}^{m}a_i)B=\sum_{i}^{m}Ba_i$
          - 其中$Ba_i=\sum_{j=1}^{n}b_ja_i$
-         - $S=\sum_i^m(\sum_{j}^{n}b_ja_i)$
+         - $S=\sum_i^m(\sum_{j}^{n}b_ja_i)$=$\sum_i^m\sum_{j}^{n}b_ja_i$
        - 共有$n\times{m}$项
        - 把这个结果记为$S_{AB}$,反复运用这个阶段的结论,可以得到下面的结论
-
+     
      - $S=(a_1+\cdots+a_{n_1})(b_1+\cdots+b_{n_2})(c_1+\cdots+c_{n_3})=(\sum_{i=1}^{n_1}a_i)(\sum_{i=1}^{n_2}b_i)(\sum_{i=1}^{n_3}c_i)$
 
        - $S=ABC=(AB)C$
 
        - $$
-         S=\sum_{i_1}^{n_1}\sum_{i_2}^{n_2}\sum_{i_3}^{n_3}a_{1i_1}a_{2i_2}a_{3i_3}
+    S=\sum_{i_1=1}^{n_1}\sum_{i_2=1}^{n_2}\sum_{i_3=1}^{n_3}a_{i_1}b_{i_2}c_{i_3}
          $$
-
+     
        - 因此有S有$(n_1\times{n_2})\times{n_3}$项
 
-     - 更一般的:
+     - 更一般的,对于:
 
        - $$
-         S=(\sum\limits_{k=1}^{n_1}a_{1k})(\sum\limits_{k=1}^{n_2}a_{2k})
+    \begin{aligned}
+         S=&\prod_{j=1}^{m}\left(\sum\limits_{k=1}^{n_j}a_{jk}\right)_{\!\!\!j}
+         \\
+         =&(\sum\limits_{k=1}^{n_1}a_{1k})(\sum\limits_{k=1}^{n_2}a_{2k})
          \cdots(\sum\limits_{k=1}^{n_m}a_{mk})
+    \\
+         =&\sum_{i_1=1}^{n_1}\sum_{i_2=1}^{n_2}\cdots\sum_{i_m=1}^{n_m}a_{1i_1}a_{2i_2}\cdots{a_{mi_m}}
+    \\
+         =&\sum_{i_1=1}^{n_1}\sum_{i_2=1}^{n_2}\cdots\sum_{i_m=1}^{n_m}(\prod_{k=1}^{m}a_{k,i_k})
+         \end{aligned}
          $$
-
-       - 由结合律可知
-
-         - $$
-           S=\prod_{j=1}^{m}\left(\sum\limits_{k=1}^{n_j}a_{jk}\right)_{\!\!\!j}
-           \\=\sum_{i_1}^{n_1}\sum_{i_2}^{n_2}\cdots\sum_{i_m}^{n_m}a_{1i_1}a_{2i_2}\cdots{a_{mi_m}}
-           \\=\sum_{i_1}^{n_1}\sum_{i_2}^{n_2}\cdots\sum_{i_m}^{n_m}(\prod_{k=1}^{m}a_{k,i_k})
-           \\
-           记号说明:\large{a_{k,i_k}}其中
-           \\k表示第k组求和式,k=1,2,\cdots,m(比如前面说的A,B,\cdots)
-           \\i_{k}表示第k组求和式中的第i_k个元素(i_k={1,2,\cdots},n_k)
-           \\
-           $$
-
-         - S的项数为$\prod\limits_{j=1}^{m}n_j$
+         
+         - 记号说明:对于$\large{a_{k,i_k}}$其中:
+           - k表示第k组求和式,$k=1,2,\cdots,m$(比如前面说的$A,B,\cdots$)
+         
+           - $i_{k}$表示第k组求和式中的第$i_k$个元素($i_k={1,2,\cdots},n_k$)
+         
+       - S的项数为$\prod\limits_{j=1}^{m}n_j$
 
   2. 每一项由多少基本因子(即$a_{ij}$)构成,又是如何构成的?
 
      - 根据上一问的讨论,可以知道每一项由m个元素构成
 
      - 并且任意**2**组中的任意**2**个元素都一定有且只有相乘(构成一个项),
-     - 项$(\prod_{k=1}^{m}a_{k,i_k})$的构成中可以看出项的<u>m个因子一定来自不同的求和组</u>
+   - 项$(\prod_{k=1}^{m}a_{k,i_k})$的构成中可以看出项的<u>m个因子一定来自不同的求和组</u>
 
 #### 多重求和号要和乘法区别
 
@@ -240,7 +238,7 @@
 ### 高次方程
 
 - 同时，高次代数方程的求解仍然是一大难题。
-  - [伽罗瓦理论](https://zh.wikipedia.org/wiki/伽羅瓦理論)指出，对于一般五次以及五次以上的方程，不存在一般的代数解。
+- [伽罗瓦理论](https://zh.wikipedia.org/wiki/伽羅瓦理論)指出，对于一般五次以及五次以上的方程，不存在一般的代数解。
 
 ## 同解的多项式方程todo
 
@@ -272,69 +270,9 @@
 ### 多项式相关内容
 
 - 非数学专业的同学可能对多项式的认识比较薄弱,可以参考**高等代数**教材学习"多项式"章节的相关内容
-
-### 其他关于多项式的参考
-
-- [1**定义**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%AE%9A%E7%BE%A9)
-  * [1.1**次数**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E6%AC%A1%E6%95%B8)
-  * [1.2**多项式的升幂及降幂排列**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84%E5%8D%87%E5%B9%82%E5%8F%8A%E9%99%8D%E5%B9%82%E6%8E%92%E5%88%97)
-- [2**多项式的运算**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84%E8%BF%90%E7%AE%97)
-  * [2.1**多项式的加法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84%E5%8A%A0%E6%B3%95)
-  * [2.2**多项式的减法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84%E5%87%8F%E6%B3%95)
-  * [2.3**多项式乘法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E4%B9%98%E6%B3%95)
-  * [2.4**多项式除法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E9%99%A4%E6%B3%95)
-- [3**多项式的矩阵算法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84%E7%9F%A9%E9%98%B5%E7%AE%97%E6%B3%95)
-  * [3.1**乘法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E4%B9%98%E6%B3%95)
-  * [3.2**除法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E9%99%A4%E6%B3%95)
-- [4**因式分解**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%9B%A0%E5%BC%8F%E5%88%86%E8%A7%A3)
-- [5**多项式函数**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A0%85%E5%BC%8F%E5%87%BD%E6%95%B8)
-  * [5.1**多项式方程**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E6%96%B9%E7%A8%8B)
-- [6**字典排列法**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%AD%97%E5%85%B8%E6%8E%92%E5%88%97%E6%B3%95)
-- [7**多项式的分析特性**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E5%A4%9A%E9%A0%85%E5%BC%8F%E7%9A%84%E5%88%86%E6%9E%90%E7%89%B9%E6%80%A7)
-- [8**任意环上的多项式**](https://zh.wikipedia.org/wiki/%E5%A4%9A%E9%A0%85%E5%BC%8F#%E4%BB%BB%E6%84%8F%E7%92%B0%E4%B8%8A%E7%9A%84%E5%A4%9A%E9%A0%85%E5%BC%8F)
-
-
-* [1**Etymology**](https://en.wikipedia.org/wiki/Polynomial#Etymology)
-* [2**Notation and terminology**](https://en.wikipedia.org/wiki/Polynomial#Notation_and_terminology)
-* [3**Definition**](https://en.wikipedia.org/wiki/Polynomial#Definition)
-* [4**Classification**](https://en.wikipedia.org/wiki/Polynomial#Classification)
-* [5**Arithmetic**](https://en.wikipedia.org/wiki/Polynomial#Arithmetic)
-  * [5.1**Addition and subtraction**](https://en.wikipedia.org/wiki/Polynomial#Addition_and_subtraction)
-  * [5.2**Multiplication**](https://en.wikipedia.org/wiki/Polynomial#Multiplication)
-  * [5.3**Composition**](https://en.wikipedia.org/wiki/Polynomial#Composition)
-  * [5.4**Division**](https://en.wikipedia.org/wiki/Polynomial#Division)
-  * [5.5**Factoring**](https://en.wikipedia.org/wiki/Polynomial#Factoring)
-  * [5.6**Calculus**](https://en.wikipedia.org/wiki/Polynomial#Calculus)
-* [6**Polynomial functions**](https://en.wikipedia.org/wiki/Polynomial#Polynomial_functions)
-  * [6.1**Graphs**](https://en.wikipedia.org/wiki/Polynomial#Graphs)
-* [7**Equations**](https://en.wikipedia.org/wiki/Polynomial#Equations)
-  * [7.1**Solving equations**](https://en.wikipedia.org/wiki/Polynomial#Solving_equations)
-* [8**Polynomial expressions**](https://en.wikipedia.org/wiki/Polynomial#Polynomial_expressions)
-  * [8.1**Trigonometric polynomials**](https://en.wikipedia.org/wiki/Polynomial#Trigonometric_polynomials)
-  * [8.2**Matrix polynomials**](https://en.wikipedia.org/wiki/Polynomial#Matrix_polynomials)
-  * [8.3**Exponential polynomials**](https://en.wikipedia.org/wiki/Polynomial#Exponential_polynomials)
-* [9**Related concepts**](https://en.wikipedia.org/wiki/Polynomial#Related_concepts)
-  * [9.1**Rational functions**](https://en.wikipedia.org/wiki/Polynomial#Rational_functions)
-  * [9.2**Laurent polynomials**](https://en.wikipedia.org/wiki/Polynomial#Laurent_polynomials)
-  * [9.3**Power series**](https://en.wikipedia.org/wiki/Polynomial#Power_series)
-* [10**Polynomial ring**](https://en.wikipedia.org/wiki/Polynomial#Polynomial_ring)
-  * [10.1**Divisibility**](https://en.wikipedia.org/wiki/Polynomial#Divisibility)
-* [11**Applications**](https://en.wikipedia.org/wiki/Polynomial#Applications)
-  * [11.1**Positional notation**](https://en.wikipedia.org/wiki/Polynomial#Positional_notation)
-  * [11.2**Interpolation and approximation**](https://en.wikipedia.org/wiki/Polynomial#Interpolation_and_approximation)
-  * [11.3**Other applications**](https://en.wikipedia.org/wiki/Polynomial#Other_applications)
-* [12**History**](https://en.wikipedia.org/wiki/Polynomial#History)
-  * [12.1**History of the notation**](https://en.wikipedia.org/wiki/Polynomial#History_of_the_notation)
-* [13**See also**](https://en.wikipedia.org/wiki/Polynomial#See_also)
-* [14**Notes**](https://en.wikipedia.org/wiki/Polynomial#Notes)
-* [15**References**](https://en.wikipedia.org/wiki/Polynomial#References)
-
-
-
-
-
-
-
+- wikipedia多项式相关主题:
+  - [多项式  (wikipedia.org)](https://zh.wikipedia.org/wiki/多項式#多项式乘法)
+  - [Polynomial - Wikipedia](https://en.wikipedia.org/wiki/Polynomial)
 
 
 

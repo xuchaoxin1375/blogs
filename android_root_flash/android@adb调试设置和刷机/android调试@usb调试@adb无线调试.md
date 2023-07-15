@@ -4,23 +4,25 @@
 
 - [手机不弹出允许usb调试](https://www.csdn.net/tags/MtjaIg3sMTkyNDItYmxvZwO0O0OO0O0O.html)
 
+  
+
 
 ## 设备驱动
 
 - 使用win10/win11 自带驱动,一般不用自己再安装了
 
-## android开发者可能遇到的问题
+## android开发者可能遇到的问题👺
 
 ### 故事缘由
 
 - 本人之前开发过一点android应用,当时由于android studio的依赖组件和缓存下载到c盘,我特意用了符号链接来将实际位置指向到D盘的一个目录下,后来要准备考试,下载备考资料,删除了开发环境的相关目录,没想到会在这个时候(使用adb搞机)处理意想不到的问题
 - 当然,如果你有两台pc,那么问题会更容易排除,我通过查阅资料发现了影响`允许调试窗口弹出的 .android目录`
-- 这种情况十分罕见
+- 这种情况十分罕见,但还是被我给遇见了
   - 你曾经使用android studio开发过android app
   - 你还使用了软连接将开发环境的目录指向的地方删除了
-- 但还是被我给遇见了
 
-![image-20220718221333447](https://img-blog.csdnimg.cn/img_convert/568b3cea84c0871ad12b81114768e7d3.png)
+- ![image-20220718221333447](https://img-blog.csdnimg.cn/img_convert/568b3cea84c0871ad12b81114768e7d3.png)
+
 
 - 由于符号链接所指目录不存在,所以会导致查看失败
 
@@ -96,7 +98,6 @@ Target File:  /data/local/tmp/scene-daemon
     - 连接(低版本android使用usb;高版本android(11+)可以使用无线网络(wifi)建立链接)
       - 这里和配对步骤中使用的端口号不同(ip一般会相同)
 - [How to use adb over TCPIP connect? (honeywellaidc.com)](https://support.honeywellaidc.com/s/article/How-to-use-adb-over-TCPIP-connect)
-- [Android 11 的无线调试简直不要太好用 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/336660319)
 
 ## 手机端开发者选项配置
 
@@ -125,4 +126,10 @@ List of devices attached
 ```
 
 ##  玩机工具箱
+
 - [搞机工具箱:作者:晨钟网络科技 - 致力于开发小众实用软件 (jamcz.com)](https://jamcz.com/)
+
+
+
+
+

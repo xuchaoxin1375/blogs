@@ -8,7 +8,9 @@
 
 - [1.11. Ensemble methods — scikit-learn documentation](https://scikit-learn.org/stable/modules/ensemble.html)
 
-## abstract
+- 西瓜书|机器学习|周
+
+## 摘要
 
 - **集成学习**(ensemble learning)通过**构建并结合**多个学习器来完成学习任务，有时也被称为**多分类器系统**(multi-classifier system)、基于委员会的学习(committee-based learning)等.
 
@@ -71,6 +73,9 @@
 
     - 因此如果超过半数基分类器是正确的,那么$\sum_{i=1}^{T}h_i(\boldsymbol{x})>0$从而$H(\boldsymbol{x})=+1$即,H的预测正确
 
+
+## Note
+
 - 如果理想的假设$h_i$的错误率相互独立,根据Hoeffding不等式,集成H的错误率:
 
   - $$
@@ -87,7 +92,7 @@
 
   - 上面的分析有一个关键假设:基学习器的误差相互独立.
 
-- 在现实任务中,**个体学习器**是为解决同一个问题训练出来的,它们显然**不可能相互独立**!
+- 在现实任务中,**个体学习器**是为解决同一个问题训练出来的,它们显然**不可能相互独立**
 
 ### 准确性和多样性
 
@@ -95,7 +100,7 @@
   - 准确性很高之后，要增加**多样性**就需牺牲**准确性**.
 - 如何产生并结合“**好而不同**”的个体学习器，是集成学习研究的核心.
 
-# 个体学习器的生成方式
+## 集成学习方法分类
 
 - 根据**个体学习器**的生成方式，目前的集成学习方法大致可分为两大类
   - 个体学习器间存在强依赖关系、必须串行生成的序列化方法，代表是`Boosting`,
@@ -213,7 +218,9 @@
   1. 对噪声数据和异常值敏感：由于AdaBoost算法会增加被错误分类样本的权重，因此对噪声数据和异常值较为敏感，可能导致模型性能下降。
   2. 顺序训练：由AdaBoost算法是一个迭代过程，每一轮训练都依赖于前一轮的结果，因此无法并行训练弱学习器，训练速度可能较慢。
 
-### 小结1
+### 补充
+
+#### 补充1
 
 - Boosting 算法要求基学习器能对特定的数据分布进行学习,这可通过“**重赋权法**”(re-weighting)实施,即在训练过程的每一轮中,根据**样本分布**为每个训练样本**重新赋予一个权重**．
 - 对无法接受带权样本的基学习算法，则可通过“**重采样法**”(re-sampling)来处理，即在每一轮学习中,根据样本分布对**训练集**重新进行采样,再用重采样而得的样本集对基学习器进行训练.
@@ -224,7 +231,7 @@
 - 若采用“重采样法”,则可获得“重启动”机会以避免训练过程过早停止[Kohavi and Wolpert,1996],即在抛弃不满足条件的当前基学习器之后,可根据**当前分布**重新对训练样本进行**采样**,再基于新的采样结果重新训练出基学习器,从而使得学习过程可以持续到预设的T轮完成.
 - 从偏差-方差分解的角度看，Boosting主要关注**降低偏差**,因此Boosting对能基于泛化性能相当弱的学习器构建出很强的集成．
 
-### 小结2
+#### 补充2
 
 - Boosting是一种集成学习方法，它通过结合多个弱学习器来构建一个强学习器。Boosting的核心思想是在每一轮迭代中，根据前一轮的预测错误调整样本权重，使得后续的弱学习器更加关注那些被前一轮弱学习器错误分类的样本。最后，将所有弱学习器的预测结果加权结合，得到最终的预测结果。
 
@@ -234,15 +241,45 @@
   2. 误差修正：Boosting方法通过调整样本权重，使得后续的弱学习器更加关注那些被前一轮弱学习器错误分类的样本。这有助于提高模型在复杂数据集上的性能。
   3. 防止过拟合：Boosting方法通过结合多个弱学习器来降低模型的方差，从而减少过拟合的风险。然而，如果迭代次数过多，Boosting方法仍然可能导致过拟合。
 
-  Boosting方法的常见算法包括：
+- Boosting方法的常见算法包括：
 
-  1. AdaBoost（Adaptive Boosting）：AdaBoost是最早的Boosting算法之一，它通过调整样本权重和弱学习器权重来实现误差修正。在每一轮迭代中，AdaBoost会增加被错误分类样本的权重，同时减少正确分类样本的权重。弱学习器的权重与其在训练集上的分类准确率有关。
-  2. Gradient Boosting：Gradient Boosting是一种通用的Boosting算法，它通过优化损失函数的梯度来实现误差修正。在每一轮迭代中，Gradient Boosting会训练一个新的弱学习器来拟合前一轮预测结果与真实标签之间的残差。最后，将所有弱学习器的预测结果累加，得到最终的预测结果。
-  3. XGBoost（eXtreme Gradient Boosting）：XGBoost是Gradient Boosting的一种优化实现，它在原始的Gradient Boosting算法基础上引入了正则化项，以防止过拟合。此外，XGBoost还采用了一些高效的计算技术，如列块存储、缓存感知访问模式和并行计算，以提高训练速度。
+  - AdaBoost（Adaptive Boosting）：AdaBoost是最早的Boosting算法之一，它通过调整样本权重和弱学习器权重来实现误差修正。在每一轮迭代中，AdaBoost会增加被错误分类样本的权重，同时减少正确分类样本的权重。弱学习器的权重与其在训练集上的分类准确率有关。
+  - Gradient Boosting：Gradient Boosting是一种通用的Boosting算法，它通过优化损失函数的梯度来实现误差修正。在每一轮迭代中，Gradient Boosting会训练一个新的弱学习器来拟合前一轮预测结果与真实标签之间的残差。最后，将所有弱学习器的预测结果累加，得到最终的预测结果。
+    - XGBoost（eXtreme Gradient Boosting）：XGBoost是Gradient Boosting的一种优化实现，它在原始的Gradient Boosting算法基础上引入了正则化项，以防止过拟合。
+    - 此外，XGBoost还采用了一些高效的计算技术，如列块存储、缓存感知访问模式和并行计算，以提高训练速度。
 
-  总之，Boosting是一种集成学习方法，它通过结合多个弱学习器来构建一个强学习器。Boosting方法的核心思想是在每一轮迭代中，根据前一轮的预测错误调整样本权重，使得后续的弱学习器更加关注那些被前一轮弱学习器错误分类的样本。Boosting方法可以提高模型在复杂数据集上的性能，并降低过拟合的风险。常见的Boosting算法包括AdaBoost、Gradient Boosting和XGBoost。
+- 总之，Boosting是一种集成学习方法，它通过结合多个弱学习器来构建一个强学习器。Boosting方法的核心思想是在每一轮迭代中，根据前一轮的预测错误调整样本权重，使得后续的弱学习器更加关注那些被前一轮弱学习器错误分类的样本。
 
-## Bagging与随机森林
+
+
+### AdaBoosting@GradientBoosting
+
+- 两种方法都是用于提高模型性能的技术，它们通过组合多个弱学习器来构建一个强大的预测模型.
+- Adaboost主要关注纠正分类错误，而Gradient Boost关注优化损失函数。它们在实现和原理上有一些关键区别。
+
+- 算法原理： Adaboost（自适应增强）是一种基于**加权投票**的集成方法。它通过迭代地训练一系列弱学习器，每个学习器都试图纠正前一个学习器的错误。在每次迭代中，Adaboost会增加误分类样本的权重，使得后续的学习器更关注这些难以分类的样本。最后，所有学习器的预测结果会根据其在训练集上的准确性进行加权投票，以得到最终的预测。
+
+- Gradient Boost（梯度提升）是一种基于**梯度下降**的集成方法。与Adaboost不同，Gradient Boost关注的是优化损失函数。在每次迭代中，它会训练一个新的弱学习器来拟合前一个学习器预测残差的负梯度。通过这种方式，Gradient Boost逐步优化损失函数，从而提高模型性能。
+
+#### 损失函数
+
+- Adaboost主要关注分类错误，使用指数损失函数。这使得Adaboost对异常值非常敏感，因为它会试图纠正所有的错误，即使是那些可能是噪声的样本。
+
+- Gradient Boost可以使用多种损失函数，这使得它更加灵活，可以应用于回归和分类问题。此外，由于它关注的是优化损失函数，而不仅仅是纠正错误，因此它对异常值的敏感性较低。
+
+#### 学习速率
+
+-  Gradient Boost通常包含一个学习速率参数，用于控制每个弱学习器对最终预测的贡献。较低的学习速率可能需要更多的迭代次数，但可以提高模型的泛化能力。
+-  Adaboost没有类似的参数，但可以通过调整弱学习器的数量来控制模型复杂性。
+
+#### 正则化
+
+- Gradient Boost可以通过引入正则化项来防止过拟合。例如，它可以使用L1或L2正则化来约束模型的复杂性。
+- Adaboost没有内置的正则化机制，但可以通过<u>调整弱学习器的数量</u>或使用<u>正则化的基学习器</u>来实现类似的效果。
+
+
+
+## Bagging
 
 - 欲得到泛化性能强的集成,集成中的<u>个体学习器应尽可能相互独立</u>;
 - 虽然“独立”在现实任务中无法做到,但可以设法使基学习器尽可能具有较大的差异给定一个训练数据集
@@ -684,15 +721,7 @@ X, y = load_iris(return_X_y=True)
   y_test)) 
   ```
 
-#### 小结
 
-- Stacking（堆叠）是一种集成学习方法，它结合了多个基本模型（也称为基学习器）的预测结果，以生成一个新的、更强大的模型（也称为元学习器或次级模型）。Stacking其主要目的是通过结合多个基础模型的预测结果来提高总体预测性能。与Bagging和Boosting等其他集成方法不同，Stacking使用一个元学习器（也称为次级模型或模型堆叠器）将基础模型的预测结果作为输入，训练出一个最终预测模型。Stacking的核心思想是借助多个模型的不同优势，捕捉到数据中的更多信息和特征，从而实现更高的预测正确率。
-- 以下是Stacking方法的详细介绍和总结：
-  1. **基础模型**：在Stacking方法中，首先需要训练一组基础模型（也称为第一层模型）。这些模型可以是相同的算法，也可以是不同的算法。例如，可以使用决策树、支持向量机、神经网络等多种机器学习算法作为基础模型。
-  2. **训练集和验证集**：为了训练元学习器，需要将原始训练数据集划分为训练集和验证集。训练集用于训练基础模型，而验证集用于构建元学习器的输入特征。
-  3. **基础模型预测**：使用训练集训练基础模型后，将验证集输入到这些模型中得到预测结果。这些预测结果将作为元学习器的输入特征。需要注意的是，为了避免过拟合，可以使用K折交叉验证的方法在不同的数据子集上训练基础模型，并将不同子集上的预测结果拼接起来，作为元学习器的输入。
-  4. **元学习器训练**：将基础模型在验证集上的预测结果作为输入特征，将验证集的真实标签作为输出标签，训练元学习器。元学习器可以是任何适用的机器学习算法，如线性回归、逻辑回归或梯度提升树等。
-  5. **预测**：在测试集上进行预测时，首先使用基础模型对测试集进行预测，然后将这些预测结果作为特征输入到元学习器中，得到最终的预测结果。
 
 #### 主要步骤
 
@@ -704,13 +733,13 @@ Stacking 算法的主要步骤如下：
 4. **训练元学习器**：使用生成的元特征和训练集的目标变量训练元学习器。元学习器可以是任何模型，例如线性回归、逻辑回归或梯度提升树等。
 5. **预测**：首先，使用基学习器对测试集进行预测，然后将这些预测结果作为元特征输入到元学习器中，最后由元学习器生成最终预测结果。
 
-#### Stacking 的优点:
+#### Stacking 的优点
 
 - 通过结合多个基学习器的预测能力，Stacking 可以提高模型的泛化性能。
 - Stacking方法的优势在于它可以有效地整合多个模型的预测能力，使得集成后的模型具有更强的泛化能力。此外，Stacking可以很好地处理基础模型之间的异质性，使得不同类型的模型可以共同为提高预测性能做出贡献。
 - Stacking 可以利用不同类型的基学习器，从而充分利用它们的多样性。
 
-#### Stacking 的缺点：
+#### Stacking 的缺点
 
 - Stacking 涉及多个模型的训练和预测，因此计算成本较高。
 - Stacking 模型的可解释性较差，因为它是一个多层次的集成模型。
@@ -720,382 +749,17 @@ Stacking 算法的主要步骤如下：
 
 - 更多内容参考[学习策略:学习法|stacking](###学习法)
 
-
-
-##  结合策略
-
-- 学习器结合可能会从三个方面带来好处[Dietterich，2000]
-  - 从**统计**的方面来看,由于学习任务的**假设空间**往往很大,可能有多个假设在训练集上达到**同等性能**,此时若使用单学习器可能因误选而导致泛化性能不佳,结合多个学习器则会减小这一风险;
-  - 从**计算**的方面来看,学习算法往往会陷入**局部极小**,有的局部极小点所对应的泛化性能可能很糟糕,而通过多次运行之后进行结合,可降低陷入糟糕局部极小点的风险;
-  - 从**表示**的方面来看,某些学习任务的真实假设可能不在当前学习算法所考虑的假设空间中,此时若使用单学习器则肯定无效,而通过结合多个学习器,由于相应的<u>假设空间有所扩大</u>,有可能学得更好的近似.
-- 假定某集成包含T个学习器${h_1,h_2,\cdots,h_T}$,其中$h_i$在示例$\boldsymbol{x}$上的输出为$h_i(\boldsymbol{x})$
-
-### 平均法
-
-- 对数值型输出$h_i(\boldsymbol{x})\in{\mathbb{R}}$,最常见的结合策略是使用平均法(averaging)
-
-#### 简单平均法
-
-- $$
-  H(\boldsymbol{x})=\frac{1}{T}\sum_{i=1}^{T}h_i(\boldsymbol{x})
-  $$
-
-  
-
-#### 加权平均法
-
-- 加权平均法(weighted averaging,WA)
-
-  - $$
-    H(\boldsymbol{x})=\sum_{i=1}^{T}w_ih_i(\boldsymbol{x})
-    $$
-
-  - $w_i$是个体学习器$h_i$的权重,通常要求$w_i\geqslant{0}$,$\sum_{i=1}^{T}w_i=1$
-
-    - 相关研究表明,必须使用非负权重才能确保集成性能一定由于单一最佳个体学习器
-    - 因此集成学习中,一般对学习器的权重施加非负约束
-
-  - 简单平均法是加权平均法的一个特例($w_i=\frac{1}{T}$)
-
-  - 集成学习中的各种**结合方法**都可以视为其特例或变体
-
-  - 对于给定的基学习器,不同的集成学习方法可以视为通过<u>不同的方式</u>来<u>确定</u>**加权平均法**中的基学习器<u>权重</u>
-
-    - 例如估计出个体学习器的误差,然后令权重大小和误差大小成反比
-
-  - 加权平均法的权重一般是从训练数据中学习得到,由于现实任务中的样本训练通常不充分(或存在噪声),使得学习得到的权重不完全可靠.对于规模较大的集成来说,学习的权重比较多,容易导致过拟合.
-
-  - 基于上述情况,实验和应用中,加权平均法未必由于简单平均法
-
-- 一般地,个体学习器性能相差较大时,适合采用加权平均法,个体学习器性能接近时,适合采用简单平均法
-
-### 投票法
-
-- 对于**分类任务**来说,学习器$h_i$将从分类别标记集合$\{c_1,c_2,\cdots,c_N\}$中预测出一个标记
-- 最常见的学习器结合策略时使用投票法(voting)
-- 不妨将$h_i$在样本$\boldsymbol{x}$上的预测输出表示为一个N维向量$(h_i^{1}(\boldsymbol{x});h_i^2(\boldsymbol{x});\cdots;h_i^{N}(\boldsymbol{x}))$
-  - 其中$h_{i}^{j}(\boldsymbol{x})$表示$h_i$在类别$c_j$上的输出
-
-#### 绝对多数投票法MV
-
-- 绝对多数投票法(majority voting,有时简写为voting)
-
-  - $$
-    H(\boldsymbol{x})=
-    \begin{cases}
-    c_j,&{\text{if }\sum_{i=1}^{T}h_{i}^{j}(\boldsymbol{x})
-    >0.5\sum_{k=1}^{N}\sum_{i=1}^{T}h_{i}^{k}(\boldsymbol{x})}\\
-    \text{reject},&\text{otherwise}
-    \end{cases}
-    $$
-
-    - 总结为:若某标记$c_k$得票超过半数,则预测为$c_k$;否则拒绝预测
-
-#### 相对多数投票法PV
-
-- 相对多数投票法(plurality voting)
-
-- $$
-  H(\boldsymbol{x})=\huge{c}_{
-  \normalsize{\underset{j}{\arg\max}}
-  {\sum_{i=1}^{T}h_i^{j}(\boldsymbol{x})}
-  }
-  $$
-
-  - H预测为得票最多的标记
-  - 如果同时又多个标记获得最高票,则从中随机选取一个
-
-#### 加权投票法WV
-
-- weighted voting
-
-- $$
-  H(\boldsymbol{x})=\huge{c}_{
-  \normalsize{\underset{j}{\arg\max}}
-  {\sum_{i=1}^{T}
-  w_ih_i^{j}(\boldsymbol{x})}
-  }
-  $$
-
-  - 与加权平均法类似,$w_i$是$h_i$的权重
-  - 通常$w_i\geqslant{0}$,$\sum_{i=1}^{T}w_i=1$
-
-#### 小结
-
-- 标准的绝对多数投票法提供了**拒绝预测**的选项(可能情况),在要求高可靠性的学习任务中是一个有用的机制
-- 如果学习任务要求<u>必须提供预测结果</u>,则绝对投票法退化为相对多数投票法
-  - 因此,这类任务中,绝对多数,相对多数投票法统称为**多数投票法**
-
-#### 其他投票法技巧
-
-- 在现实任务中,不同类型个体学习器可能差生不同类型的$h_i^{j}(\boldsymbol{x})$值:
-  - 类标记:$h_i^j(\boldsymbol{x})\in\{0,1\}$
-    - 若$h_i$将类样本预测为$c_j$类别,则$h_i^j(\boldsymbol{x})$取1,否则为0
-    - 这类投票称为**硬投票**(hard voting)
-  - 类概率:$h_i^{j}(\boldsymbol{x})\in[0,1]$
-    - 相当于对后验概率$P(c_j|\boldsymbol{x})$的一个估计
-    - 这类投票方法称为**软投票**(soft voting)
-- 不同类型的$h_i^j(\boldsymbol{x})$值不能混用,对一些能在预测出类别标记的同时产生**分类置信度**的学习器,其<u>分类置信度可转化为类概率使用．</u>
-  - 若此类值未进行规范化,例如支持向量机的分类间隔值,则必须使用一些技术如
-    - Platt 缩放(Platt scaling)[Platt，2000]
-    - 等分回归(isotonic regression)[Zadrozny andElkan，2001]
-    - 等方法进行“校准”(calibration)后才能作为**类概率**使用．
-  - 虽然分类器估计出的类概率值一般都不太准确,但基于类概率进行结合却往往比直接基于类标记进行结合性能更好
-  - 若<u>基学习器的类型不同</u>,则其类概率值**不能直接进行比较**;
-    - 在此种情形下,通常可将类概率输出<u>转化为类标记</u>输出
-    - 例如将类概率输出最大的$h_i^j(\boldsymbol{x})$设为1,其他设为0,然后再投票.
-
-### 学习法
-
-- 当训练数据很多时，一种更为强大的结合策略是使用“学习法”,即通过另一个学习器来进行结合.
-- stacking方法是一种典型的方法,不能说stakcing完全等于同于学习法.
-
-#### Stacking
-
-- Stacking [Wolpert,1992; Breiman,1996b]是学习法的**典型代表**.(stacking本身也是一种集成学习方法)
-- 这里我们把**个体学习器**(基础学习器)称为**初级学习器**.
-- 用于结合的学习器称为**次级学习器**或**元学习器**(meta-learner).
-- Stacking 先从**初始数据集**训练出**初级学习器**,然后“生成”一个**新数据集**
-  - 在这个新数据集中,<u>初级学习器</u>的**输出**被当作<u>样例输入特征</u>,而**初始样本**的标记仍被当作样例标记.
-  - 新数据集用于训练**次级学习器**.
-
-#### 伪代码
-
-- 假定初级学习器使用不同学习算法产生,即初级集成是异质的.
-
-- input:
-
-  - 训练集$D=\{(\boldsymbol{x}_1,y_1),(\boldsymbol{x}_2,y_2),\cdots,(\boldsymbol{x}_m,y_m)\}$
-  - 初级学习算法$\mathfrak{L}_1,\mathfrak{L}_2,\cdots,\mathfrak{L}_T;$
-  - 次级学习算法$\mathfrak{L}$
-
-- $$
-  \begin{array}{l}
-  &01:\textbf{for }t=1,2,\ldots,T\textbf{do} \\
-  &02:\quad h_{t}={\mathfrak{L}}_{t}(D); \\
-  &03:\textbf{end for} \\
-  &04:D'=\varnothing; \\
-  &05:\textbf{for }i=1,2,\ldots,m\textbf{ do} \\
-  &06: \quad \textbf{for }t=1,2,\ldots,T \textbf{ do} \\
-  &07: \quad\quad z_{it}=h_t(\boldsymbol{x}_i); \\
-  &08:\quad\textbf{end for} \\
-  &09:\quad D'=D'\cup((z_{i1},z_{i2},\ldots,z_{iT}),y_i); \\
-  &10:\textbf{end for} \\
-  &11:h^{\prime}={\mathfrak{L}}(D^{\prime}); \\
-  \end{array}
-  $$
-
-- $$
-  H(\boldsymbol{x})=h'(h_1(\boldsymbol{x}),h_2(\boldsymbol{x}),\dots,h_T(\boldsymbol{x}))
-  $$
-
-- comments:
-  - 1-3:使用初级学习算法$\mathfrak{L}_t$产生初级学习器$h_t$
-  - 4-10:生成**次级训练集**
-  - 11:在$\mathcal{D'}$上使用次级学习算法$\mathfrak{L}$产生**次级学习器**$h'$
-  
-- 在训练阶段,次级训练集是利用初级学习器产生的,若直接用初级学习器的训练集来产生次级训练集,则过拟合风险会比较大;
-
-- 因此,一般是通过使用交叉验证或留一法这样的方式,<u>用训练初级学习器未使用的样本来产生次级学习器的训练样本．</u>
-
-#### 次级训练集的生成🎈
-
-- 以k折交叉验证为例
-  - 初始训练集$D$被随机划分为k个大小相似的集合$D_1,D_2,\cdots,D_k$
-
-  - 令$D_j$和$\overline{D_j}=D\backslash{D_{j}}$分别表示第$j$折的测试集和训练集.
-
-  - 给定$T$个初级学习算法,初级学习器$h_{t}^{(j)}$通过在$\overline{D_{j}}$上使用第$t$个学习算法而得.
-
-  - 对$D_j$(测试集)中每个样本$\boldsymbol{x}_i$,令 $z_{it}=h_t^{(j)}(\boldsymbol{x}_i)$，($i$表示$D_j$的第$i$个样本,而t表示第t个学习算法,设$D_j$中含有$p\approx{m/k}$个样本,由于交叉验证完成后所有样本都等完成映射，$p$值仅做参考)
-
-  - 则由$\boldsymbol{x}_i$所产生的**次级训练样例**的<u>示例部分</u>为$\boldsymbol{z}_i=(z_{i1};z_{i2};\cdots;z_{iT})$，<u>标记部分</u>为$y_i$(注意到,此时示例的维数此时是$T$,和初级学习器的个数一致)，示例维数变换关系：$\boldsymbol{x}_i\in{\mathbb{R}^{U}}
-    \to{\boldsymbol{z}_i}\in{\mathbb{R}^{T}}$，其中$U$表示初级训练集示例的维数。
-
-    - $$
-      \boldsymbol{x}_i\in{\mathbb{R}^{U}}
-      \to{\boldsymbol{z}_i}\in{\mathbb{R}^{T}}
-      $$
-
-      
-
-  - 在整个交叉验证过程结束后,从这T个初级学习器产生的**次级训练集**是$D'=\{(\boldsymbol{z}_i,y_i)\}_{i=1}^{m}$,然后$D'$将用于训练次级学习器.
-
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/be97e3f69f544f7d935f61ef03c18cdc.png)
-
-- 次级学习器的<u>输入属性表示</u>和次级学习算法对Stacking集成的泛化性能有很大影响.
-
-  - 有研究表明,将初级学习器的输出类概率作为次级学习器的输入属性,用**多响应线性回归**(Multi-response Linear Regression，简称MLR)作为**次级学习算法**效果较好[Ting and Witten，1999]
-  - MLR是基于**线性回归**的分类器，它对**每个类**分别进行**线性回归**，属于该类的训练样例所对应的输出被置为1，其他类置为0;测试示例将被分给输出值最大的类.
-    WEKA中的StackingC算法就是这样实现的.
-  - 在 MLR中使用**不同的属性集**更佳[Seewald, 2002].
-
-## 更多集成学习相关参考
-
-- `<<人工智能：现代方法(斯图尔特·罗素) >>`
-- `<<python机器学习基础教程>>`
-  - 在决策树集成一节中介绍了randomForest和GradientBoosting
-
-### GradientBoosting
-
-- 梯度提升回归树(GradientBoostingRegressionTree,GBRT),对于因子化表格数据的回归和分类问题，梯度提升(gradient boosting)，有时称为梯度提升机（GBM），或梯度提升回归树（GBRT）已成为一种非常热门的方法。
-- 梯度提升回归树是一种集成方法，通过合并多个决策树来构建一个更为强大的模型。虽然名字中含有“回归”，但这个模型既可以用于回归也可以用于分类。顾名思义，梯度提升法是一种使用了**梯度下降**的自适应提升法。
-- 与随机森林方法不同，梯度提升采用连续的方式构造树，每棵树都试图纠正前一棵树的错误。默认情况下，梯度提升回归树中没有随机化，而是用到了**强预剪枝**。梯度提升树通常使用**深度很小**的树（1 到 5 层之间），这样模型占用的内存更少，预测速度也更快。
-- 梯度提升背后的**主要思想**是合并许多简单的模型（弱学习器 ），比如深度较小的树。每棵树只能对部分数据做出好的预测，因此，添加的树越来越多，可以不断迭代提高性能。
-- 梯度提升树经常是机器学习竞赛的优胜者，并且广泛应用于业界。与随机森林相比，它通常对参数设置更为敏感，但如果参数设置正确的话，模型精度更高。
-- 除了预剪枝与集成中树的数量之外，梯度提升的另一个重要参数是 learning_rate （学习率），用于控制每棵树纠正前一棵树的错误的强度。
-- 较高的学习率意味着每棵树都可以做出较强的修正，这样模型更为复杂。通过增大 `n_estimators` 来向集成中添加更多树，也可以增加模型复杂度，因为模型有更多机会纠正训练集上的错误。
-
-#### Sklearn中的GradientBoosting
-
-- 下面是在乳腺癌数据集上应用 GradientBoostingClassifier 的示例。
-
-  - 默认使用 100 棵树，
-  - 最大深度是 3，
-  - 学习率为 0.1：
-
-- 
-
-  ```python
-  from sklearn.ensemble import GradientBoostingClassifier
-  from sklearn.model_selection import train_test_split 
-  from sklearn.datasets import load_breast_cancer
-  
-  cancer = load_breast_cancer()
-  
-  X_train, X_test, y_train, y_test = train_test_split( 
-      cancer.data, cancer.target, random_state=0) 
-   
-  gbrt = GradientBoostingClassifier(random_state=0) 
-  gbrt.fit(X_train, y_train) 
-   
-  print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train))) 
-  print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test))) 
-   
-  ```
-
-  - ```bash
-    Accuracy on training set: 1.000
-    Accuracy on test set: 0.965
-    ```
-
-  - 训练集得分为1,很可能存在过拟合,为了降低过拟合，我们可以
-
-    - 限制最大深度来加强预剪枝
-    - 降低学习率
-
-- ```python
-  gbrt = GradientBoostingClassifier(random_state=0, max_depth=1) 
-  gbrt.fit(X_train, y_train) 
-   
-  print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train)))
-  print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test))) 
-  ```
-
-  - ```bash
-    Accuracy on training set: 0.991
-    Accuracy on test set: 0.972
-    ```
-
-- ```python
-  gbrt = GradientBoostingClassifier(random_state=0, learning_rate=0.01) 
-  gbrt.fit(X_train, y_train) 
-   
-  print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train)))
-  print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test))) 
-   
-   
-  ```
-
-  - ```bash
-    Accuracy on training set: 0.988
-    Accuracy on test set: 0.958
-    ```
-
-- 降低模型复杂度的两种方法都降低了训练集精度，这和预期相同。
-
-- 在这个例子中，减小树的最大深度显著提升了模型性能，而降低学习率仅稍稍提高了泛化性能。
-
-- 对于其他基于决策树的模型，我们也可以将特征重要性**可视化**，以便更好地理解模型。
-
-  - ```python
-    import matplotlib.pyplot as plt
-    import numpy as np
-    #高清图(svg)放大不失真!
-    from matplotlib_inline import backend_inline
-    backend_inline.set_matplotlib_formats('svg')
-    
-    
-    def plot_feature_importances_cancer(model): 
-        n_features = cancer.data.shape[1] 
-        plt.barh(range(n_features), model.feature_importances_, align='center') 
-        plt.yticks(np.arange(n_features), cancer.feature_names) 
-        plt.xlabel("Feature importance") 
-        plt.ylabel("Feature") 
-    
-    gbrt = GradientBoostingClassifier(random_state=0, max_depth=1) 
-    gbrt.fit(X_train, y_train) 
-     
-    plot_feature_importances_cancer(gbrt) 
-     
-     
-    ```
-
-    
-
-
-
-- 在ADABOOST中，我们从一个假设$h_1$出发，并用一系列假设对其进行**自适应提升**，这些假设更加<u>注重之前假设分类错误的样例。</u>
-- 在**梯度提升法**中，还引入了新的自适应提升假设，这些假设并<u>不关注特定的样例</u>，而注重<u>正确答案与先前假设所给出的答案之间的梯度</u>。
-- 像其他使用了梯度下降的算法一样，从可微的损失函数入手,我们可以将平方误差损失用于回归，将对数损失用于分类。
-- 与ADABOOST中一样，有了基模型后，构造决策树。例如使用梯度下降来获得最小化损失的模型参数——计算损失函数，并朝损失函数降低最快的方向更新参数。
-- 使用梯度提升法时，我们不会更新现有模型的参数，我们<u>更新的是下一个决策树的参数</u>，但是必须通过沿着梯度的方向移动来减小损失。
-- 正则化有助于防止过拟合,其具体形式可以是:
-  - 限制决策树的数量或大小（就其深度或节点数而言）。
-  - 正则化可以来自学习率 ，它表示沿梯度方向移动的距离；学习率越小意味着我们在集成时需要的决策树越多。
-
-#### 小结
-
-- Gradient Boosting（梯度提升）算法是一种集成学习方法，通过结合多个弱学习器来构建一个强学习器。
-- 与AdaBoost类似，Gradient Boosting也是一个迭代过程，但它的核心思想是利用损失函数的梯度来优化模型。在每一轮迭代中，Gradient Boosting会训练一个新的弱学习器来拟合前一轮模型的负梯度（残差），从而逐步减小损失函数的值。
-- Gradient Boosting算法的主要步骤如下：
-  1. 初始化模型：使用一个常数值（如训练集目标值的均值）作为初始模型。
-  2. 对于每一轮迭代： a. 计算训练集上每个样本的负梯度（残差）。 b. 使用带权重的训练集（权重为负梯度）训练一个弱学习器。 c. 计算弱学习器在训练集上的预测结果。 d. 使用线性搜索方法找到一个最佳的学习率，使得损失函数值最小。 e. 将弱学习器的预测结果乘以学习率，然后加到当前模型上，得到新的模型。
-  3. 将所有弱学习器的预测结果加权结合，得到最终的预测结果。
-- Gradient Boosting算法的优点：
-  1. 灵活性：Gradient Boosting算法可以用于多种损失函数，包括平方损失、对数损失等，因此适用于回归和分类问题。
-  2. 高效性：Gradient Boosting算法通过优化损失函数的梯度来实现误差修正，这使得算法在训练过程中能够更快地收敛。
-  3. 防止过拟合：通过结合多个弱学习器，Gradient Boosting算法可以降低模型的方差，从而减少过拟合的风险。此外，可以通过调整学习率和树的深度等超参数来进一步控制过拟合。
-- Gradient Boosting算法的缺点：
-  1. 训练速度：由于Gradient Boosting算法是一个迭代过程，每一轮训练都依赖于前一轮的结果，因此无法并行训练弱学习器，训练速度可能较慢。然而，可以使用优化过的实现（如XGBoost和LightGBM）来加速训练过程。
-  2. 调参：Gradient Boosting算法有多个超参数需要调整，如学习率、树的深度、弱学习器的数量等。这可能导致调参过程较为复杂。
-
-## 对比AdaBoosting@GradientBoosting
-
-- 两种方法都是用于提高模型性能的技术，它们通过组合多个弱学习器来构建一个强大的预测模型.
-- Adaboost主要关注纠正分类错误，而Gradient Boost关注优化损失函数。然而，它们在实现和原理上有一些关键区别。
-
-- 算法原理： Adaboost（自适应增强）是一种基于加权投票的集成方法。它通过迭代地训练一系列弱学习器，每个学习器都试图纠正前一个学习器的错误。在每次迭代中，Adaboost会增加误分类样本的权重，使得后续的学习器更关注这些难以分类的样本。最后，所有学习器的预测结果会根据其在训练集上的准确性进行加权投票，以得到最终的预测。
-
-- Gradient Boost（梯度提升）是一种基于梯度下降的集成方法。与Adaboost不同，Gradient Boost关注的是优化损失函数。在每次迭代中，它会训练一个新的弱学习器来拟合前一个学习器预测残差的负梯度。通过这种方式，Gradient Boost逐步优化损失函数，从而提高模型性能。
-
-### 损失函数
-
-- Adaboost主要关注分类错误，使用指数损失函数。这使得Adaboost对异常值非常敏感，因为它会试图纠正所有的错误，即使是那些可能是噪声的样本。
-
-- Gradient Boost可以使用多种损失函数，这使得它更加灵活，可以应用于回归和分类问题。此外，由于它关注的是优化损失函数，而不仅仅是纠正错误，因此它对异常值的敏感性较低。
-
-### 学习速率
-
--  Gradient Boost通常包含一个学习速率参数，用于控制每个弱学习器对最终预测的贡献。较低的学习速率可能需要更多的迭代次数，但可以提高模型的泛化能力。
-- Adaboost没有类似的参数，但可以通过调整弱学习器的数量来控制模型复杂性。
-
-### 正则化
-
-- Gradient Boost可以通过引入正则化项来防止过拟合。例如，它可以使用L1或L2正则化来约束模型的复杂性。
-- Adaboost没有内置的正则化机制，但可以通过<u>调整弱学习器的数量</u>或使用<u>正则化的基学习器</u>来实现类似的效果。
-
-### 小结
+### stacking小结
+
+- Stacking（堆叠）是一种集成学习方法，它结合了多个基本模型（也称为基学习器）的预测结果，以生成一个新的、更强大的模型（也称为元学习器或次级模型）。Stacking其主要目的是通过结合多个基础模型的预测结果来提高总体预测性能。与Bagging和Boosting等其他集成方法不同，Stacking使用一个元学习器（也称为次级模型或模型堆叠器）将基础模型的预测结果作为输入，训练出一个最终预测模型。Stacking的核心思想是借助多个模型的不同优势，捕捉到数据中的更多信息和特征，从而实现更高的预测正确率。
+- 以下是Stacking方法的详细介绍和总结：
+  1. **基础模型**：在Stacking方法中，首先需要训练一组基础模型（也称为第一层模型）。这些模型可以是相同的算法，也可以是不同的算法。例如，可以使用决策树、支持向量机、神经网络等多种机器学习算法作为基础模型。
+  2. **训练集和验证集**：为了训练元学习器，需要将原始训练数据集划分为训练集和验证集。训练集用于训练基础模型，而验证集用于构建元学习器的输入特征。
+  3. **基础模型预测**：使用训练集训练基础模型后，将验证集输入到这些模型中得到预测结果。这些预测结果将作为元学习器的输入特征。需要注意的是，为了避免过拟合，可以使用K折交叉验证的方法在不同的数据子集上训练基础模型，并将不同子集上的预测结果拼接起来，作为元学习器的输入。
+  4. **元学习器训练**：将基础模型在验证集上的预测结果作为输入特征，将验证集的真实标签作为输出标签，训练元学习器。元学习器可以是任何适用的机器学习算法，如线性回归、逻辑回归或梯度提升树等。
+  5. **预测**：在测试集上进行预测时，首先使用基础模型对测试集进行预测，然后将这些预测结果作为特征输入到元学习器中，得到最终的预测结果。
+
+## 总结
 
 - 一个集成方法是模型的结合，其性能要优于任意一个其中的组件。
 - 我们主要讨论了 3 种训练集成的方法。
@@ -1104,56 +768,6 @@ Stacking 算法的主要步骤如下：
     - 套袋决策树被称为随机森林。
   - 推进法是一种能减少基础估计器偏差的集成元估计器。
     - AdaBoost 算法是一种流行的推进算法，它迭代地在训练数据上训练估计器，训练数据的权重将会根据前一个估计器的误差进行调整。
-  - 堆叠法中，一个元估计器可以学习去合并异类基础估计器的预测结果。 
-
-# Skearn中的集成学习
-
-## **ab**stract
-
-- The goal of **ensemble methods** is to combine the predictions of several base estimators built with a given learning algorithm in order to improve generalizability / robustness over a single estimator.
-
-- Two families of ensemble methods are usually distinguished:
-
-  - In **averaging methods**, the driving principle is to build several estimators independently and then to average their predictions. On average, the combined estimator is usually better than any of the single base estimator because its variance is reduced.
-
-    **Examples:** [Bagging methods](https://scikit-learn.org/stable/modules/ensemble.html#bagging), [Forests of randomized trees](https://scikit-learn.org/stable/modules/ensemble.html#forest), …
-
-  - By contrast, in **boosting methods**, base estimators are built sequentially and one tries to reduce the **bias** of the combined estimator. The motivation is to combine several weak models to produce a powerful ensemble.
-
-    **Examples:** [AdaBoost](https://scikit-learn.org/stable/modules/ensemble.html#adaboost), [Gradient Tree Boosting](https://scikit-learn.org/stable/modules/ensemble.html#gradient-boosting), …
-
-### 翻译1
-
-- 集成学习的目标是将使用给定学习算法构建的多个基估计器的预测结果结合起来，以提高对单个估计器的泛化性和鲁棒性。
-
-
-- 通常区分两类集成方法：
-  - 在平均方法中，主要原理是独立构建多个估计器，然后对它们的预测结果进行平均。平均而言，组合估计器通常优于任何单个基估计器，因为其方差降低了。
-    - 例如：Bagging 方法、随机森林等。
-  - 相比之下，在提升方法中，基估计器是顺序构建的，以尝试降低组合估计器的偏差。动机是将多个弱模型组合成一个强大的集成模型。
-    - 例如：AdaBoost、梯度提升树等。
-
-### 翻译2
-
-**集成方法** 的目标是把多个使用给定学习算法构建的基估计器的预测结果结合起来，从而获得比单个估计器更好的泛化能力/鲁棒性。
-
-集成方法通常分为两种:
-
-- **平均方法**，该方法的原理是构建多个独立的估计器，然后取它们的预测结果的平均。一般来说组合之后的估计器是会比单个估计器要好的，因为它的方差减小了。
-
-  **示例:** [Bagging 方法](https://scikitlearn.com.cn/0.21.3/12/#1111-bagging-meta-estimator（bagging-元估计器）) , [随机森林](https://scikitlearn.com.cn/0.21.3/12/#11121-随机森林) , …
-
-- 相比之下，在 **boosting 方法** 中，基估计器是依次构建的，并且每一个基估计器都尝试去减少组合估计器的偏差。这种方法主要目的是为了结合多个弱模型，使集成的模型更加强大。
-
-  **示例:** [AdaBoost](https://scikitlearn.com.cn/0.21.3/12/#1113-adaboost) , [梯度提升树](https://scikitlearn.com.cn/0.21.3/12/#1114-gradient-tree-boosting（梯度树提升）) , …
-
-
-
-
-
-
-
-
-
+  - 堆叠法中，一个元估计器可以学习去合并异类基础估计器的预测结果。
 
 

@@ -1,4 +1,5 @@
-@[toc]
+[toc]
+
 # adb shell能够做什么
 
 ![image-20221008180836136](https://img-blog.csdnimg.cn/img_convert/27bd499f8662ca291a09d22f0236c19b.png)
@@ -8,7 +9,7 @@
 - 和指令集不同,shell可以调用不同的指令集
 - 但是shell作为用户命令行解释器,本身又是一个可执行文件
   - 比如bash/zsh/ksh/mksh
-- adb shell所用的shell一般指mksh(android12试验)
+- adb shell所用的shell一般指`mksh`
 
 ```bash
 1|xaga:/system/xbin $ sh -v
@@ -132,25 +133,41 @@ PS4='[$EPOCHREALTIME] '; PS1='${|
 
 
 
-### busybox_toybox加强指令集
+### busybox@toybox加强指令集
 
 - [BusyBox](https://busybox.net/)官网
 
 #### android版
 
 - 高版本android可以通过magisk 刷入busybox模块(需要一定时间几十秒到1分钟左右甚至更长时间)
-- 查看busybox
+- busybox简介
   - BusyBox is a multi-call binary that combines many common Unix    utilities into a single executable.  Most people will create a link to busybox for each function they wish to use and BusyBox will act like whatever it was invoked as.
 
+
+
+## toybox&busybox指令集(二进制程序）所在目录@安装路径
+
 ```bash
-1|xaga:/data/adb/busybox # ls -al /system/xbin/busybox
--rwxrwxrwx 1 root root 2087000 2022-10-08 15:30 /system/xbin/busybox
+xaga:/data/adb/busybox # type busybox
+busybox is /system/xbin/busybox
+```
+
+```bash
+xaga:/data/adb/busybox # type toybox
+toybox is /system/bin/toybox
 ```
 
 
 
 ```bash
-127|xaga:/data/adb/busybox # busybox --help
+xaga:/data/adb/busybox # ls -al /system/xbin/busybox
+-rwxrwxrwx 1 root root 2087000 2022-10-08 15:30 /system/xbin/busybox
+```
+
+#### busybox版本信息查看
+
+```bash
+xaga:/data/adb/busybox # busybox --help
 BusyBox v1.34.1-osm0sis (2021-10-02 04:33:49 ADT) multi-call binary.
 BusyBox is copyrighted by many authors between 1998-2015.
 Licensed under GPLv2. See source distribution for detailed
@@ -183,7 +200,7 @@ Currently defined functions:
 
 
 
-#### windows版
+## windows版
 
 - 可以通过scoop来安装,也可以直接使用官网的二进制文件
 
@@ -230,20 +247,6 @@ Usage: busybox [function [arguments]...]
 - [设置端口转发](https://developer.android.com/studio/command-line/adb#forwardports)
 - [将文件复制到设备/从设备复制文件](https://developer.android.com/studio/command-line/adb#copyfiles)
 - [停止 adb 服务器](https://developer.android.com/studio/command-line/adb#stopping)
-
-
-
-## toybox&busybox指令集(二进制程序）所在目录
-
-```bash
-xaga:/data/adb/busybox # type busybox
-busybox is /system/xbin/busybox
-```
-
-```bash
-xaga:/data/adb/busybox # type toybox
-toybox is /system/bin/toybox
-```
 
 
 

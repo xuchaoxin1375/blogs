@@ -352,13 +352,7 @@
     \phi (n)=\sum _{{i=1}}^{{n}}[\gcd(i,n)=1],\qquad {\text{for }}n\in {\mathbb  N}^{+}.
     $$
 
-  - 互质是公约数只有1的两个整数，叫做**互质整数**。
-
-  - [公约数](https://baike.baidu.com/item/公约数/1063409?fromModule=lemma_inlink)只有1的两个[自然数](https://baike.baidu.com/item/自然数/385394?fromModule=lemma_inlink)，叫做**互质自然数**，后者是前者的特殊情形
-
-  - 互质的两个数a,b不要求它们本身是质数,例如9和10
-
-  - 如果已知a,b都是质数,那么a,b一定互质
+    
 
 - 另一个例子是化简带特例的方程，例如公式
   - $\Large\displaystyle\sum _{{1\leq k\leq n \atop \gcd(k,n)=1}}\!\!k={\frac  {1}{2}}n\varphi (n)$
