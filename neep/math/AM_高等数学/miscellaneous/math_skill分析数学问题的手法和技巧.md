@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 
 # 数学表达式&等式方程的变形&组合操作技巧/手段积累
 
@@ -16,9 +16,9 @@
 
 ### 方程
 
-> 数学中，**方程**（equation）可以简单的理解为含有[未知数](https://zh.wikipedia.org/wiki/未知数)的[等式](https://zh.wikipedia.org/wiki/等式)，
->
-> - 即含有一个以上的未知数并结合等号的[数学公式](https://zh.wikipedia.org/wiki/数学公式)（formula）
+数学中，**方程**（equation）可以简单的理解为含有[未知数](https://zh.wikipedia.org/wiki/未知数)的[等式](https://zh.wikipedia.org/wiki/等式)，
+
+即含有一个以上的未知数并结合等号的[数学公式](https://zh.wikipedia.org/wiki/数学公式)（formula）
 
 ### 等式
 
