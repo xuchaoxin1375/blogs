@@ -146,9 +146,39 @@
 - 只是sdcard目录下的文件**这部分内容不会被删除**
   - 照片之类的还在
 
-- app之类的东西将全部消失(重置)
+- app之类的数据将全部消失(重置)
 
-## 🎈执行刷写前的最后确认
+- 脚本名称检查:软件下方的三个选项分别对应于三个方案的刷写脚本:
+
+  - `ls .\flash_*bat`
+
+    ```
+    
+    Mode                LastWriteTime         Length Name
+    ----                -------------         ------ ----
+    -----         1/11/2023   8:29 AM           5038   flash_all_except_storage.bat
+    -----         1/11/2023   8:29 AM           5302   flash_all_lock.bat
+    -----         1/11/2023   8:29 AM           5295   flash_all.bat
+    ```
+
+  - 如果是linux(bash),可以用`ls .\flash_*sh`来检查
+
+    - ```
+      Mode                LastWriteTime         Length Name
+      ----                -------------         ------ ----
+      -----         1/11/2023   8:29 AM           6052   flash_all_except_storage.sh
+      -----         1/11/2023   8:29 AM           6390   flash_all_lock.sh
+      -----         1/11/2023   8:29 AM           6387   flash_all.sh
+      ```
+
+  - 两类情况只有后缀不同,文件名是相同的
+
+    - `flash_all_except_storage`:保留数据刷写
+    - `flash_all_lock`:清除所有数据并上锁(bl锁)刷写
+    - `flasht_all`:清除所有数据刷鞋
+
+
+## 执行刷写前的最后确认👺
 
 - 手机一定要进入到fastboot模式,
 
