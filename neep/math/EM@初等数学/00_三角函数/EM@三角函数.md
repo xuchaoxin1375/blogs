@@ -1,11 +1,11 @@
-- [toc]
+[toc]
 
 
 
 
 # 三角函数
 
-## 图像
+## 图像👺
 
 ### 图像:六种基本的三角函数图像🎈
 
@@ -113,13 +113,14 @@
 
 - 三个恒等式和x都和1有密切关系
 
-
+## 三角函数基本函数性质
 
 ### Parity(奇偶性)
 
 - (只有cos&sec是偶函数,其余都是奇函数)
 
 - The cosine and the secant are [even functions](https://en.wikipedia.org/wiki/Even_function); 
+
 - the other trigonometric functions are [odd functions](https://en.wikipedia.org/wiki/Odd_function). That is:
 
 - $$
@@ -132,11 +133,20 @@
   	\end{aligned}}}
   $$
 
-- *See also:* [Proofs of trigonometric identities § Angle sum identities](https://en.wikipedia.org/wiki/Proofs_of_trigonometric_identities#Angle_sum_identities)*, and* [Small-angle approximation § Angle sum and difference](https://en.wikipedia.org/wiki/Small-angle_approximation#Angle_sum_and_difference)
+  - $\tan{(-x)}$=$\frac{\sin{(-x)}}{\cos{(-x)}}=\frac{-\sin{x}}{\cos{x}}=-\tan{x}$
+  
+  - $\cot(-x)$=$\frac{\cos{(-x)}}{\sin{(-x)}}$=$-\cot x$
+  
+  - $\csc{(-x)}=\sin^{-1}(-x)$=$-\sin^{-1}{x}$=$-\csc{x}$
+  
+  - $\sec{(-x)}$=$\cos^{-1}(-x)$$=\cos^{-1}(x)$=$\sec{x}$
+  
 
 ### periods周期性
 
-- All trigonometric functions are periodic functions of period 2π. This is the smallest period, except for the tangent and the cotangent, which have π as smallest period. This means that, for every integer k, one has
+- All trigonometric functions are periodic functions of period $2\pi$. 
+
+- <u>This is the smallest period, except for the **tangent** and the **cotangent**</u>, which have $\pi$ as smallest period. This means that, for every integer k, one has
 
 - $$
   {\displaystyle {\begin{aligned}\sin(x+2k\pi )&=\sin x\\

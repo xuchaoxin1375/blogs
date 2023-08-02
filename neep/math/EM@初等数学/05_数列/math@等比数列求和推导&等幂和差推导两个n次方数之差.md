@@ -329,19 +329,26 @@ $$
 
   - $$
     \begin{aligned}
-    a^{n}-b^{n}=&(a-b) \sum_{i=0}^{n-1} a^{n-1-i}b^{i}\\
-    =&(a-b)\sum\limits_{i=0}^{\theta}a^{\theta-i}b^{i},{(\theta=n-1)}\\
-    =&(a-b)\sum\limits_{r_1+r_2=n-1}a^{r_1}b^{r_2},{(r_1,r_2\in\mathbb{Z})}\\
-    =&(a-b)(a^{n-1}b^{0}+a^{n-2}b^{1}+\cdots+a^{1}b^{n-2}+a^{0}b^{n-1})
+    a^{n}-b^{n}=&(a-b) \sum_{i=0}^{n-1} a^{n-1-i}b^{i}
+    	{(\theta\in\mathbb{N^+})}&(1)\\
+    =&(a-b)\sum\limits_{i=0}^{\theta}a^{\theta-i}b^{i},
+    	{(\theta=n-1)},
+    	{(\theta\in{\{2,3,\cdots\}})}&(2)\\
+    =&(a-b)\sum\limits_{r_1+r_2=n-1}a^{r_1}b^{r_2},
+    	{(r_1,r_2\in\mathbb{Z})}\quad\bigstar&(3)\\
+    =&(a-b)(a^{n-1}b^{0}+a^{n-2}b^{1}+\cdots+a^{1}b^{n-2}+a^{0}b^{n-1})&(4)
     \end{aligned}
     $$
 
 
-  - 例如$n=3$时:$a^3-b^3=(a-b)(a^2+ab+b^2)$
+- 例如$n=3$时:$a^3-b^3=(a-b)(a^2+ab+b^2)$
+
+- 上述4种书写形式以$(3)$最为优雅
 
 - 公式的记忆:分为两部分,$(a-b)$以及一个由$n$次项构成$n$项多项式之和$(a^{n-1}b^{0}+a^{n-2}b^{1}+\cdots+a^{1}b^{n-2}+a^{0}b^{n-1})$
 
-  - 可以结合多项式余式定理来理解ji'yi
+  - 可以结合多项式余式定理来理解记忆
+- 由此展开式可知:不等式的乘方性质:$a>b>0\Rightarrow{a^n>b^n}$,$n\in\mathbb{N^+},n\geqslant2$
 
 
 
@@ -357,7 +364,7 @@ $$
   - 其中,a的指数与b的指数之和为`n-1`
 - 例如,n=3,$a^3+b^3=(a+b)(a^2-ab+b^2)$
 
-## 等幂差公式推导🎈
+### 等幂差公式推导🎈
 
 - 接下来证明等幂差公式,前面推导可知:
 

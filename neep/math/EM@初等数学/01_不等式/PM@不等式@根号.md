@@ -2,9 +2,12 @@
 
 
 
-# 根式
+# 根号
 
-## 平方根和开根号运算
+- 在数学中，根号被用来表示一个数 $x$ 的**平方根**或 $n$ 次方根，分别写做 ${\displaystyle {\sqrt {x}}}$ 及 ${\displaystyle {\sqrt[{n}]{x}}}$，
+- 有时在文字系统不支援数学式的时候，会使用“√”来代替平方根。
+
+## 平方根
 
 - [Square root](https://en.wikipedia.org/wiki/Square_root#firstHeading)
 
@@ -16,6 +19,9 @@
   - $\sqrt{16}=4$是$x^2=16$的一个解,但不是所有解
   - $所以x^2=16,x=\pm \sqrt{16}$
   - $x^2=a^2,x=\pm \sqrt{a^2}=\pm |a|$
+
+### 开根号运算与平方根
+
 - Note:正数$x$的平方根$y$指的是能够满足方程$y^2=x$的解,在实数范围内,容易知道这类方程有2个解,并且一个是正数,另一个是负数(两个解互为相反数)
   - 为了表示这类常见方程的解,人们采用了(开平方根)根号$\sqrt{\;}$(相当于取$\frac{1}{2}$次方的操作)来表示方程的两个解(根)中的正根,从而,方程组的解可以表示为$y_1=\sqrt{x},y_2=-\sqrt{x}$,或者更加紧凑的写作:$y=\pm{\sqrt{x}}$或幂的形式:$y=\pm{x^{\frac{1}{2}}}$
   - 这样处理的好处是方便于表达式中引用平方根
@@ -52,7 +58,7 @@
   - Square roots of **negative numbers** can be discussed within the framework of complex numbers. 
   - More generally, square roots can be considered in any context in which a notion of the "square" of a mathematical object is defined. These include **function spaces** and **square matrices**, among other **mathematical structures**.
 
-## 代数数(algebraic numbers)
+### 代数数(algebraic numbers)
 
 - 代数数是数学中的一个概念，指的是可以作为一个多项式方程的**根**的**复数**。
   - 这个多项式方程的系数必须是整数。
@@ -60,7 +66,7 @@
   - 同时，一些无理数，如$\sqrt{2}$，也是代数数，因为它是方程$x^2 - 2 = 0$的解。
 - 更正式的定义是：如果一个复数是某个<u>有整数系数的非零多项式的根</u>，那么这个复数就被称为代数数。
 
-## 平方根函数(开根号函数)
+### 平方根函数(开根号函数)
 
 - The principal square root function $f(x)={\sqrt {x}}$ (usually just referred to as the "**square root function**") is a function that maps the set of nonnegative real numbers onto **itself**. 
 - In geometrical terms, the square root function maps the **area** of a square to its **side length**.
@@ -110,39 +116,70 @@
 - $y''=\frac{1}{2}\frac{-1}{2}x^{-\frac{3}{2}}=-\frac{1}{4}x^{-\frac{3}{2}}<0$,说明$y'$是减函数,而$y'$反应的是$y$随自变量变换的变化率,$y'$随$x$的增加而减少,则$y$随$x$的增加变化率减小(图像上的点的切线越接近水平)
 - $y=\sqrt{x}$是一个凹函数(Concave function)
 
-## 一般根式
 
-### 根式的基本内容
 
-- **根号**(默认指平方根号)是用来表示对一个数或一个[代数式](https://baike.baidu.com/item/代数式/7342471)进行开方运算的符号。
+## n次方根
 
-- 更一般的,若$a^n=b>0$，那么$a$是$b$开$n$次方的$n$次方根
+- 若$x^n=b$,$n\in\mathbb{N^+}$，那么$x$是$b$的<u>$n$次方根</u>(解)
 
-  - 如果$n$是奇数,则$a=b^{\frac{1}{n}}$
-  - 如果$n$是偶数,则$a=\pm b^{\frac{1}{n}}$
-  - 例如,$a^{2}=b$,则$a=\pm b^{\frac{1}{2}}$
+### 主n次方根👺
 
-- $$
-  (\sqrt[n]{a})^n=\sqrt[n]{a^n}=a\\
-  (a^{\frac{1}{n}})^{n}=(a^{n})^{\frac{1}{n}}=a
-  $$
+- 定义实数$a$的主$n$次方根为:$a$的$n$次方根中具有与$a$相同的正负号的唯一实数$b$
+  - 在$n$是偶数时，负数没有主$n$次方根。
+    - 例如$x^3=-8$,方程的根是$x=-2$,同时也是实数$-8$的(唯一)3次方根,还时主n次方根(-2,-8同号)
+    - 而$x^2=4$,方程的根是$x=\pm{2}$,它们都是实数$4$的2次方根,其中$x=2$是主二次方根(2和4同号)
+  - 习惯上，将2次方根叫做**平方根**，将3次方根叫做**立方根**。
 
-- 在实数范围内
+### n次方根号
+
+- 在提及实数$a$的$n$次方根的时候，若指的是此数的主$n$次方根，则可以用根号（${\displaystyle {\sqrt {\color {white}t}}}$）表示成$\sqrt[n]{a}$。
+  - 例如：1024的主10次方根为2，就可以记作${\displaystyle {\sqrt[{10}]{1024}}=2}$。当$n=2$时，则$n$可以省略。
+
+### 简单高次方程的解(根)
+
+- 方程$x^n=b$,$n\in\mathbb{N^+}$的解(根)分析如下:
+
+  - 如果$n$是奇数,则$x=\sqrt[n]{b}$
+
+  - 如果$n$是偶数,则$x=\pm \sqrt[n]{b}$
+
+- 例如,$a^{2}=b$,则$a=\pm \sqrt{b}$
+  - $x^2=4$,则$x=\pm{2}$
+  - $x^3=8$,则$x=2$
+  - $x^3=-8$,则$x=-2$
+
+- Note:$x=\sqrt[n]{b}$是$x^n=b$的根,但$x^n=b$的根不一定只有$\sqrt[n]{b}$,正如上面讨论的那样,需要分$n$的奇偶性
+
+### n次方根的幂次表示
+
+- 对于$n\geqslant{3}$次以上的方根，表示为$\sqrt[n]{\;}$( 左上有加上一个小数字来表示其次数)
+- 通常只在次数是**整数**时才会用**根号**表示，而**非整数**次数的情况通常就以**幂次**表示
+
+- $n$次方根和幂次形式的关系:$\sqrt[n]{x}$=$x^{\frac{1}{n}}$,或者写作$x^{n^{-1}},x^{1/n}$
+
+  - $$
+    \sqrt[n]{x}=x^{\frac{1}{n}}\\
+    (\sqrt[n]{a})^n=\sqrt[n]{a^n}=a\\
+    (a^{\frac{1}{n}})^{n}=(a^{n})^{\frac{1}{n}}=a
+    $$
+
+- 在实数范围内,记$A=(a^{\frac{1}{n}})^{n}$;$B=(a^{n})^{\frac{1}{n}}$
 
   - 若$n$为奇数:$(a^{\frac{1}{n}})^{n}=(a^{n})^{\frac{1}{n}}=a$
-
-    - 记$A=(a^{\frac{1}{n}})^{n}$;$B=(a^{n})^{\frac{1}{n}}$
-    - 在实数范围内,对于A,不是所有$a$都能使A有意义(n为偶数且$a<0$),但是B总是有意义
-
   - 若$n$为偶数:
 
     - 当$a>0$时,$(a^{\frac{1}{n}})^{n}=(a^{n})^{\frac{1}{n}}=a$
     - 当$a<0$时,$(|a|^{\frac{1}{n}})^{n}=((-a)^{\frac{1}{n}})^{n}=-a$
 
-    
 
+#### 同解问题
 
-## 根号相关不等式问题
+- 当$n$为奇数时,$x^{\frac{1}{n}}=a$与方程$x=a^n$是同解的,因为$f(x)=x^n$,$n$为奇数时$f(x)$是单调递增的函数
+- 当$n$为偶数时,两个方程不同解(此时$f(x)=x^n$是偶函数),但是有共同解
+- 例如:$x^{-2}=a$,$(x^{-2})^{-\frac{1}{2}}=a^{\frac{1}{2}}$不同解,后者相当于$x=a^{\frac{1}{2}}$
+  - 正确求解:$(x^{-2})^{-1}=a^{-1}$,即$x^2=a^{-1}$,即$x=\pm{a^{-1}}$
+
+## 根号相关不等式问题👺
 
 ### $关于x^2, a^2的不等式$
 
@@ -241,9 +278,9 @@ $$
 
 
 
-### 用例:反三角函数的求导公式推导
+### 反三角函数的求导公式推导
 
-#### $\frac{d}{dx}\arccos x$
+### $\frac{\mathrm{d}}{\mathrm{d}x}\arccos x$
 
 - 直接函数
 $$
