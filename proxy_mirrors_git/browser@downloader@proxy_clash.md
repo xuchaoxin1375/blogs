@@ -30,17 +30,38 @@
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/5dc74f1d00c24aef89f928bf20e26f3f.png)
 
 - 能够使得Ping 走代理
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/1a14140614c9432386ac36b32cc7d9fb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_15,color_FFFFFF,t_70,g_se,x_16)
-- wget也可
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/2ff1390821ce4bc788187e4c50873bf2.png)
+  - ```bash
+    PS C:\Users\cxxu> ping www.google.com
+    
+    正在 Ping www.google.com [198.18.0.5] 具有 32 字节的数据:
+    来自 198.18.0.5 的回复: 字节=32 时间<1ms TTL=64
+    来自 198.18.0.5 的回复: 字节=32 时间<1ms TTL=64
+    来自 198.18.0.5 的回复: 字节=32 时间<1ms TTL=64
+    来自 198.18.0.5 的回复: 字节=32 时间<1ms TTL=64
+    
+    198.18.0.5 的 Ping 统计信息:
+        数据包: 已发送 = 4，已接收 = 4，丢失 = 0 (0% 丢失)，
+    往返行程的估计时间(以毫秒为单位):
+        最短 = 0ms，最长 = 0ms，平均 = 0ms
+    ```
+  
+    
+- wget等命令行下载工具也可以在此配置下走代理
 
 
-## edge 浏览器内部代理配置
+## edge 浏览器内部代理配置插件
 
-### 插件Proxy
+## 插件1 proxy switchomega
+
+- [Microsoft Edge 加载项 - proxy switchyomega](https://microsoftedge.microsoft.com/addons/search/proxy switchyomega)
+- 推荐使用，简单易用，较稳定
+- 配置完服务器资源后，在浏览器处的插件图标切换到proxy模式，否则默认是系统代理（直连），插件配置的代理将无法生效
+
+### 插件2 smartproxy
 
 - [SmartProxy - Microsoft Edge Addons](https://microsoftedge.microsoft.com/addons/detail/smartproxy/canbjhbbhfggbdfgpddpnckdjgfcbnpb?hl=en-US)
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/d7c09421f93548029ab0e1b8e70b7917.png)
+  
+  
 
 #### 代理白名单(pass)
 

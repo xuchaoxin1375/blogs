@@ -41,7 +41,7 @@
 - 比如`$env:userprofile\downloads`
 - `$env:userprofile\documents\`
 
-# 重装后
+# 重装后👺
 
 ## 第一批恢复
 
@@ -49,27 +49,50 @@
   - `cd $configs\env`
   - 选择合适的版本进行还原(也可以双击文件还原),这是通过修改注册表还原
   - 重启终端
-
 - 代理软件
   - 注意端口修改为惯用的端口号,例如`10801`,否则浏览器在导入的配置不匹配导致浏览器访问网络卡顿等问题
 - 浏览器配置
-  - 某些代理插件中导入配置后需要分别在代理列表和代理服务器点保存
-    - 例如SmartProxy
-- 系统更新检查
-  - 刚安装的系统可能也会检查更新,这些行为不仅会占用带宽,而且会占用cpu资源
-  - 更新包括驱动下载(windows现在将驱动下载放到了更新中,因此除了自己到官网下载驱动还可以看看system update)傻等着可能不会自动给你装上
-  - 类似于显卡驱动,声卡驱动(以及DTS音效),都可以在windows update更新得到
+  - 某些代理插件中导入配置后需要分别在代理列表和代理服务器点保存，例如
+    - proxy switchomega（推荐）
+    - SmartProxy
+
+### 系统更新检查@驱动
+
+- 刚安装的系统可能也会检查更新,这些行为不仅会占用带宽,而且会占用cpu资源
+- 更新包括驱动下载(windows现在将驱动下载放到了更新中,因此除了自己到官网下载驱动还可以看看system update)傻等着可能不会自动给你装上
+- 类似于显卡驱动,声卡驱动(以及DTS音效),都可以在windows update更新得到
 
 ## 第二批恢复
 
-### 命令行工具
+### 字体
+
+- hack nerd font(阿里云盘备份)
+
+### 编辑器
+
+- vscode 注意下载system版的而不是user版[Download Visual Studio Code - Mac, Linux, Windows](https://code.visualstudio.com/Download)
+
+
+
+### 命令行工具👺
+
+- winget
+  - [使用 winget 工具安装和管理应用程序 | Microsoft Learn](https://learn.microsoft.com/zh-CN/windows/package-manager/winget/)
+- powershell
 
 - scoop
+  
+  - 可以先试试`iwr -useb get.scoop.sh | iex`,不行的话开代理`tun`模式
   - [scoopInstaller: scoop国内镜像优化库，能够加速scoop安装及bucket源文件，无需用户设置代理。 (gitee.com)](https://gitee.com/glsnames/scoop-installer)
-
+  
 - python
+
+  - [Download Python | Python.org](https://www.python.org/downloads/)
+
   - 下载源替换:
-    - 
+
+    
+
 
 
 ## 网速问题🎈

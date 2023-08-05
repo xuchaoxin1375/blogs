@@ -13,8 +13,7 @@
 
   
 
-
-### 对角行列式
+### 对角行列式@对角阵
 
 - $$
   \begin{vmatrix}
@@ -25,6 +24,15 @@
   \end{vmatrix}
   =\lambda_1\lambda_2\cdots\lambda_n
   =\prod_{i=1}^{n}\lambda_i
+  $$
+
+- $$
+  \Lambda=\mathrm{diag}(\lambda_{1},\lambda_{2},\cdots,\lambda_{n})=\begin{pmatrix}
+     {{\lambda _1}} & {} & {} & {}  \cr 
+     {} & {{\lambda _2}} & {} & {}  \cr 
+     {} & {} &  \ddots  & {}  \cr 
+     {} & {} & {} & {{\lambda _n}}  \cr 
+  \end{pmatrix}
   $$
 
   
@@ -99,7 +107,6 @@
     \end{pmatrix}
     $$
     
-    
   - $$
     |A|_{n}=  
     \begin{vmatrix}  
@@ -156,7 +163,7 @@
   \end{pmatrix}
   $$
 
-#### 逗号分隔下标
+## 逗号分隔下标
 
 - $$
   A=\begin{pmatrix}
@@ -169,7 +176,7 @@
 
   
 
-#### 转置🎈
+## 转置🎈
 
 - $m\times{n}$转置为$n\times{m}$
 
