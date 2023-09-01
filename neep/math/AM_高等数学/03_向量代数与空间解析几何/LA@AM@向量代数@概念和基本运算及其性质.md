@@ -9,6 +9,10 @@
   - 手写通常用头箭头表示向量
 - 向量的大小也被称为模
 - 只考虑方向和大小(而不考虑起点)的向量称为**自由向量**
+- 这里的向量是抽象向量的一个简化版本$n$个数构成的数组,而在例如高等代数中讨论的,在线性空间中有含义更加广的**向量**以及更加深刻的性质研究
+
+### 向量的坐标式
+
 - 向量的坐标(表示):
   - 向量在坐标轴上的投影$x,y,z,\cdots$叫做向量$\boldsymbol{a}$的坐标
   - $\boldsymbol{a}=(a_x,a_y,a_z)=a_{x}\boldsymbol{i}+a_{y}\boldsymbol{j}+a_{z}\boldsymbol{k}$,简记为$\boldsymbol{a}=(x,y,z)$
@@ -20,7 +24,7 @@
 - 向量的**模**:$\boldsymbol{a}^T=(a_x,a_y,a_z)$,则$|\boldsymbol{a}|=\sqrt{a_x^2+a_y^2+a_z^2}$=$\sqrt{(a_x,a_y,z_y)\cdot(a_x,a_y,a_z)}$
   - 在空间直角坐标系中,该公式是根据勾股定理得到
   - $\boldsymbol{a}\cdot\boldsymbol{a}=a_x^2+a_y^2+a_z^2$,这里假设$\boldsymbol{a}$是列向量
-  - 如果引入矩阵乘法(或点积)的表示方法,还可以写作$|\boldsymbol{a}|=\sqrt{\boldsymbol{a}^T\boldsymbol{a}}$
+  - 如果引入矩阵乘法(向量内积)的表示方法,还可以写作$|\boldsymbol{a}|=\sqrt{\boldsymbol{a}^T\boldsymbol{a}}$,其中$\bold{a}^T,\bold{a}$分别是行向量以及其转置得到的列向量
   
 
 ### 零向量
@@ -75,55 +79,84 @@
       - 若$\lambda<0$,$a,b$反向
   - 若$\theta=\frac{\pi}{2}$,则$a\perp{b}$
 
-### 内积@点击@数量积🎈
+### 数量积
+
+#### 数量积和恒力做功
 
 - 数量积的定义来自于物理学中,恒力$\boldsymbol{F}$作用于物体从$M_1$直线地移动到$M_2$所作的功的计算,记$\overrightarrow{M_1M_2}=\boldsymbol{s}$,$\theta=<\boldsymbol{F},\boldsymbol{s}>$
 
   - $W=|\boldsymbol{F}||\boldsymbol{s}|\cos{\theta}$
-  - 其中$|\boldsymbol{F}|\cos\theta$表示力$\boldsymbol{F}$在向量$\boldsymbol{s}$方向上的投影的大小,记为$\text{Prj}_{\boldsymbol{s}}\boldsymbol{F}$
-  - 则$W=|\boldsymbol{s}|\text{Prj}_{\boldsymbol{s}}\boldsymbol{F}$
-
-- 向量的数量积(点积,内积)🎈
-
-  - 几何表示:$a\cdot{b}=|a||b|\cos{\theta},其中\theta={<a,b>}$
-  - 根据给定的2个向量计算他们夹角的余弦$\cos{\theta}=\frac{a\cdot{b}}{|a||b|}$
-  - 在线性代数中可以表达为$\cos{\theta}=\frac{(a,b)}{||a||_2||b||_2}$
-    - $||a||_2$表示$L^2$范数
-  - 代数表示:$a=(a_x,a_y,a_z),b=(b_x,b_y,b_z)$,则$a\cdot{b}=a_xb_x+a_yb_y+a_zb_z$
-
-- 容易看出点积满足:
-
-  - **交换律**$a\cdot{b}=b\cdot{a}$
-    - 特别的
-    - $\boldsymbol{b}=\boldsymbol{a}$时,$\boldsymbol{a}\cdot{\boldsymbol{a}}=|a|^2=a_x^2+a_y^2+a_z^2$
-    - 当$\boldsymbol{b}$为单位向量时:$\boldsymbol{a}\cdot{\boldsymbol{b}}=|\boldsymbol{a}||\boldsymbol{b}|\cos{\theta}=|\boldsymbol{a}|\cos{\theta},(|\boldsymbol{b}|=1)$
 
 
-  - **分配律**:👺
-    - $\boldsymbol{(a+b)\cdot{c}=a\cdot{c}+b\cdot{c}}$
-      - $LHS=|c|\text{Prj}_{\boldsymbol{c}}{{(a+b)}}
-        =|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{a}
-        +|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{b}$
-        - 根据投影的分配律以及实数加法的分配律
-      - RHS=$|c|Prj_ca+|c|Prj_cb$
-      - 因此LHS=RHS
-    - 向量分配律
-  - **结合律**:
-    - $(\lambda\boldsymbol{a})\cdot{\boldsymbol{b}}=\lambda(\boldsymbol{a\cdot b})$
-    - 根据数量的定义:
-      - $\boldsymbol{b}=\bold{0}$时,上式两边均为0
-      - $\boldsymbol{b}\neq{\bold{0}}$时
-        - 方法1:
-          - $LHS=|\lambda\boldsymbol{a}||\boldsymbol{b}|\cos\theta=\lambda|\boldsymbol{|a||b|}\cos\theta$
-          - $RHS=\lambda\boldsymbol{|a||b|\cos\theta}$
-          - 所以LHS=RHS,证毕
-        - 方法2:
-          - $LHS=|\lambda\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a}=\lambda|\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a}$
-          - $RHS=\lambda(|\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a})$
-          - 所以$LHS=RHS$
+#### 向量数量积
+
+- 几何表示:$\bold{a\cdot{b}=|a||b|\cos{\theta}}$,其中$\theta={<\bold{a,b}>}$
+- 根据给定的2个向量计算他们夹角的余弦$\cos{\theta}=\bold{\frac{a\cdot{b}}{|a||b|}}$
+- 在更加抽象的讨论中,数量积的推广是向量**内积**可以表示$\bold{(a,b)}$
+- 代数表示:$\bold a=(a_x,a_y,a_z),\bold b=(b_x,b_y,b_z)$,则$\bold{a\cdot{b}}=a_xb_x+a_yb_y+a_zb_z$
+
+## 投影
+
+- 对于恒力做功大小计算公式做功公式$W=|\boldsymbol{F}||\boldsymbol{s}|\cos{\theta}$进行讨论
+
+### 投影大小
+
+- 其中$|\boldsymbol{F}|\cos\theta$表示力$\boldsymbol{F}$在向量$\boldsymbol{s}$方向上的**投影的大小**,记为$\text{Prj}_{\boldsymbol{s}}\boldsymbol{F}$=$|\boldsymbol{F}|\cos\theta$
+- 则对应于做功公式:$W=|\boldsymbol{s}|\text{Prj}_{\boldsymbol{s}}\boldsymbol{F}$
+- 对于一般的向量,$\text{Prj}_{\bold{a}}\bold{b}$=$\bold{|b|\cos\theta}$
+
+### 投影大小和数量积的关系
+
+- $(\bold{a,b})$=$\bold{|a||b|\cos{\theta}}$=$\bold{|a|}\text{Prj}_{\bold{a}}\bold{b}$
+- $\text{Prj}_{\bold{a}}\bold{b}$=$\frac{(\bold{a,b})}{|\bold{a}|}$=$\bold{(\frac{\bold{a}}{|{a}|},{b})}$
+
+### 投影向量(分向量)👺
+
+- 有时我们不仅需要计算向量$\bold{b}$在另一个向量$\bold{a}$方向上的投影大小$w$,还希望知道方向,即得到一个大小为$w$,方向与$\bold{a}$通向的向量,通常称为$\bold{b}$在$\bold{a}$方向上的分向量,记为$\bold{b}_{\bold{a}}$或$v(\bold{b,a})$
+  - 例如做向量的正交化或正交分解会用到
+- 而想构造一个大小和方向一致的向量只需要用大小的值乘以给定方向的单位方向向量即可
+- $\bold{b}_{\bold{a}}=\text{Prj}_{\bold{a}}{\bold{b}}\cdot{\bold{\frac{a}{|{a}|}}}$=$\frac{(\bold{a,b})}{|\bold{a}|}$ $\cdot$ ${\bold{\frac{a}{|{a}|}}}$=$\frac{(\bold{a,b})}{|\bold{a}|^2}\bold{a}$
+
+
+
+### 向量点积运算律
+
+#### 交换律
+
+- $\bold{a\cdot{b}=b\cdot{a}}$
+
+- 特别的,$\boldsymbol{b}=\boldsymbol{a}$时,$\boldsymbol{a}\cdot{\boldsymbol{a}}=|a|^2=a_x^2+a_y^2+a_z^2$
+- 当$\boldsymbol{b}$为单位向量时:$\boldsymbol{a}\cdot{\boldsymbol{b}}=|\boldsymbol{a}||\boldsymbol{b}|\cos{\theta}=|\boldsymbol{a}|\cos{\theta},(|\boldsymbol{b}|=1)$
+
+#### 分配律👺
+
+- $\boldsymbol{(a+b)\cdot{c}=a\cdot{c}+b\cdot{c}}$
+  - $LHS=|c|\text{Prj}_{\boldsymbol{c}}{{(a+b)}}
+    =|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{a}
+    +|c|\text{Prj}_{\boldsymbol{c}}\boldsymbol{b}$
+    - 根据投影的分配律以及实数加法的分配律
+  - RHS=$|c|Prj_ca+|c|Prj_cb$
+  - 因此LHS=RHS
+- 向量分配律
+
+#### 结合律
+
+- $(\lambda\boldsymbol{a})\cdot{\boldsymbol{b}}=\lambda(\boldsymbol{a\cdot b})$
+- 根据数量的定义:
+  - $\boldsymbol{b}=\bold{0}$时,上式两边均为0
+  - $\boldsymbol{b}\neq{\bold{0}}$时
+    - 方法1:
+      - $LHS=|\lambda\boldsymbol{a}||\boldsymbol{b}|\cos\theta=\lambda|\boldsymbol{|a||b|}\cos\theta$
+      - $RHS=\lambda\boldsymbol{|a||b|\cos\theta}$
+      - 所以LHS=RHS,证毕
+    - 方法2:
+      - $LHS=|\lambda\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a}=\lambda|\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a}$
+      - $RHS=\lambda(|\boldsymbol{a}|\text{Prj}_{\boldsymbol{b}}\boldsymbol{a})$
+      - 所以$LHS=RHS$
+
+
   - $\boldsymbol{a}\cdot(\lambda\boldsymbol{b})=\lambda(\boldsymbol{a}\cdot\boldsymbol{b})$
   - $(\lambda\boldsymbol{{a}})\cdot{(\mu\boldsymbol{b})}=\lambda\mu(\boldsymbol{a\cdot{b}})$
-
 
 
 

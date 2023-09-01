@@ -6,15 +6,95 @@
 
 - [【必看】刷机注意事项 (miui.com)](https://web.vip.miui.com/page/info/mio/mio/detail?postId=32681233&app_version=dev.20051)
 
-## 解锁
+### miflash下载
+
+提供两个版本
+
+- [MiFlash2020-3-14-0（点我）下载](https://cdn.alsgp0.fds.api.mi-img.com/micomm/MiFlash2020-3-14-0.rar) 
+- [MiFlash2018-5-28-0（点我）下载](http://bigota.d.miui.com/tools/MiFlash2018-5-28-0.zip)
+
+
+
+### 待线刷设备扫描和检查
+
+- 手机进入fastboot模式后,可以通过`fastboot devices`来检查设备连接情况
+- 可以fastboot命令行看到设备序列号和MiFlash工具查询到的是一致的
+  - 对于MiFlash工具,如果在开机状态下想要点击刷新(refresh)是无法查询到设备的,而且可能会报错(RunDll)
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/7a56c179d545477dba26f25bfb6ae1ee.png)
+
+### 使用方式
+
+- 打开刷机工具，点击“选择”选择**解压后的刷机包(文件夹)**或将**解压后的刷机包地址**复制到刷机工具**地址栏**；
+
+- 手机关机，“音量下”+“电源键”进入Fastboot模式，并连接电脑端解锁工具；
+
+- 点击刷机工具“加载设备”刷出设备；
+
+- 选择合适的脚本（全部清除、保留所有数据、全部删除并Lock），点击“刷机”，等待手机重启后刷机完成。
+
+### 线刷工具卡住的关闭方法@RunDll错误😂
+
+- 错误内容
+
+  - ```
+     There was a problem starting qcCoInStaller.dll
+     the specified module could not be found
+    ```
+
+    
+
+- 这个软件不是太稳定和鲁棒(rubust),如果某些错误(比如RunDll错误)导致软件卡死无法关闭,可以尝试以下方法
+
+  - 使用管理员方式打开poweshell,执行` stop-Process -name XiaoMiFlash`
+  - 或者打开任务管理器,找到`XiaoMiFlash`(miflash的全称),右键结束相应进程
+
+- 在windows系统下可能会出现这个错误可能是由于命令行创建别名的方式启动`miflash`导致的
+
+- 推荐的启动miflash的方式还是进**入到软件目录**打开,可以避免这个错误
+
+- ```bash
+  PS D:\exes\android_root_roms\Miflash2020> ls
+  
+          Directory: D:\exes\android_root_roms\Miflash2020
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  d----        12/30/2022   6:13 PM                  da
+  d----        12/30/2022   6:13 PM                  Doc
+  d----         8/10/2023   6:55 PM                  log
+  d----        12/30/2022   6:13 PM                  mi
+  d----        12/30/2022   6:13 PM                  Source
+  d----        12/30/2022   6:13 PM                  SP_Download_tool
+  -a---         2/28/2020  10:05 AM          22658   AutoUpdater.config
+  ....
+  ...
+  ...
+  -a---         2/28/2020  10:05 AM         174592 󰣆  QSaharaServer.exe
+  -a---         3/23/2020  10:07 AM           1021 󰪷  ReadMe.txt
+  -a---         2/28/2020  10:05 AM          57856   RoutingObject.dll
+  -a---         2/28/2020  10:05 AM         143288   SLA_Challenge.dll
+  -a---         2/28/2020  10:05 AM           9728 󰣆  Upgrader.exe
+  -a---         2/28/2020  10:05 AM          30208   Upgrader.pdb
+  -a---         3/23/2020   4:20 PM         376832 󰣆  XiaoMiFlash.exe
+  -a---         8/10/2023   7:20 PM           1960   XiaoMiFlash.exe.Config
+  -a---         3/23/2020   4:20 PM         849408   XiaoMiFlash.pdb
+  -a---         2/28/2020  10:05 AM          11608 󰣆  XiaoMiFlash.vshost.exe
+  -a---         2/28/2020  10:05 AM           1827   XiaoMiFlash.vshost.exe.config
+  -a---         2/28/2020  10:05 AM           2373 󰗀  XiaoMiFlash.vshost.exe.manifest
+  ```
+
+  
+
+## 解bl锁
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/9374f9b84a5946f5a6de26790ba8ef39.png)
 
-  - 手机绑定账号
-  - 进入fastboot模式
-  - 使用官方解锁工具解锁
-    - 现在账号绑定手机后可能要等待一段时间才可以解锁!
-    - 通常是一周或则更长时间,如果等不及可以考虑新建一个小米账号绑定,通常新账号只需要7天(168)小时
+- 手机绑定账号
+- 进入fastboot模式
+- 使用官方解锁工具解锁
+  - 现在账号绑定手机后可能要等待一段时间才可以解锁!
+  - 通常是一周或则更长时间,如果等不及可以考虑新建一个小米账号绑定,通常新账号只需要7天(168)小时
 
 ### 绑定计时规则
 
@@ -135,11 +215,16 @@
   
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/02c3c5b5077b4c0c8351c17b0099e273.png)
 
-- 🎈保留数据可能造成一些bug
 
-  - 建议备份后再刷机,选择(全部删除)
+### 保留用户数据降级
 
-    
+- 保留数据可能造成一些bug设置无法正常使用设备
+
+- 我在2023年对**K60**(modrian)从`MIUI 14.0.26`保留用户数据降级到`14.0.18`虽然能够重新开机,但是软件无法启动(提示我等系统完全加载(重启)后再启动app(除了系统设置),然而能进入桌面却始终无法打开app)
+
+- 建议备份后再刷机,选择(全部删除)
+
+  
 
 ###  所谓保留数据🎈
 

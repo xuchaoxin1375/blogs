@@ -33,28 +33,8 @@
 
   - 有一个英文版的网站收录了一些看似较新的版本,但是这些版本来源并不清楚,而且运行可能会报错,将连接放在此处备用[Download - Official Xiaomi Flash Tool](https://xiaomiflashtool.com/category/download)
 
-### 待线刷设备扫描和检查
 
-- 手机进入fastboot模式后,可以通过`fastboot devices`来检查设备连接情况
-- 可以fastboot命令行看到设备序列号和MiFlash工具查询到的是一致的
-  - 对于MiFlash工具,如果在开机状态下想要点击刷新(refresh)是无法查询到设备的,而且可能会报错(RunDll)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/7a56c179d545477dba26f25bfb6ae1ee.png)
 
-### 使用方式
-
-- 打开刷机工具，点击“选择”选择**解压后的刷机包(文件夹)**或将**解压后的刷机包地址**复制到刷机工具**地址栏**；
-
-- 手机关机，“音量下”+“电源键”进入Fastboot模式，并连接电脑端解锁工具；
-
-- 点击刷机工具“加载设备”刷出设备；
-
-- 选择合适的脚本（全部清除、保留所有数据、全部删除并Lock），点击“刷机”，等待手机重启后刷机完成。
-
-### 线刷工具卡住的关闭方法
-
-- 这个软件不是太稳定,如果某些错误(比如RunDll错误)导致软件卡死无法关闭,可以尝试以下方法
-- 使用管理员方式打开poweshell,执行` stop-Process -name XiaoMiFlash`
-- 或者打开任务管理器,找到`XiaoMiFlash`,右键结束相应进程
 
 # 第三方recovery
 

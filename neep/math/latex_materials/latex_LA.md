@@ -1,5 +1,7 @@
 ## 矩阵@行列式
 
+
+
 ### 3阶矩阵
 
 - $$
@@ -8,6 +10,18 @@
     a_{11} & a_{12} & a_{13} \\  
     a_{21} & a_{22} & a_{23} \\  
     a_{31} & a_{32} & a_{33}  
+  \end{pmatrix}
+  $$
+
+
+### 4阶空白矩阵
+
+- $$
+  \begin{pmatrix}
+  	 &  &  &  \\
+  	 &  &  &  	\\
+   	 &  &  &  	\\
+  	 &  &  &  	\\
   \end{pmatrix}
   $$
 
@@ -278,27 +292,54 @@
     \\Ax=x_1\alpha_{1}+x_2\alpha_2+\cdots+x_n\alpha_{n}=\bold{0}
     $$
 
-### 线性方程组
+### 转置矩阵间的乘法(正交阵)
+
+- $$
+  \begin{pmatrix}
+  \bold{a}_1^T\\
+  \bold{a}_2^T\\
+  \vdots\\
+  \bold{a}_n^T
+  \end{pmatrix}
+  (\bold{a}_1,\bold{a}_2,\cdots,\bold{a}_n)
+  =\begin{pmatrix}
+     \bold{a}_1^T\bold{a}_1&  \bold{a}_1^T\bold{a}_2&  \cdots&\bold{a}_1^T\bold{a}_n \\
+      \bold{a}_2^T\bold{a}_1& \bold{a}_2^T\bold{a}_2&  \cdots&\bold{a}_2^T\bold{a}_n \\
+      \vdots&  \vdots&  &\vdots \\
+     \bold{a}_n^T\bold{a}_1&  \bold{a}_n^T\bold{a}_2&  \cdots&\bold{a}_n^T\bold{a}_n \\
+  \end{pmatrix}
+  =\bold{E}
+  $$
+
+  
+
+## 线性方程组👺
+
+- $m\times{n}$
+
+  - $$
+    \begin{aligned}{}
+        a_{11} x_{1}+a_{12} x_{2}+\cdots+a_{1 n} x_{n}&=b_{1}, \\
+        a_{21} x_{1}+a_{22} x_{2}+\cdots+a_{2 n} x_{n}&=b_{2}, \\
+    	\vdots&\\
+        a_{m1} x_{1}+a_{m 2} x_{2}+\cdots+a_{m n} x_{n}&=b_{m}
+    \end{aligned}
+    $$
+
+- $n\times{n}$
+
+  - $$
+    \begin{aligned}
+        a_{11} x_{1}+a_{12} x_{2}+\cdots+a_{1 n} x_{n}&=b_{1}, \\
+        a_{21} x_{1}+a_{22} x_{2}+\cdots+a_{2 n} x_{n}&=b_{2}, \\
+    	&\vdots\\
+        a_{n 1} x_{1}+a_{n 2} x_{2}+\cdots+a_{n n} x_{n}&=b_{n}
+    \end{aligned}
+    $$
+
+    
 
 $$
-\left \{
-    \begin{aligned}{}
-    a_{11} x_{1}+a_{12} x_{2}+\cdots+a_{1 n} x_{n}&=b_{1}, \\
-    a_{21} x_{1}+a_{22} x_{2}+\cdots+a_{2 n} x_{n}&=b_{2}, \\
-	&\vdots\\
-    a_{n 1} x_{1}+a_{n 2} x_{2}+\cdots+a_{n n} x_{n}&=b_{n}
-    \end{aligned}
-\right.
-\\\\
-\left
-    \{\begin{aligned}{}
-    a_{11} x_{1}+a_{12} x_{2}+\cdots+a_{1 n} x_{n}&=b_{1}, \\
-    a_{21} x_{1}+a_{22} x_{2}+\cdots+a_{2 n} x_{n}&=b_{2}, \\
-	\vdots&\\
-    a_{m1} x_{1}+a_{m 2} x_{2}+\cdots+a_{m n} x_{n}&=b_{m}
-    \end{aligned}
-\right.
-\\\\
 A=\begin{pmatrix}
    a_{11}&  a_{12}&  \cdots&a_{1n} \\
     a_{21}&  a_{22}&  \cdots&a_{2n} \\
