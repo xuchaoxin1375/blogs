@@ -290,7 +290,7 @@
 - GPG keys 是一种用于加密、签名和验证数据的密钥对。在 GitHub 上，你可以将你的公钥添加到你的账户中，这样就可以使用私钥来加密、签名和验证提交的代码、合并请求等数据，使你的代码更加安全可靠。要添加 GPG key，你需要生成一个密钥对，并将公钥添加到你的 GitHub 账户中。你可以在 GitHub 的设置页面中找到 GPG key 的选项。
 - 总的来说，SSH 和 GPG keys 都是非常重要的安全工具，可以帮助你更加安全地访问和管理你的 GitHub 账户和仓库。为了保护你的账户和代码的安全性，建议你在使用 GitHub 时添加 SSH 和 GPG keys。
 
-##  Note
+##  粘贴公钥而非私钥👺
 
 - 将ssh key粘贴到githus上的时候,不要把`私钥`张贴进去,而是`公钥`要粘贴进去
 - 粘贴你的SSH公钥，通常包含在文件'~/.ssh/id_ed25519.pub'或'~/.ssh/id_rsa.pub' 中，并以“ssh-ed25519”或“ssh-rsa”开头。不要粘贴你的SSH私钥，因为这会泄漏你的身份信息。
@@ -309,7 +309,13 @@
 
   - 在powershell中,可以使用`cat ~/.ssh/id*pub|scb`直接将公钥内容复制到剪切板上
 
+## 访问令牌作为验证密码
 
+
+
+- 在命令行上使用 HTTPS URL 将 `git clone`、`git fetch`、`git pull` 或 `git push` 执行到远程存储库时，Git 将要求你提供 GitHub **用户名和密码**。 
+- 当 Git 提示你输入密码时，请输入你的personal access token。 或者，可以使用 [Git 凭据管理器](https://github.com/GitCredentialManager/git-credential-manager/blob/main/README.md)等凭据帮助程序。
+- Git 的基于密码的身份验证已被删除，以支持更安全的身份验证方法。有关详细信息，请参阅“[管理个人访问令牌](https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)”。
 
 ## 本地的repository 首次推到github上
 - 在Github上手动创建好一个1个与本地Git仓库对应的仓库之后,我们就可以和本地仓库进行关联了
@@ -330,8 +336,7 @@
 
 ###  关于重复验证的问题:
 
-- [git_避免重复验证/反复输入密码/免密push(通过https方式push到github)](https://blog.csdn.net/xuchaoxin1375/article/details/115600374)关于获取某个github仓库的https链接:
-  
+- [git_避免重复验证/反复输入密码/免密push(通过https方式push到github)](https://blog.csdn.net/xuchaoxin1375/article/details/115600374)关于获取某个github仓库的https链接
 
 ##  可能遇到的问题@首次推送冲突
 

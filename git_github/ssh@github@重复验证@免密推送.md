@@ -6,17 +6,18 @@
 
 - 如果你正在使用 HTTPS URL 来推送，Git 服务器会询问用户名与密码。 默认情况下它会在终端中提示服务器是否允许你进行推送。
 
-- 如果不想在每一次推送时都输入用户名与密码，你可以设置一个 “credential cache”。 最简单的方式就是将其保存在内存一段时间，可以简单地运行 git config --global credential.helper cache 来设置它。
+- 如果不想在每一次推送时都输入用户名与密码，你可以设置一个 “credential cache”。 
+  - 最简单的方式就是将其保存在内存一段时间，可以简单地运行` git config --global credential.helper cache` 来设置它。
 
-- 想要了解更多关于不同验证缓存的可用选项，查看 `凭证存储` 文档。
+  - 想要了解更多关于不同验证缓存的可用选项，查看 `凭证存储` 文档。
+
 
 ##  credential store
 
- 如果你使用的是 SSH 方式连接远端，并且设置了一个没有口令的密钥，这样就可以在不输入用户名和密码的
-情况下安全地传输数据。 然而，这对 HTTP 协议来说是不可能的 —— 每一个连接都是需要用户名和密码的。 这
-在使用双重认证的情况下会更麻烦，因为你需要输入一个随机生成并且毫无规律的 token 作为密码。
+-  如果你使用的是 SSH 方式连接远端，并且设置了一个没有口令的密钥，这样就可以在**不输入用户名和密码的情况下安全地传输数据。** 
+- 然而，这对 HTTP 协议来说是不可能的 —— 每一个连接都是需要用户名和密码的。 这在使用双重认证的情况下会更麻烦，因为你需要输入一个随机生成并且毫无规律的 token 作为密码。
 
-#  two modes to solve the problems:
+#  避免重复验证的解决方案
 
   1. “store” 模式可以接受一个 --file <path> 参数，可以自定义存放密码的文件路径（默认是 ~/.git-credentials ）。
    2. “cache” 模式有 --timeout <seconds> 参数，可以设置后台进程的存活时间（默认是 “900”，也就是 15 分钟）。
@@ -35,11 +36,9 @@ $ git config --global credential.helper 'cache --timeout 10000'
 
 ##  git 全局配置文件
 
-###  linux😊
 
-- `~/.gitconfig`
 
-> 获取帮助
+### 获取帮助
 
 - `git config --help`
 
@@ -53,7 +52,15 @@ $ git config --global credential.helper 'cache --timeout 10000'
            See also the section called “FILES”.
 ```
 
-### windows😊
+
+
+###  linux的git配置文件目录
+
+- `~/.gitconfig`
+
+
+
+### windows
 
 #### 新版CredentialHelperSelector的选择窗口
 
@@ -63,7 +70,7 @@ $ git config --global credential.helper 'cache --timeout 10000'
 - 如果找不到上述窗口,可以直接编辑配置文件
 - 或者查阅文档,用命令行配置
 
-##### 比如我设置示例:
+#### 示例
 
 - 以gitee为例
 
@@ -79,8 +86,7 @@ $ git config --global credential.helper 'cache --timeout 10000'
 
   
 
-
-##  store mode:
+##  store mode
 
 -  “store” 模式会将凭证用明文的形式存放在磁盘中，并且永不过期。 这意味着除非你修改了你在 Git 服务器上的密码，否则你永远不需要再次输入你的凭证信息。 
 -  这种方式的缺点是你的密码是用明文的方式存放
@@ -93,3 +99,10 @@ $ git config --global credential.helper 'store --file ~/.my-credentials'
 ##  采用非对公钥-私钥验证方法
 
 - 参加github文档
+
+
+
+
+
+
+
