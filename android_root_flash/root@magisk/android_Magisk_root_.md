@@ -400,7 +400,7 @@ Finished. Total time: 2.015s
 
 - 这不是必须的
 - 如果喜欢,可以到完整版酷安app下载该app(`MT管理器`)
-  - [MT管理器(bin.mt.plus) - 2.11.3 - 应用 - 酷安 (coolapk.com)](https://www.coolapk.com/apk/bin.mt.plus)
+  - [MT管理器(bin.mt.plus) -  应用 - 酷安 (coolapk.com)](https://www.coolapk.com/apk/bin.mt.plus)
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/1977e721f9c1440bb6b5a23863213d43.jpeg)
   - 该文件管理器分为两部分视图,左侧是一般系统自带文件管理器可以看到的一样
   - 右侧则是由从根目录`/`开始展示的(是真正的文件系统)

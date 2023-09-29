@@ -1,6 +1,8 @@
 [toc]
 
-# salaDict@沙拉查词配置@独立窗口全局快捷键@独立窗口不刷新问题
+## abstract
+
+- 沙拉查词配置@独立窗口全局快捷键@独立窗口不刷新问题
 
 ## document
 
@@ -21,8 +23,9 @@
 
 ## 快捷键
 - [edge://extensions/shortcuts](edge://extensions/shortcuts)
-  - 打开独立词典窗口(`Open or highlight standalone dict panel`)
-  - 查询剪切板内容(`Search Clipboard content in standalone Panel`)
+- 主要配置以下两个快捷键
+  1. 打开独立词典窗口(`Open or highlight standalone dict panel`)
+  2. 查询剪切板内容(`Search Clipboard content in standalone Panel`)
 
 ##  权限permission
 
@@ -40,9 +43,9 @@
 
 - 按下win (windows标徽菜单键)即刷新查词窗口的会话窗口
 
-### 快捷键失效🎈
+### 快捷键失效🎈bug
 
-> 这种情况是偶尔突然就出现了
+这种情况是偶尔突然就出现了
 
 - 导出当前配置
 - 卸载saladict

@@ -325,8 +325,8 @@ ResolvedCommandName ScriptProperty System.Object ResolvedCommandName {get=$this.
   - 由于我修改了系统环境变量,使得原来工作良好的别名变得不可用
 
   ```cmd
-  PS D:\repos\scripts> pdfxeditor
-  pdfxeditor: The module '%pdfTools%' could not be loaded. For more information, run 'Import-Module %pdfTools%'.
+  PS D:\repos\scripts> softxor
+  softxor: The module '%pdfTools%' could not be loaded. For more information, run 'Import-Module %pdfTools%'.
   ```
 
   - 这个错误提示不太具体,尝试以下命令
@@ -334,20 +334,20 @@ ResolvedCommandName ScriptProperty System.Object ResolvedCommandName {get=$this.
 - 使用`help <command>`或`gcm <command>|fl`查询情况
 
   - ```cmd
-    PS D:\repos\scripts> help pdfxeditor
+    PS D:\repos\scripts> help softxor
     
-    Name          : pdfxeditor
+    Name          : softxor
     Category      : Alias
-    Synopsis      : %pdfTools%\pdfxeditor_cracked\pdfxedit
+    Synopsis      : %pdfTools%\softxor_cracked\softx
     Component     :
     Role          :
     Functionality :
     
-    PS D:\repos\scripts> gcm pdfxeditor|fl
+    PS D:\repos\scripts> gcm softxor|fl
     
-    DisplayName       : pdfxeditor -> %pdfTools%\pdfxeditor_cracked\pdfxedit
+    DisplayName       : softxor -> %pdfTools%\softxor_cracked\softx
     CommandType       : Alias
-    Definition        : %pdfTools%\pdfxeditor_cracked\pdfxedit
+    Definition        : %pdfTools%\softxor_cracked\softx
     ReferencedCommand :
     ResolvedCommand   :
     

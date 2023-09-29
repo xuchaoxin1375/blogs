@@ -227,13 +227,22 @@
 
 
 
-- 宏定义,将`\def\MacroName{express}`使得`\MacroName`成为express的别名
+- 宏定义,将`\def\MacroName{express}`使得`\MacroName`成为`express`的别名
+
+- 总得来看,一条宏定义包括3部分:
+
+  1. `\def`(关键字)
+  2. `\MacroName`(自己取一个命令别名)
+  3. `express`(需要被别名绑定的latex代码)
+  4. 例如:`\def \ba#1 {#1^2}`有的三部分分别用空格分开,
+     1. 最后一部分建议套一层`{}`,但是第二部分不能套`{}`
+     2. `#1`表示该宏接受的第一个参数
 
 - $$
   \spadesuit:\\
   definitions:
-  \def\ba#1{#1^2}
-  \\\ba{y}
+  \def\ba#1{#1^2};\\
+  \ba{y}
   \def\bd#1{\boxed{#1}}
   \\\bd{test}
   \def\lra#1#2{#1\leftrightarrow{#2}}
@@ -245,15 +254,20 @@
   - ```tex
     \spadesuit:\\
     definitions:
-    \def\ba#1{#1^2}
+    \def\ba#1 {#1^2}
     \\\ba{y}
-    \def\bd#1{\boxed{#1}}
+    \def \bd#1{\boxed{#1}}
     \\\bd{test}
     \def\lra#1#2{#1\leftrightarrow{#2}}
     \\\lra{p}{q}
     \\\def\lra#1#2{#1\Leftrightarrow{#2}}
     \\\lra{p}{q}
     ```
+
+  - $$
+    \def \La#1 {\Rightarrow{#1}}
+    \La{a}
+    $$
 
     
 
