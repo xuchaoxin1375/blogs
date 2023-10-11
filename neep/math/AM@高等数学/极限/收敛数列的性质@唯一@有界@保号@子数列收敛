@@ -1,0 +1,151 @@
+[toc]
+
+## abstract
+
+- 介绍4个收敛数列的性质定理,推论,相关概念以及定理的证明
+- Note:这部分内容强调了对基本绝对值不等式知识掌握
+
+## 相关概念
+
+### 子数列👺
+
+- 在数列$\set{x_n}$种**任意抽取无限多项**并保持这些项在原数列中的先后**次序**而得到的数列称为原数列$\set{x_n}$的**子数列**(子列)
+- 数列$\set{x_n}$的长度为$k$的子数列的一般表示可以记为$\set{x_{n_k}}$=$x_{n_1},x_{n_2},\cdots,x_{n_k}$
+  - $x_{n_k},(k=1,2,\cdots,k)$表示子数列$\set{x_{n_k}}$中的第$i$个数,且$n_{k}$表示$x_{n_k}$是原数列$\set{x_n}$的第$n_k$项
+  - 显然,由先后顺序保持关系可知,$n_{k}\geqslant{k}$,$n_{k+1}\geqslant{n_{k}}$
+
+
+## 极限唯一性
+
+- 若数列$\set{x_n}$收敛,则其极限唯一
+- 证明:
+  - 唯一性命题的证明通常采用反证法,本证明也是反证法
+  - 假设$x_{n}\to{a}$,$x_{n}\to{b}$,且$a<b$
+  - 因为$\lim\limits_{n\to{\infin}}{x_n}=a$,所以$\forall{\epsilon}>0$,$\exist{N_1}\in\mathbb{N}_{+}$当$n>N_1$时$|x_n-a|<\epsilon$`(1)`恒成立
+  - 同理,因为$\lim\limits_{n\to{\infin}}{x_n}=b$,所以$\forall{\epsilon}>0$,$\exist{N_1}\in\mathbb{N}_{+}$当$n>N_1$时$|x_n-b|<\epsilon$`(2)`恒成立
+  - 若取$N=\max{N_1,N_2}$,则当$n>N$时,有`(1),(2)`同时成立
+  - 由`(1),(2)`,分别有$a-\epsilon<x_n<a+\epsilon$`(1-1)`;$b-\epsilon<x_n<b+\epsilon$`(2-1)`
+  - 对于$\forall\epsilon>0$,不妨取$\epsilon=\frac{1}{2}(b-a)>0$,则`(1-1),(2-1)`矛盾(无法同时成立),这就说明了假设不成立,从而唯一性成立$(a=b)$
+  - Note:
+    - 为了得到矛盾的结论来使反证法有效,我们需要找到一个$\epsilon$的取值使得上述两个不等式矛盾
+    - 令$a-\epsilon=b+\epsilon$,或$a+\epsilon=b-\epsilon$
+    - 它们分别解得$\epsilon=\frac{1}{2}(a-b)<0$和$\epsilon=\frac{1}{2}(b-a)>0$
+    - 由于$\epsilon>0$从而取$\frac{1}{2}(b-a)$,能够使得`(1-1),(2-1)`矛盾
+    - 代入`(1-1),(2-1)`有$x_n<\frac{a+b}{2}$和$x_n>\frac{a+b}{2}$这一矛盾
+
+- 尽管这个结论表述简洁清晰且得到了证明,但是结论本身是比较抽象的(需要用抽象的代数运算证明);
+- 另一方面,由于命题简洁,可以提出假设再尝试作证明,来获得这个结论
+
+## 收敛数列的有界性
+
+- 若数列$\set{x_n}$收敛,则其有界
+
+### 数列有界
+
+- 和函数有界的定义相仿,数列有界的概念如下
+- 对于数列$\set{x_n}$,若$\exist{M}\in\mathbb{N_+}$,使得$\forall{x_{n}}$满足$|x_n|\leqslant{M}$,即$-M\leqslant{x_n}\leqslant{M}$,则$\set{x_n}$是**有界的**
+- 否则$\set{x_n}$是无界的
+
+### 证明
+
+- 设$\set{x_n}$的极限为$a$,并设$M$是$\set{|x_n|}$的上界
+  - 考虑用$a$构造一个上界值
+  - 由极限的定义可知,对于$\epsilon=\frac{1}{2}>0$,$\exist{N}\in\mathbb{N}_{+}$,当$n>N$时,$|x_n-a|<1$
+  - 又由于$|x_n-a|+|a|\geqslant{|x_n-a+a}|=|x_n|$;所以$1+|a|>|x_n-a|+|a|\geqslant|x_n|$
+  - 可见,当$n>N$时,$|x_n|<1+|a|$;令$M_0=1+|a|$
+  - 对于$n\leqslant{N}$时,不妨取$M_1=\max{(|x_1|,|x_2|,\cdots,|x_N|)}$
+  - 则$n\in\mathbb{N_{+}}$时,取$M=\max(M_0,M_1)$,有$|x_n|\leqslant{M}$
+  - 从而$\set{|x_n|}$是有界的,$\set{x_n}$也是有界的
+
+### 推论
+
+- 若数列$\set{x_n}$无界,则$\set{x_n}$发散(无界是发散的一种情况)
+- 反之不成立,若$\set{x_n}$发散,但仍可能是有界的(有界是收敛的必要不充分条件)
+- 敛散性和有界性的3种可能组合:
+  - 有界:
+    - 收敛
+    - 发散
+  - 无界
+    - 发散
+- 例如:
+  - $x_n=(-1)^{n}$,$\set{x_n}$有界发散;
+  - $x_n=2^{n}$,$\set{x_n}$无界发散;
+  - $x_n=\frac{1}{n}$,$\set{x_n}$有界收敛
+
+## 收敛数列的保号性
+
+- 若$\lim\limits_{n\to\infin}x_n=a$,则$\exist{N}\in\mathbb{N}_+$,当$x>N$时,都有$ax_n>0$
+  - $a>0$ $\Rightarrow$ $x_n>0$,$(n>N)$
+  - $a<0$ $\Rightarrow$ $x_n<0$,$(n>N)$
+  - $a=0$不在本定理的描述范围内
+- 本定理在几何上是直观的,也可以给出严格的代数证明
+
+### 证明
+
+- $a>0$
+  - 由极限定义,$\epsilon=\frac{a}{2}>0$,$\exist{N}\in\mathbb{N}_{+}$,当$n>N$时有$|x_n-a|<\frac{a}{2}$
+  - 即$a-\frac{a}{2}<x_n<a+\frac{a}{2}$,即$\frac{a}{2}<x_n<\frac{3a}{2}$,
+  - 又因为$a>0$,显然$x_n>0$,从而$ax_n>0$
+- $a<0$
+  - 由极限定义,$\epsilon=-\frac{a}{2}>0$,$\exist{N}\in\mathbb{N}_{+}$,当$n>N$时有$|x_n-a|<-\frac{a}{2}$
+  - 即$a-(-\frac{a}{2})<x_n<a+(-\frac{a}{2})$,即$\frac{3a}{2}<x_n<\frac{a}{2}$,
+  - 又因为$a<0$,显然$x_n<0$,从而$ax_n>0$
+- 综上,定理成立
+- Note:
+  - 当$a>0$时,对于$\epsilon>0$的取值,可以由$|x_n-a|<\epsilon$,得$a-\epsilon<x_n<a+\epsilon$,只要令$a-\epsilon>0$,即$\epsilon<a$,从而任取$\epsilon\in(0,a)$,都能够证明从某项起,$x_n>0$
+  - 当$a<0$时,对于$\epsilon>0$的取值,可以由$|x_n-a|<\epsilon$,得$a-\epsilon<x_n<a+\epsilon$,只要令$a+\epsilon<0$,即$\epsilon<-a$,从而任取$\epsilon\in(0,-a)$,都能够证明从某项起,$x_n<0$
+  - 综上,任取$\epsilon\in(0,|a|)$,都能够证明从某项起,$ax_n>0$
+
+### 推论
+
+- 若$\set{x_n}$,$x_n\geqslant{0}$,$(n\geqslant{N}\in\mathbb{N}_{+})$,且$\lim\limits_{n\to\infin}x_n=a$,则$a\geqslant{0}$;
+
+- 若$\set{x_n}$,$x_n\leqslant{0}$,$(n\geqslant{N}\in\mathbb{N}_{+})$,且$\lim\limits_{n\to\infin}x_n=a$,则$a\leqslant{0}$;
+
+- 证:证明某定义的推论,也常常考虑使用反证法原命题的等价逆否命题,这里使用反证法
+
+  - 设数列$\set{x_n}$满足$n>N_1$时有$x_n\geqslant{0}$,且$\lim\limits_{n\to\infin}x_n=a$;
+  - 用反证法证明.反证假设:$a>0$
+  - 则由保号性可知:$\exist{N_2}\in\mathbb{N}_{+}$,当$n>N_2$,恒有$x_n<0$
+  - 取$N=\max{(N_1,N_2)}$.当$n>N$时,$x_n\geqslant{0}$,$x_n<0$同时成立,这显然矛盾,所以假设不成立,即$a\geqslant{0}$
+
+  - 第二条可以类似地证明
+
+## 收敛数列的子数列收敛定理
+
+- 如果数列$\set{x_n}$收敛于$a$,那么它的任意子数列也收敛于$a$
+
+
+
+### 证明
+
+- 设$\set{x_{n_k}}$是$\set{x_n}$的任意一个子列
+- 由于$\lim\limits_{n\to\infin}x_n=a$,所以$\forall{\epsilon>0}$,$\exist{N}\in\mathbb{N}_{+}$,当$n>N$时,$|x_n-a|<\epsilon$成立
+- 取$K=N$,当$k>K$,$(k\in\mathbb{N}_{+})$时,$n_{k}>n_{K}$=$n_{N}\geqslant{N}$,从而$|x_{n_k}-a|<\epsilon$,即$\lim\limits_{k\to\infin}x_{n_k}=a$
+
+### 推论
+
+- 若$\set{x_n}$的有两个收敛于不同极限值的子列(或有一个发散子列),则$\set{x_n}$发散
+- 例如
+  - $x_{n}=(-1)^{n}$的子列$\set{x_{2k-1}}$和$\set{x_{2k}}$分别收敛于不相等的两个极限$-1,1$因此$\set{x_n}$发散
+
+
+
+
+## 其他数列相关概念和性质
+
+
+
+1. $\lim\limits_{x\rightarrow \infin}{x_n}=a$表示当$n$充分大,$x_n$与$a$就可以接近到任意`预先给定`的程度(由$\epsilon$刻画),即$|x_n-a|$可以小于任意预先给定的$\varepsilon$
+2. 数列$\set{x_n}$的极限是否存在,以及极限存在的情况下极限值等于多少和数列的前**有限项**无关
+
+### 数列极限收敛条件
+
+- [AM@2个极限存在准则及其应用](https://blog.csdn.net/xuchaoxin1375/article/details/133658253)
+
+- $\lim\limits_{x\rightarrow \infin}{x_n}=a$的**充要条件**是$\lim\limits_{n\to\infin}{x_{2n-1}}=a$=$\lim\limits_{n\to\infin}{x_{2n}}=a$
+  - 即,一个数列的奇数项构成的子数列和偶数项构成的子数列具有相同的极限,则原数列也存在和子数列相同的极限
+  - $\set{m|m=2n,n\in\mathbb{N_+}}$ $\cup$ $\set{m|m=2n-1,n\in\mathbb{N_+}}$=$\set{2,4,6,\cdots}$ $\cup$ $\set{1,3,5,\cdots}$=$\mathbb{N}_{+}$
+  - Note:$\lim\limits_{n\to\infin}{x_{3n}}$=$\lim\limits_{n\to\infin}{x_{3n-1}}=a$ $\not\Rightarrow$ $\lim\limits_{n\to\infin}{x_{n}}=a$
+    - 例如$x_{3n}=\frac{1}{n}+1$,$x_{3n+1}=1$,$x_{3n+2}=0$,三个极限并不都相等,从而不满足$\set{x_n}$的任意子序列收敛于同一个极限,$\set{x_n}$不收敛
+

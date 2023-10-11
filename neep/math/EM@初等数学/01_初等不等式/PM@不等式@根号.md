@@ -110,10 +110,10 @@
 
 - The square root of a nonnegative number is used in the definition of Euclidean norm (and distance), as well as in generalizations such as Hilbert spaces. It defines an important concept of standard deviation used in probability theory and statistics. It has a major use in the formula for roots of a quadratic equation; quadratic fields and rings of quadratic integers, which are based on square roots, are important in algebra and have uses in geometry. Square roots frequently appear in mathematical formulas elsewhere, as well as in many physical laws.
 
-### 平方根函数图像特点
+### 平方根函数图形特点
 
 - $y=\sqrt{x}\geqslant 0$,$y^{'}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}>0$;说明$y=\sqrt{x}$是递增函数
-- $y''=\frac{1}{2}\frac{-1}{2}x^{-\frac{3}{2}}=-\frac{1}{4}x^{-\frac{3}{2}}<0$,说明$y'$是减函数,而$y'$反应的是$y$随自变量变换的变化率,$y'$随$x$的增加而减少,则$y$随$x$的增加变化率减小(图像上的点的切线越接近水平)
+- $y''=\frac{1}{2}\frac{-1}{2}x^{-\frac{3}{2}}=-\frac{1}{4}x^{-\frac{3}{2}}<0$,说明$y'$是减函数,而$y'$反应的是$y$随自变量变换的变化率,$y'$随$x$的增加而减少,则$y$随$x$的增加变化率减小(图形上的点的切线越接近水平)
 - $y=\sqrt{x}$是一个凹函数(Concave function)
 
 

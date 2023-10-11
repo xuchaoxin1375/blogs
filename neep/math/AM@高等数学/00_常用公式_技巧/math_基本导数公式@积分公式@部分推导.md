@@ -4,7 +4,7 @@
 
 ### 积分计算器
 
-- [积分计算@图像](https://www.geogebra.org/calculator/rajhhca5)
+- [积分计算@图形](https://www.geogebra.org/calculator/rajhhca5)
 
 - [Wolfram|Alpha: Computational Intelligence (wolframalpha.com)](https://www.wolframalpha.com/)
 

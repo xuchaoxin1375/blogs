@@ -7,9 +7,12 @@
 ## ref
 
 - [Power series - Wikipedia](https://en.wikipedia.org/wiki/Power_series)
-- [幂级数 - 维基百科，自由的百科全书 (wikipedia.org)](https://zh.wikipedia.org/wiki/幂级数)
+
 - [Taylor series - Wikipedia](https://en.wikipedia.org/wiki/Taylor_series)
-- [泰勒级数 - 维基百科，自由的百科全书 (wikipedia.org)](https://zh.wikipedia.org/wiki/泰勒级数)
+
+- [泰勒级数 ](https://zh.wikipedia.org/wiki/泰勒级数)
+
+  
 
 ## 几何级数🎈
 

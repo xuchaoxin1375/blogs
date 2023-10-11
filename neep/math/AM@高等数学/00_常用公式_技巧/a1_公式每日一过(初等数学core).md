@@ -1,7 +1,7 @@
-##  初等函数图型图像
+##  初等函数图型图形
 
 - [math_基本初等函数图型(幂函数/指数/对数/三角/反三角)_](https://blog.csdn.net/xuchaoxin1375/article/details/125517164?ops_request_misc=%7B%22request%5Fid%22%3A%22165827655116782350892159%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fblog.%22%7D&request_id=165827655116782350892159&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-2-125517164-null-null.185^v2^control&utm_term=三角函数&spm=1018.2226.3001.4450)
-- [math_角函数&反三角函数&诱导公式&三角/反三角恒等式_xuchaoxin1375的博客-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/125392308?ops_request_misc=%7B%22request%5Fid%22%3A%22165827655116782350892159%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fblog.%22%7D&request_id=165827655116782350892159&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-125392308-null-null.185^v2^control&utm_term=三角函数&spm=1018.2226.3001.4450)
+- [math_角函数&反三角函数&诱导公式&三角/反三角恒等式](https://blog.csdn.net/xuchaoxin1375/article/details/125392308?ops_request_misc=%7B%22request%5Fid%22%3A%22165827655116782350892159%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fblog.%22%7D&request_id=165827655116782350892159&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-125392308-null-null.185^v2^control&utm_term=三角函数&spm=1018.2226.3001.4450)
 
 ## 三角函数
 
@@ -21,8 +21,8 @@
 - 单位圆坐标轴上的交点
 
   - $(\cos{0},\sin{0})=(1,0)$;$(\cos{\frac{\pi}{2}},\sin{\frac{\pi}{2}})=(0,1)$
-  - $sin0=0;sin\frac{\pi}{2}=1$
-  - $cos0=1;cos\frac{\pi}{2}=0$
+  - $\sin0=0;\sin\frac{\pi}{2}=1$
+  - $\cos0=1;\cos\frac{\pi}{2}=0$
 
 - 两角和公式
 
@@ -49,7 +49,7 @@
 - $\sin^2{x}=1-\cos^2{x}$
 - $-\sin^2{x}=\cos^2{x}-1$
 
-- 另一方面,$1=sin^2x+cos^2x,比较经常出现在2次行列$
+- 另一方面,$1=\sin^2x+\cos^2x,比较经常出现在2次行列$
 
 - $$
   \begin{aligned}
@@ -73,25 +73,25 @@
 
 - 积分公式的推导中使用的比较多
 
-1. $sin^2x=\frac{1}{2}(1-cos2x)$
+1. $\sin^2x=\frac{1}{2}(1-\cos2x)$
 
 2. $\cos^2x=\frac{1}{2}(1+\cos2x)$
 
-3. $sin^2\frac{x}{2}=\frac{1}{2}(1-\cos{x})$
+3. $\sin^2\frac{x}{2}=\frac{1}{2}(1-\cos{x})$
 
-4. $cos^2{\frac{x}{2}}=\frac{1}{2}(1+\cos{x})$
+4. $\cos^2{\frac{x}{2}}=\frac{1}{2}(1+\cos{x})$
 
-5. $1-\cos{x}=2sin^2\frac{x}{2}$
+5. $1-\cos{x}=2\sin^2\frac{x}{2}$
 
-6. $1+\cos{x}=2cos^2{\frac{x}{2}}$
+6. $1+\cos{x}=2\cos^2{\frac{x}{2}}$
 
-7. $2sin^2\frac{x}{2}=1-\cos{x}$
+7. $2\sin^2\frac{x}{2}=1-\cos{x}$
 
-8. $2cos^2{\frac{x}{2}}=1+\cos{x}$
+8. $2\cos^2{\frac{x}{2}}=1+\cos{x}$
 
-9. $\sin{x}\cos{x}=\frac{1}{2}sin2x$
+9. $\sin{x}\cos{x}=\frac{1}{2}\sin2x$
 
-10. $sin\frac{x}{2}cos\frac{x}{2}=\frac{1}{2}\sin{x}$
+10. $\sin\frac{x}{2}\cos\frac{x}{2}=\frac{1}{2}\sin{x}$
 
 11. $\sin{x}=2\sin{\frac{x}{2}}\cos{\frac{x}{2}}$
 
@@ -109,11 +109,11 @@
 
 ### 升幂(半角)
 
-- $1-\cos{x}=2sin^2\frac{x}{2}$
+- $1-\cos{x}=2\sin^2\frac{x}{2}$
 
-- $1+\cos{x}=2cos^2\frac{x}{2}$
+- $1+\cos{x}=2\cos^2\frac{x}{2}$
 
-- $\sin{x}=2sin\frac{x}{2}cos\frac{x}{2}$
+- $\sin{x}=2\sin\frac{x}{2}\cos\frac{x}{2}$
 
   
 
@@ -132,37 +132,13 @@
 
 ##  阶乘
 
-
-$$
-\begin{aligned}
-0!=1\quad & 4!=24\\
-1!=1\quad & 5!=120\\
-2!=2\quad & 6!=720\\
-3!=6\quad & 7!=5040\\
-\end{aligned}
-\\🎈
-\begin{aligned}
-\quad🎈
-\end{aligned}
-$$
+- 0!=1  4!=24
+  1!=1  5!=120
+  2!=2  6!=720
+  3!=6  7!=5040
 
 - 1,1,2,6
 - 24,120,720,5040
-
-## 排列组合
-
-- $$
-  \bigstar\ n选m排列数
-  \\
-  \begin{aligned}
-  P_{n}^{m}
-  &=n(n-1)\cdots(n-(m-1)),\Delta=m-1\\
-  &=n(n-1)\cdots(n-m+1)\\
-  &=\prod_{k=0}^{m-1}{(n-k)}\\
-  &=\frac{n!}{(n-m)!}\\
-  C_{n}^{m}&=\binom{n}{m}=P_n^m=\frac{1}{m!}\frac{n!}{(n-m)!}
-  \end{aligned}
-  $$
 
 
 
