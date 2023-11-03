@@ -1,0 +1,1 @@
+- [HTTP Proxy | IntelliJ IDEA (jetbrains.com)](https://www.jetbrains.com/help/idea/settings-http-proxy.html)

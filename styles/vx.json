@@ -1,0 +1,31 @@
+{
+    "created_time": "2022-06-29T23:28:11Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:11Z",
+            "id": "587",
+            "modified_time": "2022-06-29T23:28:11Z",
+            "name": "colorPIcker.css",
+            "signature": "92158769815563",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:11Z",
+            "id": "588",
+            "modified_time": "2022-06-29T23:28:11Z",
+            "name": "style.css",
+            "signature": "61716041621515",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+    ],
+    "id": "586",
+    "modified_time": "2022-06-29T23:28:11Z",
+    "signature": "72895841493003",
+    "version": 3
+}

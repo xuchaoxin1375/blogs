@@ -1,0 +1,66 @@
+{
+    "created_time": "2022-06-29T23:28:02Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:04Z",
+            "id": "461",
+            "modified_time": "2022-06-29T23:28:04Z",
+            "name": "arrangement.md",
+            "signature": "102440921522180",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:07Z",
+            "id": "522",
+            "modified_time": "2022-06-29T23:28:07Z",
+            "name": "书写规范.md",
+            "signature": "76078412259335",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:07Z",
+            "id": "523",
+            "modified_time": "2022-06-29T23:28:07Z",
+            "name": "括号匹配.md",
+            "signature": "81425646542855",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:28:07Z",
+            "id": "524",
+            "modified_time": "2022-06-29T23:28:07Z",
+            "name": "资料选用.md",
+            "signature": "75498591674375",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+        {
+            "name": "408"
+        },
+        {
+            "name": "english"
+        },
+        {
+            "name": "image"
+        },
+        {
+            "name": "math"
+        },
+        {
+            "name": "principlesOfComputer_组成原理"
+        }
+    ],
+    "id": "430",
+    "modified_time": "2022-06-29T23:28:02Z",
+    "signature": "134374003367938",
+    "version": 3
+}

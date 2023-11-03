@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>CKEditor</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.3.2/classic/ckeditor.js"></script>
+</head>
+
+<body>
+    <table>
+        <tbody>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                    colspan="2"
+                ><span class="ck-table-bogus-paragraph">test🎈🎈🎈</span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+            <tr>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+                <td
+                    class="ck-editor__editable ck-editor__nested-editable"
+                    role="textbox"
+                    contenteditable="true"
+                ><span class="ck-table-bogus-paragraph"><br data-cke-filler="true"></span></td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="editor">This is some sample content.</div>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                console.log(editor);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+</body>
+
+</html>

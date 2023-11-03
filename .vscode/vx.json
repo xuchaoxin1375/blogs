@@ -1,0 +1,31 @@
+{
+    "created_time": "2022-06-29T23:27:37Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:27:37Z",
+            "id": "8",
+            "modified_time": "2022-06-29T23:27:37Z",
+            "name": "ltex.dictionary.en-US.txt",
+            "signature": "126093306421225",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2022-06-29T23:27:37Z",
+            "id": "9",
+            "modified_time": "2022-06-29T23:27:37Z",
+            "name": "ltex.hiddenFalsePositives.en-US.txt",
+            "signature": "115802564780009",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+    ],
+    "id": "7",
+    "modified_time": "2022-06-29T23:27:37Z",
+    "signature": "49299291168745",
+    "version": 3
+}

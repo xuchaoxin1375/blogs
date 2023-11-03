@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "msedge",
+            "name": "http://127.0.0.1:3000/neep/408/PC_OS/00_存储系统/tet.html",
+            "request": "launch",
+            "url": "http://127.0.0.1:3000/neep/408/PC_OS/00_存储系统/tet.html"
+        }
+    ]
+}

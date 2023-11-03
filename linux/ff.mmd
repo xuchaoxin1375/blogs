@@ -1,0 +1,4 @@
+flowchart LR
+    I_nfa["S(NFA的初始状态)"]--"ε-closure(S)"-->I_initial("I (状态集合的初始状态)")
+    I--"move(I,a)"-->Ja--"ε-closure(Ja)"-->Ia
+    I--"move(I,b)"-->Jb--"ε-closure(Jb)"-->Ib

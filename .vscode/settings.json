@@ -1,0 +1,57 @@
+{
+    "markdownlint.config": {
+        "MD028": false,
+        "MD025": {
+            "front_matter_title": ""
+        }
+    },
+    "editor.snippetSuggestions": "top",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "askForPassword": true,
+            "driver": "MySQL",
+            "name": "cxxu",
+            "database": "ela",
+            "username": "cxxu"
+        }
+    ],
+    "eggHelper.serverPort": 35684,
+    "grammarly.selectors": [
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "principlesOfCompilers/latex_cheatSheet.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
+        },
+        {
+            "language": "markdown",
+            "scheme": "file",
+            "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
+        }
+    ]
+}

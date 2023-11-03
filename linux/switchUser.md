@@ -1,0 +1,1 @@
+* [Creating a new user and modifying its privileges in Linux | Average Linux User](https://averagelinuxuser.com/creating-new-user-linux/#:~:text=Simple%20way%20to%20create%20a%20new%20user%20in,be%20skipped%20if%20you%20want.%20And%20that%E2%80%99s%20it.)

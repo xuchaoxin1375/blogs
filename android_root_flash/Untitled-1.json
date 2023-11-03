@@ -1,0 +1,16 @@
+keepbg保持进程活跃v1
+[
+    {
+        "name": "keepbg保持进程活跃v1",
+        "description": "keepbg;保持指定应用活跃在后台😂😂😂主要是聊天通讯软件以及一些需要常驻后台的进程😂task.hasTaskFromPackage('com.tencent.mm')==false不靠谱 注意，只有开机手动启动过一次的软件才可以后续的活跃保持，否则无法保持活跃 👿👿需要创建环境变量Keepbg，将需要活跃的APP包名pick到里面，作为需要保持活跃的清单",
+        "priority": 1,
+        "condition": "pkgKilled == true &&globalVarOf$keepbg.contains(pkgName)",
+        "actions": [
+            "//ui.showShortToast('😱😣<'+pkgName+' >was killed,try to arouse it 🍅₍˄·͈༝·͈˄*₎◞ ̑̑')",
+            "activity.launchProcessForPackage(pkgName)",
+            "/*Thread.sleep(1000)*/",
+            "//ui.showShortToast('try to active< '+pkgName+'>done 🍔=͟͟͞͞=͟͟͞͞(●⁰ꈊ⁰● ')",
+            "return"
+        ]
+    }
+]
