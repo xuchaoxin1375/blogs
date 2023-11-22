@@ -282,18 +282,6 @@ flowchart LR
 
 
 
-## 线性组合@辅助角公式
-
-- 对于某些用途，知道同样周期但**不同相位移动**的正弦波的任何线性组合是有**相同周期**但不同相位移动的正弦波是重要的。
-- 在<u>正弦和余弦</u>波的线性组合的情况下，我们有
-  - ${\displaystyle a\sin x+b\cos x={\sqrt {a^{2}+b^{2}}}\cdot \sin(x+\varphi )\;(a>0)}$
-    - $\varphi =\arctan \left({\frac  {b}{a}}\right)$
-  - 这个公式也叫辅助角公式或李善兰公式。
-- 更一般的说，对于任何相位移动，我们有:
-  - ${\displaystyle a\sin x+b\sin(x+\alpha )=c\sin(x+\beta )\;(a+b\cos x>0)}$
-    - $c={\sqrt  {a^{2}+b^{2}+2ab\cos \alpha }},$
-    - 而${\displaystyle \beta =\arctan \left({\frac {b\sin \alpha }{a+b\cos \alpha }}\right)}$
-
 
 
 #  ref🎈
