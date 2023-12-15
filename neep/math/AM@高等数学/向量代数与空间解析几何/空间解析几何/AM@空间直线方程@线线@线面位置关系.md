@@ -233,9 +233,25 @@
 ### 两直线的位置关系
 
 - 参考平面位置关系一节
-- $L_1//L_2$,$\boldsymbol{s_1\cdot{s_2}}=0$
-- $L_1\perp{L_2}$,存在$k(k\neq{0})$使得$\bold{s_1=ks_2}$
-  - 或$\frac{m_1}{m_2}=\frac{n_1}{n_2}=\frac{p_1}{p_2}$($m_2,n_2,p_2\neq{0}$)
+- 设两直线$L_1,L_2$的**方向向量**分别为$\bold{s_1}$=$(l_1,m_1,n_1)$,$\bold{s_2}$=$(l_2,m_2,n_2)$
+- ($l_i,m_i,n_i$,$(i=1,2)$不同时为$0$)
+
+#### 两直线平行
+
+- 以下四个命题等价
+  - $L_1//L_2$
+  - $\bold{s_1//s_2}$
+  - $\boldsymbol{s_1\times{s_2}}$=$\bold0$
+  - $\frac{l_1}{l_2}$=$\frac{m_1}{m_2}$=$\frac{n_1}{n_2}$
+- Note:这里的比值式作特殊约定理解允许分母出现0,($m_2,n_2,p_2$不同时为$0$即可),分母为零时分子理解为0
+
+#### 两直线垂直
+
+- 以下四个命题等价
+  - $L_1\perp{L_2}$
+  - $\bold{s_1\perp s_2}$
+  - $\boldsymbol{s_1\cdot{s_2}}$=$\bold0$
+  - $l_1l_2+m_1m_2+n_1n_2=0$ 
 
 ## 直线与平面问题
 
@@ -267,9 +283,15 @@
 
 
 
-### 线面垂直
+### 线面垂直👺
 
-- $L\perp{\Pi}\Leftrightarrow \boldsymbol{s}//\boldsymbol{n}$,即$\bold{{s}\times{n}=0}$`(1)`或$\frac{A}{m}=\frac{B}{n}=\frac{C}{p}$,$(mnq\neq{0})$`(2)`
+- $L\perp{\Pi}\Leftrightarrow \boldsymbol{s}//\boldsymbol{n}$,即$\bold{{s}\times{n}=0}$`(1)`或$\frac{A}{m}=\frac{B}{n}=\frac{C}{p}$`(2)`
+- Note:
+  - 从除法的角度,式(2)要求$mnq\neq{0}$
+  - 但在解析几何中,我们允许$mnq$中最多2个为0,即$m^2+n^2+p^2>0$即可
+  - 而$m,n,p$中某个为0时,比如$m=0$,则意味着$A=m$=0
+  - 例如两平行直线的方向向量分别为$\bold{n_1}=(0,0,1)$,$\bold{n_2}=(0,0,2)$,认为其满足式(2)
+
 
 ### 线面平行
 
