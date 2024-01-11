@@ -4,14 +4,11 @@
 
 ## abstract
 
-- Bernoulli概型是结合独立事件和n重Bernoulli试验概念的古典概型
+- Bernoulli概型是结合**独立事件**和**$n$重Bernoulli试验**概念的概率模型
 
-## 伯努利概型
 
-- Bernoulli概型是基于bernoulli试验的一类古典概型
-- 这类概型的等可能性体现在$n$重Bernoulli试验种的各种结果出现的可能性相等,而单重Bernoulli试验的两种结果发生的概率不一定要相等
 
-### 独立重复试验
+## 独立重复试验
 
 - 把一随机试验**独立重复**做若干次,称为**独立重复试验**,即:
 
@@ -24,28 +21,36 @@
 ## 伯努利试验
 
 - 如果试验E的样本空间中只有两个对立样本点:$A,\overline{A}$,则试验E是**Bernoulli试验**
-- 样本点概率关系:$P(A)=p$,则$P(\overline{A})=1-p$
+- 样本点概率关系:
+  - $P(A)=p$,
+  - $P(\overline{A})=1-p$
+
+
+
 
 ### n重伯努利试验
 
-- 如果把Bernoulli试验E**独立重复**做$n$次,将这$n$次构成一个**新试验**,这个新试验称为$n$重Bernoulli试验
+- 如果把Bernoulli试验E**独立重复**做$n$次,将这$n$次试验构成(视为)一个**新试验**,这个新试验称为**$n$重Bernoulli试验**
 - Note:
-  - **重复**是指每次Bernoulli试验中$P(A)=p$保持不变
+  - **重复**是指每次Bernoulli试验中$P(A)=p$(即发生事件$A$的概率)保持不变
   - **独立**是指各次的试验结果互不影响
     - 若$C_i$表示第$i$次Bernoulli试验的结果,则$C_i\in\set{A,\overline{A}}$,$i=1,2,\cdots,n$;且$P(C_1\cdots{C_n})$=$P(C_1)\cdots{P(C_n)}$
 
-  - 每重复完成n次基本试验,才能够算完成一次`n重伯努利试验`
+  - 每重复完成n次基本试验,才能够算完成一次**$n$重伯努利试验**
+- $n$重伯努利试验也叫**伯努利概型**,记为$E^n$
 
-- n重伯努利试验也叫**伯努利概型**,$记为E^n$
 
-### 例
+
+### 例👺
 
 - 试验$E_1$是抛一枚硬币观察得到的正反面:$A,\overline{A}$分别表示结果为正面和反面
 - 试验$E_2$是抛一个子,若$A$表示"得到1点",$\overline{A}$表示得到"非1点"
 - $E_1,E_2$都是Bernoulli试验
 - 如果将$E_1,E_2$各执行$n$次,得到各自的$n$重Bernoulli试验$E_1^{n},E_2^{n}$
 
-#### 样本空间
+
+
+### 样本空间
 
 - $E^{n}$的样本空间
   - 记$\omega_i$为第$i$次基本Bernoulli的试验结果,则$\omega_i\in\set{A,\overline{A}}$
@@ -55,23 +60,20 @@
     - $\omega_i$取值有2种,$i=1,\cdots,n$,所以$\omega$取值有$2^{n}$
     - 或者可以这样算:$\sum_{i=0}^{n}{\binom{n}{i}}$=$(1+1)^{n}$=$2^{n}$
 
+### 样本空间的重要划分
 
-#### 样本空间的重要划分
-
-- 不妨把恰好出现$k$次$A$的$E^{n}$试验记为事件$B_{k}$,则$B_0,B_1,\cdots,B_n$构成$E^{n}$样本空间的一个划分
-- 根据$\omega=(\omega_1\cdots \omega_n)$中$\omega_i,\omega_j$,$i\neq{j}$相互独立,若$\omega=(\omega_1\cdots \omega_n)$中有$k$个$A$,且$P(A)=p,P(\overline{A})=1-p=q$,$E^{n}$的样本点$\omega$发生的概率为
+- 不妨把恰好出现$k$次事件$A$的$E^{n}$试验记为事件$B_{k}$,
+- 则$B_0,B_1,\cdots,B_n$构成$E^{n}$样本空间的一个划分
+- 根据$\omega=(\omega_1\cdots \omega_n)$中$\omega_i,\omega_j$,$i\neq{j}$相互独立,若$\omega=(\omega_1\cdots \omega_n)$中有$k$个$A$,且$P(A)=p,P(\overline{A})=1-p=q$,
+- $E^{n}$的样本点$\omega$发生的概率为
   - $P(\omega)=P(\omega_1\cdots \omega_n)=\prod_{i=1}^{n}P(\omega_i)$=$p^kq^{n-k}$,
-
-#### 二项概率公式
-
 - 若单重Bernoulli试验结果为$A$视为成功,则$n$重Bernoulli试验出现$k$次$A$视为成功$k$次,即$B_k$发生
-
 - 事件$B_k$中包含的样本点数量为$\binom{n}{k}$,每个样本点发生的概率是相同的因此:
   - $P(B_k)=\binom{n}{k}p^kq^{n-k}$,称为二项概率公式($k=0,1,\cdots,n$)
-
 - 可以为$B_k$加上其对应的Bernoulli试验的重数$n$,记为$B_{k}^{(n)}$或$B_k(n=4)$
-
 - 显然$\bigcup_{i=0}^{n}B_i=S$,$P(\bigcup_{i=0}^{n}B_i)$=$\sum_{i=0}^{n}P(B_i)$=$\sum_{i=0}^{n}\binom{n}{i}p^{i}q^{n-i}$=1
+
+
 
 ### 例
 
@@ -183,7 +185,7 @@
 
 ​        
 
-### li
+### 例
 
 - 一条自动生产线连续生产$n$件产品不出故障(正常)的概率为关于$n$的函数$\frac{\lambda^{n}}{n!}e^{-\lambda}$,$n=0,1,\cdots,n$(其中$\lambda$是产线的某个稳定性指数)
 - 假设产品的优质概率为$p(0<p<1)$,且产品间是否为优质品相互独立

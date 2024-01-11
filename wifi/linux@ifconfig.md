@@ -7,7 +7,3 @@
 ### 安装ifconfig
 
 - [How to Fix the "ifconfig: command not found" Error in Linux (makeuseof.com)](https://www.makeuseof.com/fix-ifconfig-command-not-found-error-linux/)
-
-## windows metered connection(按流量计费网络设置)
-
-- 打开所连接的网络进行设置,开启`metered connection`开关

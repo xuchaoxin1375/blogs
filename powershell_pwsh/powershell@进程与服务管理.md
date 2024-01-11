@@ -1,6 +1,12 @@
 [toc]
 
-# powershell_进程任务管理/服务管理/(查看/关闭/停止/移除&windows移除mysql服务
+## abstract
+
+
+
+- powershell_进程任务管理/服务管理
+- 查看/关闭/停止/移除服务
+- windows移除mysql服务
 
 ## references
 
@@ -137,7 +143,7 @@ PS C:\Users\cxxu> stop -Name IDMan
   
   ```
 
-  
+- 包括重启服务,停止服务,启动服务,新建服务
 
 ### 查找服务@检查服务状态@get-service
 

@@ -17,7 +17,7 @@
   - android 手机同通过安装lsposed框架和模块来固定生成的ftp地址,从而避免后续手动输入ip达到一键访问手机资源的便捷效果
 
 
-  
+
 
 
 # windows浏览android文件
@@ -66,14 +66,32 @@
 
 ## 局域网
 
-### everything
+- 下面分别给出两类协议的不同软件实现,根据需要任意选择一种即可
 
-- 局域网方法推荐(比较简单的)方法:[使用everything开启ftp服务器 (baidu.com)](https://jingyan.baidu.com/article/36d6ed1f0d5bd15acf4883c2.html)
+### ftp server
+
+#### everything ftp
+
+- 局域网方法推荐(比较简单的)方法:
+  - [ETP - voidtools](https://www.voidtools.com/zh-cn/support/everything/etp/)
+  - [使用everything开启ftp服务器 (baidu.com)](https://jingyan.baidu.com/article/36d6ed1f0d5bd15acf4883c2.html)
   - windwos端的everything,如果没有路由器,则需要电脑(笔记本)开热点了(mobile hotspot)
   - android端的ES文件管理器,可以扫描windows上的FTP服务器
-- windows自带的方式步骤比较繁琐,不推荐
+- FAQ
+  - everything 的ftp server 可以给其他客户端下载,但似乎在上传上有问题,如有需要,考虑其他方式
 
-### python http.server
+
+#### windows ftp
+
+- [windows@ftp服务器设置@ftpServer-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/135440741?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"135440741"%2C"source"%3A"xuchaoxin1375"})
+
+### http server
+
+#### everything http server
+
+- everything 不仅支持ftp server 的创建,还支持http server的创建,图形界面,很简单
+
+#### python http.server
 
 - 电脑端下载python安装
   - 执行`python -m http.server`将桌面系统(windows/linux通用)建立http服务器
@@ -102,10 +120,24 @@
     - `--directory` 可以指定需要共享的根目录,默认是当前目录,例如:
   
       - ` python.exe -m http.server --directory C:\Users\xxx\desktop\`将电脑面设为http服务器根目录
-  
+
+#### 效果
+
 - 手机端可以用浏览器访问,效果和电脑上浏览器访问效果类似
 
-  - 注意手机访问的地址需要通过ipconfig查询
+  - 注意手机访问的地址需要通过`ipconfig`查询
+
+    - 也可以用`arp -a`查询,观察结果的第一行Interface后的ip地址即可
+
+      - ```bash
+        C:\Users\cxxu\Desktop>arp -a
+        
+        Interface: 192.168.1.158 --- 0xa
+        ...
+        ```
+
+        
+
   - 例如`http://192.168.97.165:8000`,通常可以省略协议`http://`,直接输入`<ip>地址:端口`
 
 - ![http.server](https://img-blog.csdnimg.cn/7d53eafed3844e98a61377b5183f43f0.png)
@@ -186,4 +218,6 @@
   - [refs links](https://jingyan.baidu.com/article/ff42efa9f5f604c19f220245.html)
   - 右键我的电脑,添加新的网络位置(add Network Location);或者资源管理器中的网络图标右键,映射网络驱动器(map network drive),在进入(connect to a web site)同样可以添加新的网络位置
   - 将`ftp://192.168.1.1:2121`完整的链接填入,一直点击确认即可
+
+
 

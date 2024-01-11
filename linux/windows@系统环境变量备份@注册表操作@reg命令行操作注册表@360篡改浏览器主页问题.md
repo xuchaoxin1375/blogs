@@ -81,7 +81,7 @@
     PS C:\Users\cxxu\Desktop>
     ```
 
-- 另一种操作思路
+- 另一种操作思路(覆盖)
 
   - ```bash
     #查询
@@ -173,7 +173,17 @@
 
 - 注意,如果采用此方法,此时您再次打开360,主页依然受360控制,除非360已经卸载,才推荐使用该方法
 
+## 例
 
+### 移除edge策略组
+
+- ```bash
+  PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
+  Permanently delete the registry key HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge (Yes/No)? yes
+  The operation completed successfully.
+  ```
+
+- 这里操作的KeyName是`HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`;前面不要带`Computer`(直接从注册表编辑器中复制的路径是`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`,这不被命令行识别)
 
 
 
