@@ -96,7 +96,7 @@ $ git config --global credential.helper 'cache --timeout 10000'
 $ git config --global credential.helper 'store --file ~/.my-credentials'
 ```
 
-##  采用非对公钥-私钥验证方法
+##  采用非对公钥-私钥验证方法@ssh key方法
 
 - 参加github文档
 

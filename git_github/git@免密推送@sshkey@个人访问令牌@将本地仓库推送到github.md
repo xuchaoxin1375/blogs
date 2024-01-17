@@ -51,7 +51,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 - `id_rsa.pub` 是 SSH 密钥对中的公钥文件，用于在 SSH 连接时进行身份验证和加密通信。公钥是一种公开的密钥，可以自由地向他人公开。在 SSH 协议中，公钥用于验证身份和加密数据。在 SSH 连接时，客户端会向服务器发送公钥，服务器会使用公钥验证客户端的身份，并使用公钥加密数据，以便只有客户端能够解密数据。因此，公钥可以自由地向他人公开，而私钥需要妥善保管。
 - 通常情况下，`id_rsa` 和 `id_rsa.pub` 文件会放在用户的 `~/.ssh/` 目录下，这是 SSH 默认的密钥对存放路径。在使用 SSH 进行身份验证或加密通信时，客户端会自动查找 `~/.ssh/` 目录下的密钥对文件。如果你需要使用其他的密钥对文件，可以在 SSH 客户端配置中指定密钥对文件的路径。
 
-### 本地生成ssh key
+### 本地生成ssh key👺
 
 - [生成新的 SSH 密钥并将其添加到 ssh-agent - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
@@ -89,7 +89,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
     ```
     
 
-### ssh-keygen
+#### ssh-keygen
 
 - [ssh-keygen - Wikipedia](https://en.wikipedia.org/wiki/Ssh-keygen)
 - [ssh-keygen(1) - OpenBSD manual pages](https://man.openbsd.org/ssh-keygen.1)
@@ -114,7 +114,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
   
 
 
-### ssh-agent@SSH 密钥添加到 ssh-agent
+#### ssh-agent@SSH 密钥添加到 ssh-agent
 
 - [ SSH 密钥添加到 ssh-agent - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent)
 
@@ -169,7 +169,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 - GPG keys 是一种用于加密、签名和验证数据的密钥对。在 GitHub 上，你可以将你的公钥添加到你的账户中，这样就可以使用私钥来加密、签名和验证提交的代码、合并请求等数据，使你的代码更加安全可靠。要添加 GPG key，你需要生成一个密钥对，并将公钥添加到你的 GitHub 账户中。你可以在 GitHub 的设置页面中找到 GPG key 的选项。
 - 总的来说，SSH 和 GPG keys 都是非常重要的安全工具，可以帮助你更加安全地访问和管理你的 GitHub 账户和仓库。为了保护你的账户和代码的安全性，建议你在使用 GitHub 时添加 SSH 和 GPG keys。
 
-##  粘贴公钥而非私钥👺
+##  Note 粘贴公钥而非私钥👺
 
 - 将ssh key粘贴到githus上的时候,不要把`私钥`张贴进去,而是`公钥`要粘贴进去
 - 粘贴你的SSH公钥，通常包含在文件'~/.ssh/id_ed25519.pub'或'~/.ssh/id_rsa.pub' 中，并以“ssh-ed25519”或“ssh-rsa”开头。不要粘贴你的SSH私钥，因为这会泄漏你的身份信息。
@@ -215,4 +215,6 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 
 
-​	
+## gitee 设置
+
+- [SSH 公钥设置 | Gitee 产品文档](https://help.gitee.com/base/account/SSH公钥设置/)
