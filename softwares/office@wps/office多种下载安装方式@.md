@@ -24,10 +24,48 @@
   - 得益于简洁安装,安装速度较快
 
   - 请认真阅读文档
-  
+
 - [asheroto/Deploy-Office: Easily install the latest version of Microsoft Office 2019 or 2021. (github.com)](https://github.com/asheroto/Deploy-Office)
 
 - [Release HEU_KMS_Activator(github.com)](https://github.com/zbezj/HEU_KMS_Activator/releases/tag/30.2.0)
+
+
+## 另一个选择
+
+- [LKY_OfficeTools: 一键自动化 下载、安装、激活 Office 的利器。 (gitee.com)](https://gitee.com/OdysseusYuan/LKY_OfficeTools/)国内用户推荐
+- [Release LKY OfficeTools v1.2.1 · OdysseusYuan/LKY_OfficeTools · GitHub](https://github.com/OdysseusYuan/LKY_OfficeTools/releases/tag/v1.2.1)原仓库
+
+- ```bash
+  
+  -----> 正在检查 Office 安装环境 ...
+       √ 已通过 Office 安装环境检查。
+  
+       ★ 本工具默认安装 Word、PPT、Excel，并可选配更多组件：
+                  Outlook = 1     OneNote = 2     Access = 3
+                  Visio = 4       Project = 5     Publisher = 6
+                  Teams = 7       OneDrive = 8    Lync = 9
+          如安装：Outlook、OneNote、Visio，请输入：1,2,4 后回车，如不增加组件，请直接按回车键。
+  
+          请输入追加的组件序号（多个组件请用逗号隔开）：
+       √ 未附加其他组件，本工具将只安装默认的 Word、PPT、Excel 三件套。
+  ....
+  ....
+  ------> 正在安装 Office v16.0.14332.20624 ...
+       √ 已完成 Office v16.0.14332.20624 安装。
+  
+  .....
+  
+  ------> 正在清理 冗余数据，请勿关闭或重启电脑 ...
+        * 已跳过非必要流程 ...
+       √ 已完成 冗余数据清理，部署结束。
+  
+       √ 您已成功完成 LKY Office Tools 所有流程，感谢您的使用。
+  
+  请按 任意键 退出 ...
+  
+  ```
+
+- 中间激活的时候界面可能会卡住,可以适当的按回车刷新一下进度
 
 ## 版本补充说明
 

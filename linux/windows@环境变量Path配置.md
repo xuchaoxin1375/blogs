@@ -7,7 +7,7 @@
 - Constant special item ID list (CSIDL) values provide a way to identify folders that applications use frequently but may not have the same name or location on any given computer.
 - For example, the system folder may be C:\Windows on one computer and C:\Winnt on another. 
 
-##  environment variables快速入口
+##  环境变量配置快速入口
 
 - 开始菜单搜索path
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/3da29cf515d7425fa2bb620b22e24a73.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
@@ -47,7 +47,7 @@
 ###  powershell
 `$env:Path  -split ';'`
 ##  节约Path变量取值的字符数(推荐做法)
-## Additional information
+## refs
 DOS limits the path to 122 bytes. Every command is limited to 127 bytes; however, 127 - 5 (minus 5 because of PATH=) = 122.
 基于此,建议将重复使用的目录前缀单独作为一个变量创建,然后在path中引用该变量(%variableName%),可以达到简化字符串长度的目的(这种限制似乎可以被破解(安装python的时候有一个相关功能))
 
@@ -60,12 +60,16 @@ DOS limits the path to 122 bytes. Every command is limited to 127 bytes; however
 
 
 详见参考资料:
-# 相关可参考资料
-[How to set the path and environment variables in Windows](https://www.computerhope.com/issues/ch000549.htm#dospath)
-[MS-DOS and Windows command line path command](https://www.computerhope.com/pathhlp.htm)
+# 
+- [How to set the path and environment variables in Windows](https://www.computerhope.com/issues/ch000549.htm#dospath)
+- [MS-DOS and Windows command line path command](https://www.computerhope.com/pathhlp.htm)
 
 # 总结
-##  可能出现的问题
+##  可能出现的问题FAQ
+
+- 恢复系统默认环境变量配置
+  - [Win10 64位系统环境变量默认值（PATH变量原始值）-联想知识库 (lenovo.com.cn)](https://iknow.lenovo.com.cn/detail/158099.html)
+
 ###  使用环境变量前,您需要做的扫尾(状态更新工作)
 环境变量修改(添加)完成后,请关闭所有配置窗口(一般有两层窗口,需要点击确认两次,然后关闭相关窗口:
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/bbc17e5927334b6aa04c285566c6e2a9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
@@ -132,43 +136,4 @@ powershell 返回的路径是一个不带`%`的绝对路径,说明该变量可�
 
 虽然为路径单独设置一个环境变量会比较好管理,但是缺点是成功率不高.
 估计是windows对变量引用层数解析限制(不超过2重)
-
-#  导出/导入环境变量方法
-##  方法1：方便导入回去的备份方法：
-You can use RegEdit to export the following two keys:
-
-```HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment```
-
-`HKEY_CURRENT_USER\Environment`
-The first set are system/global environment variables;
- the second set are user-level variables. Edit as needed and then import the .reg files on the new machine.
-![在这里插入图片描述](https://img-blog.csdnimg.cn/9a72021b65164d5e8bf0a62771f21b90.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-
-![](https://img-blog.csdnimg.cn/img_convert/54ff5581a26c0c611c46a8af903be398.png)
-if you want to import,just click the reg file you exported (of course ,if you want to wirte environment variables reg file ,it's may be ok.)
-##  其他不同的导出格式peek
-![在这里插入图片描述](https://img-blog.csdnimg.cn/5106922abbb14953a7be9e4a152a24a1.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-
-##  方法2：方便人类阅读的方法
-use the cmd command:
-`set >> env.txt
-`
-![在这里插入图片描述](https://img-blog.csdnimg.cn/787d5850cc0f4303acb294244997eaa0.png)
-
-###  peek the result
-![在这里插入图片描述](https://img-blog.csdnimg.cn/fa3d14040c8c420da1adeaf6e53a1bc0.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_18,color_FFFFFF,t_70,g_se,x_16)
-
-
-##  Note the encoding
-Note the difference in file encoding,save as correct encoding,or it will broken.
-![在这里插入图片描述](https://img-blog.csdnimg.cn/ca6e017ccfff466d8a6d1b5cd2380806.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_15,color_FFFFFF,t_70,g_se,x_16)
-#  环境变量的相关妙用
-- 配置了对应的相关变量后，您可以在path变量中更加轻松的设置目录值，同时，如果您的文件夹目录发生变更，很多时候就只需要修改环境变量（维护起来更加轻松）
-- 您可以在run中直接利用%环境%的形式打开对应的文件文件夹
-- 还可以在cmd命令行中快速切换工作目录
-	- 带上参数	`/D` 可以跨盘符跳转
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/7fe3d25434264da29debb0ba4662b5d4.png)
-- 简化常用命令(比如登录远程主机)
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/5e8b0af9adef484681bef2b4f8e9119e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 

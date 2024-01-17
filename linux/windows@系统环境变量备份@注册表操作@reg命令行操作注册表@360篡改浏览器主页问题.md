@@ -49,11 +49,82 @@
   - 官方建议,编辑注册表应该使用windows提供的GUI程序
   - 但是为了高效配置,熟悉相关操作的用户可以用命令行来配置,便于部署环境
 
+### 查询某个注册表
+
+- ```
+  PS C:\repos\blogs> reg add /?
+  
+  REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
+          [/reg:32 | /reg:64]
+  
+    KeyName  [\\Machine\]FullKey
+             Machine  远程机器名 - 忽略默认到当前机器。远程机器上
+                      只有 HKLM 和 HKU 可用。
+             FullKey  ROOTKEY\SubKey
+             ROOTKEY  [ HKLM | HKCU | HKCR | HKU | HKCC ]
+             SubKey   所选 ROOTKEY 下注册表项的完整名称。
+  
+    /v       所选项之下要添加的值名称。
+  
+    /ve      为注册表项添加空白值名称(默认)。
+  
+    /t       RegKey 数据类型
+             [ REG_SZ    | REG_MULTI_SZ | REG_EXPAND_SZ |
+               REG_DWORD | REG_QWORD    | REG_BINARY    | REG_NONE ]
+             如果忽略，则采用 REG_SZ。
+  
+    /s       指定一个在 REG_MULTI_SZ 数据字符串中用作分隔符的字符
+             如果忽略，则将 "\0" 用作分隔符。
+  
+    /d       要分配给添加的注册表 ValueName 的数据。
+  
+    /f       不用提示就强行覆盖现有注册表项。
+  
+   /reg:32  指定应该使用 32 位注册表视图访问的注册表项。
+  
+   /reg:64  指定应该使用 64 位注册表视图访问的注册表项。
+  
+  例如:
+  
+    REG ADD \\ABC\HKLM\Software\MyCo
+      添加远程机器 ABC 上的一个注册表项 HKLM\Software\MyCo
+  
+    REG ADD HKLM\Software\MyCo /v Data /t REG_BINARY /d fe340ead
+      添加一个值(名称: Data，类型: REG_BINARY，数据: fe340ead)
+  
+    REG ADD HKLM\Software\MyCo /v MRU /t REG_MULTI_SZ /d fax\0mail
+      添加一个值(名称: MRU，类型: REG_MULTI_SZ，数据: fax\0mail\0\0)
+  
+    REG ADD HKLM\Software\MyCo /v Path /t REG_EXPAND_SZ /d ^%systemroot^%
+      添加一个值(名称: Path，类型: REG_EXPAND_SZ，数据: %systemroot%)
+  ```
+
+#### 例
+
+- ```
+  PS C:\repos\blogs> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel
+  
+  HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
+      BasicAuthLevel    REG_DWORD    0x2
+  ```
+
+
+
 ### 更新某个key
 
 - 下面这个例子试图修改注册表中指定了限制系统环境变量`Path`的值(value)的的长度(或者说,将限制放宽为32000个字符)
 
 - 首先,您需要使用管理员方式打开`cmd`或者`powershell`
+
+- 如果目标明确,执行类似以下操作的命令
+
+  - ```bash
+    PS C:\repos\blogs> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
+    值 BasicAuthLevel 已存在，要覆盖吗(Yes/No)? yes
+    操作成功完成。
+    ```
+
+- 推荐的流程
 
 - 方案1:
 
@@ -69,9 +140,11 @@
     PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
     Delete the registry value LongPathsEnabled (Yes/No)? yes
     The operation completed successfully.
+    
     #开始设置新的值
     PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1
     The operation completed successfully.
+    
     #再次查询该条目,确认修改后的值
     PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
     

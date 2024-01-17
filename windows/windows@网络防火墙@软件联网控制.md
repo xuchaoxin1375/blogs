@@ -35,6 +35,10 @@
 
 ### netsh
 
+- 古老的网络控制命令行windows自带工具
+
+## netsh
+
 - [Use netsh advfirewall firewall context - Windows Server | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/netsh-advfirewall-firewall-control-firewall-behavior)
 
 #### 权限说明
@@ -62,13 +66,20 @@
 
   - 自行输入上述命令查阅文档
 
-- 例如:禁止火狐浏览器联网
+#### 例如
+
+- 禁止火狐浏览器联网
 
   - ```bash
     PS D:\Program Files\Mozilla Firefox> netsh advfirewall firewall add rule dir=out action=block program="D:\Program Files\Mozilla Firefox\firefox.exe" name="blockFirefox" description="createByNetsh"  enable=yes
     Ok.
     ```
 
+  
+  - ```bash
+    netsh advfirewall firewall add rule dir=out action=block program="C:\exes\geek.exe" name="block_geek_uninstaller" 
+    ```
+  
     
 
 ##### 防火墙规则命名建议
@@ -150,6 +161,8 @@
 
 #### 修改已有防火墙规则
 
+##### 禁用防火墙规则(重新允许软件联网)
+
 - 例如
 
   - ```bash
@@ -184,9 +197,16 @@
   - 这样便于找到创建的规则进行修改/删除
   - 为了便于称呼,把刚才创建的名字记为RE(上例中RE=blockSublimeText)
 
-### 取消控制/禁用
+### 取消控制@取消禁用@重新启用👺
 
-- 如果需要回复被禁止联网的软件,可以回到防火墙**出站**设置界面,找到RE,右键规则,进行禁用/启用规则
+- 如果需要恢复被禁止联网的软件,可以回到防火墙**出站**设置界面,找到RE,右键规则,进行禁用/启用规则
+
+## FAQ
+
+### 联网控制不生效
+
+- 例如**geek**这款卸载工具:[Geek Uninstaller - the best FREE uninstaller](https://geekuninstaller.com/)
+  - 无法通过上述方式禁用
 
 ## 第三方软件控制
 

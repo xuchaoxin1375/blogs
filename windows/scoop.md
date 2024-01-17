@@ -67,6 +67,9 @@
 
 - 例子(假设自己的代理为`http://127.0.0.1:10801`)
 
+  - 对于小猫咪软件,可能需要打开使用系统代理(配合TUN模式(服务模式启用)才不容易中途报错)
+
+
   ```powershell
   PS C:\Users\cxxu\Desktop> irm get.scoop.sh -Proxy 'http://127.0.0.1:10801' | iex
   Initializing...
@@ -83,13 +86,14 @@
 - scoop的升级等操作依赖于git,因此如果么有安装git建议提早配置一下.
 - 另外注意,powershell中配置的别名不要和scoop的冲突(否则scoop执行过程中可能会报错)
 
-### 国内方案
+## 国内方案👺
 
 - [scoopInstaller: scoop国内镜像优化库，能够加速scoop安装及bucket源文件，无需用户设置代理 (gitee.com)](https://gitee.com/glsnames/scoop-installer)
 
-## 重装scoop
+## 卸载scoop@重装scoop
 
 - [reference link:重装scoop](https://github.com/neolee/pilot/wiki#%E5%A6%82%E4%BD%95%E9%87%8D%E8%A3%85-scoop)
+- [Scoop安装、使用与卸载  (zhihu.com)](https://zhuanlan.zhihu.com/p/609534833)
 
 ## 配置scoop config
 
