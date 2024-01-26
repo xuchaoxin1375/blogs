@@ -2,11 +2,19 @@
 
 [toc]
 
-# vscode和jetbrain@对python的支持@pylance@Linting的启用和关闭
 
-- 目前来看,比起pycharm,在编写小代码片段(比如使用jupyter notebook)时,我更倾向于使用vscode编写代码
-  - 遗憾的是,vscode的提示功能性能不如jetbrain系列的产品
-  - 特别pylance和linting的性能都明显不如jetbrain系列
+
+## abstract
+
+- vscode和jetbrain@对python的支持
+- pylance@Linting的启用和关闭
+
+### preface
+
+- vscode的提示功能性能不如jetbrain系列的产品
+
+- 特别pylance和linting的性能都明显不如jetbrain系列
+
 - jetbrain系列的IDEA和pycharm用的较少,但是编写复杂代码时,jetbrain是更好的选择
   - 尽管启动速度比较慢(进入UI的速度其实不慢,主要是每次启动都要扫描一次环境)
   - 在编码过程中,它的代码格式化性能是比较好的,特别是当文件比较大时,格式化速度比vscode快的多
@@ -66,7 +74,7 @@
                 self.test_audio_paths = audio_paths
             else:
                 raise TypeError("Invalid partition, must be either train/test")
-      
+          
     ```
 
   - 重构:
@@ -74,7 +82,7 @@
   - ```python
             #将解析结果更新回self对象的相应属性上
             self.update_balanced_attributes(partition, audio_paths, emotions_tags, features)
-      
+          
         def update_balanced_attributes(self, partition, audio_paths, emotions_tags, features):
             if partition == "train":
                 self.train_emotions = emotions_tags
@@ -86,7 +94,7 @@
                 self.test_audio_paths = audio_paths
             else:
                 raise TypeError("Invalid partition, must be either train/test")
-      
+          
     ```
 
     
@@ -171,10 +179,12 @@
 ### 关闭Linting
 
 - 我尝试按照官方教程开启和关闭Linting(比如`flake8`,`pylint`)
-- 然而好像没生效,重新启动项目后两个`linter`依然会开始扫描
-- 我尝试用`pip uninstall `依然无果(尚不清楚原因)
-- 不过,按照了某个linter通常vscode还会自动按照对应的extension
-- 目前需要到插件里面手动禁用相关插件才可以彻底关闭linting,紧急在设置或者settings.json中配置无法真正关闭
+  - 然而好像没生效,重新启动项目后两个`linter`依然会开始扫描
+  - 我尝试用`pip uninstall `依然无果(尚不清楚原因)
+
+- 安装了某个linter通常vscode还会自动按照对应的extension
+  - 目前需要到插件里面手动禁用相关插件才可以彻底关闭linting,仅仅在设置或者settings.json中配置无法真正关闭
+
 
 #### 使配置生效
 

@@ -1,88 +1,39 @@
-@[toc]
+[toc]
 
 # powershell@使用指南与入门命令
 
 ##  ref
 
-- learn by microsoft
+- 官方文档
   - [https://docs.microsoft.com/zh-cn/learn/paths/powershell/](https://docs.microsoft.com/zh-cn/learn/paths/powershell/)
 
-- [文档内置教程]:
   - [Discover PowerShell - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/learn/tutorials/01-discover-powershell?view=powershell-7.2)
+  
+  - [What is PowerShell? - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.3)
 
-- [Learn and use PowerShell with just three commands - Tech Thoughts](https://www.techthoughts.info/learn-and-use-powershell-with-just-three-commands/)
+- 语言规范和语言参考
+  - [Windows PowerShell Language Specification 3.0 - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-01?view=powershell-7.2)
 
-## Learning Powershell😊
+- 简单使用(三条命令)
+  - [Learn and use PowerShell with just three commands - Tech Thoughts](https://www.techthoughts.info/learn-and-use-powershell-with-just-three-commands/)
 
-- [What is PowerShell? - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.3)
-- [Introduction - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/00-introduction?view=powershell-7.3)
-  - [Introduction](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/00-introduction?view=powershell-7.3)
-  - [Getting Started with PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/01-getting-started?view=powershell-7.3)
-  - [The Help System](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/02-help-system?view=powershell-7.3)
-  - [Discovering objects, properties, and methods](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/03-discovering-objects?view=powershell-7.3)
-  - [One-liners and the pipeline](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/04-pipelines?view=powershell-7.3)
-  - [Formatting, aliases, providers, comparison](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/05-formatting-aliases-providers-comparison?view=powershell-7.3)
-  - [Flow control](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/06-flow-control?view=powershell-7.3)
-  - [Working with WMI](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/07-working-with-wmi?view=powershell-7.3)
-  - [PowerShell remoting](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/08-powershell-remoting?view=powershell-7.3)
-  - [Functions](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/09-functions?view=powershell-7.3)
-  - [Script modules](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/10-script-modules?view=powershell-7.3)
-  - [Appendix A - Help Syntax](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/appendix-a?view=powershell-7.3)
-
-##  语言规范和语言参考
-
-[Windows PowerShell Language Specification 3.0 - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-01?view=powershell-7.2)
-* [1. Introduction](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-01?view=powershell-7.2)
-* [2. Lexical Structure](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-02?view=powershell-7.2)
-* [3. Basic concepts](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-03?view=powershell-7.2)
-* [4. Types](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-04?view=powershell-7.2)
-* [5. Variables](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-05?view=powershell-7.2)
-* [6. Conversions](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-06?view=powershell-7.2)
-* [7. Expressions](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-07?view=powershell-7.2)
-* [8. Statements](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-08?view=powershell-7.2)
-* [9. Arrays](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-09?view=powershell-7.2)
-* [10. Hashtables](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-10?view=powershell-7.2)
-* [11. Modules](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-11?view=powershell-7.2)
-* [12. Attributes](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-12?view=powershell-7.2)
-* [13. Cmdlets](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-13?view=powershell-7.2)
-* [A. Comment-Based Help](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-14?view=powershell-7.2)
-* [B. Grammar](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-15?view=powershell-7.2)
-
-## cmdlet Reference
+## 下载
 
 
 
-- CimCmdlets
-- <u>Microsoft.PowerShell.Archive</u>
-- <u>Microsoft.PowerShell.Core</u>
-- Microsoft.PowerShell.Diagnostics
-- Microsoft.PowerShell.Host
-- <u>Microsoft.PowerShell.Management</u>
-  - [PackageManagement](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/?view=powershell-7.3)
-  - [Find-Package](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/find-package?view=powershell-7.3)
-  - [Find-PackageProvider](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/find-packageprovider?view=powershell-7.3)
-  - [Get-Package](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/get-package?view=powershell-7.3)
-  - [Get-PackageProvider](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/get-packageprovider?view=powershell-7.3)
-  - [Get-PackageSource](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/get-packagesource?view=powershell-7.3)
-  - [Import-PackageProvider](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/import-packageprovider?view=powershell-7.3)
-  - [Install-Package](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/install-package?view=powershell-7.3)
-  - [Install-PackageProvider](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/install-packageprovider?view=powershell-7.3)
-  - [Register-PackageSource](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/register-packagesource?view=powershell-7.3)
-  - [Save-Package](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/save-package?view=powershell-7.3)
-  - [Set-PackageSource](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/set-packagesource?view=powershell-7.3)
-  - [Uninstall-Package](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/uninstall-package?view=powershell-7.3)
-  - [Unregister-PackageSource](https://learn.microsoft.com/en-us/powershell/module/packagemanagement/unregister-packagesource?view=powershell-7.3)
-- Microsoft.PowerShell.Security
-- <u>Microsoft.PowerShell.Utility</u>
-- Microsoft.WSMan.Management
-- PackageManagement
-- PowerShellGet
-- PSDiagnostics
-- <u>PSReadLine</u>
-- ThreadJob
+### 加速下载
 
+- 山东大学镜像站[PowerShell_PowerShell (sdu.edu.cn)](https://mirrors.sdu.edu.cn/github-release/1702434474/github-release/PowerShell_PowerShell/)
 
-#  基本常识
+### 官网下载
+
+- [在 Windows 上安装 PowerShell - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4#installing-the-msi-package)
+  - 推荐用MSI安装,命令行winget默认从github下载,比较慢,看似简单,但是更花时间
+  - 下载MSI包用IDM等工具下载反而可能更快
+  - 但最有优先考虑国内镜像下载
+
+##  基本常识
+
 - powershell 大小写不敏感,但是鼓励该大写的还是大写
 -  powershell的命令名是`动词-名称`形式的
 - 通过`get-verb`可以获取powershell中的动词列表
@@ -90,8 +41,7 @@
 
 ##  获取相关命令
 
-- 两种方式都支持模糊搜索(help/gcm)
-- 我更喜欢用 `help`,这是个更加通用的命令
+- 两种方式都支持模糊搜索(help/gcm),`help`这是个更加通用的命令
 
 ###  方式1:get-help(help)
 
@@ -313,17 +263,7 @@ Get-Date | `Get-Member`
 - `Get-Process | Where-Object CPU -gt 2 | Sort-Object CPU -Descending | Select-Object -First 3`
 - 上述命令分别涉及到记录筛选,排序以及列(投影),来获取更有针对性的查询(操作)结果
 
-## 对象@类型
 
-### bool类型
-
-- [about Booleans - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_booleans?view=powershell-7.3)
-
-### 函数
-
-- [Functions - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/09-functions?view=powershell-7.3)
-
-- [The Different Between Break, Return & Exit In PowerShell (outcompute.com)](https://outcompute.com/2014/11/27/the-difference-between-break-return-and-exit-in-powershell/)
 
 
 

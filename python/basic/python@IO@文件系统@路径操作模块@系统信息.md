@@ -7,16 +7,14 @@
 
 ## ref
 
-- [标准库简介 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/tutorial/stdlib.html)
+- [标准库简介 — Python 3 文档](https://docs.python.org/zh-cn/3/tutorial/stdlib.html)
   - [operating-system-interface](https://docs.python.org/zh-cn/3/tutorial/stdlib.html#operating-system-interface)
-
 - [输入与输出 — Python 文档](https://docs.python.org/zh-cn/3/tutorial/inputoutput.html#reading-and-writing-files)
 - [ 命令行与环境 — Python](https://docs.python.org/zh-cn/3/using/cmdline.html#envvar-PYTHONPATH)
 - [ 模块 — Python ](https://docs.python.org/zh-cn/3/tutorial/modules.html#standard-modules)
   - [ 包](https://docs.python.org/zh-cn/3/tutorial/modules.html#packages)
-- [5. 导入系统 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/reference/import.html#package-relative-imports)
-  - [5. The import system — Python 3.11.2 documentation](https://docs.python.org/3/reference/import.html)
-  - [5. 导入系统 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/reference/import.html#package-relative-imports)
+- [导入系统 — Python 3 文档](https://docs.python.org/zh-cn/3/reference/import.html#package-relative-imports)
+  - [The import system — Python 3 documentation](https://docs.python.org/3/reference/import.html)
 
 
 ## os
@@ -27,56 +25,11 @@
   - 而在linux等类unix系统是可用的
   - 本平台上有哪些可用接口可以查看文档,或者本地查询:(下一节给出)
 
-### 补充🎈
 
-- 本结介绍了一些查询python接口的方法,在遇到接口问题,可以尝试使用本节方法查询
-
-#### 检查模块成员@函数
-
-- 查询一个Python模块具有的方法有几种方式。
-
-##### 获取本地的相关文档(help)
-
-- 一种是在命令行中输入**help()函数，然后输入模块名，可以看到模块的帮助信息。**
-
-  - 比如对象的function(方法),data(属性)
-
-- 由于help提供的内容往往很长,而且翻阅效率不高,可以考虑在线文档.
-
-- 如果使用本地,建议先执行`help()`,进入`help shell`,在该环境下,可以直接查询python自带的对象,而不需要导入对象后再查询
-
-  - 例如:
-
-  - ```python
-    help> sys
-    
-    help> sys.path
-    
-    help> sys.path.append
-    ```
-
-    
-
-#### 格式化输出表格
-
-- 为了提高输出的可读性,可以追加执行以下代码(将长列表以表格的形式输出(默认宽度为3个单元,且居左)):
-
-  - 感兴趣的化还可以调节每个单元个的宽度
-
-- ```python
-  def table_output(lst,row_len=3,cell_width='20'):
-      for i in range(len(lst)) :
-          print(format(lst[i],cell_width),end='\t')
-          if (i+1)%row_len==0:
-              print()
-  table_output(methods)
-  ```
-
-  
 
 ### 识别操作系统信息
 
-#### os.uname()
+#### os.uname函数
 
 - [os.uname()](https://docs.python.org/3/library/os.html#os.uname)
 
@@ -95,9 +48,9 @@
   >>>
   ```
 
-#### platform
+#### platform模块
 
-- [platform — Access to underlying platform’s identifying data — Python 3.11.2 documentation](https://docs.python.org/3/library/platform.html)
+- [platform — Access to underlying platform’s identifying data — Python 3 documentation](https://docs.python.org/3/library/platform.html)
 
 在Python中，可以使用`platform`模块来查看系统的类别，包括操作系统名称、版本、架构等信息。具体来说，可以使用以下函数：
 
@@ -129,8 +82,6 @@
     操作系统架构： AMD64
     ```
 
-  
-
 - 在这个例子中，我们首先导入了`platform`模块，然后使用`platform.system()`、`platform.release()`和`platform.machine()`函数获取操作系统的名称、版本号和架构。最后，我们将这些信息打印出来。
 
 - 需要注意的是，`platform`模块还提供了其他一些函数，可以获取更多关于系统的信息。
@@ -158,19 +109,19 @@
 
 ## shutil@shell-util🎈
 
-- [shutil --- 高阶文件操作 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/library/shutil.html#module-shutil)
+- [shutil --- 高阶文件操作 — Python 3 文档](https://docs.python.org/zh-cn/3/library/shutil.html#module-shutil)
   - [`shutil`](https://docs.python.org/zh-cn/3/library/shutil.html#module-shutil) 模块提供了一系列对文件和文件集合的高阶操作。 特别是提供了一些支持文件拷贝和删除的函数。 对于单个文件的操作，请参阅 [`os`](https://docs.python.org/zh-cn/3/library/os.html#module-os) 模块。
 
 ## pathlib
 
-- [pathlib — Object-oriented filesystem paths — Python 3.11.2 documentation](https://docs.python.org/3/library/pathlib.html)
-- [pathlib --- 面向对象的文件系统路径 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/library/pathlib.html)
+- [pathlib — Object-oriented filesystem paths — Python 3 documentation](https://docs.python.org/3/library/pathlib.html)
+- [pathlib --- 面向对象的文件系统路径 — Python 3 文档](https://docs.python.org/zh-cn/3/library/pathlib.html)
 - This module offers classes representing filesystem paths with semantics appropriate for different operating systems. 
 - Path classes are divided between [pure paths](https://docs.python.org/3/library/pathlib.html#pure-paths)(纯路径), which provide purely computational operations without I/O, and [concrete paths](https://docs.python.org/3/library/pathlib.html#concrete-paths)(具体路径), which inherit from pure paths but also provide I/O operations.
 
 ## sys
 
-- [sys — System-specific parameters and functions — Python 3.11.2 documentation](https://docs.python.org/3/library/sys.html)
+- [sys — System-specific parameters and functions — Python 3 documentation](https://docs.python.org/3/library/sys.html)
 - This module provides access to some **variables** used or maintained by the interpreter and to functions that interact strongly with the interpreter. It is always available.
 
 ### 永久配置sys.path🎈

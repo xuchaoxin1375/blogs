@@ -69,65 +69,39 @@ Get-ChildItem: Could not find a part of the path 'C:\Users\cxxu\.android'.
 
 
 
-### 体验链接成功后的adb链接(scene5)玩机工具
+### 体验链接成功后的adb链接
 
-```bash
-PS D:\repos\blogs> adb devices
-* daemon started successfully
-List of devices attached
-cb41dced        device
+- 检查已链接设备
 
-PS D:\repos\blogs> adb shell sh /data/user/0/com.omarea.vtools/files/up.sh
+  - ```bash
+    PS D:\repos\blogs> adb devices
+    * daemon started successfully
+    List of devices attached
+    cb41dced        device
+    ```
 
-Copy ToyBox
-Copy BusyBox
-Install BusyBox……
-Origin File:  /data/user/0/com.omarea.vtools/files/scene-daemon
-Target File:  /data/local/tmp/scene-daemon
-```
+    
 
-## 无线adb调试(android11+:wireless debugging)
+- 激活scene
 
-### refs
+  - ```bash
+    
+    PS D:\repos\blogs> adb shell sh /data/user/0/com.omarea.vtools/files/up.sh
+    
+    Copy ToyBox
+    Copy BusyBox
+    Install BusyBox……
+    Origin File:  /data/user/0/com.omarea.vtools/files/scene-daemon
+    Target File:  /data/local/tmp/scene-daemon
+    ```
 
-- [Android Debug Bridge (adb)  | Android Developers](https://developer.android.com/studio/command-line/adb#connect-to-a-device-over-wi-fi-android-11+)
-  - 完整建立adb连接分为两部分
-    - 配对
-      - 配对完一次后,相当于记录下来这个设备(计算机)是可以信任的
-      - 后续的链接(断开之后在连接)的时候,就只需要`执行adb connect ip:port`即可,而不要再点击`pairing code`
-    - 连接(低版本android使用usb;高版本android(11+)可以使用无线网络(wifi)建立链接)
-      - 这里和配对步骤中使用的端口号不同(ip一般会相同)
-- [How to use adb over TCPIP connect? (honeywellaidc.com)](https://support.honeywellaidc.com/s/article/How-to-use-adb-over-TCPIP-connect)
+### 开发者选项和adb功能受限的android设备
 
-## 手机端开发者选项配置
+- 某些国内厂商(比如维沃(vivo,iqoo))对开发者选项做了严格限制(OriginOS高版本),例如**允许通过usb安装应用**等选项被删除了,这就导致我们无法在不操作手机的情况下安装应用,诸如`adb install xxx.apk`需要我们操作手机点击安装才能够执行安装
+  - 在OriginOS中,替换默认应用安装程序是很困难的事情(使用自带的应用商店或google play才能静默安装),而在MIUI/HyperOS中则是相对容易实现的
+- 而小米等提供了解bl锁的厂商往往支持完整的开发者选项功能
 
-- 必须和计算机(电脑)链接同一个局域网(一般链接同一个wifi即可,而且不可以是手机共享热点的这种形式,但这还是容易满足的)
-- 
 
-![image-20220718222651254](https://img-blog.csdnimg.cn/img_convert/03c7ed2ad6a9ee899799b3ca9a02ea4c.png)
-
-- 下方是的实际操作和上述截图不是同一个时刻的,所以端口号看起来不一样
-
-- 中间的一栏`IP address & Port`是在执行`adb connect`的时候使用
-- 计算机端启动命令行工具(adb),执行配对手机操作:
-
-```bash
-#根据移动设备的ip:port进行配对
-PS C:\Users\cxxu> adb pair 192.168.2.82:35917
-Enter pairing code: 894477
-Successfully paired to 192.168.2.82:35917 [guid=adb-UO7PKFNF99IR9TV4-AHP89O]
-#配对成功后尝试连接(connect)
-PS C:\Users\cxxu> adb connect 192.168.2.82:34917
-connected to 192.168.2.82:34917
-#链接完毕后检查设备列表
-PS C:\Users\cxxu> adb devices -l
-List of devices attached
-192.168.2.82:34917     device product:xaga model:22041216C device:xaga transport_id:2
-```
-
-##  玩机工具箱
-
-- [搞机工具箱:作者:晨钟网络科技 - 致力于开发小众实用软件 (jamcz.com)](https://jamcz.com/)
 
 
 

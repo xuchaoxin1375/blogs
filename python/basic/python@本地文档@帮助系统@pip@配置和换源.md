@@ -33,7 +33,7 @@
 
 ### 配置检查
 
-- 执行完命令后,pip会告诉你配置写到哪里去了,一般会写入`%appData%\pip\pip.ini`
+- 执行完命令后,pip会告诉你配置写到哪里去了,一般会写入`%APPDATA%\pip\pip.ini`
   
   ```bash
   (base) PS C:\Users\cxxu\Desktop> pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
