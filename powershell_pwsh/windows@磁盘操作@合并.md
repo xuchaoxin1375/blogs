@@ -91,9 +91,9 @@
   - 所谓多进程,就是将需要移动的数据分为几个部分,然后分别复制这几个部分的不同文件夹
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210714112229813.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
-##  命令行操作
+##  命令行操作👺
 
-- 使用cmd或则powershell均可以启动diskpart工具
+- 使用cmd或则powershell均可以启动`diskpart`工具
 
 ### 参考文档
 

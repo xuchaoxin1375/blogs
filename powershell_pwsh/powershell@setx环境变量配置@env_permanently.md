@@ -47,36 +47,9 @@
 
   "HKLM"是Windows操作系统注册表中的一个重要部分，包含了大量的系统配置信息，因此一般不建议用户随意修改或删除其中的信息。如果需要修改或删除"HKLM"中的信息，建议先备份注册表，以免操作失误导致系统故障。
 
-## 查看环境变量值
+## 列出或查找环境变量值👺
 
-### 使用powershell查看用户环境变量和系统环境变量
-
-- 通常,您可以通过使用命令`$env:<VarName>`的方式查询**环境变量**
-
-- 但是如果`VarName`这个变量名字同时存在于系统,那么上述命令只能查到生效的那个(也就是用户环境变量)
-
-- 下面的例子中,我尝试分别查询系统和用户的名为`PYTHONPATH`的环境变量
-
-  - 这个变量是自定义的,可以用来向python解释器添加扫描包/模块的路径
-
-  ```powershell
-  PS C:\Users\cxxu\Desktop> $PA="PYTHONPATH"
-  
-  PS C:\Users\cxxu\Desktop> [Environment]::GetEnvironmentVariable($PA, "Machine") -split ";"
-  D:\repos\ThinkDSP\code
-  D:\repos\CCSER\cxxu_serlib
-  C:\new_path_demo
-  D:\repos\PythonLearn\cxxu_pylib
-  D:\repos\CCSER\SER
-  
-  PS C:\Users\cxxu\Desktop> [Environment]::GetEnvironmentVariable($PA, "User") -split ";"
-  D:\repos\ThinkDSP\code
-  D:\repos\CCSER\cxxu_serlib
-  C:\new_path_demo
-  D:\repos\PythonLearn\cxxu_pylib
-  ```
-
-  
+- 另见他文
 
 ### 使用reg命令查看
 
@@ -90,7 +63,7 @@
 
 - 只不过有些工具简化了相关流程
 
-## SETX版
+## SETX版👺
 
 - 可以在cmd或者powershell中执行setx命令
   - 该命令是windows自带的,可以放便的配置环境变量(用户变量和系统变量)
@@ -176,7 +149,7 @@
 
 - 您可以尝试其他命令行工具,或者使用下面的powershell版本
 
-## powershell版
+## powershell版👺
 
 ### 操作效果
 
