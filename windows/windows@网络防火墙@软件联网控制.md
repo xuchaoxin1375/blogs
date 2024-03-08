@@ -41,7 +41,7 @@
 
 - [Use netsh advfirewall firewall context - Windows Server | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/netsh-advfirewall-firewall-control-firewall-behavior)
 
-#### 权限说明
+### 权限说明
 
 - 执行防火墙配置,需要管理员权限
 - 因此,您应当使用管理员方式打开一个终端,以便后续操作可以顺利执行
@@ -86,7 +86,7 @@
 
 - 通常,不建议建立两个同名的规则,应为防火墙配置命令是通过规则名字来区分规则,如果同名,可能会造成副作用
 
-#### 查看已有的防火墙规则
+### 查看已有的防火墙规则👺
 
 - ```bash
   
@@ -159,9 +159,7 @@
 
     
 
-#### 修改已有防火墙规则
-
-##### 禁用防火墙规则(重新允许软件联网)
+### 修改已有防火墙规则👺(启用或禁用防火墙规则)
 
 - 例如
 
@@ -172,7 +170,23 @@
     Ok.
     ```
 
+### 删除已有防火墙规则
 
+- 也可以通过移除禁止edge update的规则,基本格式为
+
+  - `netsh advfirewall firewall delete rule name=$RuleName`
+
+- ```bash
+  
+  PS>netsh advfirewall firewall delete rule name=$deu
+  
+  Deleted 1 rule(s).
+  Ok.
+  ```
+
+### 禁用防火墙规则@恢复联网@重新允许软件联网
+
+- 可以通过禁用防火墙规则或者移除防火墙规则来实现恢复默认配置
 
 ## 利用GUI操作
 

@@ -11,7 +11,7 @@
 - 设置中搜索:`add language`
   - `time&language`->`language`->`language&option`->`[add a language]`
 
-##  默认输入法覆盖设置
+##  默认输入法覆盖设置👺
 
 - `Time&language`->`typing`->`Advanced keyboard settings`
 
@@ -61,7 +61,6 @@
 
 - 在vscode中配置键盘快捷键的时候经常会遇到`oem_`这类代号
   - eg:`oem_period`就是`.`键
-
 
 
 

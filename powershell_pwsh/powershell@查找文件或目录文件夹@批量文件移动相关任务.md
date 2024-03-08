@@ -251,11 +251,143 @@
 
 - 函数进一步加入管道符的支持
 
+## 批量文件移动
 
+### 含有文件名特征集合
 
+- 当前目录下关于`powershell`的笔记散落在各个不同子目录中
 
+  ```bash
+  PS BAT [11:07:53 PM] [C:\repos\blogs]
+  [🔋 100%] MEM:47.65% [3.74/7.85] GB |ls -R -File -Filter *powershell*
+  
+          Directory: C:\repos\blogs\editorSkills
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---          3/4/2023   3:36 PM          15788   powershell@输入法管理.md
+  
+          Directory: C:\repos\blogs\editorSkills\vscode
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---          3/5/2023   8:07 PM           6519   vscode@powershellExtension配置和启用问题.md
+  
+          Directory: C:\repos\blogs\linux
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---         2/15/2024   5:58 PM          20320   powershell@windows@linux环境变量查询.md
+  -a---         2/14/2024   8:14 PM           1699   powershell@从脚本文件中导入函数.md
+  -a---         2/15/2024  11:01 PM           2028   powershell@文字转语音.md
+  
+          Directory: C:\repos\blogs\linux\powershell
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---         11/5/2022   6:36 PM           2747   powershell_linux.md
+  -a---          6/6/2022  10:25 AM              0   powershell_进程任务管理.md
+  -a---         5/24/2023   9:36 PM          26243   powershellbash硬链接Hardlink@软连接(符号链接)创建@linux符号链接检查.md
+  
+          Directory: C:\repos\blogs\powershell_pwsh
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---         2/25/2023   2:59 PM          14728   powershell_管道符函数pipelineSupport.md
+  -a---          3/5/2023   4:14 PM          10281   powershell_配置文件与脚本编写(模板字符串插值@运算符与表达式@函数参数@控制流).md
+  -a---          3/1/2023   2:05 PM           7102   powershell@CLI命令行创建和修改windows快捷方式@shortcut.md
+  -a---         2/12/2024   3:20 PM           3807   powershell@proxy代理配置.md
+  -a---         2/14/2024   7:31 PM           9111   powershell@setx环境变量配置@env_permanently.md
+  -a---         2/15/2024  12:08 PM          11029   powershell@使用指南与入门命令@starter@beginner.md
+  -a---         9/25/2023   8:47 AM          14439   powershell@别名@命令异常排查.md
+  -a---         1/11/2024   3:44 PM           5292   powershell@基本cmdlet.md
+  -a---        12/30/2022   3:04 PM           3216   powershell@控制流@continue和foreach.md
+  -a---         2/13/2024  12:38 PM          10880   powershell@查找文件或目录文件夹.md
+  -a---         2/14/2024   4:54 PM           3138   powershell@根据文件内容查找文件.md
+  -a---         2/25/2023   2:47 PM          11099   powershell@格式化字符串@管道符函数编写@powershell类似cat
+                                                   -n(查看文件显示行号)@powershell查看文件指定范围的行@输出格式化format-table.md
+  -a---         2/12/2024  12:52 PM            682   powershell@获取脚本文件自身所在路径.md
+  -a---         1/10/2024   2:03 PM          15577   powershell@进程与服务管理.md
+  -a---          2/9/2024  11:54 AM          13767   powershell@通配符和正则匹配like@match@字符串替换.md
+  -a---         3/31/2023  11:21 AM           4405   查看powershell自定义函数的源代码@形参Parameter@实参Argument.md
+  
+          Directory: C:\repos\blogs\windows
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---         2/14/2024  11:53 PM          10472   powershell@posh主题设置和自定义@动态补全配置.md
+  -a---          2/9/2024  12:06 PM            756   powershell@配置文件和onedrive的冲突.md
+  -a---          2/9/2024  12:07 PM           1983   powershell7安装.md
+  -a---         2/13/2024  10:26 PM           7911   powershell命令行提示符样式配置自定义@ohmyposh安装@卸载.md
+  -a---         3/28/2023  10:13 AM          10120   windows更改显示语言@powershell帮助文档更新问题.md
+  
+  ```
 
+- 通过合适的命令将这些文件移动到同一个目录下
 
+  ```bash
+  PS BAT [11:08:32 PM] [C:\repos\blogs]
+  [🔋 100%] MEM:47.84% [3.76/7.85] GB |ls -R -File -Filter *powershell*|mv -Destination C:\repos\blogs\powershell_pwsh\
+  
+  ```
+
+- 检查结果
+
+  ```bash
+  
+  PS BAT [11:09:00 PM] [C:\repos\blogs]
+  [🔋 100%] MEM:47.49% [3.73/7.85] GB |ls -R -File -Filter *powershell*
+  
+          Directory: C:\repos\blogs\powershell_pwsh
+  
+  
+  Mode                LastWriteTime         Length Name
+  ----                -------------         ------ ----
+  -a---         11/5/2022   6:36 PM           2747   powershell_linux.md
+  -a---         2/25/2023   2:59 PM          14728   powershell_管道符函数pipelineSupport.md
+  -a---          6/6/2022  10:25 AM              0   powershell_进程任务管理.md
+  -a---          3/5/2023   4:14 PM          10281   powershell_配置文件与脚本编写(模板字符串插值@运算符与表达式@函数参数@控制流).md
+  -a---          3/1/2023   2:05 PM           7102   powershell@CLI命令行创建和修改windows快捷方式@shortcut.md
+  -a---         2/14/2024  11:53 PM          10472   powershell@posh主题设置和自定义@动态补全配置.md
+  -a---         2/12/2024   3:20 PM           3807   powershell@proxy代理配置.md
+  -a---         2/14/2024   7:31 PM           9111   powershell@setx环境变量配置@env_permanently.md
+  -a---         2/15/2024   5:58 PM          20320   powershell@windows@linux环境变量查询.md
+  -a---         2/14/2024   8:14 PM           1699   powershell@从脚本文件中导入函数.md
+  -a---         2/15/2024  12:08 PM          11029   powershell@使用指南与入门命令@starter@beginner.md
+  -a---         9/25/2023   8:47 AM          14439   powershell@别名@命令异常排查.md
+  -a---         1/11/2024   3:44 PM           5292   powershell@基本cmdlet.md
+  -a---        12/30/2022   3:04 PM           3216   powershell@控制流@continue和foreach.md
+  -a---         2/15/2024  11:01 PM           2028   powershell@文字转语音.md
+  -a---         2/13/2024  12:38 PM          10880   powershell@查找文件或目录文件夹.md
+  -a---         2/14/2024   4:54 PM           3138   powershell@根据文件内容查找文件.md
+  -a---         2/25/2023   2:47 PM          11099   powershell@格式化字符串@管道符函数编写@powershell类似cat
+                                                   -n(查看文件显示行号)@powershell查看文件指定范围的行@输出格式化format-table.md
+  -a---         2/12/2024  12:52 PM            682   powershell@获取脚本文件自身所在路径.md
+  -a---          3/4/2023   3:36 PM          15788   powershell@输入法管理.md
+  -a---         1/10/2024   2:03 PM          15577   powershell@进程与服务管理.md
+  -a---          2/9/2024  11:54 AM          13767   powershell@通配符和正则匹配like@match@字符串替换.md
+  -a---          2/9/2024  12:06 PM            756   powershell@配置文件和onedrive的冲突.md
+  -a---          2/9/2024  12:07 PM           1983   powershell7安装.md
+  -a---         5/24/2023   9:36 PM          26243   powershellbash硬链接Hardlink@软连接(符号链接)创建@linux符号链接检查.md
+  -a---         2/13/2024  10:26 PM           7911   powershell命令行提示符样式配置自定义@ohmyposh安装@卸载.md
+  -a---          3/5/2023   8:07 PM           6519   vscode@powershellExtension配置和启用问题.md
+  -a---         3/28/2023  10:13 AM          10120   windows更改显示语言@powershell帮助文档更新问题.md
+  -a---         3/31/2023  11:21 AM           4405   查看powershell自定义函数的源代码@形参Parameter@实参Argument.md
+  
+  PS BAT [11:09:11 PM] [C:\repos\blogs]
+  ```
+
+  
+
+### 其他
+
+- 比如相同文件扩展名文件分类移动,例如`txt`,`png`等文件归类移动到不同文件夹,可以用类似d
 
 
 

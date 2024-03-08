@@ -21,9 +21,14 @@
 ## chfs(CuteHttpFileServer)
 
 - 本文介绍chfs的用法,该软件比较简单易用,轻量灵活(免费)
+
 - 几乎不用配置防火墙和共享站点的根目录的权限控制
+
 - 同时给出http和webdav的链接,用浏览器就可以进行webdav传输,享受webDav的优点
+
 - 浏览器所有设备几乎都有,因此可以不下在专门的客户端
+
+  
 
 ### 下载软件
 
@@ -161,7 +166,7 @@
 
   - 这个操作对http有效,但是webdav仍然只显示一个首个目录
 
-### 开机自启
+### 开机自启👺
 
 - 如果您只是偶尔使用(局域网文件传输),那么不建议开机自启
 - 如果经常使用,则建议开启开机自启
@@ -253,8 +258,22 @@
     Container           :
     ```
   
+
+### 配置vbs脚本开机启动
+
+- windows有个startup目录,将脚本快捷方式放到里头可以开机自启,这里不赘述(另见它文)
+
+- 脚本内容
+
+  - ```vbscript
+    Dim ws
+    Set ws = Wscript.CreateObject("Wscript.Shell")
+    ws.run "chfs.exe --file ./chfs.ini",vbhide
+    Wscript.quit
     
-  
+    ```
+
+  - 其中`chfs.exe`需要替换为绝对路径(更改工作路径也行,但是独立使用该脚本是请执行替换)
 
 ### 效果
 
@@ -408,9 +427,27 @@
 - 保存日志,需要指定日志存储目录,如果指定一个不存在的目录,日志文件将无法保存
 - 所以如果要保存的路径需要检查存在性,不存在手动创建一下
 
+### 无法连接问题👺
+
+- 通常chfs可以良好的工作,特别时网页端,是很鲁棒的
+- 对于webdav,您需要注意
+  - 如果您在使用了符号连接(或软连接等)链接到其他文件夹或文件,当这些链接目标都存在于正确的路径时,chfs
+  - 但是如果符号所指的路径被更改移动走了,那么webdav的访问将会出错(其他设备无法挂载webdav)
+
+#### 故障排查@引起chfs webdav无法被挂载的原因
+
+- 可以在全新的位置建立一个文件夹,然后令chfs将这个新文件夹作为服务站点根目录
+- 如果新目录下可以工作,那么将原来出问题的目录的文件一点点移动到新目录,并刷新挂载端是否能够正常挂载
+- 继续执行文件移动,直到找到引起问题的路径(文件夹)
+- 我就是如此排查故障的
+
 ### 其他
 
 - 详情参考官网
 
+## 其他软件
 
+- 上面提到的chfs虽然方便也免费,但是不开源(在github上只有一个readme,多年不更新了)
+  - [HFS ~ HTTP File Server (rejetto.com)](http://www.rejetto.com/hfs/?f=intro)这是一个开源免费的软件,主要支持http协议传输,同样有网页可用
+  - 项目开源[GitHub - rejetto/hfs: HFS is a web file server to run on your computer. Share folders or even a single file thanks to the virtual file system.](https://github.com/rejetto/hfs)
 

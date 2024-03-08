@@ -4,9 +4,11 @@
 
 ## refs
 
-- [如何使用远程桌面 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/如何使用远程桌面-5fe128d5-8fb1-7a23-3b8a-41e636865e8c#ID0EDD=Windows_10)
+- 官方文档简练地介绍了远程连接的条件和方法[如何使用远程桌面 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/如何使用远程桌面-5fe128d5-8fb1-7a23-3b8a-41e636865e8c#ID0EDD=Windows_10)
+- 本文介绍一些使用过程中的细节
 
-#  被连接机器的信息获取/功能配置:
+
+
 ##  试验环境
 - 两台主机均被设置了用户和密码,被控机器登录的账户是Microsoft账户(不同于本地账户,影响远程登录时的用户名+密码)
 - 都是windows专业版以上的
@@ -15,93 +17,156 @@
 - 一台计算机(host)上可能不止一个用户(user)
 - 特别是用户名要加以区别
 
-##  修改计算机名
-###  CLI (powershell)
-- 进入到**管理模式,切记**下运行(**run as administator**)
-- `rename-computer <yourNewComputerName>`
-	- DESCRIPTION
-    > This cmdlet is only available on the Windows platform. The `Rename-Computer` cmdlet renames the local computer
-    > or a remote computer. It renames one computer in each command.
+### 两类账户
 
-    This cmdlet was introduced in Windows PowerShell 3.0.`
-- 例如:
-```bash
-PS C:\Users\cxxu> Rename-Computer CxxuWin10
-WARNING: The changes will take effect after you restart the computer DESKTOP-CO17BQC.
-```
-###  GUI
-####  win10
-- 比较容易报错
-- [UNABLE TO CHANGE Computer name on WIndows 10 Pro - Microsoft Community](https://answers.microsoft.com/en-us/windows/forum/all/unable-to-change-computer-name-on-windows-10-pro/6a20f7e6-b5f8-4b96-9bdb-596a03892da8)
-![在这里插入图片描述](https://img-blog.csdnimg.cn/5131f66de7bb41099c43bf275ae1c144.png)
-####  win11 
-- 情况比较正常
+- windows本地账户
+  - 仅限windows系统本地登录使用计算机用途,也可以供其他机器远程控制作为登录身份使用windows计算机的资源
+  - 不具有联网功能,无法同步设置,也无法登录其他微软(Microsoft)产品,主打离线使用,不需要上互联网(顶多是局域网)
+- Microsoft账户(云账户)
+  - 功能更加强大,可以备份设置,除了用来登录和管理windows,还可以用来登录其他Microsoft产品,因此成为Microsoft账号,而不是单单windows账号
 
+### 三个码
 
-## 获取windows主机名/获取被控制机器的身份(HostName/Ip):
->在局域网下,可以通过唯一的用户名/私有ip来确定一台计算机
-### 方式1(HostName)
-####  UI
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210516230404396.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-####  CLI
-`hostName`
-eg.
-![在这里插入图片描述](https://img-blog.csdnimg.cn/9fafb39c5c084bc2bb0664f462e66efd.png)
+- windows本地账户和Microsoft账户的密码是独立的
+- 另外如果用户密码比较长,登录windows时可以设置一个简单的字符串作为pin来登录(pin的形式有多种,pin码也可以用来登录windows,但是其功能是受限,只是方便输入,甚至可以用指纹来代替字符串,但是当前主机的pin无法被其他主机用来登录当前主机,所以如果对方无法直接接触你的机器,即便pin泄露,其他人依然无法登录您的机器)
+- 这和手机验证码登录账号的方式有相同也有不同点,比如验证码一般都是6位或者8位的数字,而密码我们可以很复杂很长,但是验证码是不能泄露的,pin码一般不怕泄露,除非这个人有机会接触到你的机器(因此指纹或人脸pin会更安全和更快捷,多年前就有指纹解锁的电脑了,和手机上的指纹解锁一样方便高效)
 
-- 记下(复制)改名字(也可以自行修改计算机名)
-如果需要,可以修改计算机名(修改后需要重启计算机)
-![在这里插入图片描述](https://img-blog.csdnimg.cn/f771969303d24248b114ca79c64ff391.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_19,color_FFFFFF,t_70,g_se,x_16)
+### pin特点👺
+
+- Windows上的PIN码（Personal Identification Number）是一种便捷的**本地身份验证方法**，类似于手机锁屏时使用的数字密码。
+- 在Windows 10及更高版本的操作系统中，用户可以设置PIN码作为替代传统的密码来快速登录到设备。PIN码有以下特点：
+  1. **便捷性**：PIN码通常由4到6位数字组成，但也可能包含字母和其他字符，根据Windows设置允许，这使得用户能够更快速地输入和解锁设备。
+  2. **本地绑定**：PIN码是与特定设备绑定的，这意味着你**在一台设备上设置的PIN码不能在另一台设备上使用**。这对于保护用户隐私和安全有一定的好处，**即使PIN码被知道，攻击者也无法远程登录到其他设备**。
+  3. **安全机制**：尽管PIN码看起来简单，但Windows系统中的PIN码实际上是经过加密处理的，并且与用户的Microsoft账户关联，即便PIN码泄露，也不能直接用来访问云端服务或从远程位置登录。
+  4. **双因素认证支持**：在某些情况下，PIN码结合了Windows Hello等生物识别技术（如指纹识别或面部识别）提供双重身份验证，进一步提升安全性。
+  5. **设置与管理**：用户可以通过Windows设置来创建、更改或删除PIN码。通常路径是在“设置”->“账户”->“登录选项”中找到PIN码相关设置。
+
+- 总之，Windows PIN码旨在提供一种平衡安全性和便利性的登录方式，**特别适合那些希望快速解锁个人电脑而又不想频繁输入复杂密码的用户**。
+- 最后,切记pin码无法用于远程登录,除非您的密码和pin码设置的一样(但一般pin码比较简短)
 
 
-### 方式2(ip):
-> 获取ipv4的地址
 
-#### CLI
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210516231024406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-####  UI
-通过设置查看
-![在这里插入图片描述](https://img-blog.csdnimg.cn/cb8c8e03f1f94b3ea12d86066d8766bf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+## 被控机的设置👺
 
->作用和hostName一样,两者选择一种即可
+### 获取windows主机名或地址
+
+- 在局域网下,可以通过唯一的**用户名**或**私有ip**两种方式来确定一台计算机
+- 详情另见它文:[windows@查看主机名@查看IP地址](http://t.csdnimg.cn/erYwP)
+
+
 
 ###  获取要被远程登录用户名(userName)
-####  cli
-- `whoami`获取的是`主机名/当前用户名`
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e638b97a86404f4daf2ace5d5ee97d31.png)
+- 快速的方法就是用`whoami`查询
+
+- 例如
+
+  - ```bash
+    PS>whoami
+    colorfulcxxu\cxxu
+    ```
+
+  - 其中colorfulcxxu是我的主机名,可以用ipv4地址代替这个名字
+
+  - `\`后面是用户名,表示其他机器要以哪一个用户的身份登录到这被控的机器
+
+- 为什么要主机名(ip)和用户名才行?省略掉用户名环节不行?
+
+  - 因为不同用户具有的权限可能不同,登录为管理员账户权限当然就大
+  - 另一方面是隐私和安全,如果机器上有多个用户,远程登录到任意用户,显然不安全也不合理
+
+- 我们也可以设立一个专门用来共享登录的用户,比如用户名share,然后登录密码公开给需要登录的用户
+
+- 注意,多个其他设备的用户无法同时远程登录到被控主机的同一个账户,多的用户会下线掉
 
 
-##  主控机的设置:
-###  打开mstsc
-win+R:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210516230506484.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
-###  输入信息
-第一栏:输入computer ip/username(刚才获取的被控制主机ip地址/hostName)
+##  主控机的设置👺
 
-例如,我使用名字(hostName)也可:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/c4cffefc28c04d0687bdc74270367038.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-这里试验的两台机器都是同一局域网下的主机
+###  微软的mstsc软件
 
-输入被控机器的`用户名`及其`密码`(这里用的是Microsoft账户+密码
-当然,本地用户也是可以的(本地用户的用户名+对应的登录密码(pin码))
+- [mstsc | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/mstsc)
+- "mstsc"是微软远程桌面连接（Microsoft Terminal Services Client）的命令行程序名称，主要用于Windows操作系统中远程连接到另一台计算机。
+- 在命令提示符窗口中输入“mstsc”并运行，将会打开远程桌面连接界面，用户可以输入远程计算机的IP地址或计算机名以建立远程桌面连接。
+
+### 打开mstsc
+
+- 具体使用方法如下：
+
+  1. 打开“运行”（快捷键Win+R）；
+  2. 输入“mstsc”后回车；
+  3. 在弹出的远程桌面连接窗口中输入远程计算机的IP地址和登录凭据（用户名和密码），然后点击“连接”即可进行远程控制。
+
+- 此外，你也可以直接在Windows搜索框中输入“远程桌面连接”来启动该程序。
+
+###  主控机上输入被控机以及登录身份信息
+- 首先输入被控主机名(或者ip)
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/be22b1dbfd434a269237681978e2e983.png)
+
+- 注意第一个界面输入的用户名可能在第二个界面被修改(改成了全名描述,既不是本地用户,也不是Microsoft账户名),可以点击更多选项,重新输入用户名和对应的登录密码
+- 如果计算机那一栏填写用的是ip地址,则第二个界面的用户名不会被修改
+- 即使显示的是本地用户的名字,但是如果设置了Microsoft云同步,则登录密码要输入Microsoft的密码,而不是本地账户的密码(除非两个密码是一样的),更不是PIN码
+- 如果忘记账户密码,可以到设置里更改或重置)
+
+- 这里试验的两台机器都是同一局域网下的主机
 
 ------
 ###  登录到远程主机的本地账户
->和Microsoft账户类似
+
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/9e4040c6b03249768b3071a316214c08.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_10,color_FFFFFF,t_70,g_se,x_16)
 >最好设置登录密码,否则可能无法远程登录失败
 >###  修改本地用户的登录密码
 >注意,这不同于PIN码
->![在这里插入图片描述](https://img-blog.csdnimg.cn/305bc3ebda9d4fc1aac40305ca5a6a0a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+>
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210516233135665.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-##  总结
-- 登录时,使用账户的登录密码`而不是pin码`
+
+
+## FAQ
+
+### 提示密码错误
+
+- 用户可能会遇到登录到被控机过程中的输入要登陆的用户身份和凭证(密码)时遇凭证无效的问题,即便我们被控机上的用户名密码都是确保正确的(但其实用户名这个东西有欺骗性)
+
+- 在较新的windows版本,比如win10之后的系统,微软强调用(推荐)microsoft账户(联网的云账户)来登录windows
+
+  - 云账户确实有好处,可以在其他设备同步自己的一些系统设置等
+  - 但是有的用户还是习惯使用本地账户,毕竟本地账户不需要联网,而且使用起来更加简单
+
+- 由于这两中类型的账户的存在,就会导致一些不必要的混乱
+
+  - 查询当前机器的所有用户可以用`lusrmgr.msc`查看(用命令行打开)
+
+  - 检查当前用户的用户名还可以查看家目录的名字,命令行中输入`cd`后的路径返回的就是用户家目录
+
+  - 或者使用whoami查看主机名和当前用户名
+
+    - ```cmd
+      C:\Users\cxxu>whoami
+      colorfulcxxu\cxxu
+      ```
+
+  - 尽管这看起来像是本地用户,但是我们还是要打开设置,看看是否处于本地账户登录状态
+
+    - ![请添加图片描述](https://img-blog.csdnimg.cn/direct/c3508922da194f0fb7cd6e60fcad96b6.png)
+
+  - 如果发现账户设置一栏有改用本地账户登录的字样,就说明当前账户受到云账户控制,使用pin码登录虽然能够在被控机上登录,但却无法被用以远程登录的凭证
+
+- 现在有两个选择,使用本地账户的密码(而非pin码,特别是密码和pin码不同的时候,通常pin码串可能会简单一些,比如只有数字);另一个选择是用云账户的密码来登录
+
+### 更改账户密码
+
+- [更改或重置 Windows 密码 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/更改或重置-windows-密码-8271d17c-9f9e-443f-835a-8318c8f68b9c)
+- 对于云账户密码修改:[Microsoft account | Security](https://account.microsoft.com/security?lang=en-US&refd=account.microsoft.com)
+
+### 远程桌面控制的投屏问题
+
+- 远程登录到被控主机,可能无法设置被控主机的显示器行为,这一点要注意
+
+##  总结(必看)👺
+
+- 我们这里谈到了两类账户(windows本地账户和Microsoft账户和3个码
+- 登录时,使用账户的**登录密码**`而不是pin码`(除非pin码和账户的密码是一样的)
 - 无论是microsoft账户还是本地账户,都用各自配置的密码来作为远程登录的入口凭证
 
 
-## result:
-这里被控机器我用的是`本地账号登录`:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210516232731474.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)

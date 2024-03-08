@@ -89,4 +89,8 @@
 
 - powrshell还可以执行:`Get-ItemProperty -Path "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"`
 
-- 
+
+## 代理异常(全部超时)
+
+- 对于新买的笔记本,时区可能是不那么准,需要手动设置一下(可以打开自动校准开关),有时候仅仅差几分中,就会导致代理服务器超时(代理客户端判断超时的算法有关)
+  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/5c7ee08bae754958869be7ef8bf0b23d.png)

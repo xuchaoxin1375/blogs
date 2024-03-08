@@ -2,6 +2,11 @@
 
 ## git软件
 
+## 安装版本
+
+- [Git镜像网址及其下载安装教程_git镜像地址-CSDN博客](https://blog.csdn.net/qq_43886120/article/details/114780563)
+- 有的镜像链接会提示安全问题，自己考虑要不要下载，检查一下域名，通常没有问题
+
 ### 免安装版本(portableGit)
 
 - [Git - Downloading Package (git-scm.com)](https://git-scm.com/download/win)

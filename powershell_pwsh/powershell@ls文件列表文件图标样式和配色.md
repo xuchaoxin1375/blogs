@@ -1,6 +1,6 @@
 [toc]
 
-# ps_color
+
 
 ##  预览效果
 
@@ -25,8 +25,9 @@
 `notepad $profile`(创建文件)并写入即可(具体可以搜索更多资料)
 ##  其他颜色模块
 (没有特殊需求的话,第一个就够用了)
-[pwsh Color](https://www.powershellgallery.com/packages/Color/2.1.0)
-[pwsh Gallery](https://www.powershellgallery.com/packages/Get-ChildItemColor)
+- [pwsh Color](https://www.powershellgallery.com/packages/Color/2.1.0)
+- [pwsh Gallery](https://www.powershellgallery.com/packages/Get-ChildItemColor)
+
 ###  get-ChildItemColor
 - [pwsh Get-ChildItem](https://github.com/joonro/Get-ChildItemColor)
 - 个人比较喜欢的配色
@@ -113,7 +114,7 @@ PS C:\Users\cxxu> $GetChildItemColorTable.File.Values|group
 
 
 
-### 了解如何操作hashtable of powershell
 
-- `help about_hash_tables`
-  - 获取内建的参考手册
+
+
+

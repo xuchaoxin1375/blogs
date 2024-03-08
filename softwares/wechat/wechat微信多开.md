@@ -123,6 +123,11 @@
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/b383c57eb2d14e0bb78978b3003c91e8.png)
 
+## 使用沙盒
+
+- 这是一个推荐的方法:[利用沙盒多开微信](https://blog.csdn.net/xuchaoxin1375/article/details/136180393)
+- 完全掌握沙盒的用法和细节可能比较花时间,但是掌握多开是简单事情
+
 ## 其他方法
 
 - 配合键盘和鼠标的方法快速点击微信图标等方法
