@@ -1,6 +1,12 @@
 [toc]
 
-# windows@系统环境变量备份@注册表操作@reg命令行操作注册表@360篡改浏览器主页问题.md
+## abstract
+
+
+
+- windows@系统环境变量备份@注册表操作
+- reg命令行操作注册表
+- 360篡改浏览器主页问题.md
 
 ##  备份注册表🎈
 
@@ -49,7 +55,7 @@
   - 官方建议,编辑注册表应该使用windows提供的GUI程序
   - 但是为了高效配置,熟悉相关操作的用户可以用命令行来配置,便于部署环境
 
-### 查询某个注册表
+## 查询某个注册表
 
 - ```
   PS C:\repos\blogs> reg add /?
@@ -101,7 +107,9 @@
 
 #### 例
 
-- ```
+- 查询值
+
+  ```
   PS C:\repos\blogs> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel
   
   HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
@@ -110,49 +118,44 @@
 
 
 
-### 更新某个key
+## 更新某个key👺
 
 - 下面这个例子试图修改注册表中指定了限制系统环境变量`Path`的值(value)的的长度(或者说,将限制放宽为32000个字符)
 
-- 首先,您需要使用管理员方式打开`cmd`或者`powershell`
 
-- 如果目标明确,执行类似以下操作的命令
 
-  - ```bash
-    PS C:\repos\blogs> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
-    值 BasicAuthLevel 已存在，要覆盖吗(Yes/No)? yes
-    操作成功完成。
-    ```
 
-- 推荐的流程
+### 推荐的流程
 
-- 方案1:
+#### 方案1:
 
-  - ```bash
-    #检查特定的key是否存在以及原来的值是多少:
-    PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
-    
-    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
-        LongPathsEnabled    REG_DWORD    0x0
-       
-    #确定无误后,开始修改
-    #修改的第一步是删除掉该条目(但是这不是必须的!)
-    PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
-    Delete the registry value LongPathsEnabled (Yes/No)? yes
-    The operation completed successfully.
-    
-    #开始设置新的值
-    PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1
-    The operation completed successfully.
-    
-    #再次查询该条目,确认修改后的值
-    PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
-    
-    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
-        LongPathsEnabled    REG_DWORD    0x1
-    
-    PS C:\Users\cxxu\Desktop>
-    ```
+- ```bash
+  #检查特定的key是否存在以及原来的值是多少:
+  PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
+  
+  HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
+      LongPathsEnabled    REG_DWORD    0x0
+     
+  #确定无误后,开始修改
+  #修改的第一步是删除掉该条目(但是这不是必须的!)
+  PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
+  Delete the registry value LongPathsEnabled (Yes/No)? yes
+  The operation completed successfully.
+  
+  #开始设置新的值
+  PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1
+  The operation completed successfully.
+  
+  #再次查询该条目,确认修改后的值
+  PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled
+  
+  HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
+      LongPathsEnabled    REG_DWORD    0x1
+  
+  PS C:\Users\cxxu\Desktop>
+  ```
+
+#### 方案2:
 
 - 另一种操作思路(覆盖)
 
@@ -162,6 +165,7 @@
     
     HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
         LongPathsEnabled    REG_DWORD    0x1
+        
     #尝试直接使用reg add覆盖已有的值
     PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 0
     Value LongPathsEnabled exists, overwrite(Yes/No)? y
@@ -174,91 +178,23 @@
         LongPathsEnabled    REG_DWORD    0x0
     
     ```
-
     
 
-## 360篡改浏览器主页
+### 允许http链接映射为磁盘驱动器
 
-- 如果您使用360,且不想卸载它,那么当你启动360后,它可能会篡改你的浏览器(比如edge)的主页`start page`为360
-- 早期可能是通过修改快捷方式的`target`等属性,但是现在变得更加隐蔽,至少修改了注册表!
-- 我们借助[Registry Finder (registry-finder.com)](https://registry-finder.com/)来查找注册表中得`hao.360`相关字段,可以发现4个路径得`start page`被默认修改为`hao.360.com`
-- 一个推荐的方式是打开360:功能大全->**主页防护**->解锁所有浏览器->更改主页(比如空白页或者自己喜欢的主页)->一键锁定
+- 下面的操作将是的windows能够将http链接映射为驱动器
 
-### 注册表修改
+- 首先,您需要使用管理员方式打开`cmd`或者`powershell`
 
-- 这个方法不是很彻底,在360启动的时候修改将无法进行,而且在360运行起见,打开edge依然会被定向到`hao.360.com`
+- 如果目标明确,执行类似以下操作的命令
 
-- 但是如果您已经将360卸载,那么可以这么作
-
-- 用**管理员权限**打开powershell
-
-- ```powershell
-  $items=@("HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main",
-  "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main",
-  "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main",
-  "HKEY_USERS\S-1-5-21-1862010897-3831421347-3551306287-1001\Software\Microsoft\Internet Explorer\Main")
-  
-  $items|%{reg query $_ /v 'start page'}
-  
-  
-  
-  ```
-
-- 上述内容输入powershell回车,如果看到形如:
+  - `reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2`
 
   - ```bash
-    PS C:\Users\cxxu\Desktop> $items|%{reg query $_ /v 'start page'}
+    PS C:\repos\blogs> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
     
-    HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main
-        start page    REG_SZ    https://hao.360.com
-    
-    
-    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main
-        start page    REG_SZ    https://hao.360.com
-    
-    
-    HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main
-        start page    REG_SZ    https://hao.360.com
-    
-    
-    HKEY_USERS\S-1-5-21-1862010897-3831421347-3551306287-1001\Software\Microsoft\Internet Explorer\Main
-        start page    REG_SZ    https://hao.360.com
+    值 BasicAuthLevel 已存在，要覆盖吗(Yes/No)? yes
+    操作成功完成。
     ```
-
-  - 这正说明您的计算机浏览器主页被篡改为`hao.360.com`
-
-- 删除这些注册表:
-
-  - ```powershell
-    $items|%{reg delete $_ /v 'start page'}
-    ```
-
-    - ```
-      PS C:\Users\cxxu\Desktop> $items|%{reg delete $_ /v 'start page'}
-      Delete the registry value start page (Yes/No)? y
-      The operation completed successfully.
-      Delete the registry value start page (Yes/No)? y
-      The operation completed successfully.
-      Delete the registry value start page (Yes/No)? y
-      The operation completed successfully.
-      Delete the registry value start page (Yes/No)? y
-      ```
-
-- 注意,如果采用此方法,此时您再次打开360,主页依然受360控制,除非360已经卸载,才推荐使用该方法
-
-## 例
-
-### 移除edge策略组
-
-- ```bash
-  PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
-  Permanently delete the registry key HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge (Yes/No)? yes
-  The operation completed successfully.
-  ```
-
-- 这里操作的KeyName是`HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`;前面不要带`Computer`(直接从注册表编辑器中复制的路径是`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`,这不被命令行识别)
-
-
-
 
 

@@ -164,7 +164,7 @@
 
   - nvidia驱动版本和cuda驱动版本(CUDA Version: 12.0 )
 
-    - cuda驱动版本要高于cuda运行时版本
+    - cuda**驱动版本**要高于cuda**运行时版本**
 
     - 如果驱动版本过旧,到nvidia官方下载更新
 
@@ -411,7 +411,7 @@
     cuda-demo-suite-12.0 | 4.7 MB    | ############################################################################################################################################### | 100%  
     ```
 
-## 历史版本的安装🎈
+## 历史版本的安装@过往版本👺
 
 
 
@@ -422,9 +422,11 @@
 - 对于`conda install`命令而言,`-c`参数指定的Channel对于安装操作是至关重要的
 - 特别是对于复杂或大型的框架的安装,更加容易因为指定的通道不合适而导致安装失败
 
-## COMMANDS FOR VERSIONS >= 1.0.0
+### 曾遇到的wen'ti
 
-- 在这里不得不吐槽以下pytorch的历史版本页面提供的命令,竟然无法工作
+- 在这里不得不吐槽以下pytorch的**历史版本页面**提供的命令,竟然无法工作
+
+- 当然后来网站修复了这个错误
 
 - 后来对比最新版命令才发现,是[Previous PyTorch Versions | PyTorch](https://pytorch.org/get-started/previous-versions/)页面将`-c nvidia`参数错误的写成`-nvida`
 
@@ -517,48 +519,4 @@
     - 可以看到,这次下载量很小,是因为之前我在其他环境用`conda install`安装过一次`pytorch==1.13.1`及其配套依赖,所以这次需要下载的内容比较少,其他内容可以从本地的conda缓存中读取即可
 
 
-
-### v1.13.1
-
-#### Conda
-
-##### OSX
-
-```
-# conda
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 -c pytorch
-```
-
-##### Linux and Windows
-
-```
-# CUDA 11.6
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -nvidia
-# CUDA 11.7
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -nvidia
-# CPU Only
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 cpuonly -c pytorch
-```
-
-#### Wheel
-
-##### OSX
-
-```
-pip install torch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1
-```
-
-##### Linux and Windows
-
-```
-# ROCM 5.2 (Linux only)
-pip3 install torch torchvision torchaudio --extra-index-url
-pip install torch==1.13.1+rocm5.2 torchvision==0.14.1+rocm5.2 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/rocm5.2
-# CUDA 11.6
-pip install torch==1.13.1+cu116 torchvision==0.14.1+cu116 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116
-# CUDA 11.7
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
-# CPU only
-pip install torch==1.13.1+cpu torchvision==0.14.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
-```
 

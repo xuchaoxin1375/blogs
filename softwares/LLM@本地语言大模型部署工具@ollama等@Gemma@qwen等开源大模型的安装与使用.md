@@ -1,12 +1,18 @@
 [toc]
 
-## 准备
+## abstract
+
+- LLM@本地语言大模型部署工具@ollama等
+- Gemma@qwen等开源大模型的安装与使用
 
 - 在windows环境下操作,可能要代理改善下载体验
+- 一般来说,本地模型效果很难达到预期,没有显卡的体验更差,所以玩玩就好,不玩也不可惜,未来说不定可以表现的比较好的本地大模型
 
 ### refs
 
 - [一键部署Google开源大模型Gemma本地大模型部署](https://www.bilibili.com/video/BV16v421r7rp/?spm_id_from=333.880.my_history.page.click)
+
+
 
 ### ollama
 
@@ -15,6 +21,11 @@
   - 可以安装许多开源大模型,例如llama2等
 - 使用ollama可以一键安装的大模型列表:[library (ollama.com)](https://ollama.com/library)
   - 例如:[gemma (ollama.com)](https://ollama.com/library/gemma)
+
+### LM studio
+
+- [LM Studio - Discover, download, and run local LLMs](https://lmstudio.ai/)
+  - 界面更友好,但是国内网络下载里面的东西可能比较麻烦
 
 ### 安装过程
 
@@ -26,7 +37,21 @@
     ollama version is 0.1.27
     ```
 
-    
+
+## ollama安装模型
+
+- 以Gemma 的20亿参数模型为例
+
+### 模型预览
+
+#### 在线gemma
+
+- [HuggingChat (huggingface.co)](https://huggingface.co/chat/)
+- [google (Google) (huggingface.co)](https://huggingface.co/google)
+  - [google/gemma-7b · Hugging Face](https://huggingface.co/google/gemma-7b)
+  - [google/gemma-7b-it · Hugging Face](https://huggingface.co/google/gemma-7b-it)
+
+### Gemma 2b模型本地安装
 
 - 开始安装模型(这里使用的电脑没有GUP太low,所以选择用cpu就可以运行的2b模型(20亿参数),对内存要求也不高,我这里只有约8GB内存)
 
@@ -143,9 +168,32 @@
 - [web&desktop](https://github.com/ollama/ollama?tab=readme-ov-file#web--desktop)
   - 例如[GitHub - ivanfioravanti/chatbot-ollama: Chatbot Ollama is an open source chat UI for Ollama.](https://github.com/ivanfioravanti/chatbot-ollama)
 
-## 使用Chatbot UI皮肤
+## 使用皮肤优化聊天界面
 
-- 这里以chatbot为例
+
+
+### 简单的皮肤@simple HTML UI for Ollama
+
+- 简单的皮肤,安装成本很低,又起来也不错:[ollama-ui/ollama-ui: Simple HTML UI for Ollama (github.com)](https://github.com/ollama-ui/ollama-ui)
+- 甚至可以用浏览器插件,方便的使用ollama安装的本地大模型:[ollama-ui (google.com)](https://chromewebstore.google.com/detail/ollama-ui/cmgdpmlhgjhoadnonobjeekmfcehffco)
+  - 可从第三方google应用商店下载该插件:ollama-ui
+- 我推荐此方式,它下载和使用都是最简单的
+
+#### 启动使用
+
+- 打开浏览器拓展前,先启动ollama
+- 然后才可以扫描到已经安装的模型
+
+#### 以qwen 7b模型为例
+
+- qwen1.5的7b int4模型中文还可以,但是有些问题还是会犯错,鲁迅和周树人问题应该是专门优化过的
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/784f56b0df504737948c293b319001c5.png)
+
+## 使用复杂一点的UI
+
+- open webui是一款界面比较美观,功能比较多的UI,但是下载和启动它在国内不是容易的事,它占用了一定的空间,如果没有代理或合适的加速镜像,下载安装的时间是让人不耐烦的
+- 而chatbot ui则是比较糟糕的UI,chat的过程中,文本不会逐字逐句的显示,而是等模型生成完毕后一下子弹出来,很不讨喜,尽管它的体积比open webui要小,但还不如用simple html ui
 
 ### 安装docker👺
 
@@ -158,6 +206,12 @@
   - docker版本更新:如果要安装新版的docker,直接安装可能会被阻止(旧版本的进程可能不容易杀死)
   - 建议更新前注销当前账户(登出windows),或者重启后安装
 - 安装或更新完毕,会要求重启电脑(对于初次安装使用者,先不要重启,看下一节)
+
+### 启用windows的虚拟机功能和linux子系统
+
+- 安装docker时勾选wsl2,会自动为您配置功能启用,并且会要求您重启机器
+- 我们也可以提前手动的启动windows的相应功能,重启
+- 如果直接执行`wsl  --update`而没有实现启用相应的功能,会执行失败
 
 ### 启动docker
 
@@ -172,7 +226,23 @@
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/a1b03933495146f88a7ffe29ca9b1a89.png)
 
-### chatbot 网页版皮肤
+### docker pull拉取加速
+
+- 没有代理的条件下,尝试以下方案
+- 自测:[togettoyou/hub-mirror: 🚀 通过 GitHub Actions 将 gcr.io、registry.k8s.io、k8s.gcr.io、quay.io、ghcr.io 等国外镜像转换为国内镜像加速下载，支持 docker 和 containerd 使用，支持 x86 和 arm 架构](https://github.com/togettoyou/hub-mirror)
+
+
+
+#### openwebui 皮肤
+
+- 例如openwebui:[Issues · togettoyou/hub-mirror (github.com)](https://github.com/togettoyou/hub-mirror/issues?q=open-webui+label%3Asuccess)
+  - 例如:[[hub-mirror\] 请求执行任务 · Issue #1997 · togettoyou/hub-mirror (github.com)](https://github.com/togettoyou/hub-mirror/issues/1997)
+
+### 使用自己的代理服务器或直接下载
+
+### chatbot-ollama 皮肤
+
+- [ivanfioravanti/chatbot-ollama: Chatbot Ollama is an open source chat UI for Ollama. (github.com)](https://github.com/ivanfioravanti/chatbot-ollama)
 
 - 国内直接安装是不容易下载下来(很慢),用代理的话可以快点,打断后需要重新下载一遍
 

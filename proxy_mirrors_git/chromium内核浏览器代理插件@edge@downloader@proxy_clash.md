@@ -45,13 +45,12 @@
         最短 = 0ms，最长 = 0ms，平均 = 0ms
     ```
   
-    
 - wget等命令行下载工具也可以在此配置下走代理
 
 
 ## edge 浏览器内部代理配置插件
 
-## 插件1 proxy switchomega
+### 插件1 proxy switchomega
 
 - [Microsoft Edge 加载项 - proxy switchyomega](https://microsoftedge.microsoft.com/addons/search/proxy switchyomega)
 - 推荐使用，简单易用，较稳定

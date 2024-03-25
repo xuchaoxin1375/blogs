@@ -53,7 +53,12 @@ Get-ChildItem: Could not find a part of the path 'C:\Users\cxxu\.android'.
 
 - 某些国内厂商(比如维沃(vivo,iqoo))对开发者选项做了严格限制(OriginOS高版本),例如**允许通过usb安装应用**等选项被删除了,这就导致我们无法在不操作手机的情况下安装应用,诸如`adb install xxx.apk`需要我们操作手机点击安装才能够执行安装
   - 在OriginOS中,替换默认应用安装程序是很困难的事情(使用自带的应用商店或google play才能静默安装),而在MIUI/HyperOS中则是相对容易实现的
+  - 如果确实需要第三方安装器,可以考虑下面介绍的dhizuku权限管理
 - 而小米等提供了解bl锁的厂商往往支持完整的开发者选项功能
+
+### 高级权限
+
+- [dhizuku@设备拥有者权限@android设备管理员权限@android替换默认软件安装器-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/136705528)
 
 ### 设备驱动
 

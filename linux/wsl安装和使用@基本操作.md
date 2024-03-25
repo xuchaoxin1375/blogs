@@ -81,7 +81,7 @@
 
   
 
-
+## FAQ
 
 ### 启动失败@错误处理🎈
 
@@ -100,7 +100,16 @@
 
     - `wsl --set-default-version 1`
 
+### 无法解析服务器
 
+- 系统语言选择英文时,报错内容比较详细
+
+  ```bash
+  Failed to fetch the list distribution from 'https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json'. The server name or address could not be resolved
+  Error code: Wsl/WININET_E_NAME_NOT_RESOLVED
+  ```
+
+- 如果是中文,报错内容为无法解析
 
 
 ##  wsl命令帮助
@@ -240,7 +249,7 @@ PS C:\Users\cxxu> wsl --help
 
 [windows_控制面板cpl和msc的快速打开_powershell_xuchaoxin](https://blog.csdn.net/xuchaoxin1375/article/details/122659370)
 
-## 将wsl1升级到wsl2:🎈
+## 将wsl1升级到wsl2🎈
 
 ### 早期的windows
 
@@ -272,4 +281,35 @@ PS C:\Users\cxxu> wsl --help
 - windows11中,将子系统列在了资源管理器中:
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210630175312611.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+
+
+
+## wsl --install 无法下载
+
+- 那就用应用商店去下载
+
+### 解决WSL2中Vmmem内存占用过大问题
+
+- powershell脚本
+
+  ```powershell
+  
+  $wslconfig="$env:userprofile\.wslconfig"
+  @"
+  [wsl2]
+  memory=2GB
+  swap=0
+  localhostForwarding=true
+  "@>$wslconfig
+  
+  ls $wslconfig
+  
+  wsl --shutdown
+  
+  
+  ```
+
+
+
+
 

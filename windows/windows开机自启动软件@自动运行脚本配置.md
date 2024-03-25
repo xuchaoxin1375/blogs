@@ -11,6 +11,43 @@
   4. 在弹出的“新建快捷方式”对话框中，输入要启动的程序的路径和名称。
   5. 点击“下一步”按钮，输入快捷方式的名称，然后点击“完成”按钮。 这样，添加的程序就会在系统启动时自动运行了。
 
+### 补充👺
+
+- 在 Windows 系统中，开机自启动程序通常可以放在两个不同的目录下：
+
+  1. **用户级别的启动目录**：
+     用户自启动目录用于让某个特定用户在登录时启动指定的应用程序。在 Windows 10 及以上版本中，用户个人的启动目录位于：
+     ```
+     C:\Users\[用户名]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+     ```
+     其中 `[用户名]` 是当前用户的账户名称。
+
+  2. **系统级别的启动目录**：
+     系统启动目录用于配置所有用户在登录时都自动启动的应用程序。此目录的位置在 Windows 10 及以上版本中是：
+     
+     ```
+     C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+     ```
+
+- 若要通过命令行快速打开这两个目录，可以分别使用以下命令：
+
+  - 打开用户级别的启动目录：
+    ```shell
+    explorer shell:startup
+    ```
+
+  - 打开系统级别的启动目录：
+    ```shell
+    explorer shell:common startup
+    ```
+
+- 或者直接在运行（Win + R）对话框中输入上面的 `shell:startup` 和 `shell:common startup` 并回车。
+
+- 将程序快捷方式或可执行文件放入这些目录中，就可以实现相应级别的开机自启动功能。
+
+  - 但需要注意的是，随着 Windows 安全性的提升，一些权限限制可能会影响非管理员用户的操作。
+  - 此外，对于现代 Windows 版本，如 Windows 11 和 Windows 10，还可以通过“设置”->“应用”->“启动”来管理开机启动的应用程序。(搜索启动(startup),可以进行配置)
+
 ### 开机运行的脚本
 
 - 通常的,我们可以在这个自动运行目录里面配置一个**脚本文件**(或者其他位置下的某个脚本的**快捷方式**),而在这个脚本中编写我们需要的逻辑(启动某个软件,检查网络连通性,延迟执行,都可以写在同一个脚本文件中,也方便维护)
@@ -92,102 +129,52 @@
   - 此时需要右键点击快捷方式，选择“属性”→“兼容性”→“以管理员身份运行此程序”，并点击“确定”按钮，以确保程序可以正常启动。
 -  另外，如果需要删除已经添加的开机自动运行程序，只需要在“启动”文件夹中删除相应的快捷方式即可。
 
-## 开机自动运行脚本示例
 
-- ```bash
-  
-  # 为了更快的执行开机自启动脚本的执行速度,请在$startup_user目录内创建startup_basic.lnk,并且设置参数为如下
-  # powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\repos\scripts\startup\startup_basic.ps1"
-  #这样就不会加载不必要的配置,从而快速完成任务
-  #可以选择隐藏powershell窗口静默执行:使用选项-WindowStyle Hidden
-  # $scripts = 'C:\repos\scripts'
-  
-  #导入基本的powershell环境变量和字符串
-  ImportGlobalEnvs
-  # 日志:记录当前时间
-  # "test:$(Get-Date)"> "$scripts\startup\log\log"
-  
-  #配置延迟启动(单位:秒)
-  function sleep_tips
-  {
-      param(
-          $delay = 0
-      )
-      
-      if ($delay)
-      {
-          Write-Output "after $delay seconds run next task"
-      }
-      Start-Sleep $delay
-  }
-  
-  # @REM 检查网络可用性,拖延一段时间(ping 2次即可,一般不需要太多次)
-  $log_home = "$Scripts\startup\log"
-  Set-Location $log_home
-  $log_file = "$log_home\log.txt"
-  
-  ping www.baidu.com -n 2 | Tee-Object $log_file #初始化日志文件,这里不用append参数,只保留一次记录
-  Get-Date | Tee-Object -Append $log_file
-  
-  
-  
-  #后台(不打印日志到前台)启动alist服务
-  # $scriptBlock = {
-  #     # $alist_home = 'c:\exes\alist'
-  #     # Set-Location $alist_home
-  #     # # (vbs免弹出窗口,同时也不会由信息输出,所以可以不用后台执行)
-  #     # "$alist_home\startup.vbs" | Invoke-Expression
-  #     # 当窗口退出后,如下写法会停止alist服务,因此下面的写法不可用
-  #     # "$alist_home\alist.exe server" | Invoke-Expression
-  # }
-  # Start-Job -ScriptBlock $scriptBlock
-  
-  Set-Location $alist_home
-  # (vbs免弹出窗口,同时也不会由信息输出,所以可以不用后台执行)
-  "$alist_home\startup.vbs" | Invoke-Expression
-  
-  sleep_tips -delay 4
-  importAliasGlobal #导入常用命令别名(会占用若干秒的时间)
-  #尝试重定向输出到日志文件,但这在powershell似乎无法做到,我们用start-job虽然隐藏了输出,却无法重定向到文件
-  # 如果想要接受start-job启动的任务返回结果,使用Receive-Job -Id $job.id,其中$job是Start-job 赋值的对象
-  #然而这里调用的vbs没有输出结果,因此是空白的输出,就不需要定向到日志文件中
-  #有些软件,例如alist server输出内容无法使用 >,2>等重定向阻止输出到标准输出终端(不知道cmd能不能做到)
-  
-  
-  #执行已经编写好的cmd脚本文件,对于老系统,可以直接使用cmd脚本
-  # C:\repos\scripts\startup\MapCloudDrive.bat
-  
-  $MapLog = "$scripts\startup\log\MapLog.txt"
-  # "c:\repos\scripts\startup\log\MapLog"
-  
-  net use W: http://localhost:5244/dav /p:yes /savecred *> $MapLog # 可以输出为日志 *> "$MapLog"
-  '👺👺👺' | Tee-Object -Append $MapLog
-  net use | Tee-Object -Append $MapLog
-  Get-Date | Tee-Object -Append $MapLog
-  
-  
-  #查看日志文件
-  
-  Get-Content $log_home/*
-  
-  
-  # 用pause指令阻止powershell窗口自动关闭
-  # Pause 
-  Start-Sleep 2
-  
-  #配置需要自启动的软件(缓慢启动)
-  # "$snipaste_home\snipaste" | Invoke-Expression
-  # "$ditto_home\ditto" | Invoke-Expression
-  snipaste
-  ditto
-  #注意cfw会将日志打印占用终端,导致无法退出终端的问题,最为开机自启,如果使用 hidden参数隐藏窗口也是可以的
-  # Start-Job -ScriptBlock { & 'C:\exes\cfw\Cfw.exe' }
-  cfw *> null #将错误信息统统放空
-  
-  
-  ```
-  
-  
+
+## 注册表和开机自启软件配置
+
+- 软件有的会将自己的快捷方式创建到用户的startup目录
+
+  - 通常是:`$env:appdata\Roaming\Microsoft\windows\Start Menu\programs\Startup`
+
+  - 例如
+
+    ```
+    C:\Users\cxxu\AppData\Roaming\Microsoft\windows\Start Menu\programs\Startup
+    ```
+
+- 还有的软件(大部分软件的策略)是将开机启动注册在以下注册表中
+
+  - 要在 PowerShell 中查看 `HKEY_USERS\S-1-5-21-1150093504-2233723087-916622917-1001\Software\Microsoft\Windows\CurrentVersion\Run` 这个特定注册表路径下的内容，可以使用如下命令：
+
+  - ```powershell
+    # 先定位到 HKEY_USERS 下对应的 SID 键
+    $SID = 'S-1-5-21-1150093504-2233723087-916622917-1001'
+    $keyPath = "Registry::HKEY_USERS\$SID\Software\Microsoft\Windows\CurrentVersion\Run"
+    
+    # 列出该路径下的注册表键及其值
+    Get-ItemProperty -Path $keyPath
+    ```
+
+- 这段命令首先构造了要访问的完整注册表路径，然后使用 `Get-ItemProperty` 命令来获取该路径下所有键值对的数据。
+
+- 这个路径指向的是特定用户的启动项，即当该用户登录时会自动运行的应用程序列表。如果想要查看该路径下有哪些程序会在用户登录时启动，上述命令将会输出相关的应用程序名称及其对应的执行路径。
+
+  - ```powershell
+    PS>startup_register
+    
+    OneDrive                : "C:\Users\cxxu\AppData\Local\Microsoft\OneDrive\OneDrive.exe" /background
+    com.alicloud.smartdrive : C:\Users\cxxu\AppData\Local\Programs\aDrive\aDrive.exe --openAtLogin
+    QQNT                    : "C:\Program Files\Tencent\QQNT\QQ.exe" /background
+    BaiduYunDetect          : "C:\Users\cxxu\AppData\Roaming\baidu\BaiduNetdisk\YunDetectService.exe"
+    Docker Desktop          : C:\Program Files\Docker\Docker\Docker Desktop.exe -Autostart
+    PSPath                  : Microsoft.PowerShell.Core\Registry::HKEY_USERS\S-1-5-21-1150093504-2233723087-916622917-1001\
+                              Software\Microsoft\Windows\CurrentVersion\Run
+    ```
+
+    
+
+
 
 
 

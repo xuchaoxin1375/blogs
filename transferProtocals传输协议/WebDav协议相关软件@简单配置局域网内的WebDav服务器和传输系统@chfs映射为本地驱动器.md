@@ -405,6 +405,33 @@
 ##  资源管理器挂载网络驱动器👺
 
 - 对于http协议链接,可能需要修改注册表,使得系统能够挂载http链接
+- [修改注册表以支持连接 HTTP协议 的 WebDAV_注册表http属性-CSDN博客](https://blog.csdn.net/qq_36666115/article/details/105473156)
+- 这里给出一个命令行版本,操作更简单
+
+### 允许http链接映射为磁盘驱动器
+
+- 下面的操作将是的windows能够将http链接映射为驱动器
+
+- 首先,您需要使用**管理员方式**打开`cmd`或者`powershell`
+
+- 如果目标明确,执行类似以下操作的命令
+
+  - `reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2`
+
+  - ```bash
+    PS C:\repos\blogs> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
+    
+    值 BasicAuthLevel 已存在，要覆盖吗(Yes/No)? yes
+    操作成功完成。
+    ```
+
+  - 然后要**重启系统**
+
+- 重新检查是否可以映射!
+
+### 理想效果
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/c6bf73ca1c1b4f829a40f551b095b8f2.png)
 
 ## FAQ
 

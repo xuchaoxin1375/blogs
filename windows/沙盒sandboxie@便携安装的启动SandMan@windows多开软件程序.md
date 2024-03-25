@@ -70,7 +70,7 @@
 
 - sandboxie的基本程序,基本上围绕着它进行操作
   - [Sandboxie Control | Sandboxie Documentation (sandboxie-plus.github.io)](https://sandboxie-plus.github.io/sandboxie-docs/Content/SandboxieControl.html)
-- 以下简称其为`SbieCtrl.exe`或‘`sbct’
+- 以下简称其为`SbieCtrl.exe`或`sbct`
 
 ### 手动启动sandbox control
 

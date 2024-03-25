@@ -1,6 +1,9 @@
 [toc]
 
-# conda@config命令@package cache包缓存共享@Channels@conda install pyside6@channel_alias
+## abstract
+
+- conda@config命令@package cache包缓存共享
+- Channels@conda install pyside6@channel_alias
 
 ## refs
 
@@ -119,6 +122,65 @@
 ## conda Channel
 
 - [Conda channels — conda 23.3.0.post2+8419c02f5 documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html)
+
+### 国内通道加速@清华源通道👺
+
+- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
+
+- Anaconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/ 下载。
+
+  TUNA 还提供了 Anaconda 仓库与第三方源（conda-forge、msys2、pytorch等，[查看完整列表](https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/)，更多第三方源可以前往[校园网联合镜像站](https://mirrors.cernet.edu.cn/list/anaconda)查看）的镜像，各系统都可以通过修改用户目录下的 `.condarc` 文件来使用 TUNA 镜像源。
+
+- Windows 用户,可先执行 `conda config --set show_channel_urls yes` 生成 `.condarc` 的文件之后再修改。
+
+- powershell下执行:`notepad "$userprofile\.condarc"`编辑该文件,粘贴(追加)如以下内容
+
+  ```bash
+  channels:
+    - defaults
+  show_channel_urls: true
+  default_channels:
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+  custom_channels:
+    conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
+  ```
+
+#### 检查是否配置成功
+
+- `conda config --show-sources`
+
+  ```bash
+  [🔋 100%] MEM:42.52% [6.68/15.70] GB | conda config --show-sources
+  ==> C:\Users\cxxu\.condarc <==
+  auto_activate_base: False
+  channels:
+    - defaults
+  custom_channels:
+    conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
+  default_channels:
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+    - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+  show_channel_urls: True
+  ```
+
+  
 
 ### conda-forge 通道安装packge@conda install cupy
 

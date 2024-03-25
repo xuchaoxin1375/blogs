@@ -1,6 +1,11 @@
 [toc]
 
-# linux@自动化换源等优化美化自动化操作脚本@oh my zsh安装@卸载与删除@vim@vi卸载与更新异常@linux发行版本/内核版本查看
+## abstract
+
+
+
+- linux@自动化换源等优化美化自动化操作脚本@oh my zsh安装@卸载与删除
+- vim@vi卸载与更新异常@linux发行版本/内核版本查看
 
 ##  references
 
@@ -41,50 +46,52 @@
 ### 换源脚本模板
 
 - 不要直接使用
-- 以kali-linux 更换国内镜像源(阿里源为例)
-- 只提供流程参考
-- 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
-
-```bash
-# 备份:backup the origin source.list(or just rename(use move command))
-# 注意sources.list 不要拼错(带s)
-cd /etc/apt
-sudo mv sources.list sources.list.bak_bySh
-# 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
-#这里以阿里源为例
-cd ~
-# 多行输入[国内源]
-cat >sources.list <<EOF
-
-deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
-deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
-
-EOF
-
-#上面的EOF间的内容不要写入其他与源无关的内容(除了注释和源,其他命令不要写在里头)
-# 检查写入的内容:
-echo "check the conetent of the file 'source.list'"
-## 将家目录下的sources.list 转移到/etc/apt目录下(sodu可以作用与mv/cp等命令,
-## 但好像不可以直接作用与cat,所以没有直接在/etc/apt目录下创建新文件)
-sudo mv sources.list /etc/apt
-cat /etc/apt/sources.list
-# 更新并使得apt配置文件生效
-echo "updating the apt..."
-sudo apt update
+  - 以kali-linux 更换国内镜像源(阿里源为例)
+  - 只提供流程参考
+  - 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
 
 
-# 其他写法:探索中
+- ```bash
+  # 备份:backup the origin source.list(or just rename(use move command))
+  # 注意sources.list 不要拼错(带s)
+  cd /etc/apt
+  sudo mv sources.list sources.list.bak_bySh
+  # 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
+  #这里以阿里源为例
+  cd ~
+  # 多行输入[国内源]
+  cat >sources.list <<EOF
+  
+  deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
+  deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+  
+  EOF
+  
+  #上面的EOF间的内容不要写入其他与源无关的内容(除了注释和源,其他命令不要写在里头)
+  # 检查写入的内容:
+  echo "check the conetent of the file 'source.list'"
+  ## 将家目录下的sources.list 转移到/etc/apt目录下(sodu可以作用与mv/cp等命令,
+  ## 但好像不可以直接作用与cat,所以没有直接在/etc/apt目录下创建新文件)
+  sudo mv sources.list /etc/apt
+  cat /etc/apt/sources.list
+  # 更新并使得apt配置文件生效
+  echo "updating the apt..."
+  sudo apt update
+  
+  
+  # 其他写法:探索中
+  
+  # sourceCN="
+  # deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
+  # deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+  # "
+  # echo $sourceCN
+  # sudo cat>>source.list<<EOF
+  # echo $sourceCN
+  # EOF
+  
+  ```
 
-# sourceCN="
-# deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
-# deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
-# "
-# echo $sourceCN
-# sudo cat>>source.list<<EOF
-# echo $sourceCN
-# EOF
-
-```
 
 
 
@@ -109,18 +116,19 @@ cd ~
 # 多行输入
 sudo tee >sources.list <<EOF
 # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-updates main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-backports main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-security main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-security main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+
+deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+# deb-src http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
 
 # 预发布软件源，不建议启用
-# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-proposed main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ impish-proposed main restricted universe multiverse
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+# # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
 
 #结束文档
 EOF

@@ -2,7 +2,11 @@
 
 [toc]
 
-# conda发行版比较@python环境管理@conda命令的基本操作@基本使用@conda env list环境条目重复列出问题
+## abstract
+
+- conda发行版比较
+- python环境管理@conda命令的基本操作@基本使用
+- conda env list环境条目重复列出问题
 
 ## ref
 
@@ -785,29 +789,27 @@
 
 ## conda启动(激活)指定python环境@conda activate🎈
 
-#### powershell方式启动
-
-- 在windows下,您需要注意shell的不同(比如,`conda activate`能否执行成功)
-  - 使用专门为powershell配置的命令启动,否则无法生效
-  - 默认的是为cmd的启动命令
+### powershell方式启动👺
 
 - [anaconda - How to activate conda environment from powershell? - Stack Overflow](https://stackoverflow.com/questions/64149680/how-to-activate-conda-environment-from-powershell)
 
+- 在windows下,您需要注意shell的不同(比如,`conda activate`能否执行成功)
+  - 使用专门为powershell配置的命令启动,否则无法生效
+  - 默认的是为cmd的启动命令,这里要找到powershell的版本
+
 - 从开始菜单中**使用管理方式**启动`Anaconda Powershell Prompt (miniconda3)`
 
-  - 或者在管理员方式启动的powershell中执行以下代码启动:
+  - 或者在**管理员方式**启动的powershell中执行以下代码启动:
 
   - ```bash
-    .(Resolve-Path "$env:appdata\Microsoft\Windows\Start*Menu\Programs\Anaconda3*\*conda*powershell*.lnk")
+    . (Resolve-Path "$env:appdata\Microsoft\Windows\Start*Menu\Programs\Anaconda3*\*conda*powershell*.lnk")
     #另一种可能
     . (rvpa "C:\ProgramData\Microsoft\Windows\Start*\Programs\Miniconda3*\*conda*powershell*.lnk")
     
     
     ```
 
-    
-
-  - 非管理员权限可能会失败
+  - Note：非管理员权限可能会失败
 
     ```bash
     (base) PS C:\Users\cxxu> conda init powershell
@@ -827,9 +829,7 @@
     No action taken.
     Operation failed.
     ```
-
-    
-
+  
 - 粘贴以下代码回车执行
 
   - 前提是上面一节的代码成功运行!
@@ -838,6 +838,8 @@
     conda init powershell
     conda config --set auto_activate_base false
     ```
+
+  - 这一段脚本会执行个几秒，耐心等待结束，会提醒你重启终端
 
   - 关闭终端,此后再打开powershell,就可以直接使用`conda activate`相关命令了
 

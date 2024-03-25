@@ -191,7 +191,9 @@
 
     - ```bash
       PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters /v "AllowInsecureGuestAuth" /d 1 /t REG_DWORD
+      
       The operation completed successfully.
+      
       PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters
       
       HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters
@@ -202,7 +204,7 @@
           ServiceDllUnloadOnStop    REG_DWORD    0x1
           AllowInsecureGuestAuth    REG_DWORD    0x1
       ```
-
+      
       
 
 ### 协议相关信息参考

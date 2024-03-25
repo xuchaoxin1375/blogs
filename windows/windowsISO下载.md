@@ -8,6 +8,17 @@
 
 ## win10
 
+- [下载 Windows 10 (microsoft.com)](https://www.microsoft.com/zh-cn/software-download/windows10)
+  - 使用下载工具下载镜像（用于下载最新版windows）
+  - 可以在工具里选择下载的目的
+  - 缺点无法直接点击下载来获取镜像
+
+### 第三方镜像资源
+
+- IT之家里去找
+
+  
+
 
 **Windows 10 21H1（64 位）消费者版本（家庭版，家庭单语言版，教育版，专业版，专业教育版，专业工作站版）**
 

@@ -75,6 +75,20 @@
   - `-map 1:a:0` 选取第二个输入文件的第一个音频流。
   - `output.mp4` 是合并后输出的文件名。
 
+
+### 实操
+
+- 假设我的视频都是下载Downloads目录,并且分别命名为了`k.mp3,k.mp4`
+
+- powershell脚本
+
+  - ```powershell
+    cd "$home\Downloads"
+    ffmpeg -i k.mp4 -i k.mp3 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4
+    ```
+
+    
+
 - ```bash
   PS BAT [11:37:09 AM] [C:\Users\cxxu\Downloads]
   [🔋 102%] MEM:71.01% [5.57/7.85] GB |ls
@@ -93,7 +107,7 @@
   -a---          3/4/2024  11:25 AM        7739933   output.mp4
   
   PS BAT [11:37:21 AM] [C:\Users\cxxu\Downloads]
-  [🔋 102%] MEM:72.27% [5.67/7.85] GB |ffmpeg -i kk.mp4 -i kk.mp3 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output2.mp4
+  [🔋 102%] MEM:72.27% [5.67/7.85] GB |ffmpeg -i k.mp4 -i k.mp3 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output2.mp4
   ffmpeg version 2024-02-29-git-4a134eb14a-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
     built with gcc 13.2.0 (Rev5, Built by MSYS2 project)
     configuration: --enable-gpl --enable-version3 --enable-static --pkg-config=pkgconf --disable-

@@ -1,13 +1,13 @@
 ## 常用播放器
 
-### potplayer
+### potplayer👺
 
 - 中文网[Global Potplayer](https://potplayer.tv/?lang=zh_CN)
 - 国际网[Global Potplayer (daum.net)](https://potplayer.daum.net/)
 
 - 使用手册[PotPlayer中文网 - 万能格式影音视频播放器 PotPlayer播放器 PotPlayer官网 (potplayercn.com)](http://www.potplayercn.com/)
 
-### 其他视频播放器
+### 其他视频播放器👺
 
 - [mpv播放器](https://mpv.io/)
 - 下载:[mpv.io | Installation](https://mpv.io/installation/)
