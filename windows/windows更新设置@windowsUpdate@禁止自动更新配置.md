@@ -57,11 +57,11 @@
 
 ## 其他方法👺
 
-#### 脚本方案
+### 脚本方案
 
 - [tsgrgo/windows-update-disabler: Disable Windows update with a lightweight batch tool. (github.com)](https://github.com/tsgrgo/windows-update-disabler)
 
-#### 软件方案
+### 软件方案
 
 - [Windows Update Blocker v1.8 (sordum.org)](https://www.sordum.org/9470/windows-update-blocker-v1-8/)
 - [Disable Windows 10/11 Automatic Updates With Ease | Win Update Stop](https://www.winupdatestop.com/)

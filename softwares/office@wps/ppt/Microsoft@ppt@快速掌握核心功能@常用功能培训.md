@@ -193,6 +193,13 @@
 
 - 从当前页面跳转到其他幻灯片页面,例如我想在某一页幻灯片回顾一下前面的内容,可以利用超链接
 
+## 插入形状@图形@箭头等
+
+- [添加形状 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/添加形状-0e492bb4-3f91-43b5-803f-dd0998e0eb89)
+- [更改文本框或形状中的颜色 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/更改文本框或形状中的颜色-c3ab6bb7-89f9-4908-912e-e86ea5fd106d)
+- 对一个图片的各个结构做注释是很常用的情形
+- 这部分功能属于**插入**,阅读文档了解详情
+
 ## office文件属性@作者以及主题信息
 
 - [Change the author name for documents, presentations, or workbooks - Microsoft Support](https://support.microsoft.com/en-us/office/change-the-author-name-for-documents-presentations-or-workbooks-0ad23fe7-b82e-40c4-b9d9-391fec971a54)

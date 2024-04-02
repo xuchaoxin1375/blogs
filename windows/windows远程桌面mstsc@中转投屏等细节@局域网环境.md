@@ -163,10 +163,67 @@
 
 - 远程登录到被控主机,可能无法设置被控主机的显示器行为,这一点要注意
 
+### 亮度调节被卡住👺
+
+- 远程控制的情况下,我们也不能够调整被控制的机器的屏幕亮度
+  - 不仅如此,还可能导致被控机器的控制中心出现故障,比如亮度条无法调整(灰色)
+  - 那么控制机无法调整被控机的亮度,那就向将被控机的窗口缩小,然后调整主控机的亮度
+  - 同理,投影也是一样的,可以向把主控机投屏设置好,然后被控机窗口全屏即可
+    - 比如说,办公室有一台比较重的高性能工作站,教室有一台轻薄本,自然希望获得工作站的性能和笔记本的轻便
+    - 如果两个机器处在同一局域网下,那么利用轻薄本远程连接到工作站(两台都是windows 专业版,至少工作站机器得是专业版以上的windows,才提供被连接的功能)，利用轻薄本远程到工作站,再把轻薄本上的画面投屏到大屏幕上,非常完美(考虑到windows的个别地方的限制,可以先投影轻薄本画面,调整亮度,然后远程工作站的画面全屏即可)
+
+- windows自带的控制中心(win+A)启动,依赖于资源管理器,因此如果某些功能异常,可以考虑重启资源管理
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/fc03653850124d73b999f02ce8180180.png)
+
+- 重启资源管理器解决:
+
+  - cmd/powershell:` taskkill /f /im explorer.exe  & start explorer.exe`
+
+    - 注意`taskkill /f /im explorer.exe`是单纯杀死资源管理器(依赖于资源管理器的系统组件将无法工作)
+
+      - 通常这个语句不要单独执行
+
+      - 如果您不小心执行了这一个语句而没有接着启动`explorer`,请在命令行窗口内追加explorer即可
+
+      - ```bash
+        Microsoft Windows [Version 10.0.22631.3296]
+        (c) Microsoft Corporation. All rights reserved.
+        
+        C:\Users\cxxu>taskkill /f /im explorer.exe
+        SUCCESS: The process "explorer.exe" with PID 18648 has been terminated.
+        
+        C:\Users\cxxu>explorer
+        ```
+
+        
+
+    - 因此我们还需要进一步最佳执行`start explorer`或直接`explorer`
+
+    - cmd下执行,不能在powershell下执行,下面是实操
+
+      ```bash
+      Microsoft Windows [Version 10.0.22631.3296]
+      (c) Microsoft Corporation. All rights reserved.
+      
+      C:\Users\cxxu>@echo off
+      taskkill /f /im explorer.exe & start explorer.exe
+      SUCCESS: The process "explorer.exe" with PID 22784 has been terminated.
+      ```
+
+  - powershell可以直接执行即可:`Stop-Process -Name explorer`
+
+    - 如果不放心的话可以追加一下下一行`explorer`
+
+
+
 ##  总结(必看)👺
 
 - 我们这里谈到了两类账户(windows本地账户和Microsoft账户和3个码
+
 - 登录时,使用账户的**登录密码**`而不是pin码`(除非pin码和账户的密码是一样的)
+
 - 无论是microsoft账户还是本地账户,都用各自配置的密码来作为远程登录的入口凭证
 
+  
 

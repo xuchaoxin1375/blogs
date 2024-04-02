@@ -1,6 +1,9 @@
 [toc]
 
-# jupyterLab@在线vscode@vscode notebook@快捷键配置@交互编程环境@在线运行资源CodeSpace
+## abstract
+
+- jupyterLab@在线vscode@vscode notebook@快捷键配置
+- 交互编程环境@在线运行资源CodeSpace
 
 ## jupyterLab
 
@@ -8,9 +11,19 @@
 
 
 
-## REPLs
+## REPL@交互式解释器👺
 
-- REPLs是指“Read-Eval-Print Loops”的缩写，是一种交互式编程环境，允许用户输入代码片段并立即看到结果。当用户输入代码时，REPL会读取代码、执行代码并打印输出结果。这种环境通常用于快速原型开发、教学和调试等场景。常见的REPLs包括Python的IDLE、Ruby的irb、Node.js的REPL等。
+- REPL或REPLs,是指Read-Eval-Print Loop(s)，即读取-求值-输出循环，是一种交互式编程环境，允许用户输入代码片段并立即看到结果。
+  - REPL 在计算机科学中指的是交互式编程环境，其中用户可以输入一条命令或表达式，系统立即读取（Read）、评估（Eval）其结果，并打印（Print）出来，然后循环（Loop）等待下一次输入。
+  - 因此，REPL 可以翻译为“读取-求值-输出循环”。
+  - 在中文环境中，REPL 有时被译作“交互式解释器”或“实时反馈环境”。
+
+- 当用户输入代码时，REPL会读取代码、执行代码并打印输出结果。
+
+### 用途
+
+- 这种环境通常用于快速原型开发、教学和调试等场景。
+- 常见的REPLs包括Python的IDLE、Ruby的irb、Node.js的REPL等。
 
 ### python IDLE缩写
 
@@ -29,7 +42,11 @@ VS Code Notebook 和 JupyterLab 都是用于数据科学和机器学习的工具
    - VS Code 比较重,目前来说,在线环境更倾向于jupyterLab
    - 但是Vscode可以安装在本地或远程服务器上。
 
-- 总体而言，VS Code Notebook 更适合那些喜欢 VS Code 的用户，需要更好的代码编辑和调试功能；而 JupyterLab 更适合那些需要更强大的扩展性和云支持的用户。
+### 小结
+
+- VS Code Notebook 更适合那些喜欢 VS Code 的用户，需要更好的代码编辑和调试功能；
+- 而 JupyterLab 更适合那些需要更强大的扩展性和云支持的用户。
+
 - 本人目前主要用Vscode notebook
 
 ## 在线vscode
@@ -161,7 +178,7 @@ VS Code Notebook 和 JupyterLab 都是用于数据科学和机器学习的工具
     - 以windows为例,默认位置为`$env:APPDATA\code\user`
 
 
-#### JNN下的快捷键配置
+### JNN下的快捷键配置
 
 - 快捷键命令格式:`notebook.cell.<command>`
 

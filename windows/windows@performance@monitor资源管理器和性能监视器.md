@@ -2,7 +2,8 @@
 
 ## abstract
 
-windows_性能监视器&资源监视器&任务管理器:指标阅读与使用
+- windows@性能监视器&资源监视器
+- 任务管理器:指标阅读与使用
 
 ## refenrences
 
@@ -33,7 +34,7 @@ windows_性能监视器&资源监视器&任务管理器:指标阅读与使用
 - 右上:一个用户程序(user program process)
 - 右下:软媒魔方-内存整理(user's process)
 
-### 任务管理器中的内存信息
+### 任务管理器中的内存信息👺
 
 ![image-20220621210204645](https://img-blog.csdnimg.cn/img_convert/bae492a69a5f175aa7fcfb2ecd79c89e.png)
 

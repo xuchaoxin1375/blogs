@@ -34,9 +34,38 @@
 
 ![image-20220621210204645](https://img-blog.csdnimg.cn/img_convert/bae492a69a5f175aa7fcfb2ecd79c89e.png)
 
-> -  what’s that value in brackets? **Compressed memory**? What’s that? It ‘s available only if you have turned on memory compression. It shows how much data could be compressed to save memory. Memory compression comes at the cost of CPU  resources.
+> -  what’s that value in brackets(括号中的数值)? **Compressed memory**? What’s that? It ‘s available only if you have turned on memory compression. It shows how much data could be compressed to save memory.
+> -   Memory compression comes at the cost of CPU  resources.
 
-#### 虚拟内存& committed memory(paging file)
+### 内存压缩👺
+
+- [How to Enable or Disable Memory Compression in Windows  (howtogeek.com)](https://www.howtogeek.com/874099/how-to-enable-or-disable-memory-compression-in-windows-11/)
+
+- [什么是 Windows 内存压缩，如何启用和禁用 (sysgeek.cn)](https://www.sysgeek.cn/windows-memory-compression/)
+
+- ```bash
+  PS C:\Users\cxxu\Desktop> get-MMAgent
+  
+  ApplicationLaunchPrefetching : False
+  ApplicationPreLaunch         : False
+  MaxOperationAPIFiles         : 512
+  MemoryCompression            : False
+  OperationAPI                 : False
+  PageCombining                : False
+  PSComputerName               :
+  
+  PS C:\Users\cxxu\Desktop> Enable-MMAgent -mc
+  ```
+
+- 或者直接用`get-MMAgent|select memoryCompre`查询,如果返回False,说明内存压缩没有开启
+
+### 启用或禁用内存压缩
+
+- `Disable-MMAgent -mc` 禁用 Windows 内存压缩
+- `Enable-MMAgent -mc` 启用 Windows 内存压缩
+- 配置完重启生效
+
+#### 虚拟内存& committed memory(paging file)👺
 
 - The third value is the **“committed memory”** and it refers to the virtual memory.  
   - **Virtual memory** for your computer is **hard drive space** 硬盘驱动器空间used by Windows when **it fills up填满 the physical RAM.** 
