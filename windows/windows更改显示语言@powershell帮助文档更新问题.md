@@ -124,11 +124,14 @@
 
 - [Change display language in Windows 10 with CMD or PowerShell commands - Super User](https://superuser.com/questions/1309399/change-display-language-in-windows-10-with-cmd-or-powershell-commands)
 
-# powershell_语言设置与update-help更新失败问题@English-US help content is available and can be installed using
+## powershell update-help 失败
 
-##  症状分析
-我在win11中将显示语言设置为英语,而在powershell(7.1+)上执行`update-help`提示了类似于如下的错误:
-`Update-Help: Failed to update Help for the module(s) 'Dism, Get-NetView, Kds, NetQos, PcsvDevice, PKI, PSReadline, Whea, WindowsUpdate' with UI culture(s) {en-US} : `
+- powershell_语言设置与update-help更新失败问题@English-US help content is available and can be installed using
+
+###  症状分析
+- 我在win11中将显示语言设置为英语,而在powershell(7.1+)上执行`update-help`提示了类似于如下的错误:
+
+- `Update-Help: Failed to update Help for the module(s) 'Dism, Get-NetView, Kds, NetQos, PcsvDevice, PKI, PSReadline, Whea, WindowsUpdate' with UI culture(s) {en-US} : `
 
 `One or more errors occurred. (Response status code does not indicate success: 404 (The specified blob does not exist.).).`
 
