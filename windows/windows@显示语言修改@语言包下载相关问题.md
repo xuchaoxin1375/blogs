@@ -2,7 +2,7 @@
 
 [toc]
 
-- ![image-20240404194335594](C:\Users\cxxu\AppData\Roaming\Typora\typora-user-images\image-20240404194335594.png)
+- ![image-20240405012918008](C:\Users\cxxu\AppData\Roaming\Typora\typora-user-images\image-20240405012918008.png)
 
 ##  删除指定目录
 -  Go to the following directory to delete this folder
