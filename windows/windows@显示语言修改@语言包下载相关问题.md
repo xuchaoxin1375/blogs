@@ -1,8 +1,8 @@
 [toc]
 
-[toc]
+## 显示语言混乱
 
-- ![image-20240405012918008](C:\Users\cxxu\AppData\Roaming\Typora\typora-user-images\image-20240405012918008.png)
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/7e0a1b87bd7747b098374eedec4053d1.png)
 
 ##  删除指定目录
 -  Go to the following directory to delete this folder
@@ -18,3 +18,8 @@ then to reinstall the  language package
 - 这或许和显示语言的设置有关
 您可以考虑在显示语言来回切换以下,再尝试搜索功能
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/dddda07fa67a4d148680d13fef8c66a4.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+
+
+
+
+
