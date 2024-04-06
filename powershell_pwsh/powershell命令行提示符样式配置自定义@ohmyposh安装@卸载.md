@@ -120,11 +120,19 @@ Set-PSReadlineKeyHandler -Key Tab -Function Complete
 
 
 
-## 推荐的 posh-git模块
+## 推荐的 posh-git模块😊
 
 - [https://github.com/dahlbyk/posh-git/](https://github.com/dahlbyk/posh-git/)
 
+- 安装方式有许多,如果网络不好的话,可以用国内镜像加速把仓库克隆或下载下来
 
+- 然后手动导入项目中src目录下的`posh-git.psd1`即可
+
+- 例如
+
+  - ```powershell
+    Import-Module "$repos\posh-git\src\posh-git.psd1"
+    ```
 
 ## 自定义powershell命令行提示符的样式👺
 
