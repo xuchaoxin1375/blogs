@@ -4,6 +4,11 @@
 
 ## windows中的管理员用户账户
 
+### 命令行管理用户和组
+
+- 参考[windows@命令行管理用户和用户组-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137403116?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"137403116"%2C"source"%3A"xuchaoxin1375"})
+- 本文介绍GUI的操作
+
 ### 将某个用户提升为管理员🎈
 
 - 根据需要,可以选择将某个用户设置为系统管理员
