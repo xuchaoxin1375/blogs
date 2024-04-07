@@ -11,6 +11,7 @@
 
 - [Downloads | Sandboxie-Plus](https://sandboxie-plus.com/downloads/)
 - [Release Release  sandboxie-plus/Sandboxie · GitHub](https://github.com/sandboxie-plus/Sandboxie/releases/tag/v1.12.9)
+  - 推荐用github release下载:打开release页面,然后找一个能够加速下载github release文件的镜像把链接加速一下,例如[GitHub 文件加速 - Moeyy](https://moeyy.cn/gh-proxy)
 
 - 软件的便携性
 

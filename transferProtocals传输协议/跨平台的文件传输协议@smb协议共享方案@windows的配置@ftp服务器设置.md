@@ -81,6 +81,10 @@
 - smb协议迭代了多个版本,现在已经是`SMBv3`,即第3个版本
 - 对于windows系统而言,基于smb配置简单(用户甚至不需要直到smb协议就可以完成配置),且传输较为安全高效
 
+### windows系统下的共享文件夹
+
+
+
 ### 设置方法
 
 - 官方文档,列举出了问题清单和相应的解决办法和步骤,已经给出了最佳实践,这里仅提一下(整合其他设置方案)
@@ -88,61 +92,82 @@
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
 
-- 总的来说,执行以下步骤:
 
-  1. 配置网络(由多种方式,任选一种即可)
+### 方法1
 
-     - 命令行方式
+- 使用共享文件夹引导程序`shrpubw.exe`,这是一个windows系统自带的一个使用程序
+
+  - 打开windows命令行,输入`shrpubw.exe`即可启动
+
+- `shrpubw.exe` 是一个在 Microsoft Windows 操作系统中用于帮助用户创建和配置共享文件夹的向导程序。这个可执行文件（.exe）是系统自带的一部分，由 Microsoft Corporation 开发，主要用于简化网络共享设置过程。
+
+  当用户需要在网络上共享本地计算机上的某个文件夹，以便其他网络用户可以访问时，可以通过运行 `shrpubw.exe` 启动“创建共享文件夹向导”。该向导提供了图形化界面，引导用户完成以下步骤：
+
+  1. 选择要共享的文件夹路径。
+  2. 设置共享名，即网络上其他用户看到的共享资源的名称。
+  3. 配置共享权限，包括哪些用户或组可以访问此共享，并确定他们的读写权限级别。
+
+- 该引导软件支持它会更改防火墙使得共享文件夹能够生效(通常不需要我们自己再去设置防火墙)
+
+- 总的来说这是个很方便的程序,但是注意,windows为了安全,匿名访问可能是不被允许的,如果需要匿名,可能要改注册表策略组等,我的建议是创建一个名为smb的用户专门用来访问共享文件夹就可以了(不需要登录该用户桌面),既安全又高效,如果要匿名的体验,可以把密码设置简单点即可
+
+### 方法2
+
+
+
+1. 配置网络(由多种方式,任选一种即可)
+
+   - 命令行方式
+
+     - ```bash
+       netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+       netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+       ```
+
+     - 以管理员方式启动cmd(或powershell)运行上述命令(回车执行)
 
        - ```bash
-         netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
-         netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+         PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+         
+         Updated 48 rule(s).
+         Ok.
+         
+         PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+         
+         Updated 62 rule(s).
+         Ok.
          ```
 
-       - 以管理员方式启动cmd(或powershell)运行上述命令(回车执行)
+   - 使用图形界面方式配置
 
-         - ```bash
-           PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
-           
-           Updated 48 rule(s).
-           Ok.
-           
-           PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
-           
-           Updated 62 rule(s).
-           Ok.
-           ```
+     - | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/8aa14dc0000c4c96a3275899009d68f2.png) | windows11下的设备可扫描设置 |      |
+       | ------------------------------------------------------------ | --------------------------- | ---- |
+       | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/ed4449c0117945a5820a561e6be9e577.png) | windows10下的设置           |      |
 
-     - 使用图形界面方式配置
+   - 如此局域网内的其他设备才能够扫描到当前设备,并且当前设备的文件或目录能够被其他设备访问
 
-       - | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/8aa14dc0000c4c96a3275899009d68f2.png) | windows11下的设备可扫描设置 |      |
-         | ------------------------------------------------------------ | --------------------------- | ---- |
-         | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/ed4449c0117945a5820a561e6be9e577.png) | windows10下的设置           |      |
+2. 选择文件或文件夹进行共享
 
-     - 如此局域网内的其他设备才能够扫描到当前设备,并且当前设备的文件或目录能够被其他设备访问
-
-  2. 选择文件或文件夹进行共享
-
-     - 打开资源管理器,右键进行共享设置
+   - 打开资源管理器,右键进行共享设置
+   
+   - 包括选择哪些用户能够访问被共享的文件或目录
+   
+   - 为了安全考虑,windows逐渐禁止匿名访问smb服务,对于较新的系统,即使在设置网络中允许免密访问共享文件夹(文件),但是仍然需要登录某个账户才可以访问(来宾(Guest)匿名不再能轻易访问共享文件夹)
+     - 这里建议创建一个专门共享文件的账户,来供其他设备验证身份来访问本机的提供的共享文件价
      
-     - 包括选择哪些用户能够访问被共享的文件或目录
+     - 新建的用户可以是普通用户,我们甚至不需要登录这个用户,例如设置本地用户`smb_share`,密码随意,不介意安全性时尽可能简单,毕竟在可信的局域网内,默认是安全的,特别是真个局域网只有自己用,自己用来传输文件,我们甚至不需要创建这个新用户,直接用已有的账户登录就行
      
-     - 为了安全考虑,windows逐渐禁止匿名访问smb服务,对于较新的系统,即使在设置网络中允许免密访问共享文件夹(文件),但是仍然需要登录某个账户才可以访问(来宾(Guest)匿名不再能轻易访问共享文件夹)
-       - 这里建议创建一个专门共享文件的账户,来供其他设备验证身份来访问本机的提供的共享文件价
-       
-       - 新建的用户可以是普通用户,我们甚至不需要登录这个用户,例如设置本地用户`smb_share`,密码随意,不介意安全性时尽可能简单,毕竟在可信的局域网内,默认是安全的,特别是真个局域网只有自己用,自己用来传输文件,我们甚至不需要创建这个新用户,直接用已有的账户登录就行
-       
-       - 创建新用户:命令行中或者**win+r**输入:`lusrmgr.msc`启动新用户创建面板
-       
-         - | 通用界面创建新用户                                           | 新系统在选择授权用户时会提供创建入口                         |      |
-           | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-           | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/63416859f7ca4ee38567a5aaa92ed23c.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/164f7469f4514539a33ade12e4dfc8a5.png) |      |
-           | 步骤简单                                                     | 设置步骤较多                                                 |      |
-       
-       - 创建新用户的相关参考:
-       
-         - [Local Users and Groups | Microsoft Learn](https://learn.microsoft.com/zh-cn/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc753942(v=ws.11)?redirectedfrom=MSDN)
-         - [windows@添加本地用户账户](https://blog.csdn.net/xuchaoxin1375/article/details/112854717)
+     - 创建新用户:命令行中或者**win+r**输入:`lusrmgr.msc`启动新用户创建面板
+     
+       - | 通用界面创建新用户                                           | 新系统在选择授权用户时会提供创建入口                         |      |
+         | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+         | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/63416859f7ca4ee38567a5aaa92ed23c.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/164f7469f4514539a33ade12e4dfc8a5.png) |      |
+         | 步骤简单                                                     | 设置步骤较多                                                 |      |
+     
+     - 创建新用户的相关参考:
+     
+       - [Local Users and Groups | Microsoft Learn](https://learn.microsoft.com/zh-cn/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc753942(v=ws.11)?redirectedfrom=MSDN)
+       - [windows@添加本地用户账户](https://blog.csdn.net/xuchaoxin1375/article/details/112854717)
 
 ### 右键设置共享文件夹
 
