@@ -154,6 +154,39 @@
     deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
   ```
 
+- powershell下一键复制粘贴版本:
+
+  - ```powershell
+    
+    #备份旧配置,如果有的话
+    if(Test-Path "$userprofile\.condarc"){
+    cp "$userprofile\.condarc" "$userprofile\.condarc.bak"
+    }
+    #写入内容
+    @'
+    channels:
+      - defaults
+    show_channel_urls: true
+    default_channels:
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+    custom_channels:
+      conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+      deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
+    '@ >"$userprofile\.condarc"
+    
+    ```
+
+    
+
+
 #### 检查是否配置成功
 
 - `conda config --show-sources`

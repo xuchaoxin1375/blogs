@@ -95,17 +95,19 @@
 
 
 
-### ubuntu 换源
+### ubuntu 换源😊
 
 - [ubuntu | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)
 - [ubuntu源by阿里](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
 - 版本较多,操作类似,可以按阿里源那样一步步做,也可以将上述脚本中的源地址更换位对应版本的ubuntu源即可
 - 这里以清华源的 `21.10`版本为例
 - 其他版本将源地址群换为对应版本
-####  通用版脚本
+####  通用版模板
+
+- 以下是ubuntu22.1为例的还原,其他版本把`<<EOF`后到`EOF`的一段内容更换为自己的版本,比如22版本等
 
 ```bash
-#  ubuntu 21.10更换国内镜像源(清华源为例)
+#  ubuntu 更换国内镜像源(清华源为例)
 # 备份:backup the origin source.list(or just rename(use move command))
 # 注意sources.list 不要拼错(带s)
 cd /etc/apt
@@ -147,17 +149,33 @@ sudo apt update
 ```
 #### 简化版(从默认源替换为国内源)
 
-###  将source.list 文件修改为清华源ubutun22
+####  将source.list 文件修改为清华源ubutun22😊
 
 - (清华源为例,使用sed处理`/etc/apt/sources.list`文件)
-- 仍然建议事先备份`sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak`文件
 
-```bash
-sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
-sudo sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
-```
+- 仍然建议事先备份
+  - `sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak`
 
-- 执行刷新操作`sudo apt update`
+  - 
+    ```bash
+    sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+    sudo sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+    ```
+
+  - 执行刷新操作`sudo apt update`
+
+- 综合起来运行:
+
+  - ```bash
+    sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+    sudo sed -i "s@http://.*archive.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+    sudo sed -i "s@http://.*security.ubuntu.com@https://mirrors.tuna.tsinghua.edu.cn@g" /etc/apt/sources.list
+    sudo apt update
+    
+    
+    ```
+
+    
 
 ### kali
 

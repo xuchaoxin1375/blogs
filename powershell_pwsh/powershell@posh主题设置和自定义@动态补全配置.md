@@ -30,6 +30,7 @@
 ### 主题配置文件所在目录
 
 - 环境变量:`$env:POSH_THEMES_PATH`
+  - 而不是`$env:Posh_Themes`
 
 - Themes location: `$env:LOCALAPPDATA\Programs\oh-my-posh\themes`
 
@@ -49,7 +50,9 @@
 
 
 
-- 主题文件是json文件,例如`iterm2.omp.json`预览一下
+- 主题文件是json文件,例如`iterm2.omp.json`
+
+- 以下是改编后的版本:
 
 - ```bash
   {

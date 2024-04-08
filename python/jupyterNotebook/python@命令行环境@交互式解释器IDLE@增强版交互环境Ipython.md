@@ -31,14 +31,14 @@
 
 IDLE 是 Python 的官方集成开发环境，它简单易用，适合初学者入门 Python。以下是 IDLE 的优缺点：
 
-#### 优点
+### 优点
 
 1. 简单易用：IDLE 提供了基本的代码编辑和运行功能，界面简洁，操作直观。
 2. 官方支持：IDLE 是官方推荐的 Python 开发环境，与 Python 版本更新同步，兼容性良好。
 3. 跨平台：IDLE 支持 Windows、macOS 和 Linux 等多种操作系统。
 4. 无需安装：IDLE 随 Python 安装包一起提供，无需额外安装。
 
-#### 缺点
+### 缺点
 
 1. 功能有限：IDLE 的功能相对较少，可能不满足一些高级用户的需求。
 
@@ -55,6 +55,10 @@ IDLE 是 Python 的官方集成开发环境，它简单易用，适合初学者�
 ### 安装
 
 - [Install and Use — Jupyter Documentation alpha documentation](https://docs.jupyter.org/en/latest/install.html)
+  - 简单讲,就是jupyter notebook安装方法分为2类
+  - 一类是Anaconda自带jypyter notebook,当你安装了anaconda,jupyter notebook也就被安装了
+  - 另一类是用pip 安装,使用`pip3 install jupyter`来安装(推荐使用国内源来加速这个pip install过程,另见它文)
+
 
 IPython 是一个强大的 Python 交互式解释器，它提供了更丰富的功能，适合高级用户。以下是 IPython 的优缺点：
 

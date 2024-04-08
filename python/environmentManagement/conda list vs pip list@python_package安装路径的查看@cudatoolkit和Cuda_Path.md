@@ -160,14 +160,14 @@
   pytz                      2022.7.1                 pypi_0    pypi
   ```
 
-### 对比@查看已安装的包的信息
+### 查看已安装的包的信息😊
 
 - 可以看到使用`conda list`查看到的包更全,而且可以看到安装来源(但是不如`pip show`详细)
 
 - 如果某个包对于pip可见,那么使用`pip show `可以看到跟家详细的信息(包括安装位置和依赖关系)
 
   - ```bash
-    (d:\condaPythonEnvs\test_new) PS C:\Program Files\NVIDIA Corporation> pip show numpy
+    (d:\condaPythonEnvs\test_new) PS C:\> pip show numpy
     Name: numpy
     Version: 1.23.5
     Summary: NumPy is the fundamental package for array computing with Python.
@@ -202,8 +202,8 @@
 
 - 例如`cudatoolkit`这类依赖的安装位置并不在环境的`lib/site-package`下
 - 根据您的 package cache设定,(假设:我将其设定为`D:\conda3\pkgs`,那么相关文件会被保存到该目录下
-  - 例如,我用`conda install -c conda-forge cudatoolkit=11.3`安装的版本保存目录为:
-    - `D:\conda3\pkgs\cudatoolkit-11.3.1-h59b6b97_2\`
+- 例如,我用`conda install -c conda-forge cudatoolkit=11.3`安装的版本保存目录为:
+  - `D:\conda3\pkgs\cudatoolkit-11.3.1-h59b6b97_2\`
 
 ## 设置conda版`cudatoolkit`环境变量`CUDA_PATH`
 

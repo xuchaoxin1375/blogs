@@ -57,9 +57,9 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 - 创建本地的SSH KEY(以便完成push)
 
-- 在bash中输入: 
+- 在bash中输入: (把邮箱换成自己的邮箱)
 	- `ssh-keygen -t rsa -C "youremail@example.com"`
-	- 官方文档的做法是`ssh-keygen -t ed25519 -C "your_email@example.com"`
+	- 官方文档的做法是:`ssh-keygen -t ed25519 -C "your_email@example.com"`
 	- 注意,`-C`是大写的(不是小写选项).
 	
 - 完成上述操作后,会生成一个隐藏目录.ssh
@@ -151,7 +151,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 ###  关联到云端
 
-- [新增 SSH 密钥到 GitHub 帐户 - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+- 文档:[新增 SSH 密钥到 GitHub 帐户 - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
 - 直达连接,设置您的github [SSH and GPG keys (github.com)](https://github.com/settings/keys)
 

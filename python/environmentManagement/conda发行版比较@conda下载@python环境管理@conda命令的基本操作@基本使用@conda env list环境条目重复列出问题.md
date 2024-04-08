@@ -841,6 +841,38 @@
 
   - 这一段脚本会执行个几秒，耐心等待结束，会提醒你重启终端
 
+    - ```bash
+      (base) PS C:\WINDOWS\system32> conda init powershell
+      >> conda config --set auto_activate_base false
+      no change     C:\ProgramData\miniconda3\Scripts\conda.exe
+      no change     C:\ProgramData\miniconda3\Scripts\conda-env.exe
+      no change     C:\ProgramData\miniconda3\Scripts\conda-script.py
+      no change     C:\ProgramData\miniconda3\Scripts\conda-env-script.py
+      no change     C:\ProgramData\miniconda3\condabin\conda.bat
+      no change     C:\ProgramData\miniconda3\Library\bin\conda.bat
+      no change     C:\ProgramData\miniconda3\condabin\_conda_activate.bat
+      no change     C:\ProgramData\miniconda3\condabin\rename_tmp.bat
+      no change     C:\ProgramData\miniconda3\condabin\conda_auto_activate.bat
+      no change     C:\ProgramData\miniconda3\condabin\conda_hook.bat
+      no change     C:\ProgramData\miniconda3\Scripts\activate.bat
+      no change     C:\ProgramData\miniconda3\condabin\activate.bat
+      no change     C:\ProgramData\miniconda3\condabin\deactivate.bat
+      modified      C:\ProgramData\miniconda3\Scripts\activate
+      modified      C:\ProgramData\miniconda3\Scripts\deactivate
+      modified      C:\ProgramData\miniconda3\etc\profile.d\conda.sh
+      modified      C:\ProgramData\miniconda3\etc\fish\conf.d\conda.fish
+      no change     C:\ProgramData\miniconda3\shell\condabin\Conda.psm1
+      modified      C:\ProgramData\miniconda3\shell\condabin\conda-hook.ps1
+      no change     C:\ProgramData\miniconda3\Lib\site-packages\xontrib\conda.xsh
+      modified      C:\ProgramData\miniconda3\etc\profile.d\conda.csh
+      no change     C:\Users\cxxu\Documents\WindowsPowerShell\profile.ps1
+      no change     C:\Users\cxxu\Documents\PowerShell\profile.ps1
+      
+      ==> For changes to take effect, close and re-open your current shell. <==
+      ```
+
+      
+
   - 关闭终端,此后再打开powershell,就可以直接使用`conda activate`相关命令了
 
 - 例

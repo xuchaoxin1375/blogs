@@ -5,6 +5,7 @@
 - `.gitignore` 文件是 Git 版本控制系统中用于指定一组规则，定义那些不应被 Git 追踪和提交到版本库中的文件和目录的特殊文本文件。
 - 文档:
   - 中文[Git - gitignore Documentation (git-scm.com)](https://git-scm.com/docs/gitignore/zh_HANS-CN)
+    - 翻译的个别地方语句不通顺,参考英文版
   - 英文[Git - gitignore Documentation (git-scm.com)](https://git-scm.com/docs/gitignore#_name)
 
 ## 作用层次
@@ -42,10 +43,10 @@
 - 绝对路径或相对路径都可以。
 - 开头的 `#` 表示注释，该行内容会被 Git 忽略，不作为规则处理。
 
-### 可以使用通配符
+### 模式通配符😊
 
-- `*` 匹配任意字符序列（除了路径分隔符 `/`）
-- `?` 匹配单个任意字符
+- `*` 匹配任意**字符序列**（除了路径分隔符 `/`）
+- `?` 匹配**单个**任意字符
 - `[abc]` 匹配括号内的任何一个字符
 - `[0-9]` 匹配数字范围
 - `!` 取消忽略，紧跟 `!` 后面的规则将重新包含之前被忽略的文件。
@@ -55,6 +56,19 @@
   - 一个斜杠后面是两个连续的星号再接上一个斜杠，匹配零个或多个目录。例如，"`a/**/b`" 匹配 "`a/b`"、"`a/x/b`"、"`a/x/y/b`"，等等，依此类推。
   - 其他连续星号被视为普通星号，将根据前面的规则进行匹配。
 - 更多细节查看文档
+
+#### 斜杠的作用小结
+
+- 如果一个模式在开头或者中间(非末尾)包含了斜线`/`,那么模式会从`.gitignore`文件所在目录开始匹配该条规则对应的目录或文件,而不是任意子目录下都去匹配
+
+  - 如果一个模式以`/`开始并且没有其他斜线`/`,类似于linxu系统中路径从`/`开始表示根目录开始的意思
+  - 如果一个模式开头和结尾没有斜线,但是中间出现了斜线`/`,那么等效于开头也有斜线
+
+- 如果整个模式仅仅末尾有一个斜线,则匹配任意子目录而不匹配文件或符号
+
+- 如果整个模式没有包含`/`,那么任何子目录也会被该规则命中(任意满足该规则的目录或文件都会被规则命中)
+
+  
 
 ### 具体规则举例：
 
@@ -76,6 +90,60 @@
 - 如果一个匹配模式内部包含了斜线`/`,那么该模式是否前导斜线就无关紧要了(都当成有来处理)
 - 因为后面有斜线的话说明前面是一个目录,而不可能是一个文件
 - 例如:`doc/frotz` 和 `/doc/frotz` 模式在任何 `.gitignore` 文件中都有同样的效果。
+
+## 重新包含(反向忽略规则)😊
+
+- 详解文档:An optional prefix "!" which negates the pattern; any matching file excluded by a previous pattern will become included again. It is not possible to re-include a file if a parent directory of that file is excluded. Git doesn’t list excluded directories for performance reasons, so any patterns on contained files have no effect, no matter where they are defined. Put a backslash ("") in front of the first "!" for patterns that begin with a literal "!", for example, "!important!.txt".
+- 这就是说:
+  1. **"!"作为可选前缀来否定模式**：如果在模式前面加上`!`，则这个模式的作用会与之前的排除规则相反，也就是说，原本会被忽略的文件将会再次被包含在内。
+
+  2. **重新包含被排除的文件**：如果某个文件由于先前的规则被忽略了，那么在其后使用`!`并定义相同的模式可以重新将该文件包含进版本控制中。但是请注意，如果一个文件的父目录已经被排除（忽略），则不论在何处定义针对该文件的包含规则，都无法使之重新被包含，因为Git出于性能考虑不会列出已被排除的目录及其内容。
+
+  3. **对于以"!"开头的模式**：如果你需要匹配那些以实际的"!"字符开头的文件名，你需要在"!"前面添加反斜杠`\`进行转义，例如 `\!important!.txt`。这样Git就会正确地解析并处理这个特殊的文件名，**而不是将其视为一个否定模式**。
+
+
+### 例子
+
+我们看几个具体的例子来更好地理解`!`在`.gitignore`中的作用：
+
+例子1：
+```ini
+# 默认忽略所有的 .log 文件
+*.log
+
+# 但包含例外情况，不忽略 debug.log 文件
+!debug.log
+```
+在此例中，所有扩展名为`.log`的文件都会被忽略，除了`debug.log`文件，因为它后面的规则明确表示要包含它。
+
+例子2：
+```ini
+# 忽略整个 temp 目录及其所有内容
+temp/
+
+# 尝试重新包含 temp/ 下的 special.txt 文件，但这行实际上无效，因为其父目录 temp/ 已经被忽略了
+!temp/special.txt
+```
+这里，尽管尝试通过`!temp/special.txt`这条规则让`temp/special.txt`文件被包含，但由于其父目录`temp/`已经被忽略，所以这条包含规则无法生效。
+
+例子3：
+```ini
+# 忽略所有名为 "not-important" 的文件
+not-important
+
+# 但是，如果有一个名为 "!important.txt" 的文件，为了能正确匹配它，我们需要写成：
+\!important.txt
+```
+在这最后的例子中，由于我们想要匹配的是一个以实际"!"字符开头的文件名，所以我们需要使用`\!important.txt`来确保Git不会误解为这是一个否定模式，而是匹配名称确实为`!important.txt`的文件。
+
+
+
+## 实验
+
+- 借助Vscode等编辑器(可以搭配git相关插件),可以在文件列表直接看出.gitignore的效果
+- .gitignore是否将某个文件或目录排除跟踪可以通过列表的标记看出
+  - [Version control in Visual Studio Code](https://code.visualstudio.com/docs/introvideos/versioncontrol)
+  - [Source Control with Git in Visual Studio Code](https://code.visualstudio.com/docs/sourcecontrol/overview)
 
 ## FAQ
 
@@ -116,6 +184,13 @@
 其他`pattern`也有类似的限制,所以,使用`pathName/*`这种形式往往会更加灵活.
 
 Example to exclude everything except a specific directory foo/bar (note the /* - without the slash, the wildcard would also exclude everything within foo/bar):
+
+
+
+
+
+
+
 ##  2个小例子
 涉及的语法以及含义:
 - 表达式格式->含义

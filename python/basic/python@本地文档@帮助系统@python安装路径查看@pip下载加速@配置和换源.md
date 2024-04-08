@@ -375,17 +375,19 @@ Writing to /home/cxxu_kali/.config/pip/pip.conf
 - 从命令行中查询当前运行的python版本的安装位置和下载的相关库的位置
 - 对于我运行的环境
 
+  - ```python
+    import sys
+    sys.path
+    
+    for item in sys.path:
+    	print(item)
+    
+    #连通换行一同拷贝
+    
+    ```
 
- ```py
-import sys
-sys.path
+    
 
-for item in sys.path:
-	print(item)
-
-#连通换行一同拷贝
-
- ```
 
 
 - ```python
