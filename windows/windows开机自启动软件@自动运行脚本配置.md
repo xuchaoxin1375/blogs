@@ -133,6 +133,8 @@
 
 ## 注册表和开机自启软件配置
 
+### startup目录
+
 - 软件有的会将自己的快捷方式创建到用户的startup目录
 
   - 通常是:`$env:appdata\Roaming\Microsoft\windows\Start Menu\programs\Startup`
@@ -142,6 +144,17 @@
     ```
     C:\Users\cxxu\AppData\Roaming\Microsoft\windows\Start Menu\programs\Startup
     ```
+
+- 当然还有对所有本地用户都有效的开机自启动目录:
+
+  - ```bash
+    C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+    ```
+
+    
+
+
+### 注册表
 
 - 还有的软件(大部分软件的策略)是将开机启动注册在以下**注册表**中
 
@@ -172,13 +185,176 @@
                               Software\Microsoft\Windows\CurrentVersion\Run
     ```
 
+
+### 计划任务
+
+- windows的计划任务也是某些软件开机自启的下手目标
+- 详情参考其他资料
+
+### 系统服务
+
+**服务**:通常指的是在操作系统上运行的背景进程，它们执行一些特定的系统功能或提供对其他应用程序或系统的支持。
+
+在Windows操作系统中，服务是一种应用程序类型，可以在后台长时间运行，不显示任何用户界面。它们可以在系统启动时自动启动，并且可以独立于任何用户登录会话。
+
+服务进程和普通进程相比有一些特殊性：
+
+1. **启动和运行方式**：服务通常由操作系统服务管理器启动，而不是由用户直接启动。
+2. **权限**：服务可能以系统权限运行，这意味着它们可以访问系统中受保护的资源。
+3. **持久性**：服务被设计为长期运行，在系统重启后仍然可以自动启动。
+4. **交互性**：大多数服务不直接与用户交互，它们在后台静默运行。
+5. **管理**：服务可以通过操作系统的服务管理工具进行管理，如Windows的服务管理控制台（services.msc）。
+
+在Linux系统中，服务通常指的是系统守护进程（daemon），它们也是在后台运行，执行系统任务的程序。
+因此，服务确实是一种特殊的进程，它们在操作系统中扮演着关键角色，确保系统的稳定运行和各种功能的支持。
+
+#### 服务和进程的关系
+
+共同点：
+1. 进程和服务都是Windows操作系统中程序执行的基本实体，都占用系统资源（如内存、CPU），并可执行相应的任务。
+2. 都具有生命周期，可以创建、运行、暂停、恢复和终止。
+
+服务作为特殊的进程：
+- 从本质上讲，服务确实是一个进程，因为它也需要在操作系统的支持下运行，并拥有自己的内存空间和执行上下文。
+- 然而，服务进程与普通用户进程的主要区别在于其运行方式和目的。服务进程主要设计为提供系统级别的持续性功能，无需用户登录或直接交互就能运行。
+- 在Windows系统中，服务进程通常以SYSTEM权限级别运行，并通过专门的服务控制管理器（Service Control Manager）进行管理和控制，包括启动、停止、暂停和恢复等操作。
+
+鉴于服务进程和普通进程的区别,windows专门为服务配了一个services.msc来管理服务,
+
+在较新的windows版本中可以在任务管理器中搜索服务,也专门有一个选项卡来浏览服务,和进程分开
+
+#### 例
+
+- 通过服务来开机自启的软件,比如Intel的DSA升级程序
+
+- 下面来查找以下当前系统有哪些update服务
+
+  ```powershell
+  PS>gsv -Name *update* |ft -Wrap -AutoSize
+  
+  Status  Name             DisplayName
+  ------  ----             -----------
+  Running DSAUpdateService Intel(R) Driver & Support Assistant Updater
+  Stopped edgeupdate       Microsoft Edge Update Service (edgeupdate)
+  Stopped edgeupdatem      Microsoft Edge Update Service (edgeupdatem)
+  Stopped tzautoupdate     Auto Time Zone Updater
+  ```
+
+## 服务相关操作
+
+- 例如我们DSA,如何进行查看服务信息和配置
+
+- 使用`services.msc`这个windows自带GUI程序来执行各种操作
+
+- 这里介绍命令行如何操作
+
+  - 相关cmdlet
+
+    - ```powershell
+      PS>$res=gcm *service*|?{$_.CommandType -eq "Cmdlet" -and $_.Source -like "Microsoft.Powershell.M*" };$res|^ Name
+      
+      Name
+      ----
+      Get-Service
+      New-Service
+      Remove-Service
+      Restart-Service
+      Resume-Service
+      Set-Service
+      Start-Service
+      Stop-Service
+      Suspend-Service
+      ```
+
+      
+
+  - 相关别名
+
+    - ```powershell
+      PS>$res|%{gal -Definition $_ -ErrorAction Ignore}
+      
+      CommandType     Name                                               Version    Source
+      -----------     ----                                               -------    ------
+      Alias           gsv -> Get-Service
+      Alias           rsv -> Remove-Service                              0.0        Aliases
+      Alias           sasv -> Start-Service
+      Alias           spsv -> Stop-Service
+      ```
+
+### 查看服务
+
+- 使用`gsv`查看服务,并且列出服务详情,包括自启动类型
+
+  ```bash
+  PS>gsv -Name DSAService|select *
+  
+  UserName            : LocalSystem
+  Description         : Intel(R) Driver & Support Assistant scans the system for updated Intel drivers
+  DelayedAutoStart    : False
+  BinaryPathName      : "C:\Program Files (x86)\Intel\Driver and Support Assistant\DSAService.exe"
+  StartupType         : Automatic
+  Name                : DSAService
+  RequiredServices    : {}
+  CanPauseAndContinue : True
+  CanShutdown         : True
+  CanStop             : True
+  DisplayName         : Intel(R) Driver & Support Assistant
+  DependentServices   : {}
+  MachineName         : .
+  ServiceName         : DSAService
+  ServicesDependedOn  : {}
+  StartType           : Automatic
+  ServiceHandle       :
+  Status              : Running
+  ServiceType         : Win32OwnProcess
+  Site                :
+  Container           :
+  ```
+
+- ```bash
+  PS>gsv -Name DSAService|select StartType
+  
+  StartType
+  ---------
+  Automatic
+  ```
+
+### 设置服务
+
+
+
+- 这需要管理员权限来启动命令行
+
+  - ```bash
+    PS>set-Service -Name DSAService -StartupType Disabled
+    PS>gsv -Name DSAService|select StartType
+    
+    StartType
+    ---------
+     Disabled
+    ```
+
+- 现在我把DSAservice,DSAUpdateService全部设为Disable(阻止开机自启)
+
+  - `gsv dsa*service|Set-Service -StartupType Disabled`
+
+  - ```bash
+    PS>gsv dsa*service|Set-Service -StartupType Disabled
+    PS>gsv dsa*service|select StartType
+    
+    StartType
+    ---------
+     Disabled
+     Disabled
+    ```
+
     
 
-## windows 系统专业的开机启动软件和服务工具
+## windows 系统专业的开机启动软件和服务工具😊
 
 - [Autoruns for Windows - Sysinternals | Microsoft Learn ](https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns)
 
-- 通常不必使用这个软件,但是如果您对windows的开机启动或者登录后自动启动的服务或软件的详细清单或细节感兴趣,我们考虑下载这个小工具
+- 通常不必使用这个软件,但是如果您对windows的开机启动或者登录后自动启动的服务或软件的详细清单或细节感兴趣,可以考虑下载这个小工具
 
 - 工具解压后的目录内可能包含如下内容
 
