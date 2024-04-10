@@ -10,12 +10,9 @@
 
 
 
-### Ubuntu/Debian install powershell7+
+### 安装文档
 
-- [Installation via direct download](https://docs.microsoft.com/en-us/powershell/scripting/install/install-debian?view=powershell-7.2#installation-via-direct-download)
-- [Installation on Debian 11 via Package Repository](https://docs.microsoft.com/en-us/powershell/scripting/install/install-debian?view=powershell-7.2#installation-on-debian-11-via-package-repository)
-- [Installation on Debian 10 via Package Repository](https://docs.microsoft.com/en-us/powershell/scripting/install/install-debian?view=powershell-7.2#installation-on-debian-10-via-package-repository)
-- [Installation on Debian 9 via Package Repository](https://docs.microsoft.com/en-us/powershell/scripting/install/install-debian?view=powershell-7.2#installation-on-debian-9-via-package-repository)
+- [Install PowerShell on Linux - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.2)
 
 ### 检查当前发行版
 
@@ -31,9 +28,12 @@
   Ubuntu 18.04.6 LTS \n \l
   ```
 
-- 
+  
 
 ### 运行安装脚本
+
+- 下面这段脚本是给Debian设计的脚本
+- 我在ubuntu22上试过也可以安装(源是阿里源)
 
 ```
 # Install system components

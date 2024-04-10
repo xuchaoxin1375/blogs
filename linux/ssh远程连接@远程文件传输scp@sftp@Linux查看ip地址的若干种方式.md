@@ -2,9 +2,9 @@
 
 -  ssh远程连接@远程文件传输scp@sftp@Linux查看ip地址的若干种方式
 
-# 远程文件传输scp@sftp
+## 远程文件传输scp@sftp
 
-## GUI方案
+### GUI方案
 
 - 有VNC Viewer,mobaXterm等
 
@@ -18,25 +18,16 @@
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210619185553211.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
 
-## CLI通用方案
 
-- 详见后文
-
-# OpenSSH
+## OpenSSH❤️
 
 - [OpenSSH官方文档](https://www.openssh.com/manual.html)：https://www.openssh.com/manual.html
 
-## ssh连接👌🎈
+## ssh连接
 
 - ssh方式连接到主机很有用,特别是远程主机没有安装图形界面的时候(节约云服务器的资源占用)
 
-### vscode ssh
 
-- 可以通过vscode提供的 `remote-ssh`插件,来利用本地可视化编辑器(其他IDE可能也有其自己的远程编程支持)来编辑远程代码
-
-  - 这不是必须的,但是有时可以提供便利
-
-  - [Connect over SSH with Visual Studio Code](https://code.visualstudio.com/docs/remote/ssh-tutorial)
 
 ### CLI ssh
 
@@ -288,6 +279,16 @@ function scp_ali {
 - SFTP（SSH File Transfer Protocol）是一个基于SSH协议的安全文件传输协议，它使用的是SSH的SFTP子系统，可以在本地计算机和远程计算机之间进行安全的文件传输和管理。SFTP的使用方法与FTP类似，可以使用put、get、ls等命令进行文件的上传、下载和查看，同时支持文件和目录的压缩和解压缩。SFTP的优点是支持多种文件操作，但是传输速度相对较慢。
 - 因此，如果你只需要进行单纯的文件传输，可以选择SCP；如果需要进行文件的上传、下载和管理，可以选择SFTP。当然，这两种方式都是安全的，具体使用方法可以根据自己的需求来选择。
 
+## vscode ssh😊
+
+- 可以通过vscode提供的 `remote-ssh`插件,来利用本地可视化编辑器(其他IDE可能也有其自己的远程编程支持)来编辑远程代码
+
+  - 这不是必须的,但是有时可以提供便利
+
+  - [Connect over SSH with Visual Studio Code](https://code.visualstudio.com/docs/remote/ssh-tutorial)
+
+
+
 # 附
 
 ## 查看linux的ip地址方法
@@ -330,7 +331,7 @@ function scp_ali {
         inet6 ::1/128 scope host 
         inet 192.168.128.129/24 brd 192.168.128.255 scope global dynamic noprefixroute ens33
         inet6 fe80::2d84:3ce5:ee20:b4c0/64 scope link noprefixroute 
-      
+          
     ```
 
   - ```bash

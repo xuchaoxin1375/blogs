@@ -2,9 +2,36 @@
 
 
 
-## vscode_ssh@远程开发@vscode命令行中打开某个远程工作目录
+## vscode@ssh@远程开发
 
-- How to attach a remote container using vscode command line
+## vscode命令行中打开某个远程工作目录
+
+- How to attach a remote container using vscode command line?
+
+- 示例:假设我要链接到局域网内的某个ubuntu22系统的机器,我打算vscode打开cxxu用户的家目录
+
+  - ```bash
+    #查询当前用户和主机名
+    > echo "$(whoami)@$(hostname)"
+    > cxxu@ubt22
+    #查询ip地址
+    > ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '^127'
+    > 192.168.37.129
+    ```
+
+  - 正式启动
+
+  ```powershell
+  #根据查询到的ip地址,创建变量
+  $target_host="192.168.37.129"
+  $target_dir="/home/cxxu" #用户cxxu家目录
+  #$target_dir="/home/" #非家目录测试
+  code --folder-uri "vscode-remote://ssh-remote+$target_host/$target_dir"
+  ```
+
+- 不出意外,则可以看到一个打开ubt22主机的家目录的vscode
+
+- 其他目录自行编辑,将`/home/cxxu`替换为目标目录
 
 ### refs
 
@@ -14,7 +41,7 @@
 
 ### 命令
 
-- `code --folder-uri "vscode-remote://ssh-remote+12.23.45.67/home/myuser/dev/"`
+- `code --folder-uri "vscode-remote://ssh-remote+$TargetHost/home/myuser/dev/"`
   - 其中,从`+`之前的内容都需要逐字保留,`+`之后的主机ip/域名以及后面的用户家目录等具体目录由自身清空而定
 
 ## vscode编辑wsl_linux中的某些文件无法保存

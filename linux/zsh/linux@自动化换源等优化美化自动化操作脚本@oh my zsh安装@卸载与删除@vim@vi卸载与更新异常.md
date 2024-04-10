@@ -212,7 +212,7 @@ Done.
 ## zsh:oh my zsh安装(part2)🎈
 
 - [Oh My Zsh - a delightful & open source framework for Zsh](https://ohmyz.sh/#install)
-  - 以下两种安装方式,如果网络环境不好,容易失败
+- 以下两种安装方式,如果网络环境不好,容易失败
   - `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
   - `sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"`
 
@@ -328,8 +328,6 @@ source install.sh
 - `sudo apt remove vi;sudo apt install vim`
 
 ### vim/vi卸载与更新异常
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/141ce0f07fa2401e9ffce596ca95914f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
 
 - 执行 `sudo apt remove vim-common`再次移除造成问题的原组件

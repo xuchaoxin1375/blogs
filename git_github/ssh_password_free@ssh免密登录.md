@@ -72,9 +72,9 @@
 - 这里我为云主机配置了别名,方便记忆
 
 - 同时为云主机安装了oh my zsh
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/e9e668e5d3ff4c9c82f39acc5cb41946.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_17,color_FFFFFF,t_70,g_se,x_16)
+- 
 
-### 方法2:(scp)
+### 方法2:scp
 
 - 此方法需要云主机已经存在 `~/.ssh`目录;如果不存在,可以通过ssh登录到云主机创建该目录后执行下述scp
 
@@ -82,8 +82,17 @@
 
 - 使用scp命令,一条搞定(powershell下的scp)
 
+  - `scp "$home\.ssh\id_*pub"  cxxu@192.168.37.129:~/.ssh/authorized_keys`
+    - 这里需要将`cxxu@192.168.37.129`这一段改为自己的需要链接的`用户名@远程计算机ip地址或域名`
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/4acb777cc7de47d3b5c8d78372962cab.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+- 实操(windows主机作为ssh客户端链接到vmware上安装的ubuntu22虚拟机)
+
+  - ```bash
+    PS C:\> scp "$home\.ssh\id_*pub" cxxu@192.168.37.129:~/.ssh/authorized_keys
+    cxxu@192.168.37.129's password:
+    id_ed25519.pub
+    ```
+
 
 #### powershell 函数
 
