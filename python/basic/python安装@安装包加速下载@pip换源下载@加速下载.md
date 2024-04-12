@@ -184,6 +184,10 @@
 - 从windows store下载,这里的速度一般还可以,但是安装路径和安装选项不是那么灵活和易于改动
 - [Python 3 - Microsoft Apps](https://apps.microsoft.com/detail/9nrwmjp3717k?hl=en-us&gl=US)
 
+### pip 换源下载
+
+- [python@python@本地文档@帮助系统@pip@配置和换源_pip更换国内源-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/121534377)
+
 ## 初学者资源
 
 - [在 Windows 上使用 Python（初学者） | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/python/beginners)

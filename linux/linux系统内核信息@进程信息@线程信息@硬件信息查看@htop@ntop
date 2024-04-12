@@ -4,7 +4,42 @@
 
 - linux系统内核信息@进程信息@线程信息@硬件信息查看
 
-## 查看发行版和内核版本号相关主题命令
+## 查看发行版和内核版本号相关命令
+
+
+
+### 系统发行版相关命令
+
+```bash
+$ apropos distribution
+debian-distro-info (1) - provides information about Debian's distributions
+distro-info (1)      - provides information about the distributions' releases
+dpkg-vendor (1)      - queries information about distribution vendors
+iptables-extensions (8) - list of extensions in the standard iptables distribution
+lsb_release (1)      - print distribution-specific information
+ubuntu-distro-info (1) - provides information about Ubuntu's distributions
+# cxxu @ cxxuAli in ~ [19:21:03]
+$ apropos distribution |grep information
+debian-distro-info (1) - provides information about Debian's distributions
+distro-info (1)      - provides information about the distributions' releases
+dpkg-vendor (1)      - queries information about distribution vendors
+lsb_release (1)      - print distribution-specific information
+ubuntu-distro-info (1) - provides information about Ubuntu's distributions
+```
+
+### 内核版本相关命令
+
+```bash
+# cxxu @ cxxuAli in ~ [19:08:31]
+$ apropos kernel|grep version
+linux-version (1)    - operate on Linux kernel version strings
+# cxxu @ cxxuAli in ~ [19:15:16] C:16
+$ whatis uname
+uname (1)            - print system information
+uname (2)            - get name and information about current kernel
+```
+
+
 
 ### 发行版以及版本号(系统自带工具查看)
 
@@ -37,7 +72,7 @@ Codename:       jammy
 
 
 
-### 内核号
+### 内核号😊
 
 - `uname -a`
 - `cat /proc/version`
@@ -46,36 +81,8 @@ Codename:       jammy
  cat /proc/version
 Linux version 4.15.0-169-generic (buildd@lcy02-amd64-015) (gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)) #177-Ubuntu SMP Thu Feb 3 10:50:38 UTC 2022
 ```
-### 发行版相关主题
 
-```bash
-$ apropos distribution
-debian-distro-info (1) - provides information about Debian's distributions
-distro-info (1)      - provides information about the distributions' releases
-dpkg-vendor (1)      - queries information about distribution vendors
-iptables-extensions (8) - list of extensions in the standard iptables distribution
-lsb_release (1)      - print distribution-specific information
-ubuntu-distro-info (1) - provides information about Ubuntu's distributions
-# cxxu @ cxxuAli in ~ [19:21:03]
-$ apropos distribution |grep information
-debian-distro-info (1) - provides information about Debian's distributions
-distro-info (1)      - provides information about the distributions' releases
-dpkg-vendor (1)      - queries information about distribution vendors
-lsb_release (1)      - print distribution-specific information
-ubuntu-distro-info (1) - provides information about Ubuntu's distributions
-```
 
-### 内核版本相关主题(optional)
-
-```bash
-# cxxu @ cxxuAli in ~ [19:08:31]
-$ apropos kernel|grep version
-linux-version (1)    - operate on Linux kernel version strings
-# cxxu @ cxxuAli in ~ [19:15:16] C:16
-$ whatis uname
-uname (1)            - print system information
-uname (2)            - get name and information about current kernel
-```
 ##  其他工具包
 
 ### neofetch

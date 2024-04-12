@@ -107,7 +107,7 @@ source .zhsrc
 - zsh-syntax-highlight
 
 ## 两个插件克隆成功可能需要多次尝试
-- 下载插件到对应的目录(`.oh-my-zsh`)
+1. 下载插件到对应的目录(`.oh-my-zsh`)
 
   - ```bash
     
@@ -118,7 +118,7 @@ source .zhsrc
     
     ```
 
-- 进入bash并调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
+2. 进入bash并调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
   - ```bash
     #将工作目录转移到家目录
@@ -136,13 +136,12 @@ source .zhsrc
     
     ```
 
-- 进入到zsh,让zsh的配置生效
+3. 进入到zsh刷新`~/.zshrc`,让zsh的配置生效
 
   - ```bash
     source ~/.zshrc
-    
     ```
-
+    
     
 
 ### 附:加速/clone两个插件

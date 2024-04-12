@@ -2,9 +2,9 @@
 
 
 
-## vscode@ssh@远程开发
+## abstract
 
-## vscode命令行中打开某个远程工作目录
+### vscode命令行中直接打开某个远程工作目录
 
 - How to attach a remote container using vscode command line?
 
@@ -19,7 +19,7 @@
     > 192.168.37.129
     ```
 
-  - 正式启动
+- 正式启动
 
   ```powershell
   #根据查询到的ip地址,创建变量
@@ -44,22 +44,20 @@
 - `code --folder-uri "vscode-remote://ssh-remote+$TargetHost/home/myuser/dev/"`
   - 其中,从`+`之前的内容都需要逐字保留,`+`之后的主机ip/域名以及后面的用户家目录等具体目录由自身清空而定
 
-## vscode编辑wsl_linux中的某些文件无法保存
+## vscode编辑wsl中的某些文件无法保存
 
 - vscode+remote-ssh 无法保存需要root权限的文件
 
 ### 考虑将该文件改为777权限
 
-- chmod 777 文件名:
-- 以文件/etc/apt/sources.list为例:
-
-	sudo chmod 777 /etc/apt/sources.list
-
+- chmod 777 文件名,以文件/etc/apt/sources.list为例:
+  - `sudo chmod 777 /etc/apt/sources.list`
 - 重新尝试:
-- code /etc/apt/sources.list
+  - `code /etc/apt/sources.list`
 
 - 更粗暴点,对指定目录批量更改:
-- chmod 777 -R  <directory即要改变存取模式的目录>
+  - `chmod 777 -R  <directory即要改变存取模式的目录>`
+
 
 ###  使用插件
 

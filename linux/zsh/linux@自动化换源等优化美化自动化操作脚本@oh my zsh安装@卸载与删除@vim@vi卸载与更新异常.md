@@ -209,6 +209,8 @@ Done.
 
 ```
 
+
+
 ## zsh:oh my zsh安装(part2)🎈
 
 - [Oh My Zsh - a delightful & open source framework for Zsh](https://ohmyz.sh/#install)
@@ -242,7 +244,9 @@ source gitee_install.sh
 cd -
 ```
 
-### zsh安装失败问题
+
+
+### 脚本重点jie'shi
 
 - 一般来说,重试一两次即可clone(install)成功
 - 若始终无法clone下来,可以修改 `install.sh`中的特定几行,使其去拉取gitee上的文件
