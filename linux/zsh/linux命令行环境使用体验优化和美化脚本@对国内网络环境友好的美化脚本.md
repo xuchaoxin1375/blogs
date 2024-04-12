@@ -1,6 +1,19 @@
 [toc]
 
+## 快速linux命令行美化指南
+
+- 主要适配于Debian系的linux发行版
+- 由于不同发行版换源的动作各有差异,这里就不展开了(默认用户都搞定了,最好还搞定了ssh链接)
+- 主要介绍利用Oh my zsh来美化,并且在国内网络环境下也能够快速下载安装的开门见山的脚本集合
+- 理想情况下,不需要太多时间就可以完成部署
+- 我在 ubuntu,linux Mint两个发行版上试验过,都可以良好运行(windows wsl 子系统也没问题)
+
 ## Oh my zsh
+
+### 官网
+
+- https://github.com/ohmyzsh/ohmyzsh
+- 镜像加速站:[Gitee 极速下载/oh-my-zsh](https://gitee.com/mirrors/oh-my-zsh)
 
 ### 国内推荐安装方式
 
@@ -35,7 +48,7 @@ cd -
 - 这里推荐2个插件
   - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
 
-1. 下载插件到对应的目录(`.oh-my-zsh`)
+1. 进入bash下载插件到对应的目录(`.oh-my-zsh`)
 
    - ```bash
      # 将两个插件下载到指定目录下:(git 已经指定好了目录)
@@ -45,7 +58,7 @@ cd -
      
      ```
 
-2. 进入bash并调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
+2. 在bash下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
    - ```bash
      #将工作目录转移到家目录
@@ -60,6 +73,9 @@ cd -
          # 注意,sed命令的后续不能换行\
      )' -r -iE $path
      
+     #检查配置文件是否有相应的行
+     cat ~/.zshrc|grep  -e zsh-syntax-highlighting -e zsh-autosuggestions
+     
      
      ```
 
@@ -69,7 +85,31 @@ cd -
      source ~/.zshrc
      ```
 
-     
+4. 合并版
+
+   - 等候后续改进
+     - 将各个能够单独运行脚本制作成shell文件,打包制作成一个仓库
+     - 用户克隆下来执行安装程序
 
 
+   
+
+## 配置oh my zsh主题
+
+- ```bash
+  zshrc=~/.zshrc
+  echo $zshrc
+  # 利用sed并启用扩展正则原地修改,将Zsh主题设置为随机
+  sed -Ei 's/(^ZSH_THEME=)(.*)/\1"random"/' $zshrc
+  #设置随机选择的主题的列表为ys,junkfood,rkj-repos;具体可以改成自己喜欢的主题
+  sed -Ei.bak 's/(^#*\s*)(ZSH_THEME_RANDOM.*=)(.*)/\2("ys" "junkfood" "rkj-repos")/' $zshrc
+  #检查修改结果
+  cat   ~/.zshrc|grep -E  '^[^#]'|grep -e random -e THEME -e RANDOM|cat -n
+  #刷新配置结果
+  source $zshrc
+  
+  
+  ```
+
+  
 

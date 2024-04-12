@@ -99,7 +99,14 @@ Dismount-VHD -Path "C:\path\to\your.vhd"
   C                 186.51        756.42 FileSystem    C:\
   ```
 
-  
+  - ```
+    ┌─[BAT:100%][MEM:49.18% (15.59/31.70)GB]
+    ├─[2024-04-12][15:29:33]
+    ├─[cxxu@COLORFULCXXU][C:\Users]
+    └─PS>
+    ```
+
+    
 
 ## 相关命令汇总
 

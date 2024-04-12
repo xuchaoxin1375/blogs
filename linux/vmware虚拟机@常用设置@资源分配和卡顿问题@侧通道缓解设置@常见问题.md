@@ -7,101 +7,7 @@
 - 介绍常用的虚拟机软件
 - 重点介绍vmware workstation pro/player 的常用设置和一些实践经验
 
-## 常见虚拟机平台
 
-常见虚拟机软件主要包括以下几个，它们各自具有独特的重要特点：
-
-1. **VMware Workstation**：
-   - **特点**：VMware Workstation是业界公认的领先虚拟化软件之一，特别擅长于硬件虚拟化，支持高级功能如3D加速、内存优化、快照管理和克隆。适用于Windows和Linux平台上的个人用户和开发人员，允许在同一台物理计算机上同时运行多个不同操作系统作为虚拟机。
-
-   - **扩展产品**：VMware还拥有针对Mac用户的VMware Fusion，同样支持在Mac OS上运行多种操作系统，包括Windows和其他类Unix系统。此外，VMware还有面向企业级服务器虚拟化的vSphere和ESXi产品线。
-
-2. **Oracle VM VirtualBox**：
-   - [Oracle VM VirtualBox](https://www.virtualbox.org/)
-   - **特点**：VirtualBox是一款免费开源的虚拟机软件，跨平台兼容性极佳，可以在Windows、Linux、Mac OS X、Solaris等多种主机系统上运行。VirtualBox支持广泛的客户机操作系统，并且具备丰富的功能集，包括USB设备支持、GPU虚拟化和多显示器设置等。由于其开源性质，VirtualBox拥有活跃的社区支持和可定制性。
-
-3. **Hyper-V**：
-   - **特点**：Hyper-V是微软自家的虚拟化平台，内置在某些版本的Windows操作系统中。它可以创建和管理虚拟机，尤其适合Windows生态系统内的虚拟化部署。Hyper-V提供了高可用性、实时迁移和集成管理工具，是企业级IT环境中的理想选择。
-
-4. **Parallels Desktop**：
-   - **特点**：专为Mac用户设计，Parallels Desktop以其在Mac平台上高效运行Windows和其他操作系统而知名。它以无缝集成和卓越的性能著称，可以让用户在不重启Mac的情况下同时运行Mac应用和Windows应用。
-
-5. **QEMU**：
-   - **特点**：QEMU是一款开源的机器模拟器和虚拟机，不仅可以模拟完整的系统，还可以进行用户模式的进程级虚拟化。QEMU的特点在于它的灵活性和广泛的硬件支持，包括对非x86架构的支持，不过相对于商业产品，其易用性和图形化界面可能稍逊一筹。
-
-## 软件费用
-
-- VMware Workstation Pro, Oracle VM VirtualBox和HyperV的费用对于个人普通用户的费用目前来将可以不用太关心(企业就不同了)
-  - VMware Pro虽然需要激活码,但是网络上资源很多,不用多说,因此个人用户用的还是相当多
-  - VirtualBox 本身就是免费的,也不用多说
-  - Hyper-V,仅限于windows系统,而且需要windows专业版系统及以上才能使用(当然网络上也有资源升级到专业版,也不用多说),而且它是内置的,只需要设置启用重启后就可以运行,但是毕竟很多windows用户用的都是家庭版,特别是笔记本厂商为了节约成本,基本出厂打在windows家庭版而非专业版,且有的人不乐意升级到专业版系统,有一定影响;其实个人用户专业版还是推荐升级的,作为被链接机器远程桌面和hyperv以及策略组有时还是管用的
-- 综上,目前来看,个人用户稍微动手,费用不用太关心
-
-## 小结和推荐
-
-根据功能的全面性和平台兼容性，以下是前三名推荐的虚拟机软件：
-
-1. **VMware Workstation/Fusion**
-   - 功能全面性：极高。提供强大的硬件虚拟化能力，支持多种高级特性，如虚拟网络配置、存储管理、实时快照和克隆、以及优秀的3D图形加速。
-   - 平台兼容性：广泛。VMware Workstation支持Windows与Linux宿主机系统，而VMware Fusion则专为Mac用户提供服务，使得用户在各种主流操作系统上都能享受到优质的虚拟化体验。
-2. **Oracle VM VirtualBox**
-   - 功能全面性：较高。VirtualBox是一个功能丰富的开源虚拟机软件，支持USB 3.0设备、多显示器、拖放文件传输、虚拟磁盘加密等功能，同时具备内建的虚拟网络功能。
-   - 平台兼容性：非常广泛。VirtualBox可以在Windows、macOS、Linux和Solaris等多个宿主操作系统上运行，是跨平台使用最广泛的虚拟机软件之一。
-3. **Microsoft Hyper-V**
-   - 功能全面性：高。Hyper-V为企业级用户提供了一系列强大功能，如实时迁移、故障恢复群集、动态内存分配、以及与Windows Server紧密集成的管理系统。
-   - 平台兼容性：主要集中在Windows环境。Hyper-V内置在Windows Server和部分Windows 10专业版/企业版中，对于Windows生态系统的深度整合和支持表现出色，但在非Windows平台上的兼容性较弱。
-4. 考虑支持社区活跃度,排行基本相同
-
-- 综合来看，如果你需要一个高度兼容并功能全面的虚拟机解决方案，尤其是跨Windows、Linux和Mac三大平台的话，首推VMware Workstation/Fusion；若你追求开源免费并且在各种平台间灵活切换，那么Oracle VM VirtualBox会是个很好的选择；而如果你的工作环境主要基于Windows Server，那么充分利用Hyper-V的企业级功能将能带来更优的效率和管理体验。
-
-- 每个虚拟机软件都有其适用场景和优势，用户可以根据自身需求（如操作系统兼容性、功能要求、性能表现、价格和许可证政策等）选择最适合自己的虚拟机解决方案。
-
-### hyper-v
-
-- [在 Windows 10 上启用 Hyper-V | Microsoft Learn](https://learn.microsoft.com/zh-cn/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
-
-## vmware workstation Pro
-
-- VMware Workstation Pro（以下简称Workstation Pro）是VMware公司出品的一款高性能、专业级桌面虚拟化软件，广泛应用于开发、测试、培训和演示等多个场景。它允许用户在其物理主机上创建并运行多个独立的、同时运行的虚拟机，每个虚拟机都可以安装一个完整的操作系统，如Windows、Linux、BSD等不同版本的操作系统。主要特点和功能包括：
-
-  1. **多操作系统支持**：可在同一台物理计算机上同时运行多种不同类型的操作系统，如Windows、Linux、Mac OS X（通过黑苹果方案）、FreeBSD等。
-
-  2. **虚拟机配置灵活**：可以分配给每个虚拟机不同数量的CPU核心、内存容量、硬盘空间，还可以配置虚拟网络环境，包括桥接、NAT、Host-only等多种网络模式。
-
-  3. **高级网络模拟**：支持复杂的网络设置，例如网络地址转换（NAT）、端口转发、DHCP服务、虚拟交换机等，用于搭建各类实验室环境和网络架构模拟。
-
-  4. **克隆与快照功能**：快速创建虚拟机的完整副本或者仅存储更改部分的快照，便于快速恢复到某个状态或者部署大量相同配置的虚拟机。
-
-  5. **共享资源与协作**：支持虚拟机之间的资源共享，以及通过VMware vSphere连接到远程ESXi服务器上的虚拟机。
-
-  6. **集成开发工具**：对于开发者而言，VMware Workstation Pro提供了一套API和SDK，可以与自动化测试工具和持续集成系统整合。
-
-
-  
-
-### VMware的相关软件
-
-- **VMware Workstation Player**（原VMware Player）：面向个人用户和教育用途的**免费虚拟机运行器**，功能较Workstation Pro更为基础，但足以运行预置的虚拟机和有限的**新建虚拟机功能**。[VMware Workstation Player | VMware](https://www.vmware.com/products/workstation-player.html)
-
-- **VMware Fusion**：针对Apple Macintosh系统的虚拟化软件，使得Mac用户可以在Mac OS上无缝运行Windows和其他操作系统。[Fusion - Run Windows on Mac | VM for Mac | VMware](https://www.vmware.com/products/fusion.html)
-
-### 其他
-
-- **VMware vSphere Hypervisor (ESXi)**：适用于数据中心级别的服务器虚拟化，用于建立和管理大规模的虚拟化环境。
-
-- **VMware vCenter Server**：集中管理和监控ESXi主机及其上运行的虚拟机，实现高级集群功能和自动化运维。
-
-- **VMware Horizon**：VDI（虚拟桌面基础架构）解决方案，将桌面和应用作为一种云服务交付给终端用户。
-
-- **VMware Workstation Pro Remote**（以前称为VMware ACE）：允许远程访问和控制Workstation Pro中的虚拟机。
-
-- **VMware ThinApp**：应用程序虚拟化工具，让应用程序无需安装即可在任何环境中运行。
-
-以上都是VMware产品家族的一部分，它们共同构建了一个全面的虚拟化解决方案生态系统，满足从个人桌面到数据中心级别的多样化需求。
-
-### 重要产品功能比较@Player vs Pro😊
-
-- [VMware Workstation Player vs Pro VMware](https://www.vmware.com/products/workstation-player.html)
 
 ## VMware tools
 
@@ -186,23 +92,38 @@
 
 - 点击已经链接的网络,以太网也可以,设置为按流量计费
 
-### vmware  网络/ip 问题
 
-### 启用连接
-
-![image-20220413084413046](https://s2.loli.net/2022/04/13/uBZnJWaOR89N5X2.png)
 
 ## 安装前后可以设置的项目选择😊
 
 - vmware安装虚拟机系统时有2大类选择
   - 一个是直接选择一个系统镜像开始安装
   - 一个是延迟安装,先设定虚拟机的配置,然后开始安装系统
-- 安装前的配置
-  - 选择配置在最后确认前可以点击自定义,可以在里面调整内存,处理器,最大硬盘使用量分配修改
-  - 而一个重点是是否使用UEFI引导还是选择BIOS引导
-    - 较新版的windows系统默认通常是UEFI
-    - 而linux系统可能是BIOS ,这通常不是那么重要,因为linux系统几乎不用关机,在虚拟机中更是如此,不使用的时候将它挂起就可以了,重新启用也很方便快速
-  - 选项->高级->侧通道缓解禁用复选框,可以选择是否勾选
+
+### 安装前的配置
+
+- 分配硬件资源的第一位是硬盘资源,有些系统镜像虚拟机无法识别(比如vmware无法识别linux Mint 那么就需要我们自己去确定linux内核版本,然后选择对应的版本,vmware会推荐你相应的配置,但这其实这不太重要,它推荐的资源太过于保守,我可以自己查询linux发行版需要或推荐的硬件资源,然后分配即可)
+- 那如果确实要查询下载的系统镜像内核号如何做?
+  - 系统镜像挂在后可以到目录中查看(可能比较绕)
+  - 也可以到社区上咨询,或者自己大概地分配一些资源安装上去后用命令行查询内核
+- vmware通常第一步分配硬盘,图形界面至少20GB网上(后期也可以自己扩大)
+- 其他像内存是后面分配的
+- 选择配置在最后确认前可以点击自定义,可以在里面调整内存,处理器使用量分配修改
+- 到这里如果是第二类安装方式(延迟安装,后续选择一个系统镜像安装),则会结束创建
+- 后面要继续配置高级选项,然后选择对应的镜像文件
+
+### 创建虚拟机后设置高级选项
+
+- 而一个重点是是否使用UEFI引导还是选择BIOS引导
+  - 较新版的windows系统默认通常是UEFI
+  - 而linux系统可能是BIOS ,这通常不是那么重要,因为linux系统几乎不用关机,在虚拟机中更是如此,不使用的时候将它挂起就可以了,重新启用也很方便快速
+- 选项->高级->侧通道缓解禁用复选框,可以选择是否勾选
+- 镜像文件路径配置好
+
+### 正式启动虚拟机
+
+### 后续
+
 - 系统安装完毕后第一次关机要移走或者断开系统镜像盘的自动挂在,否则会导致反复启动镜像盘而无法开机
   - 设置虚拟机,选择CD/DVD选项,取消勾选链接的选项(关机状态下执行)
 
@@ -310,7 +231,7 @@
 - 可以看到,vmplayer编辑虚拟机设置的选项部分项目比vmware workstation pro看到的要少
 - 但是如果要编辑高级选项,则还是得启动vmware workstation pro来编辑
 
-## 虚拟机资源分配
+## 虚拟机资源分配😊
 
 ### cpu分配
 
@@ -337,7 +258,7 @@
 
 - 如果分配小了,后续也可以调高这个最大值上限,不必过于担心(需要在虚拟机系统中执行关机操作(而不是挂起或休眠)后才能调整虚拟机配置)
 
-### 默认配置
+### 常见操作系统的最低硬件资源要求😊
 
 #### windows
 
@@ -367,6 +288,9 @@
 #### Linux
 
 - 现在较新版本的linux发行版ubuntu要求的硬件资源也不低,甚至高于早期的图形界面的windows
+
+### ubuntu
+
 - 以ubuntu 22.04 Server(不带图形界面)为例,安装虚拟机时它提示我4GB内存是推荐大小,这核win11是一个级别的
 - 当然linux系统的发行版是可以做得很小,而且如果运行的服务不多的化,占用也比windows小的多
 
@@ -396,6 +320,15 @@
   - Chromium内核的应用都是内存老虎,edge,vscode,占用内存相当厉害
 
 
+### linux mint
+
+- [Frequently Asked Questions - Linux Mint](https://linuxmint.com/faq.php)
+- 例如2024年查询到的结果
+  - 2GB RAM (4GB recommended for a comfortable usage).
+  - 20GB of disk space (100GB recommended).
+  - 1024×768 resolution (on lower resolutions, press ALT to drag windows with the mouse if they don’t fit in the screen).
+
+
 ### 小结
 
 - 目前为止,基准配置都是容易达到的,尽管基准配置上运行体验不会很好,但是也不会太差,这就是基准配置的意义
@@ -420,7 +353,7 @@
   | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
   | 分配4个处理器,每个处理器2个核心                              | 分配4个处理器,每个处理器4个核心                              |      |
 
-- 对应关系比较复杂,参考文档了解详情
+- 对应关系比较复杂,参考vmware文档了解详情
 
 
 

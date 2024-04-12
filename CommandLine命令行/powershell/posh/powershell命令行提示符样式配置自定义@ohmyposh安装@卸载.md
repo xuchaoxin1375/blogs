@@ -1,8 +1,110 @@
 [toc]
 
+# abstract
 
+- 介绍两种方案来自定义配置prompt主题
+  - 免安装模块:powershell编辑prompt函数来更改命令行提示符
+  - 安装流行模块:posh主题设置和自定义@动态补全配置
 
+# Prompt函数
 
+- 本方案不需要第三方模块,但是需要自己编写和设计主题
+
+## 配置文档
+
+- [关于 Prompt - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.4)
+
+- 文档中给出了基本信息和配置方式,这里不再赘述,而讨论许多配置效果以及可能遇到的问题
+
+- PowerShell 中的 `prompt` 函数是一个特殊内置函数，它负责定义命令行提示符的格式和内容。每当 PowerShell 完成一行命令的执行并准备接受下一条命令输入时，它会调用 `prompt` 函数来生成一个新的提示符字符串。
+
+  默认情况下，`prompt` 函数显示类似以下格式的提示符：
+  ```plaintext
+  PS [当前目录]>
+  ```
+  这里的 "PS" 是 PowerShell 的标识符，紧跟的是当前工作目录路径，然后是一个大于号（>），表示等待用户输入命令。
+
+  用户可以根据需要自定义 `prompt` 函数以改变提示符的行为和样式，例如添加时间戳、用户名、主机名、颜色等元素。例如，一个简单的自定义 `prompt` 函数可能如下所示：
+
+  ```powershell
+  function prompt {
+      "$([System.DateTime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
+  }
+  ```
+  上述函数会让 PowerShell 提示符显示当前时间以及目录，而不是默认的格式。
+
+  通过编辑 `prompt` 函数，您可以完全个性化您的 PowerShell 控制台体验，使其更符合个人喜好或特定工作场景的需求。
+
+## Prompt命令来自哪里
+
+如果机器上安装了许多软件,可能会遇到命令活别名冲突
+
+例如我的机器上安装了MiniConda,并且配置了powershell启动Conda环境
+
+然后发现了powershell内置的Prompt函数被覆盖了
+
+- ```bash
+  PS>gcm prompt
+  
+  CommandType     Name                                               Version    Source
+  -----------     ----                                               -------    ------
+  Function        prompt                                             0.0        Conda
+  ```
+
+  
+
+- 
+
+  ```bash
+  PS>(Get-Command Prompt).ScriptBlock
+  
+          if ($Env:CONDA_PROMPT_MODIFIER) {
+              $Env:CONDA_PROMPT_MODIFIER | Write-Host -NoNewline
+          }
+          CondaPromptBackup;
+  
+  
+  ```
+
+- 为了创建一个在 PowerShell 中的自动补全功能，你可以使用动态参数和参数补全（TabExpansion）。这些特性可以帮助你在输入命令参数时提供自动补全的功能。下面是一个如何创建一个 `Show-Command` 函数，它使用了 `Register-ArgumentCompleter` 来注册一个自定义的参数补全器，使你能够在输入 `-Name` 参数时自动补全以指定字符串开头的命令：
+
+  ```powershell
+  function Show-Command {
+      [CmdletBinding()]
+      param(
+          [Parameter(Mandatory = $true)]
+          [string]$Name
+      )
+  
+      # 调用 get-command 来显示以 Name 开头的命令
+      Get-Command -Name "${Name}*"
+  }
+  
+  # 注册参数补全，使其用于 Show-Command 的 Name 参数
+  Register-ArgumentCompleter -CommandName Show-Command -ParameterName Name -ScriptBlock {
+      param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+      
+      # 搜索所有可能的命令以便于补全
+      $commands = Get-Command -Name "$wordToComplete*" | ForEach-Object { $_.Name }
+      
+      # 返回补全结果
+      $commands | ForEach-Object {
+          [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+      }
+  }
+  
+  # 现在可以尝试 Show-Command -Name Go 并按下 Tab 来补全了
+  ```
+
+  将这段代码复制到你的 PowerShell 会话中，或者你的 PowerShell 配置文件（profile）中。定义函数并注册了参数补全之后，你就可以使用 `Show-Command -Name Go` 并按下 Tab 键，它会自动显示和提供所有以 “Go” 开头的命令进行补全。
+
+  请注意，`Show-Command` 在这里是我们自定义的函数名，和 PowerShell 自带的 `Show-Command` cmdlet 不同。如果你想保持内置 cmdlet 和自定义函数的名称一致性，你可能需要为你的函数选择不同的名称，以避免命名冲突。
+
+- 
+
+  
+
+# Posh
 
 ## 安装oh my posh
 
