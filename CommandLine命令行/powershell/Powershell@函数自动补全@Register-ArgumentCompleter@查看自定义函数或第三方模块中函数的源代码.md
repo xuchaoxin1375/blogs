@@ -2,6 +2,11 @@
 
 ## abstract
 
+- Powershell@函数自动补全@Register-ArgumentCompleter
+- 查看自定义函数或第三方模块中函数的源代码
+
+## Register-ArgumentCompleter
+
 - [Register-ArgumentCompleter (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/register-argumentcompleter?view=powershell-7.4)
 
 - `Register-ArgumentCompleter` 是 PowerShell 中的一个内建命令，用于向 PowerShell 命令或函数参数注册自定义的补全脚本块，以便在用户交互式输入时提供智能提示和自动补全功能。
@@ -43,7 +48,56 @@
 
   在实践中，您通过构造一个恰当的 ScriptBlock，根据用户已输入的内容检索匹配项，然后将其作为补全建议返回。这样，当用户在命令行中尝试输入某个参数的值时，只需按下 `<TAB>` 键就能看到相应的候选选项。
 
+## 补全命令名字
 
+- 为了创建一个在 PowerShell 中的自动补全功能，你可以使用动态参数和参数补全（TabExpansion）。这些特性可以帮助你在输入命令参数时提供自动补全的功能。
+- 下面是一个如何创建一个 `Show-Command` 函数，它使用了 `Register-ArgumentCompleter` 来注册一个自定义的参数补全器，使你能够在输入 `-Name` 参数时自动补全以指定字符串开头的命令
+
+### 查看Powershell当前环境下某个自定义函数的源代码
+
+```powershell
+
+function Get-CommandSourceCode
+{
+    <# 
+    .SYNOPSIS
+    查看Powershell当前环境下某个命令(通常是自定义的函数)的源代码
+    .DESCRIPTION
+    为例能够更方便地查看,在函数外面配置了本函数的Register-ArgumentCompleter 自动补全注册语句
+    这样在输入命令名后按Tab键,就能自动补全命令名,然后按Tab键再次,就能查看命令的源代码
+    
+    .EXAMPLE
+    PS>Get-CommandSourceCode -Name prompt
+
+        if ($Env:CONDA_PROMPT_MODIFIER) {
+            $Env:CONDA_PROMPT_MODIFIER | Write-Host -NoNewline
+        }
+        CondaPromptBackup;
+
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    Get-Command $Name | Select-Object -ExpandProperty ScriptBlock
+
+}
+
+# 注册参数补全，使其用于 Get-CommandSourceCode 的 Name 参数
+Register-ArgumentCompleter -CommandName Get-CommandSourceCode -ParameterName Name -ScriptBlock {
+    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+    
+    # 搜索所有可能的命令以便于补全
+    $commands = Get-Command -Name "$wordToComplete*" | ForEach-Object { $_.Name }
+    
+    # 返回补全结果
+    $commands | ForEach-Object {
+        [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+    }
+}
+```
 
 
 

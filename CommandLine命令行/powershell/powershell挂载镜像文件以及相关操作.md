@@ -91,22 +91,17 @@ Dismount-VHD -Path "C:\path\to\your.vhd"
 
 - [Get-PSDrive (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-psdrive?view=powershell-7.4)
 
-- ```bash
-  PS [C:\Users\cxxu] Get-PSDrive -PSProvider FileSystem|?{$_.Name -ne 'Temp'}
+- 挂在前查看主要盘符
+
+  ```bash
+  PS>get-PSDrive -PSProvider FileSystem|?{$_.Name -ne 'Temp'} |ft -AutoSize
   
-  Name           Used (GB)     Free (GB) Provider      Root
-  ----           ---------     --------- --------      ----
-  C                 186.51        756.42 FileSystem    C:\
+  Name Used (GB) Free (GB) Provider   Root CurrentLocation
+  ---- --------- --------- --------   ---- ---------------
+  C       204.81    738.13 FileSystem C:\       Users\cxxu
   ```
 
-  - ```
-    ┌─[BAT:100%][MEM:49.18% (15.59/31.70)GB]
-    ├─[2024-04-12][15:29:33]
-    ├─[cxxu@COLORFULCXXU][C:\Users]
-    └─PS>
-    ```
-
-    
+- 
 
 ## 相关命令汇总
 
