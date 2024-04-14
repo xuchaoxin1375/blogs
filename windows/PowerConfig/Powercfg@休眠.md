@@ -4,17 +4,42 @@
 
 ## ref
 
-- [Shut down, sleep, or hibernate your PC - Microsoft Support](https://support.microsoft.com/en-us/windows/shut-down-sleep-or-hibernate-your-pc-2941d165-7d0a-a5e8-c5ad-8c972e8e6eff)
-- [win10删除休眠文件的方法是什么_windows10休眠文件怎么删除－系统城 (xitongcheng.com)](https://www.xitongcheng.com/jiaocheng/win10_article_61789.html)
+- [如何禁用和重新启用休眠 - Windows Client | Microsoft Learn](https://learn.microsoft.com/zh-cn/troubleshoot/windows-client/setup-upgrade-and-drivers/disable-and-re-enable-hibernation)
 
-##  设置前提:
+- [Shut down, sleep, or hibernate your PC - Microsoft Support](https://support.microsoft.com/en-us/windows/shut-down-sleep-or-hibernate-your-pc-2941d165-7d0a-a5e8-c5ad-8c972e8e6eff)
+- [关闭电脑，或使其进入睡眠或休眠状态 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/关闭电脑-或使其进入睡眠或休眠状态-2941d165-7d0a-a5e8-c5ad-8c972e8e6eff)
+- [Powercfg 命令行选项 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/design/device-experiences/powercfg-command-line-options)
+
+##  设置前提要求
+
+
 
 ### 驱动要求
 
-- 您的计算机已经安装了必要的驱动
-  - 最好确保`显卡`在内的所有驱动都是正常的
-  - 否则可能找不到或者无法顺利启用休眠功能
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626095954647.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+
+
+在Windows操作系统中启用休眠模式通常需要满足以下条件：
+
+1. **硬件支持**：
+   - 计算机的主板和BIOS必须支持休眠功能。
+   - 计算机的硬盘应有足够的可用空间来保存休眠文件（hiberfil.sys），该文件大小通常约等于物理内存的大小(可能会略小)。
+
+2. **操作系统支持**：
+   - Windows系统从较早版本开始就支持休眠模式，包括但不限于Windows 7、Windows 8、Windows 10等。
+
+3. **系统设置**：
+   - 休眠模式默认可能未启用，需要通过系统设置来激活它。以下是启用Windows 10休眠模式的基本步骤：
+     - 打开“设置”应用（可以通过点击任务栏上的开始菜单按钮，然后选择齿轮图标打开）。
+     - 进入“系统”设置项。
+     - 选择“电源和睡眠”或进一步点击“更多电源设置”链接进入到传统的电源选项界面。
+     - 在这里，你可能需要点击“选择电源按钮的功能”或“更改计划设置”，然后在高级设置中查找并启用“休眠”选项。
+
+4. **权限**：
+   - 用户账户需要有管理员权限才能更改电源设置。
+
+若要启用休眠模式，可以按照上述提到的具体步骤进行操作，或者在命令提示符中以管理员身份运行 `powercfg.exe -h on` 命令来启用休眠功能。此外，某些情况下，如电池续航较长的笔记本电脑，出于电量管理策略，系统可能默认禁用休眠模式，需要手动调整设置来开启。
+
+
 
 ## GUI@控制面板方式启用
 
@@ -26,23 +51,10 @@
     PS C:\Users\cxxu> powercfg.cpl
     ```
 
-    
 
-###  允许更改不可用按钮:
+## 电源命令行操作
 
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626100223892.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-
-
-- 
-  ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626095917243.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-
-###  the result
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210626100311306.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
-
-
-
-## CLI@powercfg.exe命令行操作
+### powercfg
 
 - ```bash
   PS C:\Users\cxxu> powercfg.exe -?
@@ -101,9 +113,13 @@
   - 如果您的软硬件都支持,一般情况下是可以正常启用
   - 个别情况(比如驱动问题,可能会执行失败,那么您可能需要修复一下驱动问题)
 
-### hiberfil.sys系统休眠文件
+### hiberfil.sys系统休眠文件😊
 
-- 当您执行休眠操作后,系统将在`C:\`目录生成一个隐藏系统文件`hiberfil.sys`
+- Hiberfil.sys 隐藏系统文件位于操作系统安装所在驱动器的根文件夹中。
+-  Windows 内核电源管理器在安装 Windows 时保留此文件。
+-  此文件的大小与计算机上安装的随机存取内存 (RAM) 大致相等。
+- 当混合睡眠设置打开时，计算机使用 Hiberfil.sys 文件在硬盘上存储系统内存的副本。 如果此文件不存在，则计算机无法休眠。
+- 通常当您执行休眠操作后,系统将在`C:\`目录生成一个隐藏系统文件`hiberfil.sys`
 
 ### 使计算机休眠😊
 
