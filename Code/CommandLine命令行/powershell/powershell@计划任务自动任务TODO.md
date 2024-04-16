@@ -2,12 +2,14 @@
 
 ## 定时刷新
 
-要在 PowerShell 启动后即在后台执行一个每5秒自动更新 `$env:TimeStamp` 环境变量的函数，您可以创建一个后台任务或者使用计时器来定期执行。下面是一个使用 PowerShell Jobs 示例：
+要在 PowerShell 启动后即在后台执行一个每5秒自动更新 `$env:LastUpdate` 环境变量的函数，您可以创建一个后台任务或者使用计时器来定期执行。
+
+下面是一个使用 PowerShell Jobs 示例：
 
 ```powershell
 # 定义更新环境变量的函数
 Function Update-TimeStamp {
-    $env:TimeStamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    $env:LastUpdate = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
 }
 
 # 创建一个后台作业，每5秒运行一次更新函数
@@ -22,7 +24,7 @@ Start-ScheduledTask -TaskName $jobName
 
 # 如果你想在当前 PowerShell 会话中也能立即看到更新的结果，可以添加一个循环来持续读取环境变量的值
 while($true){
-    Write-Host "Current TimeStamp: $($env:TimeStamp)"
+    Write-Host "Current TimeStamp: $($env:LastUpdate)"
     Start-Sleep -Seconds $timerInterval
 }
 
@@ -38,7 +40,7 @@ while($true){
 
 ```powershell
 while($true){
-    $env:TimeStamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    $env:LastUpdate = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
     # 可选：在此处执行任何需要基于时间戳的操作
     Start-Sleep -Seconds 5
 }
