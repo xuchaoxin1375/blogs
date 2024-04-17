@@ -1,10 +1,10 @@
 [toc]
 
-# 🎈手动下载安装nodejs和npm
+# 手动下载安装nodejs和npm
 
 ##  下载并抽取二进制文件A
 
-- 🎈小脚本:
+- 小脚本:
 
   - ```bash
     sudo mkdir /usr/node/;
@@ -17,7 +17,7 @@
 ### 脚本解释
 
 - 路径重命名需要考虑是否要用多个版本的node
-- 🎈建议还是保留版本号
+- 建议还是保留版本号
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/806882807a544d209bf633078e049e7c.png)
 
@@ -42,14 +42,14 @@
 - 当前面步骤都执行顺利的时候,可以运行:
   - 权限不足是,可以尝试`sudo`
 
-- 🎈小脚本
+- 小脚本
 
   - ```bash
     ln -s /usr/node/node*linux*/bin/node /usr/local/bin
     ln -s /usr/node/node*linux*/bin/npm /usr/local/bin
     echo '🎆the version of node:'
     node -v
-    echo 'the🎈 version of npm:'
+    echo 'the version of npm:'
     npm -v
     ```
 
@@ -67,7 +67,7 @@
     ![](https://img-blog.csdnimg.cn/img_convert/60ed701da4ba1f06f26bc382e049eda4.png)
     到此就装好了
 
-###  🎈安装yarn
+###  安装yarn
 
 - ` npm install -g yarn`
 
@@ -97,7 +97,7 @@
 
 #  指定仓库一键安装
 
-- waiting
+
 
 ##  更新npm
 

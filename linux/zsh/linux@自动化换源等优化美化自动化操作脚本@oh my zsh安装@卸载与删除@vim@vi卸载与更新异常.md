@@ -43,7 +43,7 @@
   - 确保当前用户 `sudo`命令可用
 
 
-### 换源脚本模板
+### 换源脚本模板😊
 
 - 不要直接使用
   - 以kali-linux 更换国内镜像源(阿里源为例)
@@ -95,7 +95,7 @@
 
 
 
-### ubuntu 换源😊
+#### 例:ubuntu 换源😊
 
 - [ubuntu | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)
 - [ubuntu源by阿里](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
@@ -145,6 +145,8 @@ cat /etc/apt/sources.list
 # 更新并使得apt配置文件生效
 echo "updating the apt..."
 sudo apt update
+#可选的升级
+#sudo apt upgrade
 
 ```
 #### 简化版(从默认源替换为国内源)

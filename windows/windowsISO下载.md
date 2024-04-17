@@ -1,71 +1,126 @@
-## reference 
+[toc]
 
-- [微软 Win10 21H1 正式版官方 ISO 镜像下载大全 - IT之家 (ithome.com)](https://www.ithome.com/0/552/319.htm)
+## abstract
 
-## win11
+- 较新系统的镜像可以通过Microsoft官方网站下载
+  - 比如最新一代和上一代的未结束支持的windows,可以官网下载
+- 对于结束支持的系统镜像,一般要自己找资源
+- 如果是非原版镜像,那么资源会非常多
+
+## windows系统镜像站
+
+- [MSDN, 我告诉你 - 做一个安静的工具站 (itellyou.cn)](https://msdn.itellyou.cn/)
+- [NEXT, ITELLYOU](https://next.itellyou.cn/)
+- 新版系统则是建议到Microsoft官网下载
+
+### win11
 
 - [Download Windows 11 (microsoft.com)](https://www.microsoft.com/software-download/windows11)
 
-## win10
+### win10
 
 - [下载 Windows 10 (microsoft.com)](https://www.microsoft.com/zh-cn/software-download/windows10)
   - 使用下载工具下载镜像（用于下载最新版windows）
   - 可以在工具里选择下载的目的
   - 缺点无法直接点击下载来获取镜像
 
-### 第三方镜像资源
+### win7
 
-- IT之家里去找
+- Windows 7 是微软公司推出的个人电脑操作系统之一，共有多个版本以适应不同用户的需求。以下是Windows 7各主要版本的主要功能区别对比：
 
+  1. **Windows 7 Starter（初级版）**
+     - 最基本的版本，功能相对较少。
+     - 不支持Aero特效和其他高级视觉效果。
+     - 限制可同时运行的应用程序数量（早期版本有限制，后来有所放宽）。
+     - 没有64位版本。
+     - 不包含Windows Media Center和Windows Mobility Center等功能。
+
+  2. **Windows 7 Home Basic（家庭普通版）**
+     - 目标市场主要是新兴市场，功能比Starter版稍多。
+     - 包含基础的Windows Aero界面。
+     - 缺少一些多媒体和高级娱乐功能，比如Media Center。
+
+  3. **Windows 7 Home Premium（家庭高级版）**
+     - 提供完整的Aero体验，包括Flip 3D、触控功能等。
+     - 支持Windows Media Center，方便多媒体播放和管理。
+     - 支持多显示器输出和DVD回放功能。
+
+  4. **Windows 7 Professional（专业版）**
+     - 在Home Premium的基础上增加了对企业环境的支持特性。
+     - 包括域加入、远程桌面连接、EFS加密文件系统和Windows XP模式等功能。
+     - 更适合商务办公和小型企业用户。
+
+  5. **Windows 7 Enterprise（企业版）**
+     - 为企业级用户提供更多的安全性和管理功能，如DirectAccess、BranchCache、AppLocker等。
+     - 只通过批量许可计划提供给企业和组织。
+
+  6. **Windows 7 Ultimate（旗舰版）**
+     - 结合了所有其他版本的所有功能，是最全面的一个版本。
+     - 包括企业版的所有功能以及多语言包支持。
+     - 适用于对功能要求最为全面的高端用户和开发者。
+
+- 以上各版本均支持32位和64位（前提是硬件支持64位运算），其中64位版本能够更好地利用现代计算机的大内存和处理能力。
+- 随着后续Service Pack（SP1）的发布，各版本均获得了性能提升和额外的兼容性改进。
+
+## 镜像版本查看
+
+- 要查看Windows ISO镜像中的系统版本，你可以采取以下几种方法
+
+
+### 方法1：提取setup.exe查看产品版本
+1. 将ISO镜像文件挂载到虚拟光驱或者直接解压ISO文件。
+2. 找到`sources`文件夹内的`setup.exe`文件。
+3. 右键点击`setup.exe`，选择“属性”，然后切换到“详细信息”选项卡。
+4. 在详细信息中，你会看到“产品版本”，通过查看这个字段可以判断Windows镜像的版本号。
+
+### 方法2：使用第三方工具
+- **Dism++**：
+  Dism++是一款强大的Windows映像管理工具，可以直接读取ISO镜像中的系统版本信息，无需解压或安装镜像。
+
+  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/147937dc93824447bbf8a6c18194f343.png)
   
+- **命令提示符**：
+  通过命令行工具也可查看，但通常需要先将ISO镜像挂载到一个虚拟驱动器或解压后访问到install.wim文件。
+  ```shell
+  dism /Get-WimInfo /WimFile:<path_to_install.wim>
+  ```
+  运行上述命令，路径指向ISO中`sources`文件夹内的`install.wim`文件，此命令将会列出WIM文件内各个图像的信息，包括版本号。
+
+### 方法3：查看ISO文件名
+- ISO文件名有时也会包含版本信息，如“Windows 10 Pro 21H2”之类的字样，但这种方法不准确，因为文件名有可能并未严格按照官方命名规则。
 
 
-**Windows 10 21H1（64 位）消费者版本（家庭版，家庭单语言版，教育版，专业版，专业教育版，专业工作站版）**
+### 方法4：解压ISO并查阅内部文档
+- 如果你有权限解压ISO镜像，可以打开`sources`文件夹里面的`ei.cfg`文件（如果有的话），查看里面关于SKU和版本的相关配置信息。
 
-文件名：
+- 请注意，随着时间推移，Windows的版本不断更新，具体的版本号会有新的对应关系，请结合当时的最新Windows版本信息进行解读。
 
-cn_windows_10_consumer_editions_version_21h1_x64_dvd_1baf479d.iso
+## 下载工具
 
-MD5：060A010410E46B58A92960ACBF3B3C1A
+- 如果镜像来源于云盘,那么就按云盘推荐的方法下载
+- 而镜像经常是ed2k或bt链接,因此对于下载工具需要进行一定的选择
+  - 国内的话就用迅雷好了,其他的不是那么省心
+  - 而且迅雷的手机端有比较多的操作空间,迅雷电脑版的客户端也可以考虑,正常链接可以离线下载到云盘后再下载可能速度会更稳定
+  - 如果用迅雷手机端下载,那么下载到手机后用局域网协议或者数据线传输到电脑上
 
-SHA1：667836E090DBA6B2CDD593152F8E51D497F5779D
+## 虚拟机上安装注意事项
 
-SHA256：DF88FFFE7E4763A7A01CF2F6546C83A864DA3E4DA35C78EC0838E2339371DB8F
+- 虚拟机软件能够识别系统镜像文件时,可能会推荐你使用快速安装
+- 然而快速安装可能并不像听上去的那么好,例如我安装win7虚拟机时,下载的是Ultimate(旗舰版),vmware检测出来是win7,然而用快速安装后竟然安装的是普通家庭版,我又检查了一下镜像里的版本确实是旗舰版(或者说包含了多个版本,可以用Dism++导出)
+- 然而为了避免翻车,我有下载了一个体积大一些的包,想着这回总该是旗舰版,没想到快速安装又给我装的家庭版
+- 后来用不同安装(创建虚拟机后再选择镜像)才安装上正确的旗舰版
 
-文件大小：5.41GB
+### win7这类老系统的现状
 
-发布时间：2021-5-18
+- 首先是UI界面流畅,响应迅速,尤其是资源管理器等系统自带的应用,Aero模糊很优雅,当年喜欢的不得了
+- 其他就基本都是缺点了
+  - 新硬件不在支持win7,驱动问题比较硬伤
+    - UEFI引导可能会翻车
+  - 虚拟机虽然可以安装,但是vmware tools 要求带有sp1包之后的win7,早期的win7还装不了
+    - 即使是win7 sp1,在安装vmware tools 时也不是那么顺利,许多驱动安装不上,导致回滚
+  - 停止维护,系统更新无法正常进行,需要到其他地方下载补丁或者安全卫士来打补丁
+  - win7不激活的话直接黑屏给你看,新系统不激活问题不大
+  - 新软件逐渐放弃了对win7的支持
+    - 例如powershell7(经过试验最低要求windows8.1),最新版edge等
+    - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/66bac51548944c60851c6b4f38c9fbb3.png)
 
-**ED2K 下载：**
-
-[cn_windows_10_consumer_editions_version_21h1_x64_dvd_1baf479d.iso [5.41GB]](ed2k://|file|cn_windows_10_consumer_editions_version_21h1_x64_dvd_1baf479d.iso|5807677440|E53960C7CAD323F60442A8AB9C269C2E|/)
-
-**BT 下载：**
-
-[cn_windows_10_consumer_editions_version_21h1_x64_dvd_1baf479d.iso [5.41GB]](magnet:?xt=urn:btih:D6ED0CA62352B3D61EB1EC921596F030D866473C&dn=cn_windows_10_consumer_editions_version_21h1_x64_dvd_1baf479d.iso&xl=5807677440)
-
-**Windows 10 2H1（64 位）商业版（企业版，教育版，专业版，专业教育版，专业工作站版）**
-
-文件名：
-
-cn_windows_10_business_editions_version_21h1_x64_dvd_57455ea1.iso
-
-MD5：E2B67B11553F15802E4708A786A715BD
-
-SHA1：D35C56C76F9C5D0F03CAB06926035BB9536B7A25
-
-SHA256：F1FA599DA150F0443BF4ED01895AA5B1F447855934B12A0D750A74A69DC263D7
-
-文件大小：5.3GB
-
-发布时间：2021-5-18
-
-**ED2K 下载：**
-
-[cn_windows_10_business_editions_version_21h1_x64_dvd_57455ea1.iso [5.3GB]](ed2k://|file|cn_windows_10_business_editions_version_21h1_x64_dvd_57455ea1.iso|5693655040|68EB323345DC095D367A19CB3A22342C|/)
-
-**BT 下载：**
-
-[cn_windows_10_business_editions_version_21h1_x64_dvd_57455ea1.iso [5.3GB]](magnet:?xt=urn:btih:B89754FB4C85AF6435760D3ECF047DC3C3C701B6&dn=cn_windows_10_business_editions_version_21h1_x64_dvd_57455ea1.iso&xl=5693655040)
-
-微软 [Windows 10 官网](https://www.microsoft.com/zh-cn/software-download/windows10)工具下载。请注意其中下载的 ISO 镜像保存的有效时间有限。适合短期内使用。

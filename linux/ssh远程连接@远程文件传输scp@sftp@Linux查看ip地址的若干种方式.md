@@ -1,6 +1,9 @@
 [toc]
 
--  ssh远程连接@远程文件传输scp@sftp@Linux查看ip地址的若干种方式
+## abstract
+
+-  ssh远程连接@远程文件传输scp@sftp
+-  Linux查看ip地址的若干种方式
 
 ## 远程文件传输scp@sftp
 
@@ -289,33 +292,32 @@ function scp_ali {
 
 
 
-# 附
 
-## 查看linux的ip地址方法
 
-- `ip addr show`和`ipconfig`类似
+## 查看linux的ip地址方法😊
 
-  - ```bash
-       ip addr show
-    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-        inet 127.0.0.1/8 scope host lo
-           valid_lft forever preferred_lft forever
-        inet6 ::1/128 scope host 
-           valid_lft forever preferred_lft forever
-    2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
-        link/ether 00:0c:29:64:82:39 brd ff:ff:ff:ff:ff:ff
-        altname enp2s1
-        inet 192.168.128.129/24 brd 192.168.128.255 scope global dynamic noprefixroute ens33
-           valid_lft 1398sec preferred_lft 1398sec
-        inet6 fe80::2d84:3ce5:ee20:b4c0/64 scope link noprefixroute 
-           valid_lft forever preferred_lft forever
-    
-    ```
+- `ip addr show`和`ifconfig`类似
 
-    
 
-  - 该命令会输出当前系统的网络接口信息，包括每个接口的IP地址、MAC地址、状态等。
+### ip 命令
+
+- ```bash
+     ┌─[cxxu@ColorfulCxxu] - [~] - [2024-04-17 09:15:02]
+  └─[0] <> ip -4 addr show
+  1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+      inet 127.0.0.1/8 scope host lo
+         valid_lft forever preferred_lft forever
+  2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1492 qdisc mq state UP group default qlen 1000
+      inet 172.27.30.244/20 brd 172.27.31.255 scope global eth0
+         valid_lft forever preferred_lft forever
+  ┌─[cxxu@ColorfulCxxu] - [~] - [2024-04-17 09:15:05]
+  └─[0] <> ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '^127'
+  172.27.30.244
+  ```
+  
+  
+  
+- 该命令会输出当前系统的网络接口信息，包括每个接口的IP地址、MAC地址、状态等。
 
 - 如果只需要查看IP地址，可以使用以下命令：🎈
 
@@ -362,7 +364,12 @@ function scp_ali {
 
     
 
+### ifconfig
 
+- 这一条命令尽管大多数发行版都有,但不保证所有发行版都会自带
+  - 因此您可能需要自己安装,它包含在`net-tools`这个工具包里
+  - 另外注意windows下有一个类似的命令`ipconfig`,不要和`ifconfig`混淆
+- 
 
 
 
