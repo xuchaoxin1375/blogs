@@ -161,6 +161,8 @@
 ## 挂载到资源管理器(模拟本地磁盘分区)👺
 
 - [windows@映射磁盘驱动器若干方法-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/136093467)
+  - 注意对于http协议需要修改注册表(默认开放https的webdav连接)
+
 - 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
 
 ## refs

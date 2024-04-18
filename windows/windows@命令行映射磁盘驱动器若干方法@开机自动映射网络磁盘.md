@@ -13,7 +13,7 @@
 - [How to Use the Net Use Command in Windows (lifewire.com)](https://www.lifewire.com/net-use-command-2618096)
 
 - ```bash
-  PS 🕰️20:40:38 [C:\Users\cxxu\Desktop] 🔋100% net use ?
+  PS 🕰️20:40:38 [C:\Users\cxxu\Desktop] 🔋100%  net use ?
   此命令的语法是:
   
   NET USE
@@ -43,7 +43,7 @@
 - 可以使用`net use`查询网络驱动器
 
   - ```bash
-    PS 🕰️21:56:10 [C:\Users\cxxu\Desktop] 🔋100% net use
+    PS 🕰️21:56:10 [C:\Users\cxxu\Desktop] 🔋100%  net use
     不记录新的网络连接。
     
     
@@ -65,7 +65,7 @@
 - 执行:`wmic logicaldisk get caption,providername`
 
   - ```bash
-    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100% wmic logicaldisk get caption,providername
+    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
     Caption  ProviderName
     A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
     C:
@@ -81,7 +81,7 @@
 - 查看更多信息:`wmic logicaldisk get caption,description,providername,volumename,size,freespace`
 
   - ```bash
-    PS 🕰️21:05:14 [C:\Users\cxxu\Desktop] 🔋100% wmic logicaldisk get caption,description,providername,volumename,size,freespace
+    PS 🕰️21:05:14 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,description,providername,volumename,size,freespace
     Caption  Description   FreeSpace     ProviderName                                 Size          VolumeName
     A:       网络连接      364817272832  \\localhost@5244\DavWWWRoot\dav\AliyunDrive  489019002880
     C:       本地固定磁盘  364817272832                                               489019002880
@@ -103,7 +103,7 @@
 - 首先查询所有驱动器(分区)
 
   - ```bash
-    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100% wmic logicaldisk get caption,providername
+    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
     Caption  ProviderName
     A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
     C:
@@ -120,7 +120,7 @@
   - 这里将`[partition]`替换为目标盘符`X`
 
     ```
-    PS 🕰️21:07:34 [C:\Users\cxxu\Desktop] 🔋100% net use X: /delete
+    PS 🕰️21:07:34 [C:\Users\cxxu\Desktop] 🔋100%  net use X: /delete
     X: 已经删除。
     ```
 
@@ -130,7 +130,7 @@
 
   ```bash
   
-  PS 🕰️21:07:50 [C:\Users\cxxu\Desktop] 🔋100% wmic logicaldisk get caption,providername
+  PS 🕰️21:07:50 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
   Caption  ProviderName
   A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
   C:
@@ -150,7 +150,7 @@
 
   - ```
     
-    PS 🕰️22:11:07 [C:\Users\cxxu\Desktop] 🔋100% net use W: http://localhost:5244/dav  /p:yes
+    PS 🕰️22:11:07 [C:\Users\cxxu\Desktop] 🔋100%  net use W: http://localhost:5244/dav  /p:yes
     为“localhost”输入用户名: admin
     输入 localhost 的密码:
     命令成功完成。
@@ -159,15 +159,19 @@
 - 追加使用`/savecred`选项,之后不用输入用户名和密码
 
   - ```bash
-    PS 🕰️0:28:19 [C:\Users\cxxu\Desktop] 🔋100% net use W: http://localhost:5244/dav  /p:yes /savecred
+    PS 🕰️0:28:19 [C:\Users\cxxu\Desktop] 🔋100%  net use W: http://localhost:5244/dav  /p:yes /savecred
     
     命令成功完成。
     ```
 
-    
+
+### GUI操作
 
 - 这对应于GUI操作勾选(默认勾选)登录时重新连接(目前仅保留资源管理器内的驱动器图标,需要手动确定连接)
 
+#### 重新连结
+
+- 当然也可以勾选使用其他凭据链接(具体作用暂未实验)
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/7976774c64414092bc1039c5534563cb.png)
 
 
@@ -209,7 +213,7 @@
   5. 配置完是什么样的
 
      ```bash
-     PS 🕰️1:16:43 [C:\Users\cxxu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup] 🔋100% ls
+     PS 🕰️1:16:43 [C:\Users\cxxu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup] 🔋100%  ls
      
              Directory: C:\Users\cxxu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
      
@@ -220,7 +224,7 @@
      -a---         2024/2/11      1:03            121   MapCloudDrive.bat
      -a---         2024/1/16      1:29           1355   Snipaste.lnk
      
-     PS 🕰️1:16:44 [C:\Users\cxxu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup] 🔋100% cat .\MapCloudDrive.bat
+     PS 🕰️1:16:44 [C:\Users\cxxu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup] 🔋100%  cat .\MapCloudDrive.bat
      
      net use W: http://localhost:5244/dav  /p:yes /savecred
      
@@ -255,7 +259,7 @@
   - 同样的,下面这个版本可以加入开机自启脚本中自动调用并重试来映射网络磁盘,直到成功后,自动关闭任务窗口;该脚本经过我本地测试,能够良好地工作(系统是windows11)
 
     - ```bash
-      PS 🕰️10:58:29 AM [C:\repos\scripts] 🔋100% get_system_info_basic
+      PS 🕰️10:58:29 AM [C:\repos\scripts] 🔋100%  get_system_info_basic
       
       Caption                  Version    OSArchitecture BuildNumber
       -------                  -------    -------------- -----------
@@ -315,7 +319,7 @@
 - 用命令行也可以直接访问已经挂载的网络磁盘分区,这里时linux风格的方式,区分字母大小写,并且无法使用路径补全提示
 
 - ```bash
-  PS 🕰️1:56:30 [W:\AliyunDrive] 🔋100% ls
+  PS 🕰️1:56:30 [W:\AliyunDrive] 🔋100%  ls
   
           Directory: W:\AliyunDrive
   
