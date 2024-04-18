@@ -4,9 +4,11 @@
 
 ### 资源管理器中GUI方式创建
 
-- windows11/windows10文档:[在 Windows 中映射网络驱动器 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中映射网络驱动器-29ce55d1-34e3-a7e2-4801-131475f9557d)
+- windows 文档:[在 Windows 中映射网络驱动器 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中映射网络驱动器-29ce55d1-34e3-a7e2-4801-131475f9557d)
 
-### 命令行方式创建
+## 相关命令行
+
+### net use
 
 - [Net use | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-R2-and-2012/gg651155(v=ws.11))
 
@@ -36,9 +38,27 @@
   NET USE [/PERSISTENT:{YES | NO}]
   ```
 
+### powershell 系
 
+- 相关命令(添加和移除不是那么好用)
 
-### 命令行列出驱动器列表
+  ```
+  PS[BAT:77%][MEM:33.96% (10.77/31.70)GB][21:36:41]
+  # [~\Desktop]
+   gcm *drive* |?{$_.Source -match 'Microsoft.Powershell.Management'}
+  
+  CommandType     Name                                               Version    Source
+  -----------     ----                                               -------    ------
+  Cmdlet          Get-PSDrive                                        7.0.0.0    Microsoft.PowerShell.Management
+  Cmdlet          New-PSDrive                                        7.0.0.0    Microsoft.PowerShell.Management
+  Cmdlet          Remove-PSDrive                                     7.0.0.0    Microsoft.PowerShell.Management
+  ```
+
+  
+
+## 命令行列出驱动器列表
+
+### 查询网络驱动器
 
 - 可以使用`net use`查询网络驱动器
 
@@ -57,7 +77,48 @@
     命令成功完成。
     ```
 
+### 使用Get-PSDrive(新系统推荐)
 
+- 较新系统可以用powershell
+
+  - ```bash
+    [BAT:78%][MEM:34.98% (11.09/31.70)GB][18:33:48]
+    [~\Desktop]
+    PS> Get-PSDrive|ft -AutoSize
+    
+    Name     Used (GB) Free (GB) Provider    Root
+    ----     --------- --------- --------    ----
+    Alias                        Alias
+    C           268.22    674.72 FileSystem  C:\
+    Cert                         Certificate \
+    Env                          Environment
+    Function                     Function
+    HKCU                         Registry    HKEY_CURRENT_USER
+    HKLM                         Registry    HKEY_LOCAL_MACHINE
+    M           268.22    674.72 FileSystem  \\192.168.1.165@5244\DavWWWRoot\dav…
+    Temp        268.22    674.72 FileSystem  C:\Users\cxxu\AppData\Local\Temp\
+    Variable                     Variable
+    W           268.22    674.72 FileSystem  \\localhost@5244\DavWWWRoot\dav…
+    WSMan                        WSMan
+    
+    ```
+
+  - 进一步过滤
+
+  - ```bash
+    [BAT:78%][MEM:33.30% (10.56/31.70)GB][18:37:42]
+    [~\Desktop]
+    PS> Get-PSDrive -PSProvider FileSystem | Where-Object { $_.DisplayRoot -like '\\*' }|ft -AutoSize
+    
+    Name Used (GB) Free (GB) Provider   Root
+    ---- --------- --------- --------   ----
+    M       268.21    674.72 FileSystem \\192.168.1.165@5244\DavWWWRoot\dav…
+    W       268.21    674.72 FileSystem \\localhost@5244\DavWWWRoot\dav…
+    
+    ```
+
+
+### 使用wmic
 
 
 - 或者 `wmic` 命令（Window Management Instrumentation Command-line）来列出所有已映射的网络驱动器
@@ -91,65 +152,60 @@
     Z:       网络连接      364817272832  \\localhost\share                            489019002880
     ```
 
-    
-
 - 另外，如果你只是想查看所有的驱动器（包括本地和网络映射），而不关心提供程序信息，可以简化命令为
   - `wmic logicaldisk get caption`
 
 - 其他关于磁盘的命令行工具:diskpart (主要操作本地磁盘和驱动器)
 
-### 删除取消映射
+### 使用Get-CimInstance(新系统推荐)
 
-- 首先查询所有驱动器(分区)
-
-  - ```bash
-    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
-    Caption  ProviderName
-    A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
-    C:
-    D:
-    X:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
-    Y:       \\localhost@5244\DavWWWRoot\dav
-    Z:       \\localhost\share
-    ```
-
-  - 经过确认,假设我们要删除重复映射的`A,X`盘中的一个,比如我要删除`X`盘
-
-- 执行删除:`net use [partition:] /delete`
-
-  - 这里将`[partition]`替换为目标盘符`X`
-
-    ```
-    PS 🕰️21:07:34 [C:\Users\cxxu\Desktop] 🔋100%  net use X: /delete
-    X: 已经删除。
-    ```
-
-    
-
-- 再次检查分区列表
-
-  ```bash
+- ```powershell
+  PS[BAT:78%][MEM:33.70% (10.68/31.70)GB][18:52:55]
+  # [~\Desktop]
+   Get-CimInstance -ClassName Win32_LogicalDisk | Select-Object  Caption, ProviderName
   
-  PS 🕰️21:07:50 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
-  Caption  ProviderName
-  A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
+  Caption ProviderName
+  ------- ------------
   C:
-  D:
-  Y:       \\localhost@5244\DavWWWRoot\dav
-  Z:       \\localhost\share
+  M:      \\192.168.1.165@5244\DavWWWRoot\dav
+  W:      \\localhost@5244\DavWWWRoot\dav
+  
+  ```
+
+- ```powershell
+  PS[BAT:78%][MEM:33.69% (10.68/31.70)GB][18:55:06]
+  # [~\Desktop]
+   Get-CimInstance -ClassName Win32_LogicalDisk | Select-Object  caption,description,providername,volumename,size,freespace|ft -AutoSize
+  
+  caption description        providername                        volumename          size    freespace
+  ------- -----------        ------------                        ----------          ----    ---------
+  C:      Local Fixed Disk                                       Windows    1012469329920 724471517184
+  M:      Network Connection \\192.168.1.165@5244\DavWWWRoot\dav            1012469329920 724471517184
+  W:      Network Connection \\localhost@5244\DavWWWRoot\dav                1012469329920 724471517184
+  
   ```
 
 
-### 持久化配置映射👺
 
-- 以alist挂载阿里云open为例
+## 添加网络驱动器磁盘映射@持久化配置映射👺
+
+- 以借助alist挂载阿里云open为例
 
 - 上述配置是一次性的,如果我们要永久化配置(例如注销后重新登录到windows或者重启后仍然保留网络驱动器)
+
+- 为了挂载http链接,可能需要修改注册表,参考:[windows@允许挂载http链接@挂载局域网http链接](http://t.csdnimg.cn/p9NmO)
+
+  - 简单说,就是以管理员身份运行命令行终端,然后输入(复制粘贴)以下内容回车执行
+
+    ```
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
+    ```
+
+  - 执行成功的话会给提示
 
 - 可以借助`/p:yes`选项,使得配置持久化
 
   - ```
-    
     PS 🕰️22:11:07 [C:\Users\cxxu\Desktop] 🔋100%  net use W: http://localhost:5244/dav  /p:yes
     为“localhost”输入用户名: admin
     输入 localhost 的密码:
@@ -163,6 +219,7 @@
     
     命令成功完成。
     ```
+
 
 
 ### GUI操作
@@ -183,14 +240,61 @@
 - 注意密码一栏存在黑点字符,一般就是已经记住密码了,只不过黑点数量不一定和密码数量相等,直接点击确定就可以登录了(记住凭证这个选项在创建的时候勾选过一次就行,后续不需要反复勾选,直接确定登录)
 - Note:记住凭证(密码)不表示会自动登录,仍然需要我们点击确定才会建立连接(如果是本地的共享文件夹,不需要密码时登录系统可以自定建立网路驱动器)
 
-## FAQ
+## 删除@取消映射
 
-### 开机自启@登录系统后自动挂载👺[以alist webdav 挂载为例]
+- 首先查询所有驱动器(分区),确定要删除的盘符(映射)
+
+  - ```bash
+    PS 🕰️20:49:10 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
+    Caption  ProviderName
+    A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
+    C:
+    D:
+    X:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
+    Y:       \\localhost@5244\DavWWWRoot\dav
+    Z:       \\localhost\share
+    ```
+
+  - 经过确认,假设我们要删除重复映射的`A,X`盘中的一个,比如我要删除`X`盘
+
+- 执行删除:`net use [partition:] /delete`
+
+  - 这里将`[partition]`替换为目标盘符`X`
+
+    ```
+    PS 🕰️21:07:34 [C:\Users\cxxu\Desktop] 🔋100%  
+    net use X: /delete
+    X: 已经删除。
+    ```
+    
+
+- 再次检查分区列表
+
+  ```bash
+  
+  PS 🕰️21:07:50 [C:\Users\cxxu\Desktop] 🔋100%  wmic logicaldisk get caption,providername
+  Caption  ProviderName
+  A:       \\localhost@5244\DavWWWRoot\dav\AliyunDrive
+  C:
+  D:
+  Y:       \\localhost@5244\DavWWWRoot\dav
+  Z:       \\localhost\share
+  ```
+
+
+
+
+
+
+
+## 开机自启@登录系统后自动挂载👺
+
+#### 以alist webdav 挂载为例
 
 #### 分析
 
 - 可能是因为windows的bug,(我在win11下配置的)后来无论怎么点击**记住我的凭据**,都无法顺利映射(连接服务器),即便服务器已经启动好了
-- 为例便于讨论,这里假设要将连接`http://localhost:5244/dav`挂载为`W`盘.`/p:yes`表示每次登录都保留这个连接(如果可以的话)
+-  为了便于讨论,这里假设要将连接`http://localhost:5244/dav`挂载为`W`盘.`/p:yes`表示每次登录都保留这个连接(如果可以的话)
 - 我尝试用命令行登录:`net use W: http://localhost:5244/dav  /p:yes`,结果系统让我输入密码(正如前面展示的那样)
 - 考虑到之前保存过凭据,我追加`/savecred`,这次直接提示命令行执行完成(成功执行不报错);检查资源管理器中的映射网络分区处于已连接可用状态
   - Note:执行`net use W: http://localhost:5244/dav  /p:yes  /savecred`时,确保**windows安全中心**窗口已经被关闭了,否则会遇到执行错误(系统拒绝访问)
@@ -259,47 +363,81 @@
   - 同样的,下面这个版本可以加入开机自启脚本中自动调用并重试来映射网络磁盘,直到成功后,自动关闭任务窗口;该脚本经过我本地测试,能够良好地工作(系统是windows11)
 
     - ```bash
-      PS 🕰️10:58:29 AM [C:\repos\scripts] 🔋100%  get_system_info_basic
       
       Caption                  Version    OSArchitecture BuildNumber
       -------                  -------    -------------- -----------
       Microsoft Windows 11 Pro 10.0.22631 64-bit         22631
       ```
+  
 
-- 脚本内容
+#### 相关脚本@函数
 
-  - ```powershell
-    function map_alist_drive
-    {
-        param(
-    		#单位是秒
-    		$delay = 8
-        )
-        #根据需要自行修改盘符和端口号
-        net use W: http://localhost:5244/dav /p:yes /savecred
-        if (!$?)
-        {
-    
-            Write-Output '映射失败,等一会再映射(或者检查alist 服务是否正常)
-            #这里我假设配置好检查逻辑 alist_home_page 调用)'
-            # alist_home_page
-            Write-Output "try again after $delay s... enter <ctrl+C> stop auto retry! 👺"
-            Start-Sleep $delay
-            #递归调用来重试
-            map_alist_drive
-    
-        }
-        #检查映射结果
-        net use
-    }
-    
-    function alist_home_page
-    {
-        Start-Process 'http://localhost:5244'
-        #也可以用curl http://localhost:5244 |select -head 5 来检查服务是否启动 
-    }
-    
-    ```
+- 用powershell封装
+  
+  ```powershell
+  
+  function Set-AlistLocalhostDrive
+  {
+      param(
+          $delay = 8
+      )
+      #根据需要自行修改盘符和端口号
+      # net use W: http://localhost:5244/dav /p:yes /savecred
+      Set-AlistDrive -host 'localhost' -DriveLetter 'W' -Port '5244'
+  
+      if (!$?)
+      {
+  
+          Write-Host '映射失败,等一会再映射(或者检查alist 服务是否正常)
+          #这里我假设配置好检查逻辑 Start-AlistHomePage 调用)'
+          # Start-AlistHomePage
+          Write-Host "try again after $delay s... enter stop auto retry! 👺"
+          Start-Sleep $delay
+          #递归调用来重试
+          Set-AlistLocalhostDrive
+  
+      }
+      #检查映射结果
+      net use
+  }
+  
+  function Set-AlistDrive
+  {
+      <# 
+      .SYNOPSIS
+      $HostAddress =$iqoo10pro
+      .DESCRIPTION
+      为了方便省事,这里记住密码，不用每次都输入密码
+      net use W: "http://$HostAddress:5244/dav" /p:yes /savecred 
+      .EXAMPLE
+      [BAT:78%][MEM:37.64% (11.93/31.70)GB][15:31:09]
+      [~]
+      PS>Set-AlistDrive -host $iqoo10pro -DriveLetter M -Port 5244
+      The command completed successfully.
+  
+      .EXAMPLE
+      如果重复执行同一个映射,并且第一次执行操作成功,那么第二次会提示失败(盘符被占用)
+      [BAT:78%][MEM:37.46% (11.87/31.70)GB][15:31:32]
+      [~]
+      PS>Set-AlistDrive -host $iqoo10pro -DriveLetter M -Port 5244
+      System error 85 has occurred.
+  
+      The local device name is already in use.
+      #>
+      param(
+          # 手机端ip地址
+          $HostAddress = 'localhost',
+          $DriveLetter = 'M',
+          $Port = '5244'
+      )
+  
+      
+      net use "$($DriveLetter):" "http://$($HostAddress):$($Port)/dav" /p:yes /savecred 
+      
+      # >  %userprofile%/desktop/MapLog.txt 2> %userprofile%/desktop/MapErrLog.txt
+  }
+  
+  ```
 
 - 每次只需要双击即可挂载;或者在命令行中调用映射函数完成映射
 
@@ -312,6 +450,30 @@
 - 上述脚本会开机自动执行,会弹出一个cmd命令行窗口,可能会停留几秒钟,执行完毕会自动关闭
   - 不要手动关闭,除非它一直卡在哪里
   - 执行完打开资源管理器,顺利的话可以看到网络磁盘顺利挂载
+
+## FAQ
+
+### 挂载网络磁盘后资源管理器加载容易卡顿
+
+- 如果您挂载的网络驱动器不稳定,或者意外断开,那么访问磁盘相关操作可能会卡顿甚至导致资源管理器重启,包括但不限于资源管理,以及`net use`以及`Get-Psdrive`等命令难以进行(甚至无法返回结果)
+
+- 所以当您发现这些问题时,请及时
+
+  - 检查网络磁盘(服务端)是否正常运行
+
+  - 否则请断开导致问题的映射,利用`net use <DriveLetter>: \delete`进行删除映射
+
+  - 例如,移除`W`盘
+
+    - ```bash
+      PS[BAT:77%][MEM:33.81% (10.72/31.70)GB][21:33:48]
+      # [~\Desktop]
+       remove-NetDrive -DriverLetter W
+      W: was deleted successfully.
+      
+      ```
+
+      
 
 
 ## 访问已经挂载网络磁盘分区👺
@@ -337,7 +499,7 @@
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/d6f7841968474723ad1ec980e79fb598.png)
 
-## 添加一个网络位置
+## 添加一个网络位置😊
 
 - 在Windows操作系统中添加网络位置的步骤如下，这里以Windows 10系统为例：
 
