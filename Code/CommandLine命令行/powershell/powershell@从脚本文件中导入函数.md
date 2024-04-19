@@ -36,3 +36,6 @@ Set-ExecutionPolicy RemoteSigned # 或其他适当的执行策略
 ```
 
 然后确认脚本文件中函数的定义是正确的，并且没有语法错误。
+
+## 欢迎查阅
+
