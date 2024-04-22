@@ -46,10 +46,9 @@
 ### vmware tools 安装
 
 - 相关官方文档(链接是vmware workstation pro17 版本的文档,也可以自行搜索最新文档)
-
 - [安装和升级 VMware Tools](https://docs.vmware.com/cn/VMware-Workstation-Pro/17/com.vmware.ws.using.doc/GUID-012378D8-A995-4B78-AAD3-5A4223C4093E.html)
 - [手动安装和升级 VMware Tools](https://docs.vmware.com/cn/VMware-Workstation-Pro/17/com.vmware.ws.using.doc/GUID-D9B1B1D1-A81D-4B1C-AE9C-35EEFAAE2D41.html)
-- 安装VMware Tools的过程通常因虚拟机所使用的操作系统不同而略有差异，以下是一般性的安装步骤概览：
+- 安装VMware Tools的过程通常因虚拟机所使用的操作系统不同而略有差异
 
 
 ### Windows虚拟机安装VMware Tools
@@ -79,6 +78,13 @@
   - linux虚拟机与windows不同,linux虚拟机分为server版和desktop版
   - 个人推荐server版,它只有命令行界面,占用较少的资源,具有更高的运行效率(渲染图形界面会占用计算机资源),事实上使用server版安装完必要组件后,在宿主机(一定是带有GUI的系统,比如windows)可以用ssh链接到linux server版系统进行操作,使用windows Terminals这类Terminal可以提供优秀的使用体验,vmware tools也可以不安装
 - 对于macOS虚拟机，由于Apple的许可问题，VMware Tools的传统形式不适用。
+
+### vmware tools 重装按钮不可用
+
+- [How to install VMWare tools if the option is grayed out- gHacks Tech News](https://www.ghacks.net/2019/04/25/how-to-install-vmware-tools-if-the-option-is-grayed-out/#:~:text=How to install%2Freinstall VMWare tools grayed out 1,"CD%2FDVD" Drive and select finish. ... More items)
+
+- 对于windows可以尝试卸载后,再重新安装vmware tools
+  - [卸载 VMware Tools](https://docs.vmware.com/cn/VMware-Workstation-Pro/17/com.vmware.ws.using.doc/GUID-6F7BE33A-3B8A-4C57-9C35-656CE05BE22D.html)
 
 ## 虚拟机显示问题
 
@@ -371,15 +377,14 @@
 
 - | cpu  | threads | results(大致分数) | 小结                                                         |
   | ---- | ------- | ----------------- | ------------------------------------------------------------ |
-  | 2    | 1       | 690/1300;220/450  | 虚拟核心数最少,单核性能最强,多核性能尚可<br />但是第二次试验发现分数变得很糟糕(不知道为什么) |
+  | 2    | 1       | 690/1300;220/450  | 第一次试验虚拟核心数最少,单核性能最强,多核性能尚可<br />但是第二次试验发现分数变得很糟糕(不知道为什么) |
   | 2    | 2       | 220/950           | 相当糟糕的表现,单核多核都不行                                |
   | 1    | 8       | 225/1890          | 单核仍然糟糕,多核尚可                                        |
   | 2    | 4       | 220/1900          | 单核仍然糟糕,多核尚可                                        |
 
   - ![请添加图片描述](https://img-blog.csdnimg.cn/direct/49f6571bf654475d94b74ae3bc6d35a9.png)
 
-- 可以看到,即便系统将小核心分配给虚拟机,那么只有200左右的分数明显是有问题的
-- 对于我这个处理器,基本上最优性能就是分配2个处理器,每个处理器一个核心的时候
+  
 
 ### 虚拟机性能资源分配
 

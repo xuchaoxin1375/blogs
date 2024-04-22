@@ -14,6 +14,62 @@
   - WebDAV协议利用TLS、HTTP摘要认证、XML等技术来满足这些需求。
 - 许多现代操作系统为WebDAV提供了内置的客户端支持。
 
+
+
+## 用专业webdav协议相关软件搭建WebDav服务👺
+
+- 推荐使用Chfs或Alist,局域网内共享文件变得轻松简单,这些软件还跨平台
+- 熟悉计算机的可以用后者,不仅可以把电脑搭成WebDav服务器,也可以把手机搭成Webdav服务器
+
+
+
+### 跨平台的第三方软件😊
+
+1. [Introduction | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/)
+   - Alist一个名气颇大的存储相关的软件:一个支持多种存储的文件列表程序
+   - 不仅可以将本地存储处理成存储服务,还可以集合并挂载各种网盘
+   - 可以创建不同用户,分配不同的权限;使用时不同权限的用户登陆管理页面可查看和配置的内容也不同
+   - 在自动跳转和页面功能提示方面需要查看官方文档
+     - 配置文件里的各个项目在弄清楚前不要轻易改动,容易造成不必要的麻烦,例如ip地址
+     - 桌面端和移动端都有Alist软件,跨平台性较好
+     - 社区讨论活跃(虽然教程丰富,但很多视频教程都介绍得都很浅,以文档为主)
+
+   - [WebDAV | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html)
+   - 使用记录和配置过程中的常见问题
+     - [alist基本用法@文档阅读@挂载网盘@网盘webdav挂载](http://t.csdnimg.cn/5aFS3)
+
+2. [CuteHttpFileServer | iscute.cn](http://iscute.cn/chfs)
+   - 提供了windos端的命令行程序和图形界面程序,轻量而且易于配置
+   - 但是社区方面就不如Alist,当然,简单易用的软件需要解决的问题往往就比较少
+   - 跨平台,但是移动端设备(android等)缺乏
+3. [tfcenter](http://www.tfcenter.com.cn/updatelog)
+   - 功能比chfs要多,软件也是跨平台的,更新维护中,安装完内有帮助和手册的链接
+   - 总得来说也算易于使用,配置用户(用户密码),然后配置共享的目录即可,某些方面比chfs要完善
+   - 也可以注册开机自启
+   - [tfcenter使用手册 (qq.com)](https://docs.qq.com/doc/DQW14Z1NSb0FSTEhw)
+
+
+### 其他
+
+- [GitHub - hacdias/webdav: Simple Go WebDAV server.](https://github.com/hacdias/webdav)
+  - 专门设计支持WebDav的命令行程序(可能停更了)
+- [Caddy - The Ultimate Server with Automatic HTTPS (caddyserver.com)](https://caddyserver.com/)
+  - candy+webdav:[Module http.handlers.webdav - Caddy Documentation (caddyserver.com)](https://caddyserver.com/docs/modules/http.handlers.webdav)
+
+
+
+## windows上配置Webdav(不推荐)
+
+- 虽然我不推荐用windows自带的组件搭webdav服务
+- 但是既然操作过一遍,就记录下来
+
+### windows自带组件
+
+- IIS webdav
+  - windows自带的服务,启用相关功能后还要进行一系列的配置
+  - 而且在WebDav客户端上传到站点的文件大小存在限制问题
+  - 总体体验并不好,因此推荐第三方专业软件,灵活而且易于配置
+
 ### 启用必要的windows功能
 
 - |                                                              |                                                              |      |
@@ -67,13 +123,13 @@
 
 
 
-### 其他设备登录和访问本机的WebDav服务站点
+## 其他设备登录和访问本机的WebDav服务站点😊
 
 - 客户端有多种选择,对于Android设备,可以用 
   - **Cx 文件管理器**(对于过大的文件可能无法上传)
   - **Es 文件管理器**(功能复杂和界面设计的复杂了一些)
 - 账号密码就是平时登录windows桌面的账号密码
-- 也可以考虑新建一个用户账户(本地账户),专门用来登录WebDav服务
+- 也可以考虑在系统上新建一个用户账户(本地账户),专门用来登录WebDav服务
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/9422892ecb174ba2be6972ff9820d184.png)
 
 ### FAQ
@@ -83,13 +139,11 @@
 - 稍微大点的文件可能就无法顺利传输到WebDav站点上
 - 其他设备倒是可以从webdav站点下载大文件(可能限制在4GB)
 
-### 专业软件搭建WebDav服务
-
-- 另见它文
 
 
 
-## 小结
+
+## WebDav协议小结
 
 ### 优点
 

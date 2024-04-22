@@ -124,3 +124,15 @@
     - 例如powershell7(经过试验最低要求windows8.1),最新版edge等
     - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/66bac51548944c60851c6b4f38c9fbb3.png)
 
+### 360卫士安装补丁
+
+- 可以用360安装更新补丁(数量可能高达上百个,每个补丁虽然下载快,但是安装却比较慢)
+- 安装完补丁后可以顺利运行wmware tools 安装程序,把驱动安装上(直接安装vmware tools可能会失败)
+- 最后可以把分辨率调整一下
+
+### 经典游戏扫雷
+
+- 困难模式需要有一定运气才能通过,中等难度才是最好玩的,可以做几乎全部的推理
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/f656bafd8a924a4fa2a9eebfd42b272e.png)
+

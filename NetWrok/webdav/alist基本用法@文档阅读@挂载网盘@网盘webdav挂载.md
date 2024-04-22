@@ -6,6 +6,7 @@
 
 - 官网的各个页面大多是以目录列表的形式作为一级界面
 - 点击列表中的各个条目打开详情(一个问题是一般的可点击条目(文字)有下划线,或者显示蓝色字体,而alist官网就不按惯例来,需要将鼠标悬停在目录列表上才显示为可点击链接的风格,阅读的时候要注意一下)
+- 事实上[手动安装 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/install/manual.html)包含了初次使用,配置,更新,以及加载的基本问题的解释;而从标题上看似乎仅仅介绍如何安装,没想到还包含了开机自启的配置的方法
 - 鉴于此,本文对alist的基本使用稍作整理
 
 ### alist软件版本
@@ -24,6 +25,10 @@
 - 根据需要可以修改密码:`alist admin set <new_password>`
 - alist会默认在5244端口启动服务
 
+## Alist生态
+
+- [Ecosystem | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/ecosystem.html#community)
+
 ### alist for android版本
 
 - [Releases (github.com)](https://github.com/jing332/AListFlutter/releases)
@@ -36,7 +41,21 @@
 - 启动配置页面,点击管理(manage),进入配置页面
 - 添加存储(storage)
 
-## 典型用例@挂载阿里云盘open
+## 挂载云盘或本地存储
+
+- alist可以不仅可以挂载网盘,还可以挂载本地存储
+
+### 本地存储挂载和分享
+
+- [本地存储 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/drivers/local.html)
+
+- 挂载本地存储可以方便分享文件给其他人,特别是局域网内的人,在Alist管理页面中,创建一个shareUser用户,分发给需要共享的人或者自己使用,类似于windows下的共享文件夹或SMB服务
+- 被共享者(也可以是自己)可以用浏览器也可以用文件资源管理器挂载或着映射成驱动器来访问您共享的文件或者目录,也能够可控制被分享者对相关目录或文件的读写权限)
+- [WebDAV | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html)
+
+- 网盘挂载下面以阿里云open为例
+
+### 挂载阿里云盘open
 
 - [阿里云盘 Open | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/drivers/aliyundrive_open.html#刷新令牌)
 
@@ -164,11 +183,11 @@
   - 设计注册表修改
 - 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
 
-## refs
+## 用户和权限管理😊
 
-- [Alist保姆级搭建教程_alist搭建教程-CSDN博客](https://blog.csdn.net/BG1230521/article/details/129786880)
-
-
+- 在这个页面里配置和管理用户[Users | AList Manage](http://localhost:5244/@manage/users)
+- 当您想要利用Alist提供的webdav服务分享文件给别人,或者自己的朋友,那么创建一个专门用来共享文件的用户是一个好主意
+- 我们对这个共享出去的用户配置权限,比如只允许他访问某个目录下的文件,更近一步可以限制对该目录下的文件的操作,比如删除和重命名等
 
 
 

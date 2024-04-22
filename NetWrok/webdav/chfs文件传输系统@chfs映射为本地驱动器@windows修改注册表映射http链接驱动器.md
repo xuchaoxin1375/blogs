@@ -1,22 +1,6 @@
 [toc]
 
-## 相关软件
 
-### windows自带
-
-- IIS webdav
-  - windows自带的服务,启用相关功能后还要进行一系列的配置
-  - 而且在WebDav客户端上传到站点的文件大小存在限制问题
-  - 总体体验并不好,因此推荐第三方专业软件,灵活而且易于配置
-
-### 第三方软件
-
-1. [CuteHttpFileServer | iscute.cn](http://iscute.cn/chfs)👺
-   - 提供了windos端的命令行程序和图形界面程序,轻量而且易于配置
-2. [GitHub - hacdias/webdav: Simple Go WebDAV server.](https://github.com/hacdias/webdav)
-   - 专门设计支持WebDav的命令行程序(可能停更了)
-3. [Caddy - The Ultimate Server with Automatic HTTPS (caddyserver.com)](https://caddyserver.com/)
-   - candy+webdav:[Module http.handlers.webdav - Caddy Documentation (caddyserver.com)](https://caddyserver.com/docs/modules/http.handlers.webdav)
 
 ## chfs(CuteHttpFileServer)
 
@@ -103,6 +87,7 @@
 #### 简单创建服务站点
 
 - 例如:`chfs -path D:\1WebDav\ -port 8084`
+
   - 该命令指出,将目录`D:\1WebDav`作为共享站点根目录,端口设置为`8084`(能用就行,不能用时(和其他服务冲突时),稍微改改数值)
 
 - ```
@@ -122,11 +107,15 @@
 #### 使用配置文件配置细节
 
 - 有时WebDav客户端(软件)需要使用用户名密码登录才可访问站点,这时我们要用配置文件配置更多细节
+
 - 考虑到可维护性,建议从官网下载模板,然后根据模板内的注释说明配置需要的条目即可
+
   - [iscute.cn/asset/chfs.ini](http://iscute.cn/asset/chfs.ini)
   - 您可以打开这个模板链接,复制全部内容,然后在找得到的地方(推荐在chfs所在目录下创建文件`chfs.ini`)
   - 将模板内容粘贴到该文件,根据需要进行配置,样例放在末尾
+
 - 根据配置文件,启动服务
+
   - `chfs -file  chfs.init`(文件名替换为你配置文件目录,如果在当前目录,则输入文件名即可)
 
 - ```bash
@@ -221,11 +210,11 @@
     --------- ----         --------- -----   ------ --------
     0         chfs_service Auto      Stopped OK     0
     ```
-  
+
     
-  
+
   - 或者
-  
+
     ```powershell
     PS C:\Users\cxxu\Desktop> gsv chfs*
     
@@ -257,7 +246,6 @@
     Site                :
     Container           :
     ```
-  
 
 ### 配置vbs脚本开机启动
 
@@ -292,7 +280,7 @@
 ### 附:模板配置
 
 - ```bash
-    #---------------------------------------
+  #---------------------------------------
   # 请注意：
   #     1，如果不存在键或对应值为空，则不影响对应的配置
   #     2，配置项的值，语法如同其对应的命令行参数
@@ -445,7 +433,13 @@
 
 ## 其他软件
 
+### HFS
+
 - 上面提到的chfs虽然方便也免费,但是不开源(在github上只有一个readme,多年不更新了)
   - [HFS ~ HTTP File Server (rejetto.com)](http://www.rejetto.com/hfs/?f=intro)这是一个开源免费的软件,主要支持http协议传输,同样有网页可用
   - 项目开源[GitHub - rejetto/hfs: HFS is a web file server to run on your computer. Share folders or even a single file thanks to the virtual file system.](https://github.com/rejetto/hfs)
+
+### Alist
+
+- 功能丰富,社区活跃的存储和共享软件Alist
 
