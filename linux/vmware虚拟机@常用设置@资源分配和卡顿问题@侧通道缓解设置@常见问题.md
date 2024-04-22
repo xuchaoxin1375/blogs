@@ -190,6 +190,10 @@
 
   虚拟机会借助主机系统的网络连接，通过 NAT 连接 Internet 或其他 TCP/IP 网络。NAT 支持以太网、DSL 和电话调制解调器。主机系统上会建立单独的专用网络。虚拟机将通过 VMware 虚拟 DHCP 服务器在该网络获取一个地址。
 
+#### NAT占用异常问题
+
+- 
+
 ### 解释
 
 这两个链接分别描述了VMware Workstation Player中两种不同的网络连接模式：桥接模式(Bridged Networking)和网络地址转换(NAT)模式。下面通过具体的例子详细解释这两种模式的不同之处：
@@ -232,6 +236,16 @@
 - 但是如果要编辑高级选项,则还是得启动vmware workstation pro来编辑
 
 ## 虚拟机资源分配😊
+
+### 部分版本资源占用异常问题👺
+
+- [Solved: VMware High CPU Usage (Causes and Solutions)](https://www.ubackup.com/enterprise-backup/vmware-high-cpu-usage.html#:~:text=Why%20does%20VMware%20use%20high%20CPU%20usage%20%28possible,OS%20generates%20too%20much%20load%20for%20the%20CPU.)
+
+### VMware NAT Service异常占用cpu
+
+- [Re: High CPU usage by vmnat.exe after upgrade to V... - VMware Technology Network VMTN](https://communities.vmware.com/t5/VMware-Workstation-Pro/High-CPU-usage-by-vmnat-exe-after-upgrade-to-VMware-Workstation/m-p/2992080/highlight/true#M183202)
+- 上述问题可能在某个版本中被修复
+- 在不影响使用的情况下,可以考虑将虚拟机的网络配置成桥接方式
 
 ### cpu分配
 
@@ -329,10 +343,43 @@
   - 1024×768 resolution (on lower resolutions, press ALT to drag windows with the mouse if they don’t fit in the screen).
 
 
-### 小结
+### 小结👺
 
-- 目前为止,基准配置都是容易达到的,尽管基准配置上运行体验不会很好,但是也不会太差,这就是基准配置的意义
+- 目前为止,虚拟机的基准配置都是容易达到的,尽管基准配置上运行体验不会很好,但是执行普通任务也不会太差,这就是基准配置的意义
 - 在虚拟机中,如果已经分配了基准配置甚至更高的配置后仍然觉得卡顿到不正常,则考虑降低配置试图获取更好的兼容性.
+- 借助简单的跑分软件来测试虚拟机的运行性能:
+  - 例如使用cpu-z,该软件比较小巧,而且也有免安装版本,可以放到虚拟机中跑以下
+  - 检查vmware tools工作是否正常,必要时重新安装vmware tools 或者更新
+
+- 资源分配合理时
+  - 通常虚拟机里的单核性能和物理机上的相近(差距在几十分,百分比也就10%左右)
+  - 而多核性能通常要明显弱于物理机
+
+
+### cpu分配相关实验
+
+- 以12700H(大小核异构cpu)为实验机器,物理机上cpu-z的某个版本为730/7900;
+
+  - 如果开性能模式,可以获得少量的分数增幅,更加接近750/8000
+
+- 在后台运行了少量软件(浏览器和一个空载的虚拟机,远程桌面,任务管理器等)
+
+  - 如果仅测试小核心,分数为396/2990,接近400/3000的分数
+  - 如果仅测试大核心,分数为720/5100
+
+- 而分配2个cpu,每隔cpu当个线程时,仅有1300的多核跑分
+
+- | cpu  | threads | results(大致分数) | 小结                                                         |
+  | ---- | ------- | ----------------- | ------------------------------------------------------------ |
+  | 2    | 1       | 690/1300;220/450  | 虚拟核心数最少,单核性能最强,多核性能尚可<br />但是第二次试验发现分数变得很糟糕(不知道为什么) |
+  | 2    | 2       | 220/950           | 相当糟糕的表现,单核多核都不行                                |
+  | 1    | 8       | 225/1890          | 单核仍然糟糕,多核尚可                                        |
+  | 2    | 4       | 220/1900          | 单核仍然糟糕,多核尚可                                        |
+
+  - ![请添加图片描述](https://img-blog.csdnimg.cn/direct/49f6571bf654475d94b74ae3bc6d35a9.png)
+
+- 可以看到,即便系统将小核心分配给虚拟机,那么只有200左右的分数明显是有问题的
+- 对于我这个处理器,基本上最优性能就是分配2个处理器,每个处理器一个核心的时候
 
 ### 虚拟机性能资源分配
 
