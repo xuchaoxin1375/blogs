@@ -17,11 +17,29 @@
 
 ### 国内推荐安装方式
 
+先安装必要软件
+
+- apt方式安装:
+
+  ```bash
+  # 工作目录设定为用户家目录
+  cd ~
+  sudo apt update
+  sudo apt install zsh curl git  man wget -y
+  ```
+
+- pacman方式安装:(可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源)
+
+  ```
+  cd ~
+  pacman -S zsh curl git man wget -y
+  ```
+
+  
+
 ```bash
-# 工作目录设定为用户家目录
-cd ~
-sudo apt update
-sudo apt install zsh curl git  man wget -y
+
+
 wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh
 # 由于国内网络问题,可能需要多尝试几次一下source 命令才可以安装成功.(我将其注释掉,采用换源后再执行clone
 #source install.sh
@@ -92,11 +110,13 @@ cd -
      - 用户克隆下来执行安装程序
 
 
-   
+
 
 ## 配置oh my zsh主题
 
-- ```bash
+- 进入`zsh`,然后执行以下内容
+  
+  ```bash
   zshrc=~/.zshrc
   echo $zshrc
   # 利用sed并启用扩展正则原地修改,将Zsh主题设置为随机
@@ -110,6 +130,6 @@ cd -
   
   
   ```
-
+  
   
 
