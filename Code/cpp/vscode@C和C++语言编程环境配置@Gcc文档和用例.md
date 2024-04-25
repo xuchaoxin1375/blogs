@@ -99,6 +99,30 @@
 
 以上就是一些GCC/G++编译的常见用法示例。根据实际需求，可能需要组合使用这些选项。
 
+### 设置源文件编码和调试信息选型示例
+
+- 示例:` g++.exe  "C:/repos/C_CPP_ConsoleApps/勾股.cpp" -o "C:/repos/C_CPP_ConsoleApps/勾股.exe" -finput-charset=UTF-8 -fexec-charset=gbk -g3 -pipe -Wall`
+
+- 这条命令是用来编译并链接C++源代码文件并生成可执行文件的命令行指令，具体解释如下：
+
+  - `g++.exe`: 这是Gnu GCC编译器集合中的C++编译器程序，用于编译C++源代码文件。
+
+  - `"C:/repos/C_CPP_ConsoleApps/勾股.cpp"`: 这是待编译的C++源代码文件的完整路径和文件名。该命令会读取这个文件并进行编译。
+
+  - `-o "C:/repos/C_CPP_ConsoleApps/勾股.exe"`: `-o`选项后面跟着的是指定输出的目标文件名及路径。在这个例子中，编译后生成的可执行文件会被命名为`勾股.exe`，并将保存在指定的目录`C:/repos/C_CPP_ConsoleApps/`下。
+
+  - `-finput-charset=UTF-8`: 这个选项指示编译器按照UTF-8字符集来解析输入（源代码）文件。
+
+  - `-fexec-charset=gbk`: 这个选项指定了生成的可执行文件中内嵌字符串的字符集为GBK，这意味着编译后的程序在运行时输出的文本字符串将以GBK编码格式展示。
+
+  - `-g3`: 启用调试信息，`-g3`是GCC的一个调试级别选项，它会生成最全面的调试信息，方便使用调试器如GDB进行源代码级调试。
+
+  - `-pipe`: 使用管道进行编译过程中的临时文件传输，这可以提高在具有足够内存和快速I/O系统的计算机上的编译速度。
+
+  - `-Wall`: 开启所有警告（All warnings），这是告诉编译器尽可能多地报告可能的编译警告信息，有助于发现潜在的问题和不规范的编程习惯。
+
+  综上所述，这条命令的作用就是使用G++编译器将UTF-8编码的C++源代码文件`勾股.cpp`编译成包含详细调试信息、采用GBK编码的可执行文件`勾股.exe`，并且在整个编译过程中启用所有警告提示。
+
 ## 目录.vscode中的相关文件说明
 
 - As you go through the tutorial, you will see three files created in a `.vscode` folder in the workspace:

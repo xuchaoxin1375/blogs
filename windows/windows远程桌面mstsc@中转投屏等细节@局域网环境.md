@@ -159,6 +159,15 @@
 - [更改或重置 Windows 密码 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/更改或重置-windows-密码-8271d17c-9f9e-443f-835a-8318c8f68b9c)
 - 对于云账户密码修改:[Microsoft account | Security](https://account.microsoft.com/security?lang=en-US&refd=account.microsoft.com)
 
+## 记住登录凭证@下次免密登录(TODO)
+
+- 这部分设置不是那么直观,需要梳理一下:
+  - 记住密码可能不是您想象的那么直接有效
+  - 记住凭证:需要连接并成功登录进去,才能够记住凭证,如果只是连接到登录界面,但是没有首次输入登录密码,那么是无法产生有效的登录凭证,那么下次登录仍然需要你手动输入密码
+- 当您的凭证失效,则建议您删除旧有的凭证,然后mstsc界面会切换到最初的界面,可以勾选允许记住凭证
+
+## 硬件调节受限问题
+
 ### 远程桌面控制的投屏问题
 
 - 远程登录到被控主机,可能无法设置被控主机的显示器行为,这一点要注意
