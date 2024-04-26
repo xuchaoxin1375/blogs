@@ -54,7 +54,10 @@
 ### 代理超时
 
 - 有些软件会测试代理服务器的延迟等,如果系统时间不准,比如标准时间早了**几分钟**(通常只允许若干秒的误差),就可能造成超时,虽然有的服务器不会检查的这么严格,但是要是要注意
+
 - 可以点击:[Time.is ](https://time.is/)查看当前时间,检查系统时间是否大致相同,如果差了几分钟,对于有的应用影响不大,有的则是致命的
+
+  
 
 ### vscode同步请求失败
 
@@ -62,7 +65,9 @@
 
 ### 自动校准时间
 
-- [How to set your time and time zone - Microsoft Support](https://support.microsoft.com/en-us/windows/how-to-set-your-time-and-time-zone-dfaa7122-479f-5b98-2a7b-fa0b6e01b261)
-  - [如何设置你的时间和时区 - Microsoft 支持]
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/616536dba5f44c81bfd5c9554a5905a4.png)
+- [如何设置你的时间和时区 - Microsoft 支持@How to set your time and time zone - Microsoft Support](https://support.microsoft.com/en-us/windows/how-to-set-your-time-and-time-zone-dfaa7122-479f-5b98-2a7b-fa0b6e01b261)
+
+- |                                                              |                                                              |      |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/d7a6a807cf5f4ea1a6ce462e37d0c465.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/616536dba5f44c81bfd5c9554a5905a4.png) |      |
 

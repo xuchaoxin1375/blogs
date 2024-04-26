@@ -4,7 +4,7 @@
 
 ## abstract
 
-- 这里假设用户已经正确安装好了编译器,并且能够顺利启动
+- 这里假设**用户已经正确安装好了编译器**,并且能够顺利启动
   - 可以是任何一款编译器,比如应用最广泛的GCC或其在不同系统上的移植版
 
 - vscode+cpp官方文档教程:
@@ -537,6 +537,51 @@
     ```
 
   - 上述试验说明,在命令行中手动调用g++来编译没有没有出现文件名乱码的结果
+
+  - 但是执行的时候可能会输出程序内部带出来的中文乱码,我们可以追加参数`-finput-charset=UTF-8 -fexec-charset=gbk`
+
+
+- 示例
+
+  - ```bash
+    PS[BAT:79%][MEM:46.76% (14.82/31.70)GB][22:09:28]
+    # [C:\repos\C_CPP_ConsoleApps]
+     cat  C:\repos\C_CPP_ConsoleApps\cpp\helloworld.cpp
+    #include <iostream>
+    #include <vector>
+    #include <string>
+    #include <iostream>
+    #include <windows.h> // For system("pause")
+    using namespace std;
+    
+    int main()
+    {
+        vector<string> msg{"Hello", "C++", "World", "from", "VS Code", "and the C++ extension!"};
+        int i=0;
+        for (const string &word : msg)
+        {
+            ++i;
+            cout << word  << " ";
+        }
+        cout << endl;
+        cout << "中文会乱码吗?"<<endl;
+    }
+    ```
+
+  - ```bash
+    PS[BAT:79%][MEM:46.74% (14.82/31.70)GB][22:08:42]
+    # [C:\repos\C_CPP_ConsoleApps]
+     gcc c:\repos\C_CPP_ConsoleApps\cpp\helloworld.cpp -o demo.exe -lstdc++ -finput-charset=UTF-8 -fexec-charset=gbk
+    #或者  g++ .\helloworld.cpp -o demo.exe -finput-charset=UTF-8 -fexec-charset=gbk
+    
+    PS[BAT:79%][MEM:46.79% (14.83/31.70)GB][22:08:53]
+    # [C:\repos\C_CPP_ConsoleApps]
+     .\demo.exe
+    Hello C++ World from VS Code and the C++ extension!
+    中文会乱码吗?
+    ```
+
+    
 
 - 然而,vscode中匹配了tasks.json和launch.json进行一键编译运行时确发生了二进制文件中文名称乱码的情况
 
