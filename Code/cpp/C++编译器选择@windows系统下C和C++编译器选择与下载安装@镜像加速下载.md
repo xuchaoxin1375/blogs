@@ -45,8 +45,31 @@
 #### 下载安装MinGw
 
 - 官方地址[Downloads - MinGW-w64](https://www.mingw-w64.org/downloads/)
-- 如果下载过慢,可以找找网盘资源,也可以选择免安装的版本,占用磁盘的空间比较小
+
+  - 已经不再直接发布MinGW gcc了,网络上有各种编译版本,以及镜像站
+  - [Releases · niXman/mingw-builds-binaries (github.com)](https://github.com/niXman/mingw-builds-binaries/releases)
+  - 可以用镜像站加速下载github的资源,相关网站和工具很多
+  - 版本众多,可以选择**release-posix-seh-ucrt-rt**,通常是64位的,(x86_64)
+  - 综合考虑:
+    - **目标平台**: 确定你的项目是32位还是64位。
+    - **C运行时**: UCRT通常与较新Windows版本兼容更好，而MSVCRT适用于需要与旧系统或特定库兼容的情况。
+    - **异常处理模型**: SEH是Windows特有的，通常性能更好；而DWARF更常见于POSIX系统，但在这里主要用于调试信息格式。
+    - **API兼容性**: 如果你的项目依赖特定的Windows API（如Win32），选择对应的版本。
+
+- 如果下载过慢,可以找找网盘资源,也可以选择免安装的版本,占用磁盘的空间比较小(解压后也有接近一个G的体积)
 - 其实Msys2的镜像加速资源更多,通过安装Msys2来安装Mingw或代替MinGw是更好的做法,就是比较占用空间,有很多功能下载下来用不上
+- 也可通过下载某些集成MinGW的开箱即用的C++ 开发环境,比如DEV C++等,它们可能安装目录里面可能有MinGW,可以借用给其他C++编辑器,比如vscode c/c++ extension
+- 但是经过我的试验,Msys2里的g++可以更好地配合vscode 将中文名源代码文件编译出来,尽管名字可能是乱码
+- 但是有些早期版本的MINGW在`tasks.json`指导下找中文文件名都能识别不正确,编译都做不到
+
+  - ```bash
+     g++ .\勾股.cpp -o 勾股.exe -finput-charset=UTF-8
+    cc1plus.exe: fatal error: .\??.cpp: Invalid argument
+    compilation terminated.
+    ```
+
+    
+
 
 
 ### MSYS2

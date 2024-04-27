@@ -16,6 +16,7 @@
 
   - ```bash
     git clean -fd #清除所有未跟踪文件
+    git checkout .
     git reset --hard origin main #尝试拉取云端覆盖本地(这里假设远程的目标分支为main(早期默认为master分支))
     ```
 

@@ -9,11 +9,12 @@
 
 - vscode+cpp官方文档教程:
   - [C++ programming with Visual Studio Code](https://code.visualstudio.com/docs/languages/cpp)
-    - 这个页面是vscode配置c++环境的首页,指导如何准备编译器以及编译第一个程序
+    - 这个页面是vscode配置c++环境的首页,指导如何准备(下载)编译器,配置编译器的环境变量
+    - 编写并编译第一个C++程序
     - 然后给出许多不同编译器下的跟进一步的和更完整的首次配置教程
     - 包括`.vscode`中的相关文件介绍
-      - 对于轻量环境,选择GCC编译器是好主意,可以参考以下文档
-      - [Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_debug-helloworldcpp)
+  - 对于轻量环境,选择GCC编译器是好主意,可以参考以下文档
+    - [Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_debug-helloworldcpp)
 - 图方便开箱即用的话可以用Dev C++:[Dev-C++ Overview - Free Tools - Embarcadero](https://www.embarcadero.com/cn/free-tools/dev-cpp)
 
 ## gcc/g++文档和用法
@@ -215,6 +216,123 @@
   - `name`字段的值会显示在选择debug方案的列表中,供我们辨认不同的debug方案和选择
 - 最后`c_cpp_properties.json`文件,不是必须要的,但是如果有需要可以配置一些库的路径,编译标准版本等
 
+### 使用vscode预置变量和环境变量
+
+- [Visual Studio Code Variables Reference](https://code.visualstudio.com/docs/editor/variables-reference#_environment-variables)
+
+- Visual Studio Code（VS Code）支持在调试和任务配置文件以及某些特定设置中使用变量替换。这些变量通过 `${variableName}` 语法在 `launch.json` 和 `tasks.json` 文件中的键值字符串内实现替换。
+
+- 用户环境变量和系统环境变量的引用:假设我配置了用户环境变量`MSYS2_MINGW`,并且确认了该值的有效性
+
+  - ```bash
+    PS> $env:MSYS2_MINGW
+    C:\msys64\ucrt64\bin
+    ```
+
+    
+
+  - ```bash
+    PS[BAT:79%][MEM:32.00% (10.14/31.70)GB][22:02:08]
+    # [C:\repos\C_CPP_ConsoleApps]
+      ls $env:MSYS2_MINGW |where{$_.Name -like "gcc.*" -or $_.Name  -like "g++.*" -or $_.Name -like "gdb.*"}
+    
+            Directory: C:\msys64\ucrt64\bin
+    
+    
+    Mode                LastWriteTime         Length Name
+    ----                -------------         ------ ----
+    -a---         2023/12/2      2:14        2721152 󰣆  g++.exe
+    -a---         2023/12/2      2:14        2718592 󰣆  gcc.exe
+    -a---         2023/12/4     21:52       10370879 󰣆  gdb.exe
+    ```
+
+    
+
+  - 我在配置C/C++的试验中,发现引用环境变量仅在`launch.json`中是有效的
+
+    - ```bash
+       "miDebuggerPath": "${env:MSYS2_MINGW}\\gdb"
+      ```
+
+  - 然而,在`tasks.json`中引用环境变量是无效的
+
+
+### 环境变量的使用
+
+#### 使用环境变量的好处
+
+- 如果将相关路径添加到`Path`路径中,那么就可以直接用名字`gcc,g++,gdb`来代替绝对路径
+
+  - 无论是先配置`MSYS2_MINGW`,然后将`MSYS2_MINGW`添加到`Path`,或者直接将路径`MSYS2_MINGW`对应的值(我的例子是`C:\msys64\ucrt64\bin`)添加到`Path`变量中都可以
+  - 如果是用户级别的环境变量,不需要管理员权限
+  - 总之这个任务很简单,资料也很丰富,这里不赘述;但是配置了以后很有用
+    - 命令行输入` SystemPropertiesAdvanced.exe`或者开始菜单中输入` 环境变量`搜索就可以打开配置的控制面板,点击环境变量进行配置,用户级别和系统级别的Path任选其一将路径添加到Path变量中即可;
+    - 老手也可以选择用命令行配置,比如`setx`,powershell还可以用` [Environment]::SetEnvironmentVariable()`来配置
+
+#### 环境变量可能引起的问题
+
+- 生产环境的环境变量配置需要考虑的问题更多,配置环境变量虽然能够提供方便,但是可能引入潜在的混淆的机会
+- 但是对于学习环境,配置环境变量是方便和可行的,也是很平常的事情
+
+
+
+### 检查编译器所在目录是否正确配置进Path变量
+
+- 上面的路径配置不是必须的,但确实很有用,可以带来便利的操作
+
+- 通过以下命令来检查是否配置成功
+
+  ```bash
+  gcc --version
+  g++ --version
+  gdb --version
+  
+  
+  ```
+
+- ```bash
+  
+  PS[BAT:79%][MEM:34.73% (11.01/31.70)GB][22:07:20]
+  # [C:\repos\scripts]
+  PS> gcc --version
+  gcc.exe (Rev3, Built by MSYS2 project) 13.2.0
+  Copyright (C) 2023 Free Software Foundation, Inc.
+  This is free software; see the source for copying conditions.  There is NO
+  warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  
+  
+  PS[BAT:79%][MEM:36.41% (11.54/31.70)GB][22:18:52]
+  # [C:\repos\scripts]
+  PS> g++ --version
+  g++.exe (Rev3, Built by MSYS2 project) 13.2.0
+  Copyright (C) 2023 Free Software Foundation, Inc.
+  This is free software; see the source for copying conditions.  There is NO
+  warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  
+  
+  PS[BAT:79%][MEM:36.41% (11.54/31.70)GB][22:18:52]
+  # [C:\repos\scripts]
+  PS> gdb --version
+  GNU gdb (GDB) 14.1
+  Copyright (C) 2023 Free Software Foundation, Inc.
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+  This is free software: you are free to change and redistribute it.
+  There is NO WARRANTY, to the extent permitted by law.
+  ```
+
+- 上述命令各自没有报错,返回了各自的版本号,这说明配置是正确的
+
+### 简化编译器,调试器的路径
+
+- 经过上述的Path变量配置,我们可以在vscode中得到以下效果
+- 可在任意终端中直接用`gcc,g++,gdb`来带直接调用相应的软件
+- 可以简化vscode中的相关配置(末尾的逗号是json中的不同字段的分割符)
+  - `tasks.json`中的` "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",`可以简化为` "command": "g++",`
+  - `launch.json`中的`"miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",`简单用`gdb`来代替,即可以简化为`"miDebuggerPath": "gdb",`
+- 不仅如此,如果用的不是Msys2安装的`gcc,g++,gdb`而是其他方式安装的,比如直接用的MinGw安装的,那么我们也不需要去改动vscode中的配置文件,只需修改一下`Path`环境变量中`gcc,g++,gdb`的所在目录即可(通常这三个组件都是同一个目录)
+
+
+
 ### C/C++共用一组tasks.json/launch.json文件?
 
 - 您可以考虑vscode中新建工作区,来分别配置.vscode中的相关文件
@@ -243,7 +361,7 @@
           {
               "type": "cppbuild",
               "label": "task1",
-              "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+              "command": "g++.exe",
               "args": [
                   "-fdiagnostics-color=always",
                   "-g",
@@ -268,7 +386,7 @@
           {
               "type": "cppbuild",
               "label": "task1c",
-              "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+              "command": "g++.exe",
               "args": [
                   "-fdiagnostics-color=always",
                   "-g",
@@ -288,7 +406,7 @@
           {
               "type": "cppbuild",
               "label": "task2",
-              "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+              "command": "g++.exe",
               "args": [
                   "-fdiagnostics-color=always",
                   "-g",
@@ -308,13 +426,15 @@
           {
               "type": "cppbuild",
               "label": "task3",
-              "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+              "command": "g++.exe",
               "args": [
                   "-fdiagnostics-color=always",
                   "-g",
                   "${file}",
                   "-o",
-                  "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                  "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                  // "-finput-charset=UTF-8",
+                  // "-fexec-charset=gbk"
               ],
               "options": {
                   "cwd": "${fileDirname}"
@@ -329,7 +449,7 @@
       "version": "2.0.0"
   }
   ```
-
+  
   
 
 #### launch.json内容示例
@@ -358,7 +478,8 @@
               "environment": [],
               "externalConsole": false,
               "MIMode": "gdb",
-              "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+              // "miDebuggerPath": "${env:MSYS2_MINGW}\\gdb.exe",
+              "miDebuggerPath": "gdb",
               "setupCommands": [
                   {
                       "description": "Enable pretty-printing for gdb",
@@ -385,7 +506,7 @@
               "environment": [],
               "externalConsole": false,
               "MIMode": "gdb",
-              "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+              "miDebuggerPath": "gdb",
               "setupCommands": [
                   {
                       "description": "Enable pretty-printing for gdb",
@@ -412,7 +533,7 @@
               "environment": [],
               "externalConsole": false,
               "MIMode": "gdb",
-              "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+              "miDebuggerPath": "gdb",
               "setupCommands": [
                   {
                       "description": "Enable pretty-printing for gdb",
@@ -438,7 +559,7 @@
               "environment": [],
               "externalConsole": false,
               "MIMode": "gdb",
-              "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+              "miDebuggerPath": "gdb",
               "setupCommands": [
                   {
                       "description": "Enable pretty-printing for gdb",
@@ -456,15 +577,23 @@
       ]
   }
   ```
-
+  
   
 
-## 参考的仓库
+## 参考的仓库😊
 
+- [C_CPP_ConsoleApps: (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps)
 - 您可以在命令行内`git clone https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps.git`
 - 这会拉去一个简单的仓库,里面的vscode配置是基于`Msys2`的
 - 如果您安装的也是Msys2的windows GCC环境,并且是默认路径,那么clone下来的仓库内编写的`c/c++`代码就可以直接运行
-- 如果您使用的是MinGw,那么修改相应的g++编译器路径也就可以了
+  - 前提是要安装vscode上的c/c++ extension package
+  - 同时把`g++,gdb,gcc`所在目录配置到环境变量Path中去
+  - 那么不出意外就可以在仓库目录内编写和试验c++代码了
+
+- 如果您使用的是MinGw,那么修改相应的g++,gdb路径也可以
+
+#### 编译和调试选项
+
 - 最后,要注意编译运行单个C/C++代码文件通常选用`task2`的配置
   - 如果要运行的程序被拆分为单个或多个C++源代码文件,他们被组织在各自的目录里面且不包含其他程序的源文件,那么使用`task1`来编译并运行或调试(如果是C源代码,那么使用`task1c`)
   - 如果您的习惯是不同程序的源代码都放到同一个目录,那么使用`task2`比较合适
