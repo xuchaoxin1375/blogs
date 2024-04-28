@@ -419,9 +419,9 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 
 
      - 先用ssh配合普通密码登录到目标主机(linux主机为例),计算两个变量的取值
-
+    
        - 通过执行以下两条命令获取
-
+    
        - ```bash
          #查询当前用户和主机名
          echo "$(whoami)@$(hostname)"
@@ -443,7 +443,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 
 3. 确保远程服务器的`/etc/ssh/sshd_config`配置文件允许公钥认证，并重启SSH服务。
 
-## 补充
+## ssh 常用key及其生成😊
 
 ### ed25519加密
 
@@ -454,7 +454,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 - 如何生成(如果没有ssh-keygen,请先安装相应的软件)
 
   - ```bash
-    PS>ssh-keygen -t ed25519 -C "your_email@example.com"
+    ssh-keygen -t ed25519 -C "your_email@example.com"
     ```
 
 - 例如
