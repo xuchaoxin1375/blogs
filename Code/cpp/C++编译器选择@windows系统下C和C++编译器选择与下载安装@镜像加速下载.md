@@ -12,9 +12,9 @@
 
 - 这是Windows环境下最常用的C++编译器，它是Visual Studio的一部分，提供了一整套集成开发环境（IDE），支持最新的C++标准，并且与Windows SDK紧密集成，适合开发Windows桌面应用、游戏、服务以及通用Windows应用（UWP）。
 
-### MinGw
+### MinGW及其衍生品
 
-- GCC（GNU Compiler Collection,GNU 编译器套装）可以通过MinGW或MinGW-w64项目在Windows上运行。
+- GCC（GNU Compiler Collection,GNU 编译器套装）可以通过MinGW或**MinGW-w64**项目在Windows上运行。
 
 - MinGW是一个项目，它将GCC移植到了Windows平台，提供了POSIX兼容的API以便开发原生Windows应用程序。MinGW-w64则是对MinGW项目的扩展，增加了对64位Windows的支持。
 
@@ -70,7 +70,38 @@
 
     
 
+### TDM-gcc
 
+- [tdm-gcc (jmeubank.github.io)](https://jmeubank.github.io/tdm-gcc/)
+
+  - TDM-GCC 是一个针对 Windows 平台优化和定制的 GCC（GNU Compiler Collection）编译器套件。它是免费的，并且包含了开发 C、C++ 以及 Fortran 应用程序所需的所有关键组件。
+
+  - TDM-GCC 结合了最新的 GCC 工具集稳定版本，同时集成了 GNU Binutils 和 MinGW-W64 库，为开发者提供了一个功能全面的开发环境。
+
+    以下是 TDM-GCC 的主要特点：
+
+    1. **广泛兼容性**：支持从 Windows 95 到 Windows 10（乃至之后的系统）的所有 Windows 版本，能够生成 32 位和 64 位的应用程序。
+
+    2. **完整开发环境**：不仅包含编译器，还提供了 GNU Make 构建工具、GDB 调试器以及 OpenMP 并行编程库等，便于代码的编译、链接、调试和优化。
+
+    3. **易用性**：TDM-GCC 提供了简单的安装程序，使得在 Windows 上配置 GCC 环境变得非常简便，适合初学者和专业开发者。
+
+    4. **MinGW-w64 集成**：通过集成 MinGW-w64，TDM-GCC 能够更好地支持现代 Windows API，同时也保持对旧系统的兼容性。
+
+    5. **静态链接C库**：默认配置通常采用静态链接到 C 库，这简化了程序分发，因为不需要额外的运行时库。
+
+    6. **社区支持**：作为一个活跃的项目，TDM-GCC 在开发者社区中拥有良好支持，用户可以通过论坛、博客和在线文档获取帮助。
+
+    7. **非官方但优化**：虽然 TDM-GCC 不是由 GCC、MinGW 或 MinGW-w64 官方直接维护，但它根据 Windows 平台的特点进行了优化，提供了额外的便利性和性能提升。
+
+  - 总之，TDM-GCC 是 Windows 用户进行 C/C++ 开发的一个强大而便捷的选择，特别是对于那些寻求一个即装即用、功能全面的 GCC 环境的开发者来说。
+
+- 许多开箱即用的C++开发工具就是集成的TDM-gcc
+
+  - 我们也可以自己下载TDM-Gcc
+  - 下载的时候有web在线安装版的,不是很推荐在线的,可以考虑离线的,现在基本是用64位的
+
+- 但是更新的频率不是那么高,MinGW比较推荐其他项目,比如MSYS2,以及MINGW builds
 
 ### MSYS2
 

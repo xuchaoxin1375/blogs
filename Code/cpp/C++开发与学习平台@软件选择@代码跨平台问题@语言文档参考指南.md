@@ -27,6 +27,8 @@
 
 6. DEV C++的改进分支版本 [Dev-C++ Overview - Free Tools - Embarcadero](https://www.embarcadero.com/cn/free-tools/dev-cpp)
 
+7. vim/emacs/gedit+gcc+gdb:纯命令行或者UI简陋的编辑器开发组合,完全免费,占用最少的资源,对计算机的配置要求很低,但是仍然可以完成复杂的编码任务,只是对于初学者不太友好;gcc，gdb命令行用法值得学一下
+
 ## 学习平台选择推荐👺
 
 ### 初学者平台和软件选择
