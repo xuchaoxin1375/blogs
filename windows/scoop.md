@@ -56,7 +56,7 @@
 
   So, when you run the command `irm get.scoop.sh | iex`, it downloads the installation script for Scoop from `get.scoop.sh` using `Invoke-RestMethod` and then executes the script using `Invoke-Expression`. This will install Scoop on your Windows system.
 
-## 使用代理加速
+## 使用代理加速😊
 
 - 使用代理说明
 
