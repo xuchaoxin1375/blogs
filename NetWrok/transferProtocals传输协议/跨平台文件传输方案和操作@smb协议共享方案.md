@@ -172,7 +172,7 @@
 - 对于有图形界面的linux系统,用其资源管理器可以通过`smb://ip-address/sambashare`的格式来访问
 - 经过实验,无论发出共享的服务器端系统是windows还是linux,都可以用上述格式的链接用文件管理器的地址栏进行浏览(但么有桌面的linux就只能用命令行访问)
 
-### windows系统下的共享文件夹
+### windows系统下的共享文件夹👺
 
 
 
@@ -182,6 +182,20 @@
 
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
+
+### 部分账户无法登录共享文件夹👺
+
+- 较新版本的windows默认不允许匿名登录
+- 为了便于讨论,这里假设有充当服务器的电脑S(windows系统)和充当客户端的电脑C(windows 息痛)
+- 如果要顺利登录并访问服务端S的共享文件夹,不仅仅要求S端正确设置,还要求客户端C上有一个合格的用户账户
+  - 如果客户端C启用了内置账户,比如Administrator或Guest,那么这两个身份登录进windows可能无法访问,他们都是特殊的账户
+  - 实践中,我在一台windows10系统的客户机以Administrator的账户登录到系统,并且没有设置密码是开机自动登录的,那么这时候我想要访问服务端共享文件夹,会失败
+  - 不同方式尝试,报错也是各种各样的:
+    - 提示我账户该账户已被禁用
+    - 命令行中执行`start ip\sharefolder`,提示我系统找不到文件
+  - 于是我打开`lusrmgr`创建了一个普通用户,并且为其设置了一个简单密码(为演示简单起见,设用户名为`smb`,密码为`1`)
+  - 退出当前账户,登录到新创建的账户`smb`,在smb的桌面内就可以顺利访问共享文件夹了
+- 下面是对于普通账户访问共享文件夹的配置方法流程
 
 
 ### 方法1
