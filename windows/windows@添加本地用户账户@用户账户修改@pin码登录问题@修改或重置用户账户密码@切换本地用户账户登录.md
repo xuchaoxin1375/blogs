@@ -57,7 +57,7 @@
   | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
   | win11从控制面板中跳转到新用户创建                            | win11添加本地用户的新方法                                    | 密码设置可以放空                                             |
 
-- 
+  
 
 ## Microsoft账户@互联网账户
 
@@ -68,10 +68,7 @@
 - [Microsoft 帐户 | 主页](https://account.microsoft.com/?refd=login.live.com)
 - 可以进行密码修改等操作
 
-### 修改账户密码
 
-- [更改密码 (live.com)](https://account.live.com/password/change?refd=account.microsoft.com&fref=home.banner.changepwd)
-- [Change your Microsoft account password - Microsoft Support](https://support.microsoft.com/en-us/account-billing/change-your-microsoft-account-password-fdde885b-86da-2965-69fd-4871309ef1f1)
 
 ### 其他Microsoft账号相关链接
 
@@ -88,6 +85,31 @@
 - 管理组织账号的onenote笔记本(用于删除笔记本清单中的历史/已废弃笔记本)
 
   - [org|OneNote | Microsoft 365 (office.com)](https://www.office.com/launch/onenote?auth=2&home=1)
+
+## 修改账户密码👺
+
+- 这里要区分登录的账户是Microsoft account还是local account
+- 不同的登录账户类型有不同的可操作界面
+  - 对于Microsoft account,修改密码选项不可见,需要登录到Microsoft account进行修改(比如跳转网站后台修改)
+  - 对于local account ,修改密码在本机就可以完成
+  - |                                                              |                                                              |                                                              |      |
+    | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+    | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/23fbaa6e9e0346488a449e122e0a9370.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/4bb07333066642c5ae77967de6ce6dc4.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/434b6885d69b4ef38bfec092c7f63cc3.png) |      |
+    | 较新的win11默认会启用强安全开关,从local account切换到microsoft account后会启动这个开关,使得仅windows hellow或Microsoft account 登录,而且修改密码(本地账户密码)选项不可用 | Microsoft account 需要关闭仅windows hellow或Microsoft account 登录的按钮,才可以看到更改登录本机的密码 | 如果没有用Microsoft account登录,那么普通本地用户账户的修改密码选项是可用的 |      |
+
+- Note:切换开关后可能需要关闭当前设置页面重新打开,密码选项才会更换
+
+  - 如果没有变换,可能要注销当前用户或重启计算机,使得修改生效
+
+
+### 修改账户密码(Microsoft 账户)
+
+- [更改密码 (live.com)](https://account.live.com/password/change?refd=account.microsoft.com&fref=home.banner.changepwd)
+- [Change your Microsoft account password - Microsoft Support](https://support.microsoft.com/en-us/account-billing/change-your-microsoft-account-password-fdde885b-86da-2965-69fd-4871309ef1f1)
+
+### 修改或重置本地账户密码
+
+- [Change or reset your Windows password - Microsoft Support](https://support.microsoft.com/en-us/windows/change-or-reset-your-windows-password-8271d17c-9f9e-443f-835a-8318c8f68b9c#:~:text=to change it-,Select Start > Settings > Accounts > Sign-in options .,button and follow the steps.)
 
 
 

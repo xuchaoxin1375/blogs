@@ -280,14 +280,25 @@ PS C:\Users\cxxu> stop -Name IDMan
   
   ```
 
+### FAQ👺
 
+#### 报错 cannot open service on computer .
+
+- 如果不是以管理员身份运行的终端,执行某些service相关的cmdlet会出现如下报错
+
+- ```bash
+  PS> Start-Service WebClient
+  Start-Service: Service 'WebClient (WebClient)' cannot be started due to the following error: Cannot open 'WebClient' service on computer '.'.
+  ```
+
+  
 
 
 ## sc(老式方法)🎈
 
 - 可以在cmd 环境下运行
 
-### sc.exe 位置
+### sc.exe 程序所在位置
 
 
 
@@ -411,6 +422,23 @@ sc query type= interact - Enumerates all interactive services
 sc query type= driver group= NDIS     - Enumerates all NDIS drivers
 
 ```
+
+### 查看某个服务的运行状态
+
+- 在CMD命令行下，要检查某个服务的运行状态，你可以使用 `sc query` 命令加上服务名称。
+
+- 例如，如果你想检查“WebClient”服务的状态，可以按照以下步骤操作：
+
+  1. 打开命令提示符：按下 `Win + R` 键打开“运行”窗口，输入 `cmd` 并按下回车键。
+
+  2. 输入以下命令来查询特定服务的状态，这里以“WebClient”服务为例：
+     ```cmd
+     sc query WebClient
+     ```
+
+  按下回车后，命令行将会显示该服务的状态信息，包括服务名称、状态（如RUNNING、STOPPED等）、PID、服务类型以及其他相关信息。
+
+  请确保你拥有足够的权限来执行这个操作，有时候可能需要以管理员身份运行命令提示符。如果需要查看所有服务的状态，只需输入 `sc query` 即可。
 
 ## windows_后台服务管理
 

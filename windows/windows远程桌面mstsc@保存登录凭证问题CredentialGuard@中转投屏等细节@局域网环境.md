@@ -159,12 +159,126 @@
 - [更改或重置 Windows 密码 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/更改或重置-windows-密码-8271d17c-9f9e-443f-835a-8318c8f68b9c)
 - 对于云账户密码修改:[Microsoft account | Security](https://account.microsoft.com/security?lang=en-US&refd=account.microsoft.com)
 
-## 记住登录凭证@下次免密登录(TODO)
+## 记住登录凭证@下次免密登录
 
 - 这部分设置不是那么直观,需要梳理一下:
+
   - 记住密码可能不是您想象的那么直接有效
   - 记住凭证:需要连接并成功登录进去,才能够记住凭证,如果只是连接到登录界面,但是没有首次输入登录密码,那么是无法产生有效的登录凭证,那么下次登录仍然需要你手动输入密码
+
 - 当您的凭证失效,则建议您删除旧有的凭证,然后mstsc界面会切换到最初的界面,可以勾选允许记住凭证
+
+  
+
+### 凭证被禁用问题@Credential Guard
+
+- [配置 Credential Guard - Windows Security | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/security/identity-protection/credential-guard/configure?tabs=intune)
+
+- mstsc远程桌面登录选项有一个记住密码或凭证的选项,按理说记住密码或凭证后下次登录就不需要再输入密码了
+  - 然而windows引入了credential guard安全机制,并且在较新的专业版系统上默认启用了这个功能
+  - 这可能导致一定程度上的使用不便,尽管提升了安全性,但是这并不总是符合我们的需要
+  - 下面介绍该功能以及配置,以下给出了可以复制粘贴一键的运行脚本
+- 根据windows系统版本的不同,有些用户记住密码功能的使用上很顺利,但是有些用户则需要额外的配置
+  - 非pro版系统,或者默认不启用credential guard功能的系统不会遇到credential guard 阻碍记住密码的使用
+- 根据用户账户类型,也有不同的效果
+  - 如果是local account,登录时可能不会遇到credential guard问题,即便credential guard 功能已经被启用了
+  - 如果是Microsoft acccount,那么记住的凭证无法用于登录
+
+
+
+### 检查是否启用了Credential Guard
+
+- powershell脚本
+
+  ```powershell
+  (Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard).SecurityServicesRunning
+  ```
+
+- 返回1表示启用,返回0表示未启用
+
+- 如有其他疑问,参考上述文档链接
+
+### Credential Guard禁用
+
+- 以下脚本需要以**管理员权限**运行，它会创建或修改指定的注册表键值，以达到禁用与Credential Guard相关的设置目的。请确保在执行之前评估此操作对系统安全性的影响，并在必要时进行系统备份。
+- 从powershell/cmd的版本二选一
+
+#### 脚本
+
+- powershell禁用Credential Guard
+
+  ```powershell
+  # 确保以管理员权限运行PowerShell
+  if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+      Write-Warning "请以管理员身份运行此脚本。"
+      Exit
+  }
+  
+  # 设置注册表项以禁用Credential Guard相关设置
+  
+  # 第一个注册表路径和值
+  $regPath1 = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+  $regName1 = "LsaCfgFlags"
+  $regValue1 = 0
+  
+  # 第二个注册表路径和值
+  $regPath2 = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard"
+  $regName2 = "LsaCfgFlags"
+  $regValue2 = 0
+  
+  # 设置第一个注册表项
+  New-ItemProperty -Path $regPath1 -Name $regName1 -Value $regValue1 -PropertyType DWord -Force | Out-Null
+  
+  # 设置第二个注册表项
+  New-ItemProperty -Path $regPath2 -Name $regName2 -Value $regValue2 -PropertyType DWord -Force | Out-Null
+  
+  Write-Host "注册表项已设置完成。"
+  Write-Host "请重启计算机以使更改生效。"
+  Pause
+  ```
+
+- cmd脚本(不要在powershell中执行,会报错)
+
+  ```bash
+  @echo off
+  echo 正在设置注册表项以禁用Credential Guard相关设置...
+  
+  :: 设置第一个注册表项
+  reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v LsaCfgFlags /t REG_DWORD /d 0 /f
+  
+  :: 设置第二个注册表项
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v LsaCfgFlags /t REG_DWORD /d 0 /f
+  
+  echo 设置完成。
+  echo 请重启计算机以使更改生效。
+  pause
+  ```
+
+#### 检查相关的值是否设置正确(optional)
+
+- 任选其一进行检查
+
+- cmd
+
+  - ```bash
+    reg query "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v LsaCfgFlags
+    reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v LsaCfgFlags
+    
+    ```
+
+- powershell
+
+  - ```powershell
+    # 使用PowerShell方式检查第一个注册表项
+    $value = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name LsaCfgFlags -ErrorAction SilentlyContinue
+    Write-Host "LsaCfgFlags in 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa': $($value.LsaCfgFlags)"
+    
+    # 使用PowerShell方式检查第二个注册表项
+    $value = Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name LsaCfgFlags -ErrorAction SilentlyContinue
+    Write-Host "LsaCfgFlags in 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard': $($value.LsaCfgFlags)"
+    ```
+
+    
 
 ## 硬件调节受限问题
 

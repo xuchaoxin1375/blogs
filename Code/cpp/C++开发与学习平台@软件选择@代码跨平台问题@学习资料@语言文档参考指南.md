@@ -78,6 +78,9 @@
 
 - 随着时间的推移，“101”已经超越了学术界，成为广泛认可的文化符号，意指任何主题的基础或入门指南。例如，“烹饪101”意味着基础烹饪教程，“心理学101”则代表心理学入门知识。因此，当人们看到“XX 101”这样的标题时，通常可以理解为这是关于XX主题的基础知识介绍。
 
+
+### 在线资源
+
 - 开源教程项目:
   - [introduce_c-cpp_manual (github.com)](https://github.com/0voice/introduce_c-cpp_manual)
   - [Light-City/CPlusPlusThings: C++那些事 (github.com)](https://github.com/Light-City/CPlusPlusThings)
@@ -88,8 +91,14 @@
 
   - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
 
-- 中文用户和初学者资源
-  - [LearnCPP](https://learncpp.readthedocs.io/zh-cn/latest/)
+
+- 视频资源
+  - bilibili等视频网站有很多教程
+  - youtube上也有,主要是英文的
+
+#### 中文用户和初学者资源
+
+- [LearnCPP](https://learncpp.readthedocs.io/zh-cn/latest/)
 
 
 

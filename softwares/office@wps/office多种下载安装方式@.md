@@ -141,7 +141,7 @@
 - Microsoft Office各版本的不同之处还在于它们是否支持长期服务频道（LTSC）或定期接收功能更新，其中Microsoft 365订阅用户可始终获得最新的功能和安全更新。
 
 
-## 365
+## 365版本
 
 - [Microsoft 365 和 Office 2021 之间的区别是什么？ - Microsoft 支持](https://support.microsoft.com/zh-cn/office/microsoft-365-和-office-2021-之间的区别是什么-ed447ebf-6060-46f9-9e90-a239bd27eb96)
 
