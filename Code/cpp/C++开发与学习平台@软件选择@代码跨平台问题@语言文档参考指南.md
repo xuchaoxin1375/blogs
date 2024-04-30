@@ -67,14 +67,29 @@
 - 人工智能时代,您的现代IDE可以安装各种各样的人工智能代码插件,帮助您学习代码编写,提高输入效率,提高代码的规范性和乐趣
 - 相关插件数量和种类繁多,国内外都有,免费和收费的都有,补全效果也各不相同
 
-## 资料
+## 学习和参考资料👺
 
 - 学习过程中，可以结合官方文档、网络教程和经典的教材（如《C++ Primer》等），逐步掌握C++的面向过程和面向对象编程技巧，并了解如何配置和使用不同的编译器进行跨平台开发。
+- 对于写算法和比赛的,可以找专门辅导比赛的项目和资料,而不建议用面向工程开发的教程资料
+
+### 101教程
+
+- 许多教程被称为“101”，这一术语源自北美大学课程编号系统，其中“101”通常指代基础入门级别的课程。这一传统始于20世纪初期的美国高等教育体系，特别是可以追溯到1929年纽约州立布法罗分校首次在其课程目录中使用数字编码。在这样的课程编号体系中，“101”课程意味着是某个学科领域的入门第一课，专为对该领域毫无了解或经验有限的学生设计。
+
+- 随着时间的推移，“101”已经超越了学术界，成为广泛认可的文化符号，意指任何主题的基础或入门指南。例如，“烹饪101”意味着基础烹饪教程，“心理学101”则代表心理学入门知识。因此，当人们看到“XX 101”这样的标题时，通常可以理解为这是关于XX主题的基础知识介绍。
+
 - 开源教程项目:
+  - [introduce_c-cpp_manual (github.com)](https://github.com/0voice/introduce_c-cpp_manual)
   - [Light-City/CPlusPlusThings: C++那些事 (github.com)](https://github.com/Light-City/CPlusPlusThings)
+
+- 算法和比赛(从基本语法到算法逻辑)
+
+  - 免费书籍(不保证好和最优)[free-programming-books/books/free-programming-books-zh.md at main · EbookFoundation/free-programming-books · GitHub](https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md#cpp)
+
   - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
 
-
+- 中文用户和初学者资源
+  - [LearnCPP](https://learncpp.readthedocs.io/zh-cn/latest/)
 
 
 
