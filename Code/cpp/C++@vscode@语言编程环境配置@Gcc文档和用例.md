@@ -578,7 +578,98 @@
   }
   ```
   
-  
+
+### 更快地编译运行
+
+- 使用`launch.json`启动编译和调试虽然可以一键执行,但是速度比较慢
+
+- 要知道直接用g++命令行编译是很快的,所以我们可以设法改进这一点
+
+- 我们可以用Code Runner插件来快速执行编译并直接运行,而不是编译后启动调试运行
+
+  - [Code Runner - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=formulahendry.code-runner)
+
+- 我们以hellow，world为例
+
+  - 配置后按下快捷键可以有如下效果
+
+    ```bash
+    
+    PS C:\repos\C_CPP_ConsoleApps> cd "c:\repos\C_CPP_ConsoleApps\cpp\" ; if ($?) { g++ -std=c++11 "hellowworld2.cpp" -o "hellowworld2.exe" } ; if ($?) {  .\"hellowworld2.exe" }
+    Hello World!
+    ```
+
+  - 如果使用默认的`start debugging`,速度要满上许多
+
+    - ```cmd
+      PS C:\repos\C_CPP_ConsoleApps>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.20.3-win32-x64\debugAdapters\bin\WindowsDebugLauncher.exe' '--stdin=Microsoft-MIEngine-In-pcmtfxlj.w4p' '--stdout=Microsoft-MIEngine-Out-f12ge22g.01f' '--stderr=Microsoft-MIEngine-Error-i3ud5s4n.nq2' '--pid=Microsoft-MIEngine-Pid-cwud2zvq.q2k' '--dbgExe=C:\msys64\ucrt64\bin\gdb.exe' '--interpreter=mi' 
+      Hello World!
+      ```
+
+    
+
+- 配置`tasks.json`(不推荐)
+
+  - ```bash
+    "args": [
+            "-fdiagnostics-color=always",
+            // "-g",
+            "${file}",
+            "-o",
+            "${fileDirname}\\a.exe",
+            "&&",
+            "a.exe"
+        ],
+    ```
+
+  - 您或许考虑创建一个task令其编译完成后追加运行
+
+  - 但是这并不好用,估计vscode c++ extension并没有打算让用户这么用
+
+    - 如果仅仅是输出hello,world 这种程序还要,但是如果先要输入,那么build task就会被卡住
+
+### 二次编译失败问题
+
+- 个别情况下,如果前一次编译运行的程序没有被退出,而新的编译结果名字和上一次编译的名字一样,那么会因为名字被占用导致新的编译结果无法保存而失败
+
+- 这可能表现为`cannot open output file ...`,Permission denied
+
+  - ```bash
+    Starting build...
+    cmd /c chcp 65001>nul && g++.exe -fdiagnostics-color=always -g C:\repos\C_CPP_ConsoleApps\cpp\hellowworld2.cpp -o C:\repos\C_CPP_ConsoleApps\cpp\a.exe
+    C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file C:\repos\C_CPP_ConsoleApps\cpp\a.exe: Permission denied
+    
+    collect2.exe: error: ld returned 1 exit status
+    ```
+
+- 这种情况还可能发生在同一个目录下编译了多个文件,假设它们的编译结果都保存为文件`a.exe`,而在某个a.exe尚未退出时编译了另一个文件,它们恰好在同一个目录下,就会造成失败
+
+- 尽管这种情况很少见,我们通常同一时间同一目录内,仅处理一个程序;但是如果确实需要同时编译运行多个程序,有如下选择
+
+  - 更换编译结果文件名后再编译:既然默认的名字被占用,那么可以切换不同的task配置再编译,或者临时用命令行指定新的`-o`参数后编译
+
+  - 或者如果上一个程序是因为意外卡住,或者我们不需要它继续运行时,可以借助任务管理杀死相关进程后再编译,例如可以用任务管理,也可以用命令行处理
+
+    - powershell查找名为a.exe的进程
+
+      ```powershell
+      ps a.exe|select path
+      ```
+
+    - 确认路径后手动杀死
+
+      ```powershell
+      PS> ps a|select path
+      
+      Path
+      ----
+      C:\repos\C_CPP_ConsoleApps\cpp\a.exe
+      
+      PS> ps a|kill
+      
+      ```
+
+    - 然后重新尝试编译即可
 
 ## 参考的仓库😊
 

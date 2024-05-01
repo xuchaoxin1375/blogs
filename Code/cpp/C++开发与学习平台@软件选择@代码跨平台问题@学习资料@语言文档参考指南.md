@@ -23,8 +23,11 @@
    - 即可选择安装版,也可以选择免安装版本
    - 软件界面也比较清晰,是现代化的界面,风格和Dev C++类似
 5. DEV C++ 老牌C++运行环境
+   - [Home - Dev-C++ Official Website (bloodshed.net)](https://www.bloodshed.net/)
+     - 软件不更新很长一段时间了,普通用途不建议继续使用Dev C++
+     - 文档:[Additional Resources - Dev-C++ Official Website (bloodshed.net)](https://www.bloodshed.net/Additional-Resources)
    - [Dev-C++ download | SourceForge.net](https://sourceforge.net/projects/orwelldevcpp/)
-
+   
 6. DEV C++的改进分支版本 [Dev-C++ Overview - Free Tools - Embarcadero](https://www.embarcadero.com/cn/free-tools/dev-cpp)
 
 7. vim/emacs/gedit+gcc+gdb:纯命令行或者UI简陋的编辑器开发组合,完全免费,占用最少的资源,对计算机的配置要求很低,但是仍然可以完成复杂的编码任务,只是对于初学者不太友好;gcc，gdb命令行用法值得学一下
@@ -81,31 +84,38 @@
 
 ### 在线资源
 
-- 开源教程项目:
+- 基础语法
+  - [C++ Tutorial - Learn C++ - Cprogramming.com](https://www.cprogramming.com/tutorial/c++-tutorial.html?inl=nv)
+  - [现代 C++ 101 - HackMD](https://hackmd.io/@lumynou5/CppTutorial-zh-tw)
+    - 台湾繁体可以翻译为简体,不过有很多属于和大陆不一样,比如程序他们称为程式;软件称为软体;类型称为型别;函数称为函式
+    - 所以看起来会有点别扭
+  - [C++ Tutorial - Learn C++ - Cprogramming.com](https://www.cprogramming.com/tutorial/c++-tutorial.html?inl=nv)
+- 开源教程项目
   - [introduce_c-cpp_manual (github.com)](https://github.com/0voice/introduce_c-cpp_manual)
   - [Light-City/CPlusPlusThings: C++那些事 (github.com)](https://github.com/Light-City/CPlusPlusThings)
-
 - 算法和比赛(从基本语法到算法逻辑)
 
   - 免费书籍(不保证好和最优)
     - [free-programming-books/books/free-programming-books-zh.md at main · EbookFoundation/free-programming-books · GitHub](https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md#cpp)
-  
-  - [现代 C++ 101 - HackMD](https://hackmd.io/@lumynou5/CppTutorial-zh-tw)
-    - 台湾繁体可以翻译为简体	
-  - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
+    - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
+    
 
 
 - 视频资源
   
-  bilibili等视频网站有很多教程
   
-  youtube上也有,主要是英文的
+  - bilibili等视频网站有很多教程
+  
 
-- 语言参考
-  - [cplusplus.com](https://cplusplus.com/)
-    - [cplusplus.com/reference/](https://cplusplus.com/reference/)
-  - [cppreference.com](https://en.cppreference.com/w/)
-    - 中文版[C++ 参考手册 - cppreference.com](https://zh.cppreference.com/w/cpp)
+  - youtube上也有,主要是英文的
+  
+
+### 语言参考
+
+- [cplusplus.com](https://cplusplus.com/)
+  - [cplusplus.com/reference/](https://cplusplus.com/reference/)
+- [cppreference.com](https://en.cppreference.com/w/)
+  - 中文版[C++ 参考手册 - cppreference.com](https://zh.cppreference.com/w/cpp)
 
 ### 中文用户和初学者资源
 
