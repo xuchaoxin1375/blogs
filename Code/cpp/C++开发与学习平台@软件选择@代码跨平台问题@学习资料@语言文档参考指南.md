@@ -93,10 +93,18 @@
 
 
 - 视频资源
-  - bilibili等视频网站有很多教程
-  - youtube上也有,主要是英文的
+  
+  bilibili等视频网站有很多教程
+  
+  youtube上也有,主要是英文的
 
-#### 中文用户和初学者资源
+- 语言参考
+  - [cplusplus.com](https://cplusplus.com/)
+    - [cplusplus.com/reference/](https://cplusplus.com/reference/)
+  - [cppreference.com](https://en.cppreference.com/w/)
+    - 中文版[C++ 参考手册 - cppreference.com](https://zh.cppreference.com/w/cpp)
+
+### 中文用户和初学者资源
 
 - [LearnCPP](https://learncpp.readthedocs.io/zh-cn/latest/)
 
