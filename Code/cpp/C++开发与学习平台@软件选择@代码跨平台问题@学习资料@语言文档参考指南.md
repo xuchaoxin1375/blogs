@@ -87,8 +87,11 @@
 
 - 算法和比赛(从基本语法到算法逻辑)
 
-  - 免费书籍(不保证好和最优)[free-programming-books/books/free-programming-books-zh.md at main · EbookFoundation/free-programming-books · GitHub](https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md#cpp)
-
+  - 免费书籍(不保证好和最优)
+    - [free-programming-books/books/free-programming-books-zh.md at main · EbookFoundation/free-programming-books · GitHub](https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md#cpp)
+  
+  - [现代 C++ 101 - HackMD](https://hackmd.io/@lumynou5/CppTutorial-zh-tw)
+    - 台湾繁体可以翻译为简体	
   - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
 
 
