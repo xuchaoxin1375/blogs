@@ -243,7 +243,7 @@ Balance     Brilliant   Brilliant2  Default     Short       short2      Simple
 
 ### 花哨样式
 
-- ```
+- ```powershell
   ┌─PS[BAT:77%][MEM:39.84% (12.63/31.70)GB]
   ├─[cxxu@COLORFULCXXU][2024-04-19][21:44:35]
   ├─# [~\Desktop]
@@ -260,7 +260,7 @@ Balance     Brilliant   Brilliant2  Default     Short       short2      Simple
 
 - 即便响应性能和平衡样式差不多,但过于花哨,容易喧宾夺主,我自己平时用的也比较少
 
-### 响应性能
+## 响应性能👺
 
 - 经过实验,这几种样式响应性能都不错
 
@@ -270,41 +270,42 @@ Balance     Brilliant   Brilliant2  Default     Short       short2      Simple
   - 而经过实验,如果响应时间不超过0.1s,体验还是可以的,但是如果按住回车键不断刷新shell prompt,那么0.1s的响应速度就不够看了,此时能够发现比较明显的响应滞后
   - 而我们如果能够优化到0.01s级别的,那么响应速度在体验上就有了飞跃,即便是按住回车不断刷新prompt,也可以做到几乎感觉不到响应延迟(尽管仍然比不上0.0001s的默认响应速度)
 
-- 如何优化
 
-  - 命令行中显示内存占用还是蛮酷的,那么如何优化?
-  - 我们可以考虑拉大刷新内存占用的间隔,比如说每隔5秒钟计算一次内存占用信息(其他时刻获取上一次计算的结果)
-  - 这样经过实验,可以把响应速度从0.1s级别提高到0.01s级别
-  - 甚至我们还可以创建一个后台进程来执行计算内存占用这一耗时任务,而prompt每次刷新只需要读取后台进程给出的结果就行
+### 如何优化
 
-- 附上性能测试结果
+- 命令行中显示内存占用还是蛮酷的,那么如何优化?
+- 我们可以考虑拉大刷新内存占用的间隔,比如说每隔5秒钟计算一次内存占用信息(其他时刻获取上一次计算的结果)
+- 这样经过实验,可以把响应速度从0.1s级别提高到0.01s级别
+- 甚至我们还可以创建一个后台进程来执行计算内存占用这一耗时任务,而prompt每次刷新只需要读取后台进程给出的结果就行
 
-  - ```powershell
-    #默认样式微调,性能是0.0001s级别的
-    PS [C:\repos\scripts]> test-PromptDelay
-    0.00019081 seconds
-    
-    PS [C:\repos\scripts]> set-PromptVersion brilliant
-    
-    #花哨样式,性能是0.01s级别的
-    ┌─PS[BAT:77%][MEM:39.77% (12.61/31.70)GB]
-    ├─[cxxu@COLORFULCXXU][2024-04-19][22:12:33]
-    ├─# [C:\repos\scripts]
-    └─ test-PromptDelay
-    0.013235219999999997 seconds
-    
-    
-    #推荐的平衡样式性能为0.01s级别
-    PS[BAT:77%][MEM:39.62% (12.56/31.70)GB][22:12:44]
-    # [C:\repos\scripts]
-     test-PromptDelay
-    0.01090278 seconds
-    ```
+### 附上性能测试结果
 
-  - 补充:`test-PromptDelay`函数测试10次prompt刷新调用的平均耗时
+- ```powershell
+  #默认样式微调,性能是0.0001s级别的
+  PS [C:\repos\scripts]> test-PromptDelay
+  0.00019081 seconds
+  
+  PS [C:\repos\scripts]> set-PromptVersion brilliant
+  
+  #花哨样式,性能是0.01s级别的
+  ┌─PS[BAT:77%][MEM:39.77% (12.61/31.70)GB]
+  ├─[cxxu@COLORFULCXXU][2024-04-19][22:12:33]
+  ├─# [C:\repos\scripts]
+  └─ test-PromptDelay
+  0.013235219999999997 seconds
+  
+  
+  #推荐的平衡样式性能也为0.01s级别
+  PS[BAT:77%][MEM:39.62% (12.56/31.70)GB][22:12:44]
+  # [C:\repos\scripts]
+   test-PromptDelay
+  0.01090278 seconds
+  ```
 
-    - 内存占用计算每各5秒钟重新计算一次,提高响应速度
-    - 那么内存占用率显示的是5秒内的数值(延迟不超过5秒),理想情况下平均数据滞后时间为2.5s
+- 补充:`test-PromptDelay`函数测试10次prompt刷新调用的平均耗时
+
+  - 内存占用计算每各5秒钟重新计算一次,提高响应速度
+  - 那么内存占用率显示的是5秒内的数值(延迟不超过5秒),理想情况下平均数据滞后时间为2.5s,而任务管理器中的普通刷新也是滞后的,效果大致和low级别的频率相当
 
 ## 小结
 

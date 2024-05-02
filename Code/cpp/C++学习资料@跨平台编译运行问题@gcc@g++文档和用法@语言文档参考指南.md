@@ -2,74 +2,6 @@
 
 
 
-## 集成编译器的C/C++开发工具(开箱即用)
-
-1. **Microsoft Visual Studio with MSVC**:
-   - 虽然MSVC主要用于Windows平台，但随着近年来的发展，已经具备了跨平台编译能力，可以构建Linux和iOS应用。
-   - 特点：商业级IDE，提供了丰富的调试和开发工具，对于Windows原生开发支持完善。
-2. **Code::Blocks**:
-   - Code::Blocks 是一款轻量级、开源的C++ IDE，内置了GCC或Clang编译器支持，可在多种平台上运行。
-   - 特点：简单易用，适合初学者快速上手，具有代码高亮、自动补全、调试等功能。
-3. **Eclipse CDT**:
-   - Eclipse CDT 包含了一个基于GCC或Clang的C++编译器，通过插件形式实现了跨平台IDE的功能。
-   - 特点：开源免费，强大的代码编辑和项目管理工具，适用于多平台开发。
-4. 小熊猫C++
-
-   - [小熊猫C++ | 小熊猫C++ (royqh.net)](http://royqh.net/redpandacpp/docsy/docs/)
-
-   - [下载 (royqh.net)](http://royqh.net/redpandacpp/download/)
-   - 小熊猫编译器选择比较灵活,如果您本地已经配置好了编译器,比如MinGW或MSYS2,那么小熊猫会自己扫描,可能就不需要配置了
-   - 或者直接下载集成了编译器的版本
-   - 即可选择安装版,也可以选择免安装版本
-   - 软件界面也比较清晰,是现代化的界面,风格和Dev C++类似
-5. DEV C++ 老牌C++运行环境
-   - [Home - Dev-C++ Official Website (bloodshed.net)](https://www.bloodshed.net/)
-     - 软件不更新很长一段时间了,普通用途不建议继续使用Dev C++
-     - 文档:[Additional Resources - Dev-C++ Official Website (bloodshed.net)](https://www.bloodshed.net/Additional-Resources)
-   - [Dev-C++ download | SourceForge.net](https://sourceforge.net/projects/orwelldevcpp/)
-   
-6. DEV C++的改进分支版本 [Dev-C++ Overview - Free Tools - Embarcadero](https://www.embarcadero.com/cn/free-tools/dev-cpp)
-
-7. vim/emacs/gedit+gcc+gdb:纯命令行或者UI简陋的编辑器开发组合,完全免费,占用最少的资源,对计算机的配置要求很低,但是仍然可以完成复杂的编码任务,只是对于初学者不太友好;gcc，gdb命令行用法值得学一下
-
-## 学习平台选择推荐👺
-
-### 初学者平台和软件选择
-
-- 对于初学者,推荐用图形界面系统,可以用windows系统(windows10,11个人用户激不激活都能用,只是个性化方面受限,只是windows7老古董会黑屏,但是基本淘汰了)，可以分情况入手
-
-#### 开箱即用的C/C++运行环境
-
-- 最容易入手的Dev C++家族的软件入手,比如小熊猫C++,Embarcadero C++,或者DEV C++本身
-- 其次可以选择Code::Blocks或者Microsoft Visual Studio Community版开始,都有友好的用户界面和丰富的教程资源，非常适合学习C++基本语法和概念。
-
-#### 需要稍微配置的环境
-
-- 如果愿意稍微配置一下,那么使用vscode+C/C++ extension 也是很好的选择,可以搜索带有配置文件的相关的仓库,下载下来,几乎就是开箱即用的程度,又有丰富的插件生态,可以用得非常舒服,但是对于大项目来说,还是要用更专业的工具
-- 使用CLion的用户也有不少,这个软件比较占用资源
-
-#### 有经验的用户
-
-- 如果偏好命令行工具和开源环境，可以选择GCC或Clang，并搭配简单的文本编辑器（如Vim、Emacs或VS Code等），这样可以更专注于语言本身的学习。
-- 用C++学习一些简单编程和算法,可以不用太纠结平台的选择,习惯用那个系统就用那个系统
-- 但是到了开发特定软件阶段或者系统编程,那么平台的选择就需要考虑
-- 不过即便是linux系统编程,也可以用`vscode`之类的编辑器利用ssh链接,这样,哪怕没有安装图形界面的linux也可以用图形界面的IDE或编辑器编写代码,获得智能补全,错误提示等插件带来的便利
-
-### 小结👺
-
-- 对于初级阶段的C++学习或者算法学习,推荐图形化方案的跨平台和轻量的编程环境
-  - 开箱即用适合国人的小熊猫C++,其他开箱即用的也可以
-  - 也推荐vscode配合C++插件拓展,里面的AI插件可以提供不少帮助,而编译器可以任意选择可用的就行:配置实践:[Vscode配置C/C++编程环境@配置C和CPP的运行和调试环境@配置过程的相关问题@中文文件名乱码@build和debug方案组合配置-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/138172679?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"138172679"%2C"source"%3A"xuchaoxin1375"})
-
-- 对于工程级别的专业的C++编程,可以考虑重量级的IDE,比如Clion,Visual Stuido
-
-## AI辅助
-
-### 开发工具代码补全和AI代码片段生成补全
-
-- 人工智能时代,您的现代IDE可以安装各种各样的人工智能代码插件,帮助您学习代码编写,提高输入效率,提高代码的规范性和乐趣
-- 相关插件数量和种类繁多,国内外都有,免费和收费的都有,补全效果也各不相同
-
 ## 学习和参考资料👺
 
 - 学习过程中，可以结合官方文档、网络教程和经典的教材（如《C++ Primer》等），逐步掌握C++的面向过程和面向对象编程技巧，并了解如何配置和使用不同的编译器进行跨平台开发。
@@ -98,17 +30,15 @@
   - 免费书籍(不保证好和最优)
     - [free-programming-books/books/free-programming-books-zh.md at main · EbookFoundation/free-programming-books · GitHub](https://github.com/EbookFoundation/free-programming-books/blob/main/books/free-programming-books-zh.md#cpp)
     - [soulmachine/leetcode: LeetCode题解 (github.com)](https://github.com/soulmachine/leetcode)
-    
 
 
 - 视频资源
-  
-  
+
+
   - bilibili等视频网站有很多教程
-  
+
 
   - youtube上也有,主要是英文的
-  
 
 ### 语言参考
 
@@ -122,6 +52,132 @@
 - [LearnCPP](https://learncpp.readthedocs.io/zh-cn/latest/)
 
 
+
+## gcc/g++文档和用法
+
+- [GCC online documentation - GNU Project](https://gcc.gnu.org/onlinedocs/)
+  - 您可以在线查看或者下载gcc不同版本的详细文档,包括pdf等格式
+  - 所有蓝色的链接都是可以跳转的在线网页,或者是可以下载的资源
+  - 文档不仅包含gcc也包含g++
+
+- 也可以只查阅最常用的一部分文档,可以用man命令查看,但是使用浏览器会更便于阅读
+  - [man gcc (1): GNU project C and C++ compiler (manpages.org)](https://manpages.org/gcc)
+
+  - [g++(1) - Linux manual page (man7.org)](https://www.man7.org/linux/man-pages/man1/g++.1.html)
+
+
+
+### g++常见用例
+
+- gcc/g++绝大多数的可用选项都一样
+
+以下是一些常见的GCC/G++编译用法示例：
+
+1. **基本编译与链接**：
+
+   ```bash
+   g++ source.cpp -o output
+   ```
+
+   这条命令将源文件`source.cpp`编译并链接为可执行文件`output`。默认情况下，G++会自动处理依赖关系，编译所有必要的C++源文件，并链接所需的库。
+
+2. **编译多个源文件**：
+
+   ```bash
+   g++ main.cpp func1.cpp func2.cpp -o program
+   ```
+
+   当项目包含多个源文件时，可以同时指定它们进行编译和链接。
+
+3. **指定编译标准**：
+
+   ```bash
+   g++ -std=c++11 source.cpp -o output
+   ```
+
+   使用`-std`选项指定编译器遵循的C++标准版本，如C++11、C++14、C++17、C++20等。
+
+4. **启用警告**：
+
+   ```bash
+   g++ -Wall -Wextra source.cpp -o output
+   ```
+
+   `-Wall`开启所有基本警告，`-Wextra`启用额外警告。这对于发现潜在编程错误非常有帮助。
+
+5. **优化编译**：
+
+   ```bash
+   g++ -O2 source.cpp -o output
+   ```
+
+   使用`-O`选项进行优化编译，`-O2`是常用的优化级别。还有更激进的`-O3`和禁用优化的`-O0`。
+
+6. **包含目录**：
+
+   ```bash
+   g++ -I/usr/local/include source.cpp -o output
+   ```
+
+   使用`-I`选项指定头文件的搜索路径。如果源码中包含了`#include <header.h>`，而`header.h`位于`/usr/local/include`目录下，需要使用此选项。
+
+7. **链接库**：
+
+   ```bash
+   g++ source.cpp -L/usr/lib -lmylib -o output
+   ```
+
+   `-L`选项指定库文件的搜索路径，`-l`选项指定要链接的库。例如，这里链接名为`mylib`的库。实际链接的是`libmylib.so`或`libmylib.a`文件。
+
+8. **生成调试信息**：
+
+   ```bash
+   g++ -g source.cpp -o output
+   ```
+
+   使用`-g`选项在生成的可执行文件中包含调试信息，便于使用GDB等调试工具进行调试。
+
+9. **预处理**：
+
+   ```bash
+   gcc -E source.c -o preprocessed_source.i
+   ```
+
+   使用`-E`选项仅进行预处理，生成预处理后的输出文件`preprocessed_source.i`。
+
+10. **生成汇编代码**：
+
+    ```bash
+    g++ -S source.cpp -o assembly.s
+    ```
+
+    使用`-S`选项仅进行编译，生成汇编代码文件`assembly.s`，不进行汇编和链接。
+
+
+
+### 设置源文件编码和调试信息选型示例
+
+- 示例:` g++.exe  "C:/repos/C_CPP_ConsoleApps/勾股.cpp" -o "C:/repos/C_CPP_ConsoleApps/勾股.exe" -finput-charset=UTF-8 -fexec-charset=gbk -g3 -pipe -Wall`
+
+- 这条命令是用来编译并链接C++源代码文件并生成可执行文件的命令行指令，具体解释如下：
+
+  - `g++.exe`: 这是Gnu GCC编译器集合中的C++编译器程序，用于编译C++源代码文件。
+
+  - `"C:/repos/C_CPP_ConsoleApps/勾股.cpp"`: 这是待编译的C++源代码文件的完整路径和文件名。该命令会读取这个文件并进行编译。
+
+  - `-o "C:/repos/C_CPP_ConsoleApps/勾股.exe"`: `-o`选项后面跟着的是指定输出的目标文件名及路径。在这个例子中，编译后生成的可执行文件会被命名为`勾股.exe`，并将保存在指定的目录`C:/repos/C_CPP_ConsoleApps/`下。
+
+  - `-finput-charset=UTF-8`: 这个选项指示编译器按照UTF-8字符集来解析输入（源代码）文件。
+
+  - `-fexec-charset=gbk`: 这个选项指定了生成的可执行文件中内嵌字符串的字符集为GBK，这意味着编译后的程序在运行时输出的文本字符串将以GBK编码格式展示。
+
+  - `-g3`: 启用调试信息，`-g3`是GCC的一个调试级别选项，它会生成最全面的调试信息，方便使用调试器如GDB进行源代码级调试。
+
+  - `-pipe`: 使用管道进行编译过程中的临时文件传输，这可以提高在具有足够内存和快速I/O系统的计算机上的编译速度。
+
+  - `-Wall`: 开启所有警告（All warnings），这是告诉编译器尽可能多地报告可能的编译警告信息，有助于发现潜在的问题和不规范的编程习惯。
+
+  综上所述，这条命令的作用就是使用G++编译器将UTF-8编码的C++源代码文件`勾股.cpp`编译成包含详细调试信息、采用GBK编码的可执行文件`勾股.exe`，并且在整个编译过程中启用所有警告提示。
 
 
 ## C++代码跨平台问题👺
@@ -228,9 +284,17 @@ C++标准库的主要部分包括：
 
 非标准库的使用可以使开发者更加方便地解决特定问题，但也意味着增加了代码的非移植性。由于非标准库的实现和语义可能因供应商或版本的不同而有所差异，所以使用非标准库编写的代码往往不如使用标准库编写的代码具有更好的跨平台性和兼容性。
 
-## C++文档
+## C/C++文档@参考手册
 
-C++标准本身并没有一个官方的教程，但是C++标准委员会（ISO/IEC JTC1/SC22/WG21）维护着C++标准的规范文档，这是最为权威的语言描述。标准文档可以通过ISO官网购买，也可以通过参与标准制定的成员机构获取，有时这些文档在特定时期会有限期公开草案供公众查阅。
+- 相关链接资源
+  - [cppreference.com](https://zh.cppreference.com/w/首页)
+  - [cplusplus.com/reference/](https://cplusplus.com/reference/)
+  - [The GNU C Library - GNU Project - Free Software Foundation (FSF)](https://www.gnu.org/software/libc/manual/) 提供多种格式的离线
+  - https://www.gnu.org/software/libc/manual/pdf/libc.pdf 
+- 多种流行语言的参考手册[API Reference Document](https://www.apiref.com/)
+
+- C++标准本身并没有一个官方的教程，但是C++标准委员会（ISO/IEC JTC1/SC22/WG21）维护着C++标准的规范文档，这是最为权威的语言描述。标准文档可以通过ISO官网购买，也可以通过参与标准制定的成员机构获取，有时这些文档在特定时期会有限期公开草案供公众查阅。
+
 
 对于开发者来说，以下是一些广泛使用的、高质量且接近“官方”级别的C++参考文档和教程资源：
 
@@ -257,4 +321,21 @@ C++标准本身并没有一个官方的教程，但是C++标准委员会（ISO/I
    - Committee Meeting Papers (CWG papers, EWG papers等) 可从WG21的官方网站获取，这些记录包含了关于C++语言设计决策的讨论和解释。
 
 综上所述，尽管没有严格意义上的“官方教程”，上述资源共同构成了C++开发者学习和参考的重要资料库。
+
+
+
+## 搭配搜索引擎来查阅手册
+
+- 搜索引擎关键字
+  - gnu
+  - cppref
+  - cplus
+
+- 搜搜内容示例:以查阅标准库中的String类的信息为例
+  - `c++ <string> apiref`
+  - `c++ <string> microsoft`
+
+
+
+
 
