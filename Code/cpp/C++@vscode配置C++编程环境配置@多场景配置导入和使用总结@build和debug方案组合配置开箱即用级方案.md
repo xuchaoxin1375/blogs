@@ -8,14 +8,18 @@
 - 利用我提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;并且记录了可能遇到的问题以及解决方案
 - 这里假设**用户已经正确安装好了编译器**,并且能够顺利启动
   - 可以是任何一款编译器,比如应用最广泛的GCC或其在不同系统上的移植版
-- vscode+cpp官方文档教程:
-  - [C++ programming with Visual Studio Code](https://code.visualstudio.com/docs/languages/cpp)
-    - 这个页面是vscode配置c++环境的首页,指导如何准备(下载)编译器,配置编译器的环境变量
-    - 编写并编译第一个C++程序
-    - 然后给出许多不同编译器下的跟进一步的和更完整的首次配置教程
-    - 包括`.vscode`中的相关文件介绍
-  - 对于轻量环境,选择GCC编译器是好主意,可以参考以下文档
-    - [Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_debug-helloworldcpp)
+
+## vscode+cpp官方文档教程
+
+- 官方文档给出了英文用户的较完整的配置方案,但是中文用户仅看文档不够,需要自己解决一些中文问题
+
+- [C++ programming with Visual Studio Code](https://code.visualstudio.com/docs/languages/cpp)
+  - 这个页面是vscode配置c++环境的首页,指导如何准备(下载)编译器,配置编译器的环境变量
+  - 编写并编译第一个C++程序
+  - 然后给出许多不同编译器下的跟进一步的和更完整的首次配置教程
+  - 包括`.vscode`中的相关文件介绍
+- 对于轻量环境,选择GCC编译器是好主意,可以参考以下文档
+  - [Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_debug-helloworldcpp)
 
 ## 开箱即用的C/C++开发环境(可选)
 
@@ -261,7 +265,7 @@
 
 - | command                            | shutcut(default) | Notes                                                        |
   | ---------------------------------- | ---------------- | ------------------------------------------------------------ |
-  | `Start Debugging`                  | `F5`             | 最常用的快捷键,一键编译运行源代码,并且可以设置支持打断点调试 |
+  | `Debug:start Debugging`            | `F5`             | 最常用的快捷键,一键编译运行源代码,并且可以设置支持打断点调试 |
   | `Tasks:Run Build Task`             | 无               | 仅编译源代码,可以得到编译后的可执行的二进制文件,但是不会运行,通常是作为`Start Debugging`的第一个步骤,比较少单独使用 |
   | `Debug:Select and Start Debugging` | 无               | 选择一个debug方案,特别是您已经配置了多个方案时,              |
   | `Tasks:Config Default Build Task`  | 无               | 选择默认的task配置,为了适应不同的编译需要,用户在`task.json`和`launch.json`中可以配置多个版本;可以从中选择一个最常用的配置 |
