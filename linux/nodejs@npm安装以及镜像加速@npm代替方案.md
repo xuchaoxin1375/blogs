@@ -1,6 +1,6 @@
 [toc]
 
-#  
+# 
 
 ##  abstract
 
@@ -206,10 +206,10 @@ npm（Node Package Manager）是Node.js的默认包管理器，也是一个巨�
 
   4. **使用Yarn并配置镜像源**：
      对于Yarn用户，可以通过类似方式配置：
+     
      ```shell
      yarn config set registry https://registry.npm.taobao.org
      ```
-
 
 #### 其他
 
@@ -224,7 +224,7 @@ npm（Node Package Manager）是Node.js的默认包管理器，也是一个巨�
 4. 以上策略可以根据实际需求进行选择，其中更换为国内镜像是最为常见且效果显著的方法之一。
 5. 使用非官方镜像可能在某些情况下导致与官方registry同步存在延迟，因此在发布新包时应谨慎选择镜像源。
 
-### npm代替品😂
+### npm代替品👺
 
 Node.js生态系统中的包管理和执行相关
 
@@ -238,17 +238,78 @@ Node.js生态系统中的包管理和执行相关
 2. **cnpm**：
    - 是npm在中国的镜像站点，由阿里巴巴团队维护。由于网络原因，直接使用npm从国外官方仓库下载可能速度较慢或者不稳定，cnpm通过镜像同步npm的全部资源，供国内开发者快速、稳定地下载Node.js依赖包。
    - [npmmirror 镜像站](https://npmmirror.com/)
-
+     - 安装cnpm,执行` npm install -g cnpm --registry=https://registry.npmmirror.com`
+   
 3. **pnpm**：
    - 是另一种高性能的Node.js包管理器，其特色在于利用硬盘上的磁盘空间实现全局缓存，并通过硬链接技术避免重复安装同一依赖的不同版本。这不仅节省存储空间，同时也提高了安装和更新依赖的速度，尤其是在大型项目中表现优秀。
 
 4. **npx**：
    - 自npm 5.2.0版本开始内置的一个命令行工具，它允许开发者在不全局安装的情况下运行npm包中的可执行文件。npx可以根据当前项目环境临时下载并执行所需要的npm包，简化了一次性使用某个包或执行特定脚本的过程。
 
-- 总的来说，这些工具都服务于Node.js生态系统的不同需求
-  - npm作为基础包管理工具，其他工具如yarn、pnpm则是在此基础上针对特定痛点优化或扩展而来；
-  - cnpm着重于解决国内开发者访问npm资源的问题；
-  - npx则是为了方便临时执行npm包中的命令而设计。
+总的来说，这些工具都服务于Node.js生态系统的不同需求
+- npm作为基础包管理工具，其他工具如yarn、pnpm则是在此基础上针对特定痛点优化或扩展而来；
+- cnpm着重于解决国内开发者访问npm资源的问题；
+- npx则是为了方便临时执行npm包中的命令而设计。
+
+## 常用npm 配置命令
+
+### 查看配置文件
+
+- ```bash
+  PS> npm config -h
+  Manage the npm configuration files
+  
+  Usage:
+  npm config set <key>=<value> [<key>=<value> ...]
+  npm config get [<key> [<key> ...]]
+  npm config delete <key> [<key> ...]
+  npm config list [--json]
+  npm config edit
+  npm config fix
+  
+  Options:
+  [--json] [-g|--global] [--editor <editor>] [-L|--location <global|user|project>]
+  [-l|--long]
+  
+  alias: c
+  
+  Run "npm help config" for more info
+  ```
+
+  
+
+列出所有配置
+
+```bash
+PS> npm config list
+; node bin location = C:\Program Files\nodejs\node.exe
+; node version = v20.12.2
+; npm local prefix = C:\repos\squoosh
+; npm version = 10.5.2
+; cwd = C:\repos\squoosh
+; HOME = C:\Users\cxxu
+; Run `npm config ls -l` to show all defaults.
+```
+
+### 查看指定字段
+
+- 例如查看源(registry)
+
+  ```bash
+  PS> npm config get registry
+  https://registry.npmmirror.com
+  
+  ```
+
+### 删除某个字段配置
+
+- 指定字段时要注意拼写正确,否则没有效果(也不会报错)
+
+  ```bash
+  PS> npm config delete registry
+  ```
+
+  
 
 ## 老版本下载安装(deprecated)
 
