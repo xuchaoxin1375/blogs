@@ -1,6 +1,6 @@
 [toc]
 
-## select 和 where谁先执行?
+## select 和 where谁先执行
 
 - 在执行筛选时，指定命令的顺序确实很重要。
 
@@ -33,19 +33,16 @@
   Windows Management Instrumentation                   Running
   ```
 
-### powershell管道符
+## powershell管道符
 
-- 这里解释powershell管道符是如何工作的
+- 这里解释powershell管道符是如何工作的,编写支持管道符的函数另见它文(阅读本文有助于理解和编写这类支持管道符函数)
 
 - [One-liners and the pipeline - PowerShell | Microsoft Learn ~ 单行代码和管道 - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/04-pipelines?view=powershell-7.4#the-pipeline)
 
 - 我们知道,有些命令可以接受管道符传递过来的参数,例如
-
   - `Stop-Service`,简写别名为`spsv`
-
   - `Stop-process`,简写为`spps`
-
-    
+- 下面介绍它们怎么处理管道符输入
 
 ### stop-service 为例查看文档中的典型参数介绍
 
