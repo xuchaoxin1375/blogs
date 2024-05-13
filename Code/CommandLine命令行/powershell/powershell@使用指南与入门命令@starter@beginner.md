@@ -60,18 +60,8 @@
 
 ## 下载
 
-
-
-### powershell程序加速下载
-
-- 山东大学镜像站[PowerShell_PowerShell (sdu.edu.cn)](https://mirrors.sdu.edu.cn/github-release/1702434474/github-release/PowerShell_PowerShell/)
-
-### 官网下载
-
-- [在 Windows 上安装 PowerShell - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4#installing-the-msi-package)
-  - 推荐用MSI安装,命令行winget默认从github下载,比较慢,看似简单,但是更花时间
-  - 下载MSI包用IDM等工具下载反而可能更快
-  - 但最有优先考虑国内镜像下载
+- 可以用国内镜像站下载安装包
+- 也可以通过官网跳转利用github release 的通用镜像加速资源下载
 
 ##  帮助系统
 

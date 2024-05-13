@@ -2,6 +2,19 @@
 
 
 
+## abstract
+
+- 本文介绍一款跨平台的可以方便地搭建局域网内传输系统软件,支持http(s)和webdav协议,公网需要穿透等操作,不展开
+- 介绍其他可以代替chfs的优秀选择
+
+## chfs相关的其他软件
+
+- 其他比较推荐的类似或相关软件还有Alist,tfcenter等,详情参看 [跨平台的传输协议@WebDav协议@搭建局域网内的WebDav传输系统](https://blog.csdn.net/xuchaoxin1375/article/details/135468254)
+- chfs虽然方便也免费,但是不开源(在github上只有一个readme,多年不更新了)
+  - [HFS ~ HTTP File Server (rejetto.com)](http://www.rejetto.com/hfs/?f=intro)这是一个开源免费的软件,主要支持http协议传输,同样有网页可用
+  - 项目开源[GitHub - rejetto/hfs: HFS is a web file server to run on your computer. Share folders or even a single file thanks to the virtual file system.](https://github.com/rejetto/hfs)
+- 我自己现在使用的是Alist,社区和生态都比较活跃;chfs也有它的优点,windows上有免费的GUI可以用(Alist提供了网页UI来配置基础内容),而且配置简单
+
 ## chfs(CuteHttpFileServer)
 
 - 本文介绍chfs的用法,该软件比较简单易用,轻量灵活(免费)
@@ -403,6 +416,11 @@
   - 但是可能不会过滤192.168.*
 - 或者用`localhost:port`也可以访问,例如chfs提供的链接是:` http://192.168.1.46:8084`,则浏览器输入` http://localhost:8084`也行
 
+### windows 映射webdav为磁盘(http链接)
+
+- 对于win10之后的系统,映射http链接的网络磁盘,需要修改注册表
+- [windows@允许映射挂载http链接@挂载局域网http链接的webdav磁盘](http://t.csdnimg.cn/vCiXn)
+
 ### 关于权限问题(访问控制)
 
 - 网页(http链接)打开的页面目前可以访问所有文件;而登录受限的用户后只能访问受配置文件约束的若干资源
@@ -420,7 +438,7 @@
   - 如果您在使用了符号连接(或软连接等)链接到其他文件夹或文件,当这些链接目标都存在于正确的路径时,chfs
   - 但是如果符号所指的路径被更改移动走了,那么webdav的访问将会出错(其他设备无法挂载webdav)
 
-#### 故障排查@引起chfs webdav无法被挂载的原因
+### 故障排查技巧@引起chfs webdav无法被挂载的原因
 
 - 可以在全新的位置建立一个文件夹,然后令chfs将这个新文件夹作为服务站点根目录
 - 如果新目录下可以工作,那么将原来出问题的目录的文件一点点移动到新目录,并刷新挂载端是否能够正常挂载
@@ -431,15 +449,5 @@
 
 - 详情参考官网
 
-## 其他软件
 
-### HFS
-
-- 上面提到的chfs虽然方便也免费,但是不开源(在github上只有一个readme,多年不更新了)
-  - [HFS ~ HTTP File Server (rejetto.com)](http://www.rejetto.com/hfs/?f=intro)这是一个开源免费的软件,主要支持http协议传输,同样有网页可用
-  - 项目开源[GitHub - rejetto/hfs: HFS is a web file server to run on your computer. Share folders or even a single file thanks to the virtual file system.](https://github.com/rejetto/hfs)
-
-### Alist
-
-- 功能丰富,社区活跃的存储和共享软件Alist
 
