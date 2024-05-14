@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 ## android 内存管理
 
 - [进程间的内存分配  | Android 开发者  | Android Developers](https://developer.android.com/topic/performance/memory-management)

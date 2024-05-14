@@ -1,6 +1,6 @@
 [toc]
 
-
+# vscode配置C/C++开发环境
 
 ## abstract
 
@@ -8,6 +8,15 @@
 - 利用我提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;并且记录了可能遇到的问题以及解决方案
 - 这里假设**用户已经正确安装好了编译器**,并且能够顺利启动
   - 可以是任何一款编译器,比如应用最广泛的GCC或其在不同系统上的移植版
+
+```C++
+#include<iostream>
+int main(){
+    return 0;
+}
+```
+
+
 
 ## vscode+cpp官方文档教程
 
@@ -42,7 +51,7 @@
 
 - 开启一个终端检查编译器的安装和配置是否正确(没有报错即可)
 
-  - ```bash
+  - ```powershell
     #查看g++编译器版本
     PS> g++ --version
     g++.exe (Rev3, Built by MSYS2 project) 13.2.0
@@ -56,6 +65,8 @@
     ```
 
   - `gcc,gdb`可以类似地检查
+  
+  
 
 ### vscode和C/C++ extension package的安装和启用
 
@@ -76,8 +87,6 @@
 
   
 
-
-
 ## 编译中文环境下的源代码文件相关问题👺
 
 ### 尽量不出现中文
@@ -96,7 +105,7 @@
 
 - 因为中文导致的报错问题示例
 
-  - ```bash
+  - ```powershell
     Executing task: task externalConsole 
      
     Starting build...
@@ -111,7 +120,7 @@
 
      - 检查一下当前环境的chcp码
 
-        - ```bash
+        - ```powershell
            PS[BAT:98%][MEM:31.44% (9.97/31.70)GB][21:59:36]
            # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
            PS> chcp
@@ -119,9 +128,9 @@
            #936表示中文
            ```
 
-        - 为了不然g++编译结果输出中文时出现乱码,可以添加:`-finput-charset=UTF-8 -fexec-charset=gbk`编译选项,第一个选项有时可以去掉，简化为` -fexec-charset=gbk`
+     - 为了不让g++编译结果输出中文时出现乱码,可以添加:`-finput-charset=UTF-8 -fexec-charset=gbk`编译选项,第一个选项有时可以去掉，简化为` -fexec-charset=gbk`
 
-        ```bash
+        ```powershell
         
         PS[BAT:98%][MEM:31.52% (9.99/31.70)GB][21:56:54]
         # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
@@ -133,7 +142,7 @@
         Hello World!(你好,世界)
         ```
 
-     - ```bash
+     - ```powershell
         PS[BAT:98%][MEM:31.42% (9.96/31.70)GB][21:59:12]
         # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
         PS> g++ C:\repos\C_CPP_ConsoleApps\测试中文目录\hellowworld2.cpp -o 你好世界console.exe -finput-charset=UTF-8 -fexec-charset=gbk
@@ -147,7 +156,8 @@
         
         Mode                LastWriteTime         Length Name
         ----                -------------         ------ ----
-        -a---          2024/5/2     21:59         135300 󰣆  你好世界console.exe
+        -a---          2024/5/2     21:59         135300 
+        󰣆  你好世界console.exe
         -a---          2024/5/2     21:59         135300 󰣆  a.exe
         -a---          2024/5/2     19:05            257 󰙲  hellowworld2.cpp
         
@@ -175,7 +185,7 @@
 - [.vscode · xuchaoxin1375/C_CPP_ConsoleApps - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps/tree/main/.vscode)
   - 您可以通过上述链接来查看配置
   - 两个配置文件`tasks.json`,`launch.json`是经过一定的实践,能够良好并相对舒适得工作
-  - 如果vscode变动不大,那么直接复制粘贴到自己的C/C++ vscode工程目录中也是可以的
+  -  如果vscode变动不大,那么直接复制粘贴到自己的C/C++ vscode工程目录中也是可以的
 
 ### 下载或克隆使用整个仓库
 
@@ -288,7 +298,7 @@
 
 - 在`tasks.json`中的某个task中设置`"group"`对象
 
-- ```bash
+- ```powershell
   //配置默认的build task(注意不要多个task争抢默认build)
   // 非默认的task的"group"字段配置为:"group":"build",或考虑将"isDefault"设置为false
   "group": {
@@ -324,14 +334,14 @@
 
 - 用户环境变量和系统环境变量的引用:假设我配置了用户环境变量`MSYS2_MINGW`,并且确认了该值的有效性
 
-  - ```bash
+  - ```powershell
     PS> $env:MSYS2_MINGW
     C:\msys64\ucrt64\bin
     ```
 
     
 
-  - ```bash
+  - ```powershell
     PS[BAT:79%][MEM:32.00% (10.14/31.70)GB][22:02:08]
     # [C:\repos\C_CPP_ConsoleApps]
       ls $env:MSYS2_MINGW |where{$_.Name -like "gcc.*" -or $_.Name  -like "g++.*" -or $_.Name -like "gdb.*"}
@@ -350,7 +360,7 @@
 
   - 我在配置C/C++的试验中,发现引用环境变量仅在`launch.json`中是有效的
 
-    - ```bash
+    - ```powershell
        "miDebuggerPath": "${env:MSYS2_MINGW}\\gdb"
       ```
 
@@ -382,7 +392,7 @@
 
 - 通过以下命令来检查是否配置成功
 
-  ```bash
+  ```powershell
   gcc --version
   g++ --version
   gdb --version
@@ -390,7 +400,7 @@
   
   ```
 
-- ```bash
+- ```powershell
   
   PS[BAT:79%][MEM:34.73% (11.01/31.70)GB][22:07:20]
   # [C:\repos\scripts]

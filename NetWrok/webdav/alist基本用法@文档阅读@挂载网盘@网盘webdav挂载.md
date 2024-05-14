@@ -32,7 +32,12 @@
 ### alist for android版本
 
 - [Releases (github.com)](https://github.com/jing332/AListFlutter/releases)
-- 加速下载:[下载速度慢？教你如何高速下载 github release！ - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/521472595)
+  - FAQ:
+    - 如果您发现android端服务启动后,android设备自己可以访问挂载列表网页,但是其他同局域网内的设备却访问不了,这可能是手机上的代理软件干扰导致的
+    - 另外,不恰当的修改配置文件,也可能导致其他设备无法访问服务端,手机端一般没有这个问题
+
+  - 加速下载:[下载速度慢？教你如何高速下载 github release！ ](https://zhuanlan.zhihu.com/p/521472595)
+
 
 ### 启动alist网页
 
@@ -171,6 +176,35 @@
 
 - [WebDAV | 获取已添加网盘的webdav链接配置 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html#webdav-配置)
 - [WebDAV |挂载填写实例](https://alist.nn.ci/zh/guide/webdav.html#可以用来挂载webdav的软件)
+
+### 其他设备无法访问的问题👺
+
+- 通常保持默认配置不会出现这个问题,但是如果对配置文件做了不当修改,可能导致此类异常
+
+- 以电脑端(windows为例),修改了config.json中的IP地址
+
+  - 配置文件路径
+
+    ```bash
+    # [C:\exes\alist\data]
+    PS> cat .\config.json
+    ```
+
+    ```json
+    ...
+    "scheme": 
+    {
+        "address": "0.0.0.0",#修改为127.0.0.1会导致其他设备无法访问
+        "http_port": 5244,
+        "https_port": -1,
+        "force_https": false,
+        "cert_file": "",
+        "key_file": "",
+        "unix_file": "",
+        "unix_file_perm": ""
+      },
+    ...
+    ```
 
 ## 开机自动运行配置(守护进程)👺
 
