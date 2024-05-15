@@ -15,7 +15,7 @@
 -  可能会遇到权限问题,某些文件访问不了,需要管理员权限更改目录或文件的属性
 
 
-#  共需要修改3个地方
+#  修改windows用户名和家目录名
 - 三个地方都需要通过`另一个管理员账户`来修改
 - 如果`lusrmgr`中的用户名没改,可能导致wsl将丢失信息(发生错误)
 (这里先提一下后果,后面会介绍修改)
@@ -52,7 +52,10 @@
 >  也可通过:鼠标点击方式打开设置
 >  - 控制面板\用户帐户和家庭安全\用户帐户\管理帐户\更改帐户\重命名帐户)
 
-## 修改注册表
+## 修改注册表相关项目👺
+
+### 使用regedit图形界面查看和修改
+
 -  按win+R,输入regedit,回车enter
 
 -  在注册表编辑器中定位到以下路径： (可以拷贝粘贴到输入栏中)
@@ -66,7 +69,34 @@
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190204698.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 -  双击此ProfileImagePath键，修改完,重新登陆USER2帐户
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190355472.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+
+
+
+### 使用命令行来查看和修改
+
+创建对应用户管理的注册表变量方便后续使用
+
+```powershell
+#注意这里有空格
+$UserProfileList="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList"
+#查看该路径下的项目
+ls $UserProfileList
+# 我们也可以用|fl来处理显示格式,方便阅读
+ls $UserProfileList|fl 
+```
+
+也可以进入到注册表路径中
+
+```powershell
+cd $UserPro
+```
+
+
+
+
+
 ##  修复环境变量
+
 -  (这些配置是在用户名更名操作完成之后的一些修复工作)用户环境变量的修正(比如powershell的模块,以及一些UWP的配置目录(appdata)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/588342e126144c1cac683da3edde61f6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 这或许可以修复一些由于更改用户名(目录)而导致原有的模块无法调用的问题
@@ -88,7 +118,7 @@
       --export <Distro> <FileName> [Options]
             Exports the distribution to a tar file.
             The filename can be - for stdout.
-    
+      
             Options:
                 --vhd
                     Specifies that the distribution should be exported as a .vhdx file.
@@ -97,7 +127,6 @@
   - 利用`wsl` export命令来导出虚拟机,然后再合适的时候(修改完用户名字)重新导入(import)
 
   - 如果采用软连接而不修改用户名,那么或许wsl可以在新用户名中正常使用,但我未实践
-
 
 
 
