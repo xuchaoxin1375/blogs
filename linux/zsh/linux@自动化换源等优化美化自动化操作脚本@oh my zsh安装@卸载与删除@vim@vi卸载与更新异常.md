@@ -10,7 +10,7 @@
 ##  references
 
 - [git - github: server certificate verification failed - Stack Overflow](https://stackoverflow.com/questions/35821245/github-server-certificate-verification-failed)
-#  信息检查和预备工作👌
+#  信息检查和预备工作
 
 
 

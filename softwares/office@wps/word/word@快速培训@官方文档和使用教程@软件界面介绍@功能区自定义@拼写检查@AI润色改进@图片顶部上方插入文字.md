@@ -340,8 +340,9 @@
 
 - [在 Word 中插入分页符 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/在-word-中插入分页符-eb0e569c-8e3f-4db4-9b13-7bfe1cabdbd7)
 - [插入分节符 - Microsoft 支持](https://support.microsoft.com/zh-cn/office/插入分节符-eef20fd8-e38c-4ba6-a027-e503bdf8375c)
-- 如果无论如何都希望插入的文字作为页面的第一部分内容而**不希望它会跑到上一页的空白空间中**，可以插入分节符实现
+- 如果无论如何都希望插入的文字作为页面的第一部分内容而**不希望它会跑到上一页的空白空间中**，可以插入**分节符**实现
 - 另一种方式是通过在上一页末尾不断追加换行符来换**页**，但这种方式不稳定，而且不优雅
+- 下面分别介绍分页符和分节符以及各自的几个类型
 
 ## 分页符（page break)
 
