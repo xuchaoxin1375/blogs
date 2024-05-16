@@ -20,9 +20,9 @@
 - 如果目标明确,执行以下操作的命令
 
   - ```powershell
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2 /f
     
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  FileSizeLimitInBytes /t REG_DWORD /d 0xffffffff
+    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  FileSizeLimitInBytes /t REG_DWORD /d 0xffffffff /f
     
     # Restart-Service WebClient #如果是powershell,可以restart-service 代替下面的2个语句
     net stop WebClient
@@ -32,13 +32,29 @@
     ```
     
 
-- 中途会让你确认,就是输入`yes`即可
+- 这里使用了`/f`参数强制修改,否则中途会让你确认,就是输入`yes`即可,如果那您不放心,可以去掉`/f`参数
+
+- 然后可以尝试执行磁盘映射等操作,例如
+
+  - 下面的指令尝试记住凭证,以便下次登录可以自动尝试挂载
+
+    ```bat
+    net use W: http://localhost:5244/dav /p:yes /savecred
+    ```
+
+- 如果映射命令提示执行成功,但是资源管理器中却没有看到新的磁盘,这就要**重启系统**后再查看是否能够映射(挂载)成功
+
+- 检查挂载:直接执行`net use`,可以看到挂载列表,如果非空,说明有网络磁盘挂载上了
+
+  
+
+  
 
 ### 演示(optional)
 
-- 可以先查询一下原来的值
+- 可以先**查询一下原来的值**
 
-  ```bash
+  ```cmd
   [BAT:78%][MEM:35.12% (11.13/31.70)GB][14:56:31]
   [~\Desktop]
   PS>reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthlevel
@@ -47,7 +63,14 @@
       BasicAuthlevel    REG_DWORD    0x1
   ```
 
-  
+  也可以用powershell来查看,可以分别用`gp`或`gpv`来查看,也可以用全称`get-itemproperty`和`get-itempropertyValue`
+
+  ```powershell
+  PS C:\Users\cxxu> Get-ItemPropertyValue -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\WebClient\Parameters' -Name BasicAuthLevel
+  2
+  PS C:\Users\cxxu> (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\WebClient\Parameters' -Name BasicAuthLevel).BasicAuthLevel
+  2
+  ```
 
 - 用管理员权限修改
 
@@ -60,9 +83,7 @@
   
   ```
 
-- 然后要**重启系统**
-
-- 重新检查是否可以映射!
+  
 
 
 #### 可选更改:文件大小限制

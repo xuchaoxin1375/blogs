@@ -1,5 +1,7 @@
 [toc]
 
+# 介绍windows的注册表
+
 ## abstract
 
 - Windows注册表是Microsoft Windows操作系统中的一个核心数据库，用于存储系统和应用程序的设置信息。
@@ -99,11 +101,37 @@
 
 `Get-ChildItem`(简写为`ls`)功能简介是:获取一个或多个指定位置中的项和子项。
 
-- 这里的指定位置不仅可以是文件系统的位置,也可以是注册表的位置(路径)
+- 这里的指定位置不仅可以是文件系统的位置,也可以是注册表的位置(路径),当然也可以是环境变量的路径
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e657784af9cc494d92778f77b0248d26.png)
 
 - 使用regedit注册表编辑器,打开示例路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们也可以用简写`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`粘贴到regedit 界面的地址栏,回车跳转到该注册表路径
 
+- 查看环境变量
+
+- 查看单值环境变量
+
+  ```powershell
+  PS C:\Users\cxxu> ls Env:\JAVA_HOME
+  
+  Name                           Value
+  ----                           -----
+  JAVA_HOME                      C:\exes\jdk-21.0.2
+  ```
+
+  
+
+- 查看多值环境变量
+
+  ```powershell
+  PS C:\Users\cxxu> ls -path Env:\PSModulePath|select value |fl
+  
+  Value : C:\Users\cxxu\Documents\PowerShell\Modules;C:\Program Files\PowerShell\Module
+          s;c:\program files\powershell\7\Modules;C:\Users\cxxu\scoop\modules;C:\repos\
+          scripts\ModulesByCxxu\;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\
+          system32\WindowsPowerShell\v1.0\Modules
+  ```
+
+  
 
 
 #### Set-Location进入注册表路径
@@ -114,7 +142,7 @@
 
 ##### 查看文件系统某个路径下的项
 
-```
+```powershell
 
 PS[BAT:84%][MEM:32.49% (10.30/31.70)GB][22:11:45]
 # [~\Desktop]
@@ -354,6 +382,13 @@ $registryVersion = Get-ItemPropertyValue -Path 'HKLM:\SOFTWARE\Microsoft\Windows
 ```
 
 问题在于如何知道`Name`参数可以接受哪些值(属性名称),我们可以用`Get-ItemProperty`检查路径,然后对返回的结果使用`|select *`来获取所有属性;从而得知可用的属性名字,作为Get-ItemPropertyValue的`Name`参数
+
+```powershell
+PS C:\Users\cxxu> Get-ItemPropertyValue -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\WebClient\Parameters' -Name BasicAuthLevel
+2
+PS C:\Users\cxxu> (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\WebClient\Parameters' -Name BasicAuthLevel).BasicAuthLevel
+2
+```
 
 总结来说，选择使用哪个cmdlet取决于你的具体需求：如果你需要查看或操作多项属性，应使用`Get-ItemProperty`；如果你的目标明确，只需获取一个特定属性的值，则`Get-ItemPropertyValue`更为直接和方便。
 
