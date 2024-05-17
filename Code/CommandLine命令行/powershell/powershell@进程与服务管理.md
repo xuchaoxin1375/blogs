@@ -8,13 +8,11 @@
 - 查看/关闭/停止/移除服务
 - windows移除mysql服务
 
-## references
+## powershell进程相关命令行
 
 
 
 - [PowerShell Get-Process | Parameters in PowerShell Get-Process (educba.com)](https://www.educba.com/powershell-get-process/)
-
-## powershell相关接口
 
 ### 获取软件版本
 
@@ -71,14 +69,39 @@ Count Name                      Group
 1 WeChatPlayer              {System.Diagnostics.Process (WeChatPlayer)}
 ```
 
+## 查看进程
+
+`ps`命令的默认位置参数是接受进程名(ProcessName)而不是程序名
+
+例如我发现我的任务栏上有一个Nvidia的图标,我想要查出相关的进程
+
+通过打开改软件,查询到其对应的程序名为`NVIDIA App`(可以用任务管理器来直观查看(有图标))
+
+然而实际上这个任务栏的图标只不过是`Nvidia app`的启动器,而非程序本体
+
+然而执行`ps Nvidia*`没有任何输出,说明进程名字并不是Nvidia开头的
+
+可以进一步用`ps Nv*`来试试,但是这种方法不可靠,我们可以结合图形窗口任务管理器来查看,`taskmgr`搜索框可以通过搜索程序名来搜索到相关进程(Name,Publisher,ID)dou'ke'yi
+
+```powershell
+PS C:\Users\cxxu\Desktop> ps NV*
+
+ NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+ ------    -----      -----     ------      --  -- -----------
+     30    41.69      68.51       1.17    7188   1 NVDisplay.Container
+     29    25.57      52.50       0.52    8504   0 NVDisplay.Container
+
+PS C:\Users\cxxu\Desktop> ps NVDisplay.Container
+
+ NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+ ------    -----      -----     ------      --  -- -----------
+     30    41.69      68.51       1.17    7188   1 NVDisplay.Container
+     29    25.57      52.50       0.52    8504   0 NVDisplay.Container
+```
+
+
+
 ### 关闭特定进程
-
-
-#### by Name
-
-- 先借助ps命令查找到相关进程信息
-  - id
-  - processName
 
 ```powershell
 PS C:\Users\cxxu> ps idm*
@@ -115,7 +138,7 @@ PS C:\Users\cxxu> stop -Name IDMan
 
 
 
-# windows@CLI移除服务(remove service)🎈
+# windows@CLI移除服务(remove service)
 
 ## references
 

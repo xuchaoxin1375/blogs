@@ -13,6 +13,11 @@
 - [NEXT, ITELLYOU](https://next.itellyou.cn/)
 - 新版系统则是建议到Microsoft官网下载
 
+### 预览版/开发版进行下载
+
+- [Download Windows Insider Preview ISO (microsoft.com)](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso)
+- 虽然可以在系统更新中申请内测,但是也可以从官方网站下载预览版镜像体验最新功能(稳定性和可靠性一般不如正式版)
+
 ### win11
 
 - [Download Windows 11 (microsoft.com)](https://www.microsoft.com/software-download/windows11)
@@ -26,7 +31,7 @@
 
 ### win7
 
-- 下载链接参考本节头部列出的网站
+- 下载链接参考本节头部列出的网站(非官方镜像通常以ed2k链接和bt磁力链接提供,普通的下载工具很难下载下来,即便是支持磁力下载,也不一定下载得动,建议直接用迅雷省事)
 
 - Windows 7 是微软公司推出的个人电脑操作系统之一，共有多个版本以适应不同用户的需求。以下是Windows 7各主要版本的主要功能区别对比：
 
@@ -63,6 +68,12 @@
 
 - 以上各版本均支持32位和64位（前提是硬件支持64位运算），其中64位版本能够更好地利用现代计算机的大内存和处理能力。
 - 随着后续Service Pack（SP1）的发布，各版本均获得了性能提升和额外的兼容性改进。
+
+## 其他下载方式
+
+- [UUP dump](https://uupdump.net/) 这个网站可能被墙无法打开\
+- 如果可以打开,我们可以选择版本(比如家庭版,专业版等),选择完毕后会生成一个下载按钮,下载下来的是一个脚本集合,需要解压脚本,然后选择当前自己的系统平台,比如windows,那么选择运行其中的windows脚本(bat或cmd脚本)
+- 运行后脚本会开始下载需要的文件,根据之前的配置,可能会下载一堆文件最后合并他们(因此这里用脚本下载和合并,而不是直接下载一个单一文件)
 
 ## 镜像版本查看
 

@@ -168,4 +168,25 @@ PS> $acl.Owner
 BUILTIN\Administrators
 ```
 
-### 修改访问控制信息
+## 修改访问控制信息
+
+### 修改目录或文件的所有者
+
+```powershell
+# 设置目录路径和新所有者
+$directoryPath = "C:\example"
+$newOwner = "NT AUTHORITY\Administrators"
+
+# 获取当前 ACL
+$acl = Get-Acl -Path $directoryPath
+
+# 创建新所有者的 NTAccount 对象
+$newOwnerAccount = New-Object System.Security.Principal.NTAccount($newOwner)
+
+# 设置新的所有者
+$acl.SetOwner($newOwnerAccount)
+
+# 应用修改后的 ACL
+Set-Acl -Path $directoryPath -AclObject $acl
+```
+
