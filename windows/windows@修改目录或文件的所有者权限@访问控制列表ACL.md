@@ -170,7 +170,54 @@ BUILTIN\Administrators
 
 ## 修改访问控制信息
 
+
+
 ### 修改目录或文件的所有者
+
+在 PowerShell 中，修改文件或目录的所有者可以通过 `Set-ACL` (设置访问控制列表) 命令来实现。但直接使用 `Set-ACL` 修改所有者可能不够直观，通常我们会先获取当前的 ACL，修改其中的所有者信息，然后再将修改后的 ACL 应用回去。这里有一个更直接且常用的方法是使用 `icacls` 工具（在 Windows 系统中可用），或者使用 `Set-NtObjectOwner` 函数，如果你安装了 NTFSSecurity 模块的话。
+
+### 使用 icacls
+
+1. 打开 PowerShell（以管理员身份运行）。
+2. 使用以下命令格式更改指定目录的所有者：
+
+```powershell
+icacls "C:\路径\到\目录" /setowner "用户名或域\用户名"
+```
+
+例如，要将目录 `C:\example` 的所有者更改为 `administrators` 组，可以执行：
+
+```powershell
+icacls "C:\example" /setowner "NT AUTHORITY\Administrators"
+```
+
+### 使用 NTFSSecurity 模块
+
+1. 首先，需要安装 NTFSSecurity 模块。在 PowerShell 中运行（管理员模式）：
+
+```powershell
+Install-Module -Name NTFSSecurity
+```
+
+2. 使用 `Set-NtObjectOwner` 函数来更改目录的所有者：
+
+```powershell
+Import-Module NTFSSecurity
+Set-NtObjectOwner -Path "C:\路径\到\目录" -Account "用户名或域\用户名"
+```
+
+例如，将 `C:\example` 目录的所有者设为 `administrators`，可以这样做：
+
+```powershell
+Import-Module NTFSSecurity
+Set-NtObjectOwner -Path "C:\example" -Account "NT AUTHORITY\Administrators"
+```
+
+请确保替换上述命令中的 `"C:\路径\到\目录"` 和 `"用户名或域\用户名"` 为实际的目录路径和用户名。
+
+**注意：** 修改文件或目录的所有者可能需要管理员权限，并且在某些安全策略严格的环境中可能会受到限制。
+
+### 使用set-acl设置
 
 ```powershell
 # 设置目录路径和新所有者
@@ -190,3 +237,61 @@ $acl.SetOwner($newOwnerAccount)
 Set-Acl -Path $directoryPath -AclObject $acl
 ```
 
+## 设置访问权限
+
+为了提高代码的复用性和灵活性，我们可以将上述脚本抽象成一个函数，允许用户指定目录路径和是否清除现有权限等参数。下面是一个示例：
+
+```powershell
+function Grant-FullControlToEveryone {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$ClearExistingRules
+    )
+
+    try {
+        # 获取目标目录的当前 ACL
+        $acl = Get-Acl -Path $Path
+
+        # 创建允许“任何人（Everyone）”具有“完全控制”权限的新访问规则
+        $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "Everyone",
+            "FullControl",
+            "Allow"
+        )
+
+        if ($ClearExistingRules) {
+            # 如果指定了清除现有规则，则先移除所有现有访问规则
+            $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+        }
+
+        # 添加新规则到 ACL
+        $acl.SetAccessRule($rule)
+
+        # 应用修改后的 ACL 到目标目录
+        Set-Acl -Path $Path -AclObject $acl
+
+        Write-Host "已成功将'$Path'的访问权限设置为允许任何人具有全部权限。"
+    }
+    catch {
+        Write-Error "设置权限时出错: $_"
+    }
+}
+```
+
+现在，你可以像下面这样调用这个函数，根据需要选择是否清除现有权限：
+
+```powershell
+Grant-FullControlToEveryone -Path "C:\路径\到\目录" -ClearExistingRules
+```
+
+或者，如果不希望清除现有权限，只需省略 `-ClearExistingRules` 参数：
+
+```powershell
+Grant-FullControlToEveryone -Path "C:\路径\到\目录"
+```
+
+这个函数提供了一个更灵活的方式来控制权限设置，同时保持了脚本的简洁和易用性。
