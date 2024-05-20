@@ -28,7 +28,14 @@ Motrix使用的开发技术(Technology Stack)和组件
 - 这个下载器不跨平台也不免费,但是对于常用的下载协议链接有很好的下载效果,因此用的人很多,网络上有很多学习版的可以使用,不支持BT,磁力下载,但是因为其在最常用的情形下有很好的表现,仍然值得推荐
 - 还有许多类似的工具,XDM,FDM,NDM等,还是IDM下载最快(但是交互不一定是IDM最好)
 
+### gopeed
 
+- 这个下载器的特点是全平台(包括移动端),利用go协程进行下载,不仅支持GUI,也有命令行可以用(需要下载go,所以没有那么轻量,而且 go install 直接下载东西并不容易,会占用大量磁盘空间,除非您有多个项目使用go,否则不是那么值得使用,GUI可以考虑)
+  - [Gopeed: Gopeed 是一款由 Golang+Flutter 开发的高速下载器，支持（HTTP、BitTorrent、Magnet）协议下载，并且支持全平台使用， 目前支持的平台包括： W (gitee.com)](https://gitee.com/mirrors/Gopeed)
+
+- 相关链接(下载来源是github,可以使用镜像加速链接后下载)
+  - [Gopeed - A modern download manager](https://gopeed.com/)
+  - [GopeedLab/gopeed: A modern download manager that supports all platforms. Built with Golang and Flutter. (github.com)](https://github.com/GopeedLab/gopeed)
 
 ## 命令行
 
@@ -253,6 +260,9 @@ gid   |stat|avg speed  |path/URI
 ### 大文件多线程下载👺
 
 多线程下载是通过将一个文件分成多个部分（分片）并同时下载这些部分来加速下载过程的。每个部分使用单独的线程进行下载，这样可以充分利用带宽，尤其是在服务器支持多线程下载的情况下。
+
+
+
 
 ### 关键参数
 
