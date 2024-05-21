@@ -166,35 +166,64 @@ function prompt {
 
 ## 复杂修改
 
-### 预览
+### 预览👺
 
 - | 深色主题                                                     | 浅色主题                                                     |
   | ------------------------------------------------------------ | ------------------------------------------------------------ |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/0e47f72368164a6ebbaf3570f59131db.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/17c6be9c1c6349c494904612513d86c3.png) |
-
+  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/72f6243c9dc5438fba3af84c733f9566.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/f60c1e14681d46b09a8808bde231debd.png) |
+  
+  ```powershell
+  PS☀️[BAT:75%][MEM:36.45% (11.56/31.71)GB][16:24:01]
+  # [~\Desktop]
+  PS> set-promptVersion Brilliant
+  
+  ┌─PS☀️[BAT:75%][MEM:36.38% (11.54/31.71)GB]
+  ├─[cxxu@COLORFULCXXU][2024-05-21][16:24:07]
+  ├─# [~\Desktop]
+  └─PS> get-administratorPrivilege
+  updating envs!
+          env_set1
+          env_set2
+          strings
+  2024/5/21 16:24:12
+  
+  PS🌙[BAT:75%][MEM:36.79% (11.67/31.71)GB][16:24:12]
+  #⚡️[~\Desktop]
+  PS> set-promptVersion Brilliant
+  
+  ┌─PS🌙[BAT:75%][MEM:36.73% (11.65/31.71)GB]
+  ├─[cxxu@COLORFULCXXU][2024-05-21][16:24:21]
+  ├─#⚡️[~\Desktop]
+  └─PS>
+  ```
+  
   
 
-### FAQ:没有必要修改
+### FAQ:有没有必要修改Prompt
 
 - 有些用户觉得没必要,确实,通常没有必要去修改原生的shell样式
   - 让prompt显示的信息满足自己的需要才是最好的
   - 过少的内容可能让人觉得单调
   - 过多的内容会导致重点不突出,反而影响效率
   - 通常提示符的内容不要超过2行为宜
-  - 追求简洁的可以结束阅读,后面的内容有简洁和信息均衡的prompt可供参考,而且仓库内提供了多个样式
-    - 有很简单的,也有很复杂的
-    - 后续可能会引入git 信息检查,但是根据经验,进入大型仓库后prompt的响应性能可能会受到较大影响,这时体验会急剧下降
 
-- 下面提到的Prompt样式虽然显示的项目不少,但是相应性能是不错的
-  - 但是可能会比较依赖于`$profile`中自动初始化的部分代码,也即是说刚启动一个新的powershell环境时,可能会有比较明显的延迟,但是加载完环境后,prompt具有良好的相应速度
-  - 具体实现被我放到多个模块中,以提高灵活性和可维护性
+- 后面的内容有简洁和信息均衡的prompt可供参考,而且仓库内提供了多个样式
+  - 有很简单的,也有很复杂的
+  - 后续可能会引入git 信息检查,但是根据经验,进入大型仓库后prompt的响应性能可能会受到较大影响,这时体验会急剧下降,许多oh my posh的提示符引入了git检查,在大仓库中prompt相应很慢,这可能是得不偿失的
 
 ### 相关仓库地址
 
-- [modules - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/tree/main/modulesByCxxu)
+- 下面提到的Prompt样式虽然显示的信息量不少,但是响应性能是不错的
+  - [modules - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/tree/main/modulesByCxxu)
+  - 但是prompt的正确显示依赖于powershell初始化相关变量才会显示相应的信息字段
+  - 也就是说,刚启动一个新的powershell环境时,如果要使用本文提供的prompt主题,可能会有比较明显的延迟,但是加载完环境后,prompt具有良好的响应速度
+  - 具体实现被我放到多个模块中,以提高灵活性和可维护性
+
 - 相关模块(目录):
   - pwsh
   - Info
+  - init
   - TaskSchdPwsh
   - ...powershell Global变量
 - 仓库中有许多文档(后期更新整理)
@@ -229,6 +258,8 @@ Balance     Brilliant   Brilliant2  Default     Short       short2      Simple
 
 - 这个提示符带有多个信息
 
+  - 显示当前是否为管理员权限(如果是,显示一个小闪电,并且背景设置为蓝绿色,否则为深灰色)
+  - 显示初始化模式(如果是完全初始化,则显示为一个太阳标,否则为核心初始化,显示为一个月亮标)
   - 电池电量
   - 内存占用比率
   - 已使用内存
@@ -239,7 +270,7 @@ Balance     Brilliant   Brilliant2  Default     Short       short2      Simple
 
 - 具有较好的兼容性(没有花哨的字体和符号)
 
-- 具有较高的相应速度
+- 具有较高的响应速度
 
 ### 花哨样式
 

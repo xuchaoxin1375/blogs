@@ -149,6 +149,8 @@ C:\Users\cxxu\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
 
 - 其实可以总是使用`$()`的方式来插值(无论是引用变量还是计算表达式,兼容性最好)
 
+
+
 #  参数
 - 分为脚本参数和函数参数
   - 编写规则大致相同,但是在使用的时候需要注意,函数需要导入(或者说,导入函数所在的模块)
