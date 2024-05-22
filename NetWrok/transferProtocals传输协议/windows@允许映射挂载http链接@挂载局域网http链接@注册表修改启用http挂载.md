@@ -17,7 +17,7 @@
 
 - 首先,您需要使用**管理员方式**打开`cmd`或者`powershell`
 
-- 如果目标明确,执行以下操作的命令
+- 如果目标明确,执行以下命令行
 
   - ```powershell
     reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel /t REG_DWORD /d 2 /f
@@ -35,65 +35,9 @@
 
 - 这里使用了`/f`参数强制修改,否则中途会让你确认,就是输入`yes`即可,如果那您不放心,可以去掉`/f`参数
 
-- 然后可以尝试执行磁盘映射等操作(离开当前管理员权限命令行窗口,打开另一个**普通**权限的命令行窗口),例如
 
-  - 下面的指令尝试记住凭证,以便下次登录可以自动尝试挂载
 
-    ```bat
-    net use W: http://localhost:5244/dav /p:yes /savecred
-    ```
 
-- 如果映射命令提示执行成功,但是资源管理器中却没有看到新的磁盘,
-
-  - ```bash
-    net use #检查挂载情况(如果没有成功列出空列表,那么重新执行挂载命令)
-    ```
-
-    ```powershell
-    #再执行挂载之前,打开一个普通权限的命令行窗口(挂载不需要管理员权限,不需要时就尽量不要用管理员权限来执行命令,遵循权限最小原则可以减少将来访问文件权限时遇到不必要权限问题的麻烦
-    
-    PS C:\Users\cxxu> net use W: http://192.168.1.178:5244/dav /p:yes /savecred
-    为“192.168.1.178”输入用户名: admin
-    输入 192.168.1.178 的密码:(如果有密码,则输入密码,字符是透明的,不要输错)
-    命令成功完成。
-    
-    #虽然命令行提示执行成功,但是需要手动检查实际上是否挂载,本例子中,如果成功,应该可以找到W:盘
-    
-    ```
-
-    如果返回提示空的语句,参考下面
-
-    ```powershell
-    
-    #下面是检查列表为空的情况,这时候我们需要打开新的命令行窗口重新执行一遍上面的挂载命令
-    PS C:\Users\cxxu> net use
-    会记录新的网络连接。
-    
-    列表是空的。
-    # 尝试重新挂载(可以再打开一个新的命令行窗口,挂载不需要管理员权限)
-    PS C:\Users\cxxu> net use W: http://192.168.1.178:5244/dav /p:yes /savecred
-    命令成功完成。
-    
-    PS C:\Users\cxxu> net use
-    会记录新的网络连接。
-    
-    
-    状态       本地        远程                      网络
-    
-    -------------------------------------------------------------------------------
-                 W:        \\192.168.1.178@5244\dav  Web Client Network
-    命令成功完成。
-    ```
-
-    
-
-  - 这就要**重启系统**后再查看是否能够映射(挂载)成功
-
-- 检查挂载:直接执行`net use`,可以看到挂载列表,如果非空,说明有网络磁盘挂载上了
-
-  
-
-  
 
 ### 演示(optional)
 
@@ -188,7 +132,7 @@
 
 ### 执行映射
 
-- 关闭所有powershell(如果有的话)
+- 关闭所有powershell(如果有的话),(离开管理员权限命令行窗口)打开另一个**普通**权限的命令行窗口),例如
 
 - 重新打开一个powershell进行驱动器映射(使用net use命令,详情另见它文)
 
@@ -215,35 +159,111 @@
     net use "%DriveLetter%:" "http://%HostAddress%:%Port%/dav" /p:yes /savecred
     ```
   
+
+
+
+### Note
+
+
+
+- 挂载完毕后检查是否挂载成功
+
+- 如果映射命令提示执行成功,但是资源管理器中却没有看到新的磁盘,需要打开新的普通权限的命令行窗口重新执行
+
+  - ```bash
+    net use #检查挂载情况(如果没有成功列出空列表,那么重新执行挂载命令)
+    ```
+
+    ```powershell
+    #再执行挂载之前,打开一个普通权限的命令行窗口(挂载不需要管理员权限,不需要时就尽量不要用管理员权限来执行命令,遵循权限最小原则可以减少将来访问文件权限时遇到不必要权限问题的麻烦
     
+    PS C:\Users\cxxu> net use W: http://192.168.1.178:5244/dav /p:yes /savecred
+    为“192.168.1.178”输入用户名: admin
+    输入 192.168.1.178 的密码:(如果有密码,则输入密码,字符是透明的,不要输错)
+    命令成功完成。
+    
+    #虽然命令行提示执行成功,但是需要手动检查实际上是否挂载,本例子中,如果成功,应该可以找到W:盘
+    
+    ```
+
+    如果返回提示空的语句,参考下面
+
+    ```powershell
+    #下面是检查列表为空的情况,这时候我们需要打开新的命令行窗口重新执行一遍上面的挂载命令
+    PS C:\Users\cxxu> net use
+    会记录新的网络连接。
+    
+    列表是空的。
+    # 尝试重新挂载(可以再打开一个新的命令行窗口,挂载不需要管理员权限)
+    PS C:\Users\cxxu> net use W: http://192.168.1.178:5244/dav /p:yes /savecred
+    命令成功完成。
+    
+    PS C:\Users\cxxu> net use
+    会记录新的网络连接。
+    
+    
+    状态       本地        远程                      网络
+    
+    -------------------------------------------------------------------------------
+                 W:        \\192.168.1.178@5244\dav  Web Client Network
+    命令成功完成。
+    ```
+
+    
+
+  - 如果还是不行,尝试**重启系统**后再查看是否能够映射(挂载)成功
+
+- 检查挂载:直接执行`net use`,可以看到挂载列表,如果非空,说明有网络磁盘挂载上了
+
+  
 
 
 ### powershell函数封装
 
-- 这里用到的函数`set-AlistMobilePhone`是对`net use`的封装
+- 这里用到的函数`Mount-NetDrive`是对`net use`的封装
 
   - ```powershell
     
-    
-    function Set-AlistDrive
+    function Mount-NetDrive
     {
         <# 
         .SYNOPSIS
+        挂载http链接形式的网络驱动器,通常用于局域网挂载
+        这里是对net use 的一个封装,而Powershell 的New-PSDrive命令并不那么好用,链接识别有一定问题
         $HostAddress =$iqoo10pro
         .DESCRIPTION
         为了方便省事,这里记住密码，不用每次都输入密码
         net use W: "http://$HostAddress:5244/dav" /p:yes /savecred 
+        目前已知New-PSDrive有挂载问题是,报错如下
+        New-PSDrive: The specified drive root "\\192.168.1.178:5244\dav" either does not exist, or it is not a folder.
+    
+        .EXAMPLE
+        PS☀️[BAT:74%][MEM:31.02% (9.84/31.71)GB][9:54:22]
+        # [~\Desktop]
+        PS> Mount-NetDrive -HostAddress 192.168.1.165 -DriveLetter M -Port 5244
+        The command completed successfully.
+    
+        New connections will be remembered.
+    
+    
+        Status       Local     Remote                    Network
+    
+        -------------------------------------------------------------------------------
+                    M:        \\192.168.1.165@5244\dav  Web Client Network
+        Unavailable  W:        http://localhost:5244/dav Web Client Network
+        The command completed successfully.
         .EXAMPLE
         [BAT:78%][MEM:37.64% (11.93/31.70)GB][15:31:09]
         [~]
-        PS>Set-AlistDrive -host $iqoo10pro -DriveLetter M -Port 5244
+        PS>Mount-NetDrive -host $iqoo10pro -DriveLetter M -Port 5244
+        
         The command completed successfully.
     
         .EXAMPLE
         如果重复执行同一个映射,并且第一次执行操作成功,那么第二次会提示失败(盘符被占用)
         [BAT:78%][MEM:37.46% (11.87/31.70)GB][15:31:32]
         [~]
-        PS>Set-AlistDrive -host $iqoo10pro -DriveLetter M -Port 5244
+        PS>Mount-NetDrive -host $iqoo10pro -DriveLetter M -Port 5244
         System error 85 has occurred.
     
         The local device name is already in use.
@@ -251,24 +271,30 @@
         param(
             # 手机端ip地址
             $HostAddress = 'localhost',
+            $CompleteUri = '',
             $DriveLetter = 'M',
             $Port = '5244'
         )
-    
+        $uri = ($CompleteUri) ? $CompleteUri : "http://$($HostAddress):$($Port)/dav"
         
-        net use "$($DriveLetter):" "http://$($HostAddress):$($Port)/dav" /p:yes /savecred 
+        net use "${DriveLetter}:" $uri /p:yes /savecred 
         
-    
+        #检查映射结果
+        net use
     }
     ```
 
-### 记住映射选项@自动映射
+### 记住登录密码@自动映射选项
 
-- `/p:yes /savecred `
+- `/savecred `保存登录凭证
+
+- `/p:yes `永久记住
 
   
 
 ### 取消映射
+
+- 使用`net use <DriverName:> /delete`来取消映射
 
 - ```bash
   [BAT:78%][MEM:37.94% (12.03/31.70)GB][15:27:58]
@@ -280,52 +306,39 @@
   M: was deleted successfully.
   ```
 
+- 封装成powershell函数
+
+  ```powershell
+  
+  function Remove-NetDrive
+  {
+      <#
+      .SYNOPSIS
+      This function removes a network drive mapping.
+  
+      .DESCRIPTION
+      This function uses the `net use` command to remove a network drive mapping. The drive letter to be removed is specified as a parameter. If no drive letter is provided, the default is 'M'.
+  
+      .PARAMETER DriverLetter
+      The drive letter of the network drive to be removed. Default is 'M'.
+  
+      .EXAMPLE
+      Remove-NetDrive -DriverLetter 'Z'
+  
+      This command removes the network drive mapping associated with the drive letter 'Z'.
+  
+      .NOTES
+      This function does not require administrative privileges to remove a network drive mapping.
+      #>
+      param (
+          $DriverLetter = 'M'
+      )
+      net use "${DriverLetter}:" /delete
+  }
+  ```
+
   
 
-## windows凭据查看
+## 取消记住密码(凭证管理)
 
-### 命令行中查看
-
-可以使用cmdkey来查看凭证
-
-```bash
-PS> cmdkey -h
-
-The command line parameters are incorrect.
-
-The syntax of this command is:
-
-CMDKEY [{/add | /generic}:targetname {/smartcard | /user:username {/pass{:password}}} | /delete{:targetname | /ras} | /list{:targetname}]
-
-Examples:
-
-  To list available credentials:
-     cmdkey /list
-     cmdkey /list:targetname
-
-  To create domain credentials:
-     cmdkey /add:targetname /user:username /pass:password
-     cmdkey /add:targetname /user:username /pass
-     cmdkey /add:targetname /user:username
-     cmdkey /add:targetname /smartcard
-
-  To create generic credentials:
-     The /add switch may be replaced by /generic to create generic credentials
-
-  To delete existing credentials:
-     cmdkey /delete:targetname
-
-  To delete RAS credentials:
-     cmdkey /delete /ras
-
-```
-
-
-
-### 取消记住@凭据查看和管理
-
-- 在开始菜单中搜索`credential manager`可以看到各类被windows记住的凭证
-  - 例如远程桌面记住的登录密码
-  - 网络磁盘映射的凭证
-- 个别情况下我们需要删除凭证，例如映射webdav到本地磁盘，并且webdav服务器为不同的登录角色分配了不同权限，现在假设原来用来登录的用户权限是只读，现在我向管理员申请提高权限，追加可以上传的权限，管理员分配了一个uploader账户给用户使用，这时候我们就要修改或删除原来记住的凭证重新创建
-
+- 另见它文关于`Credential Manager`的使用

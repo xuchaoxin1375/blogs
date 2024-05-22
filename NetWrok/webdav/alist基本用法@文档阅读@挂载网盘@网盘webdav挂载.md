@@ -50,17 +50,19 @@
 
 - alist可以不仅可以挂载网盘,还可以挂载本地存储
 
-### 本地存储挂载和分享
+### 本地存储挂载和分享👺
 
 - [本地存储 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/drivers/local.html)
-
 - 挂载本地存储可以方便分享文件给其他人,特别是局域网内的人,在Alist管理页面中,创建一个shareUser用户,分发给需要共享的人或者自己使用,类似于windows下的共享文件夹或SMB服务
 - 被共享者(也可以是自己)可以用浏览器也可以用文件资源管理器挂载或着映射成驱动器来访问您共享的文件或者目录,也能够可控制被分享者对相关目录或文件的读写权限)
 - [WebDAV | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html)
 
-- 网盘挂载下面以阿里云open为例
+### 挂载式共享方案选择
 
-### 挂载阿里云盘open
+- 对于windows,挂载为网络磁盘到资源管理器这一目的来说,使用共享文件夹会是更稳定的选择,即使alist也可以提供webdav挂载
+- 而通过网页访问的话,就不是共享文件夹可以比的,这种场景alist体验还可以,虽然打包下载没有那么友好,不过有其他类似的webdav软件比如chfs可以通过网页端下载文件夹(打包下载)
+
+### 案例:挂载阿里云盘open
 
 - [阿里云盘 Open | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/drivers/aliyundrive_open.html#刷新令牌)
 
@@ -213,8 +215,8 @@
 
 ## 挂载到资源管理器(模拟本地磁盘分区)👺
 
-- [windows@允许挂载http链接@挂载局域网http链接](http://t.csdnimg.cn/p9NmO)
-  - 设计注册表修改
+- [windows@允许映射挂载http链接@挂载局域网http链接的webdav磁盘-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137939514)
+  - 这涉及注册表修改
 - 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
 
 ## 用户和权限管理😊
