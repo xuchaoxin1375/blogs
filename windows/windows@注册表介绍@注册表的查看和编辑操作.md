@@ -106,7 +106,82 @@
 
 - 使用regedit注册表编辑器,打开示例路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们也可以用简写`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`粘贴到regedit 界面的地址栏,回车跳转到该注册表路径
 
-- 查看环境变量
+
+#### registry::根键名称访问注册表路径
+
+这种方式访问注册表比较可靠,而且还有利于我们复制路径到`regedit`中去编辑
+
+```
+PS> cd Registry::\HKEY_CLASSES_ROOT\
+
+PS☀️[BAT:74%][MEM:27.04% (8.57/31.71)GB][22:48:31]
+# [Microsoft.PowerShell.Core\Registry::\HKEY_CLASSES_ROOT\]
+PS> pwd
+
+Path
+----
+Microsoft.PowerShell.Core\Registry::\HKEY_CLASSES_ROOT\
+
+```
+
+#### 使用根键缩写(HKCU或HKLM)访问注册表路径
+
+`HKCU`和`HKLM`可以缩写访问
+
+```pwsh
+PS> cd hklm:\
+
+PS☀️[BAT:74%][MEM:26.09% (8.27/31.71)GB][22:52:24]
+# [HKLM:\]
+PS>
+```
+
+而有些不行
+
+```
+PS> cd hkcr:\
+Set-Location: Cannot find drive. A drive with the name 'hkcr' does not exist.
+```
+
+
+
+##### 查看注册表非叶子路径和叶子路径
+
+注册表叶子路径用`ls`查看
+
+```powershell
+PS HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\> ls
+
+    Hive: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf
+
+Name                           Property
+----                           --------
+OpenWithList
+UserChoice                     ProgId : MSEdgePDF
+                               Hash   : ruVnHUKkJ84=
+```
+
+非叶子路径查看
+
+```powershell
+PS HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts> ls
+
+    Hive: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts
+
+Name                           Property
+----                           --------
+.3g2
+.3gp
+.3gp2
+.3gpp
+.3mf
+.aac
+...
+```
+
+
+
+##### 查看环境变量
 
 - 查看单值环境变量
 
@@ -184,6 +259,8 @@ Mode                LastWriteTime         Length Name
 -a---         2024/3/22     16:35           1421   Todo.lnk
 
 ```
+
+
 
 ##### 查看某个注册表路径的项
 
