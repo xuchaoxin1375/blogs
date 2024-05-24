@@ -192,15 +192,17 @@
 - 不同版本的系统该目录下包含的文件数量可能不同,以`Windows 11 Pro 10.0.22631`版本为例
   
   ```powershell
-  PS☀️[BAT:74%][MEM:31.26% (9.91/31.71)GB][17:25:55]
+  PS☀️[BAT:74%][MEM:35.93% (11.4/31.71)GB][14:44:34]
   # [C:\Windows\System32]
   PS> $g=ls |group -Property Extension
   
-  PS☀️[BAT:74%][MEM:31.25% (9.91/31.71)GB][17:26:05]
+  PS☀️[BAT:74%][MEM:35.92% (11.39/31.71)GB][14:46:50]
   # [C:\Windows\System32]
-  PS> $s=0;$g|%{$s+=$_.Count };$s
-  4746
+  PS> $g|measure-Object -sum Count|select -Property Sum,count
   
+      Sum Count
+      --- -----
+  4746.00    52
   ```
   
   经过统计,该目录下有4746个文件或目录
