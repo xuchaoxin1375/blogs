@@ -1,8 +1,6 @@
 [toc]
 
-
-
-## ref
+## refs
 
 - [如何禁用和重新启用休眠 - Windows Client | Microsoft Learn](https://learn.microsoft.com/zh-cn/troubleshoot/windows-client/setup-upgrade-and-drivers/disable-and-re-enable-hibernation)
 
@@ -12,7 +10,7 @@
 
 
 
-## 睡眠和休眠功能
+## 睡眠和休眠功能简介
 
 - 在Windows操作系统中，睡眠（Sleep）和休眠（Hibernate）都是节能模式，它们的主要目的是为了在用户暂时不需要使用电脑时减少电能消耗，同时又能在用户回来后迅速恢复到之前的工作状态。
 
@@ -27,17 +25,19 @@
 **特点**：
 
 - 快速恢复：通常只需几秒钟即可恢复至工作状态。
-- 节能有限：虽然相比正常运行时节能，但仍需向内存供电以保持数据。
+- 节能有限：虽然相比正常运行时节能，但仍需向内存供电以保持数据。(例如我的laptop睡眠了一个晚上,大概掉了10%左右的电
 - 如果断电，内存中的数据将会丢失，因为RAM在失去电力供应时不能保持数据。
 
 ### 休眠（Hibernate）
 
 **功能介绍**：
-休眠模式下，系统不仅将当前运行状态的数据保存在内存中，还会将其写入到硬盘上的一个专门区域——休眠文件（也称为休眠映像）。之后，系统将完全关闭电源，包括内存在内的所有部件均停止供电。再次启动时，系统从硬盘上的休眠文件中读取数据并恢复到先前的状态。
+休眠模式下，系统不仅将当前运行状态的数据保存在内存中，还会将其写入到硬盘上的一个专门区域——**休眠文件**（也称为休眠映像）。之后，系统将**完全关闭电源**，包括内存在内的所有部件均停止供电。
+
+再次启动时，系统从硬盘上的休眠文件中读取数据并恢复到先前的状态。
 
 **特点**：
 
-- 能耗更低：因为电脑完全关闭，所以休眠期间的能耗为零。
+- 能耗更低：因为电脑完全关闭，所以休眠期间的能耗几乎为零。
 - 数据安全性高：即使断电，硬盘上存储的数据不会丢失。
 - 唤醒时间稍长：相较于睡眠模式，由于需要从硬盘读取数据，因此恢复到工作状态所需的时间稍微多一些，但在现代高速SSD硬盘上，这一差距已经显著减小。
 
@@ -48,105 +48,249 @@
 
 
 
-##  设置前提要求
+## 新式待机
+
+- [新式待机 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/design/device-experiences/modern-standby)
+- [新式待机与 S3 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/design/device-experiences/modern-standby-vs-s3)
+
+##  睡眠和休眠设置前提要求
 
 - 休眠主要是为笔记本设计的,通常现代的笔记本都支持休眠(可能需要手动启用,或者默认启用了快速启动但是没有在开始菜单里提供休眠按钮,可以在控制面板中设置打开)
 - 但一台计算机是否支持休眠还需要进一步判断
 
 ### 计算机支持的电源类型检查😊
 
-- 可以使用命令行`powercfg /a`来检查
+- 可以使用命令行`powercfg /a`来检查(参数`/a`是`/availablesleepstates`的缩写)
 
-- ```bash
-  [BAT:79%][MEM:34.38% (10.90/31.70)GB][20:49:10]
-  [C:\repos\scripts\ModulesByCxxu\Startup]
-  PS>powercfg /a
-  The following sleep states are available on this system:
-      Standby (S3)
-      Hibernate
-      Fast Startup
+- 而关闭休眠和启用休眠后,可用的选项会发生变化,混合休眠主要面向台式机
+
+- 例如,我关闭休眠功能(`powercfg /h off`)后,情况如下(即只有S3待机模式可用,并且由于Hibernate(休眠不可用,其他相关模式(Fast Startup快速开机)也不可用)
+
+  - 这是一个2023年的游戏本,不支持S0待机模式,意味着从睡眠中唤醒需要一定时间(好几秒)
+
+    ```bash
+    PS C:\Users\cxxu>  powercfg /a
+    The following sleep states are available on this system:
+        Standby (S3)
+    
+    The following sleep states are not available on this system:
+        Standby (S1)
+            The system firmware does not support this standby state.
+    
+        Standby (S2)
+            The system firmware does not support this standby state.
+    
+        Hibernate
+            Hibernation has not been enabled.
+    
+        Standby (S0 Low Power Idle)
+            The system firmware does not support this standby state.
+    
+        Hybrid Sleep
+            Hibernation is not available.
+            The hypervisor does not support this standby state.
+    
+        Fast Startup
+            Hibernation is not available.
+    ```
+
+    启用休眠后,支持Hibernate和Fast Startup
+
+  - ```bash
+    [BAT:79%][MEM:34.38% (10.90/31.70)GB][20:49:10]
+    [C:\repos\scripts\ModulesByCxxu\Startup]
+    PS>powercfg /a
+    The following sleep states are available on this system:
+        Standby (S3)
+        Hibernate
+        Fast Startup
+    
+    The following sleep states are not available on this system:
+        Standby (S1)
+            The system firmware does not support this standby state.
+    
+        Standby (S2)
+            The system firmware does not support this standby state.
+    
+        Standby (S0 Low Power Idle)
+            The system firmware does not support this standby state.
+    
+        Hybrid Sleep
+            The hypervisor does not support this standby state.
+    ```
+
+- 另一台机器是中文显示语言,系统提示如下(解释得比英文版要清楚(S0和Sx(x=1,2,3)不兼容,S0可用时后三者不可用)
+
+  - 这是一台2019年的轻薄本,支持S0模式,也就是可以快速唤醒的休眠模式(这个过程很快)
+  - 实际上,有时我在这个机器高负载时点击了睡眠,风扇还是会高速转好一会儿,跟据任务的不同,有时会快速会进入低功耗状态
+
+  ```
+  PS> powercfg /a
+  此系统上有以下睡眠状态:
+      待机 (S0 低电量待机) 连接的网络
+      休眠
+      快速启动
   
-  The following sleep states are not available on this system:
-      Standby (S1)
-          The system firmware does not support this standby state.
+  此系统上没有以下睡眠状态:
+      待机 (S1)
+          系统固件不支持此待机状态。
+          当支持 S0 低电量待机时，禁用此待机状态。
   
-      Standby (S2)
-          The system firmware does not support this standby state.
+      待机 (S2)
+          系统固件不支持此待机状态。
+          当支持 S0 低电量待机时，禁用此待机状态。
   
-      Standby (S0 Low Power Idle)
-          The system firmware does not support this standby state.
+      待机 (S3)
+          当支持 S0 低电量待机时，禁用此待机状态。
   
-      Hybrid Sleep
-          The hypervisor does not support this standby state.
+      混合睡眠
+          待机(S3)不可用。
   ```
 
   
 
-- 上面的结果是我在测试机上的结果,这表明它仅支持3种最常用的模式
-  - 混合休眠我在台式机上看到过
+### 睡眠(待机)档位说明
 
-### 睡眠档位
+总的来说,Sx中x数值越大,节能效果越明显,但是唤醒速度也越慢,并且S1,S2,基本淘汰,而S3也不够现代化,所以S0,S4
 
-在计算机硬件和操作系统领域中，S0、S1、S2是ACPI（Advanced Configuration and Power Interface，高级配置与电源接口）定义的不同电源状态级别，它们描述了计算机系统不同的电源管理和节能状态：
+​	 **S0**    Morden Standby
+
+   **S1**    light sleep.
+
+   **S2**    deeper sleep.
+
+   **S3**    deepest sleep.
+
+   **S4**    hibernation.
+
+在计算机硬件和操作系统领域中，S0、S1、S2是ACPI（Advanced Configuration and Power Interface，高级配置与电源接口）定义的不同电源状态级别，它们描述了计算机系统不同的电源管理和节能状态
+
+跟据文档,最重要的是S0,S3,其余的模式不是那么常见和重要,下面简单介绍S0,S3
 
 1. **S0**：
-   - 完全开启状态，也称为工作状态或活动状态。在这个状态下，所有设备都在全功率运行，CPU处理任务，内存实时存储数据，所有外围设备可以随时响应操作。
-
-2. **S1**：
-   - 通常称为“挂起”或“待机”状态，系统大部分硬件仍保持通电，但CPU和其他部分组件会被置于低功耗模式，以节省电力。在这种状态下，唤醒速度较快，但相比S0仍然消耗一定的电能。
-
-3. **S2**：
-   - 更深度的睡眠状态，相比于S1，系统进一步减少了电力消耗。在此状态下，CPU和更多系统组件可能会被关闭，只保留最低限度的硬件维持内存状态。然而，现代系统中，S2由于其复杂性和实现难度，不如S3（Suspend to RAM）普遍，因此很多现代计算机不再支持S2状态。
-
+   - 新式睡眠,具有更快的唤醒速度
+   - 与手机一样，S0 低功耗空闲模型使系统能够在低功耗模式下保持网络连接。
+   - 新式待机由多种硬件和软件电源模式组成，所有这些模式都在屏幕关闭时出现。 新式待机的复杂性在于要使系统保持活动状态以处理后台任务，同时确保系统保持足够安静以实现较长的电池寿命。
 4. **S3**：
-   - 即“挂起到内存”（Suspend to RAM, STR），是最常见的睡眠模式之一。系统状态保存在内存中，除了内存之外的所有组件都停止供电，内存则继续得到供电以保留系统上下文。唤醒时可以从内存中快速恢复到之前的工作状态。
+   - 传统睡眠模式
 
 不同厂商对ACPI规范的支持程度和具体实现可能会有所不同，因此对于S1和S2的实际表现可能会有所差异。
 
 此外，较新的 ACPI 规范中，原本的S2状态在实践中逐渐被S3所取代，因为S3具有更好的性能和节能效果。
 
-### 启用条件
+## 休眠启用条件参考
 
-在Windows操作系统中启用休眠模式通常需要满足以下条件：
+在Windows操作系统中启用休眠模式通常是默认不启用的
+
+如果需要启用,需要满足以下条件：(现代设备硬件都支持,主要是第三点启用)
 
 1. **硬件支持**：
    - 计算机的主板和BIOS必须支持休眠功能。
-   - 计算机的硬盘应有足够的可用空间来保存休眠文件（hiberfil.sys），该文件大小通常约等于物理内存的大小(可能会略小)。
-
+   - 计算机的硬盘应有足够的可用空间来保存休眠文件（hiberfil.sys），该文件大小通常约等于或略小于物理内存的大小(如果设置了压缩,会比较小,因此对于有超大内存的设备,比如64G,128G的设备使用休眠就不是那么合适,会大量读写磁盘)。
 2. **操作系统支持**：
    - Windows系统从较早版本开始就支持休眠模式，包括但不限于Windows 7、Windows 8、Windows 10等。
-
 3. **系统设置**：
    - 休眠模式默认可能未启用，需要通过系统设置来激活它。以下是启用Windows 10休眠模式的基本步骤：
-     - 打开“设置”应用（可以通过点击任务栏上的开始菜单按钮，然后选择齿轮图标打开）。
-     - 进入“系统”设置项。
-     - 选择“电源和睡眠”或进一步点击“更多电源设置”链接进入到传统的电源选项界面。
-     - 在这里，你可能需要点击“选择电源按钮的功能”或“更改计划设置”，然后在高级设置中查找并启用“休眠”选项。
+   - 除了用**管理员权限**命令行窗口内执行`powercfg.exe -h on`,如果要显示在开始菜单电源选项中,需要打开控制面板`powercfg.cpl`,然后点击设置按钮进行设置
 
-4. **权限**：
-   - 用户账户需要有管理员权限才能更改电源设置。
+### 启用休眠👺
 
-若要启用休眠模式，可以按照上述提到的具体步骤进行操作，或者在命令提示符中以管理员身份运行 `powercfg.exe -h on` 命令来启用休眠功能。此外，某些情况下，如电池续航较长的笔记本电脑，出于电量管理策略，系统可能默认禁用休眠模式，需要手动调整设置来开启。
+- 使用**管理员权限**命令行`powercfg -h on`系统将尝试启用休眠功能
 
+  - 如果您的软硬件都支持,一般情况下是可以正常启用
+  - 个别情况(比如驱动问题,可能会执行失败,那么您可能需要修复一下驱动问题)
 
-
-## GUI@控制面板方式启用
-
-### powercfg.cpl
-
-- 您可以用命令行或者win+R输入`powercfg.cpl`来快速跳转到相应的设置页面
+- 要让Windows系统进入休眠模式，可以使用以下命令：
 
   - ```powershell
-    PS C:\Users\cxxu> powercfg.cpl
+    powercfg /h on # 先确保休眠功能已启用
+    
     ```
 
+- 第一条命令是启用休眠功能，如果不先启用休眠，可能会发现无法进行休眠操作。
 
 
-## 电源命令行操作
+#### 立即进入休眠
 
-- 这部分可以作为脚本或函数调用
+- ```bash
+  shutdown /h
+  ```
 
-### powercfg.exe
+- 次命令是实际触发休眠操作，`shutdown /h` 命令会使计算机立即进入休眠状态，并将内存中的所有内容保存到硬盘的休眠文件中，断电后仍能恢复到之前的工作状态。
+
+
+### 停用休眠功能
+
+- **关闭休眠**：
+
+  ```cmd
+  powercfg -h off
+  ```
+
+
+#### 影响
+
+- 此时系统上可用的电源睡眠方案将少掉**休眠**和**快速启动**
+
+  - ```bash
+    [C:\]
+    PS>powercfg /a
+    The following sleep states are available on this system:
+        Standby (S3)
+    
+    The following sleep states are not available on this system:
+        Standby (S1)
+            The system firmware does not support this standby state.
+    
+        Standby (S2)
+            The system firmware does not support this standby state.
+    
+        Hibernate
+            Hibernation has not been enabled.
+    
+        Standby (S0 Low Power Idle)
+            The system firmware does not support this standby state.
+    
+        Hybrid Sleep
+            Hibernation is not available.
+            The hypervisor does not support this standby state.
+    
+        Fast Startup
+            Hibernation is not available.
+    ```
+
+    
+
+### 关闭休眠功能@删除休眠文件👺
+
+- `powercfg -h off`
+
+  - 该命令删除应为启用休眠功能所产生的hiberfil.sys
+
+- 该文件是系统文件,默认是隐藏文件
+
+  - 如果需要查看,可以用资源管理器勾选显示隐藏文件
+
+  - 或者使用powershell,输入以下命令查看
+
+    - `ls C:\  -Force .\hiberfil.sys`
+
+    - ```bash
+      [BAT:78%][MEM:31.96% (10.13/31.70)GB][22:37:28]
+      [C:\]
+      PS>ls C:\ -Force .\hiberfil.sys
+      
+              Directory: C:\
+      
+      
+      Mode                LastWriteTime         Length Name
+      ----                -------------         ------ ----
+      -a-hs         2024/4/15     16:13    13619687424   hiberfil.sys
+      ```
+
+  
+
+## 电源计划控制工具powercfg.exe
 
 - [Powercfg 命令行选项 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/design/device-experiences/powercfg-command-line-options)
   - 使用 powercfg.exe 来控制电源计划（也称为电源方案），以使用可用的睡眠状态、控制单个设备的电源状态，以及分析系统中常见的能效和电池寿命问题。
@@ -165,7 +309,9 @@
     ....
   ```
 
-### 休眠(hibernate)命令
+### 休眠(hibernate)命令及其参数
+
+前面提到的休眠命令,它的文档如下
 
 - ```bash
   PS>powercfg /H /?
@@ -221,7 +367,7 @@
 3. **示例：**
    文档中列举了三个使用`powercfg`命令调整休眠设置的例子，分别对应上述的不同参数选项。
 
-#### 休眠类型@压缩休眠文件
+### 休眠类型@压缩休眠文件
 
 - `/Type` 参数在 `powercfg` 命令中用于设置休眠文件（hiberfile.sys）的类型，具体有两种选择：
 
@@ -233,67 +379,7 @@
 
   总结来说，如果你想要节省磁盘空间并支持快速启动功能而不关心从休眠状态直接恢复到上次工作状态，可以选择 `REDUCED` 类型；而如果希望能够在关闭电脑后再次打开时回到上次工作的准确位置，则应选择 `FULL` 类型。
 
-#### 启用休眠😊
-
-- 使用命令行`powercfg -h on`系统将尝试启用休眠功能
-  - 如果您的软硬件都支持,一般情况下是可以正常启用
-  - 个别情况(比如驱动问题,可能会执行失败,那么您可能需要修复一下驱动问题)
-
 - 
-  要让Windows系统进入休眠模式，可以使用以下命令：
-
-  - ```powershell
-    powercfg /h on # 先确保休眠功能已启用
-    shutdown /h
-    ```
-
-- 第一条命令是启用休眠功能，如果不先启用休眠，可能会发现无法进行休眠操作。
-
-- 第二条命令是实际触发休眠操作，`shutdown /h` 命令会使计算机立即进入休眠状态，并将内存中的所有内容保存到硬盘的休眠文件中，断电后仍能恢复到之前的工作状态。
-
-
-#### 停用休眠功能
-
-- **关闭休眠**：
-
-  ```cmd
-  powercfg -h off
-  ```
-
-- 此时系统上可用的电源睡眠方案将少掉休眠和快速启动
-
-  - ```bash
-    [C:\]
-    PS>powercfg /a
-    The following sleep states are available on this system:
-        Standby (S3)
-    
-    The following sleep states are not available on this system:
-        Standby (S1)
-            The system firmware does not support this standby state.
-    
-        Standby (S2)
-            The system firmware does not support this standby state.
-    
-        Hibernate
-            Hibernation has not been enabled.
-    
-        Standby (S0 Low Power Idle)
-            The system firmware does not support this standby state.
-    
-        Hybrid Sleep
-            Hibernation is not available.
-            The hypervisor does not support this standby state.
-    
-        Fast Startup
-            Hibernation is not available.
-    ```
-
-    
-
-### 注意事项：
-
-- 上述命令可能需要以管理员权限运行才能成功执行。
 
 #### hiberfil.sys系统休眠文件😊
 
@@ -308,7 +394,7 @@
 - 除了使用开始菜单处设置的休眠按钮,也可考虑使用命令行`shutdown -h`来进行休眠
 - 这里提到了`shutdown`命令行程序,它不仅可以用来关机,也可以用来重启或休眠计算机
 
-## 睡眠(sleep)
+## 利用命令行让windows计算机睡眠(sleep)
 
 - [如何使用命令行让Windows 进入睡眠 (sysgeek.cn)](https://www.sysgeek.cn/put-windows-10-sleep-mode-command-line/)
   - `rundll32.exe powrprof.dll,SetSuspendState 0,1,0`
@@ -329,7 +415,7 @@
 
   - `0` 表示不唤醒事件。
 
-#### 附
+
 
 - 启用混合休眠下情况下,可以通过以下方式
 
@@ -339,7 +425,9 @@
 
   - 上面这个命令原本是用于休眠的，但由于在某些Windows版本中，若系统配置为混合睡眠（即同时支持休眠和睡眠），运行此命令实际上会让系统进入睡眠状态。
 
-## shutdown相关用法
+## 命令行工具shutdown.exe
+
+- 与powercfg命令相关的命令还有shutdown,它的用法和功能也不少,可以设置重启,休眠,关机,支持延迟操作等
 
 - 通常适合编写部署环境的脚本,用户执行脚本后会在合适的时候关机或重启
 
@@ -413,47 +501,21 @@
 
 - 根据实际需求以及操作系统版本选择合适的命令，并确保拥有足够的权限执行这些操作。在某些场合下可能需要管理员权限才能执行`shutdown`命令。
 
-### powershell内关机或重启
+## 
+
+## 利用powershell 关机或重启
 
 - shutdown.exe是古老的命令行程序
 - 现在可以用powershell中的相关cmdlet来执行类似操作
   - `Stop-Computer`
   - `Restart-Computer`
 
-
-
-### 关闭休眠功能😊@删除休眠文件
-
-- `powercfg -h off`
-
-  - 该命令删除应为启用休眠功能所产生的hiberfil.sys
-
-- 该文件是系统文件,默认是隐藏文件
-
-  - 如果需要查看,可以用资源管理器勾选显示隐藏文件
-
-  - 或者使用powershell,输入以下命令查看
-
-    - `ls C:\ -Force .\hiberfil.sys`
-
-    - ```bash
-      [BAT:78%][MEM:31.96% (10.13/31.70)GB][22:37:28]
-      [C:\]
-      PS>ls C:\ -Force .\hiberfil.sys
-      
-              Directory: C:\
-      
-      
-      Mode                LastWriteTime         Length Name
-      ----                -------------         ------ ----
-      -a-hs         2024/4/15     16:13    13619687424   hiberfil.sys
-      ```
-
-  
+- 两个命令可以追加`-Force`选项强制执行,比如当计算机上有其他用户登录时
 
 
 
-## 相关连接
+
+## 拓展
 
 ### 检查计算机上次启动的类型
 
