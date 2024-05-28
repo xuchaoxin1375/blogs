@@ -1,12 +1,13 @@
 [toc]
 
-## windows 内存占用分析工具
+## windows 内存占用分析工具👺
 
 在Windows系统中，如果需要对内存占用情况进行更为专业和深入的分析，可以采用以下微软自家以及第三方的专业内存分析工具：
 
 1. **微软官方工具**:
    - **RAMMap**：由Sysinternals提供的工具，它可以详细展示系统是如何分配和使用物理内存的，包括不同类型的内存使用情况（例如文件缓存、进程工作集等）。
      - [RAMMap - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/rammap)
+     - [Defrag Tools：6 - RAMMap | Microsoft Learn](https://learn.microsoft.com/zh-cn/shows/defrag-tools/6-rammap?source=recommendations)
    - **Process Explorer**：也是Sysinternals工具包的一部分，除了常规的进程管理功能外，还可以深入了解每个进程的虚拟内存使用细节。
    - **Performance Monitor (PerfMon)**：系统内置的性能监视工具，可以创建数据收集器集来持续监控内存性能计数器，从而帮助分析内存瓶颈和趋势。
 2. **第三方工具**:
@@ -15,6 +16,65 @@
    - **Memory Profiler** 类工具，比如 ANTS Memory Profiler 或 dotMemory 等针对 .NET 应用程序的内存分析工具，它们可以帮助开发者查找.NET程序中的内存泄漏等问题。
 
 对于具体应用场景，例如排查内存泄露、优化程序性能或是系统级内存管理问题，建议使用更为专业的分析工具进行深度排查。而对于一般性的内存使用监控，Windows自带的任务管理器已经足够满足大部分需求。
+
+### RamMap命令行用法
+
+找到可执行文件`rammap.exe`执行`rammap -h`得到帮助文档
+
+```cmd
+Usage: Rammap [[outputfile] | [[-run32] -o <inputfile.rmp>]]
+outputfile Has RAMMap dump scan output to a file and exit
+inputfile Has RAMMap open the specified log file
+Launch the 32-bit RAMMap on 64-bit Windows
+
+Command line mode: Rammap -E[wsmto
+-Ew Empty Working Sets
+-ES Empty System Working Sets
+-Em Empty Modified Page List
+-Et Empty Standby List
+-EO Empty Priority O standby List
+```
+
+Rammap 是一个高级内存分析工具，由Windows Sysinternals提供，它能帮助用户详细了解系统内存的使用情况，包括各种内存列表和占用情况。您给出的命令行用法说明涉及到了如何使用Rammap的不同参数来执行特定的内存管理操作，特别是在命令行模式下。下面是对每个部分的详细解释：
+
+#### 基础用法
+1. **Rammap [[outputfile] | [[-run32] -o <inputfile.rmp>]]**
+
+   - **[outputfile]**: 如果指定此参数，Rammap会执行内存扫描并将结果输出到指定的文件后退出。这对于日志记录和后续分析非常有用。
+   
+   - **[-run32]**: 在64位Windows系统上强制运行32位版本的Rammap。这对于需要在特定体系结构下分析应用程序或系统行为时很有用。
+   
+   - **-o <inputfile.rmp>**: 让Rammap打开(open)之前保存的扫描结果文件（.rmp格式）。这对于查看历史扫描数据或者分析不同时间点的内存状态变化非常有帮助。
+
+#### 特定操作模式 (-E 开头的参数):
+这些参数允许用户通过命令行直接执行对系统内存的各种清理或管理操作。请注意，这些操作可能对系统性能和运行中的应用程序产生重大影响，因此应谨慎使用。
+
+1. **-Ew**: 空置工作集（Empty Working Sets）。这会将所有进程的工作集（即它们当前在物理内存中的页面）标记为非resident，当进程再次访问它们时迫使操作系统重新从磁盘加载这些页面。这有助于回收内存，但可能导致短时间内性能下降。
+
+2. **-ES**: 空置系统工作集（Empty System Working Sets）。类似于-Ew，但仅针对系统进程的工作集。这可以释放更多内存给**用户进程**，但也可能暂时降低系统响应速度。
+
+3. **-Em**: 空置修改页列表（Empty Modified Page List）。这会促使系统立即写回所有已修改的页面到磁盘，清空修改页列表。这通常在准备进行系统维护或想要减少未来写入操作时使用。
+
+4. **-Et**: 空置备用列表（Empty Standby List）。备用列表包含了可被快速重新分配给其他进程的未使用页面。清空它会减少系统可用的快速分配内存，但可能有助于某些调试场景。
+
+5. **-EO**: 空置优先级0备用列表（Empty Priority 0 Standby List）。这是备用列表的一个子集，包含最高优先级的页面。清空这部分列表会更直接影响系统迅速恢复页面的能力，但同样可用于特定的诊断或测试目的。
+
+使用上述命令时，请确保理解其后果，并在必要时先做好系统备份。由于这些操作直接影响系统内存管理，不正确的使用可能会导致应用程序崩溃或系统不稳定。
+
+
+
+### 内存整理和占用优化工具😊
+
+- RamMap 微软官方出品[RAMMap - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/rammap)
+- MemReduct[henrypp/memreduct: Lightweight real-time memory management application to monitor and clean system memory on your computer. (github.com)](https://github.com/henrypp/memreduct)
+- Memorymaster 软媒魔方工具箱:[软媒魔方 (ruanmei.com)](https://mofang.ruanmei.com/)
+  - 之前有免安装版(便携版),现在只提供标准版(安装完毕后会解压出一堆工具,可以单独将需要的工具提出来)
+    - 我把便携版提取出来,只有300多kb:https://www.123pan.com/s/l7DKVv-FmcsH.html
+  - 新的版本有些组件引入广告,比如云日历,所以我还是用的免安装版
+- 上述软件都可以释放内存,并且RamMap支持命令行方式调用,通常执行`Rammap -ew`进行内存释放(建议把Rammap.exe所在路径配置到Path环境变量中方便随任意路径下调用
+- 而后两者可以设置开机自启，以及自动清理和定时清理(比如内存占用超过80%时执行内存清理)
+- 尽管上述工具可以大幅释放内存,但是这些被释放的内存存放的数据优先级虽然不是很高,但是对于加速应用有帮助,而且随着后续的操作,这些占用可能会比较快的回升回来;如果内存充足,是不建议执行内存释放的操作
+- 另一方面，如果内存容量不充裕,那么更有效的办法仍然是加大物理内存容量,而不是反复清理;然而有些机器想要更换或增加内存条是受限的(比如板载内存),则推荐使用上一代的系统降低资源占用,并考虑使用上述软件进行自动清理,当过高的内存占用出现时,缓存内存的数据不但加速效果有限,还会导致重要数据加载受限或变慢,那么这时候执行内存清理是合适的
 
 ## windows 预读取技术👺
 
@@ -144,106 +204,6 @@
     
 
 - 如果不想重启,这里推荐用`services.msc`GUI找到服务并启用
-
-
-
-### 补充
-
-#### sc config 用法
-
-```bash
-PS C:\Users\cxxu\Desktop> sc config -h
-DESCRIPTION:
-        Modifies a service entry in the registry and Service Database.
-USAGE:
-        sc <server> config [service name] <option1> <option2>...
-
-OPTIONS:
-NOTE: The option name includes the equal sign.
-      A space is required between the equal sign and the value.
-      To remove the dependency, use a single / as dependency value.
- type= <own|share|interact|kernel|filesys|rec|adapt|userown|usershare>
- start= <boot|system|auto|demand|disabled|delayed-auto>
- error= <normal|severe|critical|ignore>
- binPath= <BinaryPathName to the .exe file>
- group= <LoadOrderGroup>
- tag= <yes|no>
- depend= <Dependencies(separated by / (forward slash))>
- obj= <AccountName|ObjectName>
- DisplayName= <display name>
- password= <password>
-```
-
-#### 演示
-
-```bash
-#查询服务运行状态
-PS C:\Users\cxxu\Desktop> sc query Sysmain
-
-SERVICE_NAME: Sysmain
-        TYPE               : 30  WIN32
-        STATE              : 4  RUNNING
-                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x0
-#如果发现服务正在运行(RUNNING),则可以使用sc stop停止服务
-PS C:\Users\cxxu\Desktop> sc stop Sysmain
-
-SERVICE_NAME: Sysmain
-        TYPE               : 30  WIN32
-        STATE              : 3  STOP_PENDING
-                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x2710
-#还可以重新检查服务运行状况        
-PS C:\Users\cxxu\Desktop> sc query sysmain
-
-SERVICE_NAME: sysmain
-        TYPE               : 30  WIN32
-        STATE              : 1  STOPPED
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x0
-```
-
-#### net  stop 和 sc stop对比
-
-- `sc stop` 和 `net stop` 都是命令行工具，用于在Windows操作系统中停止服务，但它们之间存在一些差异：
-
-  **sc stop:**
-
-  - `sc` 是 "Service Control" 的缩写，是一个更底层、功能更强大的命令行程序，直接与服务控制管理器交互。
-  - 使用 `sc stop serviceName` 可以立即向指定服务发送停止请求。但是，`sc` 命令在发出停止请求后不会等待服务完全停止就立即返回并继续执行下一条命令，这可能导致在连续的批处理脚本中，如果下一个命令依赖于该服务已经完全停止，可能会出现问题。
-  - `sc` 命令提供了更广泛的控制选项，包括查询、配置、创建、删除服务等操作。
-
-  **net stop:**
-
-  - `net stop` 是一个较老的命令，主要针对网络和系统服务管理，它也能够停止服务，但相比 `sc`，它的功能较为基础。
-  - 使用 `net stop serviceName` 命令时，它会等待服务完全停止后再返回控制权给命令行，这使得在批处理脚本中，如果接下来的操作依赖于服务已经被正确停止，使用 `net stop` 通常更为可靠。
-  - `net stop` 不仅仅用于服务管理，还支持其他网络相关的操作，如用户管理、打印队列管理等。
-
-  **总结:**
-
-  - 如果你需要立即停止服务并紧接着执行其他不依赖于服务状态的操作，或者需要更细致的服务管理功能，`sc stop` 可能是更好的选择。
-  - 如果你在编写批处理脚本，并且需要确保服务完全停止后再进行下一步操作，或者偏好一个较为简单和传统的命令，`net stop` 则更为合适。
-
-  在实际应用中，选择哪个命令取决于具体需求和上下文环境。
-
-- net stop 命令也可以用来停止服务,但我建议用sc stop,不容易引起混淆
-
-  ```bash
-  PS C:\Users\cxxu\Desktop> net stop SysMain
-  The SysMain service is stopping.
-  The SysMain service was stopped successfully.
-  
-  ```
-
-  
 
 ## windows系统技术专业书籍
 

@@ -24,14 +24,62 @@
 
   因此，在这个例子中，1TB 硬盘被分成了两个分区，每个分区都有不同的文件系统格式，并被格式化为一个可访问的卷。C:\ 和 D:\ 都是对这些卷的抽象描述，它们允许用户在其中存储和访问文件。
 
-### 查看磁盘信息
+## 查看磁盘信息
+
+### diskmgmt磁盘和分区信息
 
 - 使用`diskmgmt.msc`(命令行输入)
   - 右键disk x(如果只有一块硬盘,那么通常x=0)
   - 点击卷(Volumes)
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/5be3cd67838d487cabfe171e05575056.png)
 
-### 基本磁盘和动态磁盘
+### powershell 查看磁盘分区信息
+
+- [Storage Module | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/storage/?view=windowsserver2022-ps)
+
+- 这个模块的命令十分多,其中比较常用的有
+
+  - [Get-Disk (Storage) | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/storage/get-disk?view=windowsserver2022-ps)
+  - [Get-Volume (Storage) | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2022-ps)
+
+- 例如获取所有卷信息
+
+  - ```powershell
+    PS>  Get-Volume
+    
+    DriveLetter FriendlyName FileSystemType DriveType HealthStatus OperationalStatus SizeRemaining      Size
+    ----------- ------------ -------------- --------- ------------ ----------------- -------------      ----
+                SYSTEM       FAT32          Fixed     Healthy      OK                     67.47 MB     96 MB
+    C           Windows      NTFS           Fixed     Healthy      OK                    623.26 GB 942.94 GB
+                Recovery     NTFS           Fixed     Healthy      OK                      1.19 GB  10.82 GB
+    ```
+
+### 使用diskpart查看
+
+```cmd
+PS> diskpart
+
+Microsoft DiskPart version 10.0.22621.1
+
+Copyright (C) Microsoft Corporation.
+On computer: COLORFULCXXU
+
+DISKPART> select disk  0
+
+Disk 0 is now the selected disk.
+
+DISKPART> list volume
+
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     C   Windows      NTFS   Partition    942 GB  Healthy    Boot
+  Volume 1         SYSTEM       FAT32  Partition    100 MB  Healthy    System
+  Volume 2         Recovery     NTFS   Partition     10 GB  Healthy    Hidden
+```
+
+
+
+## 基本磁盘和动态磁盘
 
 - 基本磁盘和动态磁盘都是计算机中常见的磁盘类型。
 - 基本磁盘是一种最常见的磁盘类型，它是一个单独的物理磁盘。在基本磁盘上，每个分区都是独立的，无法扩展到其他磁盘。 基本磁盘使用传统的磁盘管理方式，如MBR（Master Boot Record）或GPT（GUID Partition Table）。MBR通常用于较小的硬盘，而GPT通常用于较大的硬盘。

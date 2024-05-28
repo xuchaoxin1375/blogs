@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 # windows_性能监视器&资源监视器&任务管理器:指标阅读与使用
 
 ## refenrences
@@ -169,12 +169,3 @@
 	- Android 设备包含三种不同类型的内存：RAM、zRAM 和存储器。请注意，CPU 和 GPU 访问同一个 RAM。
 	![在这里插入图片描述](https://img-blog.csdnimg.cn/19ea0da8572342f595380dd5d8226aef.png)
 
-
--  [How much RAM do I need in my phone in 2022? We have the answer. (androidauthority.com)](https://www.androidauthority.com/how-much-ram-do-i-need-phone-3086661/)          
-  - 内容:                                                                                
-    - How much RAM does your Android phone really need in 2022?
-      - RAM vs swap space: Memory management explained
-      - Testing to find the ideal amount of RAM
-	      - Galaxy S21 Ultra and Pixel 3XL tests
-	      - OnePlus 9 Pro test
-      - how much RAM do you need on your Android phone?

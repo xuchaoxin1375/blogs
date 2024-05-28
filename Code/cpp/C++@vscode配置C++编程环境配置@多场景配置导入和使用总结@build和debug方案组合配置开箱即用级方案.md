@@ -176,8 +176,8 @@ int main(){
 - [C_CPP_ConsoleApps: (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps)
   - 您可以打开该链接,网页中的`.vscode`中的内容最为关键
   - 开门见山地讲,只需要把该目录中的几个json文件下载下来
-  - 然后移动到您准备用于存放c/c++代码的目录中,不放称为目录`C_Cpp_ConsoleApps`
-  - 然后用vscode打开`C_Cpp_ConsoleApps`即可
+  - 然后移动到您准备用于存放c/c++代码的目录中,比如取名为`C_Cpp_ConsoleApps`(表示这是一个c/c++控制台程序的目录(仓库))
+  - 然后用vscode打开`C_Cpp_ConsoleApps`目录即可
 
 
 ### tasks.json和launch.json内容示例
@@ -185,7 +185,7 @@ int main(){
 - [.vscode · xuchaoxin1375/C_CPP_ConsoleApps - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps/tree/main/.vscode)
   - 您可以通过上述链接来查看配置
   - 两个配置文件`tasks.json`,`launch.json`是经过一定的实践,能够良好并相对舒适得工作
-  -  如果vscode变动不大,那么直接复制粘贴到自己的C/C++ vscode工程目录中也是可以的
+  -  如果vscode C++ extension 将来变动不大,那么直接复制粘贴到自己的C/C++ vscode工程目录中也是可以的
 
 ### 下载或克隆使用整个仓库
 
@@ -194,7 +194,26 @@ int main(){
   - 如果没有,可以在网页内选择克隆/下载按钮,把项目压缩包下载下来,自行解压到合适的目录
 - 用vscode打开下载/克隆下来的目录`C_CPP_ConsoleApps`
 
+### 共用配置文件
 
+- vscode 写C++的一个问题在于,随意一个目录下的c++源文件双击运行往往是不可行的,因为运行依赖于源文件所在目录(或父目录)中的配置文件(.vscode文件夹)
+
+- 因此总是要把代码放到您平时集中存放c++源代码的目录中才行
+
+- 此外,假设您要设置两个仓库而不是一个C++代码仓库,这时候就需要在两个仓库目录中分别设置一份`.vscode`文件夹,这对于维护和管理是不利的
+
+- 幸运的是,windows和linux都支持符号链接相关技术,可以讲配置文件(`.vscode`)下载下来并存放到单独的一个目录,比如我就有一个目录名为`configs`,里面存放各种软件的配置备份,比如注册表备份,浏览器插件设置备份,typora设置备份等
+
+  - 以现代化版本windows系统(win10之后)为例,您可以使用`mklink`或powershell的`new-item`创建`.vscode`文件夹的`junction`类型的链接
+
+  - 比如使用powershell
+
+    ```bash
+    PS> new-item -Type File
+    File          Directory     SymbolicLink  Junction      HardLink
+    ```
+
+    
 
 ### 编译器说明👺
 

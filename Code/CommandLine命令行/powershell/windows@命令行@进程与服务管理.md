@@ -1,12 +1,14 @@
 [toc]
 
-## abstract
+# abstract
 
 
 
 - powershell_进程任务管理/服务管理
 - 查看/关闭/停止/移除服务
 - windows移除mysql服务
+
+# 进程管理
 
 ## powershell进程相关命令行
 
@@ -16,12 +18,7 @@
 
 ### 获取软件版本
 
-- 根据进程名称获取软件版本
-- `ps -FileVersionInfo  -Name *edge* `
-### 指定输出格式
-
-- [Format-Table - PowerShell - SS64.com](https://ss64.com/ps/format-table.html)
-
+- 根据进程名称获取软件版本:`ps -FileVersionInfo  -Name *edge* `
 ### 按名称分组统计进程
 
 - `ps |group ProcessName |sort Name`
@@ -54,7 +51,7 @@
       1 ZhuDongFangYu             {System.Diagnostics.Process (ZhuDongFangYu)}
   ```
 
-### 查看特定进程组(通配符支持)
+### 查看特定进程组
 
 
 ----- ----                      -----
@@ -73,6 +70,58 @@ Count Name                      Group
 
 `ps`命令的默认位置参数是接受进程名(ProcessName)而不是程序名
 
+```powershell
+    -Name <System.String[]>
+        Specifies one or more processes by process name. You can type multiple proces
+        s names (separated by commas) and use wildcard characters. The parameter name
+         (`Name`) is optional.
+
+        Required?                    false
+        Position?                    0
+        Default value                None
+        Accept pipeline input?       True (ByPropertyName)
+        Accept wildcard characters?  true
+```
+
+#### 进程详情
+
+- 例如查看所有资源管理器进程详情
+
+  ```bash
+  PS> Get-Process explorer | Format-List *
+  
+  Name                       : explorer
+  Id                         : 2532
+  PriorityClass              : Normal
+  FileVersion                : 10.0.22621.3235 (WinBuild.160101.0800)
+  HandleCount                : 3681
+  WorkingSet                 : 91422720
+  PagedMemorySize            : 252719104
+  PrivateMemorySize          : 252719104
+  VirtualMemorySize          : 1288265728
+  TotalProcessorTime         : 00:00:29.3750000
+  SI                         : 1
+  Handles                    : 3681
+  VM                         : 2204606488576
+  ......
+  
+  ```
+
+- 查看通过命令行启动的记事本进程对应的命令行
+
+  ```
+  PS> ps notepad|select CommandLine|ft -Wrap
+  
+  CommandLine
+  -----------
+  "C:\Program Files\WindowsApps\Microsoft.WindowsNotepad_11.2402.22.0_x64__8wekyb3d8bbw
+  e\Notepad\Notepad.exe" /SESSION:UXQzrUjzPUmkkKI4pz0iuwAAAAEDAAAAAaCEAQQDAAAAAAAA
+  ```
+
+  
+
+### 查找进程
+
 例如我发现我的任务栏上有一个Nvidia的图标,我想要查出相关的进程
 
 通过打开改软件,查询到其对应的程序名为`NVIDIA App`(可以用任务管理器来直观查看(有图标))
@@ -81,7 +130,7 @@ Count Name                      Group
 
 然而执行`ps Nvidia*`没有任何输出,说明进程名字并不是Nvidia开头的
 
-可以进一步用`ps Nv*`来试试,但是这种方法不可靠,我们可以结合图形窗口任务管理器来查看,`taskmgr`搜索框可以通过搜索程序名来搜索到相关进程(Name,Publisher,ID)dou'ke'yi
+可以进一步用`ps Nv*`来试试,但是这种方法不可靠,我们可以结合图形窗口任务管理器来查看,`taskmgr`搜索框可以通过搜索程序名来搜索到相关进程(Name,Publisher,ID)都可以
 
 ```powershell
 PS C:\Users\cxxu\Desktop> ps NV*
@@ -138,16 +187,132 @@ PS C:\Users\cxxu> stop -Name IDMan
 
 
 
-# windows@CLI移除服务(remove service)
+# 服务管理
 
-## references
+## windows命令行服务设置
 
-- [sc.exe delete | Microsoft Docs](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/sc-delete)
-- [Remove-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-service?view=powershell-7.2)
+### SC命令
 
-## powershell方式
+#### sc config 用法
 
-### 服务相关的命令
+```bash
+PS C:\Users\cxxu\Desktop> sc config -h
+DESCRIPTION:
+        Modifies a service entry in the registry and Service Database.
+USAGE:
+        sc <server> config [service name] <option1> <option2>...
+
+OPTIONS:
+NOTE: The option name includes the equal sign.
+      A space is required between the equal sign and the value.
+      To remove the dependency, use a single / as dependency value.
+ type= <own|share|interact|kernel|filesys|rec|adapt|userown|usershare>
+ start= <boot|system|auto|demand|disabled|delayed-auto>
+ error= <normal|severe|critical|ignore>
+ binPath= <BinaryPathName to the .exe file>
+ group= <LoadOrderGroup>
+ tag= <yes|no>
+ depend= <Dependencies(separated by / (forward slash))>
+ obj= <AccountName|ObjectName>
+ DisplayName= <display name>
+ password= <password>
+```
+
+#### 演示
+
+```bash
+#查询服务运行状态
+PS C:\Users\cxxu\Desktop> sc query Sysmain
+
+SERVICE_NAME: Sysmain
+        TYPE               : 30  WIN32
+        STATE              : 4  RUNNING
+                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+#如果发现服务正在运行(RUNNING),则可以使用sc stop停止服务
+PS C:\Users\cxxu\Desktop> sc stop Sysmain
+
+SERVICE_NAME: Sysmain
+        TYPE               : 30  WIN32
+        STATE              : 3  STOP_PENDING
+                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x2710
+#还可以重新检查服务运行状况        
+PS C:\Users\cxxu\Desktop> sc query sysmain
+
+SERVICE_NAME: sysmain
+        TYPE               : 30  WIN32
+        STATE              : 1  STOPPED
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+```
+
+#### net  stop 和 sc stop对比
+
+- `sc stop` 和 `net stop` 都是命令行工具，用于在Windows操作系统中停止服务，但它们之间存在一些差异：
+
+  **sc stop:**
+
+  - `sc` 是 "Service Control" 的缩写，是一个更底层、功能更强大的命令行程序，直接与服务控制管理器交互。
+  - 使用 `sc stop serviceName` 可以立即向指定服务发送停止请求。但是，`sc` 命令在发出停止请求后不会等待服务完全停止就立即返回并继续执行下一条命令，这可能导致在连续的批处理脚本中，如果下一个命令依赖于该服务已经完全停止，可能会出现问题。
+  - `sc` 命令提供了更广泛的控制选项，包括查询、配置、创建、删除服务等操作。
+
+  **net stop:**
+
+  - `net stop` 是一个较老的命令，主要针对网络和系统服务管理，它也能够停止服务，但相比 `sc`，它的功能较为基础。
+  - 使用 `net stop serviceName` 命令时，它会等待服务完全停止后再返回控制权给命令行，这使得在批处理脚本中，如果接下来的操作依赖于服务已经被正确停止，使用 `net stop` 通常更为可靠。
+  - `net stop` 不仅仅用于服务管理，还支持其他网络相关的操作，如用户管理、打印队列管理等。
+
+  **总结:**
+
+  - 如果你需要立即停止服务并紧接着执行其他不依赖于服务状态的操作，或者需要更细致的服务管理功能，`sc stop` 可能是更好的选择。
+  - 如果你在编写批处理脚本，并且需要确保服务完全停止后再进行下一步操作，或者偏好一个较为简单和传统的命令，`net stop` 则更为合适。
+
+  在实际应用中，选择哪个命令取决于具体需求和上下文环境。
+
+- net stop 命令也可以用来停止服务,但我建议用sc stop,不容易引起混淆
+
+  ```bash
+  PS C:\Users\cxxu\Desktop> net stop SysMain
+  The SysMain service is stopping.
+  The SysMain service was stopped successfully.
+  
+  ```
+
+  
+
+### powershell 相关命令
+
+```
+PS> gcm *service |?{$_.Source -like "*manage*"}
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Cmdlet          Get-Service                                        7.0.0.0    Micros…
+Cmdlet          New-Service                                        7.0.0.0    Micros…
+Cmdlet          Remove-Service                                     7.0.0.0    Micros…
+Cmdlet          Restart-Service                                    7.0.0.0    Micros…
+Cmdlet          Resume-Service                                     7.0.0.0    Micros…
+Cmdlet          Set-Service                                        7.0.0.0    Micros…
+Cmdlet          Start-Service                                      7.0.0.0    Micros…
+Cmdlet          Stop-Service                                       7.0.0.0    Micros…
+Cmdlet          Suspend-Service                                    7.0.0.0    Micros…
+
+```
+
+使用[Set-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/set-service?view=powershell-7.4)来设置服务
+
+
+
+### powershell方式服务相关的命令
 
 - ```powershell
   PS C:\Users\cxxu\Desktop> gcm *service*|?{$_.CommandType -eq "cmdlet"}
@@ -168,48 +333,35 @@ PS C:\Users\cxxu> stop -Name IDMan
 
 - 包括重启服务,停止服务,启动服务,新建服务
 
-### 查找服务@检查服务状态@get-service
+### 常用部分
 
-* 查找服务(以mysql为例)
+#### 查找服务@检查服务状态@get-service
 
-- ```powersehll
-  PS C:\Users\cxxu> gsv *mysql*
-  
-  Status   Name               DisplayName
-  Stopped  MySQL              MySQL
-  #又比如
-  PS C:\Users\cxxu\Desktop> gsv -Name *search*
-  
-  Status   Name               DisplayName
-  ------   ----               -----------
-  Running  WSearch            Windows Search
-  ```
+- [Get-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.4)
 
-- 通过通配符查询到具体的`Name`后可以对其停用或移除
+查找服务(以mysql为例)
 
-### 停止服务@stop-service
+```powersehll
+PS C:\Users\cxxu> gsv *mysql*
 
-- `stop-service`
+Status   Name               DisplayName
+Stopped  MySQL              MySQL
 
-  - 别名为`spsv`
+#又比如
+PS C:\Users\cxxu\Desktop> gsv -Name *search*
 
-    ```
-    PS C:\Users\cxxu\Desktop> gald Stop-Service
-    
-    CommandType     Name                                               Version    Source
-    -----------     ----                                               -------    ------
-    Alias           spsv -> Stop-Service
-    
-    ```
+Status   Name               DisplayName
+------   ----               -----------
+Running  WSearch            Windows Search
+```
 
-  - ```bash
-    	
-    NAME
-        Stop-Service
-    
-    SYNOPSIS
-        Stops one or more running services.
-    ```
+通过通配符查询到具体的`Name`后可以对其停用或移除
+
+#### 停止服务@stop-service
+
+- [Stop-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/stop-service?view=powershell-7.4)
+
+- `stop-service`别名为`spsv`
 
 - 例如,禁用windows Search(但是前面查到的名字应该称为`WSearch`)
 
@@ -220,31 +372,31 @@ PS C:\Users\cxxu> stop -Name IDMan
   WARNING: Waiting for service 'Windows Search (WSearch)' to stop...
   ```
 
-- 再次查询
+  再次查询
 
-  - ```bash
-    PS C:\Users\cxxu\Desktop> gsv -Name *search*
-    
-    Status   Name               DisplayName
-    ------   ----               -----------
-    Running  WSearch            Windows Search
-    
-    ```
+  ```bash
+  PS C:\Users\cxxu\Desktop> gsv -Name *search*
+  
+  Status   Name               DisplayName
+  ------   ----               -----------
+  Running  WSearch            Windows Search
+  
+  ```
 
-  - 发现依然在运行,事实上打开任务管理器或直接`service.msc`可以发现上述的`spsv`禁用完成的瞬间`Wsearch`服务缺失被停止了,但是很快状态又变回运行中
+- 发现依然在运行,事实上打开任务管理器或直接`service.msc`可以发现上述的`spsv`禁用完成的瞬间`Wsearch`服务缺失被停止了,但是**很快状态又变回运行中**
 
-  - 推测重要服务会被自动唤醒或者其他服务或进程唤醒
+  - 推测**重要服务**会被自动唤醒或者其他服务或进程唤醒
 
-    - 事实上往往可以通过设置`starttype`来控制启动类型
-
-  - 这种情况下,可以尝试禁用服务
+  - 可以通过设置`starttype`来控制启动类型(禁用服务),然后重启服务或计算机检查设置效果
 
 
-### 设置服务@禁用服务(set-service)
+#### 设置服务@set-service
 
-- 这条命令其实包含了管理服务的几乎所有功能,前面的`gsv`,`spsv`的功能可以又`set-service`来实现,只不过从语义上,`gsv`,`spsv`更加直接,而`set-service`语义模糊一些
+- [Set-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/set-service?view=powershell-7.4)
 
-  - 而且由于服务之间的依赖问题,使用`set-service`来停用某些关键性服务可能失败(或者说更繁琐)
+- 这条命令其实包含了管理服务的几乎所有功能,前面的`gsv`,`spsv`的功能可以由`set-service`来实现,只不过从语义上,`gsv`,`spsv`更加直接,而`set-service`语义模糊一些
+
+  - 而且由于服务之间的依赖问题,使用`set-service`来停用某些关键性服务可能失败
 
   - ```powershell
     PS C:\Users\cxxu\Desktop> Set-Service -Name WSearch -Status Stopped -Verbose
@@ -252,14 +404,11 @@ PS C:\Users\cxxu> stop -Name IDMan
     Set-Service: Cannot stop service 'Windows Search (WSearch)' because it has dependent services.
     ```
 
-- 通过`help set-service`获取本地帮助文档🎈
-
-- ```powershell
-  PS C:\Users\cxxu\Desktop> Set-Service -StartupType Disabled -Name WSearch -Verbose
-  VERBOSE: Performing the operation "Set-Service" on target "Windows Search (WSearch)".
-  ```
-
-  - 通过观察`service.msc`执行上述命令后,刷新`service.msc`(按下`F5`)可以看到启动类型变为`Disabled`
+  - ```powershell
+    PS C:\Users\cxxu\Desktop> Set-Service -StartupType Disabled -Name WSearch -Verbose
+    VERBOSE: Performing the operation "Set-Service" on target "Windows Search (WSearch)".
+    ```
+  - 通过观察`service.msc`,执行上述命令后,刷新`service.msc`(按下`F5`)可以看到启动类型变为`Disabled`
   - 但是该条语句不会立即停止`Wsearch`服务
 
 - 我们可以尝试再次运用`spsv`来停止服务,随即再检查运行状态
@@ -278,30 +427,10 @@ PS C:\Users\cxxu> stop -Name IDMan
 
   - 可以发现,服务被顺利停用(管理员模式下执行)
 
-  
 
+#### 移除服务@remove-service
 
-
-###  删除服务
-
-- 请在管理员模式下删除指定服务
-  - `remove-service <serviceName>`
-
-
-- 非管理员模式下删除会报错:
-
-  - ```bsah
-    Remove-Service: Failed to configure the service 'mysql (MySQL)' due to the following error: Access is denied.. Run PowerShell as admin and run your command again.
-    ```
-
-- 管理员模式执行
-
-  ```
-  PS C:\Users\cxxu> remove-service -Name mysql
-  
-  #执行顺利,没有返回消息
-  
-  ```
+- [Remove-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/remove-service?view=powershell-7.4)
 
 ### FAQ👺
 
