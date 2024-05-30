@@ -2,16 +2,12 @@
 
 
 
+## abstract
 
-### refs
-
-- ES文件浏览器是一款常见的文件管理器软件,对常见的文件传输协议提供了支持
-  - 而ES文件浏览器提供的文档简要介绍了配置和使用方法
-  - [ES APP GROUP (estrongs.com)](http://www.estrongs.com/helper)文档支持中英文切换(内容有些老旧,但作为参考也没有太大问题)
-
-
-
-
+- 局域网传输这一需求在生活中是很常见的,特别是无线传输,比很多质量一般的有线传输要快
+- 更不用提需要多用户共享的情形(比如10个人以上),用数据线或者优盘拷贝的繁琐可想而知
+- 本文介绍应用最广泛,操作最方便的文件共享传输协议(smb)及其软件实现方案推荐
+- 部分老牌文件管理器提供了相应协议的支持,并且有相应的使用文档,例如ES文件管理器,也可以供用户参考和使用(客户端推荐一节介绍)
 
 ## smb server
 
@@ -20,7 +16,9 @@
 - 对于windows系统而言,基于smb配置简单(用户甚至不需要知道smb协议就可以完成配置),且传输较为安全高效
 - 本文主要介绍windows下如何使用smb(共享文件夹);linux系统另见它文
 
-### linux Samba
+## linux Samba(smb)
+
+### 命令行操作
 
 #### smbserver
 
@@ -126,7 +124,9 @@
 
 #### smbclient
 
-- ```bash
+- 在后面的访问smb共享文件夹中会详谈
+  
+  ```bash
   
   # 使用smbclient连接到Windows共享文件夹
   smbclient //hostname/sharename -U username%password
@@ -138,7 +138,7 @@
   # 或者，如果Windows共享允许匿名访问：
   smbclient //hostname/sharename
   ```
-
+  
 - 查看帮助
 
   ```
@@ -146,25 +146,43 @@
   $ man smbclient
   ```
 
-- 例
 
-  - ```bash
-    # cxxu @ ColorfulCxxu in ~/sambashare [21:35:52]
-    $ smbclient //192.168.1.178/share -U smb%1
-    Try "help" to get a list of possible commands.
-    smb: \> ls
-      .                                  DA        0  Tue Apr 16 16:05:25 2024
-      ..                               DAHS        0  Tue Apr 16 18:02:09 2024
-      Downloads                          Dr        0  Tue Apr 16 16:05:25 2024
-      exes                               Dr        0  Tue Apr 16 13:53:02 2024
-      IMG_20240414_201127.jpg             A  5919488  Sun Apr 14 20:17:04 2024
-      IMG_20240414_201149.jpg             A  2255117  Sun Apr 14 20:17:04 2024
-      IMG_20240414_201232.jpg             A  3024236  Sun Apr 14 20:17:03 2024
-      MK                                  D        0  Tue Apr  2 10:16:01 2024
-      Thumbs.db                        AHSn   152576  Tue Apr 16 15:40:55 2024
-    ```
+#### 实操
 
-    
+- ```bash
+  # cxxu @ ColorfulCxxu in ~/sambashare [21:35:52]
+  $ smbclient //192.168.1.178/share -U smb%1
+  Try "help" to get a list of possible commands.
+  smb: \> ls
+    .                                  DA        0  Tue Apr 16 16:05:25 2024
+    ..                               DAHS        0  Tue Apr 16 18:02:09 2024
+    Downloads                          Dr        0  Tue Apr 16 16:05:25 2024
+    exes                               Dr        0  Tue Apr 16 13:53:02 2024
+    IMG_20240414_201127.jpg             A  5919488  Sun Apr 14 20:17:04 2024
+    IMG_20240414_201149.jpg             A  2255117  Sun Apr 14 20:17:04 2024
+    IMG_20240414_201232.jpg             A  3024236  Sun Apr 14 20:17:03 2024
+    MK                                  D        0  Tue Apr  2 10:16:01 2024
+    Thumbs.db                        AHSn   152576  Tue Apr 16 15:40:55 2024
+  ```
+
+- 不把密码输入在命令中,而是交互行中
+
+  ```bash
+  (base) ┌─[cxxu@ColorfulCxxu] - [/mnt/c/exes/edgep/App] - [2024-05-30 10:01:44]
+  └─[0] <> smbclient //192.168.1.178/share -U smb
+  Password for [WORKGROUP\smb]:
+  Try "help" to get a list of possible commands.
+  smb: \> ls
+    .                                  DA        0  Mon May 27 23:25:32 2024
+    ..                               DAHS        0  Thu May 30 20:13:35 2024
+    base (2).apk                        A 35476837  Sat May 25 21:27:51 2024
+    base (3).apk                        A  2837839  Sat May 25 22:06:04 2024
+    base (4).apk                        A 14238970  Sat May 25 22:09:03 2024
+    base.apk                            A    85711  Sat May 25 21:26:31 2024
+    base.apk.1                          A 31115770  Sat May 25 20:30:08 2024
+  ```
+
+  
 
 ### linux 桌面版 资源管理器访问smb 共享文件夹
 
@@ -172,9 +190,7 @@
 - 对于有图形界面的linux系统,用其资源管理器可以通过`smb://ip-address/sambashare`的格式来访问
 - 经过实验,无论发出共享的服务器端系统是windows还是linux,都可以用上述格式的链接用文件管理器的地址栏进行浏览(但么有桌面的linux就只能用命令行访问)
 
-### windows系统下的共享文件夹👺
-
-
+## windows系统下的共享文件夹👺
 
 ### 设置共享文件夹
 
@@ -183,22 +199,10 @@
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
 
-### 部分账户无法登录共享文件夹👺
-
-- 较新版本的windows默认不允许匿名登录
-- 为了便于讨论,这里假设有充当服务器的电脑S(windows系统)和充当客户端的电脑C(windows 息痛)
-- 如果要顺利登录并访问服务端S的共享文件夹,不仅仅要求S端正确设置,还要求客户端C上有一个合格的用户账户
-  - 如果客户端C启用了内置账户,比如Administrator或Guest,那么这两个身份登录进windows可能无法访问,他们都是特殊的账户
-  - 实践中,我在一台windows10系统的客户机以Administrator的账户登录到系统,并且没有设置密码是开机自动登录的,那么这时候我想要访问服务端共享文件夹,会失败
-  - 不同方式尝试,报错也是各种各样的:
-    - 提示我账户该账户已被禁用
-    - 命令行中执行`start ip\sharefolder`,提示我系统找不到文件
-  - 于是我打开`lusrmgr`创建了一个普通用户,并且为其设置了一个简单密码(为演示简单起见,设用户名为`smb`,密码为`1`)
-  - 退出当前账户,登录到新创建的账户`smb`,在smb的桌面内就可以顺利访问共享文件夹了
-- 下面是对于普通账户访问共享文件夹的配置方法流程
 
 
-### 方法1
+
+#### 方法1
 
 - 使用共享文件夹引导程序`shrpubw.exe`,这是一个windows系统自带的一个使用程序
 
@@ -216,7 +220,7 @@
 
 - 总的来说这是个很方便的程序,但是注意,windows为了安全,匿名访问可能是不被允许的,如果需要匿名,可能要改注册表策略组等,我的建议是创建一个名为smb的用户专门用来访问共享文件夹就可以了(不需要登录该用户桌面),既安全又高效,如果要匿名的体验,可以把密码设置简单点即可
 
-### 方法2
+#### 方法2
 
 
 
@@ -275,7 +279,7 @@
        - [Local Users and Groups | Microsoft Learn](https://learn.microsoft.com/zh-cn/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc753942(v=ws.11)?redirectedfrom=MSDN)
        - [windows@添加本地用户账户](https://blog.csdn.net/xuchaoxin1375/article/details/112854717)
 
-### 右键设置共享文件夹
+#### 右键设置共享文件夹
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/59a7f585925246f3a8f895b7979dca1b.png)
 
@@ -295,11 +299,167 @@
 
 - 方法1
 
-  - |                                                              |                                                              |      |
-    | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-    | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/f3c0981b9f854e9c81f901eac8bd818d.png) | 右键目标文件夹,选择高级设置,将取消勾选分享次文件夹(share this folder);把保存修改即可 |      |
+  - |                                                              |                                                              |
+    | ------------------------------------------------------------ | ------------------------------------------------------------ |
+    | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/f3c0981b9f854e9c81f901eac8bd818d.png) | 右键目标文件夹,选择高级设置,将取消勾选分享次文件夹(share this folder);把保存修改即可 |
 
 - 方法2:从资源管理器中找到目标文件夹,右键更改访问权限,选择移除访问权限(remove access),但是不一定所有文件夹都能找到移除按钮
+
+## 访问smb共享文件夹
+
+
+
+### Windows 系统
+
+在 Windows 系统中，你可以使用 `net use` 命令来映射网络共享文件夹，并在此过程中提供用户名和密码。
+
+以下是一个访问格式(推荐现代windows系统使用)：
+
+```bash
+net use X: \\服务器地址\共享文件夹名称 /user:用户名 密码
+```
+
+例如：
+
+```bash
+net use X: \\192.168.1.100\SharedFolder /user:John Doe MyPassword123
+```
+
+这条命令会将 `\\192.168.1.100\SharedFolder` 映射为本地 X: 驱动器，并使用指定的用户名和密码进行身份验证。
+
+实操:
+
+```bash
+PS C:\Users\cxxu> net use x: \\192.168.1.178\share /user:smb 1
+命令成功完成。
+```
+
+检查挂载结果
+
+```bash
+PS C:\Users\cxxu>  net use
+会记录新的网络连接。
+
+
+状态       本地        远程                      网络
+
+-------------------------------------------------------------------------------
+OK           X:        \\192.168.1.178\share     Microsoft Windows Network
+命令成功完成。
+
+```
+
+注意,提示您成功执行后,打开资源管理器刷新一下,可以找到网络驱动器(网络位置)中有一个`x`盘
+
+如果您在挂载此共享文件夹之前已经占用了`x`盘符,则需要修改命令行中的`x:`,未被占用的英文字母都可以
+
+也可以在命令行中访问,例如`cd x:\`
+
+### Linux/macOS 系统
+
+在 Linux 或 macOS 系统中，你可以使用 `smbclient` 或 `mount` 命令来访问 Windows 共享文件夹。
+
+#### 使用 smbclient
+
+`smbclient` 是一个与 SMB/CIFS 服务（如 Windows 共享）交互的命令行工具。以下是一个示例命令：
+
+```bash
+smbclient //服务器地址/共享文件夹名称 -U 用户名 -c "dir"
+```
+
+**如果需要输入密码，命令会提示你输入**。这个命令会列出共享文件夹中的内容。如果你需要更复杂的操作，可以查看 `smbclient` 的文档。
+
+#### 使用 mount
+
+在 Linux 中，你也可以通过 `mount` 命令将共享文件夹挂载到本地文件系统。这通常涉及到更复杂的设置，包括安装和配置 cifs-utils 包。以下是一个基本示例：
+
+```bash
+sudo mount -t cifs //服务器地址/共享文件夹名称 /本地挂载点 -o username=用户名,password=密码
+```
+
+#### 实操
+
+```bash
+#我在/mnt/下有一个wsl目录,(也可以自己创建目录,比如share)
+(base) ┌─[cxxu@ColorfulCxxu] - [/mnt] - [2024-05-30 10:05:48]
+└─[32] <> sudo mount -t cifs //192.168.1.178/share /mnt/wsl -o username=smb,password=1
+#检查挂载效果
+(base) ┌─[cxxu@ColorfulCxxu] - [/mnt] - [2024-05-30 10:08:07]
+└─[0] <> cd /mnt/wsl
+(base) ┌─[cxxu@ColorfulCxxu] - [/mnt/wsl] - [2024-05-30 10:08:16]
+└─[0] <> ls
+ Documents   MKt                               Music      'base (2).apk'  'base (4).apk'   base.apk.1
+ Downloads   MYXJ_20240526151015328_fast.jpg   Thumbs.db  'base (3).apk'   base.apk        exes
+```
+
+在linux虚拟机中操作,模拟局域网情况
+
+```bash
+#在/mnt/目录下,创建一个share目录,用于挂载共享文件夹
+(base) ┌─[cxxu@ubt22] - [/mnt/share] - [2024-05-30 02:25:04]
+└─[130] <> cd /mnt
+#管理员权限创建
+(base) ┌─[cxxu@ubt22] - [/mnt] - [2024-05-30 02:22:17]
+└─[1] <> sudo mkdir share
+[sudo] password for cxxu:
+#开始挂载(这里ip改为自己共享文件夹所在计算机的实际情况)
+(base) ┌─[cxxu@ubt22] - [/mnt] - [2024-05-30 02:22:23]
+└─[0] <> sudo mount -t cifs //192.168.1.178/share /mnt/share -o username=smb,password=
+1
+
+#检查挂载情况
+(base) ┌─[cxxu@ubt22] - [/mnt] - [2024-05-30 02:23:25]
+└─[0] <> cd share
+(base) ┌─[cxxu@ubt22] - [/mnt/share] - [2024-05-30 02:23:27]
+└─[0] <> ls
+'base (2).apk'   base.apk     Downloads   Music
+'base (3).apk'   base.apk.1   exes        MYXJ_20240526151015328_fast.jpg
+'base (4).apk'   Documents    MKt         Thumbs.db
+```
+
+
+
+### 注意事项
+
+- 在命令行中直接包含密码（特别是在多用户环境中）可能存在安全风险。请确保你了解这些风险，并考虑使用更安全的方法来处理认证信息。
+- 上述命令中的用户名和密码应替换为你自己的有效凭据。
+- 网络共享的具体设置和访问权限可能因你的网络环境和服务器配置而异。如果遇到问题，请检查服务器设置和网络策略。
+
+## FAQ:无法访问共享文件夹
+
+### 账户已锁定且可能无法登录问题
+
+报错示例如下
+
+这里局域网内设置共享文件夹的主机ip为192.168.1.178,被共享的目录名为`share`(这里不需要填写`share`的具体路径)
+
+```powershell
+PS C:\Users\cxxu> net use x: \\192.168.1.178\share
+发生系统错误 1909。
+
+引用的帐户当前已锁定，且可能无法登录。
+```
+
+您可以尝试带上账户密码,例如我有(创建了)一个用于访问共享文件夹的用户名和密码(这是一个本地用户),分别为`smb`,`1`(用户名和密码设置的如此简单就是为了接近匿名访问的便捷,实际上记住密码后也不需要每次都重新输入密码,密码长点也无所谓的
+
+其实,`net use x: \\192.168.1.178\share`和`start \\192.168.1.178\share`都可以用来访问共享文件夹,并且应该在回车执行后进一步提示我们需要输入用户名密码来验证权限,但是有时候却弹不出来
+
+这时我们可以考虑用`net use`的 `/user`参数来解决
+
+```powershell
+PS C:\Users\cxxu> net use x: \\192.168.1.178\share /user:smb 1
+命令成功完成。
+```
+
+
+
+### windows默认不允许匿名访问共享文件夹👺
+
+- 较新版本的windows默认不允许匿名登录
+- 以windows10访问windows11上创建的共享文件夹为例被锁定问题
+- 有时候会弹出一个框让你输入用户名和对应的密码验证访问权限
+- 但是我估计是windows的bug,至少windows10上存在这种不提示你输入用户密码验证的情况,而是直接否决,告诉你**引用的账户当前已锁定,无法登录**
+- 这种情况下使用上述推荐的命令行方法尝试访问共享文件夹
 
 ## 共享文件夹的访问控制补充
 
@@ -344,6 +504,8 @@
 
 - [使用 Windows Server 中的 SMB 3 协议的文件共享概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/storage/file-server/file-server-smb-overview)
 
+## 相关客户端👺
+
 ### android客户端推荐
 
 - cx file explorer: [Cx File Explorer Apk Download - Best File Manager for Android!](https://cxfileexplorer.com/)
@@ -357,7 +519,17 @@
 - cx file explorer传输实例
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/045dd2535d9b4ce7b30c7db819cf0f61.png)
 
-### FAQ
+### ES文件浏览器
+
+ES文件浏览器是一款常见的文件管理器软件,对常见的文件传输协议提供了支持
+
+ES文件浏览器提供的文档简要介绍了smb协议及其相关软件的配置和使用方法
+
+- [ES APP GROUP (estrongs.com)](http://www.estrongs.com/helper)
+- [ES 文件浏览器使用手册 (estrongs.com)](http://www.estrongs.com/helper)
+- 软件下载[ES APP GROUP (estrongs.com)](http://www.estrongs.com/?lang=zh-CN)
+
+### FAQ:检查共享文件夹间的嵌套
 
 - 被共享文件夹可以通过windows资源管理器地址栏中输入`\\localhost`查询
 - 该结果仅显示非父子目录的文件夹或文件,如果某两个目录有层次关系,那么仅显示父目录(祖先目录,而不显示子目录或后代目录)

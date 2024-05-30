@@ -7,7 +7,11 @@
 - 介绍常用的虚拟机软件
 - 重点介绍vmware workstation pro/player 的常用设置和一些实践经验
 
+## VMware workstation Pro下载
 
+- [下载 VMware Workstation Pro | CN](https://www.vmware.com/content/vmware/vmware-published-sites/cn/products/workstation-pro/workstation-pro-evaluation.html.html)
+  - 对于个人用户免费使用专业版
+- 
 
 ## VMware tools
 

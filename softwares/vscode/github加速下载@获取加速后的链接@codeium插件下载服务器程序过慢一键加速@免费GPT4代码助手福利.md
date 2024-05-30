@@ -103,46 +103,59 @@ function Get-SpeedupUri{
   - 此外aria2(或者说`aria2c`,我为其取了别名为`aria2`)和7z需要配置进Path变量,才可以直接调用
 - 如果您愿意手动下载,并执行文件目录移动等操作也是可以的,只是没有一键运行的便利
 
-### codeium extension for vscode 下载安装脚本(powershell)
+### codeium extension for vscode 下载安装脚本(powershell)👺
 
 - 这依赖于提供的加速下载辅助函数,先运行辅助函数,再运行以下脚本
 
+  - 可以直接复制粘贴到powershell中(包含一个函数定义和一个调用命令语句)
+
 - ```powershell
   
-  $vscodeExtensions="~\.vscode\extensions"
-  $codeiumExtensionPath=(rvpa "$vscodeExtensions\codeium*")
-  #ls $vscodeExtensions\codeium*
-  $lastVersionItem=rvpa $codeiumExtensionPath|sort -Property Name -Descending|select -First 1
+  function Update-CodeiumVScodeExtension
+  {
+      <# 
+      .SYNOPSIS
+      加速下载并更新vscode中codeium插件
+      当打开vscode时codeium自动更新下载了一些内容后下不动了,或者太慢了,就可以关闭vscode,然后执行本函数
   
-  $Name=$lastVersionItem|select -expandProperty Path
-  $v=$Name|scb -PassThru #打印最新版本并且复制版本号到剪切板,形如 `codeium.codeium-1.8.40`
-  $versionNumber=("$v" -split "-")[1] #版本好字符串,形如1.8.40
-  write-host $versionNumber -background Magenta
+      #>
   
-  $release_page_uri="https://github.com/Exafunction/codeium/releases/tag/language-server-v$versionNumber"
-  $uri="https://github.com/Exafunction/codeium/releases/download/language-server-v$versionNumber/language_server_windows_x64.exe.gz"
+      $vscodeExtensions = '~\.vscode\extensions'
+      $codeiumExtensionPath = (Resolve-Path "$vscodeExtensions\codeium*")
+      #ls $vscodeExtensions\codeium*
+      $lastVersionItem = Resolve-Path $codeiumExtensionPath | Sort-Object -Property Name -Descending | Select-Object -First 1
   
-  $speedUri=get-speedUpUri $uri
-  write-host $speedUri -backgroundcolor Blue
-  #invoke-webrequest $speedUri
-  $desktop="$env:userprofile\desktop"
-  $fileName="language_server_windows_x64.exe.gz"
-  $f="$desktop\$fileName"
+      $Name = $lastVersionItem | Select-Object -ExpandProperty Path
+      $v = $Name | Set-Clipboard -PassThru #打印最新版本并且复制版本号到剪切板,形如 `codeium.codeium-1.8.40`
+      $versionNumber = ("$v" -split '-')[1] #版本好字符串,形如1.8.40
+      Write-Host $versionNumber -background Magenta
   
-  aria2 $speedUri -d $desktop -o $fileName
-  #$serverDir="$desktop\codeium_lsw"
-  $serverDir=rvpa  "$lastVersionItem\dist\*"
-  $serverDir=ls "$lastVersionItem\dist\*" -Directory|?{$_.Name.Length -ge 20}
-  7z x $f -o"$serverDir"
+      $release_page_uri = "https://github.com/Exafunction/codeium/releases/tag/language-server-v$versionNumber"
+      $uri = "https://github.com/Exafunction/codeium/releases/download/language-server-v$versionNumber/language_server_windows_x64.exe.gz"
   
-  #清理文件
-  rm $f -verbose 
-  rm "$serverDir/*.download"
+      $speedUri = Get-SpeedUpUri $uri
+      Write-Host $speedUri -BackgroundColor Blue
+      #invoke-webrequest $speedUri
+      $desktop = "$env:userprofile\desktop"
+      $fileName = 'language_server_windows_x64.exe.gz'
+      $f = "$desktop\$fileName"
   
+      aria2c $speedUri -d $desktop -o $fileName
+      #$serverDir="$desktop\codeium_lsw"
+      $serverDir = Resolve-Path "$lastVersionItem\dist\*"
+      $serverDir = Get-ChildItem "$lastVersionItem\dist\*" -Directory | Where-Object { $_.Name.Length -ge 20 }
+      7z x $f -o"$serverDir"
   
+      #清理文件
+      Remove-Item $f -Verbose 
+      Remove-Item "$serverDir/*.download"
+  
+  }
+  #调用上述函数
+  Update-CodeiumVScodeExtension
   
   ```
-  
+
 
 
 
