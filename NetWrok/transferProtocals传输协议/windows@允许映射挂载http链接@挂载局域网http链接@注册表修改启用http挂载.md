@@ -227,7 +227,7 @@
     function Mount-NetDrive
     {
         <# 
-        .SYNOPSIS
+    	.SYNOPSIS
         挂载http链接形式的网络驱动器,通常用于局域网挂载
         这里是对net use 的一个封装,而Powershell 的New-PSDrive命令并不那么好用,链接识别有一定问题
         $HostAddress =$iqoo10pro
@@ -235,53 +235,143 @@
         为了方便省事,这里记住密码，不用每次都输入密码
         net use W: "http://$HostAddress:5244/dav" /p:yes /savecred 
         目前已知New-PSDrive有挂载问题是,报错如下
-        New-PSDrive: The specified drive root "\\192.168.1.178:5244\dav" either does not exist, or it is not a folder.
+        New-PSDrive: The specified drive root "\\192.168.1.178:5244\dav" either does not exist, 	or it is not a folder.
     
         .EXAMPLE
-        PS☀️[BAT:74%][MEM:31.02% (9.84/31.71)GB][9:54:22]
-        # [~\Desktop]
-        PS> Mount-NetDrive -HostAddress 192.168.1.165 -DriveLetter M -Port 5244
+        # 挂载共享文件夹
+        PS C:\repos\scripts> mount-NetDrive -HostAddress 127.0.0.1 -DriveLetter V  -Mode Smb -Remember
+        Net Drive Mode: Smb
+        Enter shared folder(Directory) BaseName(`share` is default): share
+        \\127.0.0.1\share
         The command completed successfully.
     
+        Drive V: successfully mapped to \\127.0.0.1\share
         New connections will be remembered.
     
     
         Status       Local     Remote                    Network
     
         -------------------------------------------------------------------------------
-                    M:        \\192.168.1.165@5244\dav  Web Client Network
+        Unavailable  M:        http://192.168.1.165:5244/dav
+                                                        Web Client Network
+                    Q:        \\127.0.0.1@5244\dav      Web Client Network
+        OK           V:        \\127.0.0.1\share         Microsoft Windows Network
         Unavailable  W:        http://localhost:5244/dav Web Client Network
         The command completed successfully.
         .EXAMPLE
-        [BAT:78%][MEM:37.64% (11.93/31.70)GB][15:31:09]
-        [~]
-        PS>Mount-NetDrive -host $iqoo10pro -DriveLetter M -Port 5244
-        
+        #挂载webdav(之前已经记录过凭证)
+        PS C:\repos\scripts> mount-NetDrive -HostAddress 127.0.0.1 -DriveLetter V  -Mode Webdav -Remember
+        Net Drive Mode: Webdav
+        http://127.0.0.1:5244/dav
         The command completed successfully.
     
-        .EXAMPLE
-        如果重复执行同一个映射,并且第一次执行操作成功,那么第二次会提示失败(盘符被占用)
-        [BAT:78%][MEM:37.46% (11.87/31.70)GB][15:31:32]
-        [~]
-        PS>Mount-NetDrive -host $iqoo10pro -DriveLetter M -Port 5244
-        System error 85 has occurred.
+        Drive V: successfully mapped to http://127.0.0.1:5244/dav
+        New connections will be remembered.
     
-        The local device name is already in use.
+    
+        Status       Local     Remote                    Network
+    
+        -------------------------------------------------------------------------------
+        Unavailable  M:        http://192.168.1.165:5244/dav
+                                                        Web Client Network
+                    Q:        \\127.0.0.1@5244\dav      Web Client Network
+                    V:        \\127.0.0.1@5244\dav      Web Client Network
+        Unavailable  W:        http://localhost:5244/dav Web Client Network
+        The command completed successfully.
+        
         #>
         param(
-            # 手机端ip地址
-            $HostAddress = 'localhost',
-            $CompleteUri = '',
-            $DriveLetter = 'M',
-            $Port = '5244'
+            # 可以用于webdav链接中ip地址填充,也可以用于共享文件夹
+            [string]$HostAddress = 'localhost',
+            # 比如用于共享文件夹的链接,比如\\192.168.1.178\share
+            [string]$CompleteUri = '',
+            [ValidateSet('Smb', 'Webdav', 'Others')]$Mode = 'Smb',
+            # 挂载的分区盘符
+            [string]$DriveLetter = 'M',
+            # Alist 默认端口库
+            [string]$Port = '5244',
+            # 用户名是可选的,如果您使用匿名登录不上,则考虑使用次参数,密码会在执行后要求你填入,这样密码不会明文显示在命令行中
+            [string]$UserName = '',
+            #是否记住凭证(和 -UserName 一起使用时可能会有冲突!)
+            [switch]$Remember
+    
         )
-        $uri = ($CompleteUri) ? $CompleteUri : "http://$($HostAddress):$($Port)/dav"
-        
-        net use "${DriveLetter}:" $uri /p:yes /savecred 
-        
-        #检查映射结果
+    
+        Write-Host "Net Drive Mode: $Mode" -ForegroundColor Magenta
+    
+        $credString = ''#默认没有凭证,匿名访问/挂载
+        # 如果提供了用户,则要求用户输入密码(这样密码不会在命令行中明文显示)
+        if ($UserName)
+        {
+            $password = Read-Host "Enter password For $UserName" -AsSecureString
+            $credential = New-Object System.Management.Automation.PSCredential ($UserName, $Password)
+            $plainCred = $credential.GetNetworkCredential()
+    
+            $credString = $plainCred.UserName + ' ' + $plainCred.Password
+        }
+        # 构造URI(if语句可以类似于三元运算符来使用)
+        $Uri = if ($CompleteUri)
+        {
+            $CompleteUri 
+        }
+        else
+        {  
+    
+            switch ($Mode)
+            {
+                # 记得使用break来退出switch
+                'Webdav'
+                { 
+                    
+                    "http://${HostAddress}:${Port}/dav"; break
+                }
+                'Smb'
+                {
+                    $ShareDir = Read-Host 'Enter shared folder(Directory) BaseName(`share` is default)'
+                    $ShareDir = if ($ShareDir) { $ShareDir } else { 'share' }
+                    "\\${HostAddress}\$ShareDir" ; break
+                }
+                Default { '' }
+            }
+        } 
+    
+        Write-Host -ForegroundColor Blue $Uri
+    
+        # 构造net use命令参数
+        $netUseArguments = "${DriveLetter}: $uri"
+        #考虑到可能需要用户名和密码,必要时添加凭据字符串
+        if ($credString -ne '')
+        {
+            $netUseArguments += " /user:$credString"
+        }
+    
+        # 是否记住凭据
+        if ($Remember)
+        {
+            $netUseArguments += ' /persistent:yes /savecred'
+        }
+    
+        # 映射网络驱动器
+        $expression = "net use $netUseArguments"
+        #debug
+        # Write-Host $expression -BackgroundColor Green
+    
+        Invoke-Expression $expression
+    
+        # 检查映射结果
+        if ($LASTEXITCODE -eq 0)
+        {
+            Write-Host "Drive ${DriveLetter}: successfully mapped to $uri"
+        }
+        else
+        {
+            Write-Error "Failed to map drive ${DriveLetter}: with error code $LASTEXITCODE"
+        }
+    
+        # 显示现有映射
         net use
     }
+    
     ```
 
 ### 记住登录密码@自动映射选项
