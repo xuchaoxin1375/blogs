@@ -109,10 +109,19 @@ function Get-SpeedupUri{
 
   - 可以直接复制粘贴到powershell中(包含一个函数定义和一个调用命令语句)
 
+- 加速说明
+
+  - 虽然这里使用镜像加速,并且调用了aria2c下载,但是任然可能遇到速度受限的情况
+  - 您可以考虑更改加速连接的获取模式,或者考虑获取链接后调用IDM这类更高速的下载器进行下载
+  - 手动下载的包请移动到桌面(不容易发生歧义,也最直观的位置)然后,确保名字为`language_server_windows_x64.exe.gz`
+  - 然后重新执行以下`Update-CodeiumVScodeExtension`函数调用语句
+
 - ```powershell
-  
   function Update-CodeiumVScodeExtension
   {
+      param(
+          [ValidateSet('aria2c', 'default')]$Downloader = 'aria2c'
+      )
       <# 
       .SYNOPSIS
       加速下载并更新vscode中codeium插件
@@ -139,8 +148,25 @@ function Get-SpeedupUri{
       $desktop = "$env:userprofile\desktop"
       $fileName = 'language_server_windows_x64.exe.gz'
       $f = "$desktop\$fileName"
+      if ( -not (Test-Path $f))
+      { 
+          switch ($Downloader)
+          {
+              'aria2c'
+              { 
   
-      aria2c $speedUri -d $desktop -o $fileName
+                  aria2c $speedUri -d $desktop -o $fileName;break
+              }
+              'default'{
+  
+                  Invoke-WebRequest -Uri $speedUri -OutFile $f;break
+              }
+              Default {
+                  
+              }
+          }
+      }
+  
       #$serverDir="$desktop\codeium_lsw"
       $serverDir = Resolve-Path "$lastVersionItem\dist\*"
       $serverDir = Get-ChildItem "$lastVersionItem\dist\*" -Directory | Where-Object { $_.Name.Length -ge 20 }
@@ -151,8 +177,6 @@ function Get-SpeedupUri{
       Remove-Item "$serverDir/*.download"
   
   }
-  #调用上述函数
-  Update-CodeiumVScodeExtension
   
   ```
 

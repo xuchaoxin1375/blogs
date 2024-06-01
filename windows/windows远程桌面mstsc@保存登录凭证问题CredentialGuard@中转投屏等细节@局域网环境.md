@@ -159,6 +159,14 @@
 - [更改或重置 Windows 密码 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/更改或重置-windows-密码-8271d17c-9f9e-443f-835a-8318c8f68b9c)
 - 对于云账户密码修改:[Microsoft account | Security](https://account.microsoft.com/security?lang=en-US&refd=account.microsoft.com)
 
+### 账户尝试登录次数过多而被锁定
+
+- 有一次我像往常一样想用mstsc做局域网内的远程桌面登录,但是提示我账户被锁定了
+- 这应该是被链接的主机发生了错误或者是网络环境的设备出现错误
+- 我们可以尝试为被链接的主机断开并重新链接,或者切换网络环境后重新尝试(我用手机热点试了一下,用手机端的远程桌面(RD客户端),发现之前用的Microsoft账户密码登不上了,于是我尝试用本地账户的密码登上了,估计是网络故障引起的功能异常)
+- 接着我把网络重新切换会最初的网络
+- 回到另一台主机上,重新尝试链接,发现登录密码又变回Microsoft账户密码
+
 ## 记住登录凭证@下次免密登录
 
 - 这部分设置不是那么直观,需要梳理一下:
@@ -168,7 +176,6 @@
 
 - 当您的凭证失效,则建议您删除旧有的凭证,然后mstsc界面会切换到最初的界面,可以勾选允许记住凭证
 
-  
 
 ### 凭证被禁用问题@Credential Guard
 
