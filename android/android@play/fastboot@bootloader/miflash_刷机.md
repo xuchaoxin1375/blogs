@@ -13,7 +13,47 @@
 - [MiFlash2020-3-14-0（点我）下载](https://cdn.alsgp0.fds.api.mi-img.com/micomm/MiFlash2020-3-14-0.rar) 
 - [MiFlash2018-5-28-0（点我）下载](http://bigota.d.miui.com/tools/MiFlash2018-5-28-0.zip)
 
+### 部分版本启动后报错和修复
 
+- 用英文搜索`miflash`可以找到一些版本号为`2022`之后的版本(不知道是不是小米官方发行的),打开后会弹出安装驱动的按钮,但是安装后弹出日志文件不存在的报错
+
+  - 这种情况下无法检测到fastboot模式下的设备
+  - 我们可以根据错误提示,手动创建一个日志文件,然后重新启动软件,点击refresh,就可以看到设备检测到了
+  - 然后可以照常刷机(刷写过程中可以打开日志文件查看进展)
+  - 如果选择的是清除所有数据或者保留数据,而没有选择重新上锁,则在最后一步会提示上锁步骤执行错误,这没有关系,毕竟解锁一次也不容易,就不要轻易上锁,如果不需要root之类的操作只求安全性,则考虑上锁
+
+- ```bash
+  [2024-06-02 13:37:05:160:160203  BUMNIVCM6HF6UKMJ]:MiFlash 2022.5.7.0
+  [2024-06-02 13:37:05:160:160203  BUMNIVCM6HF6UKMJ]:vboytest index:1
+  [2024-06-02 13:37:05:170:170780  BUMNIVCM6HF6UKMJ]:Thread id:8 Thread name:
+  [2024-06-02 13:37:05:171:171831  BUMNIVCM6HF6UKMJ]:image path:C:\Users\cxxu\Downloads\matisse\matisse_images_OS1.0.2.0.ULKCNXM_14.0
+  [2024-06-02 13:37:05:171:171831  BUMNIVCM6HF6UKMJ]:env android path:"C:\exes\miflash\MiFlash20220507\Source\ThirdParty\Google\Android"
+  [2024-06-02 13:37:05:171:171831  BUMNIVCM6HF6UKMJ]:script :C:\Users\cxxu\Downloads\matisse\matisse_images_OS1.0.2.0.ULKCNXM_14.0\flash_all.bat
+  [2024-06-02 13:37:05:187:187004  BUMNIVCM6HF6UKMJ]:Physical Memory Usage:3551232 Byte
+  [2024-06-02 13:37:05:187:187226  BUMNIVCM6HF6UKMJ]:start process id 4924 name cmd
+  ....
+  [2024-06-02 13:42:22:121:121093  BUMNIVCM6HF6UKMJ]:info2:Sending 'boot_ab' (65536 KB)                       OKAY [  1.843s]
+  [2024-06-02 13:42:22:628:628026  BUMNIVCM6HF6UKMJ]:info2:Writing 'boot_ab'                                  OKAY [  0.507s]
+  [2024-06-02 13:42:22:628:628026  BUMNIVCM6HF6UKMJ]:info2:Finished. Total time: 2.388s
+  [2024-06-02 13:42:22:631:631867  BUMNIVCM6HF6UKMJ]:info1:$fastboot -s BUMNIVCM6HF6UKMJ oem cdms 
+  [2024-06-02 13:42:22:758:758063  BUMNIVCM6HF6UKMJ]:info2:                                                   OKAY [  0.106s]
+  [2024-06-02 13:42:22:758:758063  BUMNIVCM6HF6UKMJ]:info2:Finished. Total time: 0.106s
+  [2024-06-02 13:42:22:764:764470  BUMNIVCM6HF6UKMJ]:info1:$fastboot -s BUMNIVCM6HF6UKMJ set_active a    || 
+  [2024-06-02 13:42:22:809:809878  BUMNIVCM6HF6UKMJ]:info2:Setting current slot to 'a'                        OKAY [  0.022s]
+  [2024-06-02 13:42:22:809:809878  BUMNIVCM6HF6UKMJ]:info2:Finished. Total time: 0.025s
+  [2024-06-02 13:42:22:811:811583  BUMNIVCM6HF6UKMJ]:info1:$fastboot -s BUMNIVCM6HF6UKMJ reboot   || 
+  [2024-06-02 13:42:22:839:839697  BUMNIVCM6HF6UKMJ]:info2:Rebooting                                          OKAY [  0.009s]
+  #到这里刷机任务已经完成,并且开始重启,手机可以拔下来了
+  [2024-06-02 13:42:22:844:844200  BUMNIVCM6HF6UKMJ]:info2:Finished. Total time: 0.009s
+  [2024-06-02 13:42:22:857:857783  BUMNIVCM6HF6UKMJ]:begin FlashDone
+  #后面的内容则是尝试重新上锁,但是本次刷机操作选择的是清除数据(但不上锁),所以后续上锁操作不会执行(会抛出一个上锁失败的错误,不需要关心)
+  [2024-06-02 13:42:22:857:857783  BUMNIVCM6HF6UKMJ]:errMsg is null
+  [2024-06-02 13:42:22:857:857783  BUMNIVCM6HF6UKMJ]:begin checkPoint
+  [2024-06-02 13:42:22:857:857783  BUMNIVCM6HF6UKMJ]:error:Not catch checkpoint (\$fastboot -s .* lock),flash is not done
+  [2024-06-02 13:42:22:859:859299  BUMNIVCM6HF6UKMJ]:process exit.
+  ```
+
+  
 
 ### 待线刷设备扫描和检查
 
