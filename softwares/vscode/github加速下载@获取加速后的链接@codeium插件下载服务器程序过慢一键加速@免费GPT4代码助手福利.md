@@ -132,7 +132,7 @@ function Get-SpeedupUri{
       $vscodeExtensions = '~\.vscode\extensions'
       $codeiumExtensionPath = (Resolve-Path "$vscodeExtensions\codeium*")
       #ls $vscodeExtensions\codeium*
-      $lastVersionItem = Resolve-Path $codeiumExtensionPath | Sort-Object -Property Name -Descending | Select-Object -First 1
+      $lastVersionItem = Resolve-Path $codeiumExtensionPath | Sort-Object -Property Name |sort -Descending | Select-Object -First 1
   
       $Name = $lastVersionItem | Select-Object -ExpandProperty Path
       $v = $Name | Set-Clipboard -PassThru #打印最新版本并且复制版本号到剪切板,形如 `codeium.codeium-1.8.40`
