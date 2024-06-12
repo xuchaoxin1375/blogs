@@ -194,7 +194,7 @@
 
 ### 设置共享文件夹
 
-- 官方文档,列举出了问题清单和相应的解决办法和步骤,已经给出了最佳实践,这里仅提一下(整合其他设置方案)
+- 官方文档,列举出了问题清单和相应的解决办法和步骤,已经给出了最佳实践,这里补充一些细节(整合其他设置方案)
 
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
@@ -585,7 +585,12 @@ sudo mount -t cifs //服务器地址/共享文件夹名称 /本地挂载点 -o u
 - 上述命令中的用户名和密码应替换为你自己的有效凭据。
 - 网络共享的具体设置和访问权限可能因你的网络环境和服务器配置而异。如果遇到问题，请检查服务器设置和网络策略。
 
-## FAQ:无法访问共享文件夹
+## FAQ:设置和使用中可能遇到的问题👺
+
+### 登录后无法访问共享文件夹或文件夹内容显示为空
+
+- 这可能共享文件夹的权限设置问题
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/a8605e33e5024499aad86fc3697c5e86.png)
 
 ### 账户已锁定且可能无法登录问题
 
