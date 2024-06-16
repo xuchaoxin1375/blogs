@@ -149,6 +149,18 @@
 
   - 该文档给出了为ppt的幻灯片页面添加标题(重命名)的相关方法,技巧以及常见问题
 
+### 大纲
+
+[Create and print a presentation in Outline view - Microsoft Support](https://support.microsoft.com/en-us/office/create-and-print-a-presentation-in-outline-view-3516310c-c9c0-4d4f-8c11-2759313477a5#:~:text=1 On the View tab%2C in the Presentation,level as the one you ... See More)
+
+利用大纲可以在设计ppt内容框架时更加聚焦重点,尽管我们可以利用别的工具来设计框架,比如word等
+
+此外,一份规范的ppt应该有必要的大纲设计,当读者切换到大纲视图就可以明白这个ppt大概在介绍什么东西(虽然实际上很多ppt模板没有考虑到大纲,也就是模板中的标题框没有被使用,导致大纲视图都是一片空白
+
+不过此时我们可以检查**母版视图**,或者在**大纲视图**内的缩略图右边可以直接编辑文字,这将在您的ppt中显示出标题位置,内容就是所编辑的文字(如果您的母版设计将标题框放到幻灯片页面外部或者颜色和ppt背景重叠,可能不容看出标题内容,这时候可以考虑在**模板视图**中重新设计一下标题框
+
+即便是空白的模板页面,也可以在大纲视图中编辑大纲(标题),并且会反映到ppt页面上
+
 
 ### 隐藏ppt
 
