@@ -5,7 +5,7 @@
 - 介绍windows powershell如何管理用户和组
 - cmd下也有命令行工具:在Windows Command Prompt（CMD）中创建新用户，可以使用`net user`命令。
 - 但是cmd不是讨论的重点,尽管`net`命令目前所有windows版本都可以用,它承担的功能有很多,powershell的这一套比较清晰
-- 有关net的用法另外参考资料
+- 有关net的用法另外参考资料[Net user | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc771865(v=ws.11))
 
 ## 命令行与用户管理
 
@@ -113,15 +113,53 @@
 
 ### 创建本地用户
 
+#### powershell方法
+
 ```powershell
-# 创建一个新的本地用户，不提供密码（用户首次登录时必须更改密码）
+# 创建一个新的本地用户，不提供密码
 New-LocalUser -Name "UserName"
 
-# 创建一个新的本地用户并设置密码
-$passwordSecureString = ConvertTo-SecureString "SecurePassword123!" -AsPlainText -Force
+```
+
+创建带有密码用户
+
+### 示例 2：创建具有密码的用户帐户
+
+PowerShell文档中的示例
+
+```powershell
+$Password = Read-Host -AsSecureString
+$params = @{
+    Name        = 'User03'
+    Password    = $Password
+    FullName    = 'Third User'
+    Description = 'Description of this account.'
+}
+New-LocalUser @params
+
+Name    Enabled  Description
+----    -------  -----------
+User03  True     Description of this account.
+```
+
+第一个命令使用 `Read-Host` cmdlet 提示输入密码。 该命令将密码存储为 `$Password` 变量中的安全字符串。
+
+第二个命令创建本地用户帐户，并将新帐户的密码设置为存储在 `$Password` 中的安全字符串。 该命令指定用户帐户的用户名、全名和说明。
+
+
+
+```powershell
+# 创建一个新的本地用户并设置密码(这种方式会报错)
+$passwordSecureString = ConvertTo-SecureString "pt123" -AsPlainText -Force
 New-LocalUser -Name "UserName" -Password $passwordSecureString
 
+```
 
+报错信息如下
+
+```
+PS> New-LocalUser -Name "UserName" -Password $passwordSecureString
+New-LocalUser: Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI' from assembly 'System.Management.Automation, Version=7.4.3.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
 ```
 
 其他:
@@ -130,6 +168,18 @@ New-LocalUser -Name "UserName" -Password $passwordSecureString
 # 创建用户并设置更多属性
 New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExpires $true
 ```
+
+#### net user命令方法
+
+创建一个带密码的用户
+
+```cmd
+net user NewUsername YourPassword /add
+```
+
+请将 `NewUsername` 替换为您想创建的用户名，将 `YourPassword` 替换为您想设置的密码。
+
+还可以完成更多操作,但是这是一种不再被维护和推荐的方法,特别带有明文密码的方式不安全,除非这个账户目的是匿名访问计算机资源用途,比如访问共享文件夹
 
 ### 归入用户组(可选操作)
 
@@ -141,7 +191,7 @@ New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExp
 #### Users组
 
 - 这个组通常对应于标准用户权限，拥有基本的文件访问和系统使用权限。
-- 总之是一个相对受限的权限:Users are prevented from making accidental or intentional system-wide changes and can run most applications
+- 总之是一个相对受限的权限:`Users are prevented from making accidental or intentional system-wide changes and can run most applications`
 
 #### 用户权限调整@提升为管理员😊
 
