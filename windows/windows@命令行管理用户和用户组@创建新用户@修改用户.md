@@ -121,65 +121,7 @@ New-LocalUser -Name "UserName"
 
 ```
 
-创建带有密码用户
 
-### 示例 2：创建具有密码的用户帐户
-
-PowerShell文档中的示例
-
-```powershell
-$Password = Read-Host -AsSecureString
-$params = @{
-    Name        = 'User03'
-    Password    = $Password
-    FullName    = 'Third User'
-    Description = 'Description of this account.'
-}
-New-LocalUser @params
-
-Name    Enabled  Description
-----    -------  -----------
-User03  True     Description of this account.
-```
-
-第一个命令使用 `Read-Host` cmdlet 提示输入密码。 该命令将密码存储为 `$Password` 变量中的安全字符串。
-
-第二个命令创建本地用户帐户，并将新帐户的密码设置为存储在 `$Password` 中的安全字符串。 该命令指定用户帐户的用户名、全名和说明。
-
-
-
-```powershell
-# 创建一个新的本地用户并设置密码(这种方式会报错)
-$passwordSecureString = ConvertTo-SecureString "pt123" -AsPlainText -Force
-New-LocalUser -Name "UserName" -Password $passwordSecureString
-
-```
-
-报错信息如下
-
-```
-PS> New-LocalUser -Name "UserName" -Password $passwordSecureString
-New-LocalUser: Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI' from assembly 'System.Management.Automation, Version=7.4.3.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
-```
-
-其他:
-
-```bash
-# 创建用户并设置更多属性
-New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExpires $true
-```
-
-#### net user命令方法
-
-创建一个带密码的用户
-
-```cmd
-net user NewUsername YourPassword /add
-```
-
-请将 `NewUsername` 替换为您想创建的用户名，将 `YourPassword` 替换为您想设置的密码。
-
-还可以完成更多操作,但是这是一种不再被维护和推荐的方法,特别带有明文密码的方式不安全,除非这个账户目的是匿名访问计算机资源用途,比如访问共享文件夹
 
 ### 归入用户组(可选操作)
 
@@ -346,6 +288,100 @@ net user NewUsername YourPassword /add
 
   
 
+## 拓展
+
+### 创建具有密码的用户帐户
+
+PowerShell文档中的示例:创建密码字符串加密的用户
+
+使用`Read-Host`读入字符串加密为密码
+
+```powershell
+$Password = Read-Host -AsSecureString
+$params = @{
+    Name        = 'User03'
+    Password    = $Password
+    FullName    = 'Third User'
+    Description = 'Description of this account.'
+}
+New-LocalUser @params
+
+```
+
+第一个命令使用 `Read-Host` cmdlet 提示输入密码。 该命令将密码存储为 `$Password` 变量中的安全字符串。
+
+第二个命令创建本地用户帐户，并将新帐户的密码设置为存储在 `$Password` 中的安全字符串。 该命令指定用户帐户的用户名、全名和说明。
+
+使用`CovertTo-SecureString`将字符串转换为加密字符串作为密码
+
+```powershell
+# 创建一个新的本地用户并设置密码(这种方式会报错)
+$passwordSecureString = ConvertTo-SecureString "pt123" -AsPlainText -Force
+New-LocalUser -Name "UserName" -Password $passwordSecureString
+
+```
+
+报错信息如下
+
+```
+PS> New-LocalUser -Name "UserName" -Password $passwordSecureString
+New-LocalUser: Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI' from assembly 'System.Management.Automation, Version=7.4.3.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
+```
+
+其他:
+
+```bash
+# 创建用户并设置更多属性
+New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExpires $true
+```
+
+#### net user命令方法
+
+创建一个带密码的用户
+
+```cmd
+net user NewUsername YourPassword /add
+```
+
+请将 `NewUsername` 替换为您想创建的用户名，将 `YourPassword` 替换为您想设置的密码。
+
+还可以完成更多操作,但是这是一种不再被维护和推荐的方法,特别带有明文密码的方式不安全,除非这个账户目的是匿名访问计算机资源用途,比如访问共享文件夹
+
+## 加密和安全字符串
+
+在PowerShell中，纯文本、加密字符串和安全字符串是处理敏感信息（如密码）时常用的三种类型。每种类型都有其特定的用途和使用场景。
+
+### 加密字符串（Encrypted String）
+
+加密字符串是将纯文本进行加密后得到的字符串。加密字符串在传输和存储时提供了一定的安全性，但仍然容易被解密。因此，加密字符串在某些场景下用来保护敏感信息，但不能完全依赖于其安全性。
+
+### 安全字符串（Secure String）
+
+安全字符串是一种在内存中以加密形式存储的字符串。它主要用于存储敏感信息，如密码。安全字符串不能直接读取其内容，需要通过特定的方法来获取其值。相对于纯文本和加密字符串，安全字符串提供了更高的安全性。
+
+```
+System.Security.SecureString
+```
+
+
+
+### 小结
+
+- **纯文本**：适合非敏感信息，易读易用，但安全性低。
+- **加密字符串**：适合传输和存储较敏感的信息，但需要注意其安全性不足的问题。
+- **安全字符串**：适合处理高敏感信息，如密码，提供较高的安全性，但使用起来稍微复杂一些。
+
+在处理敏感信息时，优先使用安全字符串，并尽量避免使用纯文本存储或传输敏感数据。在必须将安全字符串转换为其他形式时，务必小心处理，确保不会暴露敏感信息。
+
+### 字符串安全类型转换
+
+[ConvertTo-SecureString (Microsoft.PowerShell.Security) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.security/convertto-securestring?view=powershell-7.4)
+
+将**纯文本**或**加密字符串**转换为**安全字符串**。
+
+[ConvertFrom-SecureString (Microsoft.PowerShell.Security) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.security/convertfrom-securestring?view=powershell-7.4)
+
+将**安全字符串**转换为**加密的标准字符串**。
 
 ## 补充
 

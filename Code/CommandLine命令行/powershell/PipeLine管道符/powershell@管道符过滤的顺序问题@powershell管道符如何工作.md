@@ -1,37 +1,6 @@
 [toc]
 
-## select 和 where谁先执行
 
-- 在执行筛选时，指定命令的顺序确实很重要。
-
-- 例如，考虑这样一种情况：使用 Select-Object 只选择几个属性(比如Name,Date)，而使用 Where-Object 过滤的属性是(size)不在选择范围内的属性。在这种情况下，必须先进行过滤，否则在尝试执行过滤时，管道中将不存在该属性。
-
-- 下面的例子返回的内容会是空的
-
-  ```powershell
-  Get-Service -ErrorAction Ignore |
-  Select-Object -Property DisplayName, Running, Status |
-  Where-Object CanPauseAndContinue
-  ```
-
-- 更改select和where的顺序,就是正确的用法
-
-  ```powershell
-  PS>Get-Service -ErrorAction Ignore |
-  >> Where-Object CanPauseAndContinue |
-  >> Select-Object -Property DisplayName, Status
-  
-  DisplayName                                           Status
-  -----------                                           ------
-  Control Center Hotkey Service                        Running
-  Intel(R) Dynamic Tuning Technology Telemetry Service Running
-  Intel(R) Graphics Command Center Service             Running
-  Intel(R) Innovation Platform Framework Service       Running
-  Workstation                                          Running
-  Web Threat Defense Service                           Running
-  Web Threat Defense User Service_1bd31e               Running
-  Windows Management Instrumentation                   Running
-  ```
 
 ## powershell管道符
 
@@ -87,55 +56,60 @@
 
     
 
-  - 当一个参数同时接受按属性名和值输入的管道输入时，它总是先尝试按值输入。
+### 管道符的按值传参和按属性名传参方式
 
-  - 如果按值输入失败，它就会尝试按属性名输入。
-
-  - 按值输入有点误导。我更喜欢称之为按类型。这意味着如果你将产生 ServiceController 对象类型的命令结果导入 Stop-Service，它会将该输入绑定到 InputObject 参数。
-
+- 当一个参数同时接受按**属性名**(ByPropertyName)和**值**(ByValue)输入的**管道输入**时，它总是先尝试按**值**输入。如果按值输入失败，它就会尝试按属性名输入。
+  - **按值输入**这个说法有点误导。完整的讲可以理解为**按值的对象类型**,简称之为**按对象**或**按值**(ByValue)。
+    - 例如变量`$var`的值为`"Hellow"`,该值的类型是一个**字符串类型**(`String`),那么对于支持管道符收入的函数有接受`String`的参数时就可以用管道符的形式传递参数
+  - 这意味着如果你将产生 ServiceController 对象**类型**的命令结果导入 Stop-Service，它会将该输入绑定到 InputObject 参数。
   - 但如果将产生字符串输出的命令结果导入 Stop-Service，则会将其绑定到 Name 参数。
-
   - 如果将一条不产生 ServiceController 或 String 对象的命令的结果导入 Stop-Service，不意味着绑定一定失败
-
   - 如果它产生(返回)的某个对象的属性包含了Name，那么它会将输出中的 Name 属性绑定到 Stop-Service 的 Name 参数。
+- 如果一个函数的某个参数声明了它支持管道符输入,但是没有支持是按值输入还是按属性名输入,那么默认是按值输入
+- 按照惯例,**按值输入**的参数往往以`InputObject`命令,因为这种传参方式不关心参数名字如何,只是含义比较空泛的取为输入对象方便内部处理;而**按属性名输入**的参数则通常是有跟具体的含义,比如`Name`,`Id`,`Destination`等词
 
-### stop-process为例介绍管道符传参是怎么工作的
+### 管道符传参是怎么工作的
 
-- 经典命令`stop-process`,结束进程的cmdlet
+- 我们以`stop-process`例介绍,这是经典命令`stop-process`,结束进程的cmdlet
 
-  - ```powershell
-      -Id <System.Int32[]>
-            Specifies the process IDs of the processes to stop. To specify multiple IDs, use commas to separate the IDs. To
-             find the PID of a process, type `Get-Process`.
+- 部分参数文档,我们关注**参数**的**类型**,以及`Accept pipeline input?`字段是否为`True`,表示该参数是否支持管道符,并且会指出支持什么类型的管道符传参方式
     
-            Required?                    true
-            Position?                    0
-            Default value                None
-            Accept pipeline input?       True (ByPropertyName)
-            Accept wildcard characters?  false
-    
-        -InputObject <System.Diagnostics.Process[]>
-            Specifies the process objects to stop. Enter a variable that contains the objects, or type a command or express
-            ion that gets the objects.
-    
-            Required?                    true
-            Position?                    0
-            Default value                None
-            Accept pipeline input?       True (ByValue)
-            Accept wildcard characters?  false
-    
-        -Name <System.String[]>
-            Specifies the process names of the processes to stop. You can type multiple process names, separated by commas,
-             or use wildcard characters.
-    
-            Required?                    true
-            Position?                    named
-            Default value                None
-            Accept pipeline input?       True (ByPropertyName)
-            Accept wildcard characters?  true
-    ```
+    ```powershell
+    ...
+  -Id <System.Int32[]>
+          Specifies the process IDs of the processes to stop. To specify multiple IDs, use commas to separate the IDs. To
+           find the PID of a process, type `Get-Process`.
+      
+          Required?                    true
+          Position?                    0
+        Default value                None
+          Accept pipeline input?       True (ByPropertyName)
+          Accept wildcard characters?  false
+      
+    -InputObject <System.Diagnostics.Process[]>
+          Specifies the process objects to stop. Enter a variable that contains the objects, or type a command or express
+          ion that gets the objects.
+      
+          Required?                    true
+          Position?                    0
+        Default value                None
+          Accept pipeline input?       True (ByValue)
+          Accept wildcard characters?  false
+      
+    -Name <System.String[]>
+          Specifies the process names of the processes to stop. You can type multiple process names, separated by commas,
+           or use wildcard characters.
+      
+          Required?                    true
+          Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByPropertyName)
+        Accept wildcard characters?  true
+  ```
 
-- 为了便于介绍,这里创建两个notepad进程
+### 实验
+
+- 为了便于介绍,这里创建两个`notepad`进程
 
   - ```powershell
     PS C:\Users\cxxu\Desktop> $pss=ps Notepad
@@ -192,7 +166,7 @@
 
 - 和`Id`参数类似,当管道符传入的对象包含了`Id`属性,并且类型为`<System.String[]>`时,有机会绑定到这个参数上
 
-#### 额外的试验
+### 额外的试验
 
 - 我们提到说管道符输入时,会分别检查byValue和byPropertyName类型的参数
 
@@ -236,7 +210,28 @@
     PS C:\repos\scripts> $custObj | Stop-Process   
     ```
 
-  - 经过检验,上述语句顺利执行
+  - 经过检验,上述语句顺利执行;其中`custObj`按属性名传值给`Stop-Process`
+  
+- 新建一个对象,让`CustObj`的`Id`对象取字符串类型的值,然后用管道符的方式传递给`Stop-process`观察是否会因为`Id`不是整数类型而不被按属性名传参
+
+- 实验表明,`Stop-Process`能够意识到这一点并执行了转化,执行成功
+
+  ```powershell
+  PS [C:\Users\cxxu\Desktop]> ps notepad
+  
+   NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+   ------    -----      -----     ------      --  -- -----------
+       39    67.80     111.42       0.08   19900   1 Notepad
+  
+  
+  PS [C:\Users\cxxu\Desktop]> $custObj = [PSCustomObject]@{
+  >>     id = "19900"
+  >> }
+  
+  PS [C:\Users\cxxu\Desktop]> $custobj|Stop-Process
+  ```
+
+  
 
 #### 反面例子
 
@@ -429,4 +424,36 @@
 
     
 
-​	
+## 	select 和 where谁先执行
+
+- 在执行筛选时，指定命令的顺序确实很重要。
+
+- 例如，考虑这样一种情况：使用 Select-Object 只选择几个属性(比如Name,Date)，而使用 Where-Object 过滤的属性是(size)不在选择范围内的属性。在这种情况下，必须先进行过滤，否则在尝试执行过滤时，管道中将不存在该属性。
+
+- 下面的例子返回的内容会是空的
+
+  ```powershell
+  Get-Service -ErrorAction Ignore |
+  Select-Object -Property DisplayName, Running, Status |
+  Where-Object CanPauseAndContinue
+  ```
+
+- 更改select和where的顺序,就是正确的用法
+
+  ```powershell
+  PS>Get-Service -ErrorAction Ignore |
+  >> Where-Object CanPauseAndContinue |
+  >> Select-Object -Property DisplayName, Status
+  
+  DisplayName                                           Status
+  -----------                                           ------
+  Control Center Hotkey Service                        Running
+  Intel(R) Dynamic Tuning Technology Telemetry Service Running
+  Intel(R) Graphics Command Center Service             Running
+  Intel(R) Innovation Platform Framework Service       Running
+  Workstation                                          Running
+  Web Threat Defense Service                           Running
+  Web Threat Defense User Service_1bd31e               Running
+  Windows Management Instrumentation                   Running
+  ```
+
