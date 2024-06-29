@@ -235,6 +235,8 @@
   
   可以看到,有143个子目录,并且文件种类数量不少,如果吧文件当成特殊文件,则共有52中文件类型
 
+
+
 ## powershell 增强函数打开特定控制面板或设置页面👺
 
 - [Launch windows control panel applets from PowerShell (github.com)](https://gist.github.com/mattmcnabb/ab3f1d0f7f778cee570b41463959363f)
@@ -389,6 +391,11 @@
   
   ```
 
+## 利用`ms-settings`语句打开设置中的特定页面👺
+
+- 在win10之后的系统中,有:[启动 Windows 设置应用  applications | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/uwp/launch-resume/launch-settings-app)
+- 例如,您可以在运行窗口(win+R快捷键打开的窗口中)输入:`ms-settings:typing`,就可以直接跳转到输入法设置页面;或者在命令行中使用`ms-settings:typing`来启动设置页面
+- 当然,您也可以直接在系统设置中搜索相关的关键字,和上述`ms-settings`语句互补使用
 
 ## system32目录中常见类型文件
 
