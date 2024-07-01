@@ -84,7 +84,7 @@
 
 - **文件和打印机共享命令**：
 
-  ```plaintext
+  ```cmd
   netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
   ```
 
@@ -92,7 +92,7 @@
 
 - **网络发现命令**：
 
-  ```plaintext
+  ```cmd
   netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
   ```
 

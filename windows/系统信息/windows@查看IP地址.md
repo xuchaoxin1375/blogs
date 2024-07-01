@@ -2,38 +2,6 @@
 
 
 
-## 计算机名
-
-- 开始菜单中直接搜索`计算机名`可以进入到设置查看
-
-- 更通用的办法是打开cmd或powershell
-
-  - 输入`hostname.exe`
-
-    - ```
-      PS>HOSTNAME.EXE
-      ColorfulCxxu
-      ```
-
-    - 返回的`ColorfulCxxu`就是计算机名
-
-  - 或者输入`whoami`,可以看到返回的内容是一个字符串,包含一个斜杆`/`;斜杠前面的部分就是计算机名
-
-    - ```bash
-      PS>whoami
-      colorfulcxxu\cxxu
-      ```
-
-  - 例如上述结果表示,主机的名字叫`colorfulcxxu`
-
-
-
-- 记下(复制)改名字(也可以自行修改计算机名)
-  如果需要,可以修改计算机名(修改后需要重启计算机)
-  ![在这里插入图片描述](https://img-blog.csdnimg.cn/f771969303d24248b114ca79c64ff391.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_19,color_FFFFFF,t_70,g_se,x_16)
-
-
-
 ## 获取ip地址
 
 - 这里主要关心的是ipv4地址

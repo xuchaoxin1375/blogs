@@ -4,7 +4,9 @@
 
 [关于函数 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions?view=powershell-7.3#piping-objects-to-functions)
 
-​	通过管道将对象传递给函数
+[关于参数 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_parameters?view=powershell-7.4)
+
+[接受管道输入 (microsoft.com)](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_parameters?view=powershell-7.4#accepts-pipeline-input)
 
 ## 案例
 

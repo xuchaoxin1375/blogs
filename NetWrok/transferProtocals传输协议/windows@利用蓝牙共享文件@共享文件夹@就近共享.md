@@ -16,8 +16,12 @@ windows系统下局域网内传输文件的简单方法有2中,其中最简单�
   - [Setup — NearShare (shortdev.de)](https://nearshare.shortdev.de/docs/setup/)
 
   - 实际体验下来还可以,操作简单
-    - 注意手机端发送比较容易,但是接收需要获取蓝牙Mac地址,您需要先打开手机蓝牙开关(否则地址不可用),然后到系统设置里找到(状态信息里的蓝牙Mac地址);这个地址比较长,您可以截图,然后用ocr识别,或者支持屏幕提取文字的功能也可以直接提取
+    - 注意手机端发送比较容易,但是接收需要获取蓝牙Mac地址,您需要先打开手机蓝牙开关(否则地址不可用),然后到系统设置里找到(状态信息里的蓝牙Mac地址);这个地址比较长,您可以
+      - 如果手机支持长按复制,则直接复制即可
+      - 也可以先截图,然后用ocr文字提取识别
+      - 或者支持屏幕提取文字的功能也可以直接提取
     - 填写后点击下一步即可
+  - 此外,也支持两个android设备之间进行互传文件(都需要安装好并启动设置NearShare app,没有广告,没不需要验证密码等操作)
 
 好处就是配置少,开个开关就行,成功率高,可以用wifi,也可以用蓝牙传输,不要求有路由器
 
@@ -30,23 +34,31 @@ windows系统下局域网内传输文件的简单方法有2中,其中最简单�
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
 
-
-
 ## 配置共享文件夹准备工作👺
 
 为了更好的理解windows的共享文件夹及其相关功能,可以阅读一下准备工作,尽管这不是必须的
 
 [windows@文件高级共享设置@网络发现功能@从资源管理器网络中访问远程桌面-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/139990609?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"139990609"%2C"source"%3A"xuchaoxin1375"})
 
-## 选择一个合适的目录创建共享文件夹
+### 选择一个合适的目录创建共享文件夹
 
 - 为了避免共享文件夹创建完成后,其他用户无法访问(尽管登录成功,但内容是空的),建议把共享文件夹建立或选择在非用户目录下,例如,`C:\share`这类简短的目录;而`C:\User\UserX\...`这类目录(这个目录是用户`Userx`的家目录下的某个目录,不妨记为目录P)则容易与到权限问题,比如您创建了一个普通用`smb`分发给需要的设备访问共享文件夹P,可能会读取不到内容,除非您使用`UserX`的身份访问才可以读取目录P里的内容
+
+
+
+
 
 ## 创建共享文件夹
 
 windows上创建共享文件夹的方式有好几种,有命令行方式,也有GUI方式
 
 下面分别介绍这两大类方法,每大类里又细分两种方法
+
+为了提高易用性,降低操作成本,我创建了一个脚本,可以直接运行实现基本的共享文件夹创建和使用,如果您有兴趣,可以看后面的章节
+
+### 一键创建共享文件夹👺
+
+- 参考[windows@一键创建共享文件夹@优秀的局域网内文件传输方案](https://blog.csdn.net/xuchaoxin1375/article/details/140099769?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"140099769"%2C"source"%3A"xuchaoxin1375"})
 
 ### 使用命令行net share方式创建和管理
 
@@ -288,7 +300,7 @@ New-PSDrive: The specified drive root "\\192.168.1.158\share" either does not ex
 
 ```powershell
 # 创建共享文件夹
-New-SmbShare -Name "SharedFolder" -Path "C:\SharedFolder" -FullAccess "Everyone"
+New-SmbShare -Name "Share" -Path "C:\Share" -ChangeAccess "Everyone" #这里赋予任意用户修改权限(包含了可读权限和修改权限)
 ```
 
 #### 参数解释
@@ -305,7 +317,7 @@ New-SmbShare -Name "SharedFolder" -Path "C:\SharedFolder" -FullAccess "Everyone"
 
 ```powershell
 # 修改共享文件夹的权限
-Set-SmbShare -Name "SharedFolder" -ChangeAccess "Everyone"
+Set-SmbShare -Name "Share" -ChangeAccess "Everyone"
 ```
 
 ### 删除共享文件夹
@@ -314,7 +326,7 @@ Set-SmbShare -Name "SharedFolder" -ChangeAccess "Everyone"
 
 ```powershell
 # 删除共享文件夹
-Remove-SmbShare -Name "SharedFolder" -Force
+Remove-SmbShare -Name "Share" -Force
 ```
 
 
@@ -328,7 +340,7 @@ Remove-SmbShare -Name "SharedFolder" -Force
 Get-SmbShare
 
 # 查看特定共享文件夹
-Get-SmbShare -Name "SharedFolder"
+Get-SmbShare -Name "Share"
 ```
 
 ```powershell

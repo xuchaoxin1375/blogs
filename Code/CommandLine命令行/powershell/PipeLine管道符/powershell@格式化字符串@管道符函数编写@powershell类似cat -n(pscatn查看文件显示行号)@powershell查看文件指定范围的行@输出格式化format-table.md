@@ -118,6 +118,112 @@ Ethernet adapter vEthernet (Default Switch):
     ResolvedCommand   : ForEach-Object
     ```
 
+### 编写为函数Get-ContentWithLineNumber
+
+```powershell
+
+function Get-ContentWithLineNumber
+{
+    <# 
+.SYNOPSIS
+该函数用于计数地输出文本内容:在每行的开头显示该行是文本中的第几行(行号),以及该行的内容
+支持管道符输入被统计对象
+
+.EXAMPLE
+#常规用法,通过参数指定文本文件路径来计数地输出文本内容
+Get-ContentWithLineNumber -InputData .\r.txt
+.EXAMPLE
+rvpa .\r.txt |Get-ContentWithLineNumber
+.EXAMPLE
+将一个三行的文本字符串作为管道输入，然后将其,显式指出将管道符内容视为字符串而不是路径字符串进行统计
+#创建测试多行字符串变量
+$mlstr=@'
+line1
+line2
+line3
+'@
+
+$mlstr|Get-ContentWithLineNumber -AsString
+
+.EXAMPLE
+计数一个多行字符串变量的行数
+PS C:\repos\scripts\ModulesByCxxu\Test> $mlstr=@'
+>> line1
+>> line2
+>> line3
+>> '@
+PS C:\repos\scripts\ModulesByCxxu\Test> $mlstr
+line1
+line2
+line3
+PS C:\repos\scripts\ModulesByCxxu\Test> Get-ContentWithLineNumber -InputData $mlstr -AsString
+1:line1
+2:line2
+3:line3
+.Notes
+可以设置别名,比如pscatn 
+#>
+    [CmdletBinding()]
+    param(
+        # 可以是一个表示文件路径的字符串，也可以是一个需要被统计行数并显示内容的字符串;后者需要追加 -AsString 选项
+        [Parameter(
+            Mandatory = $false, #这里如果使用这个参数的话，必须要指定非空值,为了增强兼容性,不适用改参数,或者指定为$false
+            ValueFromPipeline = $true
+        )]
+        [string]$InputData,
+        
+        # [Parameter(ParameterSetName = 'FilePath')]
+        # [switch]$AsFilePath,
+
+        # [Parameter(ParameterSetName = 'String')]
+        [switch]$AsString
+
+    )
+
+    begin
+    {
+        $lineNumber = 0
+    }
+
+    process
+    {
+        if ($AsString)
+        # if ($PSCmdlet.ParameterSetName -eq 'String')
+        {
+            # 如果是字符串，则认为是直接传入的文件内容
+            $InputData -split "`n" | ForEach-Object {
+                $lineNumber++
+                "${lineNumber}:$_"
+            }
+        }
+        else
+        {
+            # 否则，认为是文件路径
+            try
+            {
+                if (Test-Path $InputData -PathType Leaf)
+                {
+                    Get-Content $InputData | ForEach-Object {
+                        $lineNumber++
+                        "${lineNumber}:$_"
+                    }
+                }
+                else
+                {
+                    Write-Error "File does not exist: $InputData"
+                }
+            }
+            catch
+            {
+                Write-Error "An error occurred: $_"
+            }
+        }
+    }
+}
+```
+
+
+
 ### 文件编码问题@(中文乱码)
 
 - 通常,如果你的文本文件使用文字软件可以正确识读,但是使用`cat`(即`get-content`)却出现了乱码

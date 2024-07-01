@@ -107,23 +107,155 @@
 
 - 使用管理员权限打开powershell5.1命令行,可以尽可能减少权限问题导致的报错
 
-## 创建新用户😊
+## 创建新用户👺
 
+可以用两类命令行方法,一类是powershell命令,一类是用`net user`命令
 
+都支持指定密码或者不指定密码
 
-### 创建本地用户
+### 创建具有密码的用户帐户
 
-#### powershell方法
+创建指定密码的账户使用powershell方法会更加安全但也更加复杂
+
+而使用`net use`命令可以很简单
+
+#### powershell New-LocalUser方法
+
+PowerShell文档中的示例:创建密码字符串加密的用户
+
+使用`Read-Host`读入字符串加密为密码
 
 ```powershell
-# 创建一个新的本地用户，不提供密码
-New-LocalUser -Name "UserName"
+$Password = Read-Host -AsSecureString
+$params = @{
+    Name        = 'User04'
+    Password    = $Password
+    FullName    = 'Third User'
+    Description = 'Description of this account.'
+}
+New-LocalUser @params
 
 ```
 
+第一个命令使用 `Read-Host` cmdlet 提示输入密码。 该命令将密码存储为 `$Password` 变量中的安全字符串。
+
+第二个命令创建本地用户帐户，并将新帐户的密码设置为存储在 `$Password` 中的安全字符串。 该命令指定用户帐户的用户名、全名和说明。
+
+```powershell
+PowerShell 7.4.2
+PS C:\Users\cxxu> $Password = Read-Host -AsSecureString
+*
+PS C:\Users\cxxu> $params = @{
+>>     Name        = 'User03'
+>>     Password    = $Password
+>>     FullName    = 'Third User'
+>>     Description = 'Description of this account.'
+>> }
+PS C:\Users\cxxu> New-LocalUser @params
+
+Name   Enabled Description
+----   ------- -----------
+User03 True    Description of this account.
+```
+
+上述尝试是在windows10系统上执行的,powershell版本是7.4.2,更新到7.4.3也是可以执行的
+
+然而,在其他windows版本(windows11)上某些版本可能会出现错误,详情查看下一节
+
+##### powershell模块错误
+
+- powershell模块异常时,无法顺利执行上述命令
+
+  - 您可以考虑使用windows自带的powershell版本
+
+    - ```
+      PS C:\Users\cxxu\Desktop> powershell.exe
+      Windows PowerShell
+      Copyright (C) Microsoft Corporation. All rights reserved.
+      
+      Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+      
+      PS C:\Users\cxxu\Desktop> $PSVersionTable
+      
+      Name                           Value
+      ----                           -----
+      PSVersion                      5.1.22621.3672
+      PSEdition                      Desktop
+      PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0...}
+      BuildVersion                   10.0.22621.3672
+      CLRVersion                     4.0.30319.42000
+      WSManStackVersion              3.0
+      PSRemotingProtocolVersion      2.3
+      SerializationVersion           1.1.0.1
+      ```
+
+    - 然后利用管理员权限执行创建新用户的命令
+
+相关可能遇到的错误详情
+
+- [Running New-LocalUser in PowerShell 7.3 raises an error · Issue #18624 · PowerShell/PowerShell (github.com)](https://github.com/PowerShell/PowerShell/issues/18624)
+- 在windows11上执行时遇到了如下错误
+
+```powershell
+Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI'
+或者
+New-LocalUser: Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI' from assembly 'System.Management.Automation, Version=7.4.3, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
+```
+
+##### 解决方案
+
+已知有两种方法可以解决
+
+- 从powershell7 切换到windows自带的powershell版本,直接执行`powershell.exe`
+
+- 执行导入语句
+
+  ```powershell
+   import-module microsoft.powershell.localaccounts -UseWindowsPowerShell
+  ```
+
+两种方案任选一种,然后执行创建用户的操作
+
+##### 在自动化脚本中创建带有密码的用户
+
+使用`CovertTo-SecureString`将字符串转换为加密字符串作为密码,这种方式适用于非交互式的自动化执行脚本内使用,如果条件允许,应当尽量用前面的方式,则尽量不要用下面的方式
+
+```powershell
+# 创建一个新的本地用户并设置密码(这种方式会暴露密码与终端里)
+$passwordSecureString = ConvertTo-SecureString "pt123" -AsPlainText -Force
+New-LocalUser -Name "UserName" -Password $passwordSecureString
+
+```
+
+也可以设置用不过期选项
+
+```bash
+# 创建用户并设置更多属性
+New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExpires 
+```
+
+为了防止出错,依然要从上述可能报错的解决方案中使用导入语句` import-module microsoft.powershell.localaccounts -UseWindowsPowerShell`,然后执行上述代码
+
+#### net user命令方法
+
+创建一个带密码的用户
+
+```cmd
+net user NewUsername YourPassword /add
+```
+
+请将 `NewUsername` 替换为您想创建的用户名，将 `YourPassword` 替换为您想设置的密码。
+
+还可以完成更多操作,但是这是一种不再被维护和推荐的方法,特别带有明文密码的方式不安全,除非这个账户目的是匿名访问计算机资源用途,比如访问共享文件夹
 
 
-### 归入用户组(可选操作)
+
+### 创建无密码用户
+
+- 和有密码用户的创建方法类似,不适用密码参数即可
+- 这种情况比较少用
+
+## 将用户归入用户组
 
 - 在Windows操作系统中
   - 当你使用 `New-LocalUser` PowerShell cmdlet 创建新的本地用户时，默认情况下，新创建的用户不会被加入任何组
@@ -287,65 +419,6 @@ New-LocalUser -Name "UserName"
   - 删除后重新检查,如果漏掉哪个,可以手动调用`remove-localuser`删除
 
   
-
-## 拓展
-
-### 创建具有密码的用户帐户
-
-PowerShell文档中的示例:创建密码字符串加密的用户
-
-使用`Read-Host`读入字符串加密为密码
-
-```powershell
-$Password = Read-Host -AsSecureString
-$params = @{
-    Name        = 'User03'
-    Password    = $Password
-    FullName    = 'Third User'
-    Description = 'Description of this account.'
-}
-New-LocalUser @params
-
-```
-
-第一个命令使用 `Read-Host` cmdlet 提示输入密码。 该命令将密码存储为 `$Password` 变量中的安全字符串。
-
-第二个命令创建本地用户帐户，并将新帐户的密码设置为存储在 `$Password` 中的安全字符串。 该命令指定用户帐户的用户名、全名和说明。
-
-使用`CovertTo-SecureString`将字符串转换为加密字符串作为密码
-
-```powershell
-# 创建一个新的本地用户并设置密码(这种方式会报错)
-$passwordSecureString = ConvertTo-SecureString "pt123" -AsPlainText -Force
-New-LocalUser -Name "UserName" -Password $passwordSecureString
-
-```
-
-报错信息如下
-
-```
-PS> New-LocalUser -Name "UserName" -Password $passwordSecureString
-New-LocalUser: Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI' from assembly 'System.Management.Automation, Version=7.4.3.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
-```
-
-其他:
-
-```bash
-# 创建用户并设置更多属性
-New-LocalUser -Name "UserName" -Description "User description" -PasswordNeverExpires $true
-```
-
-#### net user命令方法
-
-创建一个带密码的用户
-
-```cmd
-net user NewUsername YourPassword /add
-```
-
-请将 `NewUsername` 替换为您想创建的用户名，将 `YourPassword` 替换为您想设置的密码。
-
-还可以完成更多操作,但是这是一种不再被维护和推荐的方法,特别带有明文密码的方式不安全,除非这个账户目的是匿名访问计算机资源用途,比如访问共享文件夹
 
 ## 加密和安全字符串
 
