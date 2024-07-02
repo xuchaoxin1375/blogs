@@ -34,6 +34,8 @@ windows系统下局域网内传输文件的简单方法有2中,其中最简单�
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
 
+- 更多参考:[Windows 文件夹共享指南：轻松分享文件和资料 - 系统极客 (sysgeek.cn)](https://www.sysgeek.cn/sharing-folders-windows-11/)
+
 ## 配置共享文件夹准备工作👺
 
 为了更好的理解windows的共享文件夹及其相关功能,可以阅读一下准备工作,尽管这不是必须的
@@ -111,7 +113,7 @@ net share <ShareName> \\<ComputerName> /delete
 | ------------------------------------- | ------------------------------------------------------------ |
 | `/grant:<user>,{read | change |full}` | Creates the share with a security descriptor that gives the requested permissions to the specified user. <br />The permissions that can be granted to a user are: read, change or full. <br />This option may be used more than once to give share permissions to multiple users. |
 
-### 简单授权共享文件夹示例
+##### 简单授权共享文件夹示例
 
 ```powershell
 
@@ -134,7 +136,7 @@ Users        C:\Users
 The command completed successfully.
 ```
 
-#### 为不同用户分别指定权限
+##### 为不同用户分别指定权限
 
 
 
@@ -147,7 +149,7 @@ DemoShareMultipleGrant was shared successfully.
 
 
 
-#### 访问控制权限查看
+#### 访问控制权限
 
 我们可以用`Get-Acl`来查看指定目录或文件的访问控制权限
 
@@ -168,7 +170,7 @@ Sddl   : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-22
          ;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)
 ```
 
-但是,这不等同于共享文件夹的访问控制权限
+但是,这不等同于共享文件夹的访问控制权限,假设使用凭据Userx来访问共享文件,那么共享文件夹的[Share权限]和[文件系统权限,比如NTFS权限]都设置为可以被[Userx]访问时,其他端才可以通过Userx的身份凭据来访问共享文件夹
 
 ### 使用powershell中的SmbShare模块命令
 
@@ -252,6 +254,8 @@ Sddl   : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-22
 其中`\\`后面跟的第一个字段(截止于`\`前)的是当前共享文件夹的主机名(但是需要您启用网络发现才可以直接使用此路径访问,否则需要用ip地址代替主机名)
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/3fd9aa1df0b44259a3430ff5198bdb79.png)
+
+
 
 ## 使用powershell管理共享文件夹👺
 
@@ -383,159 +387,6 @@ Set-SmbShare -Name "ReportsShare" -ChangeAccess "Everyone"
 Remove-SmbShare -Name "ReportsShare" -Force
 ```
 
+## 访问共享文件夹及其相关操作
 
-
-## 访问共享文件夹👺
-
-### 资源管理器打开共享文件夹
-
-本机外的其他windows用户访问smb服务器的方法
-
-- 对于windows系统,访问共享文件夹(smb服务器,不需要写协议名,直接用`\\`代替表示smb协议)
-
-- 可以按下**win+r**启动"运行"窗口(Run),输入`\\ip\FolderName`格式的链接回车运行
-
-
-这里提一下UNC路径
-
-[Windows 系统中的文件路径格式 | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/standard/io/file-path-formats#unc-paths)
-
-例如,访问`redmibookpc`的`C:`盘的UNC网络路径:`\\redmibookpc\C$`,这里用到网络发现功能,即便该`C:`没有被共享,但是如果有凭证就可以访问
-
-### 命令行打开共享文件夹
-
-- 参考powershell中提供的方法
-
-- 或者挂载共享文件夹为盘符后,cmd也可以访问
-
-- 也可以直接运行
-
-  - `ls \\server\sharefolder`(powershell)
-
-  - 或者`dir \\server\share`(cmd)这类命令
-
-    
-
-## 共享文件夹相关操作
-
-### 查看所有已经共享的文件夹👺
-
-- 有如下方式可以检查
-
-  - 在资源管理器中的地址栏输入`\\localhost`
-  - 或者命令行中输入`start \\localhost`
-
-- 也可以使用命令行查看(这种方法不再维护)
-
-  - ```powershell
-    PS> net share
-    
-    Share name   Resource                        Remark
-    
-    -------------------------------------------------------------------------------
-    IPC$                                         Remote IPC
-    share        C:\share                        ColorfulCxxuShare
-    The command completed successfully.
-    ```
-
-    
-
-### 停止某个文件的共享
-
-- 方法0:使用命令行停止/移除共享文件
-
-  - 可以使用`net share`来移除,命令行格式为:
-
-    - ` NET SHARE sharename \\computername /DELETE` 其中小写单词需要替换为具体的值
-
-  - 检查文件夹共享情况
-
-    ```powershell
-    PS>  net share
-    
-    Share name   Resource                        Remark
-    
-    -------------------------------------------------------------------------------
-    IPC$                                         Remote IPC
-    DemoShare    C:\sharePlus                    demo share
-    DemoShareFC  C:\share1                       share folder grant everyone
-    share        C:\share                        ColorfulCxxuShare
-    Users        C:\Users
-    The command completed successfully.
-    ```
-
-    实际操作示例
-
-    ```powershell
-    PS☀️[BAT:70%][MEM:36.47% (11.56/31.71)GB][20:00:24]
-    #⚡️[cxxu@COLORFULCXXU][C:\]
-    PS> net share Demoshare \\colorfulcxxu /delete
-    Demoshare was deleted successfully.
-    
-    #检查效果
-    PS> net share
-    
-    Share name   Resource                        Remark
-    
-    -------------------------------------------------------------------------------
-    IPC$                                         Remote IPC
-    DemoShareFC  C:\share1                       share folder grant everyone
-    share        C:\share                        ColorfulCxxuShare
-    Users        C:\Users
-    The command completed successfully.
-    #发现确实移除了DemoShare的共享
-    ```
-
-    
-
-- 方法1:图形界面操作
-
-  - |                                                              |                                                              |
-    | ------------------------------------------------------------ | ------------------------------------------------------------ |
-    | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/3bd52fc15c50499b8615f8231e2a12bd.png) | 右键目标文件夹,选择高级设置,将取消勾选分享次文件夹(share this folder);把保存修改即可 |
-
-- 方法2:从资源管理器中找到目标文件夹,右键更改访问权限,选择移除访问权限(remove access),但是不一定所有文件夹都能找到移除按钮
-
-## 共享文件夹的访问控制补充
-
-### 匿名访问问题😊
-
-免登录访问共享文件夹问题
-
-- [SMB2 和 SMB3 中的来宾访问被禁用 - Windows Server | Microsoft Learn](https://learn.microsoft.com/zh-cn/troubleshoot/windows-server/networking/guest-access-in-smb2-is-disabled-by-default)
-
-  - SMB1默认支持匿名访问,对于较新系统,需要到控制面板中启动相关windows功能
-    - 仅当需要兼容老设备或者实在想要匿名登录时考虑这么做(todo)
-  - 新系统配置匿名smb访问比较麻烦,我们可以建立一个简单的windows用户(账号密码很短)来逼近匿名访问的体验
-  - 事实上,smb协议的客户端通常由保存链接记录的功能,只要设置一次,后续就不需要输入账号密码,如果是一个人或很少人用,就更不用纠结了,配置一次就不需要再输入账号密码了(顶多smb服务器ip发生变换,但如果真的需要改ip无论是否匿名访问都要改,并不会造成更多麻烦,而且提高了一定的安全性)
-
-### 强制启用匿名访问
-
-- 以下设置可能是无效的
-
-  - 修改策略组
-
-  - 或命令行修改注册表
-
-    - ```bash
-      PS C:\Users\cxxu\Desktop> reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters /v "AllowInsecureGuestAuth" /d 1 /t REG_DWORD
-      
-      The operation completed successfully.
-      
-      PS C:\Users\cxxu\Desktop> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters
-      
-      HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters
-          EnablePlainTextPassword    REG_DWORD    0x0
-          EnableSecuritySignature    REG_DWORD    0x1
-          RequireSecuritySignature    REG_DWORD    0x0
-          ServiceDll    REG_EXPAND_SZ    %SystemRoot%\System32\wkssvc.dll
-          ServiceDllUnloadOnStop    REG_DWORD    0x1
-          AllowInsecureGuestAuth    REG_DWORD    0x1
-      ```
-
-- 可以考虑启用smb v1,似乎可以匿名访问,但不建议使用,可以简单创建一个专门访问共享文件夹的简单用户即可
-
-### 协议相关信息参考
-
-- [使用 Windows Server 中的 SMB 3 协议的文件共享概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/storage/file-server/file-server-smb-overview)
-
+另见它文 [windows@资源管理器中的地址栏@访问共享文件夹的各种方法@管理共享文件夹-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/140139320?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"140139320"%2C"source"%3A"xuchaoxin1375"})
