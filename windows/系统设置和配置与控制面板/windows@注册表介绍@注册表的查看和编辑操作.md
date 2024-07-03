@@ -542,7 +542,12 @@ C:\Users
 
 - 请确保你在执行这些命令时拥有足够的权限，因为访问某些注册表键可能需要管理员权限。如果遇到权限问题，你可能需要以管理员身份运行PowerShell或CMD。
 
-## 修改注册表👺
+## 注册表的备份与恢复👺
+
+- 修改注册表前,应当进行注册表备份
+- [How to back up and restore the registry in Windows - Microsoft Support](https://support.microsoft.com/en-us/topic/how-to-back-up-and-restore-the-registry-in-windows-855140ad-e318-2a13-2829-d428a2ab0692)
+
+## 修改和编辑注册表👺
 
 - 操作注册表时应当慎重，因为不当的修改可能会导致系统故障。如果不熟悉注册表的操作，建议尽量不要随意修改。
 
@@ -553,6 +558,11 @@ C:\Users
 - 详情查看文档:[Windows registry for advanced users - Windows Server | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/windows-registry-advanced-users#edit-the-registry)
 
 - 相关的powershell函数:[Set-ItemProperty (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/set-itemproperty?view=powershell-7.4)
+
+- 此外,还有导入的方式进行修改(创建.reg文件导入):
+  - [如何使用 .reg 文件添加、修改或删除注册表子项和值 - Microsoft 支持](https://support.microsoft.com/zh-cn/topic/如何使用-reg-文件添加-修改或删除注册表子项和值-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
+  - [How to add, modify, or delete registry subkeys and values by using a .reg file - Microsoft Support](https://support.microsoft.com/en-us/topic/how-to-add-modify-or-delete-registry-subkeys-and-values-by-using-a-reg-file-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
+
 
 ## 拓展和补充
 
