@@ -222,7 +222,7 @@ sudo chkconfig ssh on  # 对于某些系统，如RHEL/CentOS 6
 sudo update-rc.d ssh defaults  # 对于Debian/Ubuntu
 ```
 
-### 在Windows上检查SSH服务是否运行（服务端）
+### 在Windows上检查SSH服务是否运行（服务端）👺
 
 Windows可以安装OpenSSH Server组件，检查和管理其状态的方法如下：
 
@@ -236,6 +236,8 @@ Start-Service sshd
 # 设置开机启动
 Set-Service sshd -StartupType Automatic
 ```
+
+### 为windows安装OpenSSH Sever
 
 如果你的Windows系统尚未安装OpenSSH Server，可以通过PowerShell执行以下命令来安装：
 
