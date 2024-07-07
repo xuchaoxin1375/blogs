@@ -67,64 +67,78 @@
 ### windows
 
 - 通常windows上使用ssh client就够了(默认自带)
-- 而很少用windows去做服务器的,但是Microsoft也给出了如何启动ssh服务的方法
+- 虽然很少用windows去做服务器(尽管有windows server)的,但是Microsoft也给出了如何安装和启动ssh服务的方法
 
-- windows上使用openssh
 
-  - client and server [Get started with OpenSSH for Windows | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui)
+#### windows上使用openssh
 
-  - 检查是否已经安装了相应软件(管理员身份打开powershell)
+- client and server [Get started with OpenSSH for Windows | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui)
 
-    ```powershell
-    PS>Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
+
+##### 检查相关软件
+
+- 检查是否已经安装了相应软件
+
+- **管理员身份**打开powershell
+
+- 执行:`Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'`
+
+  ```powershell
+  PS>Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
+  
+  Name  : OpenSSH.Client~~~~0.0.1.0
+  State : Installed
+  
+  Name  : OpenSSH.Server~~~~0.0.1.0
+  State : NotPresent
+  
+  ```
+
+
+##### 安装相关软件
+
+- 如果上述检查结果是`NotPresent`,就说明未安装,执行一下命令安装(国内网络可能需要好几分钟才能下载下来)
+
+  - ```powershell
+    # Install the OpenSSH Client
+    Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
     
-    Name  : OpenSSH.Client~~~~0.0.1.0
-    State : Installed
-    
-    Name  : OpenSSH.Server~~~~0.0.1.0
-    State : NotPresent
-    
+    # Install the OpenSSH Server
+    Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
     ```
 
-  - 如果是NotPresent,就说明未安装,执行一下命令安装(国内网络可能需要好几分钟才能下载下来)
+- 例如安装OpenSSH server完毕(以sshd调用)
 
-    - ```powershell
-      # Install the OpenSSH Client
-      Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-      
-      # Install the OpenSSH Server
-      Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-      ```
+  - ```powershell
+    PS>Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+    
+    Path          :
+    Online        : True
+    RestartNeeded : False
+    ```
 
-  - 例如安装OpenSSH server完毕(以sshd调用)
 
-    - ```powershell
-      PS>Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-      
-      Path          :
-      Online        : True
-      RestartNeeded : False
-      ```
+##### 配置防火墙
 
-  - 初次ssh服务设置(包括防火墙等,以管理员身份打开powershell执行)
+- 初次ssh服务设置(包括防火墙等,以管理员身份打开powershell执行)
 
-    - ```powershell
-      # Start the sshd service
-      Start-Service sshd
-      
-      # OPTIONAL but recommended:
-      Set-Service -Name sshd -StartupType 'Automatic'
-      
-      # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
-      if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
-          Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
-          New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-      } else {
-          Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
-      }
-      ```
+  - ```powershell
+    # Start the sshd service
+    Start-Service sshd
+    
+    # OPTIONAL but recommended:
+    Set-Service -Name sshd -StartupType 'Automatic'
+    
+    # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+    if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
+        Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+        New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+    } else {
+        Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+    }
+    ```
 
-      
+    
 
 ### 小结
 
@@ -251,7 +265,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 
 请注意，在实际操作中，请确保以管理员权限运行这些命令。同时，为了确保SSH服务的安全性，应该在配置文件中设置合适的权限和安全策略。在Linux中，配置文件通常是`/etc/ssh/sshd_config`，而在Windows中，配置文件的位置可能是`C:\ProgramData\ssh\sshd_config`。
 
-## 建立ssh连接😊
+## 建立ssh连接👺
 
 - [How to Use SSH to Connect to a Remote Server in Linux or Windows (phoenixnap.com)](https://phoenixnap.com/kb/ssh-to-connect-to-remote-server-linux-or-windows#ftoc-heading-6)
 
@@ -340,6 +354,27 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
       ```
 
     - 第一次链接会弹出指纹警告,都一样,一般输入yes继续即可
+
+### 示例:两台windows设备间的ssh链接
+
+```bash
+
+PS☀️[BAT:77%][MEM:28.24% (8.95/31.71)GB][10:50:30]
+# [cxxu@COLORFULCXXU][~\Desktop]
+PS> ssh cxxu@redmibookpc
+The authenticity of host 'redmibookpc (fe80::5817:76db:cc68:5ea7%3)' can't be established.
+ED25519 key fingerprint is SHA256:+iQOIn71iEoPaKOzM8PXC7vyqCY3QC8yGolnxdN2ncs.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'redmibookpc' (ED25519) to the list of known hosts.
+cxxu@redmibookpc's password:
+Microsoft Windows [版本 10.0.19045.4529]
+(c) Microsoft Corporation。保留所有权利。
+
+cxxu@REDMIBOOKPC C:\Users\cxxu>
+```
+
+
 
 ## 使用账号密码方式链接
 

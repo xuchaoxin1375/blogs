@@ -74,8 +74,11 @@
 ## 高级共享设置和防火墙👺
 
 - windows的网络发现功能,以及文件和打印机共享功能的配置都是属于防火墙的配置,配置方式有多种
+- 中英文版系统的防火墙规则名不同,您需要根据自己的系统实际情况来运行
 
-### 命令行方式
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/18e26b4c9ea64606b476cdeb1b91d538.png)
+
+### 命令行方式👺
 
 - 以下两个命令分别启用**文件和打印机共享**功能和**网络发现功能**
 
@@ -85,6 +88,9 @@
 - **文件和打印机共享命令**：
 
   ```cmd
+  #对于中文系统
+  netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
+  #对于英文系统
   netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
   ```
 
@@ -93,6 +99,9 @@
 - **网络发现命令**：
 
   ```cmd
+  #对于中文系统
+  netsh advfirewall firewall set rule group="网络发现" new enable=Yes
+  #对于英文系统
   netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
   ```
 
@@ -103,26 +112,50 @@
   - 您可以复制粘贴以下内容,一并启用
 
     ```cmd
+    #对于中文系统
+    netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
+    netsh advfirewall firewall set rule group="网络发现" new enable=Yes
+    #对于英文系统
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
     netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
     
     ```
 
+
+#### 演示操作
+
+- 演示:以**管理员方式**启动cmd(或powershell)运行上述命令(回车执行)
+
+  - 中文
+
+    ```powershell
+    PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="网络发现" new enable=Yes
+    
+    已更新 62 规则。
+    确定。
+    
+    PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
+    
+    已更新 48 规则。
+    确定。
+    
+    ```
+
     
 
-  - 演示:以**管理员方式**启动cmd(或powershell)运行上述命令(回车执行)
+  - 英文
 
-    - ```bash
-      PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
-      
-      Updated 48 rule(s).
-      Ok.
-      
-      PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
-      
-      Updated 62 rule(s).
-      Ok.
-      ```
+    ```bash
+    PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+    
+    Updated 48 rule(s).
+    Ok.
+    
+    PS C:\Users\cxxu\Desktop> netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+    
+    Updated 62 rule(s).
+    Ok.
+    ```
 
 #### 封装为powershell函数
 

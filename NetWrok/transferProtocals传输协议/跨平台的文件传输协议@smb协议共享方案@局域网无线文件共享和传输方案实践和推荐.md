@@ -209,7 +209,7 @@ net use X: \\服务器地址\共享文件夹名称 /user:用户名 密码
 例如：
 
 ```bash
-net use X: \\192.168.1.100\SharedFolder /user:John Doe MyPassword123
+net use X: \\192.168.1.100\SharedFolder /user:John  Password123
 ```
 
 这条命令会将 `\\192.168.1.100\SharedFolder` 映射为本地 X: 驱动器，并使用指定的用户名和密码进行身份验证。

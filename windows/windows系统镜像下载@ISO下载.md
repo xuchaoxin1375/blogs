@@ -15,8 +15,12 @@
 
 ### 预览版/开发版进行下载
 
-- [Download Windows Insider Preview ISO (microsoft.com)](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso)
-- 虽然可以在系统更新中申请内测,但是也可以从官方网站下载预览版镜像体验最新功能(稳定性和可靠性一般不如正式版)
+- 稳定性和可靠性一般不如正式版
+- [使用 ISOs - Windows Insider Program | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-insider/isos)
+  - [Download Windows Insider Preview ISO (microsoft.com)](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso)
+
+- 可以在系统更新中**申请内测**(称为预览版成员,可以选择预览Canary,Dev,Beta,Preview 等通道),然后重启系统后检查更新(顺利的话可以收到更新推送，但是有时候收不到更新,特别是大版本更新,比如从23H2更新到24H)
+- 也可以从**官方网站下载预览版镜像**体验最新功能
 
 ### win11
 
