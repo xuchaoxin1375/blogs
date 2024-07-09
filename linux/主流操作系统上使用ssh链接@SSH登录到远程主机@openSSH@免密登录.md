@@ -118,7 +118,7 @@
     ```
 
 
-##### 配置防火墙
+##### 配置防火墙👺
 
 - 初次ssh服务设置(包括防火墙等,以管理员身份打开powershell执行)
 
@@ -421,13 +421,12 @@ cxxu@REDMIBOOKPC C:\Users\cxxu>
   - 云主机有自己的方案
 
 
-## 免密登录😊
+## 免密登录👺
 
 ### 最简单情形下的免密登录
 
-- 如果你希望使用SSH密钥对进行无密码登录，还需要执行以下步骤：
-  - 这里的情况是需要免密的主机只有一台的情况
-  - 如果需要多台主机免密
+如果你希望使用SSH密钥进行无密码登录，还需要执行以下步骤：
+> 这里的情况是需要免密的主机只有一台的情况
 
 1. 在本地计算机上创建SSH密钥对：
    ```shell
@@ -435,38 +434,36 @@ cxxu@REDMIBOOKPC C:\Users\cxxu>
    ```
    这将在`~/.ssh`目录下生成公钥（id_rsa.pub）和私钥（id_rsa）。
 
-2. 将公钥上传到远程服务器的`~/.ssh/authorized_keys`文件中：
+2. 将公钥上传到远程服务器,保存为`~/.ssh/authorized_keys`文件：
 
-   1. 相关文档可以通过`man authorized_keys`进行查阅(其实就是`man sshd`的页面,也可以查看在线页面:[sshd(8) - OpenBSD manual pages|AUTHORIZED_KEYS_FILE_FORMAT](https://man.openbsd.org/sshd#AUTHORIZED_KEYS_FILE_FORMAT))
-   2. 首先确保ssh server端**目录**存在:`~/.ssh/`(只需要关注目录即可)
+   - 相关文档可以通过`man authorized_keys`进行查阅(其实就是`man sshd`的页面,也可以查看在线页面:[sshd(8) - OpenBSD manual pages|AUTHORIZED_KEYS_FILE_FORMAT](https://man.openbsd.org/sshd#AUTHORIZED_KEYS_FILE_FORMAT))
+   - 首先确保ssh server端**目录**存在:`~/.ssh/`(只需要关注目录即可)
         - 先用ssh配合用户密码登录到ssh server,然后检查目录`~/.ssh/`是否存在
         - 若存在则继续下一步,否则需要然后创建目录:`mkdir  ~/.ssh/`
+   
+3. 使用`scp`或其他工具将本地客户端主机(ssh客户端机器)的ssh公钥文件上传到ssh服务端的用户家目录中的`.ssh/`下,同时文件改名为`authorized_keys`),命令行模板(调整为自己的值即可):
 
+   ```powershell
+   #把两个变量(用户名和目标主机地址改为自己的具体情况)
+   $username = 'cxxu';
+   # $Server = 192.168.1.198 #或者开启网络发现的情况下使用主机名,比如
+   $Server = 'RedmibookPc'
+   Write-Host $username@$Server
+   scp "$home\.ssh\id_*pub" $user_name@${Server}:~/.ssh/authorized_keys
+   ```
 
-   2. 使用scp将本地主机(或者说需要注册面登录密码的ssh客户端机器的ssh公钥文件上传到ssh 服务端的用户家目录中的`.ssh/`同时文件改名为authorized_keys)
+ - 先用ssh配合普通密码登录到目标主机(linux主机为例),计算两个变量的取值
 
-        - 命令行模板(调整为自己的值即可)
+   - 通过执行以下两条命令获取    
 
-          ```bash
-          #把两个变量(用户名和目标主机地址改为自己的具体情况)
-          $username=cxxu;
-          $target_host=192.168.37.129
-          scp "$home\.ssh\id_*pub" $user_name@target_host:~/.ssh/authorized_keys
-          ```
-
-
-     - 先用ssh配合普通密码登录到目标主机(linux主机为例),计算两个变量的取值
-    
-       - 通过执行以下两条命令获取
-    
-       - ```bash
-         #查询当前用户和主机名
-         echo "$(whoami)@$(hostname)"
-         
-         #查询ip地址
-         ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '^127'
-         
-         ```
+   - ```bash
+     #查询当前用户和主机名
+     echo "$(whoami)@$(hostname)"
+     
+     #查询ip地址
+     ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '^127'
+     
+     ```
 
    3. 虽然可以使用ssh-copy-id,但是windows上通常不会自带这个程序
 

@@ -25,7 +25,7 @@
 
 如果您对共享文件夹创建细节不感兴趣,可以直接执行以下操作
 
-- **管理员权限**打开一个`powershell`窗口
+- **管理员权限**打开一个`powershell`窗口(不妨记为`窗口1`)
 
 - 复制粘贴以下内容(如果需要,根据注释您可以手动修改相关变量来符合自己的需要)
 
@@ -91,9 +91,9 @@ Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相�
 
 访问共享文件夹的方式有**两大类**,一种是直接用资源管理器访问,相当于访问一个文件夹;一种是挂载成网络驱动器,可以为命令行访问提供方便,而且某些情况下直接访问文件夹会失败,这时候就需通过挂载方式来访问,挂载有GUI方案,也可以用命令行(适合自动化)
 
-并且通常而且不会遇到**权限**问题(如果有应该是NTFS权限的问题,而不是共享权限,此时需要右键您所共享的文件夹属性进行调整),也不需要把自己私人的账户密码告诉给别人就可以让对方访问您的共享文件夹(这个对方也可以是您的其他设备,比如手机(需要软件支持,比如ES文件浏览器,Cx文件管理器等))
+并且通常而且不会遇到**权限**问题(如果有应该是NTFS权限的问题,而不是共享权限,此时需要右键您所共享的文件夹属性进行调整)
 
-
+也不需要把自己私人的账户密码告诉给别人就可以让对方访问您的共享文件夹(这个对方也可以是您的其他设备,比如手机(需要软件支持,比如ES文件浏览器,Cx文件管理器等))
 
 ### 直接打开共享文件夹而不挂载到资源管理器
 
@@ -139,6 +139,79 @@ start \\COLORFULCXXU
 #### 其他
 
 仅在命令行中访问而不打开资源管理器也可以,考虑到这是给不熟悉命令行用户使用的,就不展开,详情另见它文
+
+### 访问共享文件夹被拒绝或内容为空
+
+- 通常就是NTFS权限问题,您可以右键被共享的目录设置(分配用户及其相应的访问可控制权限),或者用命令行来一键执行
+
+- 打开之前的窗口1或者重新启动一个管理员权限的窗口(如果是新窗口,就需重新要指定`$p`路径)执行以下代码
+
+- 这样共享文件夹的NTFS文件目录就会对`Everyone`开放
+
+  ```powershell
+  function Set-FolderFullControlForEveryone
+  {
+      <# 
+      .SYNOPSIS
+      将NTFS文件系统上的某个文件夹的访问控制权限设置为所有人具有全部控制权限
+      本函数的路径是一个目录路径而不是一个文件路径,否则会报错
+  
+      这个操作对应的GUI操作是右键需要修改的文件夹,然后设置它的访问权限,包括允许访问的用户及其相应的访问权限种类
+      .DESCRIPTION
+      这么操作通常仅在访问被设置文件夹的用户是受信任的情况执行,例如在家里创建共享文件夹时，遇到权限问题时,可以使用这个命令简化操作
+      .EXAMPLE
+      # 使用示例
+      # Set-FullControlForEveryone -Path 'C:\repos\scripts'
+      #>
+      [CmdletBinding()]
+      param (
+          [Parameter(Mandatory = $true)]
+          [string]$Path
+      )
+  
+  
+      # 获取目录/文件的当前访问控制列表对象
+      $acl = Get-Acl -Path $Path
+  
+      Write-Verbose 'Origin Acl:'
+      $info = $acl | Format-List | Out-String
+      
+      Write-Verbose $info 
+  
+      # 创建一个新的访问规则，赋予Everyone组完全控制权
+      $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+          'Everyone',
+          'FullControl',
+          'ContainerInherit, ObjectInherit',
+          'None',
+          'Allow'
+      )
+  
+      # 将新的访问规则添加到访问控制列表中
+      $acl.SetAccessRule($accessRule)
+  
+      try
+      {
+          
+          # 将修改后的访问控制列表应用到目录
+          Set-Acl -Path $Path -AclObject $acl
+      }
+      catch
+      {
+          Write-Error 'Please ensure the path is an exist directory!'
+      }
+  
+      Write-Verbose 'Modified Acl:'
+      $res = Get-Acl -Path $Path | Format-List | Out-String
+      Write-Verbose $res
+  
+  }
+  
+  Set-FolderFullControlForEveryone -path $p 
+  
+  ```
+
+  
 
 ### 将共享文件夹挂载到资源管理器中(可选)
 

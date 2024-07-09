@@ -369,7 +369,8 @@ function scp_ali {
 - 这一条命令尽管大多数发行版都有,但不保证所有发行版都会自带
   - 因此您可能需要自己安装,它包含在`net-tools`这个工具包里
   - 另外注意windows下有一个类似的命令`ipconfig`,不要和`ifconfig`混淆
-- 
+  
+  
 
 
 

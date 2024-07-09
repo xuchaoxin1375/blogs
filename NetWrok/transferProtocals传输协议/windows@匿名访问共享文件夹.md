@@ -23,22 +23,24 @@ Windows 11中设置匿名访问共享文件夹涉及几个步骤。以下是基�
    New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "EveryoneIncludesAnonymous" -Value 1 -PropertyType DWORD -Force
    ```
 
-3. 配置文件共享:
+3. 关闭密码保护共享:
+   在PowerShell(管理员)中运行:
+
+   ```powershell
+   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "RequireSecuritySignature" -Value 0
+   ```
+
+4. 配置文件共享:
+
    - 右键点击要共享的文件夹
    - 选择"属性" > "共享" > "高级共享"
    - 勾选"共享此文件夹"
    - 点击"权限",确保"Everyone"组有读取权限
 
-4. 配置网络发现和文件共享:
+5. 配置网络发现和文件共享:
    - 打开"控制面板" > "网络和共享中心"
    - 点击"更改高级共享设置"
    - 确保"网络发现"和"文件和打印机共享"已启用
-
-5. 关闭密码保护共享:
-   在PowerShell(管理员)中运行:
-   ```powershell
-   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "RequireSecuritySignature" -Value 0
-   ```
 
 6. 重启电脑使更改生效
 
