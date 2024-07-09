@@ -64,7 +64,7 @@
 
 - linux发行版比较多,但是也能够用命令行方便地安装
 
-### windows
+### windows👺
 
 - 通常windows上使用ssh client就够了(默认自带)
 - 虽然很少用windows去做服务器(尽管有windows server)的,但是Microsoft也给出了如何安装和启动ssh服务的方法
@@ -146,7 +146,7 @@
 - OpenSSH是实现SSH协议的具体软件项目，是Linux和类Unix操作系统中最常见的SSH工具集，同时也是许多其他操作系统上的可选组件，它允许用户在不同系统间通过加密通道安全地进行远程登录、命令执行和文件传输操作。
 - windows上同样也可以使用openSSH
 
-## 相关软件
+## 其他相关软件
 
 ### windows上的ssh客户端
 

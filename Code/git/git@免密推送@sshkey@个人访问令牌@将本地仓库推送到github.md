@@ -1,6 +1,6 @@
 [toc]
 
-## abstr
+## abstract
 
 git@ssh和github@个人访问令牌@将本地仓库推送到github
 
@@ -67,25 +67,21 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
   - 默认会在用户家目录的`.ssh`目录下
 
   - ```bash
-    #这使用powershell查看
-    #也可以用其他shell查看,例如git-bash或git-cmd查看
-    
-    PS C:\Users\cxxu> ls -l $ssh_home
+    PS> ls ~/.ssh/*pub
     
             Directory: C:\Users\cxxu\.ssh
     
     
     Mode                LastWriteTime         Length Name
     ----                -------------         ------ ----
-    -a---         3/24/2023  11:20 AM           2602   id_rsa
-    -a---         3/24/2023  11:20 AM            568   id_rsa.pub
-    -a---         3/24/2023  12:36 PM           1204   known_hosts
+    -a---          2024/7/9     21:20             99   id_ed25519.pub
     ```
-
-  - 查看id_rsa.pub
     
-    ```bash
-    cat ~/.ssh/id_rsa.pub
+  - 查看`id_*.pub`,例如`id_ed25519.pub`,也可以用更一般的语句查看` cat ~/.ssh/id_*.pub`
+    
+    ```powershell
+    PS> cat ~/.ssh/id_*.pub
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAQy01dBJgEV4E5mJ4GBSZPAgI4nLIuIHXru2SowH8FR 8xxxx@qq.com
     ```
     
 
@@ -196,7 +192,9 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 - 当 Git 提示你输入密码时，请输入你的personal access token。 或者，可以使用 [Git 凭据管理器](https://github.com/GitCredentialManager/git-credential-manager/blob/main/README.md)等凭据帮助程序。
 - Git 的基于密码的身份验证已被删除，以支持更安全的身份验证方法。有关详细信息，请参阅“[管理个人访问令牌](https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)”。
 
-### 使用GitHub账户的密码直接登录以废弃
+### Github设置
+
+#### 使用GitHub账户的密码直接登录的方式已经被废弃
 
 - ```bash
   Username for 'https://github.com': xuxxxxxx
@@ -208,17 +206,18 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
   
 
-### token令牌设置和获取👺
+#### token令牌设置和获取👺
 
 - token令牌设置和获取直达链接[Personal Access Tokens (Classic) (github.com)](https://github.com/settings/tokens)
 - token样例:`ghp_oufguiiiulL3n2DvCDxtQmpnbqnbbqnbUAAbb`
 
 
 
-## gitee 设置
+### gitee 设置
 
 - [SSH 公钥设置 | Gitee 产品文档](https://help.gitee.com/base/account/SSH公钥设置/)
 
+- 直达连接:「[添加公钥](https://gitee.com/profile/sshkeys)」
 
 
 
