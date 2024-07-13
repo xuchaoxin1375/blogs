@@ -232,7 +232,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
       
       ```
 
-### 免密自动登录
+### 免密自动登录👺
 
 - 和linux server类似,但是windows 中需要修改的`ssh`服务器端的配置文件位置和linux不同(毕竟文件系统不同)
 - 一般在`C:\ProgramData\ssh`目录下面的`sshd_config`文件中
@@ -346,42 +346,162 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
   Subsystem	sftp	sftp-server.exe
   ```
 
+##### 一键脚本修改👺
 
+- 为了方便一键操作,执行以下pwsh脚本(需要管理员权限👺)
 
-#### 在ssh server端创建支持免密登录的公钥文件
+  - ```powershell
+    $sch ="C:\ProgramData\ssh" #sshd_config文件所在目录
+    $sshd_config="$sch\sshd_config" #原配置文件
+    cat $sshd_config #看一眼源文件内容
+    cp $sshd_config $sch\sshd_config.bak #备份配置文件,以防万一
+    
+    $config=@'
+    PubkeyAuthentication  yes
+    AuthorizedKeysFile 	.ssh/authorized_keys
+    Subsystem	 sftp 	sftp-server.exe
+    '@ #向sshd_config文件写入新的内容(覆盖性)
+    $config > $sshd_config
+    #重新检查新内容(特别是行内配置项目的空格)
+    cat $sshd_config 
+    #重启ssh服务以生效配置
+    restart-service sshd
+    
+    ```
+
+    
+
+#### 向ssh server端上传或创建支持免密登录的公钥文件
 
 - 默认情况下,这个文件为`~/.ssh/authorized_keys`
 
-- 方式有多种,以下方案提供的命令行直接在ssh client的命令行中执行(powershell)
+  - 不妨记该文件为**公钥文件**为变量,方便引用
 
-- 首先确定Client端的公钥文件位置
+    - ```powershell
+      $authorized_keys='~/.ssh/authorized_keys'
+      ```
+
+
+  - 确定Client端的公钥文件位置(您需要实现创建好密钥对,详情另见它文)
+
+    - ```powershell
+      $pubkey="$home\.ssh\id_*pub" #为公钥文件路径创建易于引用的变量
+      ```
+
+    - 其中`id_*pub`可能需要您补全(比如`id_ed25519.pub`),特别是您创建了多个不同的ssh key时,如果仅创建过一个,那么通常可以不修改直接执行
+
+
+##### 预执行命令👺
+
+```powershell
+#ssh Client端执行
+$authorized_keys='~/.ssh/authorized_keys'
+$authorized_keys="$env:userprofile/.ssh/authorized_keys"
+$pubkeys="$home\.ssh\id_*pub"
+#查看公钥文件
+$pubkeys=ls $pubkeys
+$pubkeys
+#兼容多个的情况,默认选择其中的第一个
+$pubkey=$pubkeys[0]
+
+
+```
+
+无论选择下面的哪一种方式,都请先执行预执行命令
+
+##### 方式1 (针对仅授权单台设备免密的情况)
+
+- 创建或编辑方式有多种,以下方案提供的命令行直接在ssh client的命令行中执行(powershell)
+
+- 可以从而ssh **client**端上传到server
 
   - ```powershell
-    $pubkey="$home\.ssh\id_*pub"
-    ```
-
-  - 其中`id_*pub`可能需要您补全(比如`id_ed25519.pub`),特别是您创建了多个不同的ssh key时,如果创建过一个,那么通常可以不修改直接执行
-
-- 可以从而ssh client端上传到server
-
-  - ```powershell
+    function Get-SSPubKeysPushScripts{
+    	#适用于仅对一台主机进行免密登录的情况;否则其他方法更合适
+        if(!$pubkeys){
+            write-error 'Please run pre-executing above commands first!'
+            write-error '请先执行预执行命令,然后重试'
+            return
+        }
     
-    # $server='redmibookpc' #局域网内启用网络发现的话可以直接用计算机名
-    $server='192.168.1.198' #更通用的是使用server的ip地址
-    scp $pubkey $user_name@${Server}:~/.ssh/authorized_keys 
+        $s="$env:userprofile/desktop/script.txt"
+    
+        @'
+        #填写server:
+        #局域网内启用网络发现的话可以直接用server计算机名(server上执行hostname获取),比较方便,但是更通用的是使用server的ip地址(执行ipconfig,可能有好几个地址,找出ip地址,通常是192开头的)
+        #如果是云服务器,一般具有公网ip,可以直接用ip地址即可
+    
+        $user='    ' #ssh client要以 ssh server 上的哪一个用户身份登录(例如server上有个UserDemo用户)
+        $server='    '  #例如192.168.1.111或者'redmibookpc'
+        $user=$user.trim()
+        $server=$server.trim()
+        scp $pubkey $user@${Server}:$authorized_keys
+    
+        #查看执行的scp命令行内容
+        "scp $pubkey $user@${Server}:$authorized_keys"
+    
+    '@ > $s
+        notepad $s
+    }
+    Get-SSPubKeysPushScripts
+    
+    
     ```
+    
+    - 执行上述命令行,会弹出一个记事本窗口,修改必要的内容(前几行都是注释,后面2行改改即可),然后复制到命令行中执行
+
+##### 方式2 (更加通用的情况)
 
 - 也可以复制公钥到剪切板,然后登录到server中创建相应文件
 
-  - 查看公钥
+  - 查看**ssh client**的公钥
 
-    ```powershell
-    type $pubkey #该值同上述指定
-    ```
+  - 复制输出的内容
 
-  - 复制输出的内容,在Server端创建文件`~/.ssh/authorized_keys`,并插入复制的内容
+- 在**ssh server**上创建或追加公钥到公钥文件中
 
-#### 重启服务
+  ```powershell
+  function Get-SSPubKeysAdderScripts{
+      #在server端运行
+      if(!$pubkeys){
+          write-error 'Please run pre-executing above commands first!'
+          write-error '请先执行预执行命令,然后重试'
+          return
+      }
+      $pubkey_content=type $pubkey #该值同上述指定
+  
+  return '$pubkey='+"'$pubkey_content'"+@'
+  
+  $authorized_keys='~/.ssh/authorized_keys'
+  type $authorized_keys #查看修改前的授权公钥文件
+  $pubkey >> $authorized_keys
+  type $authorized_keys #查看修改后的授权公钥文件
+  '@ 
+  }
+  
+  Get-SSPubKeysAdderScripts
+  
+  ```
+
+##### 重启服务以生效👺
+
+- ```powershell
+  #重启ssh服务以生效配置
+  restart-service sshd
+  
+  ```
+
+  - 如果执行失败,请手动打开`service.msc`,然后找到`OpenSSH SSH Server`进行重启(停止后重新启用)
+
+#### 小结
+
+上述两种方法都是powershell命令行,都算简单可行,任选一种即可,能够为两台windwos计算机建创建免密码ssh链接公钥文件
+
+此外,ssh server 端还需要进一步配置`sshd_config`文件(可以在创建公钥之前就完成配置)
+
+
+
+#### 重启ssh server服务
 
 ```powershell
 Restart-Service sshd
@@ -399,7 +519,7 @@ Microsoft Windows [版本 10.0.19045.4529]
 
 输入`powershell`或`pwsh`可以切换shell
 
-### 配置默认shell
+### 配置默认shell 👺
 
 - [适用于 Windows 的 OpenSSH 服务器配置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_server_configuration#configuring-the-default-shell-for-openssh-in-windows)
 
@@ -407,7 +527,16 @@ Microsoft Windows [版本 10.0.19045.4529]
 
 - 我们可以更改为powershell或其他shell
 
+
+#### 准备工作
+
 - 首先查看openssh是否安装在默认路径:
+
+  ```powershell
+  $env:path -split ';'|sls ssh
+  ```
+
+  例如
 
   ```powershell
   PS> $env:path -split ';'|sls ssh
@@ -418,9 +547,12 @@ Microsoft Windows [版本 10.0.19045.4529]
 
 - 然后需要修改注册表,并且可以通过一个一句就可以实现修改
 
-- 首先登录到windows  ssh server,确保shell处于管理员模式
 
-  - 然后选择以下一个语句进行执行
+#### 一键修改命令行👺
+
+- 首先登录到windows  ssh server,确保shell处于**管理员模式**
+
+- 然后选择以下一个语句进行执行
 
   - 修改为自带的powershell版本
 
@@ -431,16 +563,18 @@ Microsoft Windows [版本 10.0.19045.4529]
   - 修改为powershell7
 
     ```powershell
-    New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\powershell\7\pwsh.exe" -
-    PropertyType String -Force
+    New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\powershell\7\pwsh.exe" -PropertyType String -Force
     
     ```
+
+#### 修改实操
 
 - 示例:修改为powershell7
 
   ```powershell
-  PS> New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\powershell\7\pwsh.exe" -
-  PropertyType String -Force
+  PS☀️[BAT:71%][MEM:33.23% (10.54/31.71)GB][21:51:41]
+  #⚡️[cxxu@COLORFULCXXU][~]
+  PS> New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\powershell\7\pwsh.exe" -PropertyType String -Force
   
   DefaultShell : C:\Program Files\powershell\7\pwsh.exe
   PSPath       : Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\OpenSSH
@@ -448,7 +582,6 @@ Microsoft Windows [版本 10.0.19045.4529]
   PSChildName  : OpenSSH
   PSDrive      : HKLM
   PSProvider   : Microsoft.PowerShell.Core\Registry
-  
   ```
 
   从ssh Client 建立ssh连接,可以看到,默认shell为powershell7
@@ -461,3 +594,39 @@ Microsoft Windows [版本 10.0.19045.4529]
 
   
 
+## 补充:公钥文件
+
+`authorized_keys` 文件是 SSH 公钥认证机制的核心部分，它存储在用户的 `.ssh` 目录下，并且对于每个 SSH 用户都可能是独一无二的。这个文件包含了一系列的公钥，用于认证 SSH 客户端发起的连接请求。当一个 SSH 客户端尝试使用私钥登录时，服务器会检查 `authorized_keys` 文件中的公钥，以验证客户端提供的密钥是否匹配。
+
+下面是一些关于 `authorized_keys` 文件的重要细节：
+
+### 文件格式
+`authorized_keys` 文件中的每一行通常包含四个主要部分，它们由空格分隔：
+1. **密钥类型**：例如 RSA、DSA、ECDSA 或 ED25519。
+2. **公钥**：这是实际的公钥字符串。
+3. **可选的选项**：例如 `command=`、`no-port-forwarding` 等，用于限制该密钥的使用方式。
+4. **可选的评论**：通常为用户的电子邮件地址或描述，方便识别密钥来源。
+
+示例：
+```
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZwKU... [options] comment
+```
+
+### 文件权限
+为了安全起见，`authorized_keys` 文件必须具有严格的权限设置。通常，文件应该只对拥有者可读，即权限应设置为 `600`。如果权限设置不正确，SSH 服务可能拒绝使用该文件进行认证。
+
+### 选项
+`authorized_keys` 文件中的选项允许你对每个密钥进行定制化的访问控制。一些常见的选项包括：
+- `command="..."`：指定当使用此密钥登录时要执行的命令。
+- `no-agent-forwarding`：禁止代理转发。
+- `no-port-forwarding`：禁止端口转发。
+- `permitopen="hostname:port"`：允许从该 SSH 连接开放特定主机的端口。
+- `from="..."` 和 `to="..."`：限制连接源 IP 地址和时间范围。
+
+### 公钥添加与管理
+公钥可以手动添加到 `authorized_keys` 文件中，也可以使用 `ssh-copy-id` 命令自动添加。管理这些公钥时，确保定期审查并删除不再需要或已过期的密钥，以维护系统的安全性。
+
+### 多个公钥
+用户可以有多个公钥，每行一个，这样可以从不同的设备或账户进行认证。每个公钥可以有不同的选项，以适应不同的登录场景。
+
+总之，`authorized_keys` 文件是 SSH 认证过程中的关键组件，正确配置和维护它是保持 SSH 服务安全的重要环节。
