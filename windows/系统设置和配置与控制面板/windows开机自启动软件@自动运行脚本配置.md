@@ -2,6 +2,10 @@
 
 ## windows配置开机自启动软件或脚本
 
+### win10之后的自带的开机自启动设置入口
+
+[将应用设置为在启动设备时自动运行 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/将应用设置为在启动设备时自动运行-a5b64b3e-4483-4dad-abc7-027a863e1c2e)
+
 ### 配置自启动目录
 
 - 在Windows中添加开机自动运行的软件，可以按照以下步骤进行操作：
