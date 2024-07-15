@@ -2,22 +2,37 @@
 
 [toc]
 
-## refs
+## 相关文档和参考资料
 
-- 官方文档简练地介绍了远程连接的条件和方法[如何使用远程桌面 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/如何使用远程桌面-5fe128d5-8fb1-7a23-3b8a-41e636865e8c#ID0EDD=Windows_10)
-- 本文介绍一些使用过程中的细节
+官方文档简练地介绍了远程连接的条件和方法[如何使用远程桌面 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/如何使用远程桌面-5fe128d5-8fb1-7a23-3b8a-41e636865e8c#ID0EDD=Windows_10)
+
+更为详细的关于远程桌面服务的功能文档:[Windows Server 中的远程桌面服务概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/remote-desktop-services-overview);
+
+下面是一些比较重要的话题
+
+- [远程桌面客户端 - 支持的配置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/clients/remote-desktop-supported-config)
+- [用于远程桌面服务的远程桌面客户端和远程电脑 - Windows Server | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/clients/remote-desktop-clients)
+- [在电脑上启用远程桌面 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-access)
+
+- [远程桌面 - 允许从你的网络外部访问你的电脑 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-outside-access)
+
+- [更改远程桌面的侦听端口 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/remote/remote-desktop-services/clients/change-listening-port)
+
+本文介绍一些使用过程中的细节
+
+相关视频:[5分钟解决远程桌面连接问题_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV18f42117iR/?spm_id_from=333.1007.top_right_bar_window_history.content.click)
 
 
 
 ##  试验环境
 - 两台主机均被设置了用户和密码,被控机器登录的账户是Microsoft账户(不同于本地账户,影响远程登录时的用户名+密码)
-- 都是windows专业版以上的
-- 这里试验的两台机器都是同一局域网下的主机
+- 都是windows专业版以上的(其实一组远程桌面的两台机器中,一台成为**被控端**(server),另一台称为主控**控制端**(client),windows要求被控端是专业版系统及以上才提供被控的功能,而例如家庭版的系统需要打补丁或者升级到专业版的方式来支持被控功能)
+- 这里试验的两台机器都是同一局域网下的主机(非局域网下可以通过虚拟组网等内网穿透方案来实现异地远程控制,比如zerotier,tailscale,国产软件有皎月连(NatPierce)等,详情另见它文)
 ##  相关常识
 - 一台计算机(host)上可能不止一个用户(user)
 - 特别是用户名要加以区别
 
-### 两类账户
+### 两类windows用户账户
 
 - windows本地账户
   - 仅限windows系统本地登录使用计算机用途,也可以供其他机器远程控制作为登录身份使用windows计算机的资源
@@ -48,7 +63,83 @@
 
 ## 被控机的设置👺
 
-### 获取windows主机名或地址
+### 启用远程桌面功能
+
+- 检查您的windows版本是否为专业版已上,否则需要打补丁或者升级系统
+
+#### GUI方法
+
+- 满足上述条件后,设置或者控制面板中打开允许远程桌面连接到此计算机
+
+#### CLI命令行方法
+
+- 在 Windows 系统中，可以通过命令行启用远程桌面功能。
+
+- 用**管理员身份**打开一个命令行窗口,例如powershell
+
+- 执行以下内容
+
+  - 以下命令行在win11上经过检验验证
+
+  - ```powershell
+    Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -Name "fDenyTSConnections" -Value 0
+    
+    Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    
+    ```
+
+- 其他:cmd下运行的版本
+
+  - ```cmd
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+    
+    netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+    
+    ```
+
+    
+
+
+
+以下是所有步骤和命令的总结：
+
+| 步骤               | PowerShell 命令                                              | 命令提示符命令                                               |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 启用远程桌面       | `Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -Name "fDenyTSConnections" -Value 0` | `reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f` |
+| 启用防火墙规则     | `Enable-NetFirewallRule -DisplayGroup "Remote Desktop"`      | `netsh advfirewall firewall set rule group="remote desktop" new enable=Yes` |
+| 确认远程桌面已启用 | `Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -Name "fDenyTSConnections"` | `reg query "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections` |
+
+通过上述命令和步骤，你可以在 Windows 系统中启用远程桌面功能。
+
+#### 相关防火墙
+
+
+
+- 启用远程桌面功能操作对应开关一对防火墙开关
+  - ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/4620a8963cbc4d29b772cc5dbc70224d.png)
+
+- 但不完全等价,启用远程桌面开关还会修改注册表值
+
+  - ```powershell
+    #开启后查询注册表相关项目(观察fDenytsconnections字段)
+    PS☀️[BAT:71%][MEM:29.95% (9.5/31.71)GB][10:46:33]
+    #⚡️[cxxu@COLORFULCXXU][~\Desktop]
+    PS> Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -Name "fDenyTSConnections"
+    
+    fDenyTSConnections : 0
+    
+    # 关闭后再次查询
+    PS☀️[BAT:71%][MEM:29.95% (9.5/31.71)GB][10:46:34]
+    #⚡️[cxxu@COLORFULCXXU][~\Desktop]
+    PS> Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -Name "fDenyTSConnections"
+    
+    fDenyTSConnections : 1
+    
+    ```
+
+    
+
+### 获取被控端主机名或地址
 
 - 在局域网下,可以通过唯一的**用户名**或**私有ip**两种方式来确定一台计算机
 - 详情另见它文:[windows@查看主机名@查看IP地址](http://t.csdnimg.cn/erYwP)
@@ -78,7 +169,17 @@
 
 - 注意,多个其他设备的用户无法同时远程登录到被控主机的同一个账户,多的用户会下线掉
 
+### 授权可以链接到本计算机的用户
 
+- 假设您的被控机(server)上运行的windows版本支持被远程桌面链接,那么启用该功能后,默认将处于管理员组中的管理员添加到允许列表中
+- 而普通用户,比如访客,虽然通常具有在实体机上登录的权限(也称为**控制台登录**权限),但是默认没有权限**远程登录**到该server计算机,
+- 您有两个选择来授权普通用户远程登录到server的权限
+  - 添加指定用户到授权列表
+    - 在设置中的远程桌面引导选项添加Remote Desktop User列表中(可以理解为一个具有远程登录权限的用户组);
+    - 或者，也可以从老UI设置:打开系统属性高级设置:`systempropertiesAdvanced.exe`,然后点击弹出窗口中的远程(remote)选项卡,里面配置远程功能,以及授权指定用户远程登录权限
+    - 如果授权的对象是Everyone,那么所有Server上的用户都可以远程链接该server(但是默认不包含Guest,以及被禁用的用户账户) 这种做法安全性较低,不推荐
+  - 将指定用户提升为管理员(如果不是必要,不推荐这么做)
+- 当然,对于只有一个用户的计算机,那么这个唯一用户往往是属于管理员组(Administrator)中的成员,自带具有远程登录的权限
 
 ##  主控机的设置👺
 
@@ -110,14 +211,16 @@
 - 这里试验的两台机器都是同一局域网下的主机
 
 ------
-###  登录到远程主机的本地账户
+###  填写登录到远程主机的本地账户
 
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/9e4040c6b03249768b3071a316214c08.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_10,color_FFFFFF,t_70,g_se,x_16)
->最好设置登录密码,否则可能无法远程登录失败
->###  修改本地用户的登录密码
->注意,这不同于PIN码
->
+
+被控端分配的用于远程登录的账户最好设置登录密码,否则可能无法远程登录
+
+如果您确实不想设置密码,那么需要修改组策略中的项目(另见它文)
+
+[windows@无密码的本地用户账户相关问题@仅用用户名免密登录远程桌面登录和控制@无密码用户访问共享文件夹以及挂载问题-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/140163942)
 
 
 
@@ -133,7 +236,7 @@
   - 云账户确实有好处,可以在其他设备同步自己的一些系统设置等
   - 但是有的用户还是习惯使用本地账户,毕竟本地账户不需要联网,而且使用起来更加简单
 
-- 由于这两中类型的账户的存在,就会导致一些不必要的混乱
+- 由于这两种类型的账户的存在,就会导致一些不必要的混乱
 
   - 查询当前机器的所有用户可以用`lusrmgr.msc`查看(用命令行打开)
 
@@ -152,7 +255,7 @@
 
   - 如果发现账户设置一栏有改用本地账户登录的字样,就说明当前账户受到云账户控制,使用pin码登录虽然能够在被控机上登录,但却无法被用以远程登录的凭证
 
-- 现在有两个选择,使用本地账户的密码(而非pin码,特别是密码和pin码不同的时候,通常pin码串可能会简单一些,比如只有数字);另一个选择是用云账户的密码来登录
+- 现在有两个选择,使用本地账户的密码(而非pin码,特别是密码和pin码不同的时候,通常pin码串可能会设置得简单一些,比如只有数字);另一个选择是用云账户的密码来登录
 
 ### 更改账户密码
 
