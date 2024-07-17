@@ -14,6 +14,8 @@
 
 相关powershell函数:
 
+以下函数指定使用powershell7添加到打开方式列表(候选),无论这个被想要被打开的文件是什么格式
+
 ```powershell
 function Set-ProgramToOpenWithList
 {
@@ -29,7 +31,7 @@ function Set-ProgramToOpenWithList
     )
     
     $regPath = "Microsoft.PowerShell.Core\Registry::\HKEY_CLASSES_ROOT\Applications\$Program\shell\open\command "
-    New-Item $regPath -Value '"C:\Program Files\powershell\7\pwsh.exe" "%1"' -Force
+    New-Item $regPath -Value '$program'+" %1" -Force
 }
 ```
 
