@@ -152,9 +152,9 @@
 - 找到“Accounts: Limit local account use of blank passwords to console logon only”策略，双击它。
 - 在弹出的窗口中，将设置改为“Disabled”，然后点击“OK”。
 
-### 注册表方案
+### 修改注册表方案👺(一键修改)
 
-您可以用GUI操作,但是这里直接用命令行更方便快捷
+您可以用GUI操作,但是这里提供两种方法,建议直接用命令行更方便快捷
 
 #### GUI逐步修改注册表
 
@@ -175,9 +175,11 @@
    - 找到名为 `LimitBlankPasswordUse` 的DWORD值，双击它。
    - 将值数据从 `1` 改为 `0`，然后点击“确定”。
 
-#### 使用命令行
+#### 使用命令行(一键修改)👺
 
 提供使用命令行(CMD)和PowerShell来实现该修改的方法,并给出详细解释。
+
+##### 检查路径
 
 首先检查一下对应注册表路径下的内容
 
@@ -203,6 +205,8 @@ LimitBlankPasswordUse
 ```
 
 - 例如我查询到的`LimitBlankPasswordUse`默认值为1
+
+##### 执行修改
 
 CMD 方式:
 

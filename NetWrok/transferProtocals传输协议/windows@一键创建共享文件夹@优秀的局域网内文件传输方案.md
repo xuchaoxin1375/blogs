@@ -30,60 +30,138 @@
 - 复制粘贴以下内容(如果需要,根据注释您可以手动修改相关变量来符合自己的需要)
 
   ```powershell
-  #功能:快速创建一个可用的共享文件夹,能够让局域网内的用户访问您的共享文件夹
-  # 使用前提要求:需要使用管理员权限窗口运行powershell命令行窗口
-  
-  #启用文件共享功能以及网络发现功能(后者是为了方便我们免ip访问,不是必须的)
-  
-  #对于中文系统
-  netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
-  netsh advfirewall firewall set rule group="网络发现" new enable=Yes
-  #对于英文系统
-  netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
-  netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
-  
-  # 指定一个目录作为共享文件夹
-  $p = 'C:\Share' #推荐尽可能短的目录(可以自定义,但是层级不宜深)
-  $ShareName = 'Share' #如果您之前有过共享文件夹,并且名字也是Share,那么就需要修改名字
-  $Permission = 'Change' #合法的值有:Read,Change,Full 权限从低到高 分别是只读(Read),可读可写(change),完全控制(full)
-  # 指定专门用来访问共享文件夹的用户(这不是必须的,您可以用自己的用户和密码,但是不适合把自己的私人账户密码给别人访问,所以推荐建立一个专门的用户角色用于访问共享文件夹)
-  $SmbUser = 'SmbUser' #如果本地已经有该用户，那么建议改名
-  $password = '1' #密码可以改,但是建议尽可能简单,默认为1
-  
-  
-  $exist = (Test-Path $p)
-  if (! $exist)
+  function Deploy-SmbSharing
   {
-      mkdir $p
-  }
-  # 创建说明文件
-  @'
+  
+      
+      <# 
+      .SYNOPSIS
+      #功能:快速创建一个可用的共享文件夹,能够让局域网内的用户访问您的共享文件夹
+      # 使用前提要求:需要使用管理员权限窗口运行powershell命令行窗口
+      .EXAMPLE
+      # 指定共享名称为ShareDemo，其他参数默认:共享目录为C:\Share，权限为Change，用户为ShareUser，密码为1
+      PS> Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1
+      
+      .NOTES
+      访问方式共享文件夹的方式参考其他资料 https://cxxu1375.blog.csdn.net/article/details/140139320
+      #>
+      
+      param(
+          # 指定一个目录作为共享文件夹
+          $p = 'C:\Share', #推荐尽可能短的目录(可以自定义,但是层级不宜深)
+          $ShareName = 'Share', #如果您之前有过共享文件夹,并且名字也是Share,那么就需要修改名字
+          $Permission = 'Change', #合法的值有:Read,Change,Full 权限从低到高 分别是只读(Read),可读可写(change),完全控制(full)
+          # 指定专门用来访问共享文件夹的用户(这不是必须的,您可以用自己的用户和密码,但是不适合把自己的私人账户密码给别人访问,所以推荐建立一个专门的用户角色用于访问共享文件夹)
+          $SmbUser = 'Smb', #如果本地已经有该用户，那么建议改名
+          # [SecureString] $password = '1' #密码可以改,但是建议尽可能简单,默认为1
+          $password = '1'
+      )
+      #启用文件共享功能以及网络发现功能(后者是为了方便我们免ip访问,不是必须的)
+  
+      #对于中文系统
+      netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
+      netsh advfirewall firewall set rule group="网络发现" new enable=Yes
+      #对于英文系统
+      netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+      netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+  
+   
+  
+  
+      $exist = (Test-Path $p)
+      if (! $exist)
+      {
+          mkdir $p
+      }
+      $readmeFile = "$p\readme.txt"
+      $readmeFileZh = "$p\readme_zh-cn(本共享文件夹使用说明).txt"
+      # 创建说明文件(默认为英文说明)
+      @'
   Files,folders,and links(symbolicLinks,JunctionLinks,HardLinks are supported to be shared )
   Others' can modify and read contents in the folder by defualt,you can change it 
+  
+  The Default UserName and password to Access Smb Sharing folder is :
+  '@+
+      @"
+  Server(ComputerName): $env:COMPUTERNAME 
+  UserName: $smbUser
+  Password: $password
+  
+  (if Server(ComputerName) is not available, please use IP address(use `ipconfig` to check))
+  
+  "@+ 
+      @"
+  The Permission of this user is : $Permission (one of Read,Change,Full)
+  
+  "@+ 
+      @'
+  
+  You can consider using the other sharing solutions such as CHFS,Alist,TfCenter
+  These softwares support convenient http and webdav sharing solutions;
+  Especially Alist, which supports comprehensive access control permissions and cloud disk mounting functions
+  This means that Users have no need to install other softwares which support smb protocol,just a web browser is enough.
+  
   See more detail in https://docs.microsoft.com/en-us/powershell/module/smbshare/new-smbshare
-  '@ > "$p\A Readme File@This is a shared folder! Place anything here to share with others.txt"
+  '@ > "$readmeFile"
+  
+      #添加中文说明
+      @'
+  支持共享文件、文件夹以及链接（包括符号链接、联合链接和硬链接）。
+  默认情况下，其他人可以修改和读取文件夹中的内容，您可以更改此设置。
+  
+  访问 SMB 共享文件夹的默认用户名和密码是：
+  
+  '@+
+      @"
+  Server(ComputerName): $env:COMPUTERNAME 
+  用户名: $smbUser
+  密码: $password
+  
+  （如果服务器主机名（ComputerName）不可用，请使用IP地址（使用ipconfig检查））
+  
+  "@+ 
+      @"
+  该用户的权限是：$Permission （可选权限有：Read,Change,Full）
+  
+  "@+ 
+      @'
+  您可以考虑使用其他共享解决方案，如 CHFS、Alist、TfCenter，
+  这些软件支持便捷的 HTTP 和 WebDAV 共享方案，尤其是Alist,支持完善的访问控制权限和网盘挂载功能
+  这意味着用户无需安装支持 SMB 协议的其他软件，仅需一个网络浏览器即可。
+  
+  更多信息请参阅 https://docs.microsoft.com/zh-cn/powershell/module/smbshare/new-smbshare
+  '@ > $readmeFileZh
+  
+      # "$p\A Readme File@This is a shared folder! Place anything here to share with others.txt"
   
   
-  # 创建共享文件夹
-  "New-SmbShare -Name $ShareName -Path $p -${Permission}Access 'Everyone'" | Invoke-Expression #这里赋予任意用户修改权限(包含了可读权限和修改权限)
-  $res = glu -Name "$SmbUser" -ErrorAction Ignore
-  if (! $res)
-  {
-      # 权限要求:需要使用管理员权限窗口运行命令
-      #方案1:使用net user 命令来创建带密码新用户(不要求安全性的共享凭证账户)
-      net user $SmbUser $password /add /expires:never #这里添加的用户是永不过期的，更多参数查看官网文档
+      # 创建共享文件夹
+      "New-SmbShare -Name $ShareName -Path $p -${Permission}Access 'Everyone'" | Invoke-Expression #这里赋予任意用户修改权限(包含了可读权限和修改权限)
+      $res = glu -Name "$SmbUser" -ErrorAction Ignore
+      if (! $res)
+      {
+          # 权限要求:需要使用管理员权限窗口运行命令
+          #方案1:使用net user 命令来创建带密码新用户(不要求安全性的共享凭证账户)
+          net user $SmbUser $password /add /expires:never #这里添加的用户是永不过期的，更多参数查看官网文档
   
-      #方案2:使用powershell方案来创建带密码新用户(
-      # $password = Read-Host "Enter password For $SmbUser" -AsSecureString
-      # 使用windows自带的powershell执行New-LocalUser不会报错,部分windows版本可能会报错,所以这里添加了一个导入语句,根据需要来添加或者移除(注释掉)这一行导入语句)
-      # Import-Module microsoft.powershell.localaccounts -UseWindowsPowerShell
-      # New-LocalUser -Name $SmbUser -Password $password -AccountNeverExpires 
+          #方案2:使用powershell方案来创建带密码新用户(
+          # $password = Read-Host "Enter password For $SmbUser" -AsSecureString
+          # 使用windows自带的powershell执行New-LocalUser不会报错,部分windows版本可能会报错,所以这里添加了一个导入语句,根据需要来添加或者移除(注释掉)这一行导入语句)
+          # Import-Module microsoft.powershell.localaccounts -UseWindowsPowerShell
+          # New-LocalUser -Name $SmbUser -Password $password -AccountNeverExpires 
   
+      }
+   
   }
   
+  #调用上述函数(您也可以修改参数)
+  Deploy-Smbsharing 
+  # 自定义参数的例子
+  Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1 
+  
 
 
-Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相关功能,那么执行完上述脚本,您的`C:\`下有一个`Share`目录,并且里面有一个说明文档
+Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相关功能,那么执行完上述脚本,您的`C:\`下有一个`Share`目录,并且里面有说明文档
 
 ## 访问共享文件夹(Client)
 
@@ -133,7 +211,7 @@ start \\COLORFULCXXU
 
 步骤:
 
-1. 查询服务器的ip地址,记为`$server`
+1. 查询服务器的ip地址,记为`$server` (例如192.168.1.111)
 2. 在需要访问的设备上执行命令行` start \\$Server`即可
 
 #### 其他

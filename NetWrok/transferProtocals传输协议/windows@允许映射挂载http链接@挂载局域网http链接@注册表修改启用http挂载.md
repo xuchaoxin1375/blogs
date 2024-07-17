@@ -9,7 +9,12 @@
 - 但是对于http协议链接,新系统可能需要修改注册表,使得系统能够挂载http链接
 - 这里给出一个命令行版本,操作更简单
 
+### 挂载共享文件夹
 
+- 挂载共享文件夹不需要修改注册表
+- 并且有net use 和 powershell Mount-SmbMapping 等方法,详情另见它文
+  - [windows@资源管理器中的地址栏@访问共享文件夹的各种方法@管理共享文件夹_windows 路径中的@-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/140139320)
+- 这里主要讨论webdav的挂载,尤其是局域网内http连接的webdav挂载
 
 ### 允许http链接映射为磁盘驱动器(命令行方式修改注册表)😊
 
@@ -28,11 +33,9 @@
     net stop WebClient
     net start WebClient
     
-    
-    
     ```
     
-
+  
 - 这里使用了`/f`参数强制修改,否则中途会让你确认,就是输入`yes`即可,如果那您不放心,可以去掉`/f`参数
 
 

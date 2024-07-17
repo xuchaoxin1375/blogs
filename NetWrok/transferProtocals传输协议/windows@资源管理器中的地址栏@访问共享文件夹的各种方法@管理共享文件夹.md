@@ -131,7 +131,7 @@
   stop-process -Name explorer ; explore
   ```
 
-例
+#### 例
 
 ```powershell
 PS> new-smbmapping -LocalPath 'T:' -RemotePath '\\redmibookpc\share' -Persistent $true
@@ -142,7 +142,272 @@ OK     T:         \\redmibookpc\share
 
 ```
 
-驱动器列表检查
+### 携带凭据挂载共享文件夹为网络驱动器👺
+
+
+
+在 Windows 系统中，你可以使用 `net use` 命令或`Mount-SmbMapping`来映射网络共享文件夹，并在此过程中提供用户名和密码。
+
+这种方法访问或挂载共享文件夹的成功率比直接访问共享文件夹地址然后弹出验证身份窗口的方法更加高,并且也更灵活,便于实现脚本化,自动化
+
+以下是一个访问格式(推荐现代windows系统使用)：
+
+```bash
+net use X: \\服务器地址或计算机名\共享文件夹名称 /user:用户名 密码
+```
+
+例如：
+
+```bash
+net use X: \\192.168.1.100\SharedFolder /user:smb  Password123
+```
+
+这条命令会将 `\\192.168.1.100\SharedFolder` 映射为本地 `X:` 驱动器，并使用指定的用户名和密码进行身份验证。
+
+#### 例
+
+```bash
+PS C:\Users\cxxu> net use x: \\192.168.1.178\share /user:smb 1
+命令成功完成。
+```
+
+检查挂载结果
+
+```bash
+PS C:\Users\cxxu>  net use
+会记录新的网络连接。
+
+
+状态       本地        远程                      网络
+
+-------------------------------------------------------------------------------
+OK           X:        \\192.168.1.178\share     Microsoft Windows Network
+命令成功完成。
+
+```
+
+注意,提示您成功执行后,打开资源管理器刷新一下,可以找到网络驱动器(网络位置)中有一个`x`盘
+
+如果您在挂载此共享文件夹之前已经占用了`x`盘符,则需要修改命令行中的`x:`,未被占用的英文字母都可以
+
+也可以在命令行中访问,例如`cd x:\`
+
+#### Powershell函数挂载网络盘👺
+
+一个颇为可用的用来映射共享文件夹的powershell函数,支持共享文件夹(smb)和webdav(局域网内http)
+
+
+
+```powershell
+function Mount-NetDrive
+{
+    <# 
+    .SYNOPSIS
+    挂载http链接形式的网络驱动器,通常用于局域网挂载
+    这里是对net use 的一个封装,而Powershell 的New-PSDrive命令并不那么好用,链接识别有一定问题和局限性
+    如果是挂载Smb共享文件夹的话，还可以直接用New-SmbMapping命令(这里密码是明文密码,所以隐蔽性不足,
+    且挂载后需要重启资源管理器),其次再考虑New-PsDrive
+
+    .DESCRIPTION
+    为了方便省事,这里记住密码，不用每次都输入密码
+    net use W: "http://$Server:5244/dav" /p:yes /savecred 
+    目前已知New-PSDrive有挂载问题是,报错如下
+    New-PSDrive: The specified drive root "\\192.168.1.178:5244\dav" either does not exist, or it is not a folder.
+
+    .EXAMPLE
+    挂载Webdav为W盘，Server使用ip地址,不使用User参数(等待net use 主动向你索取凭证),而使用Remember 参数记住凭证
+    PS C:\Users\cxxu\Desktop> Mount-NetDrive -Server 192.168.1.198 -DriveLetter W -WebdavMode -Port 5244  -Remember
+    Enter the user name for '192.168.1.198': admin
+    Enter the password for 192.168.1.198:
+    The command completed successfully.
+
+    Drive W: successfully mapped to http://192.168.1.198:5244/dav
+    New connections will be remembered.
+
+
+    Status       Local     Remote                    Network
+
+    -------------------------------------------------------------------------------
+    
+
+    OK           N:        \\cxxuredmibook\share     Microsoft Windows Network
+    Disconnected Q:        \\redmibookpc\share       Microsoft Windows Network
+                W:        \\192.168.1.198@5244\dav  Web Client Network
+    The command completed successfully.
+    .EXAMPLE
+    #挂载SMB共享文件夹,使用Server主机名,直接使用User参数指定用户名
+   PS C:\Users\cxxu\Desktop> Mount-NetDrive -Server cxxuredmibook -DriveLetter N -SmbMode
+ -User smb -Verbose
+    Enter password For smb: *
+    Enter shared folder(Directory) BaseName(`share` is default):
+    VERBOSE: \\cxxuredmibook\share
+    The command completed successfully.
+
+    Drive N: successfully mapped to \\cxxuredmibook\share
+    New connections will be remembered.
+
+
+    Status       Local     Remote                    Network
+
+    -------------------------------------------------------------------------------
+    
+
+    OK           N:        \\cxxuredmibook\share     Microsoft Windows Network
+    Disconnected Q:        \\redmibookpc\share       Microsoft Windows Network
+    The command completed successfully.
+    .EXAMPLE
+    #挂载Webdav为W盘,Server使用ip地址,使用User参数直接指定用户名
+    PS C:\Users\cxxu\Desktop> Mount-NetDrive -Server 192.168.1.198 -DriveLetter W -WebdavMode -Port 5244 -User admin
+    Enter password For admin: ****
+    The command completed successfully.
+
+    Drive W: successfully mapped to http://192.168.1.198:5244/dav
+    New connections will be remembered.
+
+
+    Status       Local     Remote                    Network
+
+    -------------------------------------------------------------------------------
+    
+
+    OK           N:        \\cxxuredmibook\share     Microsoft Windows Network
+    Disconnected Q:        \\redmibookpc\share       Microsoft Windows Network
+                W:        \\192.168.1.198@5244\dav  Web Client Network
+    The command completed successfully.
+
+    .NOTES
+    挂载共享文件(smb)可以直接用powershell的New-SmbMapping命令
+    PS C:\repos\configs> New-SmbMapping -LocalPath 'F:' -RemotePath '\\User-2023GQTEXW\Share' -Persistent 1
+
+    Status Local Path Remote Path
+    ------ ---------- -----------
+    OK     F:         \\User-2023GQTEXW\Share
+    #>
+    [CmdletBinding()]
+    param(
+        # 可以用于webdav链接中ip地址填充,也可以用于共享文件夹
+        # 比如用于共享文件夹的链接,比如\\192.168.1.178\share,或者在启用网络发现的情况下使用计算机名来构建访问链接,例如:\\User-2023GQTEXW\Share
+        [string]$Server = 'localhost',
+        
+        # 挂载的分区盘符
+        [string]$DriveLetter = 'M',
+
+        [parameter(ParameterSetName = 'CompleteUri')]
+        [string]$CompleteUri = '',
+
+        # 挂载模式(对于smb模式，可以用powershell的New-SmbMapping函数)
+        # [ValidateSet('Smb', 'Webdav', 'Others')]$Mode = 'Smb',
+        [parameter(ParameterSetName = 'Smb')]
+        [switch]$SmbMode,
+        [parameter(ParameterSetName = 'WebDav')]
+        [switch]$WebdavMode,
+        [parameter(ParameterSetName = 'Others')]
+        [switch]$OthersMode,
+
+
+        # Alist 默认端口库
+        [parameter(ParameterSetName = 'WebDav')]
+        [string]$Port = '5244',
+        # 用户名是可选的,如果您使用匿名登录不上,才考虑使用此参数,密码会在执行后要求你填入,这样密码不会明文显示在命令行中
+        [string]$User = '',
+        
+        #是否记住凭证(和 -User 一起使用时可能会有冲突!)
+        
+        [switch]$Remember
+
+    )
+
+    # Write-Host "Net Drive Mode: $Mode" -ForegroundColor Magenta
+
+    $credString = ''#默认没有凭证,匿名访问/挂载
+    # 如果提供了用户,则要求用户输入密码(这样密码不会在命令行中明文显示)
+    if ($User)
+    {
+        # 利用powershell的凭据获取惯例用法
+        $password = Read-Host "Enter password For $User" -AsSecureString #前面已经有$User参数,这里只需要再读取密码
+        #将$User和获取的$password组合起来转换为PSCredential
+        $credential = New-Object System.Management.Automation.PSCredential ($User, $Password)
+
+        #考虑到某些命令行工具无法直接使用PsCredential,所以要利用转换方法把凭据转换为明文来引用(但是不打印出来)
+        $plainCred = $credential.GetNetworkCredential()
+
+        #组建成凭据明文字符串,以便net use等命令行使用
+        $credString = $plainCred.UserName + ' ' + $plainCred.Password
+
+        #  $credString
+        #  $plainCred.User $plainCred.Password
+        # return $credential
+    }
+    # 构造URI(if语句可以类似于三元运算符来使用)
+    $Uri = if ($CompleteUri)
+    {
+        $CompleteUri 
+    }
+    else
+    {  
+        
+        if ($SmbMode)
+        {
+            $ShareDir = Read-Host 'Enter shared folder(Directory) BaseName(`share` is default)'
+            $ShareDir = if ($ShareDir) { $ShareDir } else { 'share' }
+            "\\${Server}\$ShareDir" 
+            
+        }
+        elseif ($WebdavMode)
+        {
+            "http://${Server}:${Port}/dav"
+        }
+        elseif ($OthersMode)
+        {
+            'otherMode'
+        }
+        
+    } 
+
+     $Uri 
+
+    # 构造net use命令参数
+    $netUseArguments = "${DriveLetter}: $uri"
+    #考虑到可能需要用户名和密码,必要时添加凭据字符串
+    if ($credString -ne '')
+    {
+        $netUseArguments += " /user:$credString"
+    }
+
+    # 是否记住凭据
+    if ($Remember)
+    {
+        $netUseArguments += ' /persistent:yes /savecred'
+    }
+
+    # 映射网络驱动器
+    $expression = "net use $netUseArguments"
+    #  'check expression:' 
+    #  $expression  #正常的连接形如:net use N: \\cxxuredmibook\share /user:smb 1
+
+    # return 
+
+
+    Invoke-Expression $expression
+
+    # 检查映射结果
+    if ($LASTEXITCODE -eq 0)
+    {
+        Write-Host "Drive ${DriveLetter}: successfully mapped to $uri"
+    }
+    else
+    {
+        Write-Error "Failed to map drive ${DriveLetter}: with error code $LASTEXITCODE"
+    }
+
+    # 显示现有映射
+    net use
+}
+```
+
+
+
+### 挂载网络驱动器列表检查
 
 用`net use`可以检查到
 

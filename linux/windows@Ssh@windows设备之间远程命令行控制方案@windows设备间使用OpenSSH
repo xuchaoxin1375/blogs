@@ -238,7 +238,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 - 一般在`C:\ProgramData\ssh`目录下面的`sshd_config`文件中
 - 这里给出简单的过程,完善的文档参考前面列出的参考文档链接
 
-#### 修改配置文件
+#### 修改Server配置文件
 
 - 您可以尝试用`type C:\ProgramData\ssh\sshd_config`命令行来查看配置文件中的内容
 - 默认情况下的配置文件无法直接免密登录,您需要修改部分内容(其实默认文件中大多都是注释语句,有些需要我们解开注释,有些需要我们转为注释)
@@ -348,41 +348,63 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 
 ##### 一键脚本修改👺
 
-- 为了方便一键操作,执行以下pwsh脚本(需要管理员权限👺)
+- 为了方便一键操作,执行以下pwsh脚本(需要**管理员权限**👺)
 
   - ```powershell
-    $sch ="C:\ProgramData\ssh" #sshd_config文件所在目录
-    $sshd_config="$sch\sshd_config" #原配置文件
-    cat $sshd_config #看一眼源文件内容
-    cp $sshd_config $sch\sshd_config.bak #备份配置文件,以防万一
     
-    $config=@'
-    PubkeyAuthentication  yes
-    AuthorizedKeysFile 	.ssh/authorized_keys
-    Subsystem	 sftp 	sftp-server.exe
+    function Enable-PubkeyAuthentication
+    {
+    
+        <# 
+        .SYNOPSIS
+        在SSH server端运行本代码
+        启用公钥认证和AuthorizedKeysFile指定,从而允许授权公钥文件指定的公钥拥有者登录到ssh Server
+        
+        本函数需要配合其他代码才能达到预期的免密登录效果(需要客户端的公钥文件,无法整合到此脚本中)
+    
+        .DESCRIPTION
+        这是一个简易版的配置sshd_config文件的脚本,如果达不到预期效果,请查阅其他文档资料
+        本函数在修改原sshd_config文件前执行了备份,因此您可以找回默认值
+        .NOTES
+        ssh server除了运行本代码,还需要创建或修改 authorized_keys 文件(通常在ssh server端的某个用户家目录下.ssh中)
+        #>
+        
+        $sch = 'C:\ProgramData\ssh' #sshd_config文件所在目录
+        $sshd_config = "$sch\sshd_config" #原配置文件
+        Get-Content $sshd_config #看一眼源文件内容
+        Copy-Item $sshd_config $sch\sshd_config.bak #备份配置文件,以防万一
+        
+        $config = @'
+        PubkeyAuthentication  yes
+        AuthorizedKeysFile 	.ssh/authorized_keys
+        Subsystem	 sftp 	sftp-server.exe
     '@ #向sshd_config文件写入新的内容(覆盖性)
-    $config > $sshd_config
-    #重新检查新内容(特别是行内配置项目的空格)
-    cat $sshd_config 
-    #重启ssh服务以生效配置
-    restart-service sshd
+        $config > $sshd_config
+        #重新检查新内容(特别是行内配置项目的空格)
+        Get-Content $sshd_config 
+        #重启ssh服务以生效配置
+        Restart-Service sshd
+    }
+    
+    #调用本函数
+    Enable-PubkeyAuthentication
     
     ```
-
+    
     
 
 #### 向ssh server端上传或创建支持免密登录的公钥文件
 
 - 默认情况下,这个文件为`~/.ssh/authorized_keys`
 
-  - 不妨记该文件为**公钥文件**为变量,方便引用
+  - 不妨记该文件为**授权公钥文件**为变量,方便引用
 
     - ```powershell
       $authorized_keys='~/.ssh/authorized_keys'
       ```
 
 
-  - 确定Client端的公钥文件位置(您需要实现创建好密钥对,详情另见它文)
+  - 确定Client端的授权公钥文件位置(您需要实现创建好密钥对,详情另见它文)
 
     - ```powershell
       $pubkey="$home\.ssh\id_*pub" #为公钥文件路径创建易于引用的变量
@@ -409,7 +431,63 @@ $pubkey=$pubkeys[0]
 
 无论选择下面的哪一种方式,都请先执行预执行命令
 
-##### 方式1 (针对仅授权单台设备免密的情况)
+
+
+##### 方式1
+
+- 推荐的通用方法👺
+
+- 也可以复制公钥到剪切板,然后登录到server中创建相应文件
+
+  - 查看**ssh client**的公钥
+
+  - 复制输出的内容
+
+- 在**ssh server**上创建或追加公钥到授权公钥文件中
+
+  - 此前,我们现在Client端执行以下逻辑
+
+  
+
+  ```powershell
+  #在Client 端运行,会输出一段脚本,再复制到server端运行所得到的脚本
+  function Get-SSPubKeysAdderScripts
+  {
+      if (!$pubkeys)
+      {
+          Write-Error 'Please run pre-executing above commands first!'
+          Write-Error '请先执行预执行命令,然后重试'
+          return
+      }
+      $pubkey_content = Get-Content $pubkey #该值同上述指定
+  
+  
+      $script='$pubkey=' + "'$pubkey_content'" + @'
+  
+  $authorized_keys='~/.ssh/authorized_keys'
+  if(Test-Path $authorized_keys){
+  
+  type $authorized_keys #查看修改前的授权公钥文件
+  }else{
+      new-item -Path $authorized_keys -ItemType File -force
+      Write-Verbose "No $authorized_keys exist, create it!"
+  }
+  $pubkey >> $authorized_keys
+  type $authorized_keys #查看修改后的授权公钥文件
+  '@ 
+  	write-host $script -ForegroundColor Blue
+     # return $script
+  }
+  #调用并执行上述逻辑
+  Get-SSPubKeysAdderScripts
+  
+  ```
+
+  
+
+##### 方式2
+
+- 针对仅授权单台设备免密或者还原备份的授权公钥文件的情况
 
 - 创建或编辑方式有多种,以下方案提供的命令行直接在ssh client的命令行中执行(powershell)
 
@@ -450,38 +528,7 @@ $pubkey=$pubkeys[0]
     
     - 执行上述命令行,会弹出一个记事本窗口,修改必要的内容(前几行都是注释,后面2行改改即可),然后复制到命令行中执行
 
-##### 方式2 (更加通用的情况)
 
-- 也可以复制公钥到剪切板,然后登录到server中创建相应文件
-
-  - 查看**ssh client**的公钥
-
-  - 复制输出的内容
-
-- 在**ssh server**上创建或追加公钥到公钥文件中
-
-  ```powershell
-  function Get-SSPubKeysAdderScripts{
-      #在server端运行
-      if(!$pubkeys){
-          write-error 'Please run pre-executing above commands first!'
-          write-error '请先执行预执行命令,然后重试'
-          return
-      }
-      $pubkey_content=type $pubkey #该值同上述指定
-  
-  return '$pubkey='+"'$pubkey_content'"+@'
-  
-  $authorized_keys='~/.ssh/authorized_keys'
-  type $authorized_keys #查看修改前的授权公钥文件
-  $pubkey >> $authorized_keys
-  type $authorized_keys #查看修改后的授权公钥文件
-  '@ 
-  }
-  
-  Get-SSPubKeysAdderScripts
-  
-  ```
 
 ##### 重启服务以生效👺
 
@@ -493,19 +540,38 @@ $pubkey=$pubkeys[0]
 
   - 如果执行失败,请手动打开`service.msc`,然后找到`OpenSSH SSH Server`进行重启(停止后重新启用)
 
-#### 小结
+#### 小结👺
 
 上述两种方法都是powershell命令行,都算简单可行,任选一种即可,能够为两台windwos计算机建创建免密码ssh链接公钥文件
 
 此外,ssh server 端还需要进一步配置`sshd_config`文件(可以在创建公钥之前就完成配置)
 
+流程如下:
 
+1. ssh server端执行`Enable-PubkeyAuthentication`
 
-#### 重启ssh server服务
+2. ssh client端执行
 
-```powershell
-Restart-Service sshd
-```
+   ```powershell
+   #ssh Client端执行以下变量定义(不易封装到函数中,不便引用)
+       # $authorized_keys = '~/.ssh/authorized_keys'
+       $authorized_keys = "$env:userprofile/.ssh/authorized_keys"
+       $pubkeys = "$home\.ssh\id_*pub"
+       #查看公钥文件
+       $pubkeys = Get-ChildItem $pubkeys
+       $pubkeys
+       #兼容多个的情况,默认选择其中的第一个
+       $pubkey = $pubkeys[0]
+   ```
+
+3. client再执行以下两个函数中的一个即可,以获得一段创建**授权公钥文件**(authorized_keys)的脚本(第一种是输出在终端上,另一种是记事本内修改;复制得到的脚本)
+
+   - ` Get-SSPubKeysAdderScripts`
+   - `Get-SSPubKeysPushScripts`
+
+4. server上粘贴并运行上述复制到的脚本即可(这会创建服务端上的authorized_keys文件,并且会重启ssh server)
+
+5. 如果重启服务失败,请手动到`services.msc`中找到`Openssh ssh server`手动重启它
 
 #### 尝试免密登录
 
