@@ -156,19 +156,15 @@ OK     T:         \\redmibookpc\share
 net use X: \\服务器地址或计算机名\共享文件夹名称 /user:用户名 密码
 ```
 
-例如：
+#### 例子
 
-```bash
-net use X: \\192.168.1.100\SharedFolder /user:smb  Password123
-```
-
-这条命令会将 `\\192.168.1.100\SharedFolder` 映射为本地 `X:` 驱动器，并使用指定的用户名和密码进行身份验证。
-
-#### 例
+以下命令这条命令会将 `\\192.168.1.178\Shared` 映射为本地 `X:` 驱动器，并使用指定的用户名和密码进行身份验证。
 
 ```bash
 PS C:\Users\cxxu> net use x: \\192.168.1.178\share /user:smb 1
 命令成功完成。
+
+ net use x: \\cxxucolorful\share /user:smb 1
 ```
 
 检查挂载结果
@@ -191,6 +187,28 @@ OK           X:        \\192.168.1.178\share     Microsoft Windows Network
 如果您在挂载此共享文件夹之前已经占用了`x`盘符,则需要修改命令行中的`x:`,未被占用的英文字母都可以
 
 也可以在命令行中访问,例如`cd x:\`
+
+### 中英文冒号问题
+
+- 中文输入法的用户注意,命令行中的冒号不能是中文的,必须是英文的(本人自己的输入法设置为始终使用英文标点,无论是中文输入法模式还是英文输入模式)
+
+- 所以类似习惯的用户遇到语法错误提示时,除了检查语法或者模板,另外要检查盘符参数的冒号
+
+- 例子
+
+  ```powershell
+  #正确示例(英文冒号)
+  net use X： \\cxxucolorful\share  /user:smb 1
+  PS C:\Users\Administrator> net use X: \\cxxucolorful\share  /user:smb 1
+  命令成功完成。
+  
+  # 错误示例(中文冒号)
+  PS C:\Users\Administrator> net use X: \\cxxucolorful\share  /user：smb 1 #两个冒号都是中文的
+  
+   net use X： \\cxxucolorful\share  /user:smb 1 #第一个冒号是中问的
+  ```
+
+  
 
 #### Powershell函数挂载网络盘👺
 
