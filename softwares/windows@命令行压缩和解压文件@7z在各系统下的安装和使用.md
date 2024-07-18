@@ -2,17 +2,20 @@
 
 ## abstract
 
-- 命令行压缩和解压文件
-- scoop下载安装7z
-- 7zip命令行解压压缩包文件
+- 命令行压缩和解压文件的方案
+- 主要针对windows的场景(linux等Unix-like系统相关工具和教程十分多)
+  - scoop下载安装7z
+  - 7zip命令行解压压缩包文件
+
 
 ## 7z工具
 
 - 7-Zip是一款强大的开源文件压缩和解压缩工具，其命令行版本在Linux、Windows以及其他支持的平台上非常实用
 
+- [Download (7-zip.org)](https://www.7-zip.org/download.html)
+- [7-Zip 官方中文网站 (sparanoid.com)](https://sparanoid.com/lab/7z/)
 
-
-## 7-Zip 主要特征
+### 7-Zip 主要特征
 
 - 使用了 **LZMA** 与 **LZMA2** 算法的 [7z 格式](https://sparanoid.com/lab/7z/7z.html) 拥有极高的压缩比
 - 支持格式：
@@ -27,33 +30,27 @@
 - 支持 FAR Manager 插件
 - 支持 87 种语言
 
-### 平台
 
-- **7-Zip** 适用于 Windows 10 / 8 / 7 / Vista / XP / 2016 / 2012 / 2008 / 2003 / 2000。
-
-- [p7zip](https://sourceforge.net/projects/p7zip/) - Linux/Posix 平台的命令行移植版本。
-
-- 在 [Source Forge 的 7-Zip 页面](https://sourceforge.net/projects/sevenzip/)（英文）中您可以找到相关的论坛、错误汇报及系统需求。
-
-### refs@help👺
-- [7-Zip 官方中文网站 (sparanoid.com)](https://sparanoid.com/lab/7z/)
-- 在线帮助文档:
-  - [7-Zip Start Page - 7-Zip Documentation](https://documentation.help/7-Zip/start.htm)
-  - [Command Line Syntax - 7-Zip Documentation](https://documentation.help/7-Zip/syntax.htm)
 
 ## windows系统下7zip安装@操作
 
-### 下载7zip
+一般来说国内下载7zip的安装包是比价慢的
+
+幸运的是,7zip是一个小巧高性能软件,体积不大,下载速度慢也不会等太久
+
+您还可以到论坛或者微信搜索找相关公众号发的文章获取第三方网盘分享的版本(这不太必要,一般都是旧版本的)
+
+### 官网下载7zip
 
 - [7-Zip - 程序下载 (sparanoid.com)](https://sparanoid.com/lab/7z/download.html)
   - 可以下载到有命令行和GUI的版本
 
 
-## 其他方式安装7zip
+### 其他方式安装7zip
 
-### scoop方式安装
+#### scoop方式安装
 
-#### 搜索7zip
+搜索7zip
 
 - ```bash
   🚀  scoop search 7zip
@@ -62,7 +59,7 @@
       7zip19.00-helper (19.00)
   ```
 
-#### 安装7zip
+安装7zip
 
 - ```bash
   scoop install 7zip
@@ -119,7 +116,9 @@
 
 ## 调用7zip
 
-### 命令行调用(scoop安装的情形为例)
+### 命令行调用
+
+- scoop安装的7zip情形为例
 
 - ```powershell
   PS>gcm 7z*
