@@ -104,7 +104,106 @@
 - 这里的指定位置不仅可以是文件系统的位置,也可以是注册表的位置(路径),当然也可以是环境变量的路径
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e657784af9cc494d92778f77b0248d26.png)
 
-- 使用regedit注册表编辑器,打开示例路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们也可以用简写`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`粘贴到regedit 界面的地址栏,回车跳转到该注册表路径
+#### ls 查看注册表路径示例
+
+这里使用`registry::`来引导注册表路径,后面跟的`HKLM`是`HKEY_LOCAL_MACHINE`的缩写
+
+可以看大到,`ls`命令可以列出注册表路径的子路径(本例子中的注册表路径简称为`Print`路径),对应于regedit界面中左侧栏的文件夹图标结构;
+
+而`Print`右侧的属性项目不会被`ls`列出(一个文件夹下的文件和子文件夹有所不同),与之互补的,可以使用`gp`命令,也就是`Get-ItemProperty`
+
+```powershell
+PS C:\Users\cxxu\Desktop> ls "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+    Hive: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
+
+Name                           Property
+----                           --------
+Cluster
+Connections
+PackageInstallation
+PackagesToAdd
+PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               LANGIDOfLastDefaultDevmode : 1033
+                               ResetDevmodesAttempts      : 3
+Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               ResetDevmodesAttempts      : 3
+                               LANGIDOfLastDefaultDevmode : 1033
+V4 Connections
+
+PS C:\Users\cxxu\Desktop> ls "registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+    Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
+
+Name                           Property
+----                           --------
+Cluster
+Connections
+PackageInstallation
+PackagesToAdd
+PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               LANGIDOfLastDefaultDevmode : 1033
+                               ResetDevmodesAttempts      : 3
+Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               ResetDevmodesAttempts      : 3
+                               LANGIDOfLastDefaultDevmode : 1033
+```
+
+使用`gp`命令查看注册表路径层级包含的属性(和`ls`不同,`gp`没有`recurse`参数,而`ls`是有`Recurse`参数)
+
+```powershell
+PS> gp "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+3DPrintApps                                   : {89006A2E.AutodeskTinkercad_tf1gferkr813w!App, SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App, 10281CorgisoftIndustries.PrintersBloc
+                                                kBeta_032b3fvfvhzrc!App, FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App}
+DoNotInstallCompatibleDriverFromWindowsUpdate : 0
+PSPath                                        : Microsoft.PowerShell.Core\Registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
+PSParentPath                                  : Microsoft.PowerShell.Core\Registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+PSChildName                                   : Print
+PSProvider                                    : Microsoft.PowerShell.Core\Registry
+```
+
+#### 使用reg query查看注册表
+
+相当于`ls`和`gp`结合
+
+```powershell
+PS> reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print"
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print
+    3DPrintApps    REG_MULTI_SZ    89006A2E.AutodeskTinkercad_tf1gferkr813w!App\0SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App\010281CorgisoftIndustries.PrintersBlockBeta_032b3fvfvhzrc!App\0FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App
+    DoNotInstallCompatibleDriverFromWindowsUpdate    REG_DWORD    0x0
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Cluster
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Connections
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackageInstallation
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackagesToAdd
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PrinterMigrationEx
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Printers
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\V4 Connections
+```
+
+又比如说
+
+```cmd
+PS> reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management"
+
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Memory Management
+    ClearPageFileAtShutdown    REG_DWORD    0x0
+    DisablePagingExecutive    REG_DWORD    0x0
+    HotPatchTableSize    REG_DWORD    0x1000
+    LargeSystemCache    REG_DWORD    0x0
+	.....
+```
+
+
+
+#### 用regedit编辑器快速跳转到注册表路径
+
+- 使用regedit注册表编辑器,例如,想要快速打开路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们可以复制地址粘贴到regedit编辑器的地址栏中,回车跳转(如果路径存在,则会跳转成功,否则跳转失败)
+- 对于上面的例子,我们也可以用简写为`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`;这里将`computer\`省略掉,还可以将`HKEY_LOCAL_MACHINE`简写为`HKLM`
+
+
 
 
 #### registry::根键名称访问注册表路径
@@ -563,6 +662,28 @@ C:\Users
   - [如何使用 .reg 文件添加、修改或删除注册表子项和值 - Microsoft 支持](https://support.microsoft.com/zh-cn/topic/如何使用-reg-文件添加-修改或删除注册表子项和值-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
   - [How to add, modify, or delete registry subkeys and values by using a .reg file - Microsoft Support](https://support.microsoft.com/en-us/topic/how-to-add-modify-or-delete-registry-subkeys-and-values-by-using-a-reg-file-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
 
+例
+
+- ```powershell
+  # 设置LargeSystemCache的值为1  
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
+    
+  # 注意：上面的命令假设LargeSystemCache项已经存在。如果不存在，你需要先创建它。  
+  # 但通常，这个项在Windows系统中是存在的，只是值可能不是1。  
+    
+  # 如果LargeSystemCache项不存在，你需要先创建它，然后再设置值。但PowerShell没有直接的命令来创建不存在的注册表项。  
+  # 一种方法是使用New-ItemProperty，但如果你不确定项是否存在，你可以先检查它：  
+    
+  if (-NOT (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\LargeSystemCache")) {  
+      # 如果项不存在，则创建它  
+      New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -PropertyType DWord -Force  
+  } else {  
+      # 如果项存在，则直接设置值  
+      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
+  }
+  ```
+
+  
 
 ## 拓展和补充
 

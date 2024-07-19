@@ -1,166 +1,9 @@
 [toc]
 
-
-
 ## abstract
 
-- 对于两台windows设备,统一网络下经常用远程桌面来控制(mstsc)
-- 而用命令行来控制也是可以的,虽然windows主打可视化操作而非命令行,但是命令行也可以执行很多基础操作
-- 命令行下,可以执行比如文件管理,资源下载,软件安装不在话下,也可以利用vscode等代码编辑器借助Remote-SSH远程编辑代码
-
-### 为什么考虑命令行连接
-
-- 命令行连接的一个好处在于资源消耗小,连接快捷,体验一致性好
-
-  - 另外,现在windows命令行中也可以做到以管理员方式运行命令行
-
-  - windows 11 24h2开始开发者模式中支持sudo运行
-
-  - 而windows10也可以安装一些命令行工具比如`scoop`,然后下载诸如`gsudo`等工具实现类似效果
-
-  - ```powershell
-    PS> scoop search sudo
-    Results from local buckets...
-    
-    Name    Version      Source Binaries
-    ----    -------      ------ --------
-    gsudo   2.4.4        main
-    psutils 0.2023.06.28 main   sudo.ps1
-    sudo    0.2020.01.26 main
-    nsudo   8.2          extras
-    ```
-
-    
-
-### 讨论主题
-
-- 假设局域网内我有两台windows设备,如何在设备A用命令行控制另一台设备B?
-  - 也就是说,把设备B作为server,设备A作为Client
-
-## powershell远程控制
-
-在局域网内，你可以通过多种方法在设备A上使用命令行控制设备B。下面介绍一种常见的方法，即使用PowerShell和Windows远程管理（WinRM）。
-
-## 使用PowerShell远程管理
-
-### 前提条件：
-1. **启用WinRM服务**：WinRM服务需要在两台设备上启用。
-2. **配置信任主机**：设备A需要信任设备B。
-3. **用户权限**：确保你有足够的权限来执行远程命令。
-
-### 步骤：
-
-#### 1. 启用WinRM服务
-
-在设备A和设备B上，都需要启用WinRM服务。打开PowerShell并运行以下命令：
-
-```powershell
-Enable-PSRemoting -Force
-```
-
-#### 2. 配置信任主机
-
-在设备A上，配置信任主机，使其可以与设备B进行通信。假设设备B的IP地址是`$ip=192.168.1.198`：
-
-```powershell
-$ip=192.168.1.198 #根据自己的情况修改
-```
-
-配置设备B为信任设备
-
-```powershell
-
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value "$ip"
-```
-
-你可以用逗号分隔多个IP地址。如果你想信任所有主机，可以使用通配符`*`，但这可能会有安全风险：
-
-```powershell
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*"
-```
-
-#### 3. 测试连接
-
-在设备A上，使用以下命令测试与设备B的连接：
-
-```powershell
-Test-WsMan -ComputerName $ip
-```
-
-如果一切正常，你应该看到一个成功的响应。
-
-例如
-
-```powershell
-PS C:\repos\scripts> Test-WsMan -ComputerName $ip
-
-wsmid           : http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd
-ProtocolVersion : http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd
-ProductVendor   : Microsoft Corporation
-ProductVersion  : OS: 0.0.0 SP: 0.0 Stack: 3.0
-```
-
-
-
-#### 4. 创建远程会话
-
-在设备A上，创建一个到设备B的远程会话：
-
-```powershell
-$s = New-PSSession -ComputerName $ip -Credential (Get-Credential)
-```
-
-此命令会提示你输入设备B的用户名和密码。
-
-#### 5. 运行远程命令
-
-现在，你可以在设备A上运行命令来控制设备B。例如，查看设备B上的进程：
-
-```powershell
-Invoke-Command -Session $s -ScriptBlock { Get-Process }
-```
-
-#### 6. 关闭会话
-
-完成操作后，记得关闭远程会话：
-
-```powershell
-Remove-PSSession -Session $s
-```
-
-### 例子
-
-假设你想在设备A上获取设备B的主机名。你可以运行以下命令：
-
-```powershell
-Invoke-Command -Session $s -ScriptBlock { hostname}
-```
-
-```powershell
-PS C:\Users\cxxu>  Invoke-Command -Session $s -ScriptBlock { hostname}
-RedmiBookPC
-```
-
-而查看目录可能不会得到正确的结果
-
-```powershell
-PS C:\repos\scripts> invoke-command -Session $s -ScriptBlock {ls C:\share}
-
-    Directory: C:\share
-
-Mode                 LastWriteTime         Length Name              PSComputerName
-----                 -------------         ------ ----              --------------
-                                                                    192.168.1.198
-                                                                    192.168.1.198
-                                                                    192.168.1.198
-                                                                    192.168.1.198
-```
-
-通过以上步骤，你就可以在设备A上通过命令行控制设备B了。如果在过程中遇到任何问题，请检查防火墙设置或用户权限。
-
-### 小结
-
-- 这种方式不是很优雅,连贯性和便利性不足
+- 本文介绍和实验了windows设备之间使用ssh连接远程控制
+- 实验平台为windows10,windows11
 
 ## SSH方案
 
@@ -234,34 +77,46 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 
 ### 免密自动登录👺
 
+- 如果您不想了解细节,可以直接跳转到下面的 **傻瓜式配置免密登录** 一节,开门见山的提供配置步骤;以下是细节步骤
 - 和linux server类似,但是windows 中需要修改的`ssh`服务器端的配置文件位置和linux不同(毕竟文件系统不同)
-- 一般在`C:\ProgramData\ssh`目录下面的`sshd_config`文件中
-- 这里给出简单的过程,完善的文档参考前面列出的参考文档链接
+  - 一般在`C:\ProgramData\ssh`目录下面的`sshd_config`文件中
+  - 这里给出简单的过程,完善的文档参考前面列出的参考文档链接
 
 #### 修改Server配置文件
 
 - 为了获得配置文件,你需要在安装openssh ssh server 后启动它
 
   - ```powershell
-     # Start the sshd service
-    Start-Service sshd
+    function Set-SSHServerInit
+    {
+        # Start the sshd service
+        Start-Service sshd
     
-    # OPTIONAL but recommended:
-    Set-Service -Name sshd -StartupType 'Automatic'
+        # OPTIONAL but recommended:
+        Set-Service -Name sshd -StartupType 'Automatic'
     
-    # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
-    if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
-        Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
-        New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-    } else {
-        Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+        # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+        if (!(Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue | Select-Object Name, Enabled))
+        {
+            Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+            New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+        }
+        else
+        {
+            Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+        }
     }
+    
+    Set-SSHServerInit #调用定义的函数
+    
     ```
 
     
 
 - 您可以尝试用`type C:\ProgramData\ssh\sshd_config`命令行来查看配置文件中的内容
+
 - 默认情况下的配置文件无法直接免密登录,您需要修改部分内容(其实默认文件中大多都是注释语句,有些需要我们解开注释,有些需要我们转为注释)
+
   - 参考:[在Windows Server 之间配置SSH 免密登录 - LearningAlbum - 博客园 (cnblogs.com)](https://www.cnblogs.com/deepinnet/p/15228378.html)
 
 - 这里直接给出我已经修改过的一个可以免密登录ssh的配置文件(sshd_config)
@@ -371,7 +226,6 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 - 为了方便一键操作,执行以下pwsh脚本(需要**管理员权限**👺)
 
   - ```powershell
-    
     function Enable-PubkeyAuthentication
     {
     
@@ -410,7 +264,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
     Enable-PubkeyAuthentication
     
     ```
-    
+
     
 
 #### 向ssh server端上传或创建支持免密登录的公钥文件
@@ -436,7 +290,6 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 ##### 预执行命令👺
 
 ```powershell
-
 function Get-SSHPreRunPubkeyVarsScript
 {
     <# 
@@ -464,7 +317,7 @@ function Get-SSHPreRunPubkeyVarsScript
     return $script
 
 }
-Get-SSHPreRunScript|iex #将脚本输出并调用执行
+Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用iex命令整合的就比较巧妙,解决了局部变量外部无法访问的问题
 ```
 
 无论选择下面的哪一种方式,都请先执行预执行命令
@@ -522,7 +375,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行
   Get-SSHPubKeysAdderScripts
   
   ```
-  
+
   
 
 ##### 方式2
@@ -566,7 +419,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行
     
     
     ```
-    
+
     - 执行上述命令行,会弹出一个记事本窗口,修改必要的内容(前几行都是注释,后面2行改改即可),然后复制到命令行中执行
 
 
@@ -581,26 +434,161 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行
 
   - 如果执行失败,请手动打开`service.msc`,然后找到`OpenSSH SSH Server`进行重启(停止后重新启用)
 
-#### 小结👺
+### 傻瓜式配置免密自动登录👺
+
+#### 快速配置流程
 
 上述两种方法都是powershell命令行,都算简单可行,任选一种即可,能够为两台windwos计算机建创建免密码ssh链接公钥文件
 
 此外,ssh server 端还需要进一步配置`sshd_config`文件(可以在创建公钥之前就完成配置)
 
-流程如下:
+您可以将上述提供的各个powershell函数分别在ssh client 和ssh server上导入(不是直接运行),为了方便这一点,可以从gitee仓库复制整合好的脚本:[modulesByCxxu/SSH/SSH.psm1 · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/SSH/SSH.psm1)
 
-1. ssh server端执行`Enable-PubkeyAuthentication`
+复制后分别粘贴到客户端和服务端的**管理员权限**的powershell窗口
 
-2. ssh client端执行`Get-SSHPreRunScript|iex #将脚本输出并调用执行`
+然后就只需要按照以下指示在ssh客户端(client)或服务端(server)上调用或执行相关命令即可
 
-3. client再执行以下两个函数中的一个即可,以获得一段创建**授权公钥文件**(authorized_keys)的脚本(第一种是输出在终端上,另一种是记事本内修改;复制得到的脚本)
+流程如下(按顺序执行):
 
-   - ` Get-SSHPubKeysAdderScripts`
-   - `Get-SSHPubKeysPushScripts`
+1. server端执行
 
-4. server上粘贴并运行上述复制到的脚本即可(这会创建服务端上的authorized_keys文件,并且会重启ssh server)
+   - ```powershell
+     Set-SSHServerInit
+     Enable-PubkeyAuthentication
+     ```
 
-5. 如果重启服务失败,请手动到`services.msc`中找到`Openssh ssh server`手动重启它
+   - server上**粘贴**并运行上述复制到的脚本即可(这会创建服务端上的authorized_keys文件,并且会重启ssh server)
+
+2. client端执行
+
+   - ```powershell
+     Get-SSHPreRunPubkeyVarsScript|iex 
+     #client 再执行以下两个函数中的一个即可,以获得一段创建**授权公钥文件**(authorized_keys)的脚本
+     Get-SSHPubKeysAdderScripts #方案1
+     # Get-SSHPubKeysPushScripts #方案2
+     ```
+
+   - Note:
+
+     1. 方案1是输出在终端上,直接复制即可;
+     2. 方案2会打开一个记事本,在其中做必要的填写或修改;然后复制其中内容
+
+3. server端粘贴运行client输出的脚本
+
+4. 如果sshd服务重启失败(报错),请手动到`services.msc`中找到`Openssh ssh server`手动重启它
+
+##### 操作示例
+
+
+
+服务端上执行的记录(**管理员权限**)
+
+```powershell
+#管理员权限窗口运行
+#如果没有安装ssh server,这里先安装,如果已经安装,则跳过
+PS C:\Users\cxxu> Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+
+Path          :
+Online        : True
+RestartNeeded : False
+
+#初始化服务端
+PS C:\Users\cxxu> Set-SSHServerInit
+WARNING: Waiting for service 'OpenSSH SSH Server (sshd)' to start...
+Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists.
+#启用免密登录
+PS C:\Users\cxxu> Enable-SSHPubkeyAuthentication
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+.....(原配置的一大堆内容,不用管它)
+.....
+
+# override default of no subsystems
+Subsystem       sftp    sftp-server.exe
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#       AllowTcpForwarding no
+#       PermitTTY no
+#       ForceCommand cvs server
+
+Match Group administrators
+       AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+    PubkeyAuthentication  yes
+    AuthorizedKeysFile  .ssh/authorized_keys
+    Subsystem    sftp   sftp-server.exe
+    
+#此时前往客户端执行任务,复制其输出的脚本粘贴进来回车执行
+
+
+
+```
+
+
+
+客户端上执行的记录
+
+```powershell
+#预执行指令(创建必要变量等方便引用)
+PS C:\Users\cxxu\Desktop> Get-SSHPreRunPubkeyVarsScript|iex
+
+    Directory: C:\Users\cxxu\.ssh
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---            2024/3/8    16:40             99 id_ed25519.pub
+-a---           2024/7/13    21:28            743 id_rsa.pub
+C:\Users\cxxu\.ssh\id_ed25519.pub
+
+#执行下一条命令,会输出一段脚本,复制其输出
+PS C:\Users\cxxu\Desktop> Get-SSHPubKeysAdderScripts
+$pubkey='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPM/U3hKGVFJsqDdW8ydffoDlL79PrBQhycgFnZn3DVo 838808930@qq.com'
+$authorized_keys='~/.ssh/authorized_keys'
+if(Test-Path $authorized_keys){
+
+type $authorized_keys #查看修改前的授权公钥文件
+}else{
+    new-item -Path $authorized_keys -ItemType File -force
+    Write-Verbose "No $authorized_keys exist, create it!"
+}
+$pubkey >> $authorized_keys
+type $authorized_keys #查看修改后的授权公钥文件
+#重启ssh服务以生效配置
+Restart-Service sshd
+
+# 现在离开客户端,回去服务端操作
+
+```
+
+回到server端操作(粘贴并回车运行前面复制的脚本)
+
+```powershell
+PS C:\Users\cxxu> $pubkey='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPM/U3hKGVFJsqDdW8ydffoDlL79PrBQhycgFnZn3DVo 838808930@qq.com'
+PS C:\Users\cxxu> $authorized_keys='~/.ssh/authorized_keys'
+PS C:\Users\cxxu> if(Test-Path $authorized_keys){
+>>
+>> type $authorized_keys #查看修改前的授权公钥文件
+>> }else{
+>>     new-item -Path $authorized_keys -ItemType File -force
+>>     Write-Verbose "No $authorized_keys exist, create it!"
+>> }
+
+    Directory: C:\Users\cxxu\.ssh
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           2024/7/19     9:46              0 authorized_keys
+
+PS C:\Users\cxxu> $pubkey >> $authorized_keys
+PS C:\Users\cxxu> type $authorized_keys #查看修改后的授权公钥文件
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPM/U3hKGVFJsqDdW8ydffoDlL79PrBQhycgFnZn3DVo 838808930@qq.com
+PS C:\Users\cxxu> #重启ssh服务以生效配置
+PS C:\Users\cxxu> Restart-Service sshd
+PS C:\Users\cxxu>
+```
+
+不出意外客户端现在就可以免密登录了
 
 #### 尝试免密登录
 
@@ -696,22 +684,28 @@ Microsoft Windows [版本 10.0.19045.4529]
 下面是一些关于 `authorized_keys` 文件的重要细节：
 
 ### 文件格式
+
 `authorized_keys` 文件中的每一行通常包含四个主要部分，它们由空格分隔：
+
 1. **密钥类型**：例如 RSA、DSA、ECDSA 或 ED25519。
 2. **公钥**：这是实际的公钥字符串。
 3. **可选的选项**：例如 `command=`、`no-port-forwarding` 等，用于限制该密钥的使用方式。
 4. **可选的评论**：通常为用户的电子邮件地址或描述，方便识别密钥来源。
 
 示例：
+
 ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZwKU... [options] comment
 ```
 
 ### 文件权限
+
 为了安全起见，`authorized_keys` 文件必须具有严格的权限设置。通常，文件应该只对拥有者可读，即权限应设置为 `600`。如果权限设置不正确，SSH 服务可能拒绝使用该文件进行认证。
 
 ### 选项
+
 `authorized_keys` 文件中的选项允许你对每个密钥进行定制化的访问控制。一些常见的选项包括：
+
 - `command="..."`：指定当使用此密钥登录时要执行的命令。
 - `no-agent-forwarding`：禁止代理转发。
 - `no-port-forwarding`：禁止端口转发。
@@ -719,9 +713,12 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZwKU... [options] comment
 - `from="..."` 和 `to="..."`：限制连接源 IP 地址和时间范围。
 
 ### 公钥添加与管理
+
 公钥可以手动添加到 `authorized_keys` 文件中，也可以使用 `ssh-copy-id` 命令自动添加。管理这些公钥时，确保定期审查并删除不再需要或已过期的密钥，以维护系统的安全性。
 
 ### 多个公钥
+
 用户可以有多个公钥，每行一个，这样可以从不同的设备或账户进行认证。每个公钥可以有不同的选项，以适应不同的登录场景。
 
 总之，`authorized_keys` 文件是 SSH 认证过程中的关键组件，正确配置和维护它是保持 SSH 服务安全的重要环节。
+

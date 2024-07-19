@@ -73,7 +73,13 @@
 #### windows上使用openssh
 
 - client and server [Get started with OpenSSH for Windows | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui)
+  - 适用于win10之后的系统
 
+
+- 更一般的ssh方案(基于powershell)
+  - [运行远程命令 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/security/remoting/running-remote-commands?view=powershell-7.4)
+  - [通过 SSH 进行 PowerShell 远程处理 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/security/remoting/ssh-remoting-in-powershell?view=powershell-7.4)
+  - 相关软件仓库[PowerShell/Win32-OpenSSH: Win32 port of OpenSSH (github.com)](https://github.com/PowerShell/Win32-OpenSSH)
 
 ##### 检查相关软件
 
