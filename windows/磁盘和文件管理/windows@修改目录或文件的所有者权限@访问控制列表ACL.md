@@ -295,3 +295,27 @@ Grant-FullControlToEveryone -Path "C:\路径\到\目录"
 ```
 
 这个函数提供了一个更灵活的方式来控制权限设置，同时保持了脚本的简洁和易用性。
+
+## 移除某个用户的权限
+
+- 例如双系统设备,一台设备安装了两个不同版本的windows,分别在C盘和D盘(对于两个系统C,D盘是相互的)
+
+- 如果跨系统访问,另一个盘上的系统(假设为系统X访问系统Y)中的某个用户的家目录,就需要获取权限,而这会对系统Y的相关目录的权限做修改
+
+- 当你重启进入系统Y后会发现系统Y中的被X访问了的目录的权限控制发生变化,可能会多出一个陌生用户
+
+- 那么许多鉴权文件的拥有者(访问权限)发生变更,会导致失效(比如`~/.ssh`目录下的公钥文件的免密登录ssh可能会失效,会要求你移出不明用户的访问权限)
+
+  - ```cmd
+    PS> ssh administrator@front
+    Bad permissions. Try removing permissions for user: UNKNOWN\\UNKNOWN (S-1-5-21-208387601-1918623530-3577755754-1001) on file C:/Users/cxxu/.ssh/config.
+    Bad owner or permissions on C:\\Users\\cxxu/.ssh/config
+    ```
+
+    
+
+- ```cmd
+  You can't remove AccountJnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)because this object is inheriting permissions from its parent. Toremove AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001),you must prevent this object from inheriting permissions. Turnoff the option for inheriting permissions, and then tryremoving AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)again.
+  ```
+
+  

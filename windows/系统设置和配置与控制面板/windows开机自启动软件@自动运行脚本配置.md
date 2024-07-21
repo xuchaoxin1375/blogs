@@ -67,9 +67,11 @@
 - 在powershell脚本中,使用`Pause`等指令和`Tee-Object`可以用来跟踪日志
 
 
-### 配置守护进程(包装成自启动服务)
+### 配置守护进程(包装成自启动服务)👺
 
 - 许多没有自带的软件(包括命令行软件)都可以通过[nssm](https://nssm.cc/download)软件进行包装,配置启动参数不在话下
+  - 软件主页:[NSSM - the Non-Sucking Service Manager](https://nssm.cc/)
+
 - 当然一般我倾向于用前面的配置自启动目录的方法,不需要额外的软件
 
 ### 使用任务计划程序
