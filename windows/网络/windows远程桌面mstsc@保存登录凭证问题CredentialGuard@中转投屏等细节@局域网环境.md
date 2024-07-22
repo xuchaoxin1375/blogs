@@ -280,7 +280,7 @@
 - 当您的凭证失效,则建议您删除旧有的凭证,然后mstsc界面会切换到最初的界面,可以勾选允许记住凭证
 
 
-### 凭证被禁用问题@Credential Guard
+### 凭证保存被禁用问题@Credential Guard
 
 - [配置 Credential Guard - Windows Security | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/security/identity-protection/credential-guard/configure?tabs=intune)
 
@@ -308,7 +308,9 @@
 
 - 如有其他疑问,参考上述文档链接
 
-### Credential Guard禁用
+### Credential Guard禁用👺
+
+- [disable-credential-guard|配置 Credential Guard - Windows Security | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/security/identity-protection/credential-guard/configure?tabs=intune#disable-credential-guard)
 
 - 以下脚本需要以**管理员权限**运行，它会创建或修改指定的注册表键值，以达到禁用与Credential Guard相关的设置目的。请确保在执行之前评估此操作对系统安全性的影响，并在必要时进行系统备份。
 - 从powershell/cmd的版本二选一
@@ -316,6 +318,17 @@
 #### 脚本
 
 - powershell禁用Credential Guard
+
+  - 这个脚本是根据官方文档中修改注册表的方式来禁用的方法的命令行化版本
+
+  - | 设置                                                         |
+    | :----------------------------------------------------------- |
+    | **密钥路径**： `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa`<br /> **密钥名称**： `LsaCfgFlags` <br />**类型**： `REG_DWORD` <br />**值**： `0` |
+    | **密钥路径**： `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard` <br />**密钥名称**： `LsaCfgFlags` <br />**类型**： `REG_DWORD` <br />**值**： `0` |
+
+    删除这些注册表设置可能不会禁用 Credential Guard。 它们必须设置为值 0。
+
+    重启设备以应用更改。
 
   ```powershell
   # 确保以管理员权限运行PowerShell

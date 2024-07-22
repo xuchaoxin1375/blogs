@@ -591,3 +591,26 @@ WSMan                                  WSMan
 
 - [使用 Windows Server 中的 SMB 3 协议的文件共享概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/storage/file-server/file-server-smb-overview)
 
+## FAQ
+
+### 共享文件夹文件被病毒查杀软件隔离或删除
+
+- windows defedner这类软件会在权限允许的情况下查杀共享文件夹中的文件(尤其是可执行文件)
+- 然而有些**学习版**软件和工具会被windows defender直接隔离删除,这可能不是我们想要的,而且会造成烦恼
+- 为了防止这一点,您可以寻找彻底关闭或禁用windows defender的方法(比如修改组策略等,或者相关的一键关闭工具(比如dism++)来禁用defender)
+- 或者添加排除项目,比如指定某个目录或者盘符根目录不加入查杀,或者添加文件类型,比如`exe`类型的文件不查杀
+- 关闭查杀会造成一定的风险,酌情设置
+
+### 多重连接
+
+- 不允许一个用户使用一个以上用户名与服务器或共享资源的多重连接。
+
+```powershell
+PS C:\Users\cxxu\Desktop> net use X: \\CxxuColorful\share /user:smb 1
+发生系统错误 1219。
+
+不允许一个用户使用一个以上用户名与服务器或共享资源的多重连接。中断与此服务器或共享资源的所有连接，然后再试一次。
+```
+
+
+
