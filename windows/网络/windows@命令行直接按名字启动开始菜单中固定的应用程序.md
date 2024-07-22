@@ -33,7 +33,7 @@ write-host $Start_Menu_Programs_User
 
 复制得到的路径,例如`C:\Users\cxxu\AppData\Roaming\Microsoft\windows\Start Menu\programs`
 
-再打开环境变量编辑窗口(开始菜单中搜索`Path`或者命令行中输入`systempropertyadvanced.exe`打开)
+再打开环境变量编辑窗口(开始菜单中搜索`Path`或者命令行中输入`systempropertiesadvanced.exe`打开)
 
 找到其中的`Path`变量编辑,追加刚才复制的路径
 
