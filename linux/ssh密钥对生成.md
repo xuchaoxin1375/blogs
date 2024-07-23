@@ -2,6 +2,8 @@
 
 
 
+## 创建或生成ssh密钥对
+
 创建SSH密钥对是一个相对直接的过程，通常在你的本地机器上完成。SSH密钥对包括一个公钥和一个私钥。公钥可以安全地分享给任何人或任何服务，如你的GitHub账户或云服务提供商，而私钥则需要保密，只由你持有。
 
 以下是使用`ssh-keygen`命令创建SSH密钥对的基本步骤：
@@ -11,6 +13,7 @@
 
 2. **运行`ssh-keygen`命令**：
    输入以下命令：
+   
    ```bash
    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
    ```
@@ -18,7 +21,7 @@
    - `-t rsa` 指定密钥类型为RSA。
    - `-b 4096` 设置密钥长度为4096位，这提供了更高的安全性。
    - `-C "your_email@example.com"` 添加一个注释，通常是你的电子邮件地址，这可以帮助你识别这个密钥对。
-
+   
 3. **选择存储位置**：
    你将被提示选择密钥文件的保存位置。默认情况下，它将保存在`~/.ssh/id_rsa`（私钥）和`~/.ssh/id_rsa.pub`（公钥）的位置。你可以接受默认值，也可以选择其他位置。
 
@@ -31,3 +34,34 @@
 完成后，你将有一个私钥文件和一个公钥文件。私钥文件应该保持安全，不要分享给任何人。公钥文件可以上传到你需要访问的服务或设备上。
 
 如果你想要无密码登录，还需要把公钥添加到你想要连接的远程服务器的`~/.ssh/authorized_keys`文件中。对于云服务如Azure、AWS或阿里云，你可以在创建虚拟机时上传公钥，或者在虚拟机创建后通过控制面板添加。
+
+## known_hosts文件
+
+
+
+```powershell
+PS> ssh cxxu@CxxuRedmibook
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+
+It is also possible that a host key has just been changed.
+The fingerprint for the ED25519 key sent by the remote host is
+SHA256:Ep/q3RbZy+5pj3j2KcNjgG1gdEKAdZVjTM703ljFDrI.
+Please contact your system administrator.
+
+Add correct host key in C:\\Users\\cxxu/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in C:\\Users\\cxxu/.ssh/known_hosts:19
+
+Host key for cxxuredmibook has changed and you have requested strict checking.
+Host key verification failed.
+```
+
+- 打开`~/.ssh`文件夹,检查并编辑`known_hosts`文本文件
+- 一般就是删除掉出问题的行(注意行与行之间是比较密的,不要删错内容,每一个主机名或者ip地址前给它加个回车来清晰行间不同)
+
+- 上面的报错例子(验证失败)输出中提到了文件`C:\\Users\\cxxu/.ssh/known_hosts`,也就是说ssh客户端要链接的主机和之前链接过的记录对不上,ssh server上的key发生了变换
+- 这个例子中我安装了另一个版本的系统,并且把原来系统中的`.ssh`文件夹复制到了新系统中,被ssh 客户端发现了变换(两台设备都是我在使用),虽然公钥和私钥匹配上了,但是ssh server却发生了变换
+- 因此在链接的瞬间提示我修正`known_hosts`文件中的记录

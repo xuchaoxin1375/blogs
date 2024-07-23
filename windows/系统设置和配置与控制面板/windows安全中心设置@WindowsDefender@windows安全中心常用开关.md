@@ -44,6 +44,7 @@
 
 - [Chuyu-Team/Dism-Multi-language: Dism++ Multi-language Support & BUG Report (github.com)](https://github.com/Chuyu-Team/Dism-Multi-language)
 
+- [Chuyu Team](https://chuyu.me/en-US/index.html)
 - dism++提供的系统优化中的安全设置有一个开关,功能为关闭windows defender
 - 还提供了用不检查更新的功能,有效性自测
 
