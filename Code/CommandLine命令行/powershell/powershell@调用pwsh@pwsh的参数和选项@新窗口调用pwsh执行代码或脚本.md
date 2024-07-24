@@ -133,7 +133,70 @@
   <SPACE> next page; <CR> next line; Q quit
   ```
 
-  
+
+## pwsh -c 和管道符
+
+在 `pwsh -c` 中使用管道符 (`|`) 时，可能会遇到问题，因为管道符是一个特殊字符，在不同的 shell 环境中可能会被解析为不同的东西。为了正确地传递包含管道符的命令，你需要确保管道符被正确地转义或包裹在适当的引号中。
+
+以下是如何在 `pwsh` 中正确使用管道符的示例：
+
+### 使用单引号包裹整个命令
+
+```bash
+sudo pwsh -c 'Get-Service Wsearch | Stop-Service -Verbose'
+```
+
+### 使用双引号和转义管道符
+
+如果你在需要在双引号中使用管道符，可以使用反斜杠转义：
+
+```bash
+sudo pwsh -c "Get-Service Wsearch `| Stop-Service -Verbose"
+```
+
+### 使用内嵌 PowerShell 脚本块
+
+你也可以将命令放在一个脚本块中来避免管道符问题：
+
+```bash
+sudo pwsh -c "& { Get-Service Wsearch | Stop-Service -Verbose }"
+```
+
+### 示例
+
+假设你想停止 `Wsearch` 服务并显示详细信息，可以使用以下任意一种方法：
+
+#### 方法1：使用单引号
+
+```bash
+sudo pwsh -c 'Get-Service Wsearch | Stop-Service -Verbose'
+```
+
+#### 方法2：使用转义管道符
+
+```bash
+sudo pwsh -c "Get-Service Wsearch `| Stop-Service -Verbose"
+```
+
+#### 方法3：使用脚本块
+
+```bash
+sudo pwsh -c "& { Get-Service Wsearch | Stop-Service -Verbose }"
+```
+
+这些方法都应该允许你正确地使用管道符来执行 PowerShell 命令。选择适合你环境的方法即可。
+
+### 实操演示
+
+```powershell
+PS [C:\Users\cxxu\Desktop]> sudo pwsh -c "& { Get-Service Wsearch | Stop-Service -Verbose }"
+VERBOSE: Performing the operation "Stop-Service" on target "Windows Search (Wsearch)".
+
+PS [C:\Users\cxxu\Desktop]> sudo pwsh -c "& {  'Wsearch' | Stop-Service -Verbose }"
+VERBOSE: Performing the operation "Stop-Service" on target "Windows Search (Wsearch)".
+```
+
+
 
 ## 应用
 
