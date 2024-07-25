@@ -76,66 +76,7 @@
 
 ### 使用任务计划程序
 
-- 任务计划命令行程序[schtasks commands | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks)
-
-  - ```bash
-    PS 🕰️16:08:44 [C:\exes\alist\log] 🔋100% schtasks.exe /?
-    
-    SCHTASKS /parameter [arguments]
-    
-    描述:
-        允许管理员创建、删除、查询、更改、运行和中止本地或远程系统上的计划任
-        务。
-    
-    参数列表:
-        /Create         创建新计划任务。
-    
-        /Delete         删除计划任务。
-    
-        /Query          显示所有计划任务。
-    
-        /Change         更改计划任务属性。
-    
-        /Run            按需运行计划任务。
-    
-        /End            中止当前正在运行的计划任务。
-    
-        /ShowSid        显示与计划的任务名称相应的安全标识符。
-    
-        /?              显示此帮助消息。
-    
-    Examples:
-        SCHTASKS
-        SCHTASKS /?
-        SCHTASKS /Run /?
-        SCHTASKS /End /?
-        SCHTASKS /Create /?
-        SCHTASKS /Delete /?
-        SCHTASKS /Query  /?
-        SCHTASKS /Change /?
-        SCHTASKS /ShowSid /?
-    ```
-
-    
-
-- 开发windows 应用中相关api[使用任务计划程序 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/taskschd/using-the-task-scheduler)
-
-- 图形界面`taskschd`[Task Scheduler Overview | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc721871(v=ws.11)?redirectedfrom=MSDN)
-
-  | 命令行输入`taskschd`启动任务计划程序                         | 创建新的任务计划                                             |      |
-  | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e796725b12674a06a1bb9e24f4f5e0a0.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/067d70276f874db182d8e1cac9b799c2.png) |      |
-  | `taskschd`是windows自带的程序,十分古老但是有用`C:\Windows\System32\taskschd.msc` | 可以选择定期执行,也可以选择条件触发,比如开机启动(运行)       |      |
-
-- 可以配置权限等,操作丰富
-
-### FAQ
-
-- 需要注意的是，有些程序在启动时可能会需要**管理员权限**
-  - 此时需要右键点击快捷方式，选择“属性”→“兼容性”→“以管理员身份运行此程序”，并点击“确定”按钮，以确保程序可以正常启动。
--  另外，如果需要删除已经添加的开机自动运行程序，只需要在“启动”文件夹中删除相应的快捷方式即可。
-
-
+- 另见它文
 
 ## 注册表和开机自启软件配置
 

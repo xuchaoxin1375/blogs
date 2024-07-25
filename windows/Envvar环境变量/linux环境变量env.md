@@ -191,8 +191,10 @@ test env
   ```bash
   sudo vim ~/.bashrc
   ```
-- Write a line for each variable you wish to add using the following syntax:
-
+  
+  - Write a line for each variable you wish to add using the following syntax:
+  
+  
   ```bash
   export [VARIABLE_NAME]=[variable_value]
   ```

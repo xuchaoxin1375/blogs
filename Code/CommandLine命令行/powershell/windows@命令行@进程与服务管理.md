@@ -191,103 +191,7 @@ PS C:\Users\cxxu> stop -Name IDMan
 
 ## windows命令行服务设置
 
-### SC命令
 
-#### sc config 用法
-
-```bash
-PS C:\Users\cxxu\Desktop> sc config -h
-DESCRIPTION:
-        Modifies a service entry in the registry and Service Database.
-USAGE:
-        sc <server> config [service name] <option1> <option2>...
-
-OPTIONS:
-NOTE: The option name includes the equal sign.
-      A space is required between the equal sign and the value.
-      To remove the dependency, use a single / as dependency value.
- type= <own|share|interact|kernel|filesys|rec|adapt|userown|usershare>
- start= <boot|system|auto|demand|disabled|delayed-auto>
- error= <normal|severe|critical|ignore>
- binPath= <BinaryPathName to the .exe file>
- group= <LoadOrderGroup>
- tag= <yes|no>
- depend= <Dependencies(separated by / (forward slash))>
- obj= <AccountName|ObjectName>
- DisplayName= <display name>
- password= <password>
-```
-
-#### 演示
-
-```bash
-#查询服务运行状态
-PS C:\Users\cxxu\Desktop> sc query Sysmain
-
-SERVICE_NAME: Sysmain
-        TYPE               : 30  WIN32
-        STATE              : 4  RUNNING
-                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x0
-#如果发现服务正在运行(RUNNING),则可以使用sc stop停止服务
-PS C:\Users\cxxu\Desktop> sc stop Sysmain
-
-SERVICE_NAME: Sysmain
-        TYPE               : 30  WIN32
-        STATE              : 3  STOP_PENDING
-                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x2710
-#还可以重新检查服务运行状况        
-PS C:\Users\cxxu\Desktop> sc query sysmain
-
-SERVICE_NAME: sysmain
-        TYPE               : 30  WIN32
-        STATE              : 1  STOPPED
-        WIN32_EXIT_CODE    : 0  (0x0)
-        SERVICE_EXIT_CODE  : 0  (0x0)
-        CHECKPOINT         : 0x0
-        WAIT_HINT          : 0x0
-```
-
-#### net  stop 和 sc stop对比
-
-- `sc stop` 和 `net stop` 都是命令行工具，用于在Windows操作系统中停止服务，但它们之间存在一些差异：
-
-  **sc stop:**
-
-  - `sc` 是 "Service Control" 的缩写，是一个更底层、功能更强大的命令行程序，直接与服务控制管理器交互。
-  - 使用 `sc stop serviceName` 可以立即向指定服务发送停止请求。但是，`sc` 命令在发出停止请求后不会等待服务完全停止就立即返回并继续执行下一条命令，这可能导致在连续的批处理脚本中，如果下一个命令依赖于该服务已经完全停止，可能会出现问题。
-  - `sc` 命令提供了更广泛的控制选项，包括查询、配置、创建、删除服务等操作。
-
-  **net stop:**
-
-  - `net stop` 是一个较老的命令，主要针对网络和系统服务管理，它也能够停止服务，但相比 `sc`，它的功能较为基础。
-  - 使用 `net stop serviceName` 命令时，它会等待服务完全停止后再返回控制权给命令行，这使得在批处理脚本中，如果接下来的操作依赖于服务已经被正确停止，使用 `net stop` 通常更为可靠。
-  - `net stop` 不仅仅用于服务管理，还支持其他网络相关的操作，如用户管理、打印队列管理等。
-
-  **总结:**
-
-  - 如果你需要立即停止服务并紧接着执行其他不依赖于服务状态的操作，或者需要更细致的服务管理功能，`sc stop` 可能是更好的选择。
-  - 如果你在编写批处理脚本，并且需要确保服务完全停止后再进行下一步操作，或者偏好一个较为简单和传统的命令，`net stop` 则更为合适。
-
-  在实际应用中，选择哪个命令取决于具体需求和上下文环境。
-
-- net stop 命令也可以用来停止服务,但我建议用sc stop,不容易引起混淆
-
-  ```bash
-  PS C:\Users\cxxu\Desktop> net stop SysMain
-  The SysMain service is stopping.
-  The SysMain service was stopped successfully.
-  
-  ```
-
-  
 
 ### powershell 相关命令
 
@@ -445,135 +349,172 @@ Running  WSearch            Windows Search
 
   
 
+## SC 系列命令
 
-## sc(老式方法)🎈
-
-- 可以在cmd 环境下运行
-
-### sc.exe 程序所在位置
-
-
+- 命令行中执行`sc`而不追加任何参数来获取内建的用法帮助
 
 ```cmd
-PS C:\Users\cxxu> where.exe sc
-C:\Windows\System32\sc.exe
-```
-
-
-
-### Syntax
-
-
-
-```
-sc.exe [<servername>] delete [<servicename>]
-```
-
-### Examples
-
-- To delete the service subkey **NewServ** from the registry on the local computer, type:
-
-
-```
-sc.exe delete NewServ
-```
-
-
-```cmd
-
-
-
 DESCRIPTION:
         SC is a command line program used for communicating with the
         Service Control Manager and services.
+```
+
+`sc` 命令是 Windows 操作系统中用于管理服务的命令行工具。通过这个命令，你可以执行多种与服务相关的操作，比如查询服务状态、启动或停止服务、更改服务的配置等。
+
+详细的帮助查看在线文档
+
+- [sc.exe create | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/sc-create)
+- [sc.exe config | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/sc-config)
+- ...
+
+或者本地文档:
+
+```cmd
 USAGE:
         sc <server> [command] [service name] <option1> <option2>...
 
 
         The option <server> has the form "\\ServerName"
         Further help on commands can be obtained by typing: "sc [command]"
-        Commands:
-          query-----------Queries the status for a service, or
-                          enumerates the status for types of services.
-          queryex---------Queries the extended status for a service, or
-                          enumerates the status for types of services.
-          start-----------Starts a service.
-          pause-----------Sends a PAUSE control request to a service.
-          interrogate-----Sends an INTERROGATE control request to a service.
-          continue--------Sends a CONTINUE control request to a service.
-          stop------------Sends a STOP request to a service.
-          config----------Changes the configuration of a service (persistent).
-          description-----Changes the description of a service.
-          failure---------Changes the actions taken by a service upon failure.
-          failureflag-----Changes the failure actions flag of a service.
-          sidtype---------Changes the service SID type of a service.
-          privs-----------Changes the required privileges of a service.
-          managedaccount--Changes the service to mark the service account 
-                          password as managed by LSA.
-          qc--------------Queries the configuration information for a service.
-          qdescription----Queries the description for a service.
-          qfailure--------Queries the actions taken by a service upon failure.
-          qfailureflag----Queries the failure actions flag of a service.
-          qsidtype--------Queries the service SID type of a service.
-          qprivs----------Queries the required privileges of a service.
-          qtriggerinfo----Queries the trigger parameters of a service.
-          qpreferrednode--Queries the preferred NUMA node of a service.
-          qmanagedaccount-Queries whether a services uses an account with a 
-                          password managed by LSA.
-          qprotection-----Queries the process protection level of a service.
-          quserservice----Queries for a local instance of a user service template.
-          delete----------Deletes a service (from the registry).
-          create----------Creates a service. (adds it to the registry).
-          control---------Sends a control to a service.
-          sdshow----------Displays a service's security descriptor.
-          sdset-----------Sets a service's security descriptor.
-          showsid---------Displays the service SID string corresponding to an arbitrary name.
-          triggerinfo-----Configures the trigger parameters of a service.
-          preferrednode---Sets the preferred NUMA node of a service.
-          GetDisplayName--Gets the DisplayName for a service.
-          GetKeyName------Gets the ServiceKeyName for a service.
-          EnumDepend------Enumerates Service Dependencies.
-
-        The following commands don't require a service name:
-        sc <server> <command> <option>
-          boot------------(ok | bad) Indicates whether the last boot should
-                          be saved as the last-known-good boot configuration
-          Lock------------Locks the Service Database
-          QueryLock-------Queries the LockStatus for the SCManager Database
-EXAMPLE:
-        sc start MyService
-
-
-QUERY and QUERYEX OPTIONS:
-        If the query command is followed by a service name, the status
-        for that service is returned.  Further options do not apply in
-        this case.  If the query command is followed by nothing or one of
-        the options listed below, the services are enumerated.
-    type=    Type of services to enumerate (driver, service, userservice, all)
-             (default = service)
-    state=   State of services to enumerate (inactive, all)
-             (default = active)
-    bufsize= The size (in bytes) of the enumeration buffer
-             (default = 4096)
-    ri=      The resume index number at which to begin the enumeration
-             (default = 0)
-    group=   Service group to enumerate
-             (default = all groups)
-
-SYNTAX EXAMPLES
-sc query                - Enumerates status for active services & drivers
-sc query eventlog       - Displays status for the eventlog service
-sc queryex eventlog     - Displays extended status for the eventlog service
-sc query type= driver   - Enumerates only active drivers
-sc query type= service  - Enumerates only Win32 services
-sc query state= all     - Enumerates all services & drivers
-sc query bufsize= 50    - Enumerates with a 50 byte buffer
-sc query ri= 14         - Enumerates with resume index = 14
-sc queryex group= ""    - Enumerates active services not in a group
-sc query type= interact - Enumerates all interactive services
-sc query type= driver group= NDIS     - Enumerates all NDIS drivers
-
 ```
+
+
+
+### `sc` 命令的基本语法如下：
+```sh
+sc <server> [command] [service name] <option1> <option2>...
+```
+
+- 这里server理解为**computername**,虽然被`< >`包裹着,但这里对于用户选填的(有默认值,本地ji'suan'ji)，指定远程计算机名称。如果省略，则默认为本地计算机。
+- **command**：要执行的操作，如 `start`, `stop`, `query`, `create`, `config`, `delete` 等。
+
+### 常用的 `sc` 命令选项包括：
+
+1. **查询服务**：
+   - `sc query`：列出所有服务的状态。
+   - `sc query <service_name>`：查询特定服务的状态。
+
+2. **启动服务**：
+   - `sc start <service_name>`：启动一个服务。
+
+3. **停止服务**：
+   - `sc stop <service_name>`：停止一个服务。
+
+4. **创建服务**：
+   - `sc create <service_name> binPath= <path_to_executable> [type= <service_type>] [start= <auto|demand|disabled>] [error= <normal|severe|critical|ignore>] [obj= <account>] [tag= <tag>] [depend= <dependencies>] [loadorder= <load_order_group>] [servstart= <password>]`
+
+5. **配置服务**：
+   - `sc config <service_name> start= <auto|demand|disabled>`：设置服务启动类型。
+   - `sc config <service_name> obj= <account>`：设置服务运行时使用的账户。
+   - `sc config <service_name> depend= <dependencies>`：设置服务依赖。
+
+6. **删除服务**：
+   - `sc delete <service_name>`：删除一个服务。
+
+### 示例：
+
+- 列出所有服务的状态：
+  ```sh
+  sc query
+  ```
+
+- 启动名为 "Spooler" 的服务：
+  ```sh
+  sc start Spooler
+  ```
+
+- 查询名为 "Spooler" 的服务的状态：
+  ```sh
+  sc query Spooler
+  ```
+
+- 创建一个新服务：
+  ```sh
+  sc create MyService binPath= "C:\Program Files\MyApp\MyService.exe"
+  ```
+
+- 配置 "MyService" 服务以自动启动：
+  ```sh
+  sc config MyService start= auto
+  ```
+
+- 删除 "MyService" 服务：
+  ```sh
+  sc delete MyService
+  ```
+
+使用 `sc` 命令时，请确保有足够的权限，并且提供的路径和名称准确无误。
+
+#### 演示
+
+```bash
+#查询服务运行状态
+PS C:\Users\cxxu\Desktop> sc query Sysmain
+
+SERVICE_NAME: Sysmain
+        TYPE               : 30  WIN32
+        STATE              : 4  RUNNING
+                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+#如果发现服务正在运行(RUNNING),则可以使用sc stop停止服务
+PS C:\Users\cxxu\Desktop> sc stop Sysmain
+
+SERVICE_NAME: Sysmain
+        TYPE               : 30  WIN32
+        STATE              : 3  STOP_PENDING
+                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x2710
+#还可以重新检查服务运行状况        
+PS C:\Users\cxxu\Desktop> sc query sysmain
+
+SERVICE_NAME: sysmain
+        TYPE               : 30  WIN32
+        STATE              : 1  STOPPED
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+```
+
+#### net  stop 和 sc stop对比
+
+- `sc stop` 和 `net stop` 都是命令行工具，用于在Windows操作系统中停止服务，但它们之间存在一些差异：
+
+  **sc stop:**
+
+  - `sc` 是 "Service Control" 的缩写，是一个更底层、功能更强大的命令行程序，直接与服务控制管理器交互。
+  - 使用 `sc stop serviceName` 可以立即向指定服务发送停止请求。但是，`sc` 命令在发出停止请求后不会等待服务完全停止就立即返回并继续执行下一条命令，这可能导致在连续的批处理脚本中，如果下一个命令依赖于该服务已经完全停止，可能会出现问题。
+  - `sc` 命令提供了更广泛的控制选项，包括查询、配置、创建、删除服务等操作。
+
+  **net stop:**
+
+  - `net stop` 是一个较老的命令，主要针对网络和系统服务管理，它也能够停止服务，但相比 `sc`，它的功能较为基础。
+  - 使用 `net stop serviceName` 命令时，它会等待服务完全停止后再返回控制权给命令行，这使得在批处理脚本中，如果接下来的操作依赖于服务已经被正确停止，使用 `net stop` 通常更为可靠。
+  - `net stop` 不仅仅用于服务管理，还支持其他网络相关的操作，如用户管理、打印队列管理等。
+
+  **总结:**
+
+  - 如果你需要立即停止服务并紧接着执行其他不依赖于服务状态的操作，或者需要更细致的服务管理功能，`sc stop` 可能是更好的选择。
+  - 如果你在编写批处理脚本，并且需要确保服务完全停止后再进行下一步操作，或者偏好一个较为简单和传统的命令，`net stop` 则更为合适。
+
+  在实际应用中，选择哪个命令取决于具体需求和上下文环境。
+
+- net stop 命令也可以用来停止服务,但我建议用sc stop,不容易引起混淆
+
+  ```bash
+  PS C:\Users\cxxu\Desktop> net stop SysMain
+  The SysMain service is stopping.
+  The SysMain service was stopped successfully.
+  
+  ```
+
+  
 
 ### 查看某个服务的运行状态
 
@@ -591,6 +532,4 @@ sc query type= driver group= NDIS     - Enumerates all NDIS drivers
   按下回车后，命令行将会显示该服务的状态信息，包括服务名称、状态（如RUNNING、STOPPED等）、PID、服务类型以及其他相关信息。
 
   请确保你拥有足够的权限来执行这个操作，有时候可能需要以管理员身份运行命令提示符。如果需要查看所有服务的状态，只需输入 `sc query` 即可。
-
-## windows_后台服务管理
 

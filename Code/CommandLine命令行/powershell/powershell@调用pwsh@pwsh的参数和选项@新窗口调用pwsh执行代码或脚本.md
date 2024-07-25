@@ -162,29 +162,7 @@ sudo pwsh -c "Get-Service Wsearch `| Stop-Service -Verbose"
 sudo pwsh -c "& { Get-Service Wsearch | Stop-Service -Verbose }"
 ```
 
-### 示例
 
-假设你想停止 `Wsearch` 服务并显示详细信息，可以使用以下任意一种方法：
-
-#### 方法1：使用单引号
-
-```bash
-sudo pwsh -c 'Get-Service Wsearch | Stop-Service -Verbose'
-```
-
-#### 方法2：使用转义管道符
-
-```bash
-sudo pwsh -c "Get-Service Wsearch `| Stop-Service -Verbose"
-```
-
-#### 方法3：使用脚本块
-
-```bash
-sudo pwsh -c "& { Get-Service Wsearch | Stop-Service -Verbose }"
-```
-
-这些方法都应该允许你正确地使用管道符来执行 PowerShell 命令。选择适合你环境的方法即可。
 
 ### 实操演示
 
@@ -194,6 +172,31 @@ VERBOSE: Performing the operation "Stop-Service" on target "Windows Search (Wsea
 
 PS [C:\Users\cxxu\Desktop]> sudo pwsh -c "& {  'Wsearch' | Stop-Service -Verbose }"
 VERBOSE: Performing the operation "Stop-Service" on target "Windows Search (Wsearch)".
+```
+
+### 新建一个powershell进程执行任务
+
+
+
+```powershell
+.EXAMPLE
+     $p=start-process pwsh -ArgumentList  " -noe -c ls;pwd;get-date" -passThru
+
+.EXAMPLE
+    $p = Start-Process -WindowStyle Hidden -file pwsh.exe -ArgumentList "-File $desktop\LogTime.ps1" -PassThru
+    write-host $p
+    
+.EXAMPLE
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "ls; pwd; get-date"
+
+.EXAMPLE
+    $scriptBlock = {
+    ls
+    pwd
+    get-date
+    }
+
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", ([scriptblock]::Create($scriptBlock.ToString()) -join "`n")
 ```
 
 

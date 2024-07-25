@@ -22,6 +22,20 @@
 
 这里通过修改两个环境变量来实现:`Path`和`PathExt`
 
+Running external executables
+
+On Windows. PowerShell treats the file extensions listed in the `$env:PATHEXT` environment variable as executable files. 
+
+Files that aren't Windows executables are handed to Windows to process. Windows **looks up** the file association and executes the default Windows Shell verb for the extension. 
+
+For Windows to support the execution by file extension, **the association must be registered with the system**.
+
+You can register the executable engine for a file extension using the `ftype` and `assoc` commands of the CMD command shell.
+
+ PowerShell has no direct method to register the file handler. For more information, see the documentation for the ftype command.
+
+For PowerShell to see a file extension as executable in the current session, you must add the extension to the $env:PATHEXT environment variable.
+
 打开powershell,执行以下命令行
 
 ```powershell

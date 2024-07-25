@@ -462,6 +462,19 @@
 - 被chfs选择为共享文件夹的目录在chfs运行期间无法被移动更名或删除
 - 您可以使用`ps -name chfs|kill`结束chfs进程,然后操作目标文件夹
 
+### 参数识别错误
+
+-  启动chfs后台任务(注意chfs严格检查参数的大小写,例如-file不能写成-File,否则会报错,这是一个linux风格的命令行工具)
+
+```powershell
+ 
+    start-TaskHidden -FilePath C:\exes\chfs\chfs -ArgumentList "-file C:\exes\chfs\chfs.ini" #-file 不能作-File
+```
+
+
+
+
+
 ### 其他
 
 - 详情参考官网
