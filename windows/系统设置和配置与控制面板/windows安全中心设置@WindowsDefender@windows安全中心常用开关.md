@@ -27,6 +27,12 @@
 
 ### 使用软件工具关闭
 
+#### windows defender remover
+
+- [GitHub - ionuttbara/windows-defender-remover: A tool which is uses to remove Windows Defender in Windows 8.x, Windows 10 (every version) and Windows 11.](https://github.com/ionuttbara/windows-defender-remover)
+
+
+
 #### defender control(慎用)
 
 - !!!我用了这个软件后,发现其他软件启动的速度大幅度下降,安装软件更是一卡一卡的,不建议使用👺

@@ -11,4 +11,3 @@
 - 某些命令行powershell7是无法执行成功的,而powershell5可以执行成功
   - 例如powershell自带的命令`New-LocalUser`,powershell7会报错,需要powershell5.1去执行
 
-- 
