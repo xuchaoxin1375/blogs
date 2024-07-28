@@ -86,7 +86,7 @@ Wscript.quit
 
 此外,`Start-process`还有一个`WindowStyle`参数,我们可以指定为`hide`,可以对部分窗口做隐藏化窗口启动(比如powershell命令行窗口能够对`windowsStyle`的指定做出相应,就比较服务我们的需要);
 
-#### Note:
+#### Note
 
 但是,如果使用windows terminal,简称`wt` (而不是自带的console,尤其是选择),部分`wt`版本的则可能导致`start-process  -windowstyle hide`启动的powershell窗口无法彻底隐藏(会有一个空选项卡留在wt的shell活动列表中,容易应该wt被关闭而意外停止我们需要保留的进程)
 
@@ -132,6 +132,104 @@ PS☀️[BAT:77%][MEM:36.16% (11.47/31.71)GB][21:58:03]
 PS> ps chfs|select -ExpandProperty CommandLine
 "C:\exes\chfs\chfs.exe" -file C:\exes\chfs\chfs.ini
 ```
+
+### 封装为powershell函数 TODO
+
+```
+
+```
+
+## powershell中受限于当前进程(会话)的后台任务方案👺
+
+- [Start-Job (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/start-job?view=powershell-7.4)
+
+- 从 PowerShell 6.0 开始，可以使用与符号 (`&`) 后台运算符启动作业。 后台运算符的功能类似于 `Start-Job`。 这两种启动作业的方法都会创建 PSRemotingJob 作业对象。 
+- 若要详细了解如何使用与符号 (`&`)，请参阅 [about_Operators &](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.4#background-operator-)。
+- 某些命令还支持`-Asjob`参数,可以起到作为后台作业运行任务的效果,例如`Invoke-command`
+
+### 使用自动变量`$input`传递给`InputObject`参数
+
+[inputobject@Start-Job (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/start-job?view=powershell-7.4#-inputobject)
+
+[scriptblock@Start-Job (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/start-job?view=powershell-7.4#-scriptblock)
+
+指定要在后台作业中运行的命令。 若要创建脚本块，请将命令括在大括号 (`{}`) 中。 
+
+使用 `$input` 自动变量访问 InputObject 参数的值。 此参数是必需的。
+
+例如
+
+```powershell
+PS C:\exes> start-job {param($m) New-TextToSpeech -message $input} -InputObject $m
+
+Id     Name            PSJobTypeName   State         HasMoreData     Location
+--     ----            -------------   -----         -----------     --------
+11     Job11           BackgroundJob   Running       True            localhost
+```
+
+
+
+### 使用块内参数`{param()}`
+
+1. 将变量 `$m` 设置为字符串 `"abc"`。
+2. 使用 `Start-Job` cmdlet 启动一个后台作业，并将 `$m` 作为参数传递给作业块中的 `New-TextToSpeech` 函数。
+
+```powershell
+# 定义消息变量
+$m = 'abc'
+
+# 启动后台作业，并将消息作为参数传递
+Start-Job -ScriptBlock {
+    param($message)
+    New-TextToSpeech -Message $message
+} -ArgumentList $m
+
+# 显示作业信息
+Get-Job
+```
+
+
+
+启动后台作业:
+```powershell
+Start-Job -ScriptBlock {
+    param($message)
+    New-TextToSpeech -Message $message
+} -ArgumentList $m
+```
+- `Start-Job` cmdlet 用于启动一个后台作业。
+- `-ScriptBlock` 参数指定了要在后台执行的代码块。这里，我们使用 `param($message)` 来定义一个参数，并将该参数传递给 `New-TextToSpeech` 函数。
+- `-ArgumentList $m` 指定了传递给作业块的参数，这里是变量 `$m`。
+
+
+
+### 其他高级用例
+
+```powershell
+PS C:\repos\scripts> $file
+C:\repos\blogs\readme.md
+PS C:\repos\scripts> Start-Job -Name JobDemo -ScriptBlock { Get-Content -Path $input } -InputObject $file
+
+Id     Name            PSJobTypeName   State         HasMoreData     Location             Command
+--     ----            -------------   -----         -----------     --------             -------
+13     JobDemo         BackgroundJob   Running       True            localhost             Get-Content -Path $inpu…
+
+PS C:\repos\scripts> Receive-Job -Name JobDemo
+# test board
+
+-   [Themes · ohmyzsh/ohmyzsh Wiki (github.com)](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
+
+-   [Open vimrc file | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Open_vimrc_file)
+
+-   [Example vimrc | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Example_vimrc)
+
+-   [How to sudo without password on CentOS Linux - nixCraft (cyberciti.biz)](https://www.cyberciti.biz/faq/how-to-sudo-without-password-on-centos-linux/)
+
+-   [JavaScript Programming with Visual Studio Code](https://code.visualstudio.com/Docs/languages/javascript)
+
+```
+
+
 
 ### 混合方案
 

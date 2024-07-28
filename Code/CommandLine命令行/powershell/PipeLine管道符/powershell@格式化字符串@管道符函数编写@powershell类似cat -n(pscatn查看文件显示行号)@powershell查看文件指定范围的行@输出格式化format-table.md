@@ -118,7 +118,7 @@ Ethernet adapter vEthernet (Default Switch):
     ResolvedCommand   : ForEach-Object
     ```
 
-### 编写为函数Get-ContentWithLineNumber
+### 编写函数Get-ContentWithLineNumber
 
 ```powershell
 

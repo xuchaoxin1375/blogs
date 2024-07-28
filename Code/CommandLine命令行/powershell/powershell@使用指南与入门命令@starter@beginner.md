@@ -2,7 +2,7 @@
 
 ## abstract
 
-- PowerShell 是一种跨平台的任务自动化解决方案，由命令行 shell、脚本语言和配置管理框架组成。 PowerShell 在 Windows、Linux 和 macOS 上运行。
+- PowerShell 是一种跨平台的任务自动化解决方案，由命令行 shell、脚本语言和配置管理框架组成。 PowerShell core在 Windows、Linux 和 macOS 上运行。
 - 作为一种脚本语言，PowerShell 通常用于自动执行系统管理。 它还用于经常在 CI/CD 环境中生成、测试和部署解决方案。
 -  PowerShell 是在` .NET `公共语言运行时 (CLR) 上构建的。 **所有输入和输出都是` .NET `对象**。 无需分析文本输出即可从输出中提取信息。
 
@@ -56,7 +56,18 @@
 - 语言规范和语言参考
   - [Windows PowerShell Language Specification 3.0 - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-01?view=powershell-7.2)
 
-  
+
+### 语言模块和Cmdlet文档
+
+- 不同平台上可用的powershell命令不完全一样,一般的,较新的服务器版本系统windows server具有最完整的命令
+- [PowerShell Module Browser - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/)
+
+通常,如果您在某个地方了解到了某个powershell命令,那么可以用bing搜索引擎直接搜索该cmdlet(k可以模糊搜)
+
+或者使用上述官网文档索引网站查找命令(最好是完整的命令名字去搜)
+
+- 例如:[PowerShell Module Browser - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/?term=get-netipaddress)
+- 
 
 ## 下载
 

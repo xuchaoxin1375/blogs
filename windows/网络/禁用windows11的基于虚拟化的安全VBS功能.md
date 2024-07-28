@@ -8,7 +8,7 @@
 
 [内存完整性启用 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/design/device-experiences/oem-hvci-enablement)
 
-
+[How to Disable Virtualization-Based Security (VBS) in Windows 11 - GeekChamp](https://geekchamp.com/how-to-disable-virtualization-based-security-vbs-in-windows-11/)
 
 ## 禁用虚拟化安全(VBS)
 
@@ -32,7 +32,7 @@ bcdedit /set hypervisorlaunchtype off
 
 4. off: 这是设置的值,表示关闭。
 
-整体来说,这条命令的作用是禁用Hypervisor的自动启动。执行此命令后,Windows将不会在启动时自动加载Hypervisor。
+整体来说,这条命令的作用是禁用**Hypervisor**的自动启动。执行此命令后,Windows将不会在启动时自动加载Hypervisor。
 
 #### 这条命令的主要影响包括:
 
@@ -48,7 +48,7 @@ bcdedit /set hypervisorlaunchtype off
 
 在修改这些系统设置之前,请确保您了解其影响,并在必要时做好系统备份。
 
-### 其他
+### 修改注册表以禁用vbs的方法
 
 要在PowerShell中禁用VBS（Virtualization Based Security），并删除指定的注册表项，可以使用以下脚本。
 

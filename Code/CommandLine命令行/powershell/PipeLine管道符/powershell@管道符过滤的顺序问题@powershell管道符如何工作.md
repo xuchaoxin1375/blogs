@@ -60,8 +60,11 @@
 
 - 当一个参数同时接受按**属性名**(ByPropertyName)和**值**(ByValue)输入的**管道输入**时，它总是先尝试按**值**输入。如果按值输入失败，它就会尝试按属性名输入。
   - **按值输入**这个说法有点误导。完整的讲可以理解为**按值的对象类型**,简称之为**按对象**或**按值**(ByValue)。
-    - 例如变量`$var`的值为`"Hellow"`,该值的类型是一个**字符串类型**(`String`),那么对于支持管道符收入的函数有接受`String`的参数时就可以用管道符的形式传递参数
-  - 这意味着如果你将产生 ServiceController 对象**类型**的命令结果导入 Stop-Service，它会将该输入绑定到 InputObject 参数。
+    - 例如变量`$var`的值为`"Hello"`,该值的类型是一个**字符串类型**(`String`),那么对于支持管道符收入的某个函数`fun`,如果它有接受`String`的参数存在,就可以用管道符的形式传递参数:`"Hello"|fun`
+- 以`Stop-Service`为例
+  - 这意味着如果你将产生 `ServiceController` 对象**类型**的命令结果导入 `Stop-Service`，它会将该输入绑定到 `InputObject` 参数。
+    - 这时`Stop-Service`语句的语义十分完美,也就是停止某个进程
+    - 在编写某些支持管道输入的函数时,我们会创建一个`InputObject`参数,例如编写类似于`Stop-Service`的建议版本`Stop-ServiceLite`,并且同样接收`Name`参数作为服务名来指定要停止的服务,设置一个`ValueFromPipelineByProperty=$true`TODO
   - 但如果将产生字符串输出的命令结果导入 Stop-Service，则会将其绑定到 Name 参数。
   - 如果将一条不产生 ServiceController 或 String 对象的命令的结果导入 Stop-Service，不意味着绑定一定失败
   - 如果它产生(返回)的某个对象的属性包含了Name，那么它会将输出中的 Name 属性绑定到 Stop-Service 的 Name 参数。
@@ -73,7 +76,7 @@
 - 我们以`stop-process`例介绍,这是经典命令`stop-process`,结束进程的cmdlet
 
 - 部分参数文档,我们关注**参数**的**类型**,以及`Accept pipeline input?`字段是否为`True`,表示该参数是否支持管道符,并且会指出支持什么类型的管道符传参方式
-    
+  
     ```powershell
     ...
   -Id <System.Int32[]>

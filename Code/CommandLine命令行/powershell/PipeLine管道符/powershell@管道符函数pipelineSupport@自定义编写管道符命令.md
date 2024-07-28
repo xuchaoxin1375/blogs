@@ -299,6 +299,100 @@ $dirs | Get-LargeFiles -MinSizeBytes 1048576  # 查找大于 1 MB 的文件
 
 这种结构使得函数在处理复杂逻辑时更加高效和清晰，特别是在需要初始化资源或在结束时进行总结的情况下。
 
+## 重启软件或进程对应的软件👺
+
+```powershell
+
+function Restart-Process
+{
+   
+    <#
+.SYNOPSIS
+    重启指定的进程。指定参数的形式类似于stop-process,支持管道符
+    为了简单起见,没有实现想Get-process 那样tab键自动补全进程名的功能
+
+.DESCRIPTION
+    该函数用于重启指定的进程。它可以根据进程的名称、ID 或直接传递的进程对象来停止和重新启动进程。
+    特别适用于需要重启 Windows 资源管理器 (explorer.exe) 的情况。
+    
+.PARAMETER Name
+    要重启的进程的名称（不包括扩展名）。例如：'explorer'。
+
+.PARAMETER Id
+    要重启的进程的 ID。
+
+.PARAMETER InputObject
+    要重启的进程对象。
+
+.EXAMPLE
+    Restart-Process -Name 'explorer'
+    该示例将重启 Windows 资源管理器。
+
+.EXAMPLE
+    Restart-Process -Id 1234
+    该示例将重启进程 ID 为 1234 的进程。
+
+.EXAMPLE
+    Get-Process -Name 'explorer' | Restart-Process
+    该示例将重启通过管道传递的进程对象。
+
+.NOTES
+    作者: cxxu1375
+#>
+
+    [CmdletBinding(DefaultParameterSetName = 'ByName')]
+    param (
+        [Parameter(ParameterSetName = 'ByName', ValueFromPipelineByPropertyName = $true, Mandatory = $true, Position = 0, HelpMessage = 'Enter the name of the process to restart.')]
+        [string]$Name,
+
+        [Parameter(ParameterSetName = 'ById', ValueFromPipelineByPropertyName = $true, Mandatory = $true, Position = 0, HelpMessage = 'Enter the ID of the process to restart.')]
+        [int]$Id,
+
+        [Parameter(ParameterSetName = 'ByInputObject', Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Enter the process object to restart.')]
+        [System.Diagnostics.Process]$InputObject
+    )
+    
+    process
+    {
+        try
+        {
+            if ($PSCmdlet.ParameterSetName -eq 'ByName')
+            {
+                # 通过名称获取进程对象
+                $process = Get-Process -Name $Name -ErrorAction Stop
+              
+                
+            }
+            elseif ($PSCmdlet.ParameterSetName -eq 'ById')
+            {
+                # 通过ID获取进程
+                $process = Get-Process -Id $Id -ErrorAction Stop
+               
+                
+            }
+            elseif ($PSCmdlet.ParameterSetName -eq 'ByInputObject')
+            {
+                $process = $InputObject
+                
+            }
+            $fp = $process[0]
+            $s = $fp.Path
+            Write-Verbose "Performing the operation `"restart-process`" on target `"$process`" "
+            Write-Debug "Process path: $s"
+
+            Stop-Process $process -Verbose:$VerbosePreference
+            Start-Process -FilePath $s -Verbose:$VerbosePreference
+        }
+        catch
+        {
+            Write-Error "Failed to restart process. $_"
+        }
+    }
+}
+```
+
+
+
 ## 其他案例
 
 sandboxie沙盒:用沙盒模式运行某个软件,软件名支持管道服输入
