@@ -14,6 +14,7 @@
 ## powershell报时器
 
 - 下面的函数调用了其他函数,您可以克隆仓库:[scripts: 辅助脚本 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts)阅读关于powershell Module文档下载并简单设置自动导入powershell模块,就能够快速调用相关模块中的函数
+- 如果要方便查看和编辑,建议使用vscode配合powershell插件方便您浏览和跳转函数调用和定义
 
 ```powershell
 function Start-TimeAnnouncer
