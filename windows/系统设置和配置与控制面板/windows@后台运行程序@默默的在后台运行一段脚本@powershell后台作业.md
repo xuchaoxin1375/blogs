@@ -228,13 +228,7 @@ PS C:\repos\scripts> Receive-Job -Name JobDemo
 
 -   [Themes · ohmyzsh/ohmyzsh Wiki (github.com)](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
 
--   [Open vimrc file | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Open_vimrc_file)
-
--   [Example vimrc | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Example_vimrc)
-
--   [How to sudo without password on CentOS Linux - nixCraft (cyberciti.biz)](https://www.cyberciti.biz/faq/how-to-sudo-without-password-on-centos-linux/)
-
--   [JavaScript Programming with Visual Studio Code](https://code.visualstudio.com/Docs/languages/javascript)
+....
 
 ```
 
@@ -248,7 +242,7 @@ PS C:\repos\scripts> Receive-Job -Name JobDemo
 
 假设我们有一个耗时的任务，例如等待 3 秒，然后输出一条消息。我们可以使用 `-AsJob` 参数让这个任务在后台运行。
 
-### 示例代码：
+示例代码：
 
 ```powershell
 # 启动后台任务
