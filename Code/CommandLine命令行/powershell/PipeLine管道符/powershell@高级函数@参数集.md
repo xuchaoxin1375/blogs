@@ -149,3 +149,41 @@ Starting process with ID: 123 and Option: qq
 
 有关 `$PSCmdlet` 自动变量的详细信息，请参阅 [about_Functions_CmdletBindingAttribute](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.4) 和 [about_Functions_Advanced](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.4)。
 
+## 接受数组和单个元素的兼容性参数
+
+在 PowerShell 中，你可以编写一个函数，使其既能接受数组输入，也能兼容单个元素的输入。这可以通过使用 `@()` 运算符来确保输入被当作数组处理。以下是一个示例：
+
+```powershell
+function Process-Input {
+    param (
+        [Parameter(Mandatory = $true)]
+        [Alias('Input')]
+        [Object]$InputObject
+    )
+
+    # 将单个输入转换为数组
+    $InputArray = @($InputObject)
+
+    foreach ($item in $InputArray) {
+        # 在这里处理每个元素
+        Write-Output "Processing item: $item"
+    }
+}
+
+# 测试函数
+Process-Input -InputObject "singleElement"
+Process-Input -InputObject @("element1", "element2", "element3")
+```
+
+在这个示例中，`$InputObject` 可以是单个元素或数组。`@($InputObject)` 语法会将单个元素转换为包含该元素的数组，而不会改变原本就是数组的输入。因此，无论输入是单个元素还是数组，`$InputArray` 都会是一个数组，然后通过 `foreach` 循环处理每个元素。
+
+```powershell
+PS C:\Users\cxxu\Desktop> # 测试函数
+PS C:\Users\cxxu\Desktop> Process-Input -InputObject "singleElement"
+Processing item: singleElement
+PS C:\Users\cxxu\Desktop> Process-Input -InputObject @("element1", "element2", "element3")
+Processing item: element1
+Processing item: element2
+Processing item: element3
+```
+

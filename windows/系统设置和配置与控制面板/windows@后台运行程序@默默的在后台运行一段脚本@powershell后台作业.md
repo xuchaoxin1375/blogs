@@ -141,6 +141,11 @@ PS> ps chfs|select -ExpandProperty CommandLine
 
 ## powershell中受限于当前进程(会话)的后台任务方案👺
 
+- 包括`Start-job`命令以及`&`符号的应用
+- 一些命令的`Asjob`参数
+
+### start-job以及命令中的Asjob参数功能
+
 - [Start-Job (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/start-job?view=powershell-7.4)
 
 - 从 PowerShell 6.0 开始，可以使用与符号 (`&`) 后台运算符启动作业。 后台运算符的功能类似于 `Start-Job`。 这两种启动作业的方法都会创建 PSRemotingJob 作业对象。 
@@ -170,6 +175,10 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location
 
 
 ### 使用块内参数`{param()}`
+
+这里利用了powershell代码块(更准确地叫**脚本块**Scriptblock)的特点,与其他shell语言很不同:[关于脚本块 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4)
+
+脚本块的一个重要特点是可以包含参数,详情查看文档
 
 1. 将变量 `$m` 设置为字符串 `"abc"`。
 2. 使用 `Start-Job` cmdlet 启动一个后台作业，并将 `$m` 作为参数传递给作业块中的 `New-TextToSpeech` 函数。
@@ -203,7 +212,7 @@ Start-Job -ScriptBlock {
 
 
 
-### 其他高级用例
+### Start-job其他高级用例
 
 ```powershell
 PS C:\repos\scripts> $file
@@ -229,9 +238,40 @@ PS C:\repos\scripts> Receive-Job -Name JobDemo
 
 ```
 
+## 某些命令的Asjob参数
+
+`-AsJob` 参数在 PowerShell 中用于在后台运行命令，以便您可以继续执行其他操作而不会等待该命令完成。
+
+`Invoke-Command` 的 `-AsJob` 参数用于远程执行命令，并且不能与本地执行命令结合使用。如果需要在本地运行一个任务并使用后台作业功能，应使用 `Start-Job`。
+
+### 在后台运行一个长时间的任务
+
+假设我们有一个耗时的任务，例如等待 3 秒，然后输出一条消息。我们可以使用 `-AsJob` 参数让这个任务在后台运行。
+
+### 示例代码：
+
+```powershell
+# 启动后台任务
+$job = Start-Job -ScriptBlock {
+    Start-Sleep -Seconds 3
+    "任务完成！"
+}
+
+# 继续执行其他操作，并检查任务状态
+while ($job.State -eq 'Running') {
+    Write-Host "任务正在运行..."
+    Start-Sleep -Seconds 1
+}
+write-host '任务结束'
+
+# 获取并显示任务结果
+$result = Receive-Job -Job $job
+Write-Host $result
+```
 
 
-### 混合方案
+
+## 混合方案
 
 使用`vbs`脚本创建可以后台运行的脚本
 

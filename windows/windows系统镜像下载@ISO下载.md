@@ -112,13 +112,33 @@
 
 - 请注意，随着时间推移，Windows的版本不断更新，具体的版本号会有新的对应关系，请结合当时的最新Windows版本信息进行解读。
 
-## 下载工具
+## 镜像下载工具推荐
 
 - 如果镜像来源于云盘,那么就按云盘推荐的方法下载
 - 而镜像经常是ed2k或bt链接,因此对于下载工具需要进行一定的选择
   - 国内的话就用迅雷好了,其他的不是那么省心
   - 而且迅雷的手机端有比较多的操作空间,迅雷电脑版的客户端也可以考虑,正常链接可以离线下载到云盘后再下载可能速度会更稳定
   - 如果用迅雷手机端下载,那么下载到手机后用局域网协议或者数据线传输到电脑上
+
+## 自行精简镜像
+
+
+
+- 工具和镜像准备
+  1. [The Official AnyBurn Website](https://www.anyburn.com/)
+  2. [GitHub - cschneegans/unattend-generator: .NET Core library to create highly customized autounattend.xml files](https://github.com/cschneegans/unattend-generator/)
+     - [Generate autounattend.xml files for Windows 10/11 (schneegans.de)](https://schneegans.de/windows/unattend-generator/)
+  3. 然后自行下载windows原版镜像(windows10/windows11)
+- 操作方法:[最爽 Windows 安装！全自动、无人值守、高度自定义，系统清爽流畅，让电脑瞬间起飞！ | 零度解说_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Fz421i7bp/?spm_id_from=333.1350.jump_directly&vd_source=c0a3b17a665cd2d32431213df84cd3ce)
+
+## 第三方镜像
+
+- [Z-OS新版 (cn-virtual-z.github.io)](https://cn-virtual-z.github.io/zosnew.html)
+  优化好的镜像：https://www.123pan.com/s/PJv7Vv-MgMr.html 提取码:6y0v
+  精简方案：https://www.123pan.com/s/PJv7Vv-bnMr.html
+- [不忘初心系统博客-精简版系统官网 (pc528.net)](https://www.pc528.net/)
+  - 大多是收费镜像,精简的镜像文件比较小
+  - 可以看看其他来源分享,比如论坛用户提供的网盘链接
 
 ## 虚拟机上安装注意事项
 

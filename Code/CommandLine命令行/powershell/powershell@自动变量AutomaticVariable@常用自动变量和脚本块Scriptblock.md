@@ -14,15 +14,73 @@
 
 ## $input
 
+- [about Automatic Variables - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#input)
+
 在PowerShell中，`$input` 是一个自动变量，主要用于脚本块和函数中接收管道传递过来的输入。
 
 它是一个枚举器（enumerator），可以逐个处理管道中的每个对象。
 
-`$input` 变量只有在管道操作中才有意义，在其他情况下是未定义的。
+### 适用范围
+
+包含枚举器，该枚举器枚举传递给函数的所有输入。 该 `$input` 变量仅适用于函数、脚本块（它们是未命名函数）和脚本文件（保存的脚本块）。
+
+- 在没有 `begin`、`process` 或 `end` 块的函数中，`$input` 变量枚举函数的所有输入的集合。
+- 在 `begin` 块中，`$input` 变量不包含任何数据。
+- 在 `process` 块中，`$input` 变量包含管道中的当前对象。
+- 在 `end` 块中， `$input` 变量枚举函数的所有输入的集合。
+
+#### 备注
+
+不能在同一函数或脚本块中使用 `process` 块和 `end` 块内的 `$input` 变量。
+
+由于 `$input` 是枚举器，因此**访问其任何属性会导致 `$input` 不再可用**。 可以将 `$input` 存储在另一个变量中，以重复使用 `$input` 属性。
+
+枚举器包含可用于检索循环值和更改当前循环迭代的属性和方法。 有关详细信息，请参阅[使用枚举器](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#using-enumerators)。
+
+#### pwsh命令行调用时利用`$input`传参
+
+从命令行调用时，`$input` 变量也可用于由 `pwsh` 的 `-Command` 参数指定的命令。 以下示例从 Windows 命令 shell 运行。
+
+从`cmd`中传递一个字符串到`pwsh`作为要执行的代码段参数(中的一个变量,即自动变量`$input`,而不是自己定义的其他变量);
+
+`pwsh`支持`-c`参数接收到包含`$input`的代码块或字符串后能够正确解析`$input`被那个对象填充
+
+```CMD
+#支持cmd中执行,powershell中也可以
+echo Hello | pwsh -Command """$input World!"""
+```
+
+又比如在powershell中调用另一个powershell进程
+
+```powershell
+#先定义一个变量,然后传入到pwsh -c 所要执行的命令行
+PS C:\repos\scripts> $dir='C:\share'
+
+#注意下面利用了$input自动变量,而不是一般编程语言中的同名变量,即如果写成:$dir|pwsh -c {ls $dir}是错误的,查看的目录将会是当前目录而不是指定的$dir目录
+PS C:\repos\scripts> $dir|pwsh -c {ls $input}
+
+    Directory: C:\share
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+l----           2024/4/26    12:56                Documents -> C:\Users\cxxu\Documents\
+l----           2024/4/16    16:05                Downloads -> C:\Users\cxxu\Downloads\
+l----           2024/4/16    13:53                exes -> C:\exes
+d----           2024/7/17    16:52                MK
+l----           2024/4/22    21:14                Music -> C:\Users\cxxu\Music\
+d----           2024/7/23    10:37                others
+-a---            2024/7/1    13:43            265 A Readme File@This is a shared folder! Place anything here to share w
+                                                  ith others.txt
+-a---            2024/7/3    21:29           2454 colorfulCxxu.txt
+```
+
+
 
 ### 例子
 
-为了便于演示,先讲powershell 转到家目录下的桌面`cd ~/desktop`
+- [example-input-variable关于自动变量 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#example-1-using-the-input-variable)
+
+为了便于演示,先将powershell 转到家目录下的桌面`cd ~/desktop`
 
 #### 脚本文件处理管道输入
 
@@ -221,3 +279,9 @@ Write-Host "CurrentUICulture: $($host.CurrentUICulture.Name)"
 | 典型用法 | 获取主机信息、用户界面交互、控制主机行为 | `$host.UI.RawUI.ForegroundColor = "Green"` |
 
 通过这些示例和解释，希望能帮助你更好地理解 PowerShell 中的 `$host` 变量及其用法。如果有任何进一步的问题或需要更详细的解释，请随时告诉我。
+
+## 脚本块`$Scriptblock`
+
+[关于脚本块 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4)
+
+脚本块的一个重要特点是可以包含参数
