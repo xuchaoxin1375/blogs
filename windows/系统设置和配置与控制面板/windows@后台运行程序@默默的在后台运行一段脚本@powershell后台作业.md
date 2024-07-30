@@ -133,9 +133,102 @@ PS> ps chfs|select -ExpandProperty CommandLine
 "C:\exes\chfs\chfs.exe" -file C:\exes\chfs\chfs.ini
 ```
 
-### 封装为powershell函数 TODO
+### 封装为powershell函数 
 
-```
+```powershell
+
+function Start-ProcessHidden
+{
+    <# 
+    .SYNOPSIS
+    在后台运行指定任务,由powershell启动,启动后的进程是后台进程(隐藏窗口)和启动者进程相互独立,启动者被杀死也不会影响后台进程
+    这是和Start-Job的一个重要区别(依赖于当前powershell进程)
+    .DESCRIPTION
+    本命令启动的进程窗口通过-WindowStyle Hidden属性隐藏(隐藏窗口,而不是最小化窗口),来达到后台运行任务的效果
+    如果使用windows terminal(wt)管理shell 窗口,利用本命令启动powershell后台任务隐藏窗口后,可能会在windows terminal窗口列表中留下一个空shell选项卡
+    
+    .EXAMPLE
+    #执行桌面上的一个日志脚本(其他内容比如说是每隔1秒钟就往log文件中写入一行时间日志)
+    PS C:\Users\cxxu\Desktop> Start-ProcessHidden -File .\LogTime.ps1
+    .EXAMPLE
+    #Scriptblock参数支持接受字符串包裹的命令行脚本块
+
+    Start-ProcessHidden -scriptBlock 'start-TimeAnnouncer -TickMinsOnly 35 -Verbose'
+    Start-ProcessHidden -scriptBlock {start-TimeAnnouncer -TickMinsOnly 33 -Verbose}
+
+    .EXAMPLE
+    #利用Scriptblock参数来执行指定的命令行脚本块,而不是执行指定的脚本文件
+    PS C:\Users\cxxu\Desktop> Start-ProcessHidden -scriptBlock {
+    >> function Write-TimeToLog
+    >> {
+    >>     param (
+    >>
+    >>     )
+    >>     # 获取当前时间
+    >>     $currentTime = Get-Date -Format 'HH:mm:ss'
+    >>
+    >>     # 构建日志文件路径
+    >>     $logFilePath = Join-Path $([Environment]::GetFolderPath('Desktop')) 'log.txt'
+    >>
+    >>     # 追加当前时间到日志文件
+    >>     Add-Content -Path $logFilePath -Value $currentTime
+    >>
+    >> }
+    >> while (1)
+    >>  {
+    >>     Write-Host 'writing...'
+    >>     Write-TimeToLog
+    >>     Start-Sleep 1
+    >>  }
+    >> }
+
+    NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+    ------    -----      -----     ------      --  -- -----------
+        6     0.45       2.64       0.02   20416   1 pwsh
+
+
+    PS [C:\Users\cxxu\Desktop]> cat .\log.txt -Wait
+    22:31:43
+    22:31:44
+    22:31:45
+    22:31:46
+    22:31:47
+    22:31:48
+    ...
+
+    .EXAMPLE
+    # 启动chfs后台任务(注意chfs严格检查参数的大小写,例如-file不能写成-File,否则会报错,这是一个linux风格的命令行工具)
+    Start-ProcessHidden -FilePath C:\exes\chfs\chfs -ArgumentList "-file C:\exes\chfs\chfs.ini" #-file 不能作-File
+    #>
+    [CmdletBinding()]
+    param (
+        # executable file Path(like the -FilePath parameter of Start-Process)
+        [Parameter(  ParameterSetName = 'FilePath')]
+        $FilePath,
+
+        [Parameter(  ParameterSetName = 'FilePath')]
+        $ArgumentList,
+
+
+        [Parameter( ParameterSetName = 'PwshScriptBlock')]
+        $scriptBlock
+
+
+        # [Parameter(ParameterSetName = 'PwshScriptFile')]
+        # $scriptFile
+    )
+   
+    if ($PSCmdlet.ParameterSetName -eq 'FilePath')
+    {
+        $p = Start-Process -WindowStyle Hidden -FilePath $FilePath -ArgumentList $ArgumentList -PassThru
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'PwshScriptBlock')
+    {
+        $p = Start-Process -WindowStyle Hidden -FilePath pwsh.exe -ArgumentList '-noe','-Command', ([scriptblock]::Create($scriptBlock.ToString()) -join "`n") -PassThru
+    }
+
+    return $p
+}
 
 ```
 
@@ -316,10 +409,5 @@ function Start-AlistShareServer
 
 比如设置一段开机自动运行的程序(可携带参数),不一定要启动shell窗口来执行
 
-- 你可以通过任务计划程序来创建一个任务，使其在后台运行。步骤如下：
-  1. 打开任务计划程序（Task Scheduler）。
-  2. 创建一个新的基本任务。
-  3. 在任务触发器中选择“当我登录时”。
-  4. 在操作中选择“启动程序”，并浏览选择你的脚本或程序。
-  5. 完成并保存任务。
+创建方式有命令行方式也有GUI方式,详情另见它文
 
