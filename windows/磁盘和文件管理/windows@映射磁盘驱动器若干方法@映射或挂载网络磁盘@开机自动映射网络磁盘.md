@@ -8,7 +8,9 @@
 
 ## 相关命令行
 
-### net use
+包括传统的net use命令和powershell提供的一系列相关敏老公
+
+## net use
 
 - [Net use | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-R2-and-2012/gg651155(v=ws.11))
 
@@ -38,9 +40,242 @@
   NET USE [/PERSISTENT:{YES | NO}]
   ```
 
-### powershell 系
+- `net use` 命令在 Windows 操作系统中用于管理网络连接。以下是该命令的语法以及各个选项的详细解释：
 
-- 相关命令(添加和移除不是那么好用)
+### 选项解析
+
+- **`devicename`**：指定要连接的设备名称（如 `Z:`）。
+- **`*`**：让系统自动选择下一个可用的设备名称。
+- **`\\computername\sharename[\volume]`**：指定共享资源的网络路径。
+- **`password | *`**：指定连接共享资源的密码。使用 `*` 表示提示用户输入密码。
+
+#### 用户选项
+
+- **`/USER:[domainname\]username`**：使用指定域和用户名的凭据进行连接。
+- **`/USER:[dotted domain name\]username`**：使用点分域名格式的域和用户名。
+- **`/USER:[username@dotted domain name]`**：使用 UPN 格式的用户名。
+
+#### 安全选项
+
+- **`/SMARTCARD`**：使用智能卡进行身份验证。
+- **`/SAVECRED`**：保存用户凭据，以便下次连接时自动使用。
+- **`/REQUIREINTEGRITY`**：要求连接使用数据完整性保护。
+- **`/REQUIREPRIVACY`**：要求连接使用数据隐私保护。
+
+#### 性能选项
+
+- **`/WRITETHROUGH`**：确保所有写操作直接写入到服务器，而不是缓存。
+- **`/TCPPORT:{0-65535}`**：指定用于连接的 TCP 端口号。
+- **`/QUICPORT:{0-65535}`**：指定用于连接的 QUIC 端口号。
+- **`/RDMAPORT:{0-65535}`**：指定用于连接的 RDMA 端口号。
+- **`/TRANSPORT:{TCP | QUIC}`**：指定传输协议，TCP 或 QUIC。
+- **`/SKIPCERTCHECK`**：跳过证书检查（与 QUIC 相关）。
+
+#### 其他选项
+
+- **`/REQUESTCOMPRESSION:{YES | NO}`**：请求连接使用压缩。
+- **`/BLOCKNTLM`**：阻止 NTLM 认证。
+- **`/GLOBAL`**：使连接对所有用户全局可见。
+- **`/DELETE`**：断开指定连接。
+
+#### 持久性选项
+
+- **`/PERSISTENT:{YES | NO}`**：指定连接是否为持久连接。
+- **`/HOME`**：将当前用户的主目录映射到网络驱动器。
+
+### 示例
+
+1. **连接到共享资源并保存凭据**
+
+```shell
+net use Z: \\Server\Share /user:Domain\Username /savecred
+```
+
+2. **连接到共享资源，指定端口和传输协议**
+
+```shell
+net use Z: \\Server\Share /user:Domain\Username /TCPPORT:8080 /TRANSPORT:TCP
+```
+
+3. **断开连接**
+
+```shell
+net use Z: /delete
+```
+
+4. **设置持久连接**
+
+```shell
+net use Z: \\Server\Share /user:Domain\Username /persistent:yes
+```
+
+通过这些选项，`net use` 命令可以灵活地管理网络连接，满足不同的安全和性能需求。
+
+`/savecred` 和 `/persistent:yes` 是 `net use` 命令中的两个不同选项，它们的效果和用途有所不同。下面是对这两个选项的详细解释及其区别：
+
+### 挂载持久化和保存凭证
+
+#### `/savecred`
+
+`/savecred` 选项用于保存用户凭据（用户名和密码）。
+
+当您使用此选项连接到网络共享时，系统会提示您输入**用户和密码**并将作为一组完整的凭证保存。
+
+下次您连接到相同的网络资源(例如链接到`\\CxxuColorful\share`这个UNC路径所指示的网络资源)时，系统会自动查找以往是否保存过该路径的访问凭证,如果凭证有效，而无需再次输入。
+
+例如,将局域网内的`CxxuColorful`主机提供的`share`共享文件夹挂载为本地,把这个链接标记为持久化链接,并且记住凭证,盘符为`X:`网络驱动器
+
+```powershell
+#初次链接,会提示你输入密码(但是有时候有因为用户账户不安全或其他错误,可能直接提示报错,那么就需要在命令行中提前携带 /user:username password 凭证来尝试挂载)
+PS> net use X: \\CxxuColorful\share /P:yes  /SAVECRED
+为“CxxuColorful”输入用户名: cxxu
+输入 CxxuColorful 的密码:
+命令成功完成。
+```
+
+断开链接后重新尝试挂载(免密挂载)
+
+```shell
+PS☀️[BAT:100%][MEM:27.41% (2.15/7.85)GB][23:10:30]
+# [cxxu@CXXUREDMIBOOK][C:\repos]
+PS> net use X: /delete
+X: 已经删除。
+
+
+PS☀️[BAT:100%][MEM:23.91% (1.88/7.85)GB][23:16:19]
+# [cxxu@CXXUREDMIBOOK][C:\repos]
+PS> net use X: \\CxxuColorful\share
+命令成功完成。
+```
+
+并且上述挂载命令用到了`/persistent:yes`,简写为`/p:yes`,也就是重启后自动挂载(如果资源可用的话,可能需要等待服务加载就绪,再打开资源管理器就可以看到自动连接好的网络驱动器盘)
+
+经过试验,确实可以自动连接
+
+开机之初过早打开可能看到的还是为连接成功的状态,可以过段时间刷新再看看)
+
+#### `/persistent:yes`
+
+`/persistent:yes` 选项用于设置网络连接的持久性。启用此选项后，即使计算机重新启动或用户注销，连接也会自动恢复。这个选项不会保存用户凭据，但会记住连接的路径和驱动器号。
+
+示例
+
+```shell
+net use Z: \\Server\Share /user:Domain\Username Password /persistent:yes
+```
+
+执行此命令后，连接将被设置为持久连接，即使计算机重新启动或用户注销，网络驱动器 `Z:` 也会自动重新连接。
+
+#### 区别
+
+主要区别:
+
+- /savecred 主要关注凭据的保存和重用。
+- /persistent:yes 主要关注连接的自动重建立。
+
+1. **功能**：
+    - **`/savecred`**：保存用户名和密码，以便下次连接时自动使用。
+    - **`/persistent:yes`**：设置连接为持久连接，使其在计算机重新启动或用户注销后自动恢复。
+
+2. **适用场景**：
+    - **`/savecred`**：适用于需要频繁连接同一网络资源且不希望每次都输入用户名和密码的场景。
+    - **`/persistent:yes`**：适用于希望保持网络驱动器连接状态，即使在重新启动或注销后也不希望重新手动连接的场景。
+
+3. **安全性**：
+    - **`/savecred`**：会将凭据保存到系统中，可能带来安全风险，尤其是在共享或公共计算机上。
+    - **`/persistent:yes`**：仅保存连接路径和驱动器号，不保存凭据，相对更加安全。
+      - 假设最初挂载网络(比如`X: \\server\share`)时使用了`/persistent:yes`,但是没有使用`/savecred`,那么在重启打开资源管理器时,会发现待验证(密码)连接的驱动器
+
+两者可以结合使用,以实现自动重连接并使用保存的凭据。例如:
+
+```
+net use Z: \\server\share /savecred /persistent:yes
+```
+
+这样设置后,即使重启计算机,Z:驱动器也会自动重新连接,并使用之前保存的凭据。
+
+### net use造成冲突的选项组合👺
+
+- 以下用法是不可行的(造成选项冲突)
+
+  - ```powershell
+    
+    net use X: \\server\share /user:Username passwordOfUser /p:yes /SAVECRED
+    
+    ```
+
+  - `/savecred`选项不能和 `/user`选项同时出现,前者用户保存初次链接的凭证,或者用于指导`net use`之后的访问或登录时自动到凭据管理中找可用凭证
+
+  - `/p:yes`不会和`/user`冲突
+
+  - ```
+    
+    PS☀️[BAT:100%][MEM:23.39% (1.84/7.85)GB][23:39:35]
+    # [cxxu@CXXUREDMIBOOK][C:\repos]
+    PS> net use S: \\cxxucolorful\share /user:smb 1 /p:yes  /savecred
+    命令使用了冲突的选项。
+    
+    请键入 NET HELPMSG 3510 以获得更多的帮助。
+    
+    
+    ```
+
+#### 凭证覆盖问题👺
+
+```cmd
+
+PS☀️[BAT:100%][MEM:24.02% (1.89/7.85)GB][23:39:48]
+# [cxxu@CXXUREDMIBOOK][C:\repos]
+PS> net use S: \\cxxucolorful\share /user:smb 1 /p:yes
+命令成功完成。
+
+
+PS☀️[BAT:100%][MEM:24.02% (1.89/7.85)GB][23:39:51]
+# [cxxu@CXXUREDMIBOOK][C:\repos]
+PS> cmdkey /list
+
+当前保存的凭据:
+
+  ....
+
+    目标: Domain:target=TERMSRV/CXXUCOLORFUL
+    类型: 域密码
+    用户: cxxu
+    本地机器持续时间
+
+....
+    目标: Domain:target=CxxuColorful
+    类型: 域密码
+    用户: CxxuColorful\cxxu
+```
+
+本文的试验中,涉及两台机器,都启用了网络发现,两台主机可以不用ip来访问,用计算机名访问,分别时`CxxuColorful`,`CxxuRedmibook`
+
+其中`CxxuColorful`提供了两个账号用来测试,`Cxxu`是高权限账号(适合设备主人使用),而`smb`是共享用的普通(受限)权限账号,适合共享给其他人分享资料使用
+
+我先用组合拳:`/p:yes /savecred`记住了`Cxxu`凭证,进行了挂载试验(挂载到了`X:`盘,然后`net user X: /d`删除掉该挂载(但是不会删除凭证,因此重启后,计算机会自动挂载,但是盘符不会记录到凭证,到底挂载后盘符会是哪一个,取决于`Cxxucolorful`重启前被挂载为什么盘(使用了`/p:yes`选项会覆盖前面的自动挂载盘符))
+
+而后我又用`smb`这个普通账户挂载为`S:`盘,使用了`/p:yes`,而没有使用`/savecred`选项,意味着重启后应该不会自动使用`smb`这个凭证
+
+然而由于之前的`cxxu`凭证和`smb`都来自服务器`CxxuColorful`因此,重启后仍然会出现自动挂载的现象,不过凭据用的是之前保存的`Cxxu`而挂载的盘符不是`X:`而是`S:`,因为后者指定的盘符号覆盖掉了前者指定的盘符号
+
+### 禁止多重链接
+
+```powershell
+PS> net use S: \\cxxucolorful\share /user:smb 1 /p:yes
+发生系统错误 1219。
+
+不允许一个用户使用一个以上用户名与服务器或共享资源的多重连接。中断与此服务器或共享资源的所有连接，然后再试一次。
+
+```
+
+前面我对`\\cxxucolorful\share`用`server`上的用户名`cxxu`及其密码进行了链接
+
+现在又进行了另一个`server`上的用户名`smb`去链接就会遇到多重链接被拒绝
+
+### powershell 系相关命令
+
+- 相关命令(添加和移除不是那么好用),配合网络发现,使用被挂载的设备的计算机名来使用
 
   ```
   PS[BAT:77%][MEM:33.96% (10.77/31.70)GB][21:36:41]
