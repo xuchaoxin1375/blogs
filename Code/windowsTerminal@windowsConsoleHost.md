@@ -48,4 +48,43 @@ Windows Console Host（conhost.exe）与Windows Terminal是Microsoft提供的两
 
 - 总结来说，Windows Terminal是对传统Windows Console Host的重大升级和替代品，提供了更多高级特性以满足开发者和高级用户的需要，同时也保持了向后兼容性，能够继续运行原有的命令行工具和脚本。
 
-  
+
+## 非应用商店直装版本
+
+### scoop 方式安装
+
+```powershell
+#添加bucket可能失败,这里开了steam++(watt toolkit)加速服务,可能导致一些问题
+PS C:\Users\cxxu> scoop bucket add extras
+Checking repo... ERROR 'https://github.com/ScoopInstaller/Extras' doesn't look like a valid git repository
+
+Error given:
+fatal: unable to access 'https://github.com/ScoopInstaller/Extras/': SSL certificate problem: unable to get local issuer certificate
+#我们关闭重试
+PS C:\Users\cxxu> scoop bucket add extras
+Checking repo... OK
+The extras bucket was added successfully.
+PS C:\Users\cxxu> scoop install windows-terminal
+Installing 'windows-terminal' (1.20.11781.0) [64bit] from 'extras' bucket
+Microsoft.WindowsTerminal_1.20.11781.0_x64.zip (11.0 MB) [===================] 100%
+Checking hash of Microsoft.WindowsTerminal_1.20.11781.0_x64.zip ... ok.
+Extracting Microsoft.WindowsTerminal_1.20.11781.0_x64.zip ... done.
+Running pre_install script...done.
+Running installer script...done.
+Linking ~\scoop\apps\windows-terminal\current => ~\scoop\apps\windows-terminal\1.20.11781.0
+Creating shim for 'WindowsTerminal'.
+Making C:\Users\cxxu\scoop\shims\windowsterminal.exe a GUI binary.
+Creating shim for 'wt'.
+Making C:\Users\cxxu\scoop\shims\wt.exe a GUI binary.
+Creating shortcut for Windows Terminal (WindowsTerminal.exe)
+Persisting .portable
+Persisting settings
+Running post_install script...done.
+'windows-terminal' (1.20.11781.0) was installed successfully!
+Notes
+-----
+Add Windows Terminal as a context menu option by running `reg import
+"C:\Users\cxxu\scoop\apps\windows-terminal\current\install-context.reg"`
+'windows-terminal' suggests installing 'extras/vcredist2022'.
+```
+

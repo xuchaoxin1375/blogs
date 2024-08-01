@@ -25,13 +25,11 @@
 - 我们可以手动关闭实时防护,但是这只能暂时关闭
 - 如果需要长期关闭,需要其他的进一步操作
 
-### 使用软件工具关闭
+### 使用软件工具关闭👺
 
 #### windows defender remover
 
 - [GitHub - ionuttbara/windows-defender-remover: A tool which is uses to remove Windows Defender in Windows 8.x, Windows 10 (every version) and Windows 11.](https://github.com/ionuttbara/windows-defender-remover)
-
-
 
 #### defender control(慎用)
 
@@ -61,6 +59,13 @@
   - 可以从其他论坛下载,但是没必要,名字和第一个软件很像,但是这里是GUI软件
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/44cf342232dd4559bff56a7f9101b2eb.png)
+
+#### Ultimate Windows Tweaker
+
+- [Ultimate Windows Tweaker 5 for Windows 11 (thewindowsclub.com)](https://www.thewindowsclub.com/ultimate-windows-tweaker-5-for-windows-11)
+
+- [Ultimate Windows Tweaker 4 for Windows 10 (thewindowsclub.com)](https://www.thewindowsclub.com/ultimate-windows-tweaker-4-windows-10)
+- 软件为英文,没有语言相关设置,有的有汉化版
 
 ### 其他方法
 

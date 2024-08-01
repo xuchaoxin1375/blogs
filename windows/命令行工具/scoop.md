@@ -318,3 +318,41 @@
 
   
 
+### 安装sudo命令
+
+```
+PS C:\Users\cxxu> scoop search sudo
+Results from local buckets...
+
+Name    Version      Source Binaries
+----    -------      ------ --------
+gsudo   2.5.1        main
+psutils 0.2023.06.28 main   sudo.ps1
+sudo    0.2020.01.26 main
+nsudo   8.2          extras
+```
+
+
+
+```powershell
+PS C:\Users\cxxu> scoop install gsudo
+Installing 'gsudo' (2.5.1) [64bit] from 'main' bucket
+gsudo.portable.zip (12.0 MB) [===============================================] 100%
+Checking hash of gsudo.portable.zip ... ok.
+Extracting gsudo.portable.zip ... done.
+Linking ~\scoop\apps\gsudo\current => ~\scoop\apps\gsudo\2.5.1
+Creating shim for 'sudo'.
+Adding ~\scoop\modules to your PowerShell module path.
+Installing PowerShell module 'gsudoModule'
+Linking ~\scoop\modules\gsudoModule => ~\scoop\apps\gsudo\current
+Adding ~\scoop\apps\gsudo\current to your path.
+Running post_install script...done.
+'gsudo' (2.5.1) was installed successfully!
+Notes
+-----
+gsudo has a PowerShell module that adds `gsudo !!` to elevate the last command.
+Use the module by running: 'Import-Module gsudoModule'.
+Add it to your $PROFILE to make it permanent.
+PS C:\Users\cxxu>
+```
+

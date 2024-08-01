@@ -44,42 +44,7 @@
 - 但他们统称为powershell
 - 现在提到powershell时,通常指的是`powershell core`
 
-#### winodws powershell 
-
-- ```powershell
-  PS D:\repos\scripts> $PSVersionTable
-  
-  Name                           Value
-  ----                           -----
-  PSVersion                      5.1.22621.963
-  PSEdition                      Desktop
-  PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0...}
-  BuildVersion                   10.0.22621.963
-  CLRVersion                     4.0.30319.42000
-  WSManStackVersion              3.0
-  PSRemotingProtocolVersion      2.3
-  SerializationVersion           1.1.0.1
-  ```
-
-#### powershell core 7.2+
-
-- 
-
-  ```powershell
-  PS D:\repos\scripts> $psVersionTable
-  
-  Name                           Value
-  ----                           -----
-  PSVersion                      7.3.1
-  PSEdition                      Core
-  GitCommitId                    7.3.1
-  OS                             Microsoft Windows 10.0.2…
-  Platform                       Win32NT
-  PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0…}
-  PSRemotingProtocolVersion      2.3
-  SerializationVersion           1.1.0.1
-  WSManStackVersion              3.0
-  ```
+- 使用`$PsVersionTable`查看当前运行的powershell版本
 
 
 
@@ -118,13 +83,7 @@
 
 ##  references
 - [关于脚本 - PowerShell | Microsoft Docs](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2)
-	-  [简短说明](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#short-description)
-	* [长说明](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#long-description)
-	* [如何运行脚本](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#how-to-run-a-script)
-	* [获取脚本的帮助](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#get-help-for-scripts)
-	* [如何编写脚本](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#how-to-write-a-script)
-	* [脚本范围和网点源](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#script-scope-and-dot-sourcing)
-	* [模块中的脚本](https://docs.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.2#scripts-in-modules)
+- [关于模块 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_modules?view=powershell-7.4)
 ## 运行脚本/程序
 - 例如执行.ps1和.bat脚本文件以及exe程序
 - 在任意目录下执行任意位置的脚本
