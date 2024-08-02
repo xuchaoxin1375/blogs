@@ -139,6 +139,23 @@
 - [不忘初心系统博客-精简版系统官网 (pc528.net)](https://www.pc528.net/)
   - 大多是收费镜像,精简的镜像文件比较小
   - 可以看看其他来源分享,比如论坛用户提供的网盘链接
+- 有些包是打包好补丁了的
+
+## 跳过联网登录微软账号
+
+- 在引导环节使用快捷键`shift+F10`输入以下命令
+
+  - `OOBE\BYPASSNRO`重启,然后**断网**/选择跳过网络连接以使用本地账户
+  - [计算机首次开机如何跳过Microsoft 帐户登录，快速进入Windows桌面 | 华为官网 (huawei.com)](https://consumer.huawei.com/cn/support/content/zh-cn15898703/)
+  - [[技巧\] 微软禁止通过OOBE跳过Windows 11账户登录 下面是最新可用办法 – 蓝点网 (landiannews.com)](https://www.landiannews.com/archives/96628.html)
+
+  - `no@thankyou.com`
+
+  - ```
+    
+    ```
+
+    
 
 ## 虚拟机上安装注意事项
 

@@ -23,6 +23,8 @@
 ### 临时关闭实时防护
 
 - 我们可以手动关闭实时防护,但是这只能暂时关闭
+  - 打开windows defender 选择**病毒与威胁防护**,再选择"病毒与威胁防护"设置下面的**管理设置**
+
 - 如果需要长期关闭,需要其他的进一步操作
 
 ### 使用软件工具关闭👺
@@ -33,7 +35,7 @@
 
 #### defender control(慎用)
 
-- !!!我用了这个软件后,发现其他软件启动的速度大幅度下降,安装软件更是一卡一卡的,不建议使用👺
+- !!!我用了这个软件后,发现其他软件启动的速度大幅度下降,安装软件更是一卡一卡的,如果你的设备出现了这种情况,请回复windows defender,改用其他方式禁用👺
   - 平台是windows11(intel 12700H+RTX4060)
   - 重新启用安全中心后,速度恢复正常
 
@@ -106,3 +108,15 @@
 
 
 
+## windows 遥测
+
+[隐私至上：5 招轻松关闭 Windows 11 遥测，防止数据收集 - 系统极客 (sysgeek.cn)](https://www.sysgeek.cn/disable-windows-11-telemetry/)
+
+[Configure Windows diagnostic data in your organization (Windows 10 and Windows 11) - Windows Privacy | Microsoft Learn](https://learn.microsoft.com/en-us/windows/privacy/configure-windows-diagnostic-data-in-your-organization)
+
+
+
+## TrustedInstaller权限和获取
+
+- [NSudo/Manual/用户手册.md at master · M2TeamArchived/NSudo · GitHub](https://github.com/M2TeamArchived/NSudo/blob/master/Manual/用户手册.md)
+- [Releases · M2TeamArchived/NSudo (github.com)](https://github.com/M2TeamArchived/NSudo/releases)

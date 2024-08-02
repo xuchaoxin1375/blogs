@@ -11,3 +11,5 @@
   - 某些命令行powershell7是无法执行成功的,而powershell5可以执行成功
   - 例如powershell自带的命令`New-LocalUser`,powershell7某些版本会报错,需要到powershell5.1去执行
 
+### 测试robocopy对于硬链接的反应
+
