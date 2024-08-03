@@ -194,6 +194,22 @@ net use Z: \\server\share /savecred /persistent:yes
 
 这样设置后,即使重启计算机,Z:驱动器也会自动重新连接,并使用之前保存的凭据。
 
+### 区分大小写
+
+- `net use`命令设置盘符时会区分大小写
+
+  - ```cmd
+    net use X: \\server\share 
+    ```
+
+  - ```cmd
+    net use x: /delete
+    ```
+
+  这里第一条命令创建的网络设备(网络存储驱动器`X`) 无法被第二条命令移除映射(需要将小写`x`改写为`X`)
+
+
+
 ### net use造成冲突的选项组合👺
 
 - 以下用法是不可行的(造成选项冲突)
@@ -258,6 +274,29 @@ PS> cmdkey /list
 而后我又用`smb`这个普通账户挂载为`S:`盘,使用了`/p:yes`,而没有使用`/savecred`选项,意味着重启后应该不会自动使用`smb`这个凭证
 
 然而由于之前的`cxxu`凭证和`smb`都来自服务器`CxxuColorful`因此,重启后仍然会出现自动挂载的现象,不过凭据用的是之前保存的`Cxxu`而挂载的盘符不是`X:`而是`S:`,因为后者指定的盘符号覆盖掉了前者指定的盘符号
+
+### 新凭证覆盖旧凭证
+
+假设之前映射用的凭证是`smb`,密码为`1`,具有基本的权限(并且被(`/p:yes /savecred`记住了凭证)
+
+```powershell
+ net use X: \\cxxucolorful\share  /p:yes /savecred
+ #输入smb用户的凭证
+```
+
+现在假设您是某个共享文件夹(所在计算机)的管理员或拥有者,我想要具有更高权限来访问它,比如访问共享文件夹中指向用户`cxxu`家目录中的某个文件(夹),那么需要覆盖掉低权限的smb,现删除掉原来的挂载
+
+```powershell
+net use X: /delete
+```
+
+这里在命令中携带需要用的凭证,防止使用默认的已保存的smb用户凭证
+
+```powershell
+ net use X: \\cxxucolorful\share /user:cxxu passwordOfCxxu /p:yes
+```
+
+
 
 ### 禁止多重链接
 

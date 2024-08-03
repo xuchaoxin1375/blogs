@@ -5,9 +5,11 @@
 - 本文介绍和实验了windows设备之间使用ssh连接远程控制
 - 实验平台为windows10,windows11
 
-## SSH方案
+## SSH方案相关链接
 
 windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙和服务自启动等设置
+
+### 适用于win10之后的系统
 
 [OpenSSH for Windows 概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_overview)
 
@@ -23,9 +25,28 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 
 [适用于 Windows 的 OpenSSH 服务器配置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_server_configuration)
 
-### 基础连接
+### 更通用方案
 
 
+- 更一般的ssh方案(基于powershell)
+  - [运行远程命令(相关协议) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/security/remoting/running-remote-commands?view=powershell-7.4)
+  - [通过 SSH 进行 PowerShell 远程处理 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/security/remoting/ssh-remoting-in-powershell?view=powershell-7.4)
+  - 相关软件仓库[PowerShell/Win32-OpenSSH: Win32 port of OpenSSH (github.com)](https://github.com/PowerShell/Win32-OpenSSH)
+- 适用于win7及以上的系统(至少有windows powershell ),更加通用(安装方式也有多种)
+  - [Install Win32 OpenSSH Using MSI · PowerShell/Win32-OpenSSH Wiki · GitHub](https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH-Using-MSI)
+    - 这种方式最简单,最推荐,可以选择仅安装Client或者Server(默认都安装),对于win7也很友好
+  - [Install Win32 OpenSSH · PowerShell/Win32-OpenSSH Wiki · GitHub](https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH)
+    - 我为这种安装方法整合了一个脚本,让win10以及之后的系统也可以很简单安装OpenSSH
+    - 并且包含了对服务端的基本设置(防火墙,立即启动sshd服务,设置开机自启,设置登录的默认shell)
+    - 您可以参考后面的章节
+
+
+
+## 软件安装和配置
+
+主要介绍服务端(客户端win10后自带,对于win7也可以使用win32 openssh,这边不赘述)
+
+### win10之后的安装配置方法
 
 - 在server端安装必要的ssh服务软件
 
@@ -37,6 +58,146 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
     ```
 
   - 详情另见它文(防火墙配置等) [适用于 Windows 的 OpenSSH 入门 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell#install-openssh-for-windows)
+
+
+- 这种方式是面向当前的主流系统的安装方式,但不一定是最快的方式,特别是国内用户,下载windows功能的途径比较受限,默认方法下载速度慢
+
+### 兼容性方案安装
+
+
+
+#### 使用msi包安装
+
+he MSI must be run in any command prompt (cmd.exe & pwsh.exe both work), as it does not yet have a UI (coming soon).
+The MSI will install OpenSSH to the `ProgramFiles\OpenSSH` folder.
+The commands to run, are as follows:
+
+- To install both the SSH Client & the SSH Server (default behavior)
+  `msiexec /i <path to openssh.msi>`
+
+如此的简单,一条语句就可以
+
+##### others
+
+- To install only the SSH Client
+  `msiexec /i <path to openssh.msi> ADDLOCAL=Client`
+- To install only the SSH Server
+  `msiexec /i <path to openssh.msi> ADDLOCAL=Server`
+- To uninstall only the SSH Client
+  `msiexec /i <path to openssh.msi> REMOVE=Client`
+- To uninstall only the SSH Server
+  `msiexec /i <path to openssh.msi> REMOVE=Server`
+
+##### Examples:
+
+- Installing SSH Client & openssh.msi is in the working directory:
+  `msiexec /i openssh.msi ADDLOCAL=Client`
+- Installing SSH Server & openssh.msi is in C:\users\public\downloads:
+  `msiexec /i C:\users\public\downloads\openssh.msi ADDLOCAL=Server`
+- Uninstalling SSH Client & openssh.msi is in the working directory:
+  `msiexec /i openssh.msi REMOVE=Client`
+- Uninstalling SSH Server & openssh.msi is in C:\users\public\downloads:
+  `msiexec /i C:\users\public\downloads\openssh.msi REMOVE=Server`
+
+#### 脚本方式安装方法
+
+下面给出的是通过脚本离线安装的方案
+
+Install Win32 OpenSSH (test release) 
+
+这个离线包只有几MB,所以不会下载太久(github release镜像加速下载也可以)
+
+1. Win32-OpenSSH Github releases can be installed on Windows 7 and up.
+2. Note [these considerations](https://github.com/PowerShell/Win32-OpenSSH/wiki/Various-Considerations) and [project scope](https://github.com/PowerShell/Win32-OpenSSH/wiki/Project-Scope) first.
+3. Download the [latest](https://github.com/PowerShell/Win32-OpenSSH/releases/latest) build of OpenSSH. To get links to latest downloads [this wiki page](https://github.com/PowerShell/Win32-OpenSSH/wiki/How-to-retrieve-links-to-latest-packages).
+4. Extract contents of the latest build to `C:\Program Files\OpenSSH` (Make sure binary location has the Write permissions to just to SYSTEM, Administrator groups. Authenticated users should and only have Read and Execute.)
+5. Modify the following Powershell Script(if you download the file in the user home download directory,just paste and run directly)
+
+##### 整合脚本👺
+
+- 以下脚本为win10以上的设备部署OpenSSH(win32版本)
+  - 虽然win32版本的openssh支持win7,但是由于win7上的powershell版本太低,所以无法执行本脚本(无法直接解压压缩包)
+  - 因此本脚本仅在powershell7(支持win8.1以上)做过测试,其他版本powershell支持情况未知(应该也支持powershell 5,防火墙那里可以使用传统命令`netsh advfirewall firewall`配置)
+  - 所以如果您的系统是win7,请前面提到的参考连接给出的步骤手动设置
+- 执行下面第一个脚本(第一个路径变量做必要的修改),将ssh clinent,ssh server文件释放和安装
+  - 其中的`$Openssh_home`目录位置可以稍微灵活一点,只是推荐的位置是放在`C:\program files`下面的某个子目录里面,深一点也可以
+
+```powershell
+# 使用管理员权限powershell窗口执行以下命令#In an elevated Powershell console, run the following
+$file = '~/downloads/Openssh*.zip' #这个目录改为您自己下载的ssh包路径
+$OpenSSH_home = 'C:\program files\OpenSSH'
+
+# $OpensshZip = "$($file.Directory)/OpenSSH.zip"
+# Move-Item $file $opensshZip
+
+Expand-Archive -Path $file -DestinationPath $OpenSSH_home  -Verbose
+Get-ChildItem $OpenSSH_home
+
+#$install_script = "$OpenSSH_Home/install-sshd.ps1"
+$install_script_dir=(ls "$OpenSSH_Home/Openssh-win*/")[0]
+$install_script="$install_script_dir/install-sshd.ps1"
+powershell.exe -ExecutionPolicy Bypass -File $install_script
+
+```
+
+额外设置:对于服务端(基本防火墙配置和服务启用),继续执行以下内容
+
+```powershell
+ #Open the firewall for sshd.exe to allow inbound SSH connections
+
+   # New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+
+    #Note: New-NetFirewallRule is for Windows 2012 and above servers only. If you're on a client desktop machine (like Windows 10) or Windows 2008 R2 and below, try:
+
+    netsh advfirewall firewall add rule name=sshd dir=in action=allow protocol=TCP localport=22
+
+    #Start sshd (this will automatically generate host keys under %programdata%\ssh if they don't already exist)
+
+    net start sshd
+    #To setup this service to auto-start:
+    Set-Service sshd -StartupType Automatic
+
+    #To config default shell (use powershell as default):
+    New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -Value 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -PropertyType String -Force
+    New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShellCommandOption -Value '/c' -PropertyType String -Force
+```
+
+此时这台设备既可以充当ssh服务端,也可以作为客户端
+
+包装成powershell函数,详情参考:[modulesByCxxu/SSH/SSH.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/SSH/SSH.psm1) 中的`Deploy-SSHVersionWin32Zip `函数
+
+##### 其他可选配置
+
+1. Optional
+   - To configure a default shell, see [here](https://github.com/PowerShell/Win32-OpenSSH/wiki/DefaultShell)
+   - To migrate sshd configuration from older versions (0.0.X.X), see [here](https://github.com/PowerShell/Win32-OpenSSH/wiki/Migrate-sshd_config-from-older-versions)
+
+### 配置环境变量以便捷启动
+
+- 按上面的方式安装后必须进入到`ssh.exe`所在目录中才能使用`ssh.exe`命令,或者每次输入`ssh.exe`的完整路径来调用,这十分不方便,为了改进这一点,需要配置环境变量
+
+  - 先检查目录例如,我的`ssh.exe`所在目录为`C:\program files\OpenSSH\OpenSSH-Win64`,那么就将这个目录添加到环境变量`Path`中
+
+  - 添加方法很简单,有图形化操作添加,也有命令行方式添加,都可以做到永久添加,如有不懂自行查阅资料
+
+    ```powershell
+    PS C:\program files\OpenSSH\OpenSSH-Win64> ls
+    
+    
+        目录: C:\program files\OpenSSH\OpenSSH-Win64
+    
+    
+    Mode                LastWriteTime     Length Name
+    ----                -------------     ------ ----
+    d----          2024/8/3     22:36            _manifest
+    -----        2023/12/13     16:42      16775 FixHostFilePermissions.ps1
+    -----        2023/12/13     16:42      15805 FixUserFilePermissions.ps1
+    -----        2023/12/13     16:42      20527 install-sshd.ps1
+    -----        2023/12/13     16:44    1885752 libcrypto.dll
+    -----        2023/12/13     16:38      18934 LICENSE.txt
+    ```
+
+## 基础连接和使用
 
 - Client连接Server
 
@@ -74,6 +235,8 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
       cxxu@REDMIBOOKPC C:\Users\cxxu>
       
       ```
+
+
 
 ### 免密自动登录👺
 
@@ -226,7 +389,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 - 为了方便一键操作,执行以下pwsh脚本(需要**管理员权限**👺)
 
   - ```powershell
-    function Enable-PubkeyAuthentication
+    function Enable-SSHPubkeyAuthentication
     {
     
         <# 
@@ -261,7 +424,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
     }
     
     #调用本函数
-    Enable-PubkeyAuthentication
+    Enable-SSHPubkeyAuthentication
     
     ```
 
@@ -436,7 +599,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 ### 傻瓜式配置免密自动登录👺
 
-#### 快速配置流程
+#### 准备
 
 上述两种方法都是powershell命令行,都算简单可行,任选一种即可,能够为两台windwos计算机建创建免密码ssh链接公钥文件
 
@@ -444,9 +607,12 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 您可以将上述提供的各个powershell函数分别在ssh client 和ssh server上导入(不是直接运行),为了方便这一点,可以从gitee仓库复制整合好的脚本:[modulesByCxxu/SSH/SSH.psm1 · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/SSH/SSH.psm1)
 
-复制后分别粘贴到客户端和服务端的**管理员权限**的powershell窗口
+### 流程
 
-然后就只需要按照以下指示在ssh客户端(client)或服务端(server)上调用或执行相关命令即可
+- 复制后分别粘贴到客户端和服务端的**管理员权限**的**powershell**窗口
+
+- 然后就只需要按照以下指示在ssh客户端(client)或服务端(server)上调用或执行相关命令即可
+
 
 流程如下(按顺序执行):
 
@@ -454,10 +620,10 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
    - ```powershell
      Set-SSHServerInit
-     Enable-PubkeyAuthentication
+     Enable-SSHPubkeyAuthentication
      ```
 
-   - server上**粘贴**并运行上述复制到的脚本即可(这会创建服务端上的authorized_keys文件,并且会重启ssh server)
+   - server上**粘贴**并运行上述复制的脚本即可(这会创建服务端上的authorized_keys文件,并且会重启ssh server)
 
 2. client端执行
 
@@ -477,7 +643,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 4. 如果sshd服务重启失败(报错),请手动到`services.msc`中找到`Openssh ssh server`手动重启它
 
-##### 操作示例
+#### 操作示例
 
 
 
