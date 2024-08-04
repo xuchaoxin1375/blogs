@@ -212,6 +212,12 @@ net use Z: \\server\share /savecred /persistent:yes
 
 ### net use造成冲突的选项组合👺
 
+- net use 的语法和文档手册另见它文 
+
+  - [Net use | Microsoft Learn](https://learn.microsoft.com/zh-cn/previous-versions/windows/it-pro/windows-server-2012-R2-and-2012/gg651155(v=ws.11))
+
+  这个手册已经在2016年停止维护(更新)
+
 - 以下用法是不可行的(造成选项冲突)
 
   - ```powershell
@@ -220,10 +226,8 @@ net use Z: \\server\share /savecred /persistent:yes
     
     ```
 
-  - `/savecred`选项不能和 `/user`选项同时出现,前者用户保存初次链接的凭证,或者用于指导`net use`之后的访问或登录时自动到凭据管理中找可用凭证
-
-  - `/p:yes`不会和`/user`冲突
-
+    `/p:yes`不会和`/user:`冲突
+    
   - ```
     
     PS☀️[BAT:100%][MEM:23.39% (1.84/7.85)GB][23:39:35]
@@ -311,6 +315,8 @@ PS> net use S: \\cxxucolorful\share /user:smb 1 /p:yes
 前面我对`\\cxxucolorful\share`用`server`上的用户名`cxxu`及其密码进行了链接
 
 现在又进行了另一个`server`上的用户名`smb`去链接就会遇到多重链接被拒绝
+
+
 
 ### powershell 系相关命令
 
