@@ -35,8 +35,8 @@ windows系统下局域网内传输文件的简单方法有2中,其中最简单�
 
   - [在 Windows 中通过网络共享文件 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中通过网络共享文件-b58704b2-f53a-4b82-7bc1-80f9994725bf)
   - [File sharing over a network in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/file-sharing-over-a-network-in-windows-b58704b2-f53a-4b82-7bc1-80f9994725bf)
-  - 这是一份更加完整的官方培训资料[Configure and manage shared folders - Training | Microsoft Learn](https://learn.microsoft.com/zh-hk/training/modules/configure-manage-shared-folders/)
 
+- 这是一份更加完整的官方培训资料:[Configure and manage shared folders - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/modules/configure-manage-shared-folders/)
 - 更多参考:[Windows 文件夹共享指南：轻松分享文件和资料 - 系统极客 (sysgeek.cn)](https://www.sysgeek.cn/sharing-folders-windows-11/)
 
 ## 配置共享文件夹准备工作👺
@@ -152,46 +152,9 @@ DemoShareMultipleGrant was shared successfully.
 
 
 
-#### 访问控制权限
+### windows文件夹的访问控制权限和共享权限设置👺
 
-当你在使用支持安全性的文件系统格式化的卷上创建共享文件夹时，共享文件夹权限和文件及文件夹权限会结合起来控制用户通过网络访问文件资源的权限。无论用户是本地访问还是通过网络访问资源，文件和文件夹权限都会起作用，但它们会过滤共享文件夹权限。
-
-当你授予共享文件夹权限时，以下规则适用：
-
-- 除了使用网络文件和文件夹共享中的“共享”选项外，Everyone（所有人）组拥有读取共享文件夹权限。
-
-- 用户必须对共享文件夹中的每个文件和子文件夹拥有适当的文件系统权限以及适当的共享文件夹权限，才能访问这些资源。
-- 当文件系统权限和共享文件夹权限结合时，结果权限是两种权限中最严格的一个。通常，这是文件系统和共享文件夹权限中最高的共同分母。
-- 当用户尝试通过共享连接到内容时，文件夹的共享权限适用于该文件夹、其所有文件和子文件夹及子文件夹中的所有文件。
-- 当你为每个共享文件夹配置共享文件夹权限时，你只能允许或拒绝读取、更改和完全控制权限，这些权限适用于所有文件夹和子文件夹中的内容。而当你配置文件系统权限时，你有更多的细粒度控制。你可以为每个文件配置权限，并且可以允许或拒绝更多的文件系统权限，而不仅仅是共享权限。
-
-以下类比可以帮助你理解当文件系统权限和共享权限结合时会发生什么：
-
-- 如果你想通过网络访问共享文件夹的文件，你必须通过共享文件夹。
-- 如果共享权限设置为读取（Read），那么当通过共享文件夹连接时，你最多只能读取文件，即使单个文件系统权限设置为完全控制（Full Control）。所有比共享权限限制更少的文件系统权限都会被过滤掉，因此只有最严格的权限保留——在这种情况下是读取权限。
-- 如果你将共享权限配置为更改（Change），你可以读取或修改共享的数据。如果文件系统权限设置为完全控制（Full Control），共享权限会将有效权限过滤为修改（Modify）。
-- 相反，如果共享权限设置为完全控制（Full Control），但用户对文件夹的NTFS权限设置为读取（Read），则有效权限为读取。
-
-我们可以用`Get-Acl`来查看指定目录或文件的访问控制权限
-
-```powershell
-PS> Get-Acl C:\sharePlus |fl
-
-Path   : Microsoft.PowerShell.Core\FileSystem::C:\sharePlus
-Owner  : COLORFULCXXU\cxxu
-Group  : COLORFULCXXU\cxxu
-Access : BUILTIN\Administrators Allow  FullControl
-         NT AUTHORITY\SYSTEM Allow  FullControl
-         BUILTIN\Users Allow  ReadAndExecute, Synchronize
-         NT AUTHORITY\Authenticated Users Allow  Modify, Synchronize
-         NT AUTHORITY\Authenticated Users Allow  -536805376
-Audit  :
-Sddl   : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-2233723
-         087-916622917-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9
-         ;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)
-```
-
-
+- 另见它文,这里面有一些关键的设置,在遇到共享文件夹被访问时内容读取问题一般要做访问权限的修改
 
 ### 使用powershell中的SmbShare模块命令
 

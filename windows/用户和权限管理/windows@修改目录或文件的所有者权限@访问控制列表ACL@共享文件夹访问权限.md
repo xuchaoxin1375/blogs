@@ -6,7 +6,14 @@
 
 ## abstract
 
-- 个别情况下,比如系统上有多个用户,或者不当使用管理员权限运行了某些命令后产生的目录或文件无法被其他用户访问,即使这个用户也处于`administrator`组内
+- windows个人用户对文件夹或文件做访问控制权限设置的情况比较少,但有时确实需要
+  - 一类是不当得使用管理员权限做某些更改或者授权给某些软件运行了一些修改文件夹或文件的命令导致用户访问发生异常
+  - 另一方面则是用户主动利用访问控制权限保护数据不被未授权的行为造成影响,比如共享文件夹为特定用户设置特定的权限,那么就要配合NTFS访问控制权限设置,授权不同用户不同的访问权限
+
+
+### 问题举例
+
+- 个别情况下,比如系统上有多个用户,或者不当使用**管理员权限**运行了某些命令后产生的目录或文件无法被其他用户访问,即使这个用户也处于`administrators`组内
 - 例如,git仓库中,我遇到了如下问题
 
 ```bash
@@ -21,6 +28,62 @@ To add an exception for this directory, call:
 
         git config --global --add safe.directory C:/repos/configs
 ```
+
+这种情况下,一般是系统上有多个用户或者设备上有系统(比如不同版本的windows跨盘访问数据造成文件(夹)权限设置被污染)
+
+可以尝试移除分配给不明的用户权限;如果无法直接修改,则先尝试取消**权限继承**,然后再修改或移除特定用户对相应文件夹的访问权限
+
+## 共享文件夹的访问控制权限
+
+出来本地文件夹的**NTFS访问控制权限**,设置了共享的文件夹还有单独的**共享访问权限**,也就是对于共享文件夹,有两层访问控制权限设置
+
+如果是普通文件夹(没有被创建为网络共享文件夹),那么讨论设置文件夹权限一般指定是NTFS访问控制权限,或者称为**文件及文件夹权限**
+
+下面这段内容来自于官方文档(译):[Combine shared folder and NTFS permissions - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/modules/configure-manage-shared-folders/5-combine-shared-folder-ntfs-permissions)
+
+当你在使用支持安全性的文件系统格式化的卷上创建共享文件夹时，**共享文件夹权限**和**文件及文件夹权限**会结合起来控制用户通过网络访问文件资源的权限。
+
+无论用户是本地访问还是通过网络访问资源，文件和文件夹权限都会起作用，但它们会过滤共享文件夹权限。
+
+当你授予共享文件夹权限时，以下规则适用：
+
+- 除了使用网络文件和文件夹共享中的“共享”选项外，Everyone（所有人）组拥有读取共享文件夹权限。
+
+- 用户必须对共享文件夹中的每个文件和子文件夹拥有适当的文件系统权限以及适当的共享文件夹权限，才能访问这些资源。
+- 当文件系统权限和共享文件夹权限结合时，结果权限是两种权限中最严格的一个。通常，这是文件系统和共享文件夹权限中最高的共同分母。
+- 当用户尝试通过共享连接到内容时，文件夹的共享权限适用于该文件夹、其所有文件和子文件夹及子文件夹中的所有文件。
+- 当你为每个共享文件夹配置共享文件夹权限时，你只能允许或拒绝读取、更改和完全控制权限，这些权限适用于所有文件夹和子文件夹中的内容。而当你配置文件系统权限时，你有更多的细粒度控制。你可以为每个文件配置权限，并且可以允许或拒绝更多的文件系统权限，而不仅仅是共享权限。
+
+以下类比可以帮助你理解当文件系统权限和共享权限结合时会发生什么：
+
+- 如果你想通过网络访问共享文件夹的文件，你必须通过共享文件夹。
+- 如果共享权限设置为读取（Read），那么当通过共享文件夹连接时，你最多只能读取文件，即使单个文件系统权限设置为完全控制（Full Control）。所有比共享权限限制更少的文件系统权限都会被过滤掉，因此只有最严格的权限保留——在这种情况下是读取权限。
+- 如果你将共享权限配置为更改（Change），你可以读取或修改共享的数据。如果文件系统权限设置为完全控制（Full Control），共享权限会将有效权限过滤为修改（Modify）。
+- 相反，如果共享权限设置为完全控制（Full Control），但用户对文件夹的NTFS权限设置为读取（Read），则有效权限为读取。
+
+### 简单查看路径的访问控制权限
+
+我们可以用`Get-Acl`来查看指定目录或文件的访问控制权限
+
+```powershell
+PS> Get-Acl C:\sharePlus |fl
+
+Path   : Microsoft.PowerShell.Core\FileSystem::C:\sharePlus
+Owner  : COLORFULCXXU\cxxu
+Group  : COLORFULCXXU\cxxu
+Access : BUILTIN\Administrators Allow  FullControl
+         NT AUTHORITY\SYSTEM Allow  FullControl
+         BUILTIN\Users Allow  ReadAndExecute, Synchronize
+         NT AUTHORITY\Authenticated Users Allow  Modify, Synchronize
+         NT AUTHORITY\Authenticated Users Allow  -536805376
+Audit  :
+Sddl   : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-2233723
+         087-916622917-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9
+         ;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)
+```
+
+- 其中最直观的是路径对象的拥有着(owner)以及Access(访问控制权限)
+- 上面的例子中,有5行权限记录,第一行是指windows内置的管理员账户(Administrator)对此目录有完整的控制权限,第二行类似;第三行是windows内置de
 
 ## 相关的powershell命令
 
@@ -58,7 +121,15 @@ SDDL 是 Security Descriptor Definition Language（安全描述符定义语言�
 
 SDDL 字符串通常包含一系列编码的访问控制条目，每个条目定义了一组权限和与之关联的安全主体（如用户或组）。这些字符串可以通过命令行工具、脚本或编程接口来生成、解析和应用，便于自动化权限管理和安全策略的部署。
 
-例如，一个简化的 SDDL 字符串可能看起来像这样：`O:SYG:SYD:(A;OICIIO;GA;;;SY)(A;OICIIO;GA;;;BA)`, 其中每个部分代表安全描述符的不同组件，如所有者（Owner, O:）、组（Group, G:）、DACL（D:）和各个访问控制项（ACE）。
+例如，一个简化的 SDDL 字符串可能看起来像这样：
+
+```
+Sddl                    : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-22337230
+                          87-916622917-1001D:PAI(D;OICI;DCLCRPCR;;;BU)(A;OICI;FA;;;WD)(A;OICI;0x1201bf;
+                          ;;AU)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;BU)
+```
+
+ 其中每个部分代表安全描述符的不同组件，如所有者（Owner, O:）、组（Group, G:）、DACL（D:）和各个访问控制项（ACE）。
 
 由于 SDDL 直接关系到系统的安全配置，通常需要管理员级别的权限才能进行相关操作。
 
@@ -72,27 +143,12 @@ SDDL 字符串通常包含一系列编码的访问控制条目，每个条目定
 
 这个命令默认没有别名,如果需要可以设置为acl
 
-该命令具有很多功能,这里仅介绍最常用和最基本的功能,例如查看文件所有者
+该命令具有很多功能,这里仅介绍最常用和最基本的功能
 
-```powershell
-Set-Alias -name acl -Value Get-Acl
-```
-
-例如
-
-```powershell
-PS> acl .\RecycleBinDir\
-
-    Directory: C:\
-
-Path          Owner             Access
-----          -----             ------
-RecycleBinDir COLORFULCXXU\cxxu NT AUTHORITY\SYSTEM Allow  FullControl…
-```
-
-
+### 查看文件所有者
 
 1. **打开 PowerShell**：
+   
    - 如果需要修改访问控制权限,请以管理员身份运行 PowerShell。
    - 可以通过在开始菜单搜索“PowerShell”，然后右键点击“Windows PowerShell”或“PowerShell”并选择“以管理员身份运行”。
    
@@ -217,7 +273,7 @@ Set-NtObjectOwner -Path "C:\example" -Account "NT AUTHORITY\Administrators"
 
 **注意：** 修改文件或目录的所有者可能需要管理员权限，并且在某些安全策略严格的环境中可能会受到限制。
 
-### 使用set-acl设置
+### 使用set-acl设置文件拥有者
 
 ```powershell
 # 设置目录路径和新所有者
@@ -239,31 +295,64 @@ Set-Acl -Path $directoryPath -AclObject $acl
 
 ## 设置访问权限
 
-为了提高代码的复用性和灵活性，我们可以将上述脚本抽象成一个函数，允许用户指定目录路径和是否清除现有权限等参数。下面是一个示例：
+允许用户指定目录路径和是否清除现有权限等参数。
 
 ```powershell
-function Grant-FullControlToEveryone {
+
+function Grant-PermissionToPath
+{
+    <# 
+    .SYNOPSIS
+    可以清除某个目录的访问控制权限,并设置权限,比如让任何人都可以完全控制的状态
+    这是一个有风险的操作;建议配合其他命令使用,比如清除限制后再增加约束
+    .DESCRIPTION
+    设置次函数用来清理发生权限混乱的文件夹,可以用来做共享文件夹的权限控制强制开放
+    .EXAMPLE
+    PS [C:\]> Grant-PermissionToPath -Path C:/share1 -ClearExistingRules
+    True
+    True
+    已成功将'C:/share1'的访问权限设置为允许任何人具有全部权限。
+    .PARAMETER Path
+    需要执行访问控制权限修改的目录
+    .PARAMETER Group
+    指定文件夹要授访问权限给那个组,结合Permission参数,指定该组对Path具有则样的访问权限
+    默认值为:'Everyone'
+    .PARAMETER Permission
+    增加/赋于新的访问控制权限,可用的合法值参考:https://learn.microsoft.com/zh-cn/dotnet/api/system.security.accesscontrol.filesystemrights?view=net-8.0
+    .PARAMETER ClearExistingRules
+    清空原来的访问控制规则
+    .NOTES
+    需要管理员权限,相关api参考下面连接
+    .LINK
+     相关AIP文档:https://learn.microsoft.com/zh-cn/dotnet/api/system.security.accesscontrol.filesystemaccessrule?view=net-8.0
+    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
         [string]$Path,
+        $Group = 'Everyone',
+        # 指定下载权限
+        $permission = 'FullControl',
 
-        [Parameter(Mandatory=$false)]
         [switch]$ClearExistingRules
+
     )
 
-    try {
+    try
+    {
         # 获取目标目录的当前 ACL
         $acl = Get-Acl -Path $Path
 
         # 创建允许“任何人（Everyone）”具有“完全控制”权限的新访问规则
         $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-            "Everyone",
-            "FullControl",
-            "Allow"
+            $Group,
+            $permission, 
+            'ContainerInherit, ObjectInherit',
+            'None',
+            'Allow'
         )
 
-        if ($ClearExistingRules) {
+        if ($ClearExistingRules)
+        {
             # 如果指定了清除现有规则，则先移除所有现有访问规则
             $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
         }
@@ -276,25 +365,16 @@ function Grant-FullControlToEveryone {
 
         Write-Host "已成功将'$Path'的访问权限设置为允许任何人具有全部权限。"
     }
-    catch {
+    catch
+    {
         Write-Error "设置权限时出错: $_"
     }
 }
+
+
 ```
 
-现在，你可以像下面这样调用这个函数，根据需要选择是否清除现有权限：
 
-```powershell
-Grant-FullControlToEveryone -Path "C:\路径\到\目录" -ClearExistingRules
-```
-
-或者，如果不希望清除现有权限，只需省略 `-ClearExistingRules` 参数：
-
-```powershell
-Grant-FullControlToEveryone -Path "C:\路径\到\目录"
-```
-
-这个函数提供了一个更灵活的方式来控制权限设置，同时保持了脚本的简洁和易用性。
 
 ## 移除某个用户的权限
 

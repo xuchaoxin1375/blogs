@@ -29,7 +29,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
 
 - [局域网共享一键通 v2.0.9.8 – 杏雨梨云启动维护系统 (xyboot.com)](https://www.xyboot.com/lanshare_onekey_ok/)
   - 这个软件支持直接设置匿名可访问的共享文件夹,共享局域网内的打印机设备
-  - 但是软件细节我并不清楚,有次设置匿名访问共享文件夹时翻车了,导致原来可以访问的共享文件夹无法访问了;也导致设备上的用户无法被远程登录,使用有一定风险
+  - 但是软件细节我并不清楚,有次设置匿名访问共享文件夹时翻车了,导致原来可以访问的共享文件夹无法访问了;也导致设备上的用户无法被远程登录,使用有一定风险(内部应该会修改组策略,注册表等)
   - 如果发生这种情况,使用该软件重新设置一个有密码的专用账户来登录
 - 如果您不关心匿名登录,追求更加可控的一键设置,那么使用下面的脚本创建共享文件夹会更加方便和直接
 
@@ -44,48 +44,133 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[modulesByCxxu/deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/deploy/deploy.psm1)
   
   ```powershell
-  function Deploy-SmbSharing
+  #下面这四个函数是用来启用网络共享和网络发现的并部署带有使用说明文档的共享文件夹
+  function Grant-PermissionToPath
   {
-  
-      
       <# 
       .SYNOPSIS
-      #功能:快速创建一个可用的共享文件夹,能够让局域网内的用户访问您的共享文件夹
-      # 使用前提要求:需要使用管理员权限窗口运行powershell命令行窗口
+      可以清除某个目录的访问控制权限,并设置权限,比如让任何人都可以完全控制的状态
+      这是一个有风险的操作;建议配合其他命令使用,比如清除限制后再增加约束
+      .DESCRIPTION
+      设置次函数用来清理发生权限混乱的文件夹,可以用来做共享文件夹的权限控制强制开放
       .EXAMPLE
-      # 指定共享名称为ShareDemo，其他参数默认:共享目录为C:\Share，权限为Change，用户为ShareUser，密码为1
-      PS> Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1
-      
+      PS [C:\]> Grant-PermissionToPath -Path C:/share1 -ClearExistingRules
+      True
+      True
+      已成功将'C:/share1'的访问权限设置为允许任何人具有全部权限。
+      .PARAMETER Path
+      需要执行访问控制权限修改的目录
+      .PARAMETER Group
+      指定文件夹要授访问权限给那个组,结合Permission参数,指定该组对Path具有则样的访问权限
+      默认值为:'Everyone'
+      .PARAMETER Permission
+      增加/赋于新的访问控制权限,可用的合法值参考:https://learn.microsoft.com/zh-cn/dotnet/api/system.security.accesscontrol.filesystemrights?view=net-8.0
+      .PARAMETER ClearExistingRules
+      清空原来的访问控制规则
       .NOTES
-      访问方式共享文件夹的方式参考其他资料 https://cxxu1375.blog.csdn.net/article/details/140139320
+      需要管理员权限,相关api参考下面连接
+      .LINK
+       相关AIP文档:https://learn.microsoft.com/zh-cn/dotnet/api/system.security.accesscontrol.filesystemaccessrule?view=net-8.0
       #>
-      
+      [CmdletBinding()]
       param(
-          # 指定一个目录作为共享文件夹
-          $p = 'C:\Share', #推荐尽可能短的目录(可以自定义,但是层级不宜深)
-          $ShareName = 'Share', #如果您之前有过共享文件夹,并且名字也是Share,那么就需要修改名字
-          $Permission = 'Change', #合法的值有:Read,Change,Full 权限从低到高 分别是只读(Read),可读可写(change),完全控制(full)
-          # 指定专门用来访问共享文件夹的用户(这不是必须的,您可以用自己的用户和密码,但是不适合把自己的私人账户密码给别人访问,所以推荐建立一个专门的用户角色用于访问共享文件夹)
-          $SmbUser = 'Smb', #如果本地已经有该用户，那么建议改名
-          # [SecureString] $password = '1' #密码可以改,但是建议尽可能简单,默认为1
-          $password = '1'
+          [string]$Path,
+          $Group = 'Everyone',
+          # 指定下载权限
+          $permission = 'FullControl',
+  
+          [switch]$ClearExistingRules
+  
       )
-      #启用文件共享功能以及网络发现功能(后者是为了方便我们免ip访问,不是必须的)
   
-      #对于中文系统
-      netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
-      netsh advfirewall firewall set rule group="网络发现" new enable=Yes
-      #对于英文系统
-      netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
-      netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
-  
-      $exist = (Test-Path $p)
-      if (! $exist)
+      try
       {
-          mkdir $p
+          # 获取目标目录的当前 ACL
+          $acl = Get-Acl -Path $Path
+  
+          # 创建允许“任何人（Everyone）”具有“完全控制”权限的新访问规则
+          $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+              $Group,
+              $permission, 
+              'ContainerInherit, ObjectInherit',
+              'None',
+              'Allow'
+          )
+  
+          if ($ClearExistingRules)
+          {
+              # 如果指定了清除现有规则，则先移除所有现有访问规则
+              $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+          }
+  
+          # 添加新规则到 ACL
+          $acl.SetAccessRule($rule)
+  
+          # 应用修改后的 ACL 到目标目录
+          Set-Acl -Path $Path -AclObject $acl
+  
+          Write-Host "已成功将'$Path'的访问权限设置为允许任何人具有全部权限。"
       }
-      $readmeFile = "$p\readme.txt"
-      $readmeFileZh = "$p\readme_zh-cn(本共享文件夹使用说明).txt"
+      catch
+      {
+          Write-Error "设置权限时出错: $_"
+      }
+  }
+  
+  function Enable-NetworkDiscoveyAndSharing
+  {
+      <# 
+      .SYNOPSIS
+      启用共享文件夹和网络发现
+      这里通过防火墙设置来实现,可以指定中英文系统语言再执行防火墙设置
+      .EXAMPLE
+      PS C:\> Enable-NetworkDiscoveyAndSharing
+      No rules match the specified criteria.
+      No rules match the specified criteria.
+      Updated 30 rule(s).
+      Ok.
+      Updated 62 rule(s).
+      Ok.
+      PS C:\> Enable-NetworkDiscoveyAndSharing -Language Chinese
+      No rules match the specified criteria.
+      No rules match the specified criteria.
+      PS C:\> Enable-NetworkDiscoveyAndSharing -Language English
+      Updated 30 rule(s).
+      Ok.
+      Updated 62 rule(s).
+      Ok.
+      #>
+      param (
+          [validateset('Chinese', 'English', 'Default')]$Language = 'Default'
+      )
+      #对于中文系统
+      $c = { netsh advfirewall firewall set rule group="文件和打印机共享" new enable=Yes
+          netsh advfirewall firewall set rule group="网络发现" new enable=Yes }
+      #对于英文系统
+      $e = { netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+          netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes }
+      switch ($Language)
+      {
+          'Chinese' { & $c ; break }
+          'English' { & $e ; break }
+          Default { & $c; & $e }
+      }
+  }
+  function New-SmbSharingReadme
+  {
+      <# 
+      .SYNOPSIS
+      创建共享文件夹说明文件,一般不单独使用,请把此函数当作片段,需要在其他脚本或函数内部调用以填充字符串内部的变量
+      .DESCRIPTION
+      下面的分段字符串内引用了此函数没有定义的变量
+      而在配合其他函数(Deploy-Smbsharing内部调用)则是可以访问Deploy-SmbSharing内部定义的局部变量
+      因此这里无需将变量搬动到这里来,甚至可以放空
+      #>
+      param (
+          # 也可以把这组参数复制到Deploy-Smbsharing内部,而在这里设置为空, 在Deploy-SmbSharing 内部以显式传参的方式调用此函数;
+          $readmeFile = "$Path\readme.txt",
+          $readmeFileZh = "$Path\readme_zh-cn(本共享文件夹使用说明).txt"
+      )
       # 创建说明文件(默认为英文说明)
       @'
   Files,folders,and links(symbolicLinks,JunctionLinks,HardLinks are supported to be shared )
@@ -96,7 +181,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
       @"
   Server(ComputerName): $env:COMPUTERNAME 
   UserName: $smbUser
-  Password: $password
+  Password: $SmbUserKey
   
   (if Server(ComputerName) is not available, please use IP address(use `ipconfig` to check))
   
@@ -115,6 +200,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   See more detail in https://docs.microsoft.com/en-us/powershell/module/smbshare/new-smbshare
   '@ > "$readmeFile"
   
+  
       #添加中文说明
       @'
   支持共享文件、文件夹以及链接（包括符号链接、联合链接和硬链接）。
@@ -126,7 +212,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
       @"
   Server(ComputerName): $env:COMPUTERNAME 
   用户名: $smbUser
-  密码: $password
+  密码: $SmbUserKey
   
   （如果服务器主机名（ComputerName）不可用，请使用IP地址（使用ipconfig检查））
   
@@ -141,36 +227,172 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   这意味着用户无需安装支持 SMB 协议的其他软件，仅需一个网络浏览器即可。
   
   更多信息请参阅 https://docs.microsoft.com/zh-cn/powershell/module/smbshare/new-smbshare
-  '@ > $readmeFileZh
+  '@ > "$readmeFileZh"
   
-      # "$p\A Readme File@This is a shared folder! Place anything here to share with others.txt"
-  
-  
-      # 创建共享文件夹
-      "New-SmbShare -Name $ShareName -Path $p -${Permission}Access 'Everyone'" | Invoke-Expression #这里赋予任意用户修改权限(包含了可读权限和修改权限)
-      $res = glu -Name "$SmbUser" -ErrorAction Ignore
-      if (! $res)
-      {
-          # 权限要求:需要使用管理员权限窗口运行命令
-          #方案1:使用net user 命令来创建带密码新用户(不要求安全性的共享凭证账户)
-          net user $SmbUser $password /add /expires:never #这里添加的用户是永不过期的，更多参数查看官网文档
-  
-          #方案2:使用powershell方案来创建带密码新用户(
-          # $password = Read-Host "Enter password For $SmbUser" -AsSecureString
-          # 使用windows自带的powershell执行New-LocalUser不会报错,部分windows版本可能会报错,所以这里添加了一个导入语句,根据需要来添加或者移除(注释掉)这一行导入语句)
-          # Import-Module microsoft.powershell.localaccounts -UseWindowsPowerShell
-          # New-LocalUser -Name $SmbUser -Password $password -AccountNeverExpires 
-  
-      }
-   
   }
   
-  #调用上述函数(您也可以修改参数)
-  Deploy-Smbsharing 
-  # 自定义参数的例子
-  Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1 
+  function Deploy-SmbSharing
+  {
+      <# 
+      .SYNOPSIS
+      #功能:快速创建一个可用的共享文件夹,能够让局域网内的用户访问您的共享文件夹
+      # 使用前提要求:需要使用管理员权限窗口运行powershell命令行窗口
+      
+      .DESCRIPTION
+      如果这个目录将SmbUser的某个权限(比如读/写)设置为Deny，那么纵使设置为FullControl,也会被Deny的项覆盖,SmbUser就会确实相应的权限,甚至无法访问),
+      因此,这里会打印出来目录的NTFS权限供用户判断是否设置了Deny
+      反之,如果某个用户User1处于不同组内,比如G1,G2组,分别有读权限和写权限,那么最终User1会同时具有读/写权限,除非里面有一个组设置了Deny选项
+      注意:没有显式地授予某个组的某个权限不同于设置Deny
+  
+      一个思路是新建一个SMB组,设置其拥有对被共享文件夹的权限,然后新建一个目录将其加入到SMB组中
+      .EXAMPLE
+      # 指定共享名称为ShareDemo，其他参数默认:共享目录为C:\Share，权限为Change，用户为ShareUser，密码为1
+      PS> Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1
+      .EXAMPLE
+      完整运行过程(逃过次要信息)
+      使用强制Force参数修改被共享文件夹的权限(默认为任意用户完全控制,如果需要进一步控制,需要开放更多参数,为了简单起见,这里就默认选项)
+      PS C:\> Deploy-SmbSharing -Path C:\share -SmbUser smb2 -SmbUserkey 1 -Force
+  
+      No rules match the specified criteria.
+      No rules match the specified criteria.
+      Updated 30 rule(s).
+      Ok.
+      Updated 62 rule(s).
+      Ok.
+      文件夹已存在：C:\share
+      Share name        Share
+      Path              C:\share
+      Remark
+      Maximum users     No limit
+      Users
+      Caching           Manual caching of documents
+      Permission        Everyone, CHANGE
+  
+      The command completed successfully.
+  
+      The command completed successfully.
+  
+      已成功将'C:\share'的访问权限设置为允许任何人具有全部权限。
+      Name  ScopeName Path     Description
+      ----  --------- ----     -----------
+      Share *         C:\share
+      共享已创建：Share
+      共享专用用户已创建：smb2
+      True
+  ...
+      True
+      已为用户 smb2 设置文件夹权限
   
   
+      PSPath                  : Microsoft.PowerShell.Core\FileSystem::C:\share
+    ...
+      CentralAccessPolicyId   :
+      Path                    : Microsoft.PowerShell.Core\FileSystem::C:\share
+      Owner                   : CXXUCOLORFUL\cxxu
+      Group                   : CXXUCOLORFUL\None
+      Access                  : {System.Security.AccessControl.FileSystemAccessRule}
+      Sddl                    : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-22337230
+                              87-916622917-513D:PAI(A;OICI;FA;;;WD)
+      AccessToString          : Everyone Allow  FullControl
+      AuditToString           :
+  
+      .NOTES
+      访问方式共享文件夹的方式参考其他资料 https://cxxu1375.blog.csdn.net/article/details/140139320
+      #>
+      param (
+          
+          # 定义共享文件夹路径和共享名称
+          $Path = 'C:\Share',
+          $ShareName = 'Share',
+          [ValidateSet('Read', 'Change', 'Full')]$Permission = 'Change', #合法的值有:Read,Change,Full 权限从低到高 分别是只读(Read),可读可写(change),完全控制(full)
+          
+           #指定是否不创建新用户(仅使用已有用户凭证访问smb文件)
+          # 这里的Mandatory=$true不能轻易移除,本函数用了参数集,并且基本上都用默认参数来使配置更简单;为了让powershell能够在不提供参数的情况下分辨我们调用的是哪个参数集，这里使用了Mandatory=$true来指定一个必须显式传递的参数,让函数能够不提供参数可调用
+          [parameter(Mandatory=$true ,ParameterSetName = 'NoNewUser')]
+          [switch]$NoNewUserForSmb,
+  
+          # [parameter(ParameterSetName = 'SmbUser')]
+          # [switch]$NewUserForSmb,
+  
+          # 指定专门用来访问共享文件夹的用户(这不是必须的,您可以用自己的用户和密码,但是不适合把自己的私人账户密码给别人访问,所以推荐建立一个专门的用户角色用于访问共享文件夹)
+          [parameter(ParameterSetName = 'SmbUser')]
+          $SmbUser = 'Smb', #如果本地已经有该用户，那么建议改名
+          #密码可以改,但是建议尽可能简单,默认为1(为了符合函数设计的安全规范,这里不设置明文默认密码)
+          [parameter(ParameterSetName = 'SmbUser')]
+          $SmbUserkey = '1',
+          # 设置宽松的NTFS权限(但是仍然不一定会生效),如果可以用,尽量不要用Force选项
+          [switch]$Force
+      )
+      #启用文件共享功能以及网络发现功能(后者是为了方便我们免ip访问,不是必须的)
+  
+      Enable-NetworkDiscoveyAndSharing
+  
+      # 检查文件夹是否存在，如果不存在则创建
+      if (-Not (Test-Path -Path $Path))
+      {
+          New-Item -ItemType Directory -Path $Path
+          Write-Output "文件夹已创建：$Path"
+      }
+      else
+      {
+          Write-Output "文件夹已存在：$Path"
+      }
+  
+      # 创建共享
+      # New-SmbShare -Name $ShareName -Path $Path -FullAccess Everyone
+      # 创建共享文件夹(允许任何(带有凭证的)人访问此共享文件夹)
+      "New-SmbShare -Name $ShareName -Path $Path -${Permission}Access 'Everyone'" | Invoke-Expression #这里赋予任意用户修改权限(包含了可读权限和修改权限)
+      Write-Output "共享已创建：$ShareName"
+  
+      #显示刚才创建的(或者已有的)$ShareName共享信息
+      net share $ShareName #需要管理员权限才可以看到完整信息
+  
+      if ($PSCmdlet.ParameterSetName -eq 'SmbUser'  )
+      {
+  
+          $res = glu -Name "$SmbUser" -ErrorAction Ignore
+          if (! $res)
+          {
+              # 定义新用户的用户名和密码
+              $username = $SmbUser
+  
+              # 创建新用户(为了规范起见,最好在使用本地安全策略将Smb共享账户设置为禁止本地登录(加入本地登录黑名单,详情另见它文,这个步骤难以脚本化))
+              net user $username $SmbUserKey /add /fullname:"Shared Folder User" /comment:"User for accessing shared folder" /expires:never 
+              # 由于New-LocalUser在不同windows平台上可能执行失败,所以这里用net user,而不是用New-LocalUser
+              # New-LocalUser -Name $username -Password $SmbUserKey -FullName 'Shared Folder User' -Description 'User for accessing shared folder'
+              # 将新用户添加到Smb共享文件夹的用户组,这不是必须的(默认是没有SMB组的)
+              # Add-LocalGroupMember -Group 'SMB' -Member $username
+              Write-Output "共享专用用户已创建：$username"
+          }
+          else
+          {
+              Write-Error '您指定的用户名已经被占用,更换用户名或者使用已有的账户而不再创建新用户'
+              return
+          }
+      }
+      else
+      {
+          Write-Host '您未选择创建专门用于访问Smb共享文件夹的用户,请使用已有的用户账户及密码(不是pin码)作为访问凭证' -ForegroundColor Blue
+      }
+      if ($force)
+      {
+          # 设置共享文件夹权限(NTFS权限)
+          Grant-PermissionToPath -Path $Path -ClearExistingRules
+          Write-Output "已为用户 $username 设置文件夹权限"
+      }
+      # 查看目录的权限列表,如果需要进一步确认,使用windows自带的effective Access 查看
+      Get-Acl $Path | Format-List *
+  
+      # 创建Smb共享文件夹的README
+      New-SmbSharingReadme
+      
+  }
+  
+  #调用:
+  #无参数默认调用
+  Deploy-SmbSharing
+  #自定义参数举例
+  # Deploy-SmbSharing -Path C:\share -SmbUser smb2 -SmbUserkey 1 -Force
 
 Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相关功能,那么执行完上述脚本,您的`C:\`下有一个`Share`目录,并且里面有说明文档
 
@@ -184,7 +406,7 @@ Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相�
 
 ## 访问共享文件夹(Client)
 
-执行完上述脚本,现在,您所在的网络(局域网)内的其他设备就可以通过专用的账户`SmbUser`及其密码`1`来访问您创建的共享文件夹了,访问  共享文件夹一般也很简单,但是由于访问形式的多样性和共享文件夹拥有着对文件夹的权限设置(包括共享权限和NTFS权限控制),用户可能会在访问时遇到问题
+执行完上述脚本,现在,您所在的网络(局域网)内的其他设备就可以通过专用的账户`$SmbUser`及其密码`$SmbUserkey`来访问您创建的共享文件夹了,访问  共享文件夹一般也很简单,但是由于访问形式的多样性和共享文件夹拥有着对文件夹的权限设置(包括共享权限和NTFS权限控制),用户可能会在访问时遇到问题
 
 访问共享文件夹的方式有**两大类**
 

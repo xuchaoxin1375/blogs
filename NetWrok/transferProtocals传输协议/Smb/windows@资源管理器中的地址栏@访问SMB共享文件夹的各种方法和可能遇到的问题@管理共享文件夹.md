@@ -548,7 +548,15 @@ WSMan                                  WSMan
 
 - 方法2:从资源管理器中找到目标文件夹,右键更改访问权限,选择移除访问权限(remove access),但是不一定所有文件夹都能找到移除按钮
 
-## 共享文件夹的访问控制补充
+
+
+## 补充
+
+### 协议相关信息参考
+
+- [使用 Windows Server 中的 SMB 3 协议的文件共享概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/storage/file-server/file-server-smb-overview)
+
+## FAQ
 
 ### 匿名访问问题😊
 
@@ -587,11 +595,7 @@ WSMan                                  WSMan
 
 - 可以考虑启用smb v1,似乎可以匿名访问,但不建议使用,可以简单创建一个专门访问共享文件夹的简单用户即可
 
-### 协议相关信息参考
 
-- [使用 Windows Server 中的 SMB 3 协议的文件共享概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/storage/file-server/file-server-smb-overview)
-
-## FAQ
 
 ### 共享文件夹文件被病毒查杀软件隔离或删除
 
