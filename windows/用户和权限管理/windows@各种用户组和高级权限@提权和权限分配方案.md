@@ -200,7 +200,7 @@ Sddl   : O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464G:S-1-5
    - **网络服务账户 (Network Service Account)**: 一个具有更高网络权限的账户，用于运行需要网络访问的服务。
 
 
-## 高级权限
+## 高级权限👺
 
 windows操作系统中，**TrustedInstaller**、**System**和**Administrator**都是具有高度权限的账户或服务，负责管理和维护系统的不同方面。
 
@@ -212,15 +212,45 @@ windows操作系统中，**TrustedInstaller**、**System**和**Administrator**�
 | System           | 运行操作系统的核心服务和进程           | 系统服务的特殊权限,windows安装时的重要角色权限 | 一般不面相用户,有提权方法和工具              |
 | Administrator    | 管理系统设置、安装软件、用户账户管理等 | 对大部分系统文件和注册表项有高权限             | 最常见的高级权限,但是不如linux中的root那么高 |
 
-
-
-### 总结
-
 - **TrustedInstaller**：主要用于系统组件和更新的安装和管理，对某些关键系统文件有最高权限。
 - **System**：用于运行系统核心服务和进程，具有对整个系统的完全控制权。
 - **Administrator**：用于日常系统管理任务，虽然权限很高,但是比不上Linux中root权限的地位那么高，但在某些受保护的系统文件和设置方面受到限制。
 
-了解这些账户和服务的不同权限和职责，有助于更好地管理和维护Windows操作系统，确保系统的安全和稳定运行。
+| 权限等级         | 主要用途                                           | 权限级别 |
+| ---------------- | -------------------------------------------------- | -------- |
+| 普通用户         | 运行应用程序，日常操作                             | 低       |
+| 管理员           | 安装/卸载软件，修改系统设置，管理用户              | 较高     |
+| SYSTEM           | 运行系统服务和后台任务，几乎所有资源的访问权限     | 高       |
+| TrustedInstaller | 修改和替换系统核心文件，保护操作系统文件和注册表键 | 最高     |
+
+## windows中的管理员组和成员
+
+- windows内置了一个管理员账户`Administrator`,在许多非官方镜像安装后默认就是`Adminstrator`
+- 然而Microsoft为了安全起见,在系统安装完毕后会让禁用内置的`Adminstrator`账户,并且引导用户(第一个用户,一般是设备的拥有者)创建一个自己的用户账户,这个账户隶属于`Administrators`组
+- 为了便于讨论,称这个用户自创的账户为`User1`,虽然`A1` 隶属于`Adminstrators`组,但是平时执行任务时的权限水平就是一个普通用户的水平
+- 与一个不属于管理员账户的普通用户(为了便于讨论记为`U1`)不同的地方在于,`A1`在遇到需要`Administrator`权限时可以一般可以直接右键使用管理员权限运行,而真正普通用户`U1`在这种情况下需要输入某个管理员组内的用户的密码来获取授权(比如获取`A1`用户的账户密码),步骤上比较繁琐
+- 这是windows处于安全考虑,并不会让`Administrators`组内的用户总是处于管理员权限,反之,大多数是以普通权限操作计算机(最常见的是以管理员权限运行命令行窗口);
+- 只有windows内置的管理员账户`Administrator`才是常态以管理员权限执行任务了，这可能是许多非官方镜像修改版钟爱`Administrator`这个内置用户的原因,但是这显然不如使用自己创建的`A1`来的安全
+- 也就是说,只有windwos内置的`Administrator`账户才比较接近`Linux`中的`root`用户
+- 而其他非内置的`Administrators`用户运行需要管理员权限的任务时就想调用`sudo`命令一样
+  - windows上Linux(Debian系)系统的`sudo`提权模块,比如`gsudo`
+  - 在windows 24h2后开始内置`sudo`命令(代发者选项中启用)
+
+### 普通用户间的访问权限
+
+- 假设windwos 系统上的u1用户在功能目录`C:\temp`内创建了文件`f1`,那么另一个普通用户`u2`一般对`f1`可读可写可删除
+- 但是如果`u1`用户在自己的家目录创建了`f2`文件,那么`u2`用户通常无法访问`f2`(甚至连第一层家目录都无法访问),而如果`u3`是属于管理员组的用户,那么可以通过调用管理员权限来访问(使用命令行要比使用资源管理器更快取得访问权限,一般不建议这么做,可能会导致被强行访问的`u1`用户内的某些凭证文件(比如`~/.ssh`内的文件发生权限异常))
+
+## windows上提取和分配权限的方案👺
+
+### gsudo
+
+- [GitHub - gerardog/gsudo: Sudo for Windows](https://github.com/gerardog/gsudo)
+
+### nsudo
+
+- [NSudo/Manual/用户手册.md at master · M2TeamArchived/NSudo · GitHub](https://github.com/M2TeamArchived/NSudo/blob/master/Manual/用户手册.md)
+- [Releases · M2TeamArchived/NSudo (github.com)](https://github.com/M2TeamArchived/NSudo/releases)
 
 ## windows用户权限
 

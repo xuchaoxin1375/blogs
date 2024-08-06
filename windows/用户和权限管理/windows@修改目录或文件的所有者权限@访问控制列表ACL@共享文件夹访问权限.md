@@ -33,7 +33,7 @@ To add an exception for this directory, call:
 
 可以尝试移除分配给不明的用户权限;如果无法直接修改,则先尝试取消**权限继承**,然后再修改或移除特定用户对相应文件夹的访问权限
 
-## 共享文件夹的访问控制权限
+### 共享文件夹的访问控制权限
 
 出来本地文件夹的**NTFS访问控制权限**,设置了共享的文件夹还有单独的**共享访问权限**,也就是对于共享文件夹,有两层访问控制权限设置
 
@@ -61,7 +61,7 @@ To add an exception for this directory, call:
 - 如果你将共享权限配置为更改（Change），你可以读取或修改共享的数据。如果文件系统权限设置为完全控制（Full Control），共享权限会将有效权限过滤为修改（Modify）。
 - 相反，如果共享权限设置为完全控制（Full Control），但用户对文件夹的NTFS权限设置为读取（Read），则有效权限为读取。
 
-### 简单查看路径的访问控制权限
+## 简单查看路径的访问控制权限
 
 我们可以用`Get-Acl`来查看指定目录或文件的访问控制权限
 
@@ -83,7 +83,7 @@ Sddl   : O:S-1-5-21-1150093504-2233723087-916622917-1001G:S-1-5-21-1150093504-22
 ```
 
 - 其中最直观的是路径对象的拥有着(owner)以及Access(访问控制权限)
-- 上面的例子中,有5行权限记录,第一行是指windows内置的管理员账户(Administrator)对此目录有完整的控制权限,第二行类似;第三行是windows内置de
+- 上面的例子中,有5行权限记录,第一行是指windows内置的管理员账户(Administrator)对此目录有完整的控制权限,第二行类似;
 
 ## 相关的powershell命令
 
@@ -224,27 +224,414 @@ PS> $acl.Owner
 BUILTIN\Administrators
 ```
 
-## 修改访问控制信息
+## icacls 修改文件或目录的访问权限
+
+[icacls | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/icacls)
+
+- 显示或修改指定文件上的随机访问控制列表 (DACL)，并将存储的 DACL 应用于指定目录中的文件。
+
+`icacls`是Windows操作系统中用于管理文件和目录访问权限的命令行工具。它的名称代表"**Integrity Control Access Control Lists**"。以下是对icacls命令的详细介绍：
+
+1. 基本用途：
+   `icacls`用于显示或修改文件和文件夹的访问控制列表(ACL)。它允许管理员精确控制用户和组对文件系统对象的访问权限。
+
+2. 语法：
+   基本语法为：`icacls <文件名> [/选项] [/T] [/C] [/L] [/Q]`
+
+   使用`icacls  /?`获取本地使用手册 (手册中`perm`是`permission`的缩写)
+
+   ```powershell
+   
+   ICACLS name /save aclfile [/T] [/C] [/L] [/Q]
+       stores the DACLs for the files and folders that match the name
+       into aclfile for later use with /restore. Note that SACLs,
+       owner, or integrity labels are not saved.
+   
+   ICACLS directory [/substitute SidOld SidNew [...]] /restore aclfile
+                    [/C] [/L] [/Q]
+       applies the stored DACLs to files in directory.
+   
+   ICACLS name /setowner user [/T] [/C] [/L] [/Q]
+       changes the owner of all matching names. This option does not
+       force a change of ownership; use the takeown.exe utility for
+       that purpose.
+   
+   ICACLS name /findsid Sid [/T] [/C] [/L] [/Q]
+       finds all matching names that contain an ACL
+       explicitly mentioning Sid.
+   
+   ICACLS name /verify [/T] [/C] [/L] [/Q]
+       finds all files whose ACL is not in canonical form or whose
+       lengths are inconsistent with ACE counts.
+   
+   ICACLS name /reset [/T] [/C] [/L] [/Q]
+       replaces ACLs with default inherited ACLs for all matching files.
+   
+   ICACLS name [/grant[:r] Sid:perm[...]]
+          [/deny Sid:perm [...]]
+          [/remove[:g|:d]] Sid[...]] [/T] [/C] [/L] [/Q]
+          [/setintegritylevel Level:policy[...]]
+   ....
+   ```
+
+   或者阅读在线手册
+
+   ```cmd
+   icacls <filename> [/grant[:r] <sid>:<perm>[...]] [/deny <sid>:<perm>[...]] [/remove[:g|:d]] <sid>[...]] [/t] [/c] [/l] [/q] [/setintegritylevel <Level>:<policy>[...]]
+   
+   icacls <directory> [/substitute <sidold> <sidnew> [...]] [/restore <aclfile> [/c] [/l] [/q]]
+   ```
+
+   
+
+3. 常用选项：
+   - /grant：授予指定用户或组特定权限
+   - /deny：拒绝指定用户或组特定权限
+   - /remove：移除指定用户或组的权限
+   - /setowner：**设置所有者**(这个功能选项不强制,使用takeown命令来强制,但是仍然不保证)
+   - /reset：重置ACL到默认继承的ACL
+   - /T：**递归**应用到所有子文件夹和文件
+   - /C：在出错时继续操作
+   - /L：对符号链接本身进行操作，而不是它们的目标
+   - /Q：抑制成功消息
+
+4. 权限类型：
+   - F (完全控制)
+   - M (修改)
+   - RX (读取和执行)
+   - R (读取)
+   - W (写入)
+   - 此外还有高级权限...
 
 
+### 使用cmd和管理员权限执行icacls
 
-### 修改目录或文件的所有者
+- 建议使用cmd执行`icacls`命令,因为powershell直接执行会遇到括号时会造成错误解析
+- 或者通过一些手段将原本的命令行做修改
+- 修改访问控制权限一般要管理员权限
 
-在 PowerShell 中，修改文件或目录的所有者可以通过 `Set-ACL` (设置访问控制列表) 命令来实现。但直接使用 `Set-ACL` 修改所有者可能不够直观，通常我们会先获取当前的 ACL，修改其中的所有者信息，然后再将修改后的 ACL 应用回去。这里有一个更直接且常用的方法是使用 `icacls` 工具（在 Windows 系统中可用），或者使用 `Set-NtObjectOwner` 函数，如果你安装了 NTFSSecurity 模块的话。
+### 示例用法
 
-### 使用 icacls
+#### 显示文件的访问控制权限列表
 
-1. 打开 PowerShell（以管理员身份运行）。
-2. 使用以下命令格式更改指定目录的所有者：
+- 显示文件权限：`icacls <name>`
 
-```powershell
-icacls "C:\路径\到\目录" /setowner "用户名或域\用户名"
+  - ```cmd
+    PS C:\temp> icacls .\newfile.txt
+    .\newfile.txt BUILTIN\Administrators:(I)(F)
+                  NT AUTHORITY\SYSTEM:(I)(F)
+                  BUILTIN\Users:(I)(RX)
+                  NT AUTHORITY\Authenticated Users:(I)(M)
+    
+    Successfully processed 1 files; Failed processing 0 files
+    ```
+
+    这个输出显示了文件 "newfile.txt" 的访问控制列表（ACL）。
+
+    1. `.\newfile.txt` 
+       这是被查询的文件名。
+    2. `BUILTIN\Administrators:(I)(F)`
+       - BUILTIN\Administrators 是内置的管理员组
+       - (I) 表示这个权限是继承的（Inherited）
+       - (F) 表示完全控制（Full control）权限
+    3. `BUILTIN\Users:(I)(RX)`
+       - BUILTIN\Users 是内置的用户组
+       - (RX) 表示读取和执行（Read and Execute）权限
+    5. `NT AUTHORITY\Authenticated Users:(I)(M)`
+       - NT AUTHORITY\Authenticated Users 代表所有已认证的用户
+       - (M) 表示修改（Modify）权限
+
+
+#### 其他示例
+
+- 授予用户读写权限：`icacls C:\example.txt /grant John:(RW)`
+
+- 拒绝用户访问
+
+  - ```cmd
+    #查看设置前的权限
+    C:\Users\cxxu\Desktop>icacls C:/share1
+    C:/share1 BUILTIN\Administrators:(I)(OI)(CI)(F)
+              NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+              BUILTIN\Users:(I)(OI)(CI)(RX)
+              NT AUTHORITY\Authenticated Users:(I)(M)
+              NT AUTHORITY\Authenticated Users:(I)(OI)(CI)(IO)(M)
+    
+    Successfully processed 1 files; Failed processing 0 files
+    #设置拒绝写的权限
+    C:\Users\cxxu\Desktop>icacls C:\share1 /deny u1:(W)
+    processed file: C:\share1
+    Successfully processed 1 files; Failed processing 0 files
+    
+    C:\Users\cxxu\Desktop>icacls C:\share1
+    C:\share1 CXXUCOLORFUL\u1:(DENY)(W)
+              BUILTIN\Administrators:(I)(OI)(CI)(F)
+              NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+              BUILTIN\Users:(I)(OI)(CI)(RX)
+              NT AUTHORITY\Authenticated Users:(I)(M)
+              NT AUTHORITY\Authenticated Users:(I)(OI)(CI)(IO)(M)
+    ```
+
+-  移除被设置为拒绝的访问权限
+
+  - ```cmd
+    #将上例中的设置拒绝用户u1对目录C:\share1 进行写操作的设置撤销(回复u1账户的写权限)
+    C:\Users\cxxu\Desktop>icacls C:\share1 /remove:d u1
+    processed file: C:\share1
+    Successfully processed 1 files; Failed processing 0 files
+    
+    C:\Users\cxxu\Desktop>icacls C:\share1
+    C:\share1 BUILTIN\Administrators:(I)(OI)(CI)(F)
+              NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+              BUILTIN\Users:(I)(OI)(CI)(RX)
+              NT AUTHORITY\Authenticated Users:(I)(M)
+              NT AUTHORITY\Authenticated Users:(I)(OI)(CI)(IO)(M)
+    
+    Successfully processed 1 files; Failed processing 0 files
+    ```
+
+    
+
+- 递归修改文件夹权限：`icacls C:\folder /grant u1:(OI)(CI)(F) /T`
+
+### 重置权限分配
+
+例如,要清空 C:/share 目录的已有权限设置并重置为默认状态，可以使用 icacls 命令的 /reset 选项。
+
+```cmd
+ICACLS name /reset [/T] [/C] [/L] [/Q]
+    replaces ACLs with default inherited ACLs for all matching files.
 ```
 
-例如，要将目录 `C:\example` 的所有者更改为 `administrators` 组，可以执行：
+这将移除所有明确设置的权限，并恢复继承自父目录的默认权限。以下是具体步骤：
+
+1. 首先，以管理员身份打开命令提示符或 PowerShell。
+2. 使用以下命令重置 C:/share 目录的权限：
+
+```cmd
+icacls C:\share /reset /T
+```
+
+这个命令的解释：
+
+- `/reset` 选项会删除所有明确的权限条目，仅保留继承的权限。
+- `/T` 选项使命令递归应用到所有子文件夹和文件。
+
+1. 等待命令执行完毕。根据文件夹的大小和内容数量，这可能需要一些时间。
+2. 执行完成后，检查权限是否已重置：
+
+```cmd
+icacls C:\share
+```
+
+1. 如果你想在重置后为特定用户或组设置权限，可以使用 /grant 选项。例如，要给 Users 组读写权限：
+
+```cmd
+icacls C:\share /grant Users:(RW) /T
+```
+
+
+
+## takeown 命令设置文件或目录所有权
+
+[takeown | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/takeown)
+
+- 使管理员作为文件的所有者，恢复对之前被拒文件的访问权限。 此命令通常用于批处理文件。
+- Description:
+      This tool allows an administrator to recover **access** to **a file that was denied** by re-assigning file ownership.
+
+`takeown` 命令在 Windows 操作系统中用于获取文件或文件夹的所有权。通过获取所有权，你可以更改文件或文件夹的权限，以便进行修改。
+
+尽管如此,对于系统文件面前,takeown命令基本上很难管用,也就能管理一些普通用户的文件夹权限以及配置文件,例如系统的hosts文件
+
+例如这种方法无法设置`C:\windows\system32\`目录下的文件的系统内置可执行文件(比如`cmd.exe`的所有权)
+
+许多定制版系统内置的**右键管理员取得所有权**选项,基本上就是利用`takeown`命令来实现的
+
+总之如果需要修改系统核心文件,那么需要寻求更高的提权方案,比如获取`TrustedInstaller`权限
+
+
+
+### 语法
+
+通过执行命令行` takeown.exe /?`获取本地帮助文档
+
+```cmd
+TAKEOWN [/S system [/U username [/P [password]]]]
+        /F filename [/A] [/R [/D prompt]]
+```
+
+基本语法:
+
+```cmd
+takeown /F <文件或文件夹路径>
+```
+
+
+
+### 常用参数
+
+- `/F <文件或文件夹路径>`：指定你要获取所有权的文件或文件夹。
+- `/A`：将所有权分配给管理员组。
+- `/R`：递归获取文件夹及其子文件夹和文件的所有权。
+- `/D Y`：对于每个无法获取的文件或文件夹，默认响应为“是”。
+
+
+
+1. **递归获取文件夹及其子文件和文件夹的所有权**
+
+   ```cmd
+   takeown /F C:\Windows\System32\drivers /R
+   ```
+
+   这将获取 `drivers` 文件夹及其所有子文件夹和文件的所有权。
+
+2. **将所有权分配给管理员组**
+
+   ```cmd
+   takeown /F C:\Windows\System32\drivers\etc\hosts /A
+   ```
+
+   这将 `hosts` 文件的所有权分配给管理员组。
+
+   1. **在无提示的情况下获取所有权**
+
+   ```cmd
+   takeown /F C:\Windows\System32\drivers\etc\hosts /D Y
+   ```
+
+   对于每个无法获取的文件或文件夹，默认响应为“是”。
+
+
+### 例子：获取系统文件夹的所有权
+
+假设你需要获取 `C:\Windows\System32` 文件夹及其所有子文件夹和文件的所有权：
+
+```cmd
+takeown /F C:\Temp /R /D Y
+```
+
+这个命令会递归地获取 `C:\Temp` 文件夹及其所有内容的所有权，并在遇到无法获取的项目时默认响应“是”。
+
+### 例子:管理员获取普通用户创建的文件的所有权
+
+首先,利用**管理员权限命令行**,在windows上创建一个普通用户,比如执行
+
+```cmd
+PS> sudo net user maintainer * /add
+Type a password for the user: #提示你输入密码,作为试验临时用途,简单点即可
+Retype the password to confirm:
+The command completed successfully.
+```
+
+然后切换到新用户(上面例子创建的新用户为`maintainer`)
+
+- 如果你部署了ssh服务,那么可以利用ssh直接从命令行访问新用户(可以免去图形界面加载新用户的耗时过程以及磁盘占用开销)
+
+- 如果没有,那么用图形界面切换登录到新建用户`maintainer`也是可以的
+
+- 登录到新用户`maintainer`
+
+  ```powershell
+  PS> ssh maintainer@cxxucolorful
+  ...
+  Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+  
+  Warning: Permanently added 'cxxucolorful' (ED25519) to the list of known hosts.
+  maintainer@cxxucolorful's password:
+  PowerShell 7.4.4
+  
+  ```
+
+  在`maintainer`用户内创建一个属于其自己的文件,并检查所有者是否为`maintainer`自己
+
+  ```powershell
+  
+  PS C:\Users\maintainer> "create by maintainer"> C:\temp\demo.txt
+  PS C:\Users\maintainer> cd C:\temp\
+  PS C:\temp> ls
+  
+      Directory: C:\temp
+  
+  Mode                 LastWriteTime         Length Name
+  ----                 -------------         ------ ----
+  -a---            8/2/2024  9:22 PM              4 demo.ps1
+  -a---            8/6/2024  8:21 PM             22 demo.txt
+  -a---            8/2/2024  9:22 PM              4 demohard.ps1
+  -a---            8/2/2024  2:37 PM              0 exist
+  -a---            8/2/2024  2:25 PM              0 testCreate
+  
+  
+  PS C:\temp> get-acl .\demo.txt|select Owner
+  
+  Owner
+  -----
+  CXXUCOLORFUL\maintainer
+  ```
+
+- 现在尝试在某个**管理员账户**中,来尝试用`takeown`命令将文件`demo.txt`的所有者设置为管理员组中的一个成员`cxxu`
 
 ```powershell
-icacls "C:\example" /setowner "NT AUTHORITY\Administrators"
+PS C:\temp> ls .\demo.txt
+
+    Directory: C:\temp
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---            2024/8/6    20:21             22 demo.txt
+
+PS C:\temp> acl .\demo.ps1|select Owner
+
+Owner
+-----
+CXXUCOLORFUL\cxxu
+
+PS C:\temp> acl .\demo.txt|select Owner
+
+Owner
+-----
+CXXUCOLORFUL\maintainer
+
+PS C:\temp> takeown /f .\demo.txt
+ERROR: The current logged on user does not have ownership privileges on
+       the file (or folder) "C:\temp\demo.txt".
+
+PS C:\temp> sudo pwsh
+PowerShell 7.4.4
+PS C:\temp> whoami
+cxxucolorful\cxxu
+PS C:\temp> takeown /f .\demo.txt
+
+SUCCESS: The file (or folder): "C:\temp\demo.txt" now owned by user "CXXUCOLORFUL\cxxu".
+```
+
+
+
+## powershell权限设置方案
+
+
+
+- powershell有`Get-Acl`,`Set-Acl`等命令设置权限,可能还需要调用`.Net`api来修改
+- 在 PowerShell 中，修改文件或目录的所有者可以通过 `Set-ACL` (设置访问控制列表) 命令来实现。但直接使用 `Set-ACL` 修改所有者可能不够直观，通常我们会先获取当前的 ACL，修改其中的所有者信息，然后再将修改后的 ACL 应用回去。
+
+### 使用set-acl设置文件拥有者
+
+```powershell
+# 设置目录路径和新所有者
+$directoryPath = "C:\example"
+$newOwner = "NT AUTHORITY\Administrators"
+
+# 获取当前 ACL
+$acl = Get-Acl -Path $directoryPath
+
+# 创建新所有者的 NTAccount 对象
+$newOwnerAccount = New-Object System.Security.Principal.NTAccount($newOwner)
+
+# 设置新的所有者
+$acl.SetOwner($newOwnerAccount)
+
+# 应用修改后的 ACL
+Set-Acl -Path $directoryPath -AclObject $acl
 ```
 
 ### 使用 NTFSSecurity 模块
@@ -273,29 +660,13 @@ Set-NtObjectOwner -Path "C:\example" -Account "NT AUTHORITY\Administrators"
 
 **注意：** 修改文件或目录的所有者可能需要管理员权限，并且在某些安全策略严格的环境中可能会受到限制。
 
-### 使用set-acl设置文件拥有者
 
-```powershell
-# 设置目录路径和新所有者
-$directoryPath = "C:\example"
-$newOwner = "NT AUTHORITY\Administrators"
 
-# 获取当前 ACL
-$acl = Get-Acl -Path $directoryPath
+## powershell设置访问控制权限👺
 
-# 创建新所有者的 NTAccount 对象
-$newOwnerAccount = New-Object System.Security.Principal.NTAccount($newOwner)
+允许用户指定目录路径分配指定用户指定权限
 
-# 设置新的所有者
-$acl.SetOwner($newOwnerAccount)
-
-# 应用修改后的 ACL
-Set-Acl -Path $directoryPath -AclObject $acl
-```
-
-## 设置访问权限
-
-允许用户指定目录路径和是否清除现有权限等参数。
+也可以选择是否清除原有权限设置(权限清理)。这样除了命令执行时分配给指定用户的权限可以用(对于普通用户),其余权限都被取消
 
 ```powershell
 
@@ -392,10 +763,19 @@ function Grant-PermissionToPath
     Bad owner or permissions on C:\\Users\\cxxu/.ssh/config
     ```
 
-    
+
+### 权限继承导致修改权限操作不可用
+
+上述问题需要我们移除不明用户对关键目录的访问权限,然而修改可能受到权限继承的阻碍
 
 - ```cmd
-  You can't remove AccountJnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)because this object is inheriting permissions from its parent. Toremove AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001),you must prevent this object from inheriting permissions. Turnoff the option for inheriting permissions, and then tryremoving AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)again.
+  You can't remove AccountJnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)because this object is inheriting permissions from its parent.
+  Toremove AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001),you must prevent this object from inheriting permissions.
+  Turnoff the option for inheriting permissions, and then tryremoving AccountUnkn0wn(S-1-5-21-208387601-1918623530-3577755754-1001)again.
   ```
 
-  
+若使用gui修改权限,windows可能会跑出上述的提示,我们根据提示关闭目标文件(目录)的权限继承,然后再执行设置
+
+## windows上提取高级权限的方案
+
+例如gsudo,nsudo等工具,另见它文
