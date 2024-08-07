@@ -27,7 +27,7 @@
 
 - 如果需要长期关闭,需要其他的进一步操作
 
-### 使用软件工具关闭👺
+## 使用软件工具修改系统设置👺
 
 #### windows defender remover
 
@@ -69,9 +69,29 @@
 - [Ultimate Windows Tweaker 4 for Windows 10 (thewindowsclub.com)](https://www.thewindowsclub.com/ultimate-windows-tweaker-4-windows-10)
 - 软件为英文,没有语言相关设置,有的有汉化版
 
-### 其他方法
+### UI修改方面的工具
 
-#### 使其他杀毒软件
+#### ExplorerPatcher
+
+[GitHub - valinet/ExplorerPatcher: This project aims to enhance the working environment on Windows](https://github.com/valinet/ExplorerPatcher)
+
+[All features · valinet/ExplorerPatcher Wiki · GitHub](https://github.com/valinet/ExplorerPatcher/wiki/All-features)
+
+- 微软逐渐封杀这种修改任务栏,资源管理器和开始菜单样式的修改软件,比如win11 24H2开始的版本,此类软件的兼容性和可用性逐渐降低
+- 如果您的系统不是很新,那么软件可以较好工作
+- 相关概念:[Symbols · valinet/ExplorerPatcher Wiki · GitHub](https://github.com/valinet/ExplorerPatcher/wiki/Symbols)
+
+#### DWMBlurGlass
+
+[GitHub - Maplespe/DWMBlurGlass: Add custom effect to global system title bar, support win10 and win11.](https://github.com/Maplespe/DWMBlurGlass)
+
+这个项目将windows的窗口设置毛玻璃效果/aero;
+
+类似于ExplorerPatcher,对于最新的系统或者预览版系统可能无法及时兼容
+
+## 其他方法修禁用Windows Defender
+
+#### 杀毒软件
 
 - 安装第三方杀毒软件后,可以关闭windows defender
 

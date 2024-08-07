@@ -88,6 +88,11 @@ function Get-SpeedupUri{
   - [Fastgit | FastGit UK Document](https://doc.fastgit.org/zh-cn/guide.html)
   - 经常变动域名,可以搜索fastgit后查看文档说明
 
+### 加速网站
+
+- [Respeed 🐳 Download (chromiumer.com)](https://respeed.chromiumer.com/)
+  - 供xue'xi
+
 ## vscode codeium手动下载服务器
 
 - [Release language-server- · Exafunction/codeium (github.com)ll](https://github.com/Exafunction/codeium/releases)

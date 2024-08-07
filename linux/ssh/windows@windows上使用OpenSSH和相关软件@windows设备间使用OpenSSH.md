@@ -75,7 +75,7 @@ The commands to run, are as follows:
 - To install both the SSH Client & the SSH Server (default behavior)
   `msiexec /i <path to openssh.msi>`
 
-如此的简单,一条语句就可以
+如此的简单,一条语句就可以(最新版本可能可以双击进行安装,但是命令行安装可能会报错)
 
 ##### others
 
@@ -607,7 +607,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 您可以将上述提供的各个powershell函数分别在ssh client 和ssh server上导入(不是直接运行),为了方便这一点,可以从gitee仓库复制整合好的脚本:[modulesByCxxu/SSH/SSH.psm1 · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/SSH/SSH.psm1)
 
-### 流程
+### 流程👺
 
 - 复制后分别粘贴到客户端和服务端的**管理员权限**的**powershell**窗口
 

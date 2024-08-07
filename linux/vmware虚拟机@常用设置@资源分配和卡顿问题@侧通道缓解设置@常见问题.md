@@ -11,7 +11,13 @@
 
 - [下载 VMware Workstation Pro | CN](https://www.vmware.com/content/vmware/vmware-published-sites/cn/products/workstation-pro/workstation-pro-evaluation.html.html)
   - 对于个人用户免费使用专业版
-- 
+
+## 开源竞品
+
+- Oracle VM VirtualBox **是全球广受欢迎的开源跨平台虚拟化软件**。 使用该软件，开发人员能够在一台设备上运行多个操作系统，更快地交付代码。
+- 国内加速下载,可以用镜像源
+  - [Index of /virtualbox/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/virtualbox/?C=M&O=D)
+  - 选择日期排序,下载最新版
 
 ## VMware tools
 
