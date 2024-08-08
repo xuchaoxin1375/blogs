@@ -14,8 +14,9 @@
 ### 相关服务👺
 
 - windows antimalware service executable
-  - 这个服务大约会吃掉我200M内存
-  - 虽然现在电脑普遍是16GB或更大内存,但是我认为该服务不仅仅会占用内存资源,还会影响使用体验,会无意间将某些被怀疑的软件或文件删除,造成困扰
+  - 这个服务大约会吃掉200M内存,而且是不是会有比较高的cpu占用,风扇呼呼转
+  - 虽然现在电脑普遍是16GB或更大内存,但是我认为该服务不仅仅会占用内存资源,还会影响使用体验
+  - 更重要的是windows defender会无意间将某些被怀疑的软件或文件删除,造成困扰
 - [How to Fix Antimalware Service Executable High CPU Usage on Windows (makeuseof.com)](https://www.makeuseof.com/fix-antimalware-service-executable-high-cpu-usage-on-windows-10/)
 
 ## 停用windows Defender
@@ -88,6 +89,17 @@
 这个项目将windows的窗口设置毛玻璃效果/aero;
 
 类似于ExplorerPatcher,对于最新的系统或者预览版系统可能无法及时兼容
+
+#### MyDockFinder
+
+- 软件早期是免费软件,2021年开始的版本上架到steam上是收费软件
+  - 经过近些年更新,软件的稳定性有所提高,并且推出了许多新功能,特别窗口动画,很优雅,搭配高刷屏幕,效果更佳
+  - 或者网络上有一些学习版可以使用,体验也还可以,有些老版本动画更加流畅,但是部分新功能会缺失
+  - 如果您不确定是否购买,可以用steam平台购买体验,2小时内可以退款
+    - [Steam 客服 :: 常见退款问题 (steampowered.com)](https://help.steampowered.com/zh-cn/faqs/view/5fde-ba65-acce-a411)
+    - 由于需要通过steam下载,这很不轻便
+  - 由于最新版虽然在功能丰富性上满足我的需要,我也购买了此软件,但是安装时候后发现动画流畅性上对我的设备不太友好(不如旧版本流畅) 
+  - 我就不怎么用这个steam上的原版软件(不超过2小时),几天之后申请了退款,我此次退款整个过程就几个小时就退款成功了,成功后如果你开着steam客户端,那么弹出退款通知,确认后您购买的软件将从您的库中移除(原来的软件界面可能出现错误,重新打开steam刷新库就可以看到产品被移出了,那么检查你的账户(比如微信支付),应该会收到一笔退款))
 
 ## 其他方法修禁用Windows Defender
 

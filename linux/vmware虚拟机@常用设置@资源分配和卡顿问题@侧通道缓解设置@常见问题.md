@@ -19,6 +19,29 @@
   - [Index of /virtualbox/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/virtualbox/?C=M&O=D)
   - 选择日期排序,下载最新版
 
+## 虚拟机格式转换
+
+- [Open Virtualization Format (OVF) Tool (broadcom.com)](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
+
+- [How To Convert Virtual Machines Between VirtualBox and VMware (howtogeek.com)](https://www.howtogeek.com/125640/how-to-convert-virtual-machines-between-virtualbox-and-vmware/)
+
+- 例如将Vmware的虚拟机(vmx)转换或导出为开放虚拟机格式(ovf)
+
+  - 使用ovf tool命令行工具执行导出操作(这个过程是比较耗时的)
+
+  ```powershell
+  
+  PS☀️[BAT:77%][MEM:33.09% (10.49/31.71)GB][14:28:07]
+  # [cxxu@CXXUCOLORFUL][C:\Program Files\VMware\VMware OVF Tool]
+  PS> .\ovftool.exe  'C:\Users\cxxu\documents\Virtual Machines\Windows 11 x64\Windows 11 x64.vmx' 'C:\Users\cxxu\Documents\Virtual Machines\win11.ovf'
+  Opening VMX source: C:\Users\cxxu\documents\Virtual Machines\Windows 11 x64\Windows 11 x64.vmx
+  Opening OVF target: C:\Users\cxxu\Documents\Virtual Machines\win11.ovf
+  Writing OVF package: C:\Users\cxxu\Documents\Virtual Machines\win11.ovf
+  Disk progress: 5%
+  ```
+
+  
+
 ## VMware tools
 
 - [VMware Tools Documentation](https://docs.vmware.com/en/VMware-Tools/index.html)
