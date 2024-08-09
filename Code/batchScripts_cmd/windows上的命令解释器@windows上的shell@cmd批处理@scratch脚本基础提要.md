@@ -1,9 +1,5 @@
 [toc]
 
-
-
-
-
 ## 引言
 
 在日常的计算机操作中，我们经常会遇到需要重复执行的任务，比如备份文件、自动安装软件或者进行系统维护等。这时候，如果能够编写一些脚本来自动化这些任务，将会极大地提高我们的工作效率。
@@ -109,266 +105,242 @@ CMD脚本是由一系列命令组成的文本文件，这些命令可以在Windo
 - 如果不熟悉,可以通过`commandName /?`形式获取帮助,或者阅读在线文档,越是基础的命令往往用法越是灵活,参数选项多样,我们了解最核心的用法即可）
 - 阅读命令行的语法记号:[命令行语法项 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/command-line-syntax-key)
 
-## 创建脚本文件的方法
+### cmd文档和教程
 
-- 脚本文件是一个文本文件,创建或获取一个脚本文件的方式有许多
-  - 自己新建一个文本文件,然后用文本编辑器(比如基础的自带的记事本notepad),打开并编辑这个文本,最后将这个文件改名,尤其是扩展名(后缀)修改为脚本文件后缀名,对于cmd脚本,可以修改为`.cmd`或者`.bat`,如果是powershell脚本,那么后缀为`.ps1`(这里不讨论)
-  - 从网络上下载脚本到本地运行,例如github上开源的脚本文件,具有特定的功能
+- [Batch Script - Environment (tutorialspoint.com)](https://www.tutorialspoint.com/batch_script/batch_script_environment.htm)
+  - 这是一份手把手教学的教程文档
 
-## 创建第一个简单的脚本
+- 对于有点经验的用户,可以在命令行中执行`cmd /?`获取帮助
 
-让我们从一个简单的例子开始。假设您需要一个脚本来列出当前目录下的所有文件。您可以创建一个名为`list_files.cmd`的文件，并在其中输入以下内容：
+  ```cmd
+  C:\Users\cxxu\Desktop> cmd /?
+  ```
 
-```batch
-@echo off
-dir
-pause
-```
+- 文档的中文翻译(文档并不太适合初学者自学,许多概念缺乏解释,对于初学者不友好,查看坡度平缓的入门教程是更好的选择)
 
-- `@echo off`：这条命令会关闭命令的回显，即不会显示接下来要执行的命令。
-- `dir`：这条命令会列出当前目录下的所有文件和子目录。
+  启动一个新的Windows命令解释器实例
 
-保存文件后，在命令行中切换到该文件所在的目录，并运行：
+  ```cmd
+  CMD [/A | /U] [/Q] [/D] [/E:ON | /E:OFF] [/F:ON | /F:OFF] [/V:ON | /V:OFF]
+      [[/S] [/C | /K] string]
+  ```
 
-```batch
-list_files.cmd
-```
+  /C      执行由字符串指定的命令，然后终止
+  /K      执行由字符串指定的命令，但保持运行状态
+  /S      修改/C或/K后字符串的处理方式（见下文）
+  /Q      关闭回显
+  /D      禁用从注册表执行Autorun命令（见下文）
+  /A      使内部命令输出到管道或文件时使用ANSI编码
+  /U      使内部命令输出到管道或文件时使用Unicode编码
+  /T:fg  设置前景/背景颜色（更多信息请参见COLOR /?）
+  /E:ON  启用命令扩展（见下文）
+  /E:OFF 禁用命令扩展（见下文）
+  /F:ON  启用文件和目录名自动完成字符（见下文）
+  /F:OFF 禁用文件和目录名自动完成字符（见下文）
+  /V:ON  使用!作为分隔符启用延迟环境变量扩展。例如，/V:ON将允许在执行时扩展变量var。var语法在输入时扩展变量，这在FOR循环内是完全不同的事情。
+  /V:OFF 禁用延迟环境变量扩展。
 
-您应该能看到当前目录下所有的文件和子目录被列出来了。
+  请注意，如果用引号包围，字符串可以接受由命令分隔符'&&'分隔的多个命令。同样，出于兼容性原因，/X等同于/E:ON，/Y等同于/E:OFF，/R等同于/C。其他任何开关都被忽略。
 
-## 基础概念
+  如果指定了/C或/K，那么在开关后的命令行其余部分将作为命令行处理，其中使用以下逻辑处理引号(")字符：
 
-### 变量
+  1. 如果满足以下所有条件，则保留命令行上的引号字符：
 
-CMD脚本支持变量，您可以使用它们来存储和引用数据。变量有两种类型：环境变量和脚本变量。
+     - 没有/S开关
+     - 恰好两个引号字符
+     - 两个引号字符之间没有特殊字符，特殊字符包括：`&<>()@^|`
+     - 两个引号字符之间有一个或多个空格字符
+     - 两个引号字符之间的字符串是可执行文件的名称。
 
-#### 环境变量
+  2. 否则，旧的行为是检查第一个字符是否是引号字符，如果是，则剥离领先的字符，并移除命令行上的最后一个引号字符，保留最后一个引号字符后的任何文本。
 
-环境变量是在整个系统范围内定义的，可以通过`set`命令查看：
+  如果命令行上没有指定/D，那么当CMD.EXE启动时，它会查找以下REG_SZ/REG_EXPAND_SZ注册表变量，如果存在一个或两个，则首先执行它们。
 
-例如
+      HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\AutoRun
+      
+      和/或
+      
+      HKEY_CURRENT_USER\Software\Microsoft\Command Processor\AutoRun
 
-```batch
-C:\Users\cxxu\Desktop>set
-ALLUSERSPROFILE=C:\ProgramData
-APPDATA=C:\Users\cxxu\AppData\Roaming
-CommonProgramFiles=C:\Program Files\Common Files
-CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
-CommonProgramW6432=C:\Program Files\Common Files
-...
-```
+  命令扩展默认启用。您也可以通过使用/E:OFF开关禁用特定调用的扩展。您可以通过使用REGEDIT.EXE在注册表中设置以下一个或两个REG_DWORD值来启用或禁用机器和/或用户登录会话的所有CMD.EXE调用的扩展：
 
-#### 脚本变量
+      HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\EnableExtensions
+      
+      和/或
+      
+      HKEY_CURRENT_USER\Software\Microsoft\Command Processor\EnableExtensions
 
-脚本变量是在脚本内部定义的，只能在脚本执行期间使用。定义变量的方式如下：
+  设置为0x1或0x0。用户特定的设置优先于机器设置。命令行开关优先于注册表设置。
 
-```batch
-set variable_name=value
-```
-
-使用变量的方式如下(加上一对`%`号：
-
-```batch
-echo %variable_name%
-```
-
-例如：
-
-```batch
-set myVar=Hello, World!
-echo %myVar%
-```
-
-和powershell等其他脚本或变成语言不通,cmd中设置带空格字符串的变量不需要用引号包裹
-
-### 条件判断
-
-CMD脚本支持基本的条件判断结构，可以使用`if`命令来进行逻辑判断。
+  在批处理文件中，`SETLOCAL ENABLEEXTENSIONS`或`DISABLEEXTENSIONS`参数优先于`/E:ON`或`/E:OFF`开关。有关详细信息，请参见`SETLOCAL /?`。
 
 
-#### 1. `IF` 语句
-
-`IF` 语句用于判断某个条件是否为真。如果条件为真，则执行相应的命令。
+#### 命令扩展涉及对以下命令的更改和/或补充：
 
 ```
-IF condition (command)
+DEL或ERASE
+COLOR
+CD或CHDIR
+MD或MKDIR
+PROMPT
+PUSHD
+POPD
+SET
+SETLOCAL
+ENDLOCAL
+IF
+FOR
+CALL
+SHIFT
+GOTO
+START（还包括对外部命令调用的更改）
+ASSOC
+FTYPE
 ```
 
-##### 例子：
+要获取具体细节，请键入`commandname /?`查看详细信息。
+
+延迟环境变量扩展默认未启用。您可以使用/V:ON或/V:OFF开关启用或禁用CMD.EXE特定调用的延迟环境变量扩展。您可以通过使用REGEDIT.EXE在注册表中设置以下一个或两个REG_DWORD值来启用或禁用机器和/或用户登录会话的所有CMD.EXE调用的延迟扩展：
+
+```
+HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\DelayedExpansion
+
+和/或
+
+HKEY_CURRENT_USER\Software\Microsoft\Command Processor\DelayedExpansion
+```
+
+设置为0x1或0x0。用户特定的设置优先于机器设置。命令行开关优先于注册表设置。
+
+在批处理文件中，SETLOCAL ENABLEDELAYEDEXPANSION或DISABLEDELAYEDEXPANSION参数优先于/V:ON或/V:OFF开关。有关详细信息，请参见SETLOCAL /?。
+
+如果启用了延迟环境变量扩展，则可以使用感叹号字符在执行时替换环境变量的值。
+
+您可以使用/F:ON或/F:OFF开关启用或禁用CMD.EXE特定调用的文件名自动完成。您可以通过使用REGEDIT.EXE在注册表中设置以下一个或两个REG_DWORD值来启用或禁用机器和/或用户登录会话的所有CMD.EXE调用的自动完成：
+
+```
+HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\CompletionChar
+HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\PathCompletionChar
+
+和/或
+
+HKEY_CURRENT_USER\Software\Microsoft\Command Processor\CompletionChar
+HKEY_CURRENT_USER\Software\Microsoft\Command Processor\PathCompletionChar
+```
+
+使用特定功能的控制字符的十六进制值（例如0x4是Ctrl-D，0x6是Ctrl-F）。用户特定的设置优先于机器设置。命令行开关优先于注册表设置。
+
+如果使用/F:ON开关启用了自动完成，则使用的两个控制字符是Ctrl-D用于目录名自动完成，Ctrl-F用于文件名自动完成。要在注册表中禁用特定自动完成字符，请使用空格的值（0x20），因为它不是有效的控制字符。
+
+当您键入任一控制字符时，将调用自动完成。自动完成函数获取光标左侧的路径字符串，如果还没有通配符，则添加一个通配符，并构建一个匹配路径的列表。然后它显示第一个匹配的路径。如果没有路径匹配，它只会发出哔哔声并保留显示。此后，重复按相同的控制字符将循环遍历匹配路径的列表。按Shift键和控制字符将向后遍历列表。如果您以任何方式编辑行并再次按控制字符，将丢弃保存的匹配路径列表并生成一个新的。如果您在文件和目录名称自动完成之间切换，也会发生同样的情况。两个控制字符之间的唯一区别是文件完成字符匹配文件和目录名称，而目录完成字符仅匹配目录名称。如果在任何内置目录命令（CD、MD或RD）上使用文件完成，则假定为目录完成。
+
+自动完成代码可以正确处理包含空格或其他特殊字符的文件名，方法是在匹配路径周围添加引号。此外，如果您回退，然后从行内调用自动完成，从调用自动完成点开始，光标右侧的文本将被丢弃。
+
+#### 需要引号的特殊字符是
+
+```
+   <空格>
+     &()[]{}^=;!'+,`~
+```
+
+## CMD中的可用命令
+
+在Windows的命令提示符（Command Prompt，简称CMD）中，有许多命令可以使用。这些命令涵盖了系统管理、文件操作、网络管理等各个方面。以下是一些常用的命令：
+
+### 1. 文件和目录操作
+| 命令            | 说明                                 |
+| --------------- | ------------------------------------ |
+| `dir`           | 列出当前目录中的文件和子目录。       |
+| `cd`            | 更改当前目录。                       |
+| `md` 或 `mkdir` | 创建一个新目录。                     |
+| `rd` 或 `rmdir` | 删除一个目录。                       |
+| `del`           | 删除一个或多个文件。                 |
+| `copy`          | 复制文件到另一个位置。               |
+| `move`          | 移动文件到另一个位置，或重命名文件。 |
+| `rename`        | 重命名文件或目录。                   |
+| `attrib`        | 显示或更改文件属性。                 |
+
+### 2. 系统管理
+| 命令         | 说明                                         |
+| ------------ | -------------------------------------------- |
+| `tasklist`   | 显示当前运行的所有进程。                     |
+| `taskkill`   | 终止一个或多个进程。                         |
+| `systeminfo` | 显示系统配置信息。                           |
+| `shutdown`   | 关闭或重启计算机。                           |
+| `chkdsk`     | 检查磁盘并显示状态报告。                     |
+| `sfc`        | 检查系统文件的完整性，并尝试修复损坏的文件。 |
+| `powercfg`   | 配置电源设置，包括管理睡眠状态。             |
+| `gpupdate`   | 更新组策略设置。                             |
+
+### 3. 网络管理
+| 命令       | 说明                                             |
+| ---------- | ------------------------------------------------ |
+| `ipconfig` | 显示和配置网络连接的IP地址。                     |
+| `ping`     | 检查与远程主机的网络连接情况。                   |
+| `tracert`  | 跟踪数据包到达目标主机的路由。                   |
+| `netstat`  | 显示活动的网络连接和端口。                       |
+| `nslookup` | 查询DNS记录。                                    |
+| `netsh`    | 网络配置的高级工具，可以配置网络接口、防火墙等。 |
+| `ftp`      | 连接FTP服务器进行文件传输。                      |
+| `telnet`   | 远程连接到其他计算机（一般不再推荐使用）。       |
+
+### 4. 其他工具
+| 命令    | 说明                                    |
+| ------- | --------------------------------------- |
+| `echo`  | 在命令行显示消息，或打开/关闭回显功能。 |
+| `cls`   | 清除命令提示符窗口的屏幕内容。          |
+| `set`   | 显示、设置或删除环境变量。              |
+| `time`  | 显示或设置系统时间。                    |
+| `date`  | 显示或设置系统日期。                    |
+| `pause` | 暂停批处理文件的执行并显示提示信息。    |
+| `exit`  | 退出命令提示符或批处理程序。            |
+
+### 示例
+如果你想查看当前目录下的所有文件和文件夹，可以使用 `dir` 命令。假设你想要更改到 `C:\Program Files` 目录，可以输入：
 
 ```cmd
-IF %USERNAME%==admin echo Hello Admin
+cd "C:\Program Files"
 ```
 
-#### 2. `IF NOT` 语句
+## 完整的命令列表以及用法👺
 
-`IF NOT` 用于判断条件是否为假。如果条件为假，则执行相应的命令。
-
-```
-IF NOT condition (command)
-```
-
-##### 例子：
+如果你想要查看更多命令，可以在命令提示符中输入 `help`，它会显示所有可用命令的简要列表。
 
 ```cmd
-IF NOT %USERNAME%==admin echo You are not an admin
+
+C:\Users\cxxu\Desktop> help
+For more information on a specific command, type HELP command-name
+ASSOC          Displays or modifies file extension associations.
+ATTRIB         Displays or changes file attributes.
+BREAK          Sets or clears extended CTRL+C checking.
+BCDEDIT        Sets properties in boot database to control boot loading.
+CACLS          Displays or modifies access control lists (ACLs) of files.
+CALL           Calls one batch program from another.
+CD             Displays the name of or changes the current directory.
+....
 ```
 
-#### 3. `IF EXIST` 和 `IF NOT EXIST` 语句
-
-`IF EXIST` 用于判断某个文件或目录是否存在。如果存在，则执行相应的命令。`IF NOT EXIST` 则相反，用于判断文件或目录是否不存在。
+获取特定命令的帮助:使用`HELP command-name`的形式获取,例如获取`cd`命令的帮助
 
 ```
-IF EXIST filename (command)
-IF NOT EXIST filename (command)
+
+C:\Users\cxxu\Desktop> help cd
+Displays the name of or changes the current directory.
+
+CHDIR [/D] [drive:][path]
+CHDIR [..]
+CD [/D] [drive:][path]
+CD [..]
+
+  ..   Specifies that you want to change to the parent directory.
+
+Type CD drive: to display the current directory in the specified drive.
+Type CD without parameters to display the current drive and directory.
+
+Use the /D switch to change current drive in addition to changing current
+directory for a drive.
 ```
 
-##### 例子：
+## 后续
 
-```cmd
-IF EXIST C:\test.txt echo File exists
-IF NOT EXIST C:\test.txt echo File does not exist
-```
-
-### 高级用法
-
-#### 1. 复杂条件判断
-
-可以使用逻辑运算符（如 `AND` 和 `OR`）来组合多个条件。
-
-##### 例子：
-
-```cmd
-IF %USERNAME%==admin IF EXIST C:\test.txt echo Admin and file exists
-```
-
-#### 2. 使用变量进行条件判断
-
-可以使用环境变量进行条件判断。
-
-##### 例子：
-
-```cmd
-SET var=1
-IF %var%==1 echo Variable is 1
-```
-
-#### 3. `IF` 语句中的 ELSE
-
-可以在 `IF` 语句中使用 `ELSE` 来处理条件不成立的情况。
-
-##### 例子：
-
-```cmd
-IF %USERNAME%==admin (
-    echo Hello Admin
-) ELSE (
-    echo You are not an admin
-)
-```
-
-### 示例总结
-
-以下是一个综合使用条件判断的示例脚本：
-
-```cmd
-@echo off
-SET var=2
-
-IF %var%==1 (
-    echo Variable is 1
-) ELSE IF %var%==2 (
-    echo Variable is 2
-) ELSE (
-    echo Variable is not 1 or 2
-)
-
-IF EXIST C:\test.txt (
-    echo File exists
-) ELSE (
-    echo File does not exist
-)
-
-IF %USERNAME%==admin (
-    echo Hello Admin
-) ELSE (
-    echo You are not an admin
-)
-```
-
-这个示例展示了如何使用 `IF` 和 `IF EXIST` 进行条件判断，并结合 `ELSE` 语句处理不同的情况。通过这些条件判断，CMD 脚本可以变得更加灵活和强大。
-
-### 循环结构
-
-CMD脚本支持两种循环结构：`for`循环和`while`循环。
-
-#### `for`循环
-
-`for`循环可以用来遍历一系列的项或执行特定次数的命令。
-
-#### 示例
-
-打印出从1到10的数字：
-
-```batch
-@echo off
-for /L %%i in (1,1,10) do (
-    echo %%i
-)
-```
-
-#### `while`循环
-
-`while`循环会在满足某个条件时重复执行一组命令。
-
-#### 示例
-
-使用`while`循环来打印数字1到5：
-
-```batch
-@echo off
-set i=1
-:loop
-if %i% leq 5 (
-    echo %i%
-    set /a i+=1
-    goto :loop
-)
-```
-
-## 实战案例
-
-现在我们来编写一个稍微复杂一点的脚本，这个脚本可以帮助我们备份指定文件夹下的所有文件到另一个位置。
-
-### 脚本代码
-
-```batch
-@echo off
-setlocal enabledelayedexpansion
-
-set "sourceFolder=C:\Users\YourName\Documents"
-set "backupFolder=C:\Backup\Documents"
-
-if not exist "!backupFolder!" mkdir "!backupFolder!"
-
-echo Backing up files from !sourceFolder! to !backupFolder!...
-
-xcopy "!sourceFolder!\*" "!backupFolder!" /s /e /y
-
-echo Backup complete.
-pause
-```
-
-### 解释
-
-- `setlocal enabledelayedexpansion`：启用延迟变量扩展，允许在循环中使用变量。
-- `set "sourceFolder=C:\Users\YourName\Documents"`：设置源文件夹。
-- `set "backupFolder=C:\Backup\Documents"`：设置备份文件夹。
-- `if not exist "!backupFolder!" mkdir "!backupFolder!"`：如果备份文件夹不存在，则创建它。
-- `xcopy "!sourceFolder!\*" "!backupFolder!" /s /e /y`：复制文件夹及其内容到备份文件夹，覆盖已存在的文件。
-- `pause`：暂停脚本，等待用户按任意键退出。
-
-## 总结
-
-通过这篇文章，您已经学习了CMD脚本的基础知识，包括如何创建简单的脚本、使用变量、条件判断和循环结构。掌握了这些基础之后，您可以尝试编写更复杂的脚本来解决实际问题。CMD脚本虽然简单，但在自动化日常任务方面却非常实用。
-
+- 另见它文(核心用法)
