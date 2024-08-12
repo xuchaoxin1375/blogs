@@ -497,11 +497,13 @@ From the output above we can deduct a following information:
 
 ## powershell/bash命令行中查看目录项目的文件模式👺
 
+### Mode字符串@模式标志字母
+
 - [Get-ChildItem (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/Microsoft.PowerShell.Management/Get-ChildItem?view=powershell-7.4)
 - 默认情况下，`Get-ChildItem` 会列出模式（**属性**）、**LastWriteTime**、文件大小（**长度**），以及项**名称**。 **Mode** 属性中的字母可以解释为：
   - `l`（链接）
   - `d`（目录）
-  - `a`（存档）
+  - `a`（存档）(一般是文件)
   - `r`（只读）
   - `h`（隐藏）
   - `s`（系统）
@@ -537,7 +539,7 @@ For a description of these attributes, see the [FileAttributes](https://learn.mi
 
 在PowerShell中，文件模式（Mode）是指用于描述文件或目录权限和属性的一系列字符。这些模式通常在使用命令如`Get-ChildItem`,  或进行文件操作时遇到。
 
-### 文件模式字符的解读
+### 模式标志小结👺
 
 在 PowerShell 中，`Mode` 属性是通过 `Get-Item` 或类似命令获取文件或目录时显示的一个属性，它描述了该文件或目录的访问权限和类型信息。
 
@@ -546,7 +548,7 @@ For a description of these attributes, see the [FileAttributes](https://learn.mi
 1. 第一个字符表示文件类型：
    - `d`: 目录
    - `l`: 链接类型(如果要进一步是SymbolicLink还是Junction,需要进一步查看linkType)
-     - 如果是la---类型的,则是硬链接(硬链接的目标是无法通过LinkType来查看的,只能知道它的链接类型是硬链接)
+     - 如果是`la`---类型的,则是`硬链接`(硬链接的目标是无法通过LinkType来查看的,只能知道它的链接类型是硬链接)
    - `-`: 普通文件
 2. 接下来的三个字符表示所有者的权限：
    - `r`: 可读
@@ -664,9 +666,13 @@ d---s           2024/5/15    11:53                zh-CN
 2. **-** - 文件。表示该条目是一个普通文件。
 3. **l** (小写的L) - 符号链接。在支持符号链接的系统上，表示该条目是一个链接到另一个文件或目录的符号链接。
 
-### 权限位（Linux风格）
+### 权限位（Linux风格）👺
 
-在某些上下文中，尤其是当查看与Linux兼容的文件系统（如通过WSL使用）或模拟Linux权限时，你可能会看到类似`rwxr-xr--`这样的权限字符串。这里的每个部分**代表不同用户/组**的权限：
+在某些上下文中，尤其是当查看与Linux兼容的文件系统（如通过WSL使用）或模拟Linux权限时，你可能会看到类似`rwxr-xr--`这样的权限字符串。
+
+这和windows中的Mode模式标志风格不同
+
+这里的每个部分**代表不同用户/组**的权限：
 
 - `r` (Read) - 读取权限。
 - `w` (Write) - 写入权限。
