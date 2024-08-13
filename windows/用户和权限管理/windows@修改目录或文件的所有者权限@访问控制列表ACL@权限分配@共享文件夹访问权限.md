@@ -430,6 +430,24 @@ icacls C:\share
 icacls C:\share /grant Users:(RW) /T
 ```
 
+### Note
+
+- 使用`icacls`分配权限有时是最管用的
+
+  ```powershell
+  PS C:\Users\cxxu> cmd  /c 'icacls.exe .\documents\ /grant cxxu:(F)'
+  已处理的文件: .\documents\
+  已成功处理 1 个文件; 处理 0 个文件时失败
+  ```
+
+- 部分情况下图形界面设置的权限不靠谱，可以尝试用`icacls`来试试
+
+- 子目录和文件递归和继承权限设置
+
+```powershell
+cmd /c ' icacls $Path  /grant cxxu:(OI)(CI)F  /T ' #将$path修改为目标目录即可
+```
+
 
 
 ## takeown 命令设置文件或目录所有权

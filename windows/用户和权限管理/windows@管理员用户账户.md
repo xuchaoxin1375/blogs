@@ -4,6 +4,11 @@
 
 ## windows中的管理员用户账户
 
+### 管理员组策略配置
+
+- [用于内置管理员账户的管理员批准模式-CSDN博客](https://blog.csdn.net/ifu25/article/details/89786181)
+- 配置:提升自建账户权限，自建账户将拥有和 "Administrator"管理员账号一样的权限
+
 ### 命令行管理用户和组
 
 - 参考[windows@命令行管理用户和用户组-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137403116?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"137403116"%2C"source"%3A"xuchaoxin1375"})
