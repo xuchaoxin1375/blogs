@@ -15,4 +15,5 @@
 - 这里的内容大部分在CSDN上发布,Gitee上的版本更加新鲜
   - 早期的一段时间的博客则仅存在于CSDN;
   - 之后的博客先在Typora Markdown编辑器中编写,然后同步到gitee,部分版本发布在CSDN等博客平台上
-  - 其他博客平台有通过CSDN引用本人博客
+
+- [cxxu1375-CSDN博客](https://blog.csdn.net/xuchaoxin1375?spm=1011.2415.3001.5343)

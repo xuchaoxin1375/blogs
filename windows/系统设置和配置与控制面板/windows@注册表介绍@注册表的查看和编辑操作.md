@@ -97,11 +97,58 @@
   - 不能再创建或打开下一层的路径称为键值对(或称为**叶子路径**)
   - 否则称为**非叶路径**
 
-#### Get-ChildItem查看注册表路径下的项
+#### Get-ChildItem查看注册表路径下的项👺
 
 `Get-ChildItem`(简写为`ls`)功能简介是:获取一个或多个指定位置中的项和子项。
 
-- 这里的指定位置不仅可以是文件系统的位置,也可以是注册表的位置(路径),当然也可以是环境变量的路径
+`Get-ChildItem`可以查看哪些东西？我们可以利用`Get-Psdrive`来获取
+
+其中Name字段列出的各个项表示可以被以`ls <Name>:[\...]`的形式所访问,其中`[\...]`可以省略,此时访问的是驱动器的根路径
+
+```powershell
+PS C:\Users\cxxu\Desktop> Get-PSDrive
+
+Name           Used (GB)     Free (GB) Provider      Root
+----           ---------     --------- --------      ----
+Alias                                  Alias
+C                  23.64        101.36 FileSystem    C:\
+Cert                                   Certificate   \
+D                 361.25        261.37 FileSystem    D:\
+E                  43.02        152.30 FileSystem    E:\
+Env                                    Environment
+F                                      FileSystem    \\front\share…
+Function                               Function
+HKCU                                   Registry      HKEY_CURRENT_USER
+HKLM                                   Registry      HKEY_LOCAL_MACHINE
+R                                      FileSystem    \\cxxuredmibook\share…
+Temp               23.64        101.36 FileSystem    C:\Users\cxxu\AppData\Local\Tem…
+Variable                               Variable
+WSMan                                  WSMan
+```
+
+例如查看环境变量:`ls Env:\`,查看别名`ls Alias:\`,查看powershell函数`ls Function:`
+
+```powershell
+
+PS C:\Users\cxxu\Desktop> ls Env:\tmp
+
+Name                           Value
+----                           -----
+TMP                            C:\Users\cxxu\AppData\Local\Temp
+
+PS C:\Users\cxxu\Desktop> ls alias:\
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Alias           ? -> Where-Object
+Alias           % -> ForEach-Object
+Alias           ac -> Add-Content
+..
+```
+
+
+
+- 可见,这里的`ls`指定位置`Path`不仅可以是文件系统的位置,也可以是注册表的位置(路径),当然也可以是环境变量的路径
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e657784af9cc494d92778f77b0248d26.png)
 
 #### ls 查看注册表路径示例

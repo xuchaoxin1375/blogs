@@ -1,48 +1,8 @@
 [toc]
 
-## abstract
 
 
 
-- windows@系统环境变量备份@注册表操作
-- reg命令行操作注册表
-- 360篡改浏览器主页问题.md
-
-##  备份注册表🎈
-
-- 完整的注册表备份可能达到`500MB`
-- 打开register editor
-  - 命令行里可以输入`regedit.exe`打开
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/569b8de064d74d2991cdddd29d017c81.png)
-- 可以局部备份
-
-### 备份环境变量@powershell函数
-
-- ```bash
-  function backupEnvs_regeditPrintPath
-  {
-      param (
-          $file="$configs\env\$name_with_ticks"
-      )
-      # Write-Output $env:envRegedit "`\ncontent has been set to clipborad😊"
-      # Set-Clipboard $env:envRegedit
-      # regedit.exe
-  
-      $name_with_ticks = "env_reg_$((gdt).Ticks).reg"
-      reg export 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' $file
-      Write-Output 'Done!🎈'
-      Get-Content $file -Head 5
-      
-  }
-  ```
-
-  - 根据实际情况改变它,主要的语句是`  reg export 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' $file`
-  - 其中`$file`是保存备份文件的目录,建议后缀设置为`.reg`
-  - 上述脚本中,将保存的文件名加入了`时间戳`后缀为`reg`
-
-### 从注册表文件还原
-
-- 双击您备份的文件,回车还原即可.
 
 ## 命令行操作注册表
 
@@ -52,69 +12,8 @@
 
 - [reg commands | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg)
   -  Caution:Don't edit the registry directly unless you have no alternative. The registry editor bypasses standard safeguards, allowing settings that can degrade performance, damage your system, or even require you to reinstall Windows. You can safely alter most registry settings by using the programs in Control Panel or Microsoft Management Console (MMC). If you must edit the registry directly, back it up first.
-  - 官方建议,编辑注册表应该使用windows提供的GUI程序
-  - 但是为了高效配置,熟悉相关操作的用户可以用命令行来配置,便于部署环境
-
-## 查询某个注册表
-
-- ```
-  PS C:\repos\blogs> reg add /?
-  
-  REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
-          [/reg:32 | /reg:64]
-  
-    KeyName  [\\Machine\]FullKey
-             Machine  远程机器名 - 忽略默认到当前机器。远程机器上
-                      只有 HKLM 和 HKU 可用。
-             FullKey  ROOTKEY\SubKey
-             ROOTKEY  [ HKLM | HKCU | HKCR | HKU | HKCC ]
-             SubKey   所选 ROOTKEY 下注册表项的完整名称。
-  
-    /v       所选项之下要添加的值名称。
-  
-    /ve      为注册表项添加空白值名称(默认)。
-  
-    /t       RegKey 数据类型
-             [ REG_SZ    | REG_MULTI_SZ | REG_EXPAND_SZ |
-               REG_DWORD | REG_QWORD    | REG_BINARY    | REG_NONE ]
-             如果忽略，则采用 REG_SZ。
-  
-    /s       指定一个在 REG_MULTI_SZ 数据字符串中用作分隔符的字符
-             如果忽略，则将 "\0" 用作分隔符。
-  
-    /d       要分配给添加的注册表 ValueName 的数据。
-  
-    /f       不用提示就强行覆盖现有注册表项。
-  
-   /reg:32  指定应该使用 32 位注册表视图访问的注册表项。
-  
-   /reg:64  指定应该使用 64 位注册表视图访问的注册表项。
-  
-  例如:
-  
-    REG ADD \\ABC\HKLM\Software\MyCo
-      添加远程机器 ABC 上的一个注册表项 HKLM\Software\MyCo
-  
-    REG ADD HKLM\Software\MyCo /v Data /t REG_BINARY /d fe340ead
-      添加一个值(名称: Data，类型: REG_BINARY，数据: fe340ead)
-  
-    REG ADD HKLM\Software\MyCo /v MRU /t REG_MULTI_SZ /d fax\0mail
-      添加一个值(名称: MRU，类型: REG_MULTI_SZ，数据: fax\0mail\0\0)
-  
-    REG ADD HKLM\Software\MyCo /v Path /t REG_EXPAND_SZ /d ^%systemroot^%
-      添加一个值(名称: Path，类型: REG_EXPAND_SZ，数据: %systemroot%)
-  ```
-
-#### 例
-
-- 查询值
-
-  ```
-  PS C:\repos\blogs> reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters /v  BasicAuthLevel
-  
-  HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
-      BasicAuthLevel    REG_DWORD    0x2
-  ```
+  -  官方建议,编辑注册表应该使用windows提供的GUI程序
+  -  但是为了高效配置,熟悉相关操作的用户可以用命令行来配置,便于部署环境
 
 
 
@@ -178,7 +77,6 @@
         LongPathsEnabled    REG_DWORD    0x0
     
     ```
-    
 
 ### 允许http链接映射为磁盘驱动器
 
@@ -196,5 +94,4 @@
     值 BasicAuthLevel 已存在，要覆盖吗(Yes/No)? yes
     操作成功完成。
     ```
-
 
