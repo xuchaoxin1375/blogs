@@ -1,12 +1,18 @@
-# test board
+## 这是一个博客仓库
 
--   [Themes · ohmyzsh/ohmyzsh Wiki (github.com)](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
+- 记录个人使用计算机中过程中出现的一些想法,经验,问题及其可能的解决方案
+- 记录一些软件的使用经验和参考文档及其来源
+- 记录一些开发软件和开发平台的使用经验
+- 记录一些资源获取的途径和来源
+- 记录基础的自然科学,计算机科学的知识和笔记,包括数学,物理等方面的知识
 
--   [Open vimrc file | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Open_vimrc_file)
+### 说明
 
--   [Example vimrc | Vim Tips Wiki | Fandom](https://vim.fandom.com/wiki/Example_vimrc)
+- 部分文章标记为TODO或者未实践,表示该篇内容不是那么可靠,仅做一个记录和参考
 
--   [How to sudo without password on CentOS Linux - nixCraft (cyberciti.biz)](https://www.cyberciti.biz/faq/how-to-sudo-without-password-on-centos-linux/)
+## 备份
 
--   [JavaScript Programming with Visual Studio Code](https://code.visualstudio.com/Docs/languages/javascript)
-
+- 这里的内容大部分在CSDN上发布,Gitee上的版本更加新鲜
+  - 早期的一段时间的博客则仅存在于CSDN;
+  - 之后的博客先在Typora Markdown编辑器中编写,然后同步到gitee,部分版本发布在CSDN等博客平台上
+  - 其他博客平台有通过CSDN引用本人博客
