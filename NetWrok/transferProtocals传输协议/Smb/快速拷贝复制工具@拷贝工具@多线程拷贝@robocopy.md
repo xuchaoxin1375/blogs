@@ -366,12 +366,242 @@ SessionId    ClientComputerName ClientUserName   NumOpens
 | /xjd                 | 排除目录的交接点。             |
 | /xjf                 | 排除文件的交接点。             |
 
+### 跳过报错
+
 - 使用`/R:0 `选项即可(直接跳过报错部分)
 
 ```powershell
 
 robocopy X:\repos\scripts C:\repos\scripts_bak /E /TEE /LOG:C:\temp\robocopy_log.txt   /NFL /ETA /MT:16 /R:1 /W:0
 
+
+```
+
+## powershell封装robocopy👺
+
+- 帮助用户更加容易的使用robocopy的核心功能(多线程复制和递归复制),作为常规copy命令的一个补充
+- 而简单的单文件复制一般用普通的copy命令就足够方便快捷了
+
+### Copy-Robocopy
+
+- 下面这个函数需要调用辅助函数`Get-PsIoItemInfo`
+
+```powershell
+
+function Copy-Robocopy
+{
+    <# 
+     .Synopsis
+    对多线程复制工具Robocopy的简化使用封装,使更加易于使用,语法更加接近powershell命令
+    默认启用多线程复制,如果需要递归,需要手动启用-Recurse选项
+    .DESCRIPTION
+    - 帮助用户更加容易的使用robocopy的核心功能(多线程复制和递归复制),作为常规copy命令的一个补充
+    - 而简单的单文件复制一般用普通的copy命令就足够方便快捷了
+    如果需要输出日志,使用LogFile参数指定日志文件
+    .EXAMPLE
+    #robocopy 原生用法常见语法用例举例
+    robocopy C:\source\folder\path\ D:\destination\folder\path\ /E /ZB /R:5 /W:5 /V /MT:32
+    .ExAMPLE
+    PS C:\Users\cxxu\Desktop> copy-Robocopy -Source .\dir4 -Destination .\dir1\ -Recurse
+    The Destination directory name is different from the Source directory name! Create the Same Name Directory? {Continue? [y/n]} : y
+    Executing: robocopy ".\dir4" ".\dir1\dir4"  /E /MT:16 /R:1 /W:1
+#>
+    [CmdletBinding()]
+    param (
+        #第一批参数
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Source,
+
+        [Parameter(Mandatory = $true, Position = 1)]
+        $Destination,
+
+        [Parameter(Position = 2)]
+        [string[]]$Files = '',
+        [int]$Threads = 16, #默认是8
+        [switch]$Recurse,
+        # 控制失败时重试的次数和时间间隔(一般不用重试,基本上都是权限问题或者符号所指的连接无法访问或找不到)
+        $Retry = 1,
+        $Wait = 1,
+
+        # 第二批
+        $ExcludeDirs = '',
+        $ExcludeFiles = '',
+        [switch]$RecurseWithoutEmptyDirs,
+        [switch]$ContinueIfbroken,
+
+        # 第三批
+        [switch]$Mirror,
+
+        [switch]$Move,
+
+        [switch]$NoOverwrite,
+
+        [switch]$V,
+
+        [string]$LogFile,
+
+
+        [string[]]$OtherArgumentList
+    )
+   
+    # Construct the robocopy command
+    # 确保source和destination都是目录
+    if (Test-Path $Source -PathType Leaf)
+    {
+        Throw 'Source must be a Directory!'
+    }if (Test-Path $Destination -PathType Leaf)
+    {
+        throw 'Destination must be a Directory!'
+    }
+
+    Write-Host 'checking directory name...'
+    #向用户展示参数设置
+    $PSBoundParameters  
+    # 这里要求$source和$destination在函数参数定义出不可以定为String类型,会导致Get-PsIOItemInfo返回值无法正确赋值
+    $Source = Get-PsIOItemInfo $Source
+    $destination = Get-PsIOItemInfo $Destination
+
+    # 检查目录名是否相同(basename)
+
+    if ($Source.name -ne $destination.name)
+    {
+        $continue = Confirm-UserContinue -Description 'The Destination directory name is different from the Source directory name! Create the Same Name Directory?'
+        if ($continue)
+        {
+            $Destination = Join-Path $Destination $Source.name
+        }
+    }
+
+    #debug
+    # return
+    $robocopyCmd = "robocopy `"$Source`" `"$Destination`" $Files"
+
+    if ($Mirror)
+    {
+        $robocopyCmd += ' /MIR'
+    }
+
+    if ($Move)
+    {
+        $robocopyCmd += ' /MOVE'
+    }
+
+    if ($NoOverwrite)
+    {
+        $robocopyCmd += ' /XN /XO /XC'
+    }
+
+    if ($Verbose)
+    {
+        $robocopyCmd += ' /V'
+    }
+
+    if ($LogFile)
+    {
+        $robocopyCmd += " /LOG:`"$LogFile`""
+    }
+
+    # if ($Threads -gt 1)
+    # {
+    #     $robocopyCmd += " /MT:$Threads"
+    # }
+    if ($OtherArgumentList)
+    {
+        $robocopyCmd += ' ' + ($OtherArgumentList -join ' ')
+    }
+    if ($Recurse)
+    {
+        $robocopyCmd += ' /E'
+    }
+    if ($ContinueIfbroken)
+    {
+        $robocopyCmd += ' /Z'
+    }
+    if ($RecurseWithoutEmptyDirs)
+    {
+        $robocopyCmd += ' /S'
+    }if ($ExcludeDirs)
+    {
+        $robocopyCmd += " /XD $ExcludeDirs"
+    }if ($ExcludeFiles)
+    {
+        $robocopyCmd += " /XF $ExcludeFiles"
+    }
+
+    # 默认使用(每个参数前有一个空格分割)
+    $robocopyCmd += " /MT:$Threads"
+    $robocopyCmd += " /R:$Retry /W:$Wait"
+
+    # Invoke the robocopy command
+    Write-Host "Executing: $robocopyCmd"
+    Invoke-Expression $robocopyCmd
+}
+
+```
+
+### Get-PsIoItemInfo
+
+- 上面的`Copy-Robocopy`调用到了这个辅助函数
+
+```powershell
+
+function Get-PsIOItemInfo
+{
+    <# 
+    .SYNOPSIS
+    获取文件或目录的.Net对象(路径对象),传入的Path对应的是文件,则返回[System.IO.FileInfo]对象，
+    传入的Path对应的是目录,则返回[System.IO.DirectoryInfo]对象
+    .EXAMPLE
+    获取某个目录的路径对象
+    PS C:\repos\scripts> 
+    Get-PsIOItemInfo ./                                                                               
+
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    da---           2024/7/29    23:23                scripts
+
+
+    PS [C:\repos\scripts]> Get-PsIOItemInfo .\PS\
+
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    da---           2024/7/29     9:10                PS
+    .EXAMPLE
+    PS [C:\repos\scripts]> (Get-PsIOItemInfo .\PS\).fullname
+    C:\repos\scripts\PS\
+
+    .EXAMPLE
+    获取某个文件的路径对象
+    PS [C:\repos\scripts]> Get-PsIOItemInfo .\readme_zh.md
+
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a---           2024/7/29    21:58            581 readme_zh.md
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (Test-Path $Path)
+    {
+        if (Test-Path $Path -PathType Leaf)
+        {
+            # 如果是文件，返回 [System.IO.FileInfo] 对象
+            return [System.IO.FileInfo]::new($Path)
+        }
+        elseif (Test-Path $Path -PathType Container)
+        {
+            # 如果是目录，返回 [System.IO.DirectoryInfo] 对象
+            return [System.IO.DirectoryInfo]::new($Path)
+        }
+    }
+    else
+    {
+        Write-Error "The path '$Path' does not exist."
+    }
+}
 
 ```
 
@@ -422,6 +652,9 @@ PS C:\Users\cxxu> robocopy X:\exes C:\exes pwsh7.4.4.msi  /Z /ETA /MT:16
 ### 不兼容传统的copy用法
 
 - 对于传统的copy用法(比如powershell中的copy命令,复制特定文件的语法不同,直接在source处指定源文件而非源文件夹会出错,同样的,在destination处直接指定复制后的文件名也会出错)
+
+#### 默认作为目录处理
+
 - 从下面的错误示例可以看出,source,destination位置处的参数被当成文件夹来处理而不是识别为文件
 
 ```
@@ -444,6 +677,13 @@ PS C:\Users\cxxu> robocopy X:\exes\pwsh7.4.4.msi C:\exes\pwsh7.msi   /ETA /MT:16
 2024/08/02 13:11:54 错误 267 (0x0000010B) 正在访问源目录 X:\exes\pwsh7.4.4.msi\
 目录名称无效。
 ```
+
+#### 从目录A复制到目录B时不会保留目录A
+
+- 和powershell自带的`copy`命令不同,使用`robocopy A B`复制时(使用递归复制`/E`),会将`A`目录中的文件和子目录复制到`B`中,也就是说`A`中的文件或子目录直接挂在`B`下面
+  - 举例来说,`A`目录下有个`a.txt`文件,那么经过上述复制,目录`B`中会有`a.txt`,但是不会隔着一层`A`目录
+- 这种行为有时会造成困扰,例如目录A是某个便携版软件的目录,B目录中有很多其他文件和子目录,如果用上面的方法复制,那么目录B中其他文件会和目录A中的文件混在一起,导致目录B内的结构发生混乱难以维护且容易造成冲突!
+- 如果要保留复制到B目录中的A目录层级,可以改为`robocopy A B\A`,这样目录A复制到B中时,新文件就会挂在`B\A`目录下
 
 ### 递归复制和指定复制的冲突
 
@@ -600,56 +840,4 @@ robocopy C:\Source D:\Destination /E /NP /LOG:C:\temp\rbcopy_log.txt /NFL /NDL /
 
   
 
-
-
-## Rclone
-
-### 启动
-
-Rclone是一个主打命令行的工具,尽管有GUI版本
-
-普通版,也就是命令行版的可执行程序双击会提示你它是一个命令行工具,使用`cmd`打开
-
-经过试验,使用powershell启动`Rclone`可能导致闪退,请运行`cmd`,再执行`Rclone`
-
-```cmd
-This is a command line tool.
-
-You need to open cmd.exe and run it from there.
-
-```
-
-```powershell
-#这里使用powershell启动cmd,然后再运行rclone
-PS☀️[BAT:75%][MEM:36.58% (11.6/31.71)GB][17:32:18]
-# [cxxu@CXXUCOLORFUL][C:\exes\Rclone]
-#切换到cmd
-PS> cmd
-Microsoft Windows [Version 10.0.26100.1150]
-(c) Microsoft Corporation. All rights reserved.
-
-C:\exes\Rclone>rclone -h
-
-Rclone syncs files to and from cloud storage providers as well as
-mounting them, listing them in lots of different ways.
-
-See the home page (https://rclone.org/) for installation, usage,
-documentation, changelog and configuration walkthroughs.
-
-Usage:
-  rclone [flags]
-  rclone [command]
-
-Available Commands:
-  about       Get quota information from the remote.
-  authorize   Remote authorization.
-  backend     Run a backend-specific command.
-  bisync      Perform bidirectional synchronization between two paths.
-  cat         Concatenates any files and sends them to stdout.
-  check       Checks the files in the source
-  ....
-  copy        Copy files from source to dest, skipping identical files.
-  copyto      Copy files from source to dest, skipping identical files.
-  ..
-```
 

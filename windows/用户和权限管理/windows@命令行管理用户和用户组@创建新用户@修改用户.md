@@ -3,19 +3,28 @@
 ## abstract
 
 - 介绍windows powershell如何管理用户和组
-- cmd下也有命令行工具:在Windows Command Prompt（CMD）中创建新用户，可以使用`net user`命令。
-- 但是cmd不是讨论的重点,尽管`net`命令目前所有windows版本都可以用,它承担的功能有很多,powershell的这一套比较清晰
-- 有关net的用法另外参考资料[Net user | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc771865(v=ws.11))
+- 创建和管理用户的命令行有两类
+
+  - 传统的可以使用`net user`,`net localgroup`命令
+  - `net `系列命令现在已经过时了,但是语法方便,所有许多地方还用到
+
+- 另一方面,尽管`net`命令目前所有windows版本都可以用,它承担的功能有很多,powershell的这一套比较清晰
+
+- 参考资料
+
+  - [Net user | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc771865(v=ws.11))
+
+  - [New-LocalUser (Microsoft.PowerShell.LocalAccounts) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.localaccounts/new-localuser?view=powershell-5.1)
+    - 这是powershell5.1命令行程序中可以执行的命令
+    - powershell 7某些版本直接执行可能会报错
 
 ## 命令行与用户管理
 
 
 
-### 一览
+### 一览相关命令
 
-- 相关命令
-
-  ```powershell
+- ```powershell
   PS>gcm *user*,*group*|?{$_.CommandType -eq 'cmdlet'}
   
   CommandType     Name                                               Version    Source
@@ -48,7 +57,7 @@
   Cmdlet          Set-WinUserLanguageList                            2.1.0.0    Intern…
   
   ```
-
+  
 - 浓缩一下
 
   - ```bash
@@ -99,9 +108,6 @@
   ```
 
 - 别名规律执行`get-verb`进行归纳
-
-- [New-LocalUser (Microsoft.PowerShell.LocalAccounts) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.localaccounts/new-localuser?view=powershell-5.1)
-  - 这是powershell5.1命令行程序中可以执行的命令
 
 ### 权限
 

@@ -4,7 +4,7 @@
 
 ## 仓库重点:powershell
 
-- 仓库重点是`powershell` 脚本,详情查看`ModulesByCxxu`内部的说明文档 [PwshModuleByCxxu.md](PwshModuleByCxxu.md) 
+- 仓库重点是`powershell` 脚本,详情查看`PS`内部的说明文档 [PwshModuleByCxxu.md](PwshModuleByCxxu.md) 
 - 适配于powershell7的模块/函数/别名集合
 - 对于windows自带的powershell(v5版本),某些功能不支持
 - 然而,windows之所以一直没有彻底移除掉v5版本,是有原因的

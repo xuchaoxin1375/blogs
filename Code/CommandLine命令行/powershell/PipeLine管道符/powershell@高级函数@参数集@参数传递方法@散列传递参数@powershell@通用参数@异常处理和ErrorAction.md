@@ -149,6 +149,129 @@ Starting process with ID: 123 and Option: qq
 
 有关 `$PSCmdlet` 自动变量的详细信息，请参阅 [about_Functions_CmdletBindingAttribute](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.4) 和 [about_Functions_Advanced](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.4)。
 
+## powershell中的参数设置和传参方式👺
+
+以下是 PowerShell 中传递参数给函数的多种方式的总结：
+
+| **方式**                                               | **描述**                                                     | **示例**                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------- |
+| **位置参数 (Positional Parameters)**                   | 根据参数顺序传递值。                                         | `Test-Positional "Value1" "Value2"`                      |
+| **命名参数 (Named Parameters)**                        | 明确指定参数名称，传递顺序无关紧要。                         | `Test-Named -param1 "Value1" -param2 "Value2"`           |
+| **可选参数 (Optional Parameters)**                     | 为参数设置默认值，使其成为可选项。                           | `Test-Optional -param1 "Value1"`                         |
+| **参数别名 (Parameter Alias)**                         | 使用 `[Alias()]` 为参数设置别名。                            | `Test-Alias -p1 "Value1" -p2 "Value2"`                   |
+| **强制参数 (Mandatory Parameters)**                    | 使用 `[Parameter(Mandatory=$true)]` 强制要求传递参数。       | `Test-Mandatory -param1 "Value1"`                        |
+| **参数验证 (Parameter Validation)**                    | 使用验证属性（如 `[ValidateSet()]`、`[ValidateRange()]`）限制参数输入范围。 | `Test-Validation -param1 "Value1"`                       |
+| **通过管道传递参数 (Pipeline Input)**                  | 使用 `[Parameter(ValueFromPipeline=$true)]` 接收通过管道传递的参数。 | `"Value1" | Test-Pipeline`                               |
+| **参数数组 (Parameter Arrays)**                        | 使用数组类型传递多个值给一个参数。                           | `Test-Array -param1 "Value1", "Value2"`                  |
+| **动态参数 (Dynamic Parameters)**                      | 使用 `DynamicParam` 动态生成参数。                           | `Test-Dynamic -DynamicParam1 "Option1"`                  |
+| **默认参数集 (Default Parameter Set)**                 | 为函数设置多个参数集，并指定默认参数集。                     | `Test-ParameterSet -param1 "Value1"`                     |
+| **键值对参数 (Key-Value Pair Parameters)**             | 使用哈希表形式传递键值对参数。                               | `Test-Hashtable -param1 @{Key1="Value1"; Key2="Value2"}` |
+| **散列传参:切片参数 (Splatting)**                      | 通过传递参数哈希表或数组来调用函数，特别适用于参数较多的情况。 | `Test-Splatting @params`                                 |
+| **布尔参数 (Boolean Parameters with Switch Syntax)**   | 使用 `Switch` 参数语法，传递布尔类型的参数。                 | `Test-Switch -VerboseOutput`                             |
+| **外部环境获取参数 (Parameters from the Environment)** | 从外部环境（如环境变量）中获取参数值。                       | `Test-EnvParam`                                          |
+| **自动变量 (Automatic Variables)**                     | 使用自动变量（如 `$args`）捕获未绑定到命名参数的传递值。     | `Test-AutoVar "Value1" "ExtraArg1"`                      |
+
+这些方法涵盖了从基本到高级的各种场景，通过灵活运用这些方式，你可以根据具体需求高效地在 PowerShell 函数中传递参数。
+
+具体的展开介绍另见它文,下面介绍重要的传参方式
+
+## 散列传递参数@散列传递变量
+
+[关于散列传递 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-7.4)
+
+在powershell中,对于函数,主要有两大类传参方式,
+
+- 一类是普通传参,即调用某个函数时,指出特定的参数并给出参数;
+  - 这种传参方式用的最多,最直观
+  - 利用powershell对函数参数的提示特性(比如按下tab键可以提示参数信息),并且很直观
+
+- 一类是散列传参,需要用户对函数的语法或参数有所了解,然后将需要设置的参数组织到一个字典(哈希表)对象中,利用`@`符号将对象散列给函数完成传参
+  - 这种传参方式需要你知道函数的参数,然后完整地手打出来,不能够像普通传参方式那样有提示和补全可用
+  - 不过这种传参方式也有优点:
+    - 散列传递使命令更短，且更易于阅读。 
+    - 可以在不同的命令调用中重用散列传递值，并使用散列传递将参数值从 `$PSBoundParameters` 自动变量传递到其他脚本和函数。
+
+### 示例:基础
+
+```powershell
+function Test-SplattingSwitch {
+    param (
+        [string]$param1,
+        [switch]$VerboseOutput
+    )
+
+    Write-Host "Param1: $param1"
+
+    if ($VerboseOutput) {
+        Write-Host "Verbose output enabled"
+    } else {
+        Write-Host "Verbose output disabled"
+    }
+}
+
+# Splatting 传参
+$params = @{
+    param1 = "TestValue"
+    VerboseOutput = $true  # 激活 Switch 参数
+}
+
+Test-SplattingSwitch @params
+```
+
+#### 解释
+
+1. **函数定义**:
+   - `Test-SplattingSwitch` 函数有两个参数：
+     - `param1`：普通字符串参数。
+     - `VerboseOutput`：`Switch` 类型参数。
+
+2. **参数哈希表**:
+   - 使用一个哈希表 `$params` 来存储参数：
+     - `param1` 设置为 `"TestValue"`。
+     - `VerboseOutput` 设置为 `$true`，表示激活该 `Switch` 参数。
+
+3. **函数调用**:
+   - 使用 `@params` 进行 Splatting 调用函数，将哈希表中的所有键值对作为参数传递给函数。
+
+4. **输出**:
+   - 函数会根据 `VerboseOutput` 的值来决定是否输出详细信息。
+
+### 示例:嵌套传参
+
+假设powershell函数`Out`有一个switch参数`Recurse`,而Out内部调用了ls命令,我希望使用`Out -Recurse`时传递给`ls`启用`Recurse`来运行
+
+这里可以用散列传参的方式实现
+
+```powershell
+function Out {
+    param(
+        [switch]$Recurse
+    )
+    
+    # 准备参数哈希表
+    $lsParams = @{}
+
+    # 如果 -Recurse 被指定，将它添加到参数哈希表中
+    if ($Recurse) {
+        $lsParams.Recurse = $true
+    }
+    
+    # 使用 splatting 将参数传递给 ls
+    ls @lsParams
+}
+
+```
+
+
+
+## 参数检查
+
+- [$PsboundParameters|关于自动变量 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#psboundparameters)
+
+- [Using $PSBoundParameters in PowerShell — The Ginger Ninja (gngrninja.com)](https://www.gngrninja.com/script-ninja/2020/1/19/using-psboundparameters-in-powershell)
+
+
+
 ## 接受数组和单个元素的兼容性参数
 
 在 PowerShell 中，你可以编写一个函数，使其既能接受数组输入，也能兼容单个元素的输入。这可以通过使用 `@()` 运算符来确保输入被当作数组处理。以下是一个示例：
@@ -186,4 +309,17 @@ Processing item: element1
 Processing item: element2
 Processing item: element3
 ```
+
+- [关于 CommonParameters - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.4#-erroraction)
+
+## 错误处理
+
+- **ErrorAction** 参数对终止错误（例如缺少数据、无效的参数或权限不足）无效，这些错误会阻止命令成功完成。
+  - `Break` 在发生错误或引发异常时进入调试器。
+  - `Continue` 显示错误消息并继续执行命令。 `Continue` 是默认值。
+  - `Ignore` 禁止显示错误消息并继续执行命令。 与 **SilentlyContinue** 不同，**Ignore** 不会将错误消息添加到 `$Error` 自动变量。 PowerShell 3.0 中引入了 **Ignore** 值。
+  - `Inquire` 显示错误消息，并在继续执行之前提示你确认。 此值很少使用。
+  - `SilentlyContinue` 禁止显示错误消息并继续执行命令。
+  - `Stop` 显示错误消息并停止执行命令。
+  - `Suspend` 仅适用于 PowerShell 6 及更高版本不支持的工作流。
 
