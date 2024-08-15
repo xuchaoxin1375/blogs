@@ -20,6 +20,9 @@
 - [手动安装 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/install/manual.html)
   - 介绍不同平台的安装和启动的方法
 
+- [为什么 | AList文档 (nn.ci)](https://alist.nn.ci/zh/faq/why.html)
+  - 列出了alist使用常见的问题,包括预览和打包下载等问题
+
 - 为可执行程序`alist.exe`配置Path变量或者取别名
 - 执行`alist server`初始化
 - 根据需要可以修改密码:`alist admin set <new_password>`
@@ -97,7 +100,12 @@
 - 如果是通过创建快捷方式,通过快捷方式的方式启动,则可以确保每次alist家目录是一致的
 - 如果要在某个脚本中使用alist,建议使用`cd <alist_home>`,使得工作目录定位到alist家目录,然后根据需要可以返回或跳转到其他目录
 
-## FAQ可能遇到的错误
+## FAQ
+
+- 官方文档整理了一份常见问题,值得看:
+  - [为什么 | AList文档 (nn.ci)](https://alist.nn.ci/zh/faq/why.html)
+
+### 可能遇到的错误
 
 - `failed get objs: failed to list objs: InvalidParameter.ParentFileId:The input parameter parent_file_id is not valid. for cpp path domain parent_file_id is required`
 
@@ -207,6 +215,20 @@
       },
     ...
     ```
+
+### 文件更新不及时或滞后问题
+
+- [阿里云盘更新内容，alist一直不更新 · alist-org/alist · Discussion #2928 · GitHub](https://github.com/alist-org/alist/discussions/2928)
+- 例如,你通过alist提供的复制功能,将本地盘文件复制到挂在的某网盘上(比如123网盘),alist提示你操作成功,但是你进入到相应网盘目录检查发现新文件并不在文件列表中,这种情况下你需要通过alist提供的网页上的三个点按钮展开,点击刷新获取新的内容
+- 另一种说法是修改alist配置文件中的过期时间为0,但是可能有封号的风险
+
+### 打包下载和批量下载
+
+- alist的打包下载功能依赖于被挂在的网盘是否支持,如果支持,则对于用户来说,流量器上直接批量下载就比较方便
+  - 在**为什么**文档中指出,打包下载需要https+cors的支持
+    - 有的网盘,比如123网盘,挂在到alist后,可以选中多个文件或文件夹,然后打包下载
+  - 而一般将本地磁盘挂在到alist上不能让打包下载正常工作
+- 批量下载,不一定要打包下载,如果客户端平台允许,可以下载并运行aria2 启用rpc服务,这样通过批量选中需要下载的东西发送到aria2下载也是可以的,详情另见它文[Aria2@RPC下载@Alist批量下载-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/141233494?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"141233494"%2C"source"%3A"xuchaoxin1375"})
 
 ## 开机自动运行配置(守护进程)👺
 

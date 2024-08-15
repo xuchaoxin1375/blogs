@@ -1,5 +1,11 @@
 [toc]
 
+## abstract
+
+- 介绍若干中安装office的方法
+- 对于某些精简版系统,安装可能会出错或失败
+- 原版系统一般都可以安装成功(windows server平台上可能会安装失败)
+
 ## 官方下载@office下载安装
 
 - [Download and install or reinstall Microsoft 365 or Office 2021 on a PC or Mac - Microsoft Support](https://support.microsoft.com/en-us/office/download-and-install-or-reinstall-microsoft-365-or-office-2021-on-a-pc-or-mac-4414eaaf-0478-48be-9c42-23adc4716658)
@@ -31,6 +37,13 @@
 
   - 请认真阅读文档(文档中的下载链接可能失效,但是可以把仓库下载下来,解压运行其中的程序)
 - [asheroto/Deploy-Office: Easily install the latest version of Microsoft Office 2019 or 2021. (github.com)](https://github.com/asheroto/Deploy-Office)
+  - 可以选择下载年份的大版本,也可以选择Microsoft 365版本
+  - 这里安装的软件可能不仅仅是最常用的三件套,还可能包括access,outlook,onenote,publisher组件
+    - 这些组件像是Office 或Microsoft365这个大软件中的一个入口快捷方式,无法单独卸载
+    - 卸载其中一个,就会将这个办公全家桶卸载掉
+
+  - 虽然安装的全家桶有点多余,但是起码成功率高,可以在一些精简版系统上安装成功
+
 - [Release HEU_KMS_Activator(github.com)](https://github.com/zbezj/HEU_KMS_Activator/releases/tag/30.2.0)
 
 

@@ -92,6 +92,83 @@ Motrix使用的开发技术(Technology Stack)和组件
 
 - 使用示例:[aria2c(1) Examples documentation](https://aria2.github.io/manual/en/html/aria2c.html#example)
 
+### 本地文档
+
+- 通过`aria2c -h`获取首页帮助(实际上等价于`aria2c -h#basic`)
+
+- ```cmd
+  PS C:\Users\cxxu\Desktop> aria2c -h
+  Usage: aria2c [OPTIONS] [URI | MAGNET | TORRENT_FILE | METALINK_FILE]...
+  Printing options tagged with '#basic'.
+  See 'aria2c -h#help' to know all available tags.
+  Options:
+   -v, --version                Print the version number and exit.
+  
+                                Tags: #basic
+  ....
+  ```
+
+  
+
+#### 获取所有Tag帮助主题
+
+```cmd
+PS C:\Users\cxxu\Desktop>  aria2c -h#help
+Usage: aria2c [OPTIONS] [URI | MAGNET | TORRENT_FILE | METALINK_FILE]...
+Printing options tagged with '#help'.
+See 'aria2c -h#help' to know all available tags.
+Options:
+ -h, --help[=TAG|KEYWORD]     Print usage and exit.
+                              The help messages are classified with tags. A tag
+                              starts with "#". For example, type "--help=#http"
+                              to get the usage for the options tagged with
+                              "#http". If non-tag word is given, print the usage
+                              for the options whose name includes that word.
+
+                              Possible Values: #basic, #advanced, #http, #https, #ftp, #metalink, #bittorrent, #cookie, #hook, #file, #rpc, #checksum, #experimental, #deprecated, #help, #all
+                              Default: #basic
+                              Tags: #basic, #help
+
+Refer to man page for more information.
+```
+
+### 查询特定主题
+
+- `aria2c -h#http`和`aria2c --help=#http`的效果一样
+- 一般我们使用第一种,更方便
+
+- ```cmd
+  PS C:\Users\cxxu\Desktop> aria2c -h#http 
+  Usage: aria2c [OPTIONS] [URI | MAGNET | TORRENT_FILE | METALINK_FILE]...
+  Printing options tagged with '#http'.
+  See 'aria2c -h#help' to know all available tags.
+  Options:
+   -t, --timeout=SEC            Set timeout in seconds.
+  
+                                Possible Values: 1-600
+                                Default: 60
+                                Tags: #http, #ftp
+  ....
+  ```
+
+  ```cmd
+  PS C:\Users\cxxu\Desktop> aria2c --help=#http
+  Usage: aria2c [OPTIONS] [URI | MAGNET | TORRENT_FILE | METALINK_FILE]...
+  Printing options tagged with '#http'.
+  See 'aria2c -h#help' to know all available tags.
+  Options:
+   -t, --timeout=SEC            Set timeout in seconds.
+  
+                                Possible Values: 1-600
+                                Default: 60
+                                Tags: #http, #ftp
+  ....
+  ```
+
+#### 分页阅读
+
+- 在powershell中查阅Aria2文档时,可以使用`|out-host -paging`来分页阅读,可以按空格翻页,按回车显示下一行内容
+
 ### 配置环境变量以快速启动
 
 - 为了使aria2在任意路径下可以访问,推荐讲aria2所在目录写入到Path环境变量
