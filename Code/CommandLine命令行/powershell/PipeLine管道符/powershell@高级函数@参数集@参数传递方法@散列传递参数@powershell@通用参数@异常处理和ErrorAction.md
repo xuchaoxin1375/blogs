@@ -1,69 +1,72 @@
 [toc]
 
-## 相关文档
+## abstract
+
+powershell中的函数相比于常规的编程语言对于参数的设计要复杂的多,对于一个参数可以施加的限制相当的多样和灵活,一个命令可以设计成具有多种调用语法的形式,达到了类似于面向对象编程中的方法或函数重载,让一个powershell函数或命令可以设计的灵活和强大,这主要是靠`[parameter()]`串联来施加层层约束,这大致可以分为横向约束和纵向约束,也就是会说,设计参数时,不仅可以用一个`[parameter()]`来定义参数特点,如果不够,还可以串联多个`[parameter()]`来约束,例如让一个参数属于多个不同的参数集
+
+```powershell
+function demo{
+	#外部通过gcm demo -syntax查看语法
+    param(
+        #定义Computer参数集,包含$computerName参数
+        [Parameter(Mandatory, ParameterSetName = 'Computer')]
+        [string[]]$ComputerName,
+        #定义User参数集,包含$UserName参数
+        [Parameter(Mandatory, ParameterSetName = 'User')]
+        [string[]]$UserName,
+        #不定义新的参数集,而将Summary参数添加到computer,user两个参数集中,
+        # 此外,我们指定了当Summary在User参数集中时,它是一个不可省略的参数,而在Computer参数集中,是允许它被省略的
+        [Parameter(ParameterSetName = 'Computer')]
+        [Parameter(Mandatory, ParameterSetName = 'User')]
+        [switch]$Summary
+    )
+    
+}
+```
+
+```powershell
+PS C:\Users\cxxu\Desktop> gcm demo -Syntax
+
+demo -ComputerName <string[]> [-Summary] [<CommonParameters>]
+
+demo -UserName <string[]> -Summary [<CommonParameters>]
+
+```
+
+- 上述结果表明,powershell参数的设置确实很灵活,其中`Summary`参数同时存在于两个参数集对应的调用语法中,并且在User参数集中时,`Summary`是必要不可省略的参数
+
+## 参考文档
 
 - [关于函数高级参数 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4)
 
-## 文档大纲
+  - 可以向自己编写的高级函数添加参数，并使用参数属性和参数来限制函数用户随参数提交的参数值。
 
-### 基本信息
+  - 使用特性 `CmdletBinding` 时，PowerShell 会自动添加通用参数。 不能创建使用与通用参数相同的名称的任何参数。 有关详细信息，请参阅 [about_CommonParameters](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.4)。
 
-- [简短说明](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#short-description)
-- [长说明](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#long-description)
-- [参数值的类型转换](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#type-conversion-of-parameter-values)
-- [静态参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#static-parameters)
-- [开关参数👺](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#switch-parameters)
-  - [开关参数设计注意事项](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#switch-parameter-design-considerations)
-- [动态参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#dynamic-parameters)
+  - 从 PowerShell 3.0 开始，可以使用 `@Args` 散列传递来表示命令中的参数。 散列传递对于简单和高级函数都有效。 有关更多信息，请参阅 [about_Functions](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions?view=powershell-7.4) 和 [about_Splatting](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-7.4)。
 
-### 参数的属性
+  - 这篇文章是关于PowerShell中高级函数参数的使用和配置的详细介绍。以下是文章的主要内容总结：
 
-- [参数的属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#attributes-of-parameters)
-  - [参数属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#parameter-attribute)
-    - [强制参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#mandatory-argument)
-    - [Position 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#position-argument)
-    - [ParameterSetName 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#parametersetname-argument)
-    - [ValueFromPipeline 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#valuefrompipeline-argument)
-    - [ValueFromPipelineByPropertyName 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#valuefrompipelinebypropertyname-argument)
-    - [ValueFromRemainingArguments 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#valuefromremainingarguments-argument)
-    - [HelpMessage 参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#helpmessage-argument)
-  - [Alias 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#alias-attribute)
-  - [Credential 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#credential-attribute)
-  - [Experimental 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#experimental-attribute)
-  - [PSDefaultValue 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#psdefaultvalue-attribute)
-    - [PSDefaultValue 属性参数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#psdefaultvalue-attribute-arguments)
-  - [PSTypeName 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#pstypename-attribute)
-  - [System.Obsolete 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#systemobsolete-attribute)
-  - [SupportsWildcards 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#supportswildcards-attribute)
 
-### 参数补全属性
+- 1. **简短说明**：介绍了如何向高级函数添加参数。
+  2. **长说明**：讨论了如何使用参数属性和参数来限制函数用户提交的参数值。
+  3. **参数值的类型转换**：解释了当提供字符串参数时，PowerShell如何进行隐式类型转换。
+  4. **静态参数**：静态参数是函数中始终可用的参数。
+  5. **开关参数**：开关参数不使用参数值，而是通过存在或不存在来传达布尔值。
+  6. **动态参数**：动态参数仅在特定条件下可用。
+  7. **参数的属性**：介绍了可以添加到函数参数的多种属性，如`Mandatory`、`Position`、`ParameterSetName`等。
+  8. **参数补全属性**：讨论了如何通过`ArgumentCompletions`和`ArgumentCompleter`属性为参数添加Tab自动补全值。
+  9. **参数和变量验证属性**：验证属性用于测试用户提交的参数值是否有效，如`AllowNull`、`ValidateCount`、`ValidatePattern`等。
+  10. **ValidateSet 属性**：指定参数或变量的一组有效值，并启用Tab自动补全。
+  11. **使用类的动态 ValidateSet 值**：演示了如何使用类在运行时动态生成`ValidateSet`的值。
 
-- [参数补全属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#argument-completion-attributes)
-  - [参数补全属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#argumentcompletions-attribute)
-  - [ArgumentCompleter 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#argumentcompleter-attribute)
 
-### 参数和变量验证属性
+ 
 
-- [参数和变量验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#parameter-and-variable-validation-attributes)
-  - [AllowNull 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#allownull-validation-attribute)
-  - [AllowEmptyString 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#allowemptystring-validation-attribute)
-  - [AllowEmptyCollection 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#allowemptycollection-validation-attribute)
-  - [ValidateCount 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatecount-validation-attribute)
-  - [ValidateLength 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatelength-validation-attribute)
-  - [ValidatePattern 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatepattern-validation-attribute)
-  - [ValidateRange 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validaterange-validation-attribute)
-  - [ValidateScript 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatescript-validation-attribute)
-    - [重写默认错误消息](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#overriding-the-default-error-message)
-  - [ValidateSet 属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validateset-attribute)
-    - [使用类的动态 ValidateSet 值](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#dynamic-validateset-values-using-classes)
-  - [ValidateNotNull 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatenotnull-validation-attribute)
-  - [ValidateNotNullOrEmpty 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatenotnullorempty-validation-attribute)
-  - [ValidateNotNullOrWhiteSpace 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatenotnullorwhitespace-validation-attribute)
-  - [ValidateDrive 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatedrive-validation-attribute)
-  - [ValidateUserDrive 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validateuserdrive-validation-attribute)
-  - [ValidateTrustedData 验证属性](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.4#validatetrusteddata-validation-attribute)
+## ParameterSetName参数集@多语法命令
 
-## ParameterSetName参数
+- [关于参数集 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_parameter_sets?view=powershell-7.4)
+- [Cmdlet Parameter Sets - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/cmdlet-parameter-sets?view=powershell-7.4)
 
 `ParameterSetName` 是 PowerShell 中 `Parameter` 属性的一个参数，用于定义命令行参数（cmdlet 参数）属于的参数集。在复杂的 cmdlet 实现中，你可能希望根据不同的使用场景接受不同的参数组合。
 
@@ -102,6 +105,7 @@ function Start-MyProcess {
 - 如果调用时指定了 `$Path` 参数，那么将使用 `'Path'` 参数集。
 - 如果调用时指定了 `$ID` 和 `$Option` 参数，那么将使用 `'ID'` 参数集。
 - 函数内部通过 `$PSCmdlet.ParameterSetName` 检查哪个参数集被使用，从而决定执行相应的逻辑。
+- 并且`param()`外层有一个` [CmdletBinding(DefaultParameterSetName='Path')]`修饰,表示默认使用诸多参数集中的`Path`参数集(这在可选参数较多或分不清某个调用到属于哪个参数集语法时很有用,例如`set-location`命令,它有两个语法的所有参数都是可选的,当不提供参数时会跳转到用户家目录,那么应该是指定了第一种语法作为默认语法)
 
 这种方式非常适合设计需要根据不同参数执行不同操作的 cmdlet。
 
@@ -270,7 +274,50 @@ function Out {
 
 - [Using $PSBoundParameters in PowerShell — The Ginger Ninja (gngrninja.com)](https://www.gngrninja.com/script-ninja/2020/1/19/using-psboundparameters-in-powershell)
 
+## 参数绑定和调用语法
 
+PowerShell 解析用户输入的机制是通过**参数绑定**（Parameter Binding）来实现的。它会根据用户输入的具体情况，自动判断匹配到合适的命令语法（Syntax）。解析过程涉及以下几个主要步骤：
+
+### 1. 解析命令名
+用户输入命令后，PowerShell 首先会根据输入找到对应的命令。在你的例子中，`cd` 是 `Set-Location` 的别名（Alias），所以 PowerShell 会将 `cd` 映射到 `Set-Location`。
+
+### 2. 解析参数
+PowerShell 会尝试将用户输入的内容和命令的各个参数进行匹配。主要考虑以下几个方面：
+
+- **位置参数（Positional Parameters）：** 如果用户没有指定参数名（例如没有 `-Path` 或 `-LiteralPath`），PowerShell 会按顺序将输入的值绑定到定义中的位置参数。  
+  例如，`cd C:\Users`，这里的 `C:\Users` 会被绑定到 `-Path` 参数。
+
+- **命名参数（Named Parameters）：** 如果用户输入了参数名，例如 `-LiteralPath`，PowerShell 会直接将输入值绑定到该参数上。
+
+- **开关参数（Switch Parameters）：** 这类参数不需要值，用户只需要输入参数名即可。例如，`-PassThru` 就是一个开关参数。
+
+### 3. 参数集的选择
+如果命令有多个参数集（Parameter Sets），PowerShell 会根据已绑定的参数来确定应该使用哪个参数集。每个参数集通常有独特的必需参数或开关参数，以便 PowerShell 进行区分。
+
+在 `Set-Location` 的例子中，有多个参数集：
+
+- `Set-Location [[-Path] <string>] [-PassThru] [<CommonParameters>]`
+- `Set-Location -LiteralPath <string> [-PassThru] [<CommonParameters>]`
+- `Set-Location [-PassThru] [-StackName <string>] [<CommonParameters>]`
+
+### 4. 参数集匹配的具体过程
+PowerShell 会依次尝试匹配用户输入的参数到不同的参数集：
+
+- **匹配 `-Path` 参数集：** 如果输入的是一个路径字符串而没有指定参数名，PowerShell 会尝试将它绑定到 `-Path` 参数，因为它是位置参数。
+  
+- **匹配 `-LiteralPath` 参数集：** 如果用户明确指定了 `-LiteralPath`，PowerShell 会将路径字符串绑定到 `-LiteralPath` 参数，并选择与之对应的参数集。
+
+- **匹配 `-StackName` 参数集：** 如果输入的参数名为 `-StackName`，PowerShell 会选择与该参数集匹配的语法。
+
+### 5. 参数验证
+最后，PowerShell 会对已解析的参数进行验证，确保所有必需的参数都已绑定，且没有冲突的参数集。通过验证后，命令才会被执行。
+
+### 例子解析：
+- `cd C:\Users`: PowerShell 将 `C:\Users` 绑定到 `-Path` 参数，匹配第一个参数集。
+- `Set-Location -LiteralPath C:\Users`: PowerShell 直接绑定到 `-LiteralPath` 参数，匹配第二个参数集。
+- `Set-Location -StackName MyStack`: PowerShell 识别 `-StackName` 参数并匹配第三个参数集。
+
+这种机制使得 PowerShell 能够灵活地处理命令的多重用法，根据用户输入自动选择合适的语法。
 
 ## 接受数组和单个元素的兼容性参数
 
