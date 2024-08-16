@@ -4,6 +4,8 @@
 
 ## abstract
 
+powershell@维护状态信息的变量@自动变量AutomaticVariable
+
 [关于自动变量 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#short-description)
 
 [about Automatic Variables - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#consolefilename)
@@ -280,8 +282,110 @@ Write-Host "CurrentUICulture: $($host.CurrentUICulture.Name)"
 
 通过这些示例和解释，希望能帮助你更好地理解 PowerShell 中的 `$host` 变量及其用法。如果有任何进一步的问题或需要更详细的解释，请随时告诉我。
 
-## 脚本块`$Scriptblock`
+## 脚本块`$Scriptblock`👺
 
 [关于脚本块 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4)
 
 脚本块的一个重要特点是可以包含参数
+
+### 使用脚本块
+
+脚本块是 Microsoft .NET Framework 类型 `System.Management.Automation.ScriptBlock` 的实例。 命令可以包含脚本块参数值。 例如，`Invoke-Command` cmdlet 有一个采用脚本块值的 `ScriptBlock` 参数，如以下示例所示：
+
+PowerShell
+
+```powershell
+Invoke-Command -ScriptBlock { Get-Process }
+```
+
+Output
+
+```Output
+Handles  NPM(K)    PM(K)     WS(K) VM(M)   CPU(s)     Id ProcessName
+-------  ------    -----     ----- -----   ------     -- -----------
+999          28    39100     45020   262    15.88   1844 communicator
+721          28    32696     36536   222    20.84   4028 explorer
+...
+```
+
+`Invoke-Command` 还可以执行包含参数块的脚本块。 使用 ArgumentList 参数按位置分配参数。
+
+PowerShell
+
+```powershell
+Invoke-Command -ScriptBlock { param($p1, $p2)
+"p1: $p1"
+"p2: $p2"
+} -ArgumentList "First", "Second"
+```
+
+Output
+
+```Output
+p1: First
+p2: Second
+```
+
+前面示例中的脚本块使用 `param` 关键字创建参数 `$p1` 和 `$p2`。 字符串“First”绑定到第一个参数 (`$p1`)，“Second”绑定到 (`$p2`)。
+
+有关 ArgumentList 的行为的详细信息，请参阅 [about_Splatting](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-7.4#splatting-with-arrays)。
+
+### Invoke-command 和调用运算符&
+
+可以使用变量来存储和执行脚本块。 以下示例将脚本块存储在变量中并将其传递给 `Invoke-Command`。
+
+PowerShell
+
+```powershell
+$a = { Get-Service BITS }
+Invoke-Command -ScriptBlock $a
+```
+
+Output
+
+```Output
+Status   Name               DisplayName
+------   ----               -----------
+Running  BITS               Background Intelligent Transfer Ser...
+```
+
+调用运算符是执行存储在变量中的脚本块的另一种方式。 与 `Invoke-Command` 一样，调用运算符在子范围内执行脚本块。 调用运算符可让你更轻松地在脚本块中使用参数。
+
+PowerShell
+
+```powershell
+$a ={ param($p1, $p2)
+"p1: $p1"
+"p2: $p2"
+}
+&$a -p2 "First" -p1 "Second"
+```
+
+Output
+
+```Output
+p1: Second
+p2: First
+```
+
+可以使用赋值将脚本块的输出存储在变量中。
+
+
+
+```
+PS>  $a = { 1 + 1}
+PS>  $b = &$a
+PS>  $b
+2
+```
+
+
+
+```
+PS>  $a = { 1 + 1}
+PS>  $b = Invoke-Command $a
+PS>  $b
+2
+```
+
+有关调用运算符的详细信息，请参阅 [about_Operators](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.4)。

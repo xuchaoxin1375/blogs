@@ -45,6 +45,61 @@ Aria2 提供了一个远程控制接口（RPC），可以通过 JSON-RPC 协议�
 
   Change the configuration file path to PATH. Default: `$HOME/.aria2/aria2.conf` if present, otherwise `$XDG_CONFIG_HOME/aria2/aria2.conf`
 
+- 然而,在默认位置放置了`aria2.conf`不一定适合所有人，如果你不用rpc的话还好,如果你在配置文件中设置启用aria2 rpc,那么在调用`aria2c`下载某个资源的时候,会一并出发rpc服务,影响下载体验
+
+- 因此我的建议是将配置文件放置在非默认目录下,在有需要的时候我们指定配置文件的目录启动aria2即可
+
+### 配置文件和命令行选项混用
+
+- 配置文件中指定的选项优先级低于命令行指定的选项
+- 例如,使用`aria2c`下载链接`http://localhost:5244/d/ColorfulPC/others/fonts/LiberationMono/LiterationMonoNerdFont-BoldItalic.ttf?sign=8OWRkNfTfVuZ7rCr2DFwWl7Em8_3b6RaygZ_AWeOnm0=:0`所指向的资源,并且使用配置文件`--conf-path=C:\repos\configs\aria2.conf`选项指定基本的下载行为,最后利用`-d  C:\Users\cxxu\Downloads\`临时指定下载目录(优先级高,如果配置文件中指定的路径与此不同,那么以命令行所指定的为准)
+
+```powershell
+PS> aria2c http://localhost:5244/d/ColorfulPC/others/fonts/LiberationMono/LiterationMonoNerdFont-BoldItalic.ttf?sign=8OWRkNfTfVuZ7rCr2DFwWl7Em8_3b6RaygZ_AWeOnm0=:0  --conf-path=C:\repos\configs\aria2.conf -d C:\Users\cxxu\Downloads\
+
+08/16 21:54:33 [NOTICE] Downloading 1 item(s)
+
+08/16 21:54:33 [NOTICE] IPv4 RPC: listening on TCP port 6800
+
+08/16 21:54:33 [NOTICE] Download complete: C:/Users/cxxu/Downloads//LiterationMonoNerdFont-BoldItalic.ttf
+
+08/16 21:55:55 [NOTICE] Shutdown sequence commencing... Press Ctrl-C again for emergency shutdown.
+
+Download Results:
+gid   |stat|avg speed  |path/URI
+======+====+===========+=======================================================
+fca575|OK  |   298MiB/s|C:/Users/cxxu/Downloads//LiterationMonoNerdFont-BoldItalic.ttf
+
+Status Legend:
+(OK):download completed.
+```
+
+上面的例子中配置文件中指定启用rpc服务,下载完毕后不会自动退出,需要我们强制退出(`ctrl+c`)
+
+然后会报告此次下载任务和情况
+
+所以调用aria2时会启动服务,但是我们这里只需要最基础的下载行为,并不需要启动rpc,因此我们可以进一步使用`--enable-rpc=false`来覆盖配置文件中的启用,而改为关闭
+
+这样下载时就不会启用rpc
+
+```powershell
+PS> aria2c http://localhost:5244/d/ColorfulPC/others/fonts/LiberationMono/LiterationMonoNerdFont-BoldItalic.ttf?sign=8OWRkNfTfVuZ7rCr2DFwWl7Em8_3b6RaygZ_AWeOnm0=:0  --conf-path=C:\repos\configs\aria2.conf -d C:\Users\cxxu\Downloads\ --enable-rpc=false
+
+08/16 21:56:50 [NOTICE] Downloading 1 item(s)
+
+08/16 21:56:50 [NOTICE] Download complete: C:/Users/cxxu/Downloads//LiterationMonoNerdFont-BoldItalic.ttf
+
+Download Results:
+gid   |stat|avg speed  |path/URI
+======+====+===========+=======================================================
+8e2175|OK  |   348MiB/s|C:/Users/cxxu/Downloads//LiterationMonoNerdFont-BoldItalic.ttf
+
+Status Legend:
+(OK):download completed.
+```
+
+
+
 ### 使用配置文件设置aria2 rpc功能
 
 - 虽然配置文件不是必须的,但是使用配置文件可以让aria2的服务调用更加优雅和方便
@@ -205,7 +260,13 @@ Aria2 RPC 是一个非常强大和灵活的工具，通过这些配置选项，�
 
 在使用 RPC 功能之前，你需要确保 Aria2 的 RPC 已正确配置。
 
-###  配置文件设置
+### 配置文件参考
+
+- [GitHub - P3TERX/aria2.conf: Aria2 配置文件  ](https://github.com/P3TERX/aria2.conf)
+  - 这个仓库提供的配置文件包含的设置项目比较多
+  - 是基于linux平台配置的,对于windows用户,需要做一些修改,比如linux路径,以及secret字段的密钥值
+
+###  配置文件设置(基础版)
 首先，你需要修改 Aria2 的配置文件（通常是 `aria2.conf`），添加以下内容来启用 RPC：
 
 ```bash
@@ -278,6 +339,23 @@ PS C:\Users\cxxu\Desktop> aria2c --conf-path=C:\repos\configs\aria2.conf
 - 上述例子中我利用Alist调用aria2 rpc下载了某个文件夹(通过勾选文件夹,发送到aria2下载)
 - 下载的每个文件都被记录和输出在了终端
 - 如果需要后台运行,和alist自启脚本一起设置后台启动或开机后台自启
+
+### 配置开机自动Aria2 RPC👺
+
+- 对于windows,可以使用
+
+  - 计划任务
+
+  - 开机自动运行脚本
+
+    - 请先根据自己的情况检查并修改`"~\.aria2\aria2.conf"`为你的配置文件所在路径,或者在调用语句出通过参数传递进去
+    
+      ```powershell
+      $ConfPath="~\.aria2\aria2.conf"
+      Start-Process -WindowStyle Hidden -FilePath aria2c -ArgumentList "--conf-path=$ConfPath" -Verbose:$VerbosePreference -PassThru
+      ```
+    
+    - 可选的查看:上述脚本提到的`Start-ProcessHidden`来实现后台独立运行,详情可以参考[PS/TaskSchdPwsh/TaskSchdPwsh.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/TaskSchdPwsh/TaskSchdPwsh.psm1) 找到其中的相关函数,也可以克隆安装此仓库
 
 ## 使用 Aria2 RPC
 

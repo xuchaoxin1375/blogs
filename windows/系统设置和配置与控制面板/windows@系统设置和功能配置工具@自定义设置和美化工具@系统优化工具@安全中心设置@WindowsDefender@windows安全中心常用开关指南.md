@@ -72,6 +72,14 @@
 
 ### UI修改方面的工具
 
+### windHawk
+
+[GitHub - ramensoftware/windhawk: The customization marketplace for Windows programs: https://windhawk.net/](https://github.com/ramensoftware/windhawk)
+
+[Mods - Windhawk](https://windhawk.net/mods)
+
+Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以阅读,可以尝试到系统设置里切换一下windows主题颜色(比如从浅色切换到深色,然后qie'huan)
+
 #### ExplorerPatcher
 
 [GitHub - valinet/ExplorerPatcher: This project aims to enhance the working environment on Windows](https://github.com/valinet/ExplorerPatcher)

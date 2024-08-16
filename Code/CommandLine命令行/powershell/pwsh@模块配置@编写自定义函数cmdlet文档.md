@@ -1,84 +1,5 @@
 [toc]
 
-
-
-# vscode@powershellExtension配置和启用问题🎈
-
-## refs
-
-- [PowerShell editing with Visual Studio Code](https://code.visualstudio.com/docs/languages/powershell)
-- [使用 Visual Studio Code 进行 PowerShell 开发 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3)
-
-### 插件官网
-
-- [PowerShell - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell)
-  - This extension provides rich PowerShell language support for [Visual Studio Code](https://github.com/Microsoft/vscode) (VS Code). 
-  - Now you can write and debug PowerShell scripts using the excellent IDE-like interface that VS Code provides.
-
-#### 工作组件
-
-- This extension is powered by 
-  -  **PowerShell language server**,
-  -  [PowerShell Editor Services](https://github.com/PowerShell/PowerShellEditorServices). 
-- This leverages the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) where `PowerShellEditorServices` is the server and `vscode-powershell` is the client.
-
-####  Platform Support
-
-- [Changelog | Visual Studio Marketplace](https://marketplace.visualstudio.com/items/ms-vscode.PowerShell/changelog)
-
-- 截至2022年最后一个版本的情况如下:
-
-  - The extension *should* work anywhere VS Code itself and **PowerShell Core 7.2** or higher is [supported](https://docs.microsoft.com/en-us/powershell/scripting/powershell-support-lifecycle). 
-
-  - For Windows PowerShell, only version 5.1 is supported. 
-
-  - Please note that PowerShell Core 6 is end-of-life and so not supported
-
-- powershell Core 7.2以及之后的版本都支持
-  - powershell core 6不再支持
-
-### 不同版本powershell对比🎈
-
-- windows powershell 和powershell core 是差别巨大的不同版本的powershell
-  - 前者是windows系统自带的版本
-- 但他们统称为powershell
-- 现在提到powershell时,通常指的是`powershell core`
-
-- 使用`$PsVersionTable`查看当前运行的powershell版本
-
-
-
-## 添加自己的powershell客户端版本
-
-- [adding-your-own-powershell-paths-to-the-session-menu | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3#adding-your-own-powershell-paths-to-the-session-menu)
-
-### 可视化配置
-
-- 在设置中搜索`powershell.powerShellAdditionalExePaths`
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/f610cdf201ed4319acb6b68a911776ea.png)
-
-#### 添加powershell版本
-
-- 例如,我要添加名为`pwsh7.3`,且可执行文件绝对路径为`C:\Program Files\powershell\7\pwsh.exe`
-- 通常推荐使用gui进行配置
-  - 这是因为,配置的时候不需要定位到具体的json对象
-  - 对于windows环境下路径不需要手动转移反斜杠
-- 配置完,settings.json文件中的添加了如下内容
-
-- ```bash
-  "powershell.powerShellAdditionalExePaths": {
-  	"pwsh7.3": "C:\\Program Files\\powershell\\7\\pwsh.exe"
-  }
-  ```
-
-## powershell插件加载问题
-
-- 如果您的系统powershell版本不符合vscode powershell插件的支持
-
-- 或者配置的非默认powershell 版本的路径设置出现问题
-  - 也可能是重装软件导致路径过期
-  - 或者vscode软件/powershell extension版本更新导致接口更新,需要更新配置格式(需要查阅最新文档)
-
 #  配置模块@脚本@函数 🎈
 
 ##  references
@@ -162,6 +83,117 @@ $p += ";$env:repos\learnpwsh\modulesByCxxu\"
 - 对于复杂的多文件模块,还需要(必须)有清单文件
 - 您的模块不能有逻辑错误或者采用其他违反规定的编排方式
   - 否则将导致模块无法导入,这种失误不会给出错误提示!!
+
+
+
+
+
+## 模块检查👺
+
+顺利配置了上述模块集路径后,您的powershell中可以通过调用`get-module`或其缩写`gmo`函数,以及其他相关命令来检查模块导入情况
+
+在 PowerShell 中，你可以使用以下几种方法来检查已安装的模块。
+
+检查已安装模块和已经加载到当前环境的模块使用的命令行是不同的
+
+### 1. **使用 `Get-Module -ListAvailable`**
+
+   这个命令列出所有在当前系统上安装的模块，包括全局安装的模块和用户范围内安装的模块。
+
+   ```powershell
+Get-Module -ListAvailable
+   ```
+
+这个命令可以列出所有powershell可以找得到的模块，包括`$env:PsModulePath`中指定的各个路径下的自动导入的模块
+
+但是全列出来往往不是我们想要的,更常见的需求是检查某个模块是否被安装,某个模块是否被导入
+
+你可以通过 `-Name` 参数过滤特定模块：
+
+   ```powershell
+Get-Module -ListAvailable -Name ModuleName
+   ```
+
+### 2. **使用 `Get-InstalledModule`**
+
+如果你想查看通过 `PowerShell Gallery` 安装的模块，可以使用 `Get-InstalledModule`。
+
+这只会显示通过 `Install-Module` 命令安装的模块。
+
+   ```powershell
+Get-InstalledModule
+   ```
+
+   同样，你可以通过 `-Name` 参数过滤特定模块：
+
+   ```powershell
+Get-InstalledModule -Name ModuleName
+   ```
+
+### 3. **使用 `Get-Module`**检查已导入的模块
+
+   如果你想查看当前会话中已经导入的模块，可以使用 `Get-Module`：(别名是`gmo`)
+
+   ```powershell
+Get-Module
+   ```
+
+例如检查模块`init`是否被导入
+
+```
+PS> gmo -Name Init
+
+ModuleType Version    PreRelease Name                                ExportedCommands
+---------- -------    ---------- ----                                ----------------
+Script     0.0                   Init                                {Import-Termina…
+
+```
+
+如果指定的模块没有被导入或者压根就没有这个模块,那么返回结果会是空
+
+
+
+### 总结👺
+
+以下是一个比较各命令功能的表格：
+
+| 命令                        | 描述                                           | 用途                                 |
+| --------------------------- | ---------------------------------------------- | ------------------------------------ |
+| `Get-Module -ListAvailable` | 列出所有在系统上安装的模块（包括未加载的模块） | 检查系统上所有可用的模块             |
+| `Get-InstalledModule`       | 列出通过 PowerShell Gallery 安装的模块         | 查看从 PowerShell Gallery 安装的模块 |
+| `Get-Module`                | 列出当前会话中已加载的模块                     | 检查当前会话中已经加载的模块         |
+
+根据你的需求选择合适的命令来检查已安装的模块。
+
+- ```bash
+  PS C:\Users\cxxu\Desktop> gmo
+  
+  ModuleType Version    PreRelease Name                                ExportedCommands
+  ---------- -------    ---------- ----                                ----------------
+  Script     0.0                   Conda                               {Enter-CondaEnv…
+  Manifest   7.0.0.0               Microsoft.PowerShell.Management     {Add-Content, C…
+  Manifest   7.0.0.0               Microsoft.PowerShell.Utility        {Add-Member, Ad…
+  Script     2.3.5                 PSReadLine                          {Get-PSReadLine…
+  
+  
+  PS[BAT:98%][MEM:37.92% (12.02/31.70)GB][11:13:05]
+  # [C:\repos\scripts]
+  PS> Get-Module
+  
+  ModuleType Version    PreRelease Name                                ExportedCommands
+  ---------- -------    ---------- ----                                ----------------
+  Script     0.0                   Conda                               {Enter-CondaEnv…
+  Manifest   7.0.0.0               Microsoft.PowerShell.Management     {Add-Content, C…
+  Manifest   7.0.0.0               Microsoft.PowerShell.Utility        {Add-Member, Ad…
+  Script     2.3.5                 PSReadLine    
+  
+  ```
+
+- 实际上`gmo`函数显示的可能**并不全面**,对于配置在`$env:PsModulePath`环境变量路径总的模块,如果在**调用其中的任意一个函数前,pwsh是不会导入相应模块的,也就无法被 `gmo`命令扫描出来**,调用时则会自动导入
+
+- 在调用上述模块中的任意一个函数之前,加载powershell的速度几乎不受影响
+
+
 
 ## powershell函数@模块文档的编写🎈
 
