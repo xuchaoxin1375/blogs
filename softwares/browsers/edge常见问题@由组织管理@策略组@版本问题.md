@@ -1,6 +1,6 @@
 [toc]
 
-## 本地edge浏览器由组织管理@功能受限检查
+## 本地edge浏览器由组织管理@功能受限检查👺
 
 - | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/20067bd2f3c148ef9abad6a6beaefa76.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/8bb4a8ed90954a22ab04370b3e0bd2f3.png) |      |
   | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
@@ -18,11 +18,15 @@
 
 - 关键字:HubsSidebarEnabled,到注册表中删除相应关键字
 
-### 解出限制(删除相关注册表条目)
+### 接触edge策略限制(删除相关注册表条目)
 
 - 命令行方式:在管理员权限下打开cmd或powershell,输入以下内容并回车执行
 
-  - `reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`
+  - ```powershell
+    reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
+    ```
+
+    
 
   - ```bash
     PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge

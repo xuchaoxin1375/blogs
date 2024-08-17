@@ -41,7 +41,7 @@
 - 比如`$env:userprofile\downloads`
 - `$env:userprofile\documents\`
 
-# 重装后👺
+# 备份恢复👺
 
 ## 第一批恢复
 
@@ -111,11 +111,132 @@
 
 
 
+## 同设备双系统链接式恢复
+
+- 利用符号链接（symbolicLink）重定向用户家目录
+  - 优点是方便，缺点是隔离性较差，容易造成相互影响
+
+### 偷懒式
+
+首先创建一个新用户,并把它加入到管理组中，也就是创建一个名为`maintainer`的维护用途的系统管理员
+
+这种方式适合常态管理员权限的用户(本身双系统就是特殊用途,所以使用管理员权限方便跨分区跨系统版本访问可以理解)
+
+但是注意，这种方式导致edge浏览器等Microsoft账户登录失败！总得来说不是很推荐
+
+```cmd
+net user maintainer 1 /add #默认密码为1，如果为了安全起见，可以设置得复杂一些
+ net localgroup administrators maintainer /add
+```
+
+注销当前账户(假设为`cxxu`,然后切换登录到`maintainer`账户)
+
+修改家目录名字,然后创建对应的符号链接(前面需要注销就是放置家目录被占用,用到第二个管理员账户)
+
+### 正式
+
+#### 预备
+
+```powershell
+#使用管理员运行以下内容
+#预备
+$r = 'C' #一般是C盘,但允许更改
+$s = 'D' #可以做必要的修改,比如E盘
+$UserName = 'cxxu' #修改此值为你需要修改的用户家目录名字(一般是用户名)
+$UserHome = "${r}:\users\$UserName"
+$TargetUserHome = "${s}:\Users\$UserName"
+$UserHomeBak = "${UserHome}.bak"
+Write-Host 'check strings:', $UserName, $UserHome, $UserHomeBak,$TargetUserHome
+#常用相关目录
+$pf = 'Program Files'
+$vscode_home = "${r}:\$pf\Microsoft VS Code"
+$vscode_target_home = "${s}:\$pf\Microsoft VS Code"
+$vscode_bin = "$vscode_home\bin"
+```
+
+#### 系统盘根目录
+
+```powershell
+#根目录部署
+$items = @(
+    'share',
+    'repos',
+    'exes',
+    'Tuba'
+     
+)
+$items | ForEach-Object {
+    New-Item -ItemType SymbolicLink -Path "${r}:\$_" -Target "${s}:\$_" -Verbose -Force # -WhatIf 
+}
+```
 
 
 
+#### 家目录
+
+```powershell
+# 家目录部署
+
+## 偷懒式(不推荐)
+
+Rename-Item -Path $UserHome -NewName $UserHomeBak
+New-Item -ItemType SymbolicLink -Path $UserHome -Target $TargetUserHome
+```
+
+#### 环境变量
+
+```powershell
+Update-PwshEnvIfNotYet
+#部署其他环境
+$UserEnv = (Get-ChildItem $configs\env\user*)[0]
+$SystemEnv = (Get-ChildItem $configs\env\system*)[0]
+Deploy-EnvsByPwsh -SourceFile $UserEnv -Scope User
+Deploy-EnvsByPwsh -SourceFile $SystemEnv -Scope Machine
+```
 
 
 
+#### 常用软件安装目录
 
+vscode 建议还是分开安装,否则插件可能无法正常验证登录,例如codeium
+
+但是插件目录或`.vscode`目录可以共用
+
+
+
+```powershell
+
+# 需要提前载入Cxxu提供的ps模块👺(否则需要手动添加vscode/bin目录到环境变量)
+
+## 部署命令行vscode,使得code <path> 命令可用
+$env:PSModulePath+=";C:\repos\scripts\PS"
+Add-EnvVar -EnvVar Path -NewValue $vscode_bin -Scope Machine
+## 部署vscode家目录(不推荐,会有一些问题)
+#New-Item -ItemType SymbolicLink -Path $vscode_home -Target $vscode_target_home
+
+## 部署插件目录指向其他目录 #使用偷懒模式的话,下面就不需要执行了 
+ New-Item -ItemType SymbolicLink -Path "$userHome\.vscode" -Target "$TargetUserHome\.vscode"
+```
+
+## 局域网
+
+- 启用网络发现和共享文件夹:`Deploy-Smbsharing`(手机热点的话网络共享可能不好使,需要路由器)
+
+### 常用软件的配置
+
+```powershell
+#部署常用软件的配置
+Deploy-Shortcuts
+Deploy-WtSettings
+Deploy-Typora
+Deploy-GitConfig
+# Deploy-PortableGit 如果前面调用了Deploy-EnvsByPwsh,并且备份中保存了正确的PortableGit,就不需要再使用Deploy-PortableGit语句
+# 安装7z
+#部署ssh
+Deploy-SSHVersionWin32Zip -file C:\exes\OpenSSH-Win64.zip
+#重启终端检查ssh是否可用
+New-SSHKeyPairs
+```
+
+浏览器内打开代理插件设置(比如proxyfy)
 

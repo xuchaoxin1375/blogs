@@ -1,6 +1,15 @@
 [toc]
 
+## abstract
+
+修改windows用户名和家目录名
+
+- 三个地方都需要通过`另一个管理员账户`来修改
+- 如果`lusrmgr`中的用户名没改,可能导致wsl将丢失信息(发生错误)
+  (这里先提一下后果,后面会介绍修改)
+
 ##  refs
+
 - [How To Change Your Username On Windows 11 and 10 (helpdeskgeek.com)](https://helpdeskgeek.com/windows-10/how-to-change-your-username-on-windows-10/)
 - [3 Ways to Change User Account Name in Windows 10 (isunshare.com)](https://www.isunshare.com/windows-10/3-ways-to-change-user-account-name-in-windows-10.html)
 - [How To Change User Name Windows 10 - Microsoft Community Hub](https://techcommunity.microsoft.com/t5/windows-10/how-to-change-user-name-windows-10/m-p/3630358)
@@ -15,10 +24,6 @@
 -  可能会遇到权限问题,某些文件访问不了,需要管理员权限更改目录或文件的属性
 
 
-#  修改windows用户名和家目录名
-- 三个地方都需要通过`另一个管理员账户`来修改
-- 如果`lusrmgr`中的用户名没改,可能导致wsl将丢失信息(发生错误)
-(这里先提一下后果,后面会介绍修改)
 
 
 ##  管理员账户准备工作
@@ -58,21 +63,33 @@
 
 -  按win+R,输入regedit,回车enter
 
--  在注册表编辑器中定位到以下路径： (可以拷贝粘贴到输入栏中)
+-  在注册表编辑器中定位到以下路径： (可以拷贝粘贴到输入栏中,中英文不通用)
 	- 英文版系统:
-	`computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList`
+	
+	  ```cmd
+	  computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList
+	  ```
+	
+	  
 	- 中文版系统:
-	`计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList`![计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList](https://img-blog.csdnimg.cn/20210115185800148.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+	
+	  ```cmd
+	  计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList
+	  ```
+	
+	  ![计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\profileList](https://img-blog.csdnimg.cn/20210115185800148.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 >		注意是`'\'`(back slash)分隔符,而不是`/`.	
 
-- 在ProfileList文件夹下，分别点击名字为较长的字符串的文件夹，查看窗口右侧的`ProfileImagePath`键的内容，找到路径为`C:/Users/USER1`的键。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190204698.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
--  双击此ProfileImagePath键，修改完,重新登陆USER2帐户
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190355472.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+### 检查profilelist路径
+
+- 在`ProfileList`文件夹下，分别点击名字为较长的字符串的文件夹，查看窗口右侧的`ProfileImagePath`键的内容，找到路径为`C:/Users/USER1`的键。
+  ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190204698.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
+- 双击此`ProfileImagePath`键，修改完,重新登陆`USER2`帐户
+  ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210115190355472.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1Y2hhb3hpbjEzNzU=,size_16,color_FFFFFF,t_70)
 
 
 
-### 使用命令行来查看和修改
+### 使用命令行来查看和修改👺
 
 创建对应用户管理的注册表变量方便后续使用
 
@@ -100,6 +117,41 @@ cd $UserPro
 -  (这些配置是在用户名更名操作完成之后的一些修复工作)用户环境变量的修正(比如powershell的模块,以及一些UWP的配置目录(appdata)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/588342e126144c1cac683da3edde61f6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 这或许可以修复一些由于更改用户名(目录)而导致原有的模块无法调用的问题
+
+## 用户名和家目录名不一致问题👺
+
+- 假设你最初（或之前）创建了一个名为`a`的用户（比如通过`net user a * /add`命令创建的），而后因为某些问题你删除了该用户（`net use a /delete`这种方法只是删除用户列表中的相关项目，但是实际上还有残留数据，这可能影响到你创建回`a`用户（主要影响是用户家目录名和用户名不一致）
+- 这种情况下，比如用户名是`a`,主机名是`HostName`,那么第二次创建的用户名`a`对应的假目录可能就是`a.HostName`
+
+### 修改家目录名以匹配用户名
+
+其实用户的假目录名和用户名不一致并不太影响使用,我们可以通过创建符号链接
+
+```powershell
+cd ~
+$UserName=''
+$UserHomeName=''
+new-item -itemtype symbolickLink -path $UserName -target $Userhomename
+```
+
+但是少数情况名称不一致会引起问题或者让用户感到不习惯,那么考虑一下方式调整为一致
+
+首先我们需要第二个管理员账户,假设其名为`maintainer`(维护管理员)
+
+并假设当前用户名为`a`,家目录为`a.hostname`;我们想要把用户的家目录从`a.hostname`改为`a`
+
+首先注销用户`a`(如果处于登录的状态),解锁对`a.hostname`目录的占用,以便我们修改家目录名
+
+然后登录到`maintainer`,执行家目录修改
+
+```powershell
+rename-item -path C:\users\a.hostname -newname C:\Users\a
+```
+
+然后修改相关注册表项目:
+
+
+
 # FAQ
 
 ## windows store里安装的应用
