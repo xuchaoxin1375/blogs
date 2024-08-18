@@ -66,7 +66,8 @@
 
 ### 字体
 
-- hack nerd font(阿里云盘备份)
+- hack nerd font
+- LiterationMonoFont兼容性更好
 
 ### 编辑器
 
@@ -135,7 +136,7 @@ net user maintainer 1 /add #默认密码为1，如果为了安全起见，可以
 
 ### 正式
 
-#### 预备
+#### 预备👺(必须先执行)
 
 ```powershell
 #使用管理员运行以下内容
@@ -145,6 +146,7 @@ $s = 'D' #可以做必要的修改,比如E盘
 $UserName = 'cxxu' #修改此值为你需要修改的用户家目录名字(一般是用户名)
 $UserHome = "${r}:\users\$UserName"
 $TargetUserHome = "${s}:\Users\$UserName"
+
 $UserHomeBak = "${UserHome}.bak"
 Write-Host 'check strings:', $UserName, $UserHome, $UserHomeBak,$TargetUserHome
 #常用相关目录
@@ -179,9 +181,13 @@ $items | ForEach-Object {
 
 ## 偷懒式(不推荐)
 
-Rename-Item -Path $UserHome -NewName $UserHomeBak
+Rename-Item -Path $UserHome -NewName"${UserHome}.bak"
 New-Item -ItemType SymbolicLink -Path $UserHome -Target $TargetUserHome
 ```
+
+
+
+
 
 #### 环境变量
 
@@ -240,3 +246,17 @@ New-SSHKeyPairs
 
 浏览器内打开代理插件设置(比如proxyfy)
 
+### 基础软件安装
+
+- office
+  - wps
+  - microsoft office(无广告体验好点,但是体积大)
+
+## 次要的系统设置
+
+- 输入法调整
+  - 默认英文标点符号
+  - 关闭标点符号自动配对(影响代码编辑器中的自动配对功能)
+- 系统语言包
+- 夜间模式
+- 恢复开始菜单固定的程式

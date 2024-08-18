@@ -34,6 +34,16 @@
   - Using English punctuation when in Chinese input mode
   - 在中文输入模式下使用英文标点符号。
 
+## 添加输入法到列表中👺
+
+有时默认输入法虽然已经安装,但是我们可以设置启用的输入法列表
+
+对输入法列表,可以添加已安装输入法或者删除已安装输入法
+
+通过移除输入法然后再添加回来,可以将指定输入法移动到列表末尾
+
+- ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/186bb71e78534e808f7c37492b312538.png)
+
 # win10部分
 
 ##  添加windows输入法键盘
