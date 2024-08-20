@@ -1,10 +1,12 @@
 [toc]
 
-
+# Scoop For Chinese Users
 
 ## abstract
 
 - powershell@scoop安装@scoop安装失败的解决方案
+
+- 本文参考了多个国内使用scoop加速下载和安装的方案和项目，并且提供了一些一键执行的脚本，让部署高可用性的scoop更加直接和容易
 
 - 关于scoop,可以参考(网站不一定打得开,但仍然给出)
   - [Scoop](https://scoop.sh/)
@@ -159,6 +161,67 @@
   127.0.0.1:10801
   ```
 
+## 代理方案的配置方法👺
+
+- 如果你有自己的代理资源,可以配置自己的代理
+
+- 如果你没有代理资源,那么可以尝试以下方案
+
+- 此方案来自于一位gitee上的一位scoop爱好者用爱发电的项目,该仓库给出了使用方法,总体简单易用
+
+  - [Scoop: scoop国内镜像优化库，能够加速scoop安装及bucket源文件，无需用户设置代理。内置加速站有调用次数限制，请勿提取滥用。 镜像频率：12小时。 (gitee.com)](https://gitee.com/scoop-installer/scoop)
+  - 可以配合其他镜像加速方案,提高可用性
+
+- 这里做一个整合(如果不能正常工作,查看源项目进行必要的修改)
+
+  ```powershell
+  # 脚本执行策略更改
+  Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+  #如果询问, 输入Y或A，同意
+  
+  # 执行安装命令（默认安装在用户目录下，如需更改请执行“自定义安装目录”命令）
+  iwr -useb scoop.201704.xyz | iex
+  ## 自定义安装目录（注意将目录修改为合适位置)
+  # irm scoop.201704.xyz -outfile 'install.ps1'
+  # .\install.ps1 -ScoopDir 'D:\Scoop' -ScoopGlobalDir 'D:\GlobalScoopApps'
+  #添加包含国内软件的的scoopcn bucket
+  scoop bucket add scoopcn https://gitee.com/scoop-installer/scoopcn
+  ```
+
+- ### 可选操作
+
+  - 如果之前已安装原版scoop,仅需要更换镜像来加速scoop下载软件或更新的速度,可以执行
+
+    - ```
+      # 更换scoop的repo地址
+      scoop config SCOOP_REPO "https://gitee.com/scoop-installer/scoop"
+      # 拉取新库地址
+      scoop update
+      ```
+
+  - 切换分支:库包含如下分支
+
+    | 分支    | 含义                              | 基于原版分支 |
+    | ------- | --------------------------------- | ------------ |
+    | master  | 代理分流,根据电脑网络环境自动判断 | master       |
+    | develop | 代理分流，同上                    | develop      |
+    | archive | 原版，无任何修改                  | master       |
+
+    安装默认选择`master`分支，想要切换到其他分支，可执行如下命令
+
+    ```
+    # 切换分支到develop
+    scoop config scoop_branch develop
+    # 重新拉取git
+    scoop update
+    ```
+
+  - 如果遇到某些软件无法下载安装成功,可以尝试将分支切换到`archive`中
+
+- 然后就可以安装使用原版scoop的方式使用scoop,比如添加bucket,搜索或安装软件等,查看仓库原文档或者scoop官方文档
+
+- 这个项目很好,很有爱心,但我们可以更进一步让scoop更加可用(添加其他知名的bucket,扩充可用软件数量和版本更新来源)
+
 
 
 ## 镜像加速👺
@@ -192,6 +255,8 @@
 
 ### 配置加速的scoop脚本👺
 
+
+
 #### 方式1
 
 从gitee上下载该脚本(并且可以查看到最新版本)
@@ -199,8 +264,6 @@
 [PS/Deploy/ScoopDeploy.ps1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/Deploy/ScoopDeploy.ps1)
 
 比如下载到桌面,然后命令行中执行此脚本(可以携带参数选项)
-
-
 
 #### 方式2
 
@@ -445,17 +508,30 @@ scoop and scoop-cn was installed successfully!
 - `downloading...`,需要将scoop本身下载下来
 - `Checking repo... `,需要将bucket的资源下载下来,如果bucket比较大,或者镜像不稳定,那么需要的时间就会比较久
 
-### 其他加速scoop的方案
+## scoop镜像加速精简版的方案👺
 
-- 加速安装scoop 本身
-- 配置加速的scoop 软件源
+- 特色：
+  - 加速安装scoop 本身
+  - 配置加速的scoop 软件源
+
+- 下面这个方案比较适合已经安装了git的用户，并且仅安装spc这个超大的bucket,几乎囊括了其他bucket能囊括的所有软件
+- 事先安装好git或者github(包含git)(否则下面的方案不管用),git可用从github release下载,用镜像加速,安装后从命令行中输入`git -v`检查安装是否成功
+  - 国内镜像:[Index of git-for-windows-local (huaweicloud.com)](https://mirrors.huaweicloud.com/git-for-windows/)
+
+  - 常见的镜像加速站
+    -  0: https://mirror.ghproxy.com
+       1: https://ghproxy.cc
+       2: https://github.moeyy.xyz/
+
 
 ```powershell
 # install
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 # irm -useb get.scoop.sh | iex
 irm https://mirror.ghproxy.com/raw.githubusercontent.com/lzwme/scoop-proxy-cn/master/install.ps1 | iex
- 
+#安装git （建议提前安装好，直接从这里安装很慢！）
+# scoop install git 
+
 # config
 scoop config SCOOP_REPO https://mirror.ghproxy.com/github.com/ScoopInstaller/Scoop
 # scoop bucket rm main
@@ -472,222 +548,13 @@ scoop bucket list
 
 
 
-### 自行添加加速的bucket
-
-
-
-通过模仿和学习该脚本,可以学习到如何对一个待添加的来自于(github)的bucket用加速镜像来修饰后添加
-
-```powershell
-PS> scoop bucket -h
-Usage: scoop bucket add|list|known|rm [<args>]
-
-Add, list or remove buckets.
-
-Buckets are repositories of apps available to install. Scoop comes with
-a default bucket, but you can also add buckets that you or others have
-published.
-
-To add a bucket:
-    scoop bucket add <name> [<repo>]
-
-e.g.:
-    scoop bucket add extras https://github.com/ScoopInstaller/Extras.git
-
-Since the 'extras' bucket is known to Scoop, this can be shortened to:
-    scoop bucket add extras
-
-To list all known buckets, use:
-    scoop bucket known
-
-```
-
-上述文档告诉我们`known bucket`可以缩写,例如`extras`可以不用写完整的github链接,但是镜像加速时需要
-
-可以简写的已知仓库
-
-```
-PS> scoop bucket known
-main
-extras
-versions
-nirsoft
-sysinternals
-php
-nerd-fonts
-nonportable
-java
-games
-
-```
-
-假设你选择的(前缀)加速站`$mirror='https://github.moeyy.xyz/'`,那么加速`extras`仓库可以这么做
-
-```cmd
-$mirror='https://github.moeyy.xyz/'
-# scoop bucket add extras #默认方法
-#加速站修饰:
-# scoop bucket add $mirror/https://github.com/ScoopInstaller/Extras
-#还可以选择一个别名,区分默认bucket
-scoop bucket add ExtrasCxxu $mirror/https://github.com/ScoopInstaller/Extras
-```
-
-操作示例
-
-```powershell
-PS> scoop bucket add ExtrasCxxu $mirror/https://github.com/ScoopInstaller/Extras
-Checking repo... OK
-The ExtrasCxxu bucket was added successfully.
-
-PS> scoop bucket list
-
-Name       Source                                                             Updated
-----       ------                                                             -------
-main       https://mirror.ghproxy.com/https://github.com/ScoopInstaller/Main  2024/8/1…
-extras     https://github.com/ScoopInstaller/Extras                           2024/8/1…
-ExtrasCxxu https://github.moeyy.xyz//https://github.com/ScoopInstaller/Extras 2024/8/1…
-scoop-cn   https://mirror.ghproxy.com/https://github.com/duzyn/scoop-cn       2024/8/1…
-spc        https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn   2024/8/1…
-
-
-```
-
-可以通过`scoop bucket rm extras`移除没有加速的默认extras
-
-### 字体仓库添加和使用示例
-
-仓库可以到bing国际搜一下看看仓库名,例如nerd-fonts,常用字体
-
-```powershell
-$mirror='https://github.moeyy.xyz/ #可以自行修改
-PS> scoop bucket add  nerd-fonts $mirror/https://github.com/matthewjberger/scoop-nerd-fonts
-Checking repo... OK
-The nerd-fonts bucket was added successfully.
-```
-
-```powershell
-PS>  scoop search Hack-NF*
-Results from local buckets...
-
-Name          Version Source     Binaries
-----          ------- ------     --------
-Hack-NF-Mono  3.2.1   nerd-fonts
-Hack-NF-Propo 3.2.1   nerd-fonts
-Hack-NF       3.2.1   nerd-fonts
-Hack-NF-Mono  3.2.1   scoop-cn
-Hack-NF-Propo 3.2.1   scoop-cn
-Hack-NF       3.2.1   scoop-cn
-Hack-NF-Mono  3.2.1   spc
-Hack-NF-Propo 3.2.1   spc
-Hack-NF       3.2.1   spc
-
-```
-
-## 使用aria2多路下载👺
-
-- 多路下载不一定更快,根据你的使用体验为准
-
-- 下面的文档提供了配置方法
-
-  - [multi-connection-downloads-with-aria2|ScoopInstaller/Scoop: A command-line installer for Windows. (github.com)](https://github.com/ScoopInstaller/Scoop#multi-connection-downloads-with-aria2)
-
-- 如果发生下载异常(速度慢或者下不动),不想默认调用aria2,那么可以执行以下命令
-
-  ```
-  scoop config aria2-enabled false
-  ```
-
-  然后重新尝试(如果报错,卸载掉残留(scoop uninstall),然后重新安装)
-
-- 以neovim的下载为例,在底层代理(TUN)代理下,结合aria2多线程加速,平均速度为7MBps左右
-
-  ```bash
-  WARN  Scoop uses 'aria2c' for multi-connection downloads.
-  WARN  Should it cause issues, run 'scoop config aria2-enabled false' to disable it.
-  WARN  To disable this warning, run 'scoop config aria2-warning-enabled false'.
-  Installing 'neovim' (0.9.0) [64bit] from main bucket
-  direct: https://github.com/neovim/neovim/releases/download/v0.9.0/nvim-win64.zip
-  
-  Starting download with aria2 ...
-  Download: [#c6bfd0 0B/0B CN:1 DL:0B]                                                       Download: Download Results:
-  Download: gid   |stat|avg speed  |path/URI
-  Download: ======+====+===========+=======================================================
-  Download: c6bfd0|OK  |   6.9MiB/s|C:/Users/cxxu/scoop/cache/neovim#0.9.0#https_github.com_neovim_neovim_releases_download_v0.9.0_nvim-win64.zip
-  Download: Status Legend:
-  Download: (OK):download completed.
-  Checking hash of nvim-win64.zip ... ok.
-  Extracting nvim-win64.zip ... done.
-  Linking ~\scoop\apps\neovim\current => ~\scoop\apps\neovim\0.9.0
-  Creating shim for 'nvim'.
-  Creating shim for 'nvim-qt'.
-  Creating shortcut for Neovim (nvim-qt.exe)
-  'neovim' (0.9.0) was installed successfully!
-  'neovim' suggests installing 'extras/vcredist2022'.
-  PS C:\Users\cxxu\Desktop>
-  ```
-
-- 使用aria2下载可能稳定性不如传统下载,scoop对此给出**wanring**
-
-## 用scoop安装常用软件
-
-### 安装sudo命令
-
-```
-PS C:\Users\cxxu> scoop search sudo
-Results from local buckets...
-
-Name    Version      Source Binaries
-----    -------      ------ --------
-gsudo   2.5.1        main
-psutils 0.2023.06.28 main   sudo.ps1
-sudo    0.2020.01.26 main
-nsudo   8.2          extras
-```
-
-使用默认方式安装（国内用户比较慢，不推荐）
-
-```powershell
-PS C:\Users\cxxu> scoop install gsudo
-Installing 'gsudo' (2.5.1) [64bit] from 'main' bucket
-gsudo.portable.zip (12.0 MB) [===============================================] 100%
-Checking hash of gsudo.portable.zip ... ok.
-Extracting gsudo.portable.zip ... done.
-Linking ~\scoop\apps\gsudo\current => ~\scoop\apps\gsudo\2.5.1
-Creating shim for 'sudo'.
-Adding ~\scoop\modules to your PowerShell module path.
-Installing PowerShell module 'gsudoModule'
-Linking ~\scoop\modules\gsudoModule => ~\scoop\apps\gsudo\current
-Adding ~\scoop\apps\gsudo\current to your path.
-Running post_install script...done.
-'gsudo' (2.5.1) was installed successfully!
-Notes
------
-gsudo has a PowerShell module that adds `gsudo !!` to elevate the last command.
-Use the module by running: 'Import-Module gsudoModule'.
-Add it to your $PROFILE to make it permanent.
-PS C:\Users\cxxu>
-```
-
-使用加速方案的话需要根据你采用的加速方案中指出的使用方法才能确定用法
-
-例如某个方案添加了`scoop-cn`这个buket,那么你安装软件时,就在软件名称或id前加上`scoop-cn/`,有的方案是别的buket名来加速,比如`spc`
-
-```
-scoop install scoop-cn/gsudo
-```
-
-
-
-## 卸载scoop@重装scoop
-
-- [reference link:重装scoop](https://github.com/neolee/pilot/wiki#%E5%A6%82%E4%BD%95%E9%87%8D%E8%A3%85-scoop)
-- [Scoop安装、使用与卸载  (zhihu.com)](https://zhuanlan.zhihu.com/p/609534833)
-
-
-
 ## 相关加速的项目👺
 
-- 通用加速[GitHub 文件加速 - Sonder (akams.cn)](https://github.akams.cn/)
+- Github通用加速
+  - [GitHub 文件加速 - Sonder (akams.cn)](https://github.akams.cn/)
+  - [521xueweihan/GitHub520: :kissing_heart: 让你“爱”上 GitHub，解决访问时图裂、加载慢的问题。（无需安装）](https://github.com/521xueweihan/GitHub520)
+    - [GitHub520 (gitee.com)](https://gitee.com/ynqxg/GitHub520)
+
 
 ### scoop 加速
 
@@ -696,18 +563,7 @@ scoop install scoop-cn/gsudo
 - [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。从多个开源 bucket 仓库同步更新，包含应用 1.6w+。 (github.com)](https://github.com/lzwme/scoop-proxy-cn)
 - [scoopInstaller: scoop国内镜像优化库，能够加速scoop安装及bucket源文件，无需用户设置代理 (gitee.com)](https://gitee.com/glsnames/scoop-installer)
 
-### 国内软件
+### 国内软件bucket
 
 - [scoopcn/scoopcn: Mostly Chinese applications / 大多是国内应用程序 (github.com)](https://github.com/scoopcn/scoopcn)
 
-## 进阶用法
-
-- 例如利用aria2进行多线程下载等问题
-
-### 资深用户的记录和教程👺
-
-- [Scoop 国内源加速：Windows 命令行包管理工具 Scoop 的安装、使用与软件源定制 - 志文工作室 (lzw.me)](https://lzw.me/a/scoop.html/comment-page-1)
-
-- [教程_Scoop:超好用的Windows包管理器 - 边缘坐标 - 博客园 (cnblogs.com)](https://www.cnblogs.com/Edge-coordinates/p/15130184.html)
-
-- [scoop中使用aria2加速下载 - 姬雨晨 - 博客园 (cnblogs.com)](https://www.cnblogs.com/jiyuchen1/p/18241199)

@@ -4,6 +4,30 @@
 
 在 Windows 操作系统上，计划任务（Task Scheduler）是一个强大的工具，可以帮助用户自动化各种任务。使用命令行工具创建和管理计划任务可以大大提高效率。
 
+计划任务设计的重点是**触发器**(Trigger),决定了指定任务运行的时机能否符合预期!
+
+因此本文单独安排一节介绍触发器,并且给出许多例子供用户参考
+
+计划任务的触发器最频繁的触发频率为**每分钟**触发一次(如果按照自带的模式选择,甚至只能到**天**(Daily),而没有Hourly,更没有每分钟的选项;需要借助`RepetitoinInterval`来指定间隔为1分钟(更小的间隔会报错!)
+
+如果需要更加密集的触发,需要借助或配合其他工具实现
+
+计划任务允许一个任务有多个触发器,也就是不同条件中有一个条件满足,就触发任务执行
+
+也就是会所,可以创建多个触发器来间接实现Hourly(但是这不优雅,也不便于管理)
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/71ca2d8d2e7041f7b306bd5858b17f57.png)
+
+创建计划任务的方式有两大类,命令行和图形界面
+
+对于简单任务,可以用命令行创建,适合批量创建和共享
+
+如果是少数或单一但是需要细致复杂设定的任务,那么使用图形界面会更加直观友好,甚至需要配合powershell实现更复杂的控制(例如开机启动(可以后台启动)一个powershell脚本,这个脚本运行为后台任务,可以在里面定时执行某些任务,比如每隔若干秒执行某个任务,也可以自行控制停止时机)
+
+事实上,如果你熟悉powershell,那么几乎可以抛弃计划任务,在定时精度和灵活性上powershell完胜,开机自启的运行时机powershell没法自行设置的太早,比如要等用户登陆进来才能执行(但是大部分情况已经够用了,甚至可以借助工具将powershell任务打包成服务,拥有更高的更早的启动优先级,代价是你要熟悉powershell)
+
+总之两种方法相互增益,可以相互配合来满足我们的需要
+
 ## windows中的任务计划
 
 ### 任务计划命令行程序
@@ -27,13 +51,66 @@
 
 - 可以配置权限等,操作丰富
 
-### FAQ
+## 任务状态
+
+- 计划任务的状态主要有:
+  - 准备就绪
+  - 正在运行
+  - ...
+
+## 查看用户创建的计划任务
+
+- ```powershell
+  $s=Get-ScheduledTask
+   $s|?{$_.author -like '*cxxu'}
+  ```
+
+  - 例如用户`cxxu`创建的计划任务(也可能是软件或系统以你的名义创建的任务)
+
+  - ```powershell
+    PS> $s|?{$_.author -like '*cxxu'}
+    
+    TaskPath                                       TaskName                          State
+    --------                                       --------                          -----
+    \                                              MicrosoftEdgeUpdateTaskMachineCo… Ready
+    ```
+
+    查看详细信息
+
+    ```powershell
+    PS> $ut=$s|?{$_.author -like '*cxxu'}
+    PS>$tu|fl * #如果只想要查看第一个任务的信息, $ut[0]|fl *
+    
+    State                 : Ready
+    Actions               : {MSFT_TaskExecAction}
+    Author                : CXXUCOLORFUL\cxxu
+    Date                  :
+    Description           : 使你的 Microsoft 软件保持最新状态。如果此任务已禁用或停止，则 Microsoft 软件将无法保持最新状态
+                            ，这意味着无法修复可能产生的安全漏洞，并且功能也可能无法使用。如果没有 Microsoft 软件使用此任务
+                            ，则此任务将自行卸载。
+    Documentation         :
+    Principal             : MSFT_TaskPrincipal2
+    SecurityDescriptor    :
+    Settings              : MSFT_TaskSettings3
+    Source                :
+    TaskName              : MicrosoftEdgeUpdateTaskMachineCore{E57A9831-4BEF-45B8-B766-B081FB721D9A}
+    TaskPath              : \
+    Triggers              : {MSFT_TaskLogonTrigger, MSFT_TaskDailyTrigger}
+    URI                   : \MicrosoftEdgeUpdateTaskMachineCore{E57A9831-4BEF-45B8-B766-B081FB721D9A}
+    Version               : 1.3.195.15
+    PSComputerName        :
+    CimClass              : Root/Microsoft/Windows/TaskScheduler:MSFT_ScheduledTask
+    CimInstanceProperties : {Actions, Author, Date, Description…}
+    CimSystemProperties   : Microsoft.Management.Infrastructure.CimSystemProperties
+    ```
+
+    
+
+## FAQ
 
 - 需要注意的是，有些程序在启动时可能会需要**管理员权限**
   - 此时需要右键点击快捷方式，选择“属性”→“兼容性”→“以管理员身份运行此程序”，并点击“确定”按钮，以确保程序可以正常启动。
 - 另外，如果需要删除已经添加的开机自动运行程序，只需要在“启动”文件夹中删除相应的快捷方式即可。
-
-
 
 以下是一些常用的命令行工具及其用法介绍：
 
@@ -43,7 +120,7 @@
 
 ### 常见用法
 
-##### 创建计划任务
+#### 创建计划任务
 
 ```sh
 schtasks /create /tn "任务名称" /tr "任务执行程序路径" /sc 计划类型 /st 开始时间
@@ -55,7 +132,7 @@ schtasks /create /tn "任务名称" /tr "任务执行程序路径" /sc 计划类
 schtasks /create /tn "BackupTask" /tr "C:\Scripts\backup.bat" /sc daily /st 09:00
 ```
 
-##### 删除计划任务
+#### 删除计划任务
 
 ```sh
 schtasks /delete /tn "任务名称"
@@ -67,7 +144,7 @@ schtasks /delete /tn "任务名称"
 schtasks /delete /tn "BackupTask"
 ```
 
-##### 查询计划任务
+#### 查询计划任务
 
 ```sh
 schtasks /query /tn "任务名称"
@@ -79,7 +156,7 @@ schtasks /query /tn "任务名称"
 schtasks /query /tn "BackupTask"
 ```
 
-##### 修改计划任务
+#### 修改计划任务
 
 ```sh
 schtasks /change /tn "任务名称" /tr "新的任务执行程序路径"
@@ -91,7 +168,7 @@ schtasks /change /tn "任务名称" /tr "新的任务执行程序路径"
 schtasks /change /tn "BackupTask" /tr "C:\Scripts\new_backup.bat"
 ```
 
-##### 运行计划任务
+#### 运行计划任务
 
 ```sh
 schtasks /run /tn "任务名称"
@@ -121,6 +198,9 @@ Get-ScheduledTask -TaskName "BackupTask"
 
 #### 2. `Register-ScheduledTask`
 用于注册（创建）新的计划任务。
+
+先分别创建一个action和trigger
+
 ```powershell
 $action = New-ScheduledTaskAction -Execute "C:\Scripts\backup.bat"
 $trigger = New-ScheduledTaskTrigger -Daily -At 9am
@@ -133,7 +213,12 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "BackupTask"
 Unregister-ScheduledTask -TaskName "BackupTask" -Confirm:$false
 ```
 
+### 其他
+
+
+
 #### 4. `Set-ScheduledTask`
+
 用于修改现有计划任务。
 ```powershell
 Set-ScheduledTask -TaskName "BackupTask" -Action (New-ScheduledTaskAction -Execute "C:\Scripts\new_backup.bat")
@@ -157,9 +242,9 @@ Disable-ScheduledTask -TaskName "BackupTask"
 Enable-ScheduledTask -TaskName "BackupTask"
 ```
 
-### 学习方法
+## 学习计划任务的用法
 
-#### 1. 官方文档
+### 1. 官方文档
 PowerShell 的官方文档提供了详细的 cmdlet 说明和示例。可以通过以下命令访问特定 cmdlet 的帮助文档：
 ```powershell
 Get-Help <Cmdlet-Name> -Online
@@ -169,7 +254,7 @@ Get-Help <Cmdlet-Name> -Online
 Get-Help Get-ScheduledTask -Online
 ```
 
-#### 2. 示例练习
+### 2. 示例练习
 动手实践是学习的最佳方法。创建一个测试环境，尝试使用不同的 cmdlet 完成以下任务：
 
 - 创建一个计划任务，并设置其触发条件和操作。
@@ -177,7 +262,7 @@ Get-Help Get-ScheduledTask -Online
 - 禁用并重新启用计划任务。
 - 删除计划任务。
 
-#### 3. 学习资源
+### 3. 学习资源
 利用 PowerShell 社区和学习资源，例如：
 
 - [PowerShell Gallery](https://www.powershellgallery.com/)
@@ -188,6 +273,24 @@ Get-Help Get-ScheduledTask -Online
 
 了解自动任务的触发类型和时机是重要的;此外,有些任务启动后需要长期再后台运行,需要使用`-Asjob`选项
 
+先看看`New-ScheduledTaskTrigger`的语法,共有5种
+
+```powershell
+PS> gcm New-ScheduledTaskTrigger  -Syntax
+
+New-ScheduledTaskTrigger -Once -At <datetime> [-RandomDelay <timespan>] [-RepetitionDuration <timespan>] [-RepetitionInterval <timespan>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [<CommonParameters>]
+
+New-ScheduledTaskTrigger -Daily -At <datetime> [-DaysInterval <uint>] [-RandomDelay <timespan>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [<CommonParameters>]
+
+New-ScheduledTaskTrigger -Weekly -At <datetime> [-RandomDelay <timespan>] [-DaysOfWeek <DayOfWeek[]>] [-WeeksInterval <uint>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [<CommonParameters>]
+
+New-ScheduledTaskTrigger -AtStartup [-RandomDelay <timespan>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [<CommonParameters>]
+
+New-ScheduledTaskTrigger -AtLogOn [-RandomDelay <timespan>] [-User <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [<CommonParameters>]
+```
+
+其中只有第一种(`-Once`)支持`Repetetition*`的参数,其他(`Daily,weekly,AtStartup,AtLogon`)都不支持!
+
 在 PowerShell 中使用 `New-ScheduledTaskTrigger` cmdlet 创建计划任务触发器时，`-At` 参数用于指定任务的启动时间。`-At` 参数需要一个时间值，表示任务应该在一天中的哪个时间点启动。
 
 ### `-At` 参数的时间格式
@@ -197,7 +300,7 @@ Get-Help Get-ScheduledTask -Online
 - 24小时制，例如 `"14:30"` 表示下午 2:30
 - 12小时制，需要指定 AM 或 PM，例如 `"2:30PM"` 表示下午 2:30
 
-### 示例
+下面是利用`-At`参数创建触发器的示例
 
 #### 每天在上午 9 点启动任务
 ```powershell
@@ -279,7 +382,9 @@ Unregister-ScheduledTask -TaskName "Start Notepad at Logon"
 
 - 自动任务有`Daily`,`Weekly`,`Monthly`,但是没有`Hourly`
 
-创建一个每小时向桌面的 log.txt 文件追加当前时间日志的计划任务。这个任务将永久有效，除非你手动删除它。以下是实现这个功能的 PowerShell 脚本：
+例如:创建一个每小时向桌面的 log.txt 文件追加当前时间日志的计划任务。这个任务将永久有效，除非你手动删除它。以下是实现这个功能的 PowerShell 脚本：
+
+准备要定时执行的任务
 
 ```powershell
 # 创建要执行的 PowerShell 脚本内容
@@ -296,6 +401,11 @@ $ScriptContent | Out-File -FilePath $ScriptPath -Force
 # 创建计划任务的动作
 $Action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument "-windowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"$ScriptPath`""
 
+```
+
+创建触发器(重点)
+
+```powershell
 # 创建计划任务的触发器（每小时运行一次,也可以修改为其他间隔,比如每分钟一次）
 $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
 # 重复间隔小于1分钟也会报错!过于小也是out of range:
@@ -357,15 +467,37 @@ Register-ScheduledTask -TaskName 'LogTimeRegularly' -Action $Action -Trigger $Tr
 5. 一致性：
    保持与图形用户界面任务计划程序(`taskschd.msc`的一致性，那里也没有直接的"每小时"选项。
 
-虽然没有直接的 `-Hourly` 选项，但我们可以通过以下几种方式创建每小时运行的任务：
+### 变通方法实现Hourly
 
-1. 使用 `-Once` 和重复设置（如我们之前的例子）：
+虽然没有直接的 `-Hourly` 选项，但我们可以通过以下几种方式创建每小时 和minutely运行的任务：
+
+使用 `-Once` 和`RepetitionInterval`（如我们之前的例子）：
 
 ```powershell
-$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration ([TimeSpan]::MaxValue)
+$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1) 
 ```
 
-2. 使用 `-Daily` 并设置 24 个触发器：
+这个触发器会在创建之时(设为时间T)执行触发一次,而后每隔一小时触发一次(这样的做法在重启之后是否有效?会失效)
+
+```cmd
+-RepetitionInterval
+Specifies an amount of time between each restart of the task. The task will run, wait for the time interval specified, and then run again. This cycle continues for the time that you specify for the RepetitionDuration parameter.
+```
+
+改进:假设你希望将触发器修改为:
+
+1. 开机自动运行
+2. 每隔1小时触发一次
+
+思路如下:
+
+创建一个开机自动运行的计划任务,这个任务去调用另一个一次性但是会在任务周期内长期执行的计划任务(比如`-RepetitoinInterval (New-timespan -hours 1)`)
+
+这里的任务周期:通常是两次重启或启动计算机的间隔内,或`-RepetitionDuration`指定的间隔
+
+
+
+此外,`Hourly`可以用 `-Daily` 并设置 24 个触发器：
 
 ```powershell
 $Triggers = 0..23 | ForEach-Object { New-ScheduledTaskTrigger -Daily -At "$($_):00" }
@@ -391,7 +523,38 @@ $trigger = New-ScheduledTaskTrigger -Weekly -At 9am -DaysOfWeek Monday,Wednesday
 Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "WeeklyBackupTask"
 ```
 
+## 进阶用法和计划任务的特殊现象👺
 
+- 你可以为创建的任务指定一些额外的信息,例如指定创建者等
+- 我发现windows计划任务的一件有意思的事,当我在创建计划任务指定创建者(UserId)的时候,创建完成后我就去检查是否设置成功
+  - 当我用taskschd.msc**刷新了列表**,新建的任务确实创建出来了,但是创建者字段是空的
+  - 我一度怀疑是我使用的命令行不对,但是我点击属性进去看,却有发现创建者字段上出现了我指定的用户名
+- 那么计划任务的进阶用法体现在命令行上就是两个方面
+  - [New-ScheduledTaskPrincipal (ScheduledTasks) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/scheduledtasks/new-scheduledtaskprincipal?view=windowsserver2022-ps)
+  - [New-ScheduledTaskSettingsSet (ScheduledTasks) | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/new-scheduledtasksettingsset?view=windowsserver2022-ps)
+
+`New-ScheduledTaskPrincipal` 和 `New-ScheduledTaskSettingsSet` 是用于创建计划任务的 PowerShell cmdlet，分别用于定义任务的用户凭据和任务的设置。
+
+**“主体”**（Principal）指的是计划任务的执行主体，通常是用户或用户组。
+
+### 1. **New-ScheduledTaskPrincipal**
+   - **用途**: 定义计划任务的用户或组信息，包括运行任务的用户、运行级别以及日志记录选项。
+   - **常用参数**:
+     - `-UserId`: 指定运行任务的用户或组的标识符。
+     - `-LogonType`: 指定任务运行时如何登录用户。选项包括 `Interactive`, `Password`, `ServiceAccount`, `S4U` 等。
+     - `-RunLevel`: 指定任务是否以提升的权限运行。选项包括 `LeastPrivilege` 和 `HighestAvailable`。
+     - `-GroupId`: 指定任务的用户组。
+
+### 2. **New-ScheduledTaskSettingsSet**
+   - **用途**: 定义计划任务的各种设置，比如任务的执行行为、超时时间、停止条件等。
+   - **常用参数**:
+     - `-AllowStartIfOnBatteries`: 是否允许在使用电池电源时启动任务。
+     - `-DontStopIfGoingOnBatteries`: 在切换到电池电源时是否继续运行任务。
+     - `-StartWhenAvailable`: 当错过计划时，是否在下次可用时启动任务。
+     - `-RestartInterval` 和 `-RestartCount`: 指定任务失败后重新启动的间隔和次数。
+     - `-MultipleInstancesPolicy`: 定义任务实例的并发策略，选项包括 `IgnoreNew`, `Parallel`, `Queue`, `StopExisting`。
+
+这些 cmdlet 提供了详细控制计划任务行为和权限的选项，允许管理员根据需要配置任务的执行环境。
 
 ## 查看特定计划任务的详情👺
 

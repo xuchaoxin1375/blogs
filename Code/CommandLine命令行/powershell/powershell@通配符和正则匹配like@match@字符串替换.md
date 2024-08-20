@@ -1,7 +1,7 @@
 [toc]
 
 
-# powershell 处理字符串
+# powershell 处理文本文件和字符串
 
 
 
@@ -91,6 +91,59 @@ InputStream:379:      "5.72" -replace "(.+)", "`$`$`$1"
 ```
 
 - 经过上述查找,我们可以到about_Regular_Expressions 中一探究竟.
+
+## 定位点
+
+[定位点|关于正则表达式 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4#anchors)
+
+### 多行匹配
+
+在 PowerShell 中可以使用正则表达式来匹配多行内容。通常，使用 `-match` 运算符以及多行模式的标志 `(?s)` 来实现这一点。以下是一个示例：
+
+假设我们有一个文件 `example.txt`，内容如下：
+
+```cmd
+Line 1
+Line 2
+Start
+Line 3
+Line 4
+End
+Line 5
+```
+
+我们想要匹配 `Start` 和 `End` 之间的所有内容。
+
+可以使用以下 PowerShell 脚本：
+
+```powershell
+# 读取文件内容
+$content = Get-Content -Raw -Path "example.txt"
+
+# 使用正则表达式匹配多行内容
+$pattern = "(?s)Start(.*?)End"
+if ($content -match $pattern) {
+    $matches = $matches[1]  # 获取匹配的内容
+    Write-Output $matches
+} else {
+    Write-Output "No match found."
+}
+```
+
+解释：
+- `Get-Content -Raw` 读取整个文件内容为一个字符串。
+- `(?s)` 标志启用多行模式，使 `.` 可以匹配换行符。
+- `(.*?)` 使用非贪婪匹配来捕获 `Start` 和 `End` 之间的所有内容。
+- `$matches[1]` 包含第一个捕获组的内容，即 `Start` 和 `End` 之间的内容。
+
+运行以上脚本将输出：
+
+```
+Line 3
+Line 4
+```
+
+
 
 # 字符串相关操作符
 
@@ -352,7 +405,11 @@ InputStream:379:      "5.72" -replace "(.+)", "`$`$`$1"
 # refs
 
 - [replacement-with-regular-expressions|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-with-regular-expressions)
+  - [正则替换|关于比较运算符 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.4&viewFallbackFrom=powershell-7.3#replacement-with-regular-expressions)
+
 - [about Regular Expressions - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.3)
+  - [关于正则表达式 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4&viewFallbackFrom=powershell-7.3)
+
 - [about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-operator)
 - [How to Use PowerShell Replace to Replace Text [Examples] (adamtheautomator.com)](https://adamtheautomator.com/powershell-replace/#:~:text=One%20of%20the%20easiest%20ways%20to%20replace%20strings,and%20replacing%20that%20string%20with%20the%20string%20hi.)
 - [Powershell - Replace first occurrences of String - Stack Overflow](https://stackoverflow.com/questions/38123600/powershell-replace-first-occurrences-of-string)

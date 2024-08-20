@@ -275,5 +275,11 @@ Successfully uninstalled
 
 
 
+## 换源加速
+
+- 早期的winget文档并没有介绍如何换源,随着版本的迭代,文档增加了这部分功能的介绍
+
+- [winget source 命令 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/package-manager/winget/source)
+
 
 

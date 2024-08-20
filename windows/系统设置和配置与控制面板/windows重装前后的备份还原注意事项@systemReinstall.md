@@ -228,7 +228,7 @@ Add-EnvVar -EnvVar Path -NewValue $vscode_bin -Scope Machine
 
 - 启用网络发现和共享文件夹:`Deploy-Smbsharing`(手机热点的话网络共享可能不好使,需要路由器)
 
-### 常用软件的配置
+### 常用软件的配置👺
 
 ```powershell
 #部署常用软件的配置
@@ -245,6 +245,11 @@ New-SSHKeyPairs
 ```
 
 浏览器内打开代理插件设置(比如proxyfy)
+
+- typora 设置
+  - 自动保存
+  - 关闭拼写检查
+  - 启用Markdown 代码片段行号显示
 
 ### 基础软件安装
 
