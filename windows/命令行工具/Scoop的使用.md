@@ -117,6 +117,10 @@ Hack-NF       3.2.1   spc
 
 - 多路下载不一定更快,根据你的使用体验为准
 
+  - 一般来讲,多线程会更快,并且可以比单线程快得多
+
+  - 所以大多数情况下,启用aria2下载是合适的,特别是对于镜像加速,例如`mirror.ghproxy.com`类加速站,使用多线程效果十分明显,如果只用单线程,那么速度经常仍然是很慢的
+
 - 下面的文档提供了配置方法
 
   - [multi-connection-downloads-with-aria2|ScoopInstaller/Scoop: A command-line installer for Windows. (github.com)](https://github.com/ScoopInstaller/Scoop#multi-connection-downloads-with-aria2)
@@ -128,6 +132,29 @@ Hack-NF       3.2.1   spc
   ```
 
   然后重新尝试(如果报错,卸载掉残留(scoop uninstall),然后重新安装)
+
+
+### 配置aria2 for scoop
+
+- You can tweak the following `aria2` settings with the `scoop config` command:
+
+  - aria2-enabled (default: true)
+  - aria2-warning-enabled (default: true)
+  - [aria2-retry-wait](https://aria2.github.io/manual/en/html/aria2c.html#cmdoption-retry-wait) (default: 2)
+  - [aria2-split](https://aria2.github.io/manual/en/html/aria2c.html#cmdoption-s) (default: 5)
+  - [aria2-max-connection-per-server](https://aria2.github.io/manual/en/html/aria2c.html#cmdoption-x) (default: 5)
+  - [aria2-min-split-size](https://aria2.github.io/manual/en/html/aria2c.html#cmdoption-k) (default: 5M)
+  - [aria2-options](https://aria2.github.io/manual/en/html/aria2c.html#options) (default: )
+
+- 例如配置多线程的线程数为16
+
+  ```cmd
+  scoop config aria2-split 16
+  ```
+
+  
+
+### 例
 
 - 以neovim的下载为例,在底层代理(TUN)代理下,结合aria2多线程加速,平均速度为7MBps左右
 

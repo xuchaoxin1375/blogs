@@ -112,5 +112,70 @@ git clean -f
 
 在执行 `git clean` 之前，最好先查看一下哪些文件会被影响，防止意外删除重要数据。如果你需要保留这些未跟踪文件，就需要采取其他策略，比如移动文件到别处，待合并完成后，再决定如何处理这些文件。
 
+## 云端仓库强制覆盖本地仓库👺
+
+有时候我们想要在主设备之外的副设备上部署新版仓库，那么旧版仓库中如果被污染,那么就无法直接顺利更新
+
+```cmd
+remote: Enumerating objects: 36, done.
+remote: Counting objects: 100% (36/36), done.
+remote: Compressing objects: 100% (29/29), done.
+remote: Total 31 (delta 11), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (31/31), 2.18 MiB | 901.00 KiB/s, done.
+From https://gitee.com/xuchaoxin1375/configs
+ * branch            main       -> FETCH_HEAD
+   ccaf71d..91daf0b  main       -> origin/main
+#报错内容   
+error: Your local changes to the following files would be overwritten by merge:
+        wtConf.json
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+        aria2.conf
+Please move or remove them before you merge.
+Aborting
+Updating 17ca8cf..91daf0b
+ was try to updated.
+```
 
 
+如果你想强制拉取远程分支并放弃本地的所有文件和修改，可以使用以下命令：
+
+### 放弃本地所有未提交的更改：
+
+首先，你需要清除本地的所有更改和未追踪的文件。你可以使用以下命令：
+
+```bash
+git reset --hard HEAD
+git clean -fd
+```
+
+- `git reset --hard HEAD` 会将你的工作目录和暂存区重置到最后一次提交的状态，放弃所有未提交的更改。
+- `git clean -fd` 会删除所有未追踪的文件和目录（确保没有需要保留的文件，否则会丢失）。
+
+### 强制拉取远程分支：
+
+然后，你可以使用 `git fetch` 和 `git reset` 来强制更新你的本地分支：
+
+```bash
+git fetch origin
+git reset --hard origin/main
+```
+
+- `git fetch origin` 拉取远程仓库的更新。
+- `git reset --hard origin/main` 强制将本地的 `main` 分支重置为远程仓库的 `main` 分支。
+
+### 直接强制拉取👺
+
+1. **如果你直接想用 `git pull` 强制拉取：**
+
+   你也可以直接执行以下命令来强制覆盖本地的更改：
+
+   ```bash
+   git fetch origin
+   git reset --hard origin/main
+   git pull
+   ```
+
+   这样可以确保你拉取到最新的远程分支，同时放弃本地的所有更改。
+
+**注意**：以上操作会导致本地所有未提交的更改和未追踪的文件被永久删除，请确保你不再需要这些更改。

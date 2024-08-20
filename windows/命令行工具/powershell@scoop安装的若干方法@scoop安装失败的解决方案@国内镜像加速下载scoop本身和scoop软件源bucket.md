@@ -359,7 +359,7 @@
   }
   
   # 将 Scoop 的仓库源替换为代理的
-  scoop config scoop_repo $mirror/https://github.com/ScoopInstaller/Scoop
+   scoop_repo $mirror/https://github.com/ScoopInstaller/Scoop
   
   New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket"
   # 可选部分
@@ -546,7 +546,21 @@ scoop bucket list
 # scoop install spc/scoop-search spc/aria2
 ```
 
+## 多线程或多路加速下载
 
+- [ScoopInstaller/Scoop: A command-line installer for Windows. (github.com)](https://github.com/ScoopInstaller/Scoop?tab=readme-ov-file#multi-connection-downloads-with-aria2)
+
+- 有时候你会发现及时使用了加速镜像,但是下载速度仍然不是很快,那么考虑使用aria2配合scoop做多线程下载
+
+  ```cmd
+  #利用scoop安装aria2(其他方式安装的aria2不会被默认调用,但是您可以尝试用scoop config aria2-enabled true 命令行来启用)
+  scoop install aria2
+  scoop config aria2-enabled true 
+  scoop config aria2-split 16 #设置16线程下载
+  
+  ```
+
+- 详情另见它文
 
 ## 相关加速的项目👺
 
