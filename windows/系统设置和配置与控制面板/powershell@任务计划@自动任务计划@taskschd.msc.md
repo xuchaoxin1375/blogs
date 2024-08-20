@@ -556,6 +556,57 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "WeeklyBackup
 
 这些 cmdlet 提供了详细控制计划任务行为和权限的选项，允许管理员根据需要配置任务的执行环境。
 
+## 不论用户是否登录的情况下运行
+
+在 PowerShell 中创建计划任务时，如果你希望任务在不论用户是否登录的情况下运行，可以使用 `New-ScheduledTaskPrincipal` 和 `Register-ScheduledTask` 这两个 cmdlet 来实现。关键是将 `UserId` 设置为 `SYSTEM` 或使用 `RunLevel` 设置为 `Highest`，并且指定 `LogonType` 为 `S4U`。
+
+以下是一个示例代码，展示了如何配置一个计划任务，使其在不论用户是否登录的情况下运行：
+
+```powershell
+# 定义计划任务的触发器
+$trigger = New-ScheduledTaskTrigger -Daily -At 8am
+
+# 定义计划任务的操作
+$action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -File C:\Scripts\YourScript.ps1"
+
+# 定义计划任务的主体，设置不论用户是否登录都要运行
+$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+
+# 注册计划任务
+Register-ScheduledTask -TaskName "MyTask" -Trigger $trigger -Action $action -Principal $principal
+```
+
+### 关键参数解释：
+
+1. **`-UserId "SYSTEM"`**:
+   - `UserId` 设置为 `SYSTEM`，表示任务将在系统上下文中运行，不依赖于任何用户登录。
+
+2. **`-LogonType ServiceAccount`**:
+   - `LogonType` 设置为 `ServiceAccount`，表示任务将在一个服务账户下运行，这样就不需要用户登录。
+
+3. **`-RunLevel Highest`**:
+   - `RunLevel` 设置为 `Highest`，确保任务在管理员权限下运行。
+
+### 步骤解析：
+
+1. **创建触发器**：使用 `New-ScheduledTaskTrigger` 创建一个每天早上8点触发的任务触发器。
+
+2. **定义操作**：使用 `New-ScheduledTaskAction` 定义任务执行的操作，这里示例中是运行一个 PowerShell 脚本。
+
+3. **设置任务主体**：使用 `New-ScheduledTaskPrincipal` 创建主体并设置为在系统上下文中运行，不论用户是否登录。
+
+4. **注册任务**：使用 `Register-ScheduledTask` 将上述配置注册为一个新的计划任务。
+
+### 注意事项：
+- 如果你想使用特定用户的凭据而不是 `SYSTEM`，可以将 `-UserId` 设置为特定用户名，并使用 `S4U` 登录类型：
+  ```powershell
+  $principal = New-ScheduledTaskPrincipal -UserId "YourUsername" -LogonType S4U -RunLevel Highest
+  ```
+
+这段代码将创建一个在不论用户是否登录的情况下运行的计划任务，非常适合用于服务器管理、自动化脚本执行等场景。
+
+
+
 ## 查看特定计划任务的详情👺
 
 主要有两类方法
