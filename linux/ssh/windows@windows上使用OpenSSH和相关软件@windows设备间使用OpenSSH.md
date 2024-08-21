@@ -64,7 +64,13 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
 
 ### 兼容性方案安装
 
+有多种安装方式,都挺方便的
 
+### 使用scoop安装
+
+- 默认的scoop很慢,建议使用国内优化版的scoop加速下载和部署
+
+- [SSH on Windows · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/SSH-on-Windows)
 
 #### 使用msi包安装
 

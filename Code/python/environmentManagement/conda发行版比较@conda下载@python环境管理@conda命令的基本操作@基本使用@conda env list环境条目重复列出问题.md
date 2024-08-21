@@ -63,24 +63,117 @@
 
 - [Cheat sheet — conda  documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/cheatsheet.html)
 
-### 版本比较
+## 版本比较
 
-- 版本编号分为python版本和日期
-  - 例如
-    - [Miniconda3-py310_22.11.1-1-Windows-x86_64.exe](https://mirrors.bfsu.edu.cn/anaconda/miniconda/Miniconda3-py310_22.11.1-1-Windows-x86_64.exe)
-    - 是python3.10;发布域22年(2022)/11月1日
-    - 末尾带有__x64.exe适合于64为系统(通常先择这种的)
-    - 镜像中的更新日期可能是稍晚一些(以上只是猜测)
+- 在选择合适的 Miniconda 版本时，以下几点可以帮助你做出决定：
 
-### Miniconda 镜像使用帮助
+  1. **Python 版本**：
+     - `miniconda3-py310`, `miniconda3-py311`, `miniconda3-py37` 等版本的后缀表示 Python 的版本。如果你的项目或库对 Python 版本有特定要求，选择对应的版本非常重要。
+     - `miniconda3`（没有后缀的）通常默认安装最新版本的 Python，适合不特别关心 Python 版本的用户。
+
+  2. **二进制包来源**：
+     - `scoop-cn`, `spc`, `ExtrasCxxu` 是不同的二进制包源。通常情况下，推荐选择你经常使用或信任的源。例如，`scoop-cn` 是 Scoop 管理器的中国镜像版本，它可以在中国地区提供更快的下载速度。
+     - `spc` 可能指代一种特定的发布渠道或特定用途的镜像。
+
+  3. **兼容性和最新特性**：
+     - 如果你希望使用最新的特性或对性能有高要求，建议选择最新的版本，如 `miniconda3` 
+     - 如果你希望保持与旧环境或旧项目的兼容性，可以选择较老的版本，如 `miniconda3-py37`。
+
+  4. **通用 vs. 特定**：
+     - `miniconda3-latest` 通常会自动更新到最新版本，适合希望保持环境自动更新的用户。
+     - 特定版本如 `miniconda3-py38` 则适合需要稳定环境的开发者。
+
+
+## 下载安装conda/miniconda
+
+### 官方网站下载安装
+
+- 下载速度可能比较慢，推荐用镜像或者包管理工具来下载
+
+### Miniconda 镜像
 
 - Miniconda 是一个 Anaconda 的轻量级替代，默认只包含了 python 和 conda，但是可以通过 pip 和 conda 来安装所需要的包。
 
 - Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
 
+### scoop
+
+- 默认的scoop下载器也是比较慢的，但是你可以找到scoop cn这类项目来加速部署scoop
+
+  - [国内用户快速部署Scoop@一键加速安装scoop@Deploy-ScoopForCNUser-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/141385998)
+
+- 然后通过一条命令快速安装miniconda，甚至是其他常见的软件，值得推荐
+
+- 搜索可用版本
+
+  - ```powershell
+    PS> scoop search miniconda
+    Results from local buckets...
+    
+    Name              Version   Source     Binaries
+    ----              -------   ------     --------
+    miniconda3        24.5.0-0  ExtrasCxxu
+    miniconda2        4.8.3     scoop-cn
+    miniconda3-4.12.0 4.12.0    scoop-cn
+    miniconda3-py310  24.5.0-0  scoop-cn
+    miniconda3-py311  24.5.0-0  scoop-cn
+    miniconda3-py37   23.1.0-1  scoop-cn
+    miniconda3-py38   23.11.0-2 scoop-cn
+    miniconda3-py39   24.5.0-0  scoop-cn
+    miniconda3        24.5.0-0  scoop-cn
+    miniconda-cn      23.5.2-0  spc
+    miniconda         24.5.0-0  spc
+    miniconda2        4.8.3     spc
+    miniconda3-4.12.0 4.12.0    spc
+    miniconda3-latest latest    spc
+    miniconda3-py310  24.5.0-0  spc
+    miniconda3-py311  24.5.0-0  spc
+    miniconda3-py37   23.1.0-1  spc
+    miniconda3-py38   23.11.0-2 spc
+    miniconda3-py39   24.5.0-0  spc
+    miniconda3        24.5.0-0  spc
+    ```
+
+    
+
+- 查看指定版本的介绍
+
+  ```powershell
+  PS> scoop info miniconda3
+  
+  Name        : miniconda3
+  Description : A cross-platform, Python-agnostic binary package manager
+  Version     : 24.5.0-0
+  Bucket      : ExtrasCxxu
+  Website     : https://docs.anaconda.com/free/miniconda
+  License     : BSD-3-Clause
+  Updated at  : 2024/6/28 0:31:03
+  Updated by  : github-actions[bot]
+  Installed   : 24.5.0-0
+  Binaries    : python.exe | pythonw.exe | python3.exe
+  Path Added  : <root>\scripts
+                <root>\Library\bin
+  Notes       : From 4.6.0, conda has built the support for Cmd, Powershell or other shells.
+                Use "conda init powershell" or "conda init __your_favorite_shell__"
+  
+                Miniconda3 drops support for 32-bit CPUs from v22.9.0. If you are running a 32-bit system, please install
+                 miniconda3-4.12.0 from the Versions bucket.
+  ```
+
+  
+
+- 选择想要的版本进行安装
+
+  ```cmd
+  #比如我想默认使用当前最新版的python，使用miniconda3
+  scoop install miniconda3
+  #也可以指定source: 
+  scoop install spc/miniconda3
+  ```
+
 ### winget 命令行下载
 
-- 如果您的网络不错,可以用winget安装
+- 如果您的网络不错,可以用winget安装(Winget现在也支持换源了)
 
 - ```bash
   PS C:\Users\cxxu\AppData\Roaming\Typora\conf> winget search miniconda3
