@@ -1,8 +1,109 @@
 [toc]
 
-# 补充
 
-## 自行添加加速的bucket或自命名bucket
+
+## scoop 官方指南@探索 Scoop：Windows 的命令行安装器
+
+- [Home · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki)
+
+Scoop 是一个面向 Windows 系统的命令行软件安装器，它以其简洁和高效而受到用户的喜爱。以下是对 Scoop 的全面介绍和使用总结。
+
+### 快速开始
+
+要在 Windows PowerShell 终端（版本 5.1 或更高）中开始使用 Scoop，您需要执行以下命令：
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+```
+
+对于高级安装选项，请查看安装程序的自述文件。[ScoopInstaller/Install: 📥 Next-generation Scoop (un)installer (github.com)](https://github.com/ScoopInstaller/Install?tab=readme-ov-file#scoop-uninstaller)
+
+尤其是自定义scoop目录和管理员权限安装scoop(For Admin)
+
+### Scoop 的特点👺
+
+Scoop 的设计宗旨是简化从命令行安装程序的过程。它具备以下特点：
+
+- 消除权限弹出窗口。
+- 隐藏 GUI 向导式安装程序。
+- 预防安装多个程序导致的 PATH 污染。
+- 避免安装和卸载程序时出现的意外副作用。
+- 自动查找并安装依赖项。
+- 自动执行所有额外的设置步骤以确保程序正常工作。
+
+### Scoop 的存储结构@Scoop家目录
+
+Scoop 以便携式方式下载和管理软件包，并将它们整齐地隔离在 `~\scoop` 目录中。它不会在 Scoop 家目录之外安装文件，您可以将 Scoop 安装在任何喜欢的位置。
+
+scoop安装完的命令有两类,其中GUI程序无法直接从终端启动(除非你手动配置其别名或者路径到Path环境变量)
+
+#### 终端中启动的命令行工具文件夹(CLI程序)
+
+对于**终端应用程序**，Scoop 在 `~\scoop\shims` 文件夹中创建“ `shims` ”（一种命令行快捷方式），这些快捷方式可以在 PATH 中访问。
+
+#### 开始菜单中的Scoop文件夹(GUI程序)
+
+对于**图形应用程序**，Scoop 在专门的开始菜单文件夹“ `Scoop Apps`”中创建程序快捷方式。
+
+这种情况下,建议您从开始菜单中输入GUI程序名字,然后启动
+
+这样，软件包可以被干净地卸载，您可以清楚地知道当前在 PATH 和开始菜单中的工具。
+
+### 搜索软件包@buckets
+
+Scoop 软件包作为 Git 仓库的一部分存在，称为“`buckets`”。除了内置的 `search` 子命令，软件包搜索还可以用于搜索 GitHub 上所有 Scoop 清单。
+
+### 创建软件包
+
+Scoop 允许您轻松创建自己的软件包：
+
+```powershell
+scoop create https://example.com/foobar/1.2.3/foobar-package.zip
+```
+
+```
+> scoop create https://example.com/foobar/1.2.3/foobar-package.zip
+1) foobar
+2) 1.2.3
+3) foobar-package.zip
+App name: 1
+1) foobar
+2) 1.2.3
+3) foobar-package.zip
+Version: 2
+Created 'C:\Users\User\Desktop\foobar.json'.
+```
+
+Scoop 清单是简单的 JSON 文件，可以选择性地用内联 PowerShell 语句补充。
+
+### More
+
+如果您正在寻找特定内容或准备深入了解 Scoop 内部结构，请查看 Scoop 的自述文件或维基百科。
+
+Check out [Scoop's Readme](https://github.com/ScoopInstaller/Scoop#readme) or refer to the [Wiki](https://github.com/ScoopInstaller/Scoop/wiki).
+
+
+
+## Scoop全局安装软件(为所有用户安装)👺
+
+- [Global Installs · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Global-Installs)
+
+- 例如:`sudo scoop install git -g`  其中`-g`是`--global`的简写
+- 对于单用户设备其实是否全局安装无所谓
+- 但是如果你的设备是多用户的,那么全局安装比较合适,这样新建一个用户,他就不需要重新安装一遍软件
+
+## 卸载scoop@重装scoop
+
+- 一般来说使用国内优化过的方案安装和使用scoop不会遇到scoop安装失败
+- 但是如果安装失败卸载不干净，尝试以下方案
+
+- [reference link:重装scoop](https://github.com/neolee/pilot/wiki#%E5%A6%82%E4%BD%95%E9%87%8D%E8%A3%85-scoop)
+- [Scoop安装、使用与卸载  (zhihu.com)](https://zhuanlan.zhihu.com/p/609534833)
+
+
+
+## 自行添加:加速的bucket或自命名bucket
 
 
 
@@ -62,7 +163,7 @@ $mirror='https://github.moeyy.xyz/'
 scoop bucket add ExtrasCxxu $mirror/https://github.com/ScoopInstaller/Extras
 ```
 
-操作示例
+### Extras仓库的添加
 
 ```powershell
 PS> scoop bucket add ExtrasCxxu $mirror/https://github.com/ScoopInstaller/Extras
@@ -83,23 +184,6 @@ spc        https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn   20
 ```
 
 可以通过`scoop bucket rm extras`移除没有加速的默认extras
-
-## 及时更新scoop及其bucket
-
-- 虽然大多数时候scoop会自动更新它自己以及用户安装了的bucket
-
-- 然而某些情况下不会自动更新,并且会影响到用户的使用
-
-- 例如,你原来的Main bucket是github官方链接或者通过某个不稳定的镜像加速的链接,你想要切换到Gitee上加速,那么你可能执行以下操作
-
-  ```cmd
-  scoop config scoop_REPO "https://gitee.com/scoop-installer/scoop"
-  scoop bucket rm main #移除旧main bucket
-  scoop bucket add main https://gitee.com/scoop-installer/Main #添加新main bucke
-  scoop update  #及时执行,更新main bucket
-  ```
-
-  
 
 ### 字体仓库添加和使用示例
 
@@ -129,6 +213,43 @@ Hack-NF-Propo 3.2.1   spc
 Hack-NF       3.2.1   spc
 
 ```
+
+
+
+## 及时更新scoop及其bucket👺👺
+
+- 虽然大多数时候scoop会自动更新它自己以及用户安装了的bucket
+
+- 然而某些情况下不会自动更新,并且会影响到用户的使用
+
+- 例如,你原来的Main bucket是github官方链接或者通过某个不稳定的镜像加速的链接,你想要切换到Gitee上加速,那么你可能执行以下操作
+
+  ```cmd
+  scoop config scoop_REPO "https://gitee.com/scoop-installer/scoop"
+  scoop bucket rm main #移除旧main bucket
+  scoop bucket add main https://gitee.com/scoop-installer/Main #添加新main bucke
+  scoop update  #及时执行,更新main bucket
+  ```
+
+
+## 清理异常或失败的安装
+
+- ```cmd
+  PS> scoop cleanup -h
+  Usage: scoop cleanup <app> [options]
+  
+  'scoop cleanup' cleans Scoop apps by removing old versions.
+  'scoop cleanup <app>' cleans up the old versions of that app if said versions exist.
+  
+  You can use '*' in place of <app> or `-a`/`--all` switch to cleanup all apps.
+  
+  Options:
+    -a, --all          Cleanup all apps (alternative to '*')
+    -g, --global       Cleanup a globally installed app
+    -k, --cache        Remove outdated download cache
+  ```
+
+- 尤其是使用aria2下载的包,如果下载过程中断或者失败,如果切换下载方案,可能需要清理一下下载的缓存
 
 ## 使用aria2多路下载👺
 
@@ -208,7 +329,6 @@ Hack-NF       3.2.1   spc
 
   - 文档分为两部分,第一部分是基础设置(Settings),第二部分是aria2 的设置(ARIA2 configuration)
 
-    
 
 
 ### 配置aria2 for scoop👺
@@ -233,7 +353,7 @@ Hack-NF       3.2.1   spc
 
   
 
-### 例
+### 示例
 
 - 以下载QQ-NT为例,结合aria2多线程加速,接近跑满带宽,整个安装过程5秒左右,比从官网下载要快得多
 
@@ -261,6 +381,11 @@ Hack-NF       3.2.1   spc
   
 - 使用aria2下载可能稳定性不如传统下载,scoop对此给出**wanring**(有时候开aria2多线程下不动,就临时禁用aria2)
 
+### Notes
+
+- aria2c中`-s,-x,-k`三个选项合理搭配才能发挥多线程的效果,默认的aria2效果一般,仅使用`-s`下载连接数往往也上不去
+- 不过尽管有时候链接数高达16,下载速度还是不行,那么考虑更换bucket或着镜像重试(注意清理未正确安装的包)
+
 ## 用scoop安装常用软件
 
 ### 安装sudo命令
@@ -287,35 +412,15 @@ nsudo   8.2          extras
 scoop install scoop-cn/gsudo
 ```
 
-## scoop 官方指南
-
-- [Home · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki)
-
-### 全局安装👺
-
-- [Global Installs · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Global-Installs)
-
-- 例如:`sudo scoop install git -g`  其中`-g`是`--global`的简写
-- 对于单用户设备其实是否全局安装无所谓
-- 但是如果你的设备是多用户的,那么全局安装比较合适,这样新建一个用户,他就不需要重新安装一遍软件
-
-### 认识@使用@创建bucket
-
-- [Buckets · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Buckets)
-
-## 卸载scoop@重装scoop
-
-- 一般来说使用国内优化过的方案安装和使用scoop不会遇到scoop安装失败
-- 但是如果安装失败卸载不干净，尝试以下方案
-
-- [reference link:重装scoop](https://github.com/neolee/pilot/wiki#%E5%A6%82%E4%BD%95%E9%87%8D%E8%A3%85-scoop)
-- [Scoop安装、使用与卸载  (zhihu.com)](https://zhuanlan.zhihu.com/p/609534833)
-
 
 
 ## 进阶用法
 
-- 例如利用aria2进行多线程下载等问题
+- 例如利用aria2进行多线程下载,创建bucket等问题
+
+### 认识@使用@创建bucket
+
+- [Buckets · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Buckets)
 
 ### 资深用户的记录和教程👺
 
