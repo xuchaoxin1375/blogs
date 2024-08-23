@@ -2,7 +2,7 @@
 
 # vscode@powershellExtension配置和启用问题.md
 
-## refs
+## 文档
 
 - [PowerShell editing with Visual Studio Code](https://code.visualstudio.com/docs/languages/powershell)
 - [使用 Visual Studio Code 进行 PowerShell 开发 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3)
@@ -13,25 +13,21 @@
   - This extension provides rich PowerShell language support for [Visual Studio Code](https://github.com/Microsoft/vscode) (VS Code). 
   - Now you can write and debug PowerShell scripts using the excellent IDE-like interface that VS Code provides.
 
-#### 工作组件
+### 工作组件
 
 - This extension is powered by 
   -  **PowerShell language server**,
   -  [PowerShell Editor Services](https://github.com/PowerShell/PowerShellEditorServices). 
 - This leverages the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) where `PowerShellEditorServices` is the server and `vscode-powershell` is the client.
 
-####  Platform Support
+###  vscode powershell插件支持的powershel版本
 
 - [Changelog | Visual Studio Marketplace](https://marketplace.visualstudio.com/items/ms-vscode.PowerShell/changelog)
-
-- 截至2022年最后一个版本的情况如下:
-
   - The extension *should* work anywhere VS Code itself and **PowerShell Core 7.2** or higher is [supported](https://docs.microsoft.com/en-us/powershell/scripting/powershell-support-lifecycle). 
 
   - For Windows PowerShell, only version 5.1 is supported. 
 
   - Please note that PowerShell Core 6 is end-of-life and so not supported
-
 - powershell Core 7.2以及之后的版本都支持
   - powershell core 6不再支持
 
@@ -42,42 +38,10 @@
 - 但他们统称为powershell
 - 现在提到powershell时,通常指的是`powershell core`
 
-### winodws powershell
+### winodws自带的powershell和新powershell平台
 
-- ```powershell
-  PS D:\repos\scripts> $PSVersionTable
-  
-  Name                           Value
-  ----                           -----
-  PSVersion                      5.1.22621.963
-  PSEdition                      Desktop
-  PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0...}
-  BuildVersion                   10.0.22621.963
-  CLRVersion                     4.0.30319.42000
-  WSManStackVersion              3.0
-  PSRemotingProtocolVersion      2.3
-  SerializationVersion           1.1.0.1
-  ```
-
-### powershell core 7.2+
-
-- 
-
-  ```powershell
-  PS D:\repos\scripts> $psVersionTable
-  
-  Name                           Value
-  ----                           -----
-  PSVersion                      7.3.1
-  PSEdition                      Core
-  GitCommitId                    7.3.1
-  OS                             Microsoft Windows 10.0.2…
-  Platform                       Win32NT
-  PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0…}
-  PSRemotingProtocolVersion      2.3
-  SerializationVersion           1.1.0.1
-  WSManStackVersion              3.0
-  ```
+- 新powershell平台是更受推荐的版本,windows自带的powershell全称是`windows powershell`,是专属于windows系统的powershell,它在windows中占用了`powershell`这个简写命令名
+- 而新平台powershell的简写名称为`pwsh`,可以被安装到不同系统,以及自定义安装目录(尤其是便携版,可以不用安装而能直接运行)
 
 ### powershell命令不可用@找不到指定命令🎈
 
@@ -134,14 +98,28 @@
 
 ## 添加自己的powershell客户端版本
 
-- [adding-your-own-powershell-paths-to-the-session-menu | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3#adding-your-own-powershell-paths-to-the-session-menu)
+- [将你自己的 PowerShell 路径添加到会话菜单|使用 Visual Studio Code 进行 PowerShell 开发 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.4#adding-your-own-powershell-paths-to-the-session-menu)
 
-### 可视化配置
+- 你的计算机上可以存在多个powershell版本
+- 比如你可以通过winget或者msi安装包安装到(全局安装)默认路径(`C:\Program files\powershell`)
+- 或者通过其他安装工具比如scoop进行全局安装,那么路径为`C:\ProgramData\scoop`下的`apps`目录,而启动方式可以在`shims`目录下找到,那么可以在相应的vscode配置settings.json数组里面写入一行新条目(如果)
+
+### settings.json中配置
+
+```json
+    "powershell.powerShellAdditionalExePaths": {
+        "pwsh(scoop)": "C:\\ProgramData\\scoop\\shims\\pwsh.exe",
+        "pwsh7.2.4(scoop)":"C:\\Users\\cxxu\\scoop\\apps\\powershell\\7.2.4\\pwsh.exe"
+    }
+```
+
+### GUI可视化配置
 
 - 在设置中搜索`powershell.powerShellAdditionalExePaths`
-  - ![在这里插入图片描述](https://img-blog.csdnimg.cn/f610cdf201ed4319acb6b68a911776ea.png)
 
-#### 添加powershell版本
+## 插件配置
+
+### 添加额外的powershell版本
 
 - 例如,我要添加名为`pwsh7.3`,且可执行文件绝对路径为`C:\Program Files\powershell\7\pwsh.exe`
 - 通常推荐使用gui进行配置
@@ -155,7 +133,9 @@
   }
   ```
 
-## powershell插件加载问题
+## powershell插件加载问题👺
+
+可能有一下问题
 
 - 系统powershell版本不符合vscode powershell插件的支持
 
@@ -172,5 +152,11 @@
 
 - command pallet: 输入`PowerShell.ShowSessionMenu`切换powershell版本
 
-  
+- 在输出日志中检查异常报告,例如:
+
+  ```powershell
+  8/23/2024 9:31:01 PM [WARNING] - The 'powerShellDefaultVersion' setting was 'Powershell (x64)' but this was not found! Instead using first available installation 'Windows PowerShell (x64)' at 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'!
+  ```
+
+
 

@@ -231,6 +231,44 @@ Hack-NF       3.2.1   spc
   scoop update  #及时执行,更新main bucket
   ```
 
+## scoop的缓存机制(cache)
+
+- scoop会缓存每次的下载,即便安装完毕后,也不会删除掉安装包,然而这个安装包的名字可能已经和软件名字相差甚远而变得难以分辨
+
+- ```powershell
+  PS C:\Program Files\PowerShell> scoop cache -h
+  Usage: scoop cache show|rm [app(s)]
+  
+  Scoop caches downloads so you don't need to download the same files
+  when you uninstall and re-install the same version of an app.
+  
+  You can use
+      scoop cache show
+  to see what's in the cache, and
+      scoop cache rm <app> to remove downloads for a specific app.
+  
+  To clear everything in your cache, use:
+      scoop cache rm *
+  You can also use the `-a/--all` switch in place of `*` here
+  ```
+
+因此,假设我们之间仅为当前用户安装过powershell,当我们需要改为全局安装(为全部用户安装(或者说全部用户共用)),那么执行`scoop install powershell -g`不会再次下载,而是会读取缓存,然后安装到`C:\Program files\scoop`下的子目录中
+
+例如
+
+```powershell
+PS C:\Program Files\PowerShell> scoop cache powershell
+
+Total: 4 files, 324.3 MB
+Name       Version    Length
+----       -------    ------
+powershell 7.2.4   108746880
+powershell 7.4.4   110374593
+powershell 7.4.4    10566923
+powershell 7.4.5   110372346
+```
+
+清理方法参考文档:`scoop cache rm <app>`来清理指定app,或者清理全部缓存,将`<app>`用`*`替换:`scoop cache rm *`
 
 ## 清理异常或失败的安装
 
