@@ -42,6 +42,10 @@
 
 通过移除输入法然后再添加回来,可以将指定输入法移动到列表末尾
 
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/b9ddc76c6c3044218b7f0df369050a8b.png)
+
+
+
 - ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/186bb71e78534e808f7c37492b312538.png)
 
 # win10部分

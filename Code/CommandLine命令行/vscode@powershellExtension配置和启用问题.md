@@ -100,9 +100,12 @@
 
 - [将你自己的 PowerShell 路径添加到会话菜单|使用 Visual Studio Code 进行 PowerShell 开发 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.4#adding-your-own-powershell-paths-to-the-session-menu)
 
+- 英文文档更加易于比较和设置settings.json：[Using Visual Studio Code for PowerShell Development - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.4#adding-your-own-powershell-paths-to-the-session-menu)
+
 - 你的计算机上可以存在多个powershell版本
-- 比如你可以通过winget或者msi安装包安装到(全局安装)默认路径(`C:\Program files\powershell`)
-- 或者通过其他安装工具比如scoop进行全局安装,那么路径为`C:\ProgramData\scoop`下的`apps`目录,而启动方式可以在`shims`目录下找到,那么可以在相应的vscode配置settings.json数组里面写入一行新条目(如果)
+  - 比如你可以通过winget或者msi安装包安装到(全局安装)默认路径(`C:\Program files\powershell`)
+  - 或者通过其他安装工具比如scoop进行全局安装,那么路径为`C:\ProgramData\scoop`下的`apps`目录,而启动方式可以在`shims`目录下找到,那么可以在相应的vscode配置settings.json数组里面写入一行新条目(如果)
+
 
 ### settings.json中配置
 
@@ -152,11 +155,16 @@
 
 - command pallet: 输入`PowerShell.ShowSessionMenu`切换powershell版本
 
-- 在输出日志中检查异常报告,例如:
+
+### 检查插件日志
+
+- 在输出日志中检查异常报告(`Focus on output view`,例如:
 
   ```powershell
   8/23/2024 9:31:01 PM [WARNING] - The 'powerShellDefaultVersion' setting was 'Powershell (x64)' but this was not found! Instead using first available installation 'Windows PowerShell (x64)' at 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'!
   ```
+
+- 注意,我们在vscode的集成终端的选项卡中点击OUTPUT选项卡,在右侧的下拉框中选择`Powershell Extension Logs`;或者通过`ctrl+shift+p`(command palette)中输入`powershell:show Powershell extension logs`来切换到输出日志
 
 
 

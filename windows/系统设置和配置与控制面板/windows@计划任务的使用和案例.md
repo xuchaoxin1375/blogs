@@ -1,273 +1,8 @@
 [toc]
 
-## 使用任务计划
 
-在 Windows 操作系统上，计划任务（Task Scheduler）是一个强大的工具，可以帮助用户自动化各种任务。使用命令行工具创建和管理计划任务可以大大提高效率。
 
-计划任务设计的重点是**触发器**(Trigger),决定了指定任务运行的时机能否符合预期!
 
-因此本文单独安排一节介绍触发器,并且给出许多例子供用户参考
-
-计划任务的触发器最频繁的触发频率为**每分钟**触发一次(如果按照自带的模式选择,甚至只能到**天**(Daily),而没有Hourly,更没有每分钟的选项;需要借助`RepetitoinInterval`来指定间隔为1分钟(更小的间隔会报错!)
-
-如果需要更加密集的触发,需要借助或配合其他工具实现
-
-计划任务允许一个任务有多个触发器,也就是不同条件中有一个条件满足,就触发任务执行
-
-也就是会所,可以创建多个触发器来间接实现Hourly(但是这不优雅,也不便于管理)
-
-![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/71ca2d8d2e7041f7b306bd5858b17f57.png)
-
-创建计划任务的方式有两大类,命令行和图形界面
-
-对于简单任务,可以用命令行创建,适合批量创建和共享
-
-如果是少数或单一但是需要细致复杂设定的任务,那么使用图形界面会更加直观友好,甚至需要配合powershell实现更复杂的控制(例如开机启动(可以后台启动)一个powershell脚本,这个脚本运行为后台任务,可以在里面定时执行某些任务,比如每隔若干秒执行某个任务,也可以自行控制停止时机)
-
-事实上,如果你熟悉powershell,那么几乎可以抛弃计划任务,在定时精度和灵活性上powershell完胜,开机自启的运行时机powershell没法自行设置的太早,比如要等用户登陆进来才能执行(但是大部分情况已经够用了,甚至可以借助工具将powershell任务打包成服务,拥有更高的更早的启动优先级,代价是你要熟悉powershell)
-
-总之两种方法相互增益,可以相互配合来满足我们的需要
-
-## windows中的任务计划
-
-### 任务计划命令行程序
-
-- [ScheduledTasks Module | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/scheduledtasks/?view=windowsserver2022-ps)
-  - [Register-ScheduledTask (ScheduledTasks) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/scheduledtasks/register-scheduledtask?view=windowsserver2022-ps)
-- [schtasks commands | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks)
-
-### 开发windows 应用中相关api
-
-- [使用任务计划程序 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/taskschd/using-the-task-scheduler)
-
-### 传统图形界面
-
-- `taskschd`[Task Scheduler Overview | Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc721871(v=ws.11)?redirectedfrom=MSDN)
-
-  | 命令行输入`taskschd`启动任务计划程序                         | 创建新的任务计划                                             |      |
-  | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-  | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e796725b12674a06a1bb9e24f4f5e0a0.png) | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/067d70276f874db182d8e1cac9b799c2.png) |      |
-  | `taskschd`是windows自带的程序,十分古老但是有用`C:\Windows\System32\taskschd.msc` | 可以选择定期执行,也可以选择条件触发,比如开机启动(运行)       |      |
-
-- 可以配置权限等,操作丰富
-
-## 任务状态
-
-- 计划任务的状态主要有:
-  - 准备就绪
-  - 正在运行
-  - ...
-
-## 查看用户创建的计划任务
-
-- ```powershell
-  $s=Get-ScheduledTask
-   $s|?{$_.author -like '*cxxu'}
-  ```
-
-  - 例如用户`cxxu`创建的计划任务(也可能是软件或系统以你的名义创建的任务)
-
-  - ```powershell
-    PS> $s|?{$_.author -like '*cxxu'}
-    
-    TaskPath                                       TaskName                          State
-    --------                                       --------                          -----
-    \                                              MicrosoftEdgeUpdateTaskMachineCo… Ready
-    ```
-
-    查看详细信息
-
-    ```powershell
-    PS> $ut=$s|?{$_.author -like '*cxxu'}
-    PS>$tu|fl * #如果只想要查看第一个任务的信息, $ut[0]|fl *
-    
-    State                 : Ready
-    Actions               : {MSFT_TaskExecAction}
-    Author                : CXXUCOLORFUL\cxxu
-    Date                  :
-    Description           : 使你的 Microsoft 软件保持最新状态。如果此任务已禁用或停止，则 Microsoft 软件将无法保持最新状态
-                            ，这意味着无法修复可能产生的安全漏洞，并且功能也可能无法使用。如果没有 Microsoft 软件使用此任务
-                            ，则此任务将自行卸载。
-    Documentation         :
-    Principal             : MSFT_TaskPrincipal2
-    SecurityDescriptor    :
-    Settings              : MSFT_TaskSettings3
-    Source                :
-    TaskName              : MicrosoftEdgeUpdateTaskMachineCore{E57A9831-4BEF-45B8-B766-B081FB721D9A}
-    TaskPath              : \
-    Triggers              : {MSFT_TaskLogonTrigger, MSFT_TaskDailyTrigger}
-    URI                   : \MicrosoftEdgeUpdateTaskMachineCore{E57A9831-4BEF-45B8-B766-B081FB721D9A}
-    Version               : 1.3.195.15
-    PSComputerName        :
-    CimClass              : Root/Microsoft/Windows/TaskScheduler:MSFT_ScheduledTask
-    CimInstanceProperties : {Actions, Author, Date, Description…}
-    CimSystemProperties   : Microsoft.Management.Infrastructure.CimSystemProperties
-    ```
-
-    
-
-## FAQ
-
-- 需要注意的是，有些程序在启动时可能会需要**管理员权限**
-  - 此时需要右键点击快捷方式，选择“属性”→“兼容性”→“以管理员身份运行此程序”，并点击“确定”按钮，以确保程序可以正常启动。
-- 另外，如果需要删除已经添加的开机自动运行程序，只需要在“启动”文件夹中删除相应的快捷方式即可。
-
-以下是一些常用的命令行工具及其用法介绍：
-
-##  schtasks 命令
-
-`schtasks` 是 Windows 提供的用于管理计划任务的命令行工具。通过它可以创建、删除、查询、修改和运行计划任务。
-
-### 常见用法
-
-#### 创建计划任务
-
-```sh
-schtasks /create /tn "任务名称" /tr "任务执行程序路径" /sc 计划类型 /st 开始时间
-```
-
-例如，每天上午9点运行一个备份脚本：
-
-```sh
-schtasks /create /tn "BackupTask" /tr "C:\Scripts\backup.bat" /sc daily /st 09:00
-```
-
-#### 删除计划任务
-
-```sh
-schtasks /delete /tn "任务名称"
-```
-
-例如，删除名为 `BackupTask` 的任务：
-
-```sh
-schtasks /delete /tn "BackupTask"
-```
-
-#### 查询计划任务
-
-```sh
-schtasks /query /tn "任务名称"
-```
-
-例如，查询名为 `BackupTask` 的任务：
-
-```sh
-schtasks /query /tn "BackupTask"
-```
-
-#### 修改计划任务
-
-```sh
-schtasks /change /tn "任务名称" /tr "新的任务执行程序路径"
-```
-
-例如，修改 `BackupTask` 的脚本路径：
-
-```sh
-schtasks /change /tn "BackupTask" /tr "C:\Scripts\new_backup.bat"
-```
-
-#### 运行计划任务
-
-```sh
-schtasks /run /tn "任务名称"
-```
-
-例如，立即运行 `BackupTask`：
-
-```sh
-schtasks /run /tn "BackupTask"
-```
-
-## PowerShell ScheduledTasks
-
-除了 `schtasks`，也可以使用 PowerShell 脚本来管理计划任务
-
-PowerShell 中的 `ScheduledTask` 模块提供了一组用于管理计划任务的 cmdlet。学习这些 cmdlet 可以帮助你高效地创建、修改、删除和管理计划任务。
-
-以下是一些最常用的 `ScheduledTask` cmdlet 及其用法介绍：
-
-### 常用 cmdlet 简介
-
-#### 1. `Get-ScheduledTask`
-用于获取计划任务的信息。
-```powershell
-Get-ScheduledTask -TaskName "BackupTask"
-```
-
-#### 2. `Register-ScheduledTask`
-用于注册（创建）新的计划任务。
-
-先分别创建一个action和trigger
-
-```powershell
-$action = New-ScheduledTaskAction -Execute "C:\Scripts\backup.bat"
-$trigger = New-ScheduledTaskTrigger -Daily -At 9am
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "BackupTask"
-```
-
-#### 3. `Unregister-ScheduledTask`
-用于删除计划任务。
-```powershell
-Unregister-ScheduledTask -TaskName "BackupTask" -Confirm:$false
-```
-
-### 其他
-
-
-
-#### 4. `Set-ScheduledTask`
-
-用于修改现有计划任务。
-```powershell
-Set-ScheduledTask -TaskName "BackupTask" -Action (New-ScheduledTaskAction -Execute "C:\Scripts\new_backup.bat")
-```
-
-#### 5. `Start-ScheduledTask`
-用于手动启动计划任务。
-```powershell
-Start-ScheduledTask -TaskName "BackupTask"
-```
-
-#### 6. `Disable-ScheduledTask`
-用于禁用计划任务。
-```powershell
-Disable-ScheduledTask -TaskName "BackupTask"
-```
-
-#### 7. `Enable-ScheduledTask`
-用于启用计划任务。
-```powershell
-Enable-ScheduledTask -TaskName "BackupTask"
-```
-
-## 学习计划任务的用法
-
-### 1. 官方文档
-PowerShell 的官方文档提供了详细的 cmdlet 说明和示例。可以通过以下命令访问特定 cmdlet 的帮助文档：
-```powershell
-Get-Help <Cmdlet-Name> -Online
-```
-例如：
-```powershell
-Get-Help Get-ScheduledTask -Online
-```
-
-### 2. 示例练习
-动手实践是学习的最佳方法。创建一个测试环境，尝试使用不同的 cmdlet 完成以下任务：
-
-- 创建一个计划任务，并设置其触发条件和操作。
-- 修改计划任务的执行程序路径。
-- 禁用并重新启用计划任务。
-- 删除计划任务。
-
-### 3. 学习资源
-利用 PowerShell 社区和学习资源，例如：
-
-- [PowerShell Gallery](https://www.powershellgallery.com/)
-- [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.1)
-- 各种 PowerShell 教程和书籍，如《Learn Windows PowerShell in a Month of Lunches》。
 
 ## 自动任务的触发器👺
 
@@ -303,11 +38,13 @@ New-ScheduledTaskTrigger -AtLogOn [-RandomDelay <timespan>] [-User <string>] [-C
 下面是利用`-At`参数创建触发器的示例
 
 #### 每天在上午 9 点启动任务
+
 ```powershell
 $trigger = New-ScheduledTaskTrigger -Daily -At 9am
 ```
 
 #### 每天在下午 2 点半启动任务
+
 ```powershell
 $trigger = New-ScheduledTaskTrigger -Daily -At "14:30"
 ```
@@ -315,15 +52,19 @@ $trigger = New-ScheduledTaskTrigger -Daily -At "14:30"
 除了 `-Daily` 触发器外，`New-ScheduledTaskTrigger` 还支持其他多种触发器类型，每种触发器类型可以使用不同的参数来定义任务启动规则。
 
 #### 每周触发
+
 ```powershell
 $trigger = New-ScheduledTaskTrigger -Weekly -At 9am -DaysOfWeek Monday,Wednesday,Friday
 ```
+
 这个命令创建一个每周触发的任务，周一、周三和周五的上午 9 点启动。
 
 #### 每月触发
+
 ```powershell
 $trigger = New-ScheduledTaskTrigger -Monthly -At 9am -DaysOfMonth 1,15
 ```
+
 这个命令创建一个每月触发的任务，每月的 1 号和 15 号的上午 9 点启动。
 
 ### 其他用例
@@ -361,6 +102,7 @@ Register-ScheduledTask -TaskName "Start Notepad at Logon" -Action $Action -Trigg
 执行后，Windows将创建一个名为"Start Notepad at Logon"的计划任务，该任务将在每次用户登录时自动启动记事本。
 
 注意：
+
 - 这个任务将在用户登录时立即运行，而不是在系统启动时。如果你想在系统启动时运行（即在任何用户登录之前），你需要将触发器改为 `-AtStartup`。
 - 运行这个脚本需**要管理员权限**。
 - 请确保你理解这个脚本的影响，因为它会在每次登录时自动打开记事本，这可能不是所有用户都想要的行为。
@@ -434,7 +176,7 @@ Register-ScheduledTask -TaskName 'LogTimeRegularly' -Action $Action -Trigger $Tr
 1. 创建一个小的 PowerShell 脚本，该脚本将当前时间写入桌面上的 log.txt 文件。
 2. 将这个小脚本保存到临时目录。
 3. 创建一个计划任务，每小段时间运行一次这个小脚本。
-5. 设置任务为永久运行（通过将重复持续时间设置为最大时间跨度）。
+4. 设置任务为永久运行（通过将重复持续时间设置为最大时间跨度）。
 
 要使用这个脚本：
 
@@ -510,6 +252,7 @@ $Triggers = 0..23 | ForEach-Object { New-ScheduledTaskTrigger -Daily -At "$($_):
 通过 `New-ScheduledTaskTrigger` cmdlet 和 `-At` 参数，你可以灵活地设置计划任务的触发时间。结合其他参数，如 `-Daily`、`-Weekly` 和 `-Monthly`，可以创建满足各种需求的计划任务触发器。以下是几个常见示例的完整代码：
 
 #### 示例 1：创建一个每天上午 9 点运行的任务
+
 ```powershell
 $action = New-ScheduledTaskAction -Execute "C:\Scripts\backup.bat"
 $trigger = New-ScheduledTaskTrigger -Daily -At 9am
@@ -517,6 +260,7 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "DailyBackupT
 ```
 
 #### 示例 2：创建一个每周一、三、五上午 9 点运行的任务
+
 ```powershell
 $action = New-ScheduledTaskAction -Execute "C:\Scripts\weekly_backup.bat"
 $trigger = New-ScheduledTaskTrigger -Weekly -At 9am -DaysOfWeek Monday,Wednesday,Friday
@@ -538,6 +282,7 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "WeeklyBackup
 **“主体”**（Principal）指的是计划任务的执行主体，通常是用户或用户组。
 
 ### 1. **New-ScheduledTaskPrincipal**
+
    - **用途**: 定义计划任务的用户或组信息，包括运行任务的用户、运行级别以及日志记录选项。
    - **常用参数**:
      - `-UserId`: 指定运行任务的用户或组的标识符。
@@ -546,6 +291,7 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "WeeklyBackup
      - `-GroupId`: 指定任务的用户组。
 
 ### 2. **New-ScheduledTaskSettingsSet**
+
    - **用途**: 定义计划任务的各种设置，比如任务的执行行为、超时时间、停止条件等。
    - **常用参数**:
      - `-AllowStartIfOnBatteries`: 是否允许在使用电池电源时启动任务。
@@ -556,9 +302,76 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "WeeklyBackup
 
 这些 cmdlet 提供了详细控制计划任务行为和权限的选项，允许管理员根据需要配置任务的执行环境。
 
-## 不论用户是否登录的情况下运行
+## 不论用户是否登录的情况下运行@开机自启动运行👺
 
 在 PowerShell 中创建计划任务时，如果你希望任务在不论用户是否登录的情况下运行，可以使用 `New-ScheduledTaskPrincipal` 和 `Register-ScheduledTask` 这两个 cmdlet 来实现。关键是将 `UserId` 设置为 `SYSTEM` 或使用 `RunLevel` 设置为 `Highest`，并且指定 `LogonType` 为 `S4U`。
+
+### system用户身份启动计划任务的限制👺
+
+- system用户身份启动可以在计算机上的任何用户登陆到桌面之前就开始运行或启动,比较适合**服务类**的程序,尤其是没有或者不需要图形界面的情况,例如`alist,aria2c rpc,chfs`等(作为服务软件,通常我们希望它为任意合法用户提供服务,而不是仅为特定用户提供服务)
+- 而需要操作GUI的软件就不适合用户登陆前以system角色启动,比较适合特定用户登陆后启动或者为特定用户开机自动启动
+- `New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest`这个语句为例,这里的` -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest`的组合使用下,已知如下限制:
+  - powershell自动导入模块无法使用(用户环境变量无法读取),变通的方式是执行`$env:psModulePath+=";<NewPsModulePath>"`,例如`<NewPsModulePath>`取绝对路径`C:\repos\scripts\ps`,这样就能够创建system权限下启动的powershell可以识别的powershell自动导入模块路径,使得模块中的函数可用
+  - 另一方面,如果依赖于环境变量Path的软件可能无法通过名字直接调用,导致找不到对应的程序,可以考虑用软件的绝对路径
+  - 另一方面,我们可以通过切换工作目录来实现软件名直接调用软件的效果,而且许多**服务型软件**都会关注工作目录(没有指定运行配置文件或者工作目录参数时,会以当前所处目录为工作目录,这往往不是我们想要的,因此将工作目录利用`cd`命令进行调整是常见操作),例如`cd $Alist_home;Start-Process -filepath 'alist' -ArgumentList 'xxxx'`,其中`$alist_home`代表Alist软件所在目录,可以脚本内定义,或从外部文件导入变量定义
+
+#### 调试问题
+
+- 此外通过计划任务用system 和服务账户角色启动软件是没有窗口弹出显示的,因此这种方式执行powershell脚本文件,我们不方便直接观察脚本是否顺利被运行,以及如果运行过程中出错,会是哪个地方出错,报错内容如何不直观,这时我们可以借助于输出重定向将日志写出到一个方便访问的位置(桌面并不是一个理想位置,我们尽量简短,比如创建一个目录`C:\Log`,然后日志文件就输出到`C:\Log\Log.txt`中,如果为了放容易分辨日志,可以追加时间戳到日志文件名字中,设置可以编写一个`Write-psDebugLog`函数来输出执行日志),例如
+
+  ```powershell
+  function Write-PsDebugLog
+  {
+     <# 
+      .SYNOPSIS
+      调用本函数会向指定的日志文件中写入日志
+      .DESCRIPTION
+      函数日志包括调用词日志的函数的名字,以及函数所属的模块,调用发生的时间,以及需要追加说明的内容
+      这些信息不回自动生成,需要用户自己填写,可以有选择性的填写
+      #>
+      param (
+          [string]$FunctionName = ' ',
+          [string]$ModuleName = ' ',
+          [string]$Time ,
+          $LogFilePath,
+          $Comment
+      )
+      $PSBoundParameters
+      if (! $Time)
+      {
+          $Time = Get-Time -TimeStap yyyyMMddHHmmssfff
+          # "$(Get-Date -Format 'yyyy-MM-dd--HH-mm-ss-fff')"
+      }
+      if (! $LogFilePath)
+      {
+          #对于System这类账户使用桌面路径无效,可以考虑段路径C:\tmp或C:\Log,可以提前创建好
+          if (!(Test-Path 'C:\Log'))
+          {
+              mkdir 'C:\Log'
+          }
+          $logFilePath = "c:\Log\Log`@${FunctionName}_$Time.txt"
+          Write-Host $LogFilePath
+          # $logFilePath = Join-Path -Path ([Environment]::GetFolderPath('Desktop')) -ChildPath "Log_$FunctionName_$Time.txt"
+      }
+      $logContent = "Function Name: $FunctionName`nModule Name: $ModuleName`nCall Time: $Time `n" + "comments: $Comment"
+  
+      Set-Content -Path $logFilePath -Value $logContent
+      return $logContent
+  }
+  
+  Write-PsDebugLog -FunctionName 'Start-Aria2Rpc' -ModuleName 'NetDrive' -comment 'after start aria2c'  
+  
+  ```
+
+- 内容重定向
+
+  ```powershell
+  Start-ProcessHidden -FilePath 'aria2c' -ArgumentList "--conf-path=$ConfPath" -Verbose:$VerbosePreference -PassThru *>> $log
+  ```
+
+  
+
+### 案例
 
 以下是一个示例代码，展示了如何配置一个计划任务，使其在不论用户是否登录的情况下运行：
 
@@ -579,7 +392,7 @@ Register-ScheduledTask -TaskName "MyTask" -Trigger $trigger -Action $action -Pri
 ### 关键参数解释：
 
 1. **`-UserId "SYSTEM"`**:
-   - `UserId` 设置为 `SYSTEM`，表示任务将在系统上下文中运行，不依赖于任何用户登录。
+   - `UserId` 设置为 `SYSTEM`，表示任务将在**系统上下文中**运行，不依赖于任何用户登录。
 
 2. **`-LogonType ServiceAccount`**:
    - `LogonType` 设置为 `ServiceAccount`，表示任务将在一个服务账户下运行，这样就不需要用户登录。
@@ -598,7 +411,9 @@ Register-ScheduledTask -TaskName "MyTask" -Trigger $trigger -Action $action -Pri
 4. **注册任务**：使用 `Register-ScheduledTask` 将上述配置注册为一个新的计划任务。
 
 ### 注意事项：
+
 - 如果你想使用特定用户的凭据而不是 `SYSTEM`，可以将 `-UserId` 设置为特定用户名，并使用 `S4U` 登录类型：
+
   ```powershell
   $principal = New-ScheduledTaskPrincipal -UserId "YourUsername" -LogonType S4U -RunLevel Highest
   ```
