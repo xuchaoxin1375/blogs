@@ -1,0 +1,77 @@
+<h1 id="section">资源占用排查</h1>
+<blockquote>
+<p>进程资源占用信息包括</p>
+<ul>
+<li>cpu</li>
+<li>memory</li>
+<li>...</li>
+</ul>
+</blockquote>
+<h2 id="ps-c">ps -C 根据给定的进程名称来搜索进程</h2>
+<ul>
+<li>支持以指定的格式显示进程信息</li>
+</ul>
+<pre><code class="language-bash">#( 04/11/22@11:14AM )( cxxu@cxxuAli ):~
+   ps u f -C mysqld,sshd
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+mysql     1537  0.0 17.6 1136456 360240 ?      Sl   09:54   0:03 /www/server/mysql/bin/mysq
+root       708  0.0  0.3  72308  6344 ?        Ss   09:54   0:00 /usr/sbin/sshd -D
+root      1724  0.0  0.3 107992  7208 ?        Ss   09:55   0:00  \_ sshd: cxxu [priv]
+cxxu      1757  0.0  0.1 107992  3508 ?        S    09:55   0:00  |   \_ sshd: cxxu@pts/0
+root      2879  0.0  0.3 107992  7264 ?        Ss   10:12   0:00  \_ sshd: cxxu [priv]
+cxxu      2900  0.0  0.1 107992  3576 ?        S    10:12   0:00  |   \_ sshd: cxxu@pts/1
+root      3091  0.0  0.3 107992  7176 ?        Ss   10:14   0:00  \_ sshd: cxxu [priv]
+cxxu      3112  0.0  0.1 107992  3444 ?        S    10:14   0:00  |   \_ sshd: cxxu@pts/2
+root      3497  0.0  0.3 107992  7264 ?        Ss   10:21   0:00  \_ sshd: cxxu [priv]
+cxxu      3517  0.0  0.2 108148  4636 ?        S    10:21   0:00  |   \_ sshd: cxxu@pts/3
+root      5697  0.0  0.3 107992  7204 ?        Ss   11:03   0:00  \_ sshd: cxxu [priv]
+cxxu      5717  0.0  0.1 107992  3540 ?        S    11:03   0:00      \_ sshd: cxxu@pts/4
+</code></pre>
+<h2 id="top">top:实时显示资源占用情况</h2>
+<h3 id="cpu">cpu占用排序</h3>
+<h2 id="references">references</h2>
+<blockquote>
+<p>文档比较长,建议使用在线版查看(方便全局把握查看)</p>
+</blockquote>
+<h3 id="ps">ps文档目录</h3>
+<p><a href="https://www.man7.org/linux/man-pages/man1/ps.1.html">ps(1) - Linux manual page (man7.org)</a></p>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-2">NAME     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-3">SYNOPSIS     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-4">DESCRIPTION     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-5">EXAMPLES     top</a></li>
+</ol>
+<h3 id="ps-1">ps 信息筛选</h3>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-6">SIMPLE PROCESS SELECTION     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-7">PROCESS SELECTION BY LIST     top</a></li>
+</ol>
+<h3 id="ps-2">ps 输出格式处理</h3>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-8">OUTPUT FORMAT CONTROL     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-9">OUTPUT MODIFIERS     top</a></li>
+</ol>
+<h3 id="section-1">线程信息查看</h3>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-10">THREAD DISPLAY     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-11">OTHER INFORMATION     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-12">NOTES     top</a></li>
+</ol>
+<h3 id="section-2">进程标记/状态码/以及符号说明</h3>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-13">PROCESS FLAGS     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-14">PROCESS STATE CODES     top</a></li>
+</ol>
+<h4 id="ps-3">ps输出排序</h4>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-15">OBSOLETE SORT KEYS     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-16">AIX FORMAT DESCRIPTORS     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-17">STANDARD FORMAT SPECIFIERS     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-18">ENVIRONMENT VARIABLES     top</a></li>
+</ol>
+<h4 id="ps-4">个性化ps命令</h4>
+<ol>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-19">PERSONALITY     top</a></li>
+<li><a href="chrome-extension://afoibpobokebhgfnknfndkgemglggomo/popup.html#h5o-20">SEE ALSO     top</a></li>
+</ol>
+
