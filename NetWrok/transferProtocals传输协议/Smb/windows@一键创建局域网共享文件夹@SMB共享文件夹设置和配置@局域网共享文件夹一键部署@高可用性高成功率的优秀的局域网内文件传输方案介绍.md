@@ -4,6 +4,8 @@
 
 ## abstract
 
+- windows@一键创建局域网共享文件夹@SMB共享文件夹设置和配置@局域网共享文件夹一键部署@高可用性高成功率的优秀的局域网内文件传输方案介绍
+
 - 本文介绍如何一键创建共享文件和访问共享文件夹的专用用户(凭证)
 - 如何访问创建好的共享文件夹
 - 其他文件共享方案
@@ -30,6 +32,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
 - [局域网共享一键通 v2.0.9.8 – 杏雨梨云启动维护系统 (xyboot.com)](https://www.xyboot.com/lanshare_onekey_ok/)
   - 这个软件支持直接设置匿名可访问的共享文件夹,共享局域网内的打印机设备
   - 但是软件细节我并不清楚,有次设置匿名访问共享文件夹时翻车了,导致原来可以访问的共享文件夹无法访问了;也导致设备上的用户无法被远程登录,使用有一定风险(内部应该会修改组策略,注册表等)
+  - 一定要匿名访问,考虑系统功能中启用smb1.0,它支持匿名访问，但是引入了许多安全漏洞,并不值得
   - 如果发生这种情况,使用该软件重新设置一个有密码的专用账户来登录
 - 如果您不关心匿名登录,追求更加可控的一键设置,那么使用下面的脚本创建共享文件夹会更加方便和直接
 
@@ -39,10 +42,12 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
 
 - **管理员权限**打开一个`powershell`窗口(不妨记为`窗口1`)
 
-- 复制粘贴以下内容(如果需要,根据注释您可以手动修改相关变量来符合自己的需要)
+- 复制粘贴以下内容(你可以将脚本粘贴到记事本或其他编辑器再**手动修改相关变量**来符合自己的需要)
 
   - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[modulesByCxxu/deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/deploy/deploy.psm1)
-  
+
+- 下面的脚本包含了多个powershell函数,其中`Deploy-SmbSharing`是主函数,其他为辅助函数
+
   ```powershell
   #下面这四个函数是用来启用网络共享和网络发现的并部署带有使用说明文档的共享文件夹
   function Grant-PermissionToPath
@@ -109,7 +114,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
           # 应用修改后的 ACL 到目标目录
           Set-Acl -Path $Path -AclObject $acl
   
-          Write-Host "已成功将'$Path'的访问权限设置为允许任何人具有全部权限。"
+          
       }
       catch
       {
@@ -398,11 +403,13 @@ Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相�
 
 ### 本方案的特点
 
-使用上述提供的一键创建共享文件夹脚本创建的共享文件夹在被访问时通常不会遇到**权限**不足被拒绝的问题(如果有应该是NTFS权限的问题,而不是共享权限,此时需要右键您所共享的文件夹属性进行调整)
+使用上述提供的一键创建共享文件夹脚本创建的共享文件夹在被访问时通常不会遇到**权限**不足被拒绝的问题(如果有应该是NTFS权限的问题,而不是共享权限,此时你使用`-ClearExistingRules`来清空权限限制(其实可通过`Deploy-SmbSharing `启用`-Force`选项来间接重置权限)或者通过GUI右键您所共享的文件夹属性进行调整)
 
 也不需要把自己私人的账户密码告诉给别人就可以让对方访问您的共享文件夹(这个对方也可以是您的其他设备,比如手机(需要软件支持,比如ES文件浏览器,Cx文件管理器等))
 
 脚本中启用了网络发现，对方在局域网或者虚拟局域网内访问时无需知道对方的IP,手机上支持SMB的软件访问同样可以扫描到共享文件夹服务器(自动获取ip),不需要手动输入IP地址
+
+在创建好的共享文件夹内生成两份共享文件夹使用文档,包含了公开给局域网用户的登陆凭证(用户名,密码等信息),共享文件夹使用注意事项等
 
 ## 访问共享文件夹(Client)
 
@@ -442,7 +449,7 @@ $express="start \\$env:ComputerName";$express|scb;gcb
 
 执行后会返回一串表示打开共享文件夹的命令行字符串,不妨称为**访问命令行**,例如`start \\COLORFULCXXU`;并且会自动复制到剪切板,在其他设备上执行命令
 
-演示操作
+##### 演示操作
 
 ```powershell
 PS> $express="start \\$env:ComputerName";$express|scb;gcb
@@ -464,78 +471,7 @@ start \\COLORFULCXXU #这一行是输出的用来访问共享文件夹的命令�
 
 仅在命令行中访问而不打开资源管理器也可以,考虑到这是给不熟悉命令行用户使用的,就不展开,详情另见它文
 
-### 访问共享文件夹被拒绝或内容为空
 
-- 通常就是NTFS权限问题,您可以右键被共享的目录设置(分配用户及其相应的访问可控制权限),或者用命令行来一键执行
-
-- 打开之前的窗口1或者重新启动一个管理员权限的窗口(如果是新窗口,就需重新要指定`$p`路径)执行以下代码
-
-- 这样共享文件夹的NTFS文件目录就会对`Everyone`开放
-
-  ```powershell
-  function Set-FolderFullControlForEveryone
-  {
-      <# 
-      .SYNOPSIS
-      将NTFS文件系统上的某个文件夹的访问控制权限设置为所有人具有全部控制权限
-      本函数的路径是一个目录路径而不是一个文件路径,否则会报错
-  
-      这个操作对应的GUI操作是右键需要修改的文件夹,然后设置它的访问权限,包括允许访问的用户及其相应的访问权限种类
-      .DESCRIPTION
-      这么操作通常仅在访问被设置文件夹的用户是受信任的情况执行,例如在家里创建共享文件夹时，遇到权限问题时,可以使用这个命令简化操作
-      .EXAMPLE
-      # 使用示例
-      # Set-FullControlForEveryone -Path 'C:\repos\scripts'
-      #>
-      [CmdletBinding()]
-      param (
-          [Parameter(Mandatory = $true)]
-          [string]$Path
-      )
-  
-  
-      # 获取目录/文件的当前访问控制列表对象
-      $acl = Get-Acl -Path $Path
-  
-      Write-Verbose 'Origin Acl:'
-      $info = $acl | Format-List | Out-String
-      
-      Write-Verbose $info 
-  
-      # 创建一个新的访问规则，赋予Everyone组完全控制权
-      $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-          'Everyone',
-          'FullControl',
-          'ContainerInherit, ObjectInherit',
-          'None',
-          'Allow'
-      )
-  
-      # 将新的访问规则添加到访问控制列表中
-      $acl.SetAccessRule($accessRule)
-  
-      try
-      {
-          
-          # 将修改后的访问控制列表应用到目录
-          Set-Acl -Path $Path -AclObject $acl
-      }
-      catch
-      {
-          Write-Error 'Please ensure the path is an exist directory!'
-      }
-  
-      Write-Verbose 'Modified Acl:'
-      $res = Get-Acl -Path $Path | Format-List | Out-String
-      Write-Verbose $res
-  
-  }
-  
-  Set-FolderFullControlForEveryone -path $p 
-  
-  ```
-
-  
 
 ### 将共享文件夹挂载到资源管理器中(可选)
 
@@ -668,10 +604,18 @@ windows为了安全起见会默认阻止用户执行powershell脚本文件,这�
 
 另见它文:[windows@资源管理器中的地址栏@访问共享文件夹的各种方法@管理共享文件夹-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/140139320)
 
-## 总结和拓展
+## 总结
 
 - 上面介绍的方法主要对于windows设备之间文件互传,并且不需要安装任何软件,同时有了脚本的帮忙,用户通常不需要修改权限等操作;
   - 而创建共享文件只是第一步,我们还分配了一个专门用来访问共享文件夹的专用账户,作为其他设备访问共享文件夹的凭证,提供了一定的安全性
   - 为了进一步提高安全性,我们还需要到**本地安全策略**配置一下共享凭证用户(smb)禁止登录到桌面的**用户权限分配**,设置**禁止本地登录**,将共享文件夹用户(smb)加入到该黑名单中,将权限限制都更合理的范围
 - 最后就是其他设备如何利用之前提供的凭证访问到共享文件夹,通常可以直接访问(无密码用户访问可能会失败),也可以挂载到资源管理器中访问(命令行中给出凭证,成功率高)
+
+## 拓展
+
 - 除了共享文件的方法,还可以利用Alist或chfs等方法创建共享中心,其他设备可以用浏览器打开http链接来传输文件,预览一般格式的音频视频图片文本文件也是没问题的
+- Alist+aria2rpc chfs  SMB  甚至 tfcenter 我同时再用相互补充，各有独自的优势
+  - Alist 网页端的遗憾在于打包下载麻烦，aria2rpc 和打包下载还是差别的。
+  - chfs 就做的很好，网页端操作符合直觉，配置简单，特别易用，但是符号链接和挂载网盘，权限管理方面又不如 Alist 
+  - SMB共享文件夹挂载容易，比 webdav 尤其是 http 地链接更容易挂载，毕竟是系统功能，稳定性更好
+  - 至于移动端设备上使用 Alist ，考虑到批量打包下载网页端不给力，手机端的话基本上还得下软件挂载 webdav 和 SMB 殊途同归。(chfs是可以打包xia'zai)

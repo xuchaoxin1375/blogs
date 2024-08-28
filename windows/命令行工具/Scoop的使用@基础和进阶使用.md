@@ -639,6 +639,48 @@ Creating shortcut for QuarkCloudDrive (QuarkCloudDrive.exe) failed: Couldn't fin
 
 - [【好软推荐】Scoop - Windows快速软件安装指南 - 老船长SleepyOcean - 博客园 (cnblogs.com)](https://www.cnblogs.com/sleepyocean/p/17017084.html)
 
+## scoop仓库被污染@更新问题
+
+- 如果你无意中对scoop目录下的某些git仓库做了修改，那么可能导致更新失败
+- 当你在 PowerShell 中运行 `scoop update` 命令时，出现了以下警告：`WARN  Uncommitted changes detected. Update aborted.` 这是 Scoop 检测到 Scoop 本身的 Git 仓库中有未提交的更改，从而阻止更新操作。
+
+
+### 原因分析
+
+Scoop 使用 Git 来管理它的自身和软件包的版本。当 Scoop 的本地仓库中有未提交的更改时，它不会允许执行更新操作，以防止这些更改被覆盖或引发冲突。
+
+### 解决方法
+
+通常我们通过丢弃更改来恢复更新
+
+**丢弃未提交的更改**：如果你不需要这些更改，或你确定这些更改是不必要的，你可以丢弃它们。
+
+在 PowerShell 中执行以下命令来重置 Scoop 的仓库：
+
+```powershell
+cd ~\scoop\apps\scoop\current
+git reset --hard
+```
+
+然后再尝试运行 `scoop update`。
+
+Note:**保存和提交更改**：如果你不想要彻底放弃修改，可以创建分支保存，然后切换会原分支回溯拉取更新
+
+如果buckets被意外更改,也可以类似的方式放弃更改然后重新拉取更新
+
+分别检查各个bucket内`git status`的返回值(可以用脚本批量检查),找到后执行`reset`
+
+假设我这里main bucket被污染,执行reset
+
+```powershell
+PS🌙[BAT:74%][MEM:28.34% (8.99/31.71)GB][21:12:54]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\scoop\buckets\main]{Git:master}
+PS> git reset --hard head
+HEAD is now at d6ed68c08 trid: Update to version 2.24-24.08.24
+```
+
+
+
 ## 扩展
 
 - scoop总得来说是不错的,但是软件更新较慢是一个缺点

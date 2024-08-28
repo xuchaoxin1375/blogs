@@ -39,7 +39,7 @@ $futureDate = (Get-Date).AddDays(7)
 Write-Output $futureDate
 ```
 
-### 创建自定义日期和时间👺
+## 创建自定义日期和时间👺
 可以使用 `Get-Date` 的参数来创建特定的日期和时间。例如：
 ```powershell
 # 创建一个自定义日期和时间
@@ -143,7 +143,7 @@ PS C:\Users\cxxu\Desktop> $time
 PS C:\Users\cxxu\Desktop> $time=Get-Date -Minute 52
 ```
 
-
+## 常用操作
 
 ### 计算日期差异
 

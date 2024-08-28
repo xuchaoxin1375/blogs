@@ -603,7 +603,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
   - 如果执行失败,请手动打开`service.msc`,然后找到`OpenSSH SSH Server`进行重启(停止后重新启用)
 
-### 傻瓜式配置免密自动登录👺
+### 傻瓜式配置免密自动登录👺👺
 
 #### 准备
 
