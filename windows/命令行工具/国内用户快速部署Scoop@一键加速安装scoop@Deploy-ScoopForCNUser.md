@@ -22,7 +22,7 @@
 
 - 下载或者安装下面的脚本，然后用powershell执行（导入）
 - 当然，您也可以直接复制下面的代码，然后粘贴到powershell中（推荐powershell v7+)
-- 相关函数共有5个,其中是`Deploy-ScoopForCNUser`是主函数
+- 相关函数有多个,其中是`Deploy-ScoopForCNUser`是主函数
 
 ```powershell
 
@@ -44,18 +44,23 @@ function Get-AvailableGithubMirrors
 
     $m1 = 'https://mirror.ghproxy.com'
     $m2 = 'https://ghproxy.cc'
-    $m3 = 'https://github.moeyy.xyz/'
-    $m4 = 'https://ghproxy.net/'
-    $m5 = 'https://gh.ddlc.top/'
+    $m3 = 'https://github.moeyy.xyz'
+    $m4 = 'https://ghproxy.net'
+    $m5 = 'https://gh.ddlc.top'
  
     Write-Host 'Available mirrors:'
-    $mirrors = @($m1, $m2, $m3, $m4, $m5) 
+    $mirrors = @('', $m1, $m2, $m3, $m4, $m5) 
     
 
     $s = { 
         $mirrors | ForEach-Object { 
             $i = [array]::IndexOf($mirrors, $_)
-            Write-Host " ${i}: $_"
+            Write-Host " ${i}: $_" -NoNewline
+            if ($i -eq 0)
+            {
+                Write-Host 'Use No Mirror' -NoNewline
+            }
+            Write-Host ''
         }
     }
 
@@ -68,7 +73,43 @@ function Get-AvailableGithubMirrors
     }
     
 }
-
+function Get-SelectedMirror
+{
+    [CmdletBinding()]
+    param (
+        
+    )
+    $mirrors = Get-AvailableGithubMirrors -PassThru
+    $numOfMirrors = $mirrors.Count
+    $range = "[0~$($numOfMirrors-1)]"
+    $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: 1)"
+    # $mirror = 'https://mirror.ghproxy.com'
+    $n = $num -as [int] #可能是数字或者空$null
+    if ($VerbosePreference)
+    {
+ 
+        Write-Verbose "`$n=$n"
+        Write-Verbose "`$num=$num"
+        Write-Verbose "`$numOfMirrors=$numOfMirrors"
+    }
+    #  如果输入的是空白字符,则默认设置为0
+    if ( $num.trim().Length -eq 0)
+    {
+        Write-Host 'choose the Default 1'
+        $n = 1
+    }
+    elseif ($n -notin 0..($numOfMirrors - 1))
+    {
+        Throw " Input a number within the range! $range"
+    }
+    elseif ($n -gt 0)
+    {
+        # 用户选择了一个合法的数值
+        Write-Host "You Selected mirror:[$n : $($mirrors[$n])]"
+    }
+    $mirror = $mirrors[$n]
+    return $mirror
+}
 function Deploy-ScoopByGithubMirrors
 {
     
@@ -79,30 +120,9 @@ function Deploy-ScoopByGithubMirrors
         $ScriptsDirectory = "$home/Downloads",
         [switch]$InstallForAdmin
     )
-    $mirrors = Get-AvailableGithubMirrors -PassThru
-    $numOfMirrors = $mirrors.Count
-    $range = "[0~$($numOfMirrors-1)]"
-    $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: 0)"
-    # $mirror = 'https://mirror.ghproxy.com'
-    $n = $num -as [int] #可能是数字或者空$null
-    Write-Host "`$n=$n"
-    Write-Host "`$num=$num"
-    Write-Host "`$numOfMirrors=$numOfMirrors"
-    #  如果输入的是空白字符,则默认设置为0
-    if ( $num.trim().Length -eq 0)
-    {
-        Write-Host 'choose the Default 0'
-    }
-    elseif ($n -notin 0..($numOfMirrors - 1))
-    {
-        Throw " Input a number within the range! $range"
-    }
-    else
-    {
-        # 用户选择了一个合法的数值
-        Write-Host "You Selected mirror:[$n : $($mirrors[$n])]"
-    }
-    $mirror = $mirrors[$n]
+  
+    # 获取可用的github加速镜像站(用户选择的)
+    $mirror = Get-SelectedMirror
     ## 加速下载scoop原生安装脚本
     $script = (Invoke-RestMethod $mirror/https://raw.githubusercontent.com/scoopinstaller/install/master/install.ps1)
  
@@ -198,6 +218,7 @@ function Deploy-ScoopByGithubMirrors
     # git config pull.rebase true
  
     Write-Host 'scoop and scoop-cn was installed successfully!'
+    return $mirror
      
 }
 function Deploy-ScoopByGitee
@@ -253,19 +274,27 @@ function Add-ScoopBuckets
     [CmdletBinding()]
     param (
         # [parameter(Mandatory = $true)]    
-        $mirror
+        $mirror,
+        [switch]$NoMirror
     )
     if ($mirror)
     {
 
         Write-Verbose "The mirror is: $mirror"    
     }
-    else
+    elseif ($NoMirror  )
     {
+        $mirror = ''
         Write-Verbose 'The mirror is not specified!'
     }
+    else
+    {
+        $mirror = Get-SelectedMirror
+        Write-Verbose "The mirror is: $mirror"
+    }
+    $spc = "$mirror/https://github.com/lzwme/scoop-proxy-cn".Trim('/')
+
     Write-Host 'Adding more buckets...(It may take a while, please be patient!)'
-    $spc = "$mirror/https://github.com/lzwme/scoop-proxy-cn"
     Write-Verbose "The spc bucket is: $spc"
     scoop bucket add spc $spc  
             
@@ -345,7 +374,7 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
         [parameter(ParameterSetName = 'Gitee')]
         [switch]$UseGiteeForkAndBucket,
         # 是否添加一个大型的bucket
-        [switch]$AddMoreBuckets,
+        # [switch]$AddMoreBuckets,
         # 管理员权限下安装
         [switch]$InstallForAdmin,
         # 延迟启动安装,给用户一点时间反悔
@@ -370,21 +399,20 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
     {
         Write-Host 'Use manual scheme...'
         # Start-Sleep $delay
-        Deploy-ScoopByGithubMirrors -InstallBasicSoftwares:$InstallBasicSoftwares -InstallForAdmin:$InstallForAdmin
+        $mirror = Deploy-ScoopByGithubMirrors -InstallBasicSoftwares:$InstallBasicSoftwares -InstallForAdmin:$InstallForAdmin
 
     }
 
-    if ($AddMoreBuckets)
+
+    if ($addMoreBuckets)
     {
-        # 添加bucket,包含很多软件包(几乎scoop bucket known列出的bucket的软件都能够在spc中找到)
-        Add-ScoopBuckets -mirror $mirror
+        # 可以单独执行add-scoopbuckets
+        Add-ScoopBuckets $mirror #无论$mirror取何值(空值或者链接字符串,采用位置参数传参都不影响执行)
     }
-
     #检查用户安装了哪些bucket,以及对应的bucket源链接
     scoop bucket list
 
 }
-
 ```
 
 ### Notes
@@ -410,17 +438,13 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
 
 ### 执行方案
 
-- 导入完毕后，选择执行方案
+- 导入完毕后，选择执行方案，调用语法查看` gcm Deploy-ScoopForCNUser -Syntax`
 
-  - 这里提供了多个函数,其中主要函数是`deploy-ScoopForCNUser `,有两大类调用语法(对应两类部署方案,默认使用第一种)
-
-    - ```powershell
-      PS C:\repos\scoop-cn> gcm Deploy-ScoopForCNUser -Syntax
-      
-      Deploy-ScoopForCNUser [-InstallBasicSoftwares] [-AddMoreBuckets] [-delay <Object>] [<CommonParameters>]
-      
-      Deploy-ScoopForCNUser [-UseGiteeForkAndBucket] [-AddMoreBuckets] [-delay <Object>] [<CommonParameters>]
-      ```
+  - ```powershell
+    PS C:\repos\scoop-cn> gcm Deploy-ScoopForCNUser -Syntax
+    
+    Deploy-ScoopForCNUser [-InstallBasicSoftwares] [-UseGiteeForkAndBucket] [-InstallForAdmin] [-delay <Object>] [<CommonParameters>]
+    ```
 
 
 - 如果用户事先安装过`Git`,那么可以直接执行`Deploy-ScoopForCNUser`,其他参数可选
@@ -437,6 +461,7 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
   deploy-ScoopForCNUser -UseGiteeForkAndBucket
   ```
 
+- 可以追加`-InstallForAdmin`支持管理员安装
 
 
 ### FAQ
