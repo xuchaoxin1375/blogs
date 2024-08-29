@@ -403,7 +403,7 @@ PS> net user cxxu
 - 以下脚本需要以**管理员权限**运行，它会创建或修改指定的注册表键值，以达到禁用与Credential Guard相关的设置目的。请确保在执行之前评估此操作对系统安全性的影响，并在必要时进行系统备份。
 - 从powershell/cmd的版本二选一
 
-#### 脚本
+#### 设置方法
 
 - powershell禁用Credential Guard
 
@@ -418,35 +418,38 @@ PS> net user cxxu
 
     重启设备以应用更改。
 
-  ```powershell
-  # 确保以管理员权限运行PowerShell
-  if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      Write-Warning "请以管理员身份运行此脚本。"
-      Exit
-  }
-  
-  # 设置注册表项以禁用Credential Guard相关设置
-  
-  # 第一个注册表路径和值
-  $regPath1 = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
-  $regName1 = "LsaCfgFlags"
-  $regValue1 = 0
-  
-  # 第二个注册表路径和值
-  $regPath2 = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard"
-  $regName2 = "LsaCfgFlags"
-  $regValue2 = 0
-  
-  # 设置第一个注册表项
-  New-ItemProperty -Path $regPath1 -Name $regName1 -Value $regValue1 -PropertyType DWord -Force | Out-Null
-  
-  # 设置第二个注册表项
-  New-ItemProperty -Path $regPath2 -Name $regName2 -Value $regValue2 -PropertyType DWord -Force | Out-Null
-  
-  Write-Host "注册表项已设置完成。"
-  Write-Host "请重启计算机以使更改生效。"
-  Pause
-  ```
+
+#### 一键设置脚本👺
+
+```powershell
+# 确保以管理员权限运行PowerShell
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Warning "请以管理员身份运行此脚本。"
+    Exit
+}
+
+# 设置注册表项以禁用Credential Guard相关设置
+
+# 第一个注册表路径和值
+$regPath1 = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+$regName1 = "LsaCfgFlags"
+$regValue1 = 0
+
+# 第二个注册表路径和值
+$regPath2 = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard"
+$regName2 = "LsaCfgFlags"
+$regValue2 = 0
+
+# 设置第一个注册表项
+New-ItemProperty -Path $regPath1 -Name $regName1 -Value $regValue1 -PropertyType DWord -Force | Out-Null
+
+# 设置第二个注册表项
+New-ItemProperty -Path $regPath2 -Name $regName2 -Value $regValue2 -PropertyType DWord -Force | Out-Null
+
+Write-Host "注册表项已设置完成。"
+Write-Host "请重启计算机以使更改生效。"
+Pause
+```
 
 - cmd脚本(不要在powershell中执行,会报错)
 

@@ -474,6 +474,14 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
 
   - 然后重新尝试
 
+## 测试部署脚本
+
+- 修改和更新此部署脚本时,为了不影响已有的scoop环境及其安装的软件,有多重隔离方法
+  - 将原来的scoop家目录重命名,然后执行部署脚本
+  - 新建一个测试用户tester,登录到tester在执行部署脚本
+  - 用虚拟机或者另一台设备进行测试
+- 上面几种方法由简单到复杂,但是隔离效果也越好,通常第一种就够用了
+
 ## 演示记录
 
 ```powershell
@@ -580,35 +588,7 @@ Checking repo... ERROR 'https://ghproxy.cc / https://github.com/lzwme/scoop-prox
 
 Error given:
 fatal: unable to access 'https://ghproxy.cc / https://github.com/lzwme/scoop-proxy-cn/': URL rejected: Malformed input to a URL function
-PS C:\Users\cxxu> add-ScoopBuckets -mirror  'https://ghproxy.cc' -Verbose^C
-PS C:\Users\cxxu>
-PS C:\Users\cxxu> function Add-ScoopBuckets
->> {
->>     <#
->>     .SYNOPSIS
->>     基本上，添加spc这个bucket就够了,软件数量很丰富
->>     .DESCRIPTION
->>     可以根据自己的需要往里面修改或添加更多的bucket
->>     .EXAMPLE
->>     Add-ScoopBuckets -mirror  'https://mirror.ghproxy.com'
->>     #>
->>     #>
->>     [CmdletBinding()]
->>     param (
->>         $mirror
->>     )
->>     if($mirror){
->>
->>         Write-Verbose "The mirror is: $mirror"
->>     }else{
->>         Write-Verbose "The mirror is not specified!"
->>     }
->>     Write-Host 'Adding more buckets...(It may take a while, please be patient!)'
->>     $spc="$mirror/https://github.com/lzwme/scoop-proxy-cn"
->>     Write-Verbose "The spc bucket is: $spc"
->>     scoop bucket add spc $spc
->>
->> }
+ 
 PS C:\Users\cxxu> add-ScoopBuckets -mirror  'https://ghproxy.cc' -Verbose
 VERBOSE: The mirror is: https://ghproxy.cc
 Adding more buckets...(It may take a while, please be patient!)
