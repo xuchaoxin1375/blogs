@@ -101,9 +101,33 @@ Check out [Scoop's Readme](https://github.com/ScoopInstaller/Scoop#readme) or re
 - [reference link:重装scoop](https://github.com/neolee/pilot/wiki#%E5%A6%82%E4%BD%95%E9%87%8D%E8%A3%85-scoop)
 - [Scoop安装、使用与卸载  (zhihu.com)](https://zhuanlan.zhihu.com/p/609534833)
 
+## bucket列表
+
+[scoop-installer: scoop及bucket镜像站 (gitee.com)](https://gitee.com/scoop-installer#122-其他优秀的镜像库)
+
+#### 1其他优秀的镜像库
+
+优先推荐表格中靠前的仓库，国内常用软件均能在里面找到。
+
+ 
+
+```powershell
+scoop bucket add dorado https://gitee.com/scoop-installer/dorado
+scoop bucket add scoopet https://gitee.com/scoop-installer/scoopet
+scoop bucket add scoopcn https://gitee.com/scoop-installer/scoopcn
+scoop bucket add scoop-zapps https://gitee.com/scoop-installer/scoop-zapps
+scoop bucket add echo https://gitee.com/scoop-installer/echo-scoop
+scoop bucket add aki https://gitee.com/scoop-installer/aki-apps
+scoop bucket add siku https://gitee.com/scoop-installer/siku
+scoop bucket add lemon https://gitee.com/scoop-installer/scoop-lemon
+scoop bucket add cluttered https://gitee.com/scoop-installer/Cluttered-bucket
+scoop bucket add iszy https://gitee.com/scoop-installer/scoop-iszy
+scoop bucket add tomato https://gitee.com/scoop-installer/tomato
+```
 
 
-## 自行添加:加速的bucket或自命名bucket
+
+## 自行添加bucket:加速的bucket或自命名bucket
 
 
 
@@ -424,202 +448,9 @@ powershell 7.4.5   110372346
 - aria2c中`-s,-x,-k`三个选项合理搭配才能发挥多线程的效果,默认的aria2效果一般,仅使用`-s`下载连接数往往也上不去
 - 不过尽管有时候链接数高达16,下载速度还是不行,那么考虑更换bucket或着镜像重试(注意清理未正确安装的包)
 
-## scoop安装软件的多版本(新旧共存)👺
+## scoop 安装国内软件
 
-### 借助winget辅助查询软件版本
-
-scoop的软件版本可能是滞后的,但是也可以借助scoop安装旧版本软件
-
-另一个问题scoop主要支持软件的英文名称,有些国内软件(中文名)我们不方便直接用scoop搜,即便scoop上存在相应的软件
-
-这种情况下我们可以借助winget来用中文搜索(winget的使用:建议用国内源来替换默认原提高搜索速度,详情另见它文),以便获取软件的更多信息,有时会给出包名
-
-比如夸克网盘这个软件,我们可以看到winget给出两条信息,其中有一条给出了包名:`Alibaba.QuarkCloudDrive`及其版本(供我们参考当前较新版本的情况)
-
-```powershell
-PS> winget search 夸克网盘
-Name     Id                      Version Source
--------------------------------------------------
-夸克网盘 XPDC09VHV21246          Unknown msstore
-夸克网盘 Alibaba.QuarkCloudDrive 3.9.1   winget
-
-```
-
-我们也可以利用winget获取更详细信息
-
-```powershell
-PS> winget show Alibaba.QuarkCloudDrive
-Found 夸克网盘 [Alibaba.QuarkCloudDrive]
-Version: 3.9.1
-Publisher: Quark
-Publisher Url: https://www.myquark.cn/
-Author: 广州市动景计算机科技有限公司
-Description: 夸克网盘是夸克推出的一款云服务产品,功能包括云存储、高清看剧、文件在线解压、PDF 一键转换等。
-License: 专有软件
-Privacy Url: https://terms.alicdn.com/legal-agreement/terms/suit_bu1_uc/suit_bu1_uc202002251416_20839.html
-Copyright: Copyright © 2024 Quark
-Release Notes:
-  持续优化网盘端内体验
-  1. 优化网盘内搜索分享链接体验:搜索框搜索夸克网盘分享链接,支持一键快速保存
-  2. 提供更便捷的文件预览和管理体验:支持鼠标悬停预览视频播放进度,并增加文件打开(Enter)/重命名(F2)和调起搜索框(Ctrl/Cmd+F)的快捷键
-  3. 欢迎大家后续继续提建议,如果遇到体验问题,可以通过夸克网盘-设置-客服咨询反馈,或者联系: 400-109-8622
-Tags:
-  上传
-  下载
-  云
-  云盘
-  共享
-  分享
-  同步
-  备份
-  文件
-  网盘
-Installer:
-  Installer Type: inno
-  Installer Url: https://pdds.quark.cn/download/stfile/ggmkinhjkghkgioie/QuarkCloudDrive_v3.9.1_release_(Build1888502-20240820181133).exe
-  Installer SHA256: 446adda45d7c8073daf8e1b0bb66ea3ec4690f10823ab0532eac2a6739c015fc
-  Release Date: 2024-08-21
-  Offline Distribution Supported: true
-```
-
-
-
-## 用scoop安装常用软件
-
-### 安装sudo命令
-
-```
-PS C:\Users\cxxu> scoop search sudo
-Results from local buckets...
-
-Name    Version      Source Binaries
-----    -------      ------ --------
-gsudo   2.5.1        main
-psutils 0.2023.06.28 main   sudo.ps1
-sudo    0.2020.01.26 main
-nsudo   8.2          extras
-```
-
-使用默认方式安装（国内用户比较慢，不推荐）
-
-使用加速方案的话需要根据你采用的加速方案中指出的使用方法才能确定用法
-
-例如某个方案添加了`scoop-cn`这个buket,那么你安装软件时,就在软件名称或id前加上`scoop-cn/`,有的方案是别的buket名来加速,比如`spc`
-
-```
-scoop install scoop-cn/gsudo
-```
-
-### 安装国内软件
-
-- 例如安装夸克网盘(英文名获取参考winget获取中文软件信息一节)
-
-  ```powershell
-  PS☀️[BAT:76%][MEM:28.63% (9.08/31.71)GB][21:39:01]
-  #⚡️[cxxu@CXXUCOLORFUL][192.168.1.178][C:\repos\scripts]{Git:main}
-  PS> scoop search quark*
-  Results from local buckets...
-  
-  Name              Version Source       Binaries
-  ----              ------- ------       --------
-  quarkus-cli       3.13.3  main
-  quarto            1.4.554 Extras_gitee
-  quarto            1.5.56  ExtrasCxxu
-  quarkus-cli       3.11.1  main_gitee
-  quarkus-cli       3.13.3  scoop-cn
-  quarto            1.5.56  scoop-cn
-  quardcrt          0.4.8   spc
-  quark-cloud-drive 2.5.43  spc
-  quarkpan          3.9.1   spc
-  quarkus-cli       3.13.3  spc
-  quarto-prerelease 1.6.6   spc
-  quarto            1.5.56  spc
-  
-  
-  PS☀️[BAT:76%][MEM:28.77% (9.12/31.71)GB][21:39:11]
-  #⚡️[cxxu@CXXUCOLORFUL][192.168.1.178][C:\repos\scripts]{Git:main}
-  PS> scoop info quarkpan
-  
-  Name         : quarkpan
-  Description  : 夸克网盘
-  Version      : 3.9.1
-  Bucket       : spc
-  Website      : https://pan.quark.cn
-  License      : Proprietary
-  Dependencies : aki/innounpacker
-  Updated at   : 2024/8/22 9:42:43
-  Updated by   : github-actions[lzw.me]
-  Shortcuts    : QuarkCloudDrive
-  
-  
-  PS☀️[BAT:76%][MEM:28.66% (9.09/31.71)GB][21:39:38]
-  #⚡️[cxxu@CXXUCOLORFUL][192.168.1.178][C:\repos\scripts]{Git:main}
-  PS> scoop info quark-cloud-drive
-  
-  Name        : quark-cloud-drive
-  Description : 夸克网盘 电脑高效拍档 一键存爽快看
-  Version     : 2.5.43
-  Bucket      : spc
-  Website     : https://pan.quark.cn
-  License     : Proprietary
-  Updated at  : 2023/8/4 9:38:49
-  Updated by  : github-actions[bot]
-  Shortcuts   : 夸克网盘
-  ```
-
-  通过比较版本号和更新日期,我们可以认为名为`quarkpan`的包是更新的包,而`quark-cloud-drive`是陈旧而过时的包
-
-  安装过程中报了个warning,提示我们要先添加`aki`这个bucket,参考这里添加:点击[scoop-installer](https://gitee.com/scoop-installer#122-其他优秀的镜像库)，有选择性地添加
-
-  ```
-  WARN  Bucket 'aki' not added. Add it with 'scoop bucket add aki <repo>'.
-  Couldn't find manifest for 'innounpacker' from 'aki' bucket.
-  ```
-
-### scoop安装软件过程中报错
-
-部分软件在安装过程中会报错(可能是安装脚本和软件版本不匹配导致的)
-
-许多GUI软件或者国内软件用scoop安装可能会报错,例如一下情况
-
-```powershell
-Running pre_install script...Move-Item:
-Line |
-   3 |  Move-Item -Force -Path "$dir\{code_GetDestDir}\*" -Destination "$dir"
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Cannot find path 'C:\ProgramData\scoop\apps\quarkpan\3.9.1\{code_GetDestDir}' because it does not exist.
-Remove-Item:
-Line |
-   4 |  Remove-Item -Force -Recurse -Path "$dir\{code_GetDestDir}"
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Cannot find path 'C:\ProgramData\scoop\apps\quarkpan\3.9.1\{code_GetDestDir}' because it does not exist.
-Remove-Item:
-Line |
-   6 |  Remove-Item -Force -Recurse -Path "$dir\{autocf64}"
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Cannot find path 'C:\ProgramData\scoop\apps\quarkpan\3.9.1\{autocf64}' because it does not exist.
-Remove-Item:
-Line |
-   8 |  Remove-Item -Force -Recurse -Path "$dir\{usercf}"
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Cannot find path 'C:\ProgramData\scoop\apps\quarkpan\3.9.1\{usercf}' because it does not exist.
-done.
-Linking C:\ProgramData\scoop\apps\quarkpan\current => C:\ProgramData\scoop\apps\quarkpan\3.9.1
-Creating shortcut for QuarkCloudDrive (QuarkCloudDrive.exe) failed: Couldn't find C:\ProgramData\scoop\apps\quarkpan\current\QuarkCloudDrive.exe
-```
-
-这种情况下安装包是下载好了的,我们可以手动安装这个安装包!
-
-### scoop安装软件的脚本
-
-- 有时安装报错是应为脚本问题,可能和软件版本不兼容或者适配不完善
-- 软件如果安装失败,其对应的脚本文件一般位于`scoop`目录下的`apps\<appName>\version`例如:`C:\Users\cxxu\scoop\apps\quarkpan\3.9.1\install...`
-- 安装成功的情况下目录结构会有所不同
-
-### 查看下载到本地的包
-
-- 一般scoop会把下载好的包放到scoop家目录的`cache`目录
-- 经过试验,即便是使用了`-g`选项选择全局安装,也会将包下载缓存到当前用户的家目录中,例如`C:\Users\cxxu\scoop\cache\quarkpan#3.9.1#a03a1cc.exe`是之前下载的包
+- 另见它文[windows@命令行安装国内软件@scoop和winget安装国内软件-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/141682972)
 
 ## 进阶用法
 
