@@ -484,6 +484,57 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
 
 ## 演示记录
 
+### 使用gitee方案部署
+
+```
+PS> deploy-scoopForCNUser -UseGiteeForkAndBucket -Verbose
+UseGiteeForkAndBucket scheme...
+VERBOSE: Requested HTTP/1.1 GET with 0-byte payload
+VERBOSE: Received HTTP/1.1 response of content type text/plain of unknown size
+VERBOSE: -------- PSBoundParameters --------
+VERBOSE: -------- Environment Variables --------
+VERBOSE: $env:USERPROFILE: C:\Users\cxxu
+VERBOSE: $env:ProgramData: C:\ProgramData
+VERBOSE: $env:SCOOP:
+VERBOSE: $env:SCOOP_CACHE:
+VERBOSE: $env:SCOOP_GLOBAL:
+VERBOSE: -------- Selected Variables --------
+VERBOSE: SCOOP_DIR: C:\Users\cxxu\scoop
+VERBOSE: SCOOP_CACHE_DIR: C:\Users\cxxu\scoop\cache
+VERBOSE: SCOOP_GLOBAL_DIR: C:\ProgramData\scoop
+VERBOSE: SCOOP_CONFIG_HOME: C:\Users\cxxu\.config
+Initializing...
+Downloading...
+VERBOSE: Cloning https://gitee.com/scoop-installer/scoop.git to C:\Users\cxxu\scoop\apps\scoop\current
+VERBOSE: Cloning https://gitee.com/scoop-installer/Main.git to C:\Users\cxxu\scoop\buckets\main
+Creating shim...
+Scoop was installed successfully!
+Type 'scoop help' for instructions.
+'SCOOP_REPO' has been set to 'https://gitee.com/scoop-installer/scoop'
+Updating Scoop...
+Updating Buckets...
+Scoop was updated successfully!
+VERBOSE: Scoop add more buckets(this process may failed to perform!You can retry to add buckets manually later!
+VERBOSE: Requested HTTP/1.1 GET with 0-byte payload
+VERBOSE: Received HTTP/1.1 468-byte response of content type application/json
+direct: https://gitee.com/scoop-installer/Extras
+Checking repo... OK
+The extras bucket was added successfully.
+VERBOSE: Requested HTTP/1.1 GET with 0-byte payload
+VERBOSE: Received HTTP/1.1 468-byte response of content type application/json
+direct: https://gitee.com/scoop-installer/scoopcn
+Checking repo... OK
+The scoopcn bucket was added successfully.
+
+Name    Source                                     Updated            Manifests
+----    ------                                     -------            ---------
+main    https://gitee.com/scoop-installer/Main.git 2024/8/29 8:33:52       1338
+extras  https://gitee.com/scoop-installer/Extras   2024/8/29 10:45:29      2062
+scoopcn https://gitee.com/scoop-installer/scoopcn  2024/8/28 16:34:02        30
+```
+
+### 使用github镜像加速部署
+
 ```powershell
 PS C:\Users\cxxu> deploy-ScoopForCNUser -InstallBasicSoftwares
 Use manual scheme...
@@ -595,6 +646,28 @@ Adding more buckets...(It may take a while, please be patient!)
 VERBOSE: The spc bucket is: https://ghproxy.cc/https://github.com/lzwme/scoop-proxy-cn
 Checking repo... OK
 The spc bucket was added successfully.
+```
+
+### 添加额外buckets
+
+```powershell
+PS🌙[BAT:100%][MEM:30.2% (2.37/7.85)GB][11:19:24]
+# [cxxu@CXXUREDMIBOOK][<以:192.168.1.198>][~]
+PS> Add-ScoopBuckets
+Available mirrors:
+ 0: Use No Mirror
+ 1: https://mirror.ghproxy.com
+ 2: https://ghproxy.cc
+ 3: https://github.moeyy.xyz
+ 4: https://ghproxy.net
+ 5: https://gh.ddlc.top
+Select the number of the mirror you want to use [0~5] ?(default: 1): 3
+You Selected mirror:[3 : https://github.moeyy.xyz]
+Adding more buckets...(It may take a while, please be patient!)
+direct (Proxy by other URLs): https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn
+Checking repo... OK
+The spc bucket was added successfully.
+
 ```
 
 

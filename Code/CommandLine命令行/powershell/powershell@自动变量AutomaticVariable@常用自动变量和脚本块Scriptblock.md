@@ -59,7 +59,7 @@ echo Hello | pwsh -Command """$input World!"""
 PS C:\repos\scripts> $dir='C:\share'
 
 #注意下面利用了$input自动变量,而不是一般编程语言中的同名变量,即如果写成:$dir|pwsh -c {ls $dir}是错误的,查看的目录将会是当前目录而不是指定的$dir目录
-PS C:\repos\scripts> $dir|pwsh -c {ls $input}
+PS C:\repos\scripts>$dir='C:\share'; $dir|pwsh -c {ls $input}
 
     Directory: C:\share
 
