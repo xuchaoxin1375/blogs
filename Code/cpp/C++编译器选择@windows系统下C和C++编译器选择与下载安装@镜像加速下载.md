@@ -103,7 +103,11 @@
 
 - 但是更新的频率不是那么高,MinGW比较推荐其他项目,比如MSYS2,以及MINGW builds
 
-### MSYS2
+### msys2
+
+- 内容较多,单独成节,详见下一节
+
+## MSYS2👺
 
 - [MSYS2](https://www.msys2.org/):MSYS2（Minimal SYStem 2）是一个适用于Windows操作系统的软件包集合，它提供了Linux风格的开发环境和命令行工具链。MSYS2的目标是在Windows平台上模拟近似Linux的环境，使得开发者能够在Windows上编译和运行原生的Unix/Linux应用程序。
 
@@ -128,51 +132,79 @@
   - **MinGW**专注于提供原生Windows编译工具链，生成无需额外依赖的Windows应用程序，适用于追求纯粹Windows环境下的开发。
   - **MSYS2**则是一个更全面的解决方案，除了提供编译工具链外，还构建了一个类Unix环境，包括Bash shell、核心Unix工具和包管理器，支持编译生成两种类型的程序（MSYS模式和MinGW-w64模式），适用于需要在Windows上模拟Unix环境进行开发或管理依赖众多Unix软件包的项目。
 - 拓展:[What is MSYS2? - MSYS2](https://www.msys2.org/docs/what-is-msys2/)
-- 配置MSYS2的终端:[Terminals - MSYS2](https://www.msys2.org/docs/terminals/)
 
-#### 下载安装Msys2
+
+
+### 下载安装Msys2
 
 - [msys2 | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/msys2/)
 
 - 国内镜像加速占,下载找到名为 `msys2-<架构>-<日期>.exe` 的文件（如 `msys2-x86_64-20141113.exe`），下载安装即可(可以点击日期排序,找到最新版)。(其他的格式版本比较少用)
 
-- 跟换pcman的源:打开msys2,执行`sed xx`指令,详情查看镜像站的文档
+- 更换pcman的源:打开msys2,执行`sed xx`指令,详情查看镜像站的文档
 
-1. Clang/LLVM:
+- Clang/LLVM:
    - LLVM编译器集合包含Clang前端，它也支持Windows平台，可以编译C++代码。虽然Clang在Windows上的成熟度和生态可能不如MSVC，但它提供了跨平台的兼容性，同时也支持现代C++特性。
    - [Using Clang on Windows for C++ (wetmelon.github.io)](https://wetmelon.github.io/clang-on-windows.html#:~:text=Clang can be used on Windows%2C and LLVM,type clang%2B%2B --version. It should report the version.)
 
 - 根据开发或学习者的需求（如是否需要IDE、是否关注跨平台、是否需要特定Windows API支持等），可以选择合适的编译器进行C++开发。
 
-- 安装ucrt(体积蛮大的,下面的例子用国内镜像下载),教程参考vscode文档:[Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_installing-the-mingww64-toolchain)
 
-  - ```bash
-    
-    cxxu@cxxuwin UCRT64 ~
-    $ sed -i "s#https\?://mirror.msys2.org/#https://mirrors.tuna.tsinghua.edu.cn/msys2/#g" /etc/pacman.d/mirrorlist*
-    
-    cxxu@cxxuwin UCRT64 ~
-    $ pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
-    :: There are 19 members in group mingw-w64-ucrt-x86_64-toolchain:
-    :: Repository ucrt64
-       1) mingw-w64-ucrt-x86_64-binutils  2) mingw-w64-ucrt-x86_64-crt-git
-       3) mingw-w64-ucrt-x86_64-gcc  4) mingw-w64-ucrt-x86_64-gcc-ada
-       5) mingw-w64-ucrt-x86_64-gcc-fortran  6) mingw-w64-ucrt-x86_64-gcc-libgfortran
-       7) mingw-w64-ucrt-x86_64-gcc-libs  8) mingw-w64-ucrt-x86_64-gcc-objc
-       9) mingw-w64-ucrt-x86_64-gdb  10) mingw-w64-ucrt-x86_64-gdb-multiarch
-       11) mingw-w64-ucrt-x86_64-headers-git  12) mingw-w64-ucrt-x86_64-libgccjit
-       13) mingw-w64-ucrt-x86_64-libmangle-git  14) mingw-w64-ucrt-x86_64-libwinpthread-git
-       15) mingw-w64-ucrt-x86_64-make  16) mingw-w64-ucrt-x86_64-pkgconf
-       17) mingw-w64-ucrt-x86_64-tools-git  18) mingw-w64-ucrt-x86_64-winpthreads-git
-       19) mingw-w64-ucrt-x86_64-winstorecompat-git
-    
-    Enter a selection (default=all):
-    resolving dependencies...
-    looking for conflicting packages...
-    
+### msys2换源
+
+- 安装ucrt(体积蛮大的,下面的例子用国内镜像下载)
+
+  - msys2安装ucrt的教程参考vscode文档:[Get Started with C++ and MinGW-w64 in Visual Studio Code](https://code.visualstudio.com/docs/cpp/config-mingw#_installing-the-mingww64-toolchain)
+
+  - 在msys2的shell(默认为bash)内执行换源(清华源)
+
+  - 换源前可以检查一下或者备份原来的源
+
+    ```bash
+    cat /etc/pacman.d/mirrorlist*
     ```
 
-    
+  - 执行换源语句
+
+    ```bash
+    sed -i "s#https\?://mirror.msys2.org/#https://mirrors.tuna.tsinghua.edu.cn/msys2/#g" /etc/pacman.d/mirrorlist*
+    ```
+
+### 测试加速效果@安装MinGw工具链
+
+- 检测换源后的效果,例如安装MinGw工具链
+
+  ```bash
+  pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
+  ```
+
+  
+
+  ```bash
+  
+  #下载mingw工具链看看速度如何
+  cxxu@cxxuwin UCRT64 ~
+  $ pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
+  :: There are 19 members in group mingw-w64-ucrt-x86_64-toolchain:
+  :: Repository ucrt64
+     1) mingw-w64-ucrt-x86_64-binutils  2) mingw-w64-ucrt-x86_64-crt-git
+     3) mingw-w64-ucrt-x86_64-gcc  4) mingw-w64-ucrt-x86_64-gcc-ada
+     5) mingw-w64-ucrt-x86_64-gcc-fortran  6) mingw-w64-ucrt-x86_64-gcc-libgfortran
+     7) mingw-w64-ucrt-x86_64-gcc-libs  8) mingw-w64-ucrt-x86_64-gcc-objc
+     9) mingw-w64-ucrt-x86_64-gdb  10) mingw-w64-ucrt-x86_64-gdb-multiarch
+     11) mingw-w64-ucrt-x86_64-headers-git  12) mingw-w64-ucrt-x86_64-libgccjit
+     13) mingw-w64-ucrt-x86_64-libmangle-git  14) mingw-w64-ucrt-x86_64-libwinpthread-git
+     15) mingw-w64-ucrt-x86_64-make  16) mingw-w64-ucrt-x86_64-pkgconf
+     17) mingw-w64-ucrt-x86_64-tools-git  18) mingw-w64-ucrt-x86_64-winpthreads-git
+     19) mingw-w64-ucrt-x86_64-winstorecompat-git
+  
+  Enter a selection (default=all):
+  resolving dependencies...
+  looking for conflicting packages...
+  
+  ```
+
+  
 
 
 #### ucrt
@@ -195,7 +227,31 @@
 
   5. **开发环境支持**：
      - ucrt被广泛支持于各种开发环境中，包括Visual Studio以及其他基于MinGW或Clang的构建系统（如msys2中的mingw64、ucrt64、clang64等）。这些环境通过配置编译选项和链接器设置，使得开发者能够方便地利用ucrt来构建Windows平台上的C和C++应用程序。
-- ucrt是微软为Windows操作系统提供的一个现代、标准化、跨编译器的通用C运行时库，旨在提高C程序的兼容性、安全性、可维护性和跨平台能力。应用程序通过链接到ucrt，可以获得一组丰富的、符合C语言标准的函数和服务，确保其在支持ucrt的Windows系统上稳定、高效地运行。
+- **ucrt**是微软为Windows操作系统提供的一个现代、标准化、跨编译器的通用C运行时库，旨在提高C程序的兼容性、安全性、可维护性和跨平台能力。应用程序通过链接到ucrt，可以获得一组丰富的、符合C语言标准的函数和服务，确保其在支持ucrt的Windows系统上稳定、高效地运行。
+
+### 终端程序中配置Msys2
+
+
+- 配置MSYS2的终端:[Terminals - MSYS2](https://www.msys2.org/docs/terminals/)
+
+#### windows terminal
+
+其中的profiles中的list对象中的呢日哦那个设置参考(默认用msys2中的bash)
+
+如果需要用其他shell比如zsh,需要额外下载
+
+```json
+{
+    "adjustIndistinguishableColors": "always",
+    "commandline": "C:/msys64/msys2_shell.cmd -defterm -here -no-start -ucrt64 -shell bash",
+    "guid": "{517af48c-7c9f-49e0-9d49-db491a0bafaf}",
+    "hidden": false,
+    "icon": "C:\\msys64\\msys2.ico",
+    "name": "MSYS2(bash)"
+},
+```
+
+
 
 ## Clang和GCC怎么选
 

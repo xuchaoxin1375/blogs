@@ -23,10 +23,173 @@
 - [为什么 | AList文档 (nn.ci)](https://alist.nn.ci/zh/faq/why.html)
   - 列出了alist使用常见的问题,包括预览和打包下载等问题
 
+- 其他安装方式
+
+  - windows上可以使用scoop安装(推荐用scoop For CN)来安装,对国内用户友好
+
+    - ```cmd
+      scoop install alist #可能需要添加额外 bucket,比如spc
+      ```
+
+    - ```
+      PS> scoop-search alist #截止2024.8.30
+      'main' bucket:
+          alist (3.36.0)
+      
+      'spc' bucket:
+          alist (3.36.0)
+          alisthelper (0.1.5)
+          alisthelper-portable (0.1.5)
+          
+      PS C:\Users\Administrator> scoop install alist -g
+      WARN  Scoop uses 'aria2c' for multi-connection downloads.
+      WARN  Should it cause issues, run 'scoop config aria2-enabled false' to disable it.
+      WARN  To disable this warning, run 'scoop config aria2-warning-enabled false'.
+      Installing 'alist' (3.36.0) [64bit] from 'main' bucket
+      proxy: https://github.com/alist-org/alist/releases/download/v3.36.0/alist-windows-amd64.zip
+      Starting download with aria2 ...
+      Download: Download Results:
+      Download: gid   |stat|avg speed  |path/URI
+      Download: ======+====+===========+=======================================================
+      Download: d33312|OK  |   1.0MiB/s|C:/Users/Administrator/scoop/cache/alist#3.36.0#4a40e72.zip
+      Download: Status Legend:
+      Download: (OK):download completed.
+      Checking hash of alist-windows-amd64.zip ... ok.
+      Extracting alist-windows-amd64.zip ... done.
+      Linking C:\ProgramData\scoop\apps\alist\current => C:\ProgramData\scoop\apps\alist\3.36.0
+      Creating shim for 'alist'.
+      Persisting data
+      Persisting log
+      'alist' (3.36.0) was installed successfully!
+      PS C:\Users\Administrator> alist ^C
+      PS C:\Users\Administrator> cd alis^C
+      PS C:\Users\Administrator> cd C:\exes\
+      PS C:\exes> cd ..
+      PS C:\> init
+      08/30/2024 11:03:36
+      Init time: 1.6031589 s
+      ```
+
+      
+
+    - 这种情况下会安装到scoop统一目录下,你可以考虑在你喜欢的位置用符号链接创建一个alist.exe,链接到scoop/apps/alist/current/alist
+
+      ```powershell
+      mkdir C:\exes\alist -ErrorAction SilentlyContinue
+      New-Item -ItemType SymbolicLink -Path C:\exes\alist\alist.exe -Target C:\ProgramData\scoop\apps\alist\current\alist.exe
+      
+      ```
+
+      
+
+
+### 推荐操作和基础配置
+
 - 为可执行程序`alist.exe`配置Path变量或者取别名
 - 执行`alist server`初始化
-- 根据需要可以修改密码:`alist admin set <new_password>`
+- 根据需要可以修改密码:`alist admin set <new_password>` 其中`admin`可以替换为其别名`password`
+
+  - 重置密码示例(设置admin用户的密码为1)
+
+    ```cmd
+    PS> alist password set 1
+    INFO[2024-08-30 11:10:16] reading config file: data\config.json
+    INFO[2024-08-30 11:10:17] config file not exists, creating default config file
+    INFO[2024-08-30 11:10:17] load config from env with prefix: ALIST_
+    INFO[2024-08-30 11:10:17] init logrus...
+    INFO[2024-08-30 11:10:17] Successfully created the admin user and the initial password
+     is: Fryz2uxq
+    INFO[2024-08-30 11:10:17] admin user has been updated:
+    INFO[2024-08-30 11:10:17] username: admin
+    INFO[2024-08-30 11:10:17] password: 1
+    WARN[2024-08-30 11:10:17] [del_user_cache_online] failed: Post "http://localhost:5244/
+    api/admin/user/del_cache?username=admin": dial tcp [::1]:5244: connectex: No connectio
+    n could be made because the target machine actively refused it.
+    ```
 - alist会默认在5244端口启动服务
+
+### alist 命令自动补全设置
+
+精心制作的命令行工具会为不同的现代化shell设计自动补全支持,如果您经常使用alist命令行进行配置操作,那么推荐使用`alist completion`提供的命令行自动补全和提示特性(如果只是偶尔配置一下则是不必要使用这个特性)
+
+```powershell
+PS> alist completion powershell -h
+Generate the autocompletion script for powershell.
+
+To load completions in your current shell session:
+
+        alist completion powershell | Out-String | Invoke-Expression
+
+To load completions for every new session, add the output of the above command
+to your powershell profile.
+
+Usage:
+  alist completion powershell [flags]
+
+Flags:
+  -h, --help              help for powershell
+      --no-descriptions   disable completion descriptions
+
+Global Flags:
+      --data string     data folder (default "data")
+      --debug           start with debug mode
+      --dev             start with dev mode
+      --force-bin-dir   Force to use the directory where the binary file is located as data directory
+      --log-std         Force to log to std
+      --no-prefix       disable env prefix
+```
+
+例如windows用户使用powershell可以这么做
+
+```powershell
+alist completion powershell |Out-String|iex
+```
+
+补全和命令选项实时提示效果举例:
+
+```powershell
+PS> alist server --data
+--data           --dev            --help           --no-prefix
+--debug          --force-bin-dir  --log-std        -h
+
+data folder
+```
+
+```powershell
+PS> alist password random
+random  set     token
+
+Reset admin user's password to a random string
+
+```
+
+
+
+### 启动alist服务
+
+```bash
+PS> alist server
+INFO[2024-08-30 11:27:54] reading config file: data\config.json
+INFO[2024-08-30 11:27:54] load config from env with prefix: ALIST_
+INFO[2024-08-30 11:27:54] init logrus...
+WARN[2024-08-30 11:27:54] init tool aria2 failed: failed get aria2 version: Post "http
+://localhost:6800/jsonrpc": dial tcp [::1]:6800: connectex: No connection could be mad
+e because the target machine actively refused it.
+INFO[2024-08-30 11:27:54] init tool SimpleHttp success: ok
+WARN[2024-08-30 11:27:54] init tool qBittorrent failed: Post "http://localhost:8080/ap
+i/v2/auth/login": dial tcp [::1]:8080: connectex: No connection could be made because
+the target machine actively refused it.
+INFO[2024-08-30 11:27:54] init tool pikpak success: ok
+INFO[2024-08-30 11:27:54] start HTTP server @ 0.0.0.0:5244
+...
+```
+
+- 遇到两个warn不用管,他们是和离线下载有关的配置分别是aria2,qbittorrent下载器的下载服务配置,不是所有用户都用得到
+
+### 验证alist服务是否可用
+
+- 根据提示,在浏览器中打开`http://localhost:5244`(对于alist服务器自己)
+- 如果你在局域网内使用,我们也可以在其他同局域网的设备的浏览器中输入`http://<serverIp>:5244`来访问alist创建的网页服务(其中`<serverIP>`替换为alist服务器的ip地址),例如链接可能形如`http://192.168.1.6:5244/`
 
 ## Alist生态
 
@@ -92,7 +255,7 @@
 
 - [Profile | AList Manage](http://localhost:5244/@manage)
 
-## 配置文件和目录👺
+## 配置文件和alist工作目录👺👺
 
 - 在命令行中,运行`alist server`会检查当前**工作目录**(由`pwd`命令返回的目录)是否存在配置文件(用户密码,已挂载过的网盘等)
 - 如果没有,则会在当前工作目录创建`data`目录并初始化创建必要的文件
@@ -232,7 +395,74 @@
 
 ## 开机自动运行配置(守护进程)👺
 
+windows上实现开机后台运行软件或服务的方式有不少,比如存放快捷方式到`startup`目录,注册计划任务,打包成服务等,还有相关的图形界面软件专门设置alist的自启动服务(但是我认为没有必要)
+
+你可以查看alist的运行日志,来检查某次运行或启动是否有异常,日志文件位置由alist的配置文件`data/config.json`中的`log`段指定 [配置文件 | AList文档 (nn.ci)](https://alist.nn.ci/zh/config/configuration.html)
+
+### yi'jian
+
+ windows用户注册alist(cli版)服务计划任务的注册,实现开机自启动
+**使用powershell管理员权限运行**
+
+```powershell
+
+function Register-AlistStartup
+{
+   <# 
+   .SYNOPSIS
+   windows用户注册alist(cli版)服务计划任务的注册,实现开机自启动
+   使用powershell管理员权限运行👺
+   
+   .DESCRIPTION
+   请根据需要修改下面的$FilePath路径中的alist.exe部分，否则不起作用,其余部分可以不改动
+   #>
+    param(
+        $TaskName='StartupAlist',
+        $UserId='System',
+        $FilePath = ' C:\exes\alist\alist.exe  ',#修改为自己的alist程序 路径👺
+        $Directory #alist的起始目录
+    )
+
+    if (!$Directory)
+    {
+
+        $Directory = Split-Path -Path $FilePath -Parent
+    }
+    # 输出目录路径
+
+    $action = New-ScheduledTaskAction -Execute $FilePath -Argument 'server' -WorkingDirectory $Directory
+    # 定义触发器
+    $trigger = New-ScheduledTaskTrigger -AtStartup
+    # 任务执行主体设置(以System身份运行,且优先级最高,无论用户是否登陆都运行,适合于后台服务，如aria2，chfs，alist等)
+    $principal = New-ScheduledTaskPrincipal -UserId $UserId -LogonType ServiceAccount -RunLevel Highest
+    # 这里的-UserId 可以指定创建者;但是注意,任务创建完毕后,不一定能够立即看Author(创建者)字段的信息,需要过一段时间才可以看到,包括taskschd.msc也是一样存在滞后
+
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+
+    # 创建计划任务
+    Register-ScheduledTask -TaskName $TaskName -Action $action `
+        -Trigger $trigger -Settings $settings -Principal $principal
+    
+}
+
+#使用方法
+## 注册alist计划任务(默认的计划任务名为StartupAlist，启动角色为System,修改为自己当前用户账户也是可以的)
+
+Register-AlistStartup 
+
+# 其他相关命令
+## 检查计划任务
+Get-ScheduledTask -TaskName startupalist
+##移除计划任务
+Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false
+
+```
+
+### 相关参考
+
 - [守护进程开机自启动 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/install/manual.html#守护进程)
+  - 文档可能移除这一部分(过时的开机自启方式)
+
 - [windows配置开机自启动软件或脚本-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/136098694?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"136098694"%2C"source"%3A"xuchaoxin1375"})
 
 ## 挂载到资源管理器(模拟本地磁盘分区)👺

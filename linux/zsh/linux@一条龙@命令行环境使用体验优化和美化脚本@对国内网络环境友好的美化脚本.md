@@ -15,20 +15,22 @@
 - https://github.com/ohmyzsh/ohmyzsh
 - 镜像加速站:[Gitee 极速下载/oh-my-zsh](https://gitee.com/mirrors/oh-my-zsh)
 
-### 国内推荐安装方式
+## 国内推荐安装方式
 
 先安装必要软件
 
-- apt方式安装:
+### apt方式安装:
 
-  ```bash
-  # 工作目录设定为用户家目录
-  cd ~
-  sudo apt update
-  sudo apt install zsh curl git  man wget -y
-  ```
+```bash
+# 工作目录设定为用户家目录
+cd ~
+sudo apt update
+sudo apt install zsh curl git  man wget -y
+```
 
-- pacman方式安装:(可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源)
+### pacman方式安装:
+
+- 可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源
 
   ```
   cd ~
