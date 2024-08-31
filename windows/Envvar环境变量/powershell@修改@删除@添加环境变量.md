@@ -172,3 +172,9 @@
 - 更多相关函数和模块参考仓库:
   - [scripts: 辅助脚本|powershell EnvVar - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/tree/main/modulesByCxxu/EnvVar)
 
+## 环境变量名字太长删不掉
+
+- 部分情况可能将环境变量值作为环境变量名设置成了系统环境变量,可能造成删不掉的局面
+  - 例如,`C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps`本来是个path值,但是操作失误设置为了变量名
+- 可以借助powertoys的环境变量功能来删除!
+- 或者从注册表中相关表项删除它

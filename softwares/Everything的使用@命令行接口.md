@@ -1,0 +1,201 @@
+[toc]
+
+
+
+## abstract
+
+Everything 是一款功能强大的文件搜索工具，它能快速地在 Windows 系统中搜索文件和文件夹。除了图形用户界面（GUI）之外，Everything 还提供了命令行接口（CLI），使得用户可以通过命令行来进行搜索和执行各种操作。使用 CLI 接口的优势在于它可以方便地集成到脚本中，自动化搜索任务，或者通过管道将搜索结果与其他命令结合使用。
+
+- [Command Line Options - voidtools](https://www.voidtools.com/zh-cn/support/everything/command_line_options/#搜索)
+- [Command Line Interface - voidtools](https://www.voidtools.com/zh-cn/support/everything/command_line_interface/)
+- [Searching - voidtools|搜索语法(GUI/CLI通用)](https://www.voidtools.com/support/everything/searching/)
+
+
+
+---
+
+## Everything CLI 接口使用介绍
+
+
+
+###  安装 Everything CLI
+
+在使用 Everything CLI 之前，您需要确保已经安装了 Everything 并启用了 CLI 功能。以下是安装和启用 CLI 的步骤：
+
+#### 普通安装
+
+1. **下载并安装 Everything**：从 [Everything 官网](https://www.voidtools.com/) 下载并安装最新版的 Everything。
+2. **启用服务模式**：为了让 CLI 能够正常工作，建议以**服务模式**运行 Everything。在 Everything 主窗口中，依次选择 `工具` -> `选项` -> `常规`，勾选 `服务` 选项。
+3. **设置环境变量**：将 Everything 的安装目录添加到系统的 `PATH` 环境变量中，以便在命令行中直接调用 `es.exe`。
+
+#### scoop安装
+
+```cmd
+scoop install everything-cli -g
+```
+
+一步到位,但是需要部署scoop,建议是加速版本scoop 
+
+### 基本命令用法
+
+Everything CLI 的核心命令是 `es`，它用于在命令行中执行搜索。下面是一些基本的使用示例：
+
+#### 搜索文件
+
+要搜索包含特定关键词的文件或文件夹，您可以使用以下命令：
+
+```bash
+es "关键字"
+```
+
+例如，搜索所有包含 "document" 的文件或文件夹：
+
+```bash
+es "document"
+```
+
+#### 使用通配符
+
+Everything CLI 支持使用通配符来进行更灵活的搜索。常见的通配符包括 `*`（匹配任意字符）和 `?`（匹配单个字符）。例如：
+
+```bash
+es "*.txt"
+```
+
+上面的命令将搜索所有扩展名为 `.txt` 的文件。
+
+#### 搜索特定类型的文件
+
+通过使用文件类型过滤器，可以更精确地搜索文件。例如，搜索所有的图片文件：
+
+```bash
+es *.jpg *.png *.gif
+```
+
+您还可以使用 `regex:` 前缀进行正则表达式搜索：
+
+```bash
+es regex:".*\.(jpg|png|gif)$"
+```
+
+### 高级命令和参数
+
+Everything CLI 提供了多种参数来控制搜索结果的输出和格式。以下是一些常用的高级参数：
+
+####  限制搜索深度
+
+您可以通过 `-maxdepth` 参数来限制搜索深度。此参数用于指定搜索的最大目录层级。例如，仅搜索当前目录中的文件和文件夹：
+
+```bash
+es -maxdepth 1 "关键字"
+```
+
+####  输出控制
+
+Everything CLI 可以将搜索结果格式化输出。以下是一些控制输出的参数：
+
+- `-n <number>`：限制输出结果的数量。例如，输出前 10 个搜索结果：
+
+  ```bash
+  es -n 10 "关键字"
+  ```
+
+- `-s <sort>`：指定排序方式（如 name、size、date modified 等）。例如，按文件大小排序：
+
+  ```bash
+  es -s size "关键字"
+  ```
+
+- `-path`：只输出文件路径，不包括文件名：
+
+  ```bash
+  es -path "关键字"
+  ```
+
+#### 搜索特定目录
+
+使用 `-path` 参数可以指定搜索范围。例如，仅在 `C:\Users\` 目录下搜索：
+
+```bash
+es -path "C:\Users\" "关键字"
+```
+
+###  结合批处理和脚本使用
+
+Everything CLI 可以非常方便地集成到批处理文件和脚本中，实现自动化搜索任务。以下是一个简单的批处理脚本示例，它将搜索结果保存到一个文本文件中：
+
+```cmd
+@echo off
+es "关键字" > results.txt
+echo 搜索已完成，结果保存在 results.txt 中。
+pause
+```
+
+## 官方文档示例
+
+- [Examples (voidtools.com)](https://www.voidtools.com/support/everything/searching/#examples)
+
+### 排序示例
+
+假设我们需要找到 `C:\Projects` 目录中最近修改的前 5 个 `.cpp` 文件，并将结果按修改日期排序，输出到一个文本文件中：
+
+```bash
+es -path "C:\Projects" -n 5 -s "date modified" "*.cpp" > recent_cpp_files.txt
+```
+
+### 搜索某个目录下的某个子目录或文件
+
+```powershell
+#搜索计算机上路径中包含msys开头的(子)目录并且该目录下存在包含g++.exe的文件
+PS> es \msys g++.exe
+D:\msys64\ucrt64\bin\g++.exe
+D:\msys64\ucrt64\bin\x86_64-w64-mingw32-g++.exe
+#进一步要求文件名恰好为g++.exe的情况
+PS> es \msys64 \g++.exe
+D:\msys64\ucrt64\bin\g++.exe
+```
+
+### 精确匹配
+
+- 假设我需要找到计算机上所有名字恰好为`gcc.exe`的文件,可以借助正则表达式`^gcc\.exe$`和相应开关`-r`这么做
+
+```powershell
+PS☀️[BAT:72%][MEM:35.15% (11.15/31.71)GB][20:37:29]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\.config\scoop]
+PS> es -r "^gcc\.exe$"
+D:\exes\RedPanda-CPP\MinGW64\bin\gcc.exe
+D:\msys64\ucrt64\bin\gcc.exe
+D:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe
+
+```
+
+- 这里`gcc.exe`的`.`号严格来说需要转义`.`才能够避免匹配到别的名字,比如`gcc@exe`这类情况
+
+  ```powershell
+  PS> es -r "^gcc.exe$"
+  D:\exes\RedPanda-CPP\MinGW64\bin\gcc.exe
+  D:\msys64\ucrt64\bin\gcc.exe
+  D:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe
+  C:\Users\cxxu\gcc@exe #匹配到了不想要的文件名
+  
+  ```
+
+- 也可以将查找限定在指定目录中查找
+
+  ```bash
+  PS> es -r "^gcc.exe$"
+  D:\exes\RedPanda-CPP\MinGW64\bin\gcc.exe
+  D:\msys64\ucrt64\bin\gcc.exe
+  D:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe
+  C:\Users\cxxu\gcc@exe
+  
+  ```
+
+  
+
+### 6. 总结
+
+Everything CLI 提供了一种强大而灵活的文件搜索方式，尤其适合开发者和高级用户。通过 CLI 接口，您可以轻松地将 Everything 集成到各种脚本和自动化任务中，提高工作效率。掌握这些命令和参数，将大大提升您的文件搜索能力。
+
+ 
+

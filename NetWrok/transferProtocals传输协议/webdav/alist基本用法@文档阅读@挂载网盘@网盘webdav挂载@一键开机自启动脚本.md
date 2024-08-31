@@ -263,6 +263,10 @@ INFO[2024-08-30 11:27:54] start HTTP server @ 0.0.0.0:5244
 - 如果是通过创建快捷方式,通过快捷方式的方式启动,则可以确保每次alist家目录是一致的
 - 如果要在某个脚本中使用alist,建议使用`cd <alist_home>`,使得工作目录定位到alist家目录,然后根据需要可以返回或跳转到其他目录
 
+## 预览设置
+
+- [预览设置 | AList文档 (nn.ci)](https://alist.nn.ci/zh/config/preview.html#iframe-预览)
+
 ## FAQ
 
 - 官方文档整理了一份常见问题,值得看:
@@ -399,7 +403,7 @@ windows上实现开机后台运行软件或服务的方式有不少,比如存放
 
 你可以查看alist的运行日志,来检查某次运行或启动是否有异常,日志文件位置由alist的配置文件`data/config.json`中的`log`段指定 [配置文件 | AList文档 (nn.ci)](https://alist.nn.ci/zh/config/configuration.html)
 
-### yi'jian
+### 一键配置
 
  windows用户注册alist(cli版)服务计划任务的注册,实现开机自启动
 **使用powershell管理员权限运行**
@@ -450,13 +454,47 @@ function Register-AlistStartup
 
 Register-AlistStartup 
 
-# 其他相关命令
-## 检查计划任务
-Get-ScheduledTask -TaskName startupalist
-##移除计划任务
-Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false
+
 
 ```
+
+### 其他相关命令
+
+- 检查计划任务
+
+  ```powershell
+  Get-ScheduledTask -TaskName startupalist
+  ```
+
+  
+
+- 立刻执行启动alist服务计划任务：
+
+  ```bash
+  Start-scheduledTask -TaskName StartupAlist 
+  ```
+
+- 立即暂停Alist计划任务
+
+  ```powershell
+  Stop-ScheduledTask -TaskName StartupAlist
+  ```
+
+- 检查Alist进程是否正在运行
+
+  ```bash
+  ps alist*
+  ```
+
+  如果返回结果,表明有相关进程在运行
+
+- 移除计划任务
+
+```powershell
+Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false #是否免询问移除计划任务
+```
+
+
 
 ### 相关参考
 

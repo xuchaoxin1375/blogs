@@ -322,6 +322,10 @@ potplayer-ext-translate-baidu 0.2022.07.29 spc
   Couldn't find manifest for 'innounpacker' from 'aki' bucket.
   ```
 
+例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
+
+但是scoop的bucket中的软件包部分安装脚本和安装程序的版本是不匹配的，因此可能无法正确安装
+
 #### 有道词典/有道翻译
 
 ```powershell
@@ -457,6 +461,75 @@ Creating shortcut for QQ (QQ.exe)
 
 - 发现确实可以安装
 
+### 安装everything快速搜索工具
+
+- 首先查找软件名`everything`
+
+  ```powershell
+  #⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\exes]
+  PS> scoop-search everything
+  'Extras_gitee' bucket:
+      everything (1.4.1.1024)
+      everything-lite (1.4.1.1024)
+  
+  'aki' bucket:
+      everything (1.4.1.1026)
+      pseverything (3.3.0)
+  
+  'cluttered' bucket:
+      UAC.EverythingToolbar (0.6.1)
+  
+  'lemon' bucket:
+      ibeverythingext (0.5)
+  
+  'main' bucket:
+      everything-cli (1.1.0.27)
+  'scoop-zapps' bucket:
+      EverythingToolbar (1.3.4)
+  
+  'spc' bucket:
+      EverythingToolbar (1.3.4)
+      UAC.EverythingToolbar (0.6.1)
+      everything (1.4.1.1026)
+      everything-alpha (1.5.0.1383a)
+      everything-beta (1.4.1.1025)
+      everything-beta-np (1.4.1.1025)
+      everything-cli (1.1.0.27)
+      everything-lite (1.4.1.1026)
+      everything-np (1.4.1.1026)
+      everything-powertoys (0.82.1)
+      everything-toolbar (1.3.4)
+      pseverything (3.3.0)
+  ```
+
+  ```powershell
+  PS> scoop install everything-cli -g
+  WARN  Purging previous failed installation of everything-cli.
+  Removing older version (1.1.0.27).
+  Installing 'everything-cli' (1.1.0.27) [64bit] from 'main' bucket
+  proxy: https://www.voidtools.com/ES-1.1.0.27.x64.zip
+  ES-1.1.0.27.x64.zip (92.7 KB) [=============================================] 100%
+  Checking hash of ES-1.1.0.27.x64.zip ... ok.
+  Extracting ES-1.1.0.27.x64.zip ... done.
+  Running pre_install script...done.
+  Linking C:\ProgramData\scoop\apps\everything-cli\current => C:\ProgramData\scoop\apps\everything-cli\1.1.0.27
+  Creating shim for 'es'.
+  Persisting es.ini
+  'everything-cli' (1.1.0.27) was installed successfully!
+  ```
+
+  
+
+- 查看官网,[Everything 命令行接口 - voidtools](https://www.voidtools.com/zh-cn/downloads/#cli)
+
+  - 可以发现,everything除了主体软件本身,还提供了命令行接口(命令行程序),并且是独立于everything提供的,这个命令行接口程序名为`es`,它依赖于`everything`主体程序,仅提供了命令行的方式来使用everything罢了
+
+- 这里需要用户有点经验,就是能够认识`cli`表示命令行的意思(commandline,管理缩写CLI,与之对应于GUI)
+
+- 安装`everything-cli`后,调用的名字是`es`（安装过程中输出的日志表明了这一点)
+
+- 而且`es`组件本身很小,如果使用aria2分片下载可能会出错
+
 ### 文件校验不通过👺
 
 ```
@@ -503,11 +576,11 @@ https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn/issues/new?titl
 
 
 
-### scoop安装软件过程中报错
+### scoop安装软件过程中报错👺
 
 部分软件在安装过程中会报错(可能是安装脚本和软件版本不匹配导致的)
 
-许多GUI软件或者国内软件用scoop安装可能会报错,例如一下情况
+许多GUI软件或者国内软件用scoop安装可能会报错,例如
 
 ```powershell
 Running pre_install script...Move-Item:
@@ -535,7 +608,16 @@ Linking C:\ProgramData\scoop\apps\quarkpan\current => C:\ProgramData\scoop\apps\
 Creating shortcut for QuarkCloudDrive (QuarkCloudDrive.exe) failed: Couldn't find C:\ProgramData\scoop\apps\quarkpan\current\QuarkCloudDrive.exe
 ```
 
-这种情况下安装包是下载好了的,我们可以手动安装这个安装包!
+这种情况下安装包是下载好了的,我们可以找到这个包(处于scoop家目录的缓存目录),然后手动安装这个安装包!
+
+进入缓存目录,然后找到对应的安装包,手动安装即可
+
+```powershell
+cd ~/scoop/cache;
+explorer .
+```
+
+
 
 ### scoop安装软件的脚本
 

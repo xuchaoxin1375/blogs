@@ -8,18 +8,13 @@
 
 Scoop 是一个面向 Windows 系统的命令行软件安装器，它以其简洁和高效而受到用户的喜爱。以下是对 Scoop 的全面介绍和使用总结。
 
-### 快速开始
+## 快速开始
 
-要在 Windows PowerShell 终端（版本 5.1 或更高）中开始使用 Scoop，您需要执行以下命令：
+官方默认版本安装部署很慢,成功率低,安装软件慢
 
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-```
+推荐使用国内镜像加速过的方案部署scoop
 
-对于高级安装选项，请查看安装程序的自述文件。[ScoopInstaller/Install: 📥 Next-generation Scoop (un)installer (github.com)](https://github.com/ScoopInstaller/Install?tab=readme-ov-file#scoop-uninstaller)
-
-尤其是自定义scoop目录和管理员权限安装scoop(For Admin)
+[国内用户快速部署Scoop@一键加速安装scoop@Deploy-ScoopForCNUser_scoop 安装-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/141385998)
 
 ### Scoop 的特点👺
 
@@ -32,7 +27,30 @@ Scoop 的设计宗旨是简化从命令行安装程序的过程。它具备以�
 - 自动查找并安装依赖项。
 - 自动执行所有额外的设置步骤以确保程序正常工作。
 
-### Scoop 的存储结构@Scoop家目录
+## 推荐设置
+
+- scoop 提供了`scoop checkup`命令来检查当前scoop运行环境的潜在问题
+
+- 根据提示(Warn)将相关的推荐设置执行掉可以有更好的使用体验,尽管这不是必须的
+
+- 例如一个刚安装的scoop可能有如下警告
+
+  ```bash
+  PS> scoop checkup
+  WARN  LongPaths support is not enabled.
+    You can enable it by running:
+      sudo Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+    (Requires 'sudo' command. Run 'scoop install sudo' if you don't have it.)
+  WARN  Windows Developer Mode is not enabled. Operations relevant to symlinks may fail without proper rights.
+    You may read more about the symlinks support here:
+    https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
+  WARN  'Inno Setup Unpacker' is not installed! It's required for unpacking InnoSetup files. Please run 'scoop install innounp'.
+  WARN  Found 3 potential problems.
+  ```
+
+  
+
+### Scoop 的存储结构@Scoop家目录@快速启动scoop安装的应用
 
 Scoop 以便携式方式下载和管理软件包，并将它们整齐地隔离在 `~\scoop` 目录中。它不会在 Scoop 家目录之外安装文件，您可以将 Scoop 安装在任何喜欢的位置。
 
@@ -49,6 +67,111 @@ scoop安装完的命令有两类,其中GUI程序无法直接从终端启动(除�
 这种情况下,建议您从开始菜单中输入GUI程序名字,然后启动
 
 这样，软件包可以被干净地卸载，您可以清楚地知道当前在 PATH 和开始菜单中的工具。
+
+### 命令行中启动scoop安装的GUI应用
+
+- scoop默认让命令行类的工具在安装完毕后就可以直接在命令行内直接调用(只要知道程序的名字即可)
+
+- 而对于GUI程序不会为你添加相应的环境变量到path中,但是scoop创建了一个文件夹,添加到了开始菜单的`Programs`目录中,用户可以在开始菜单的所有程序中找到这个文件夹(但是确无法直接跳转到对应的资源管理器路径)
+
+  - 使用`scoop which <GUIapp>`来找到scoop apps目录,例如我想要找到7-zip的图形界面程序(可以事先安装好)
+
+    ```powershell
+    PS> scoop which 7-zip
+    ~\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\7-Zip.lnk
+    ```
+
+  - 可以看到,这个路径被我们找到,就是`7-zip.lnk`前的部分
+
+  - 然而`7-zip`是数字开头的程序名,shell无法直接为其提供补全,
+
+    - 在powershell中,您可以考虑用`&`打头,然后输入`7-`加上`Tab`键可以触发补全(7-zip)会自动加上引号`PS> & '7-Zip.lnk'`
+
+- Scoop安装的GUI软件能在开始菜单的Scoop Apps中找到,主要是通过以下机制实现的:
+
+  1. 快捷方式创建:当Scoop安装GUI应用程序时,它会在Windows的开始菜单目录下创建快捷方式。具体路径通常是可以用以下方式打开
+
+     1. `%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps`,您可以在资源管理器的地址栏中输入此地址打开,或者命令打开
+
+     2. cmd
+
+        ```cmd
+        explorer "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps"
+        ```
+
+     3. powershell
+
+        ```powershell
+        explorer "$home\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps"
+        ```
+
+  2. 这个`scoop apps`文件夹中的内容主要是GUI程序的快捷方式(lnk),他们不是程序本身
+
+     - 由于默认的PathExt取值中没有`.lnk`,因此即便scoop apps目录`%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps`被添加到`Path`环境变量可能也无法直接从命令行中直接根据各个程序的快捷方式来直接启动程序;
+     - 为了解决这个问题,我们需要修改系统环境变量`PathExt`,然后向其中的取值添加一个`.LNK`,然后将`scoop apps`目录添加到`Path`环境变量中即可
+
+  3. 对于全局安装的情况,开始菜单中的目录又有所不同
+
+     - ```cmd
+       explorer 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps'
+       ```
+
+     - 类似的,把目录`C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps`添加到`Path`变量中,就可以实现命令行中启动相应的软件(同样要求`PathExt`变量配置了`.LNK`)
+
+
+### 一键配置脚本👺👺
+
+```powershell
+# 需要以管理员权限运行此脚本
+
+# 定义 Scoop Apps 目录路径
+$scoopAppsPathEx = [System.Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps')
+$scoopAppsPath = '%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps'
+
+# 修改用户 PATH 环境变量
+$userPath = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+if ($userPath -notlike "*$scoopAppsPathEx*")
+{
+    $newUserPath = $scoopAppsPath + ';' + $userPath
+    [System.Environment]::SetEnvironmentVariable('PATH', $newUserPath, 'User')
+    Write-Host '已将 Scoop Apps 目录添加到用户 PATH 环境变量中。'
+}
+else
+{
+    Write-Host 'Scoop Apps 目录已在用户 PATH 环境变量中。'
+}
+#刷新当前shell中的Path变量(非永久性,当前shell会话有效)
+$env:path += $scoopAppsPath
+# 修改系统 PATHEXT 环境变量
+$systemPathExt = [System.Environment]::GetEnvironmentVariable('PATHEXT', 'Machine')
+if ($systemPathExt -notlike '*.LNK*')
+{
+    $newSystemPathExt = '.LNK' + ';' + $systemPathExt
+    [System.Environment]::SetEnvironmentVariable('PATHEXT', $newSystemPathExt, 'Machine')
+    Write-Host '已将 .LNK 添加到系统 PATHEXT 环境变量中。'
+}
+else
+{
+    Write-Host '.LNK 已在系统 PATHEXT 环境变量中。'
+}
+#全局安装的GUI软件添加到Path(系统级Path)
+$systemPath = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
+$ScoopAppsG = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps'
+if($systemPath -notlike "*$ScoopAppsG*"){
+
+    $newSystemPath = $scoopAppsG + ';' + $SystemPath
+    [System.Environment]::SetEnvironmentVariable( 'Path', $newSystemPath, 'Machine')
+    Write-Host '已将 全局Scoop Apps 添加到系统 PATH 环境变量中。'
+}else{
+    Write-Host '全局Scoop Apps 已在系统 PATH 环境变量中。'
+}
+
+Write-Host '环境变量修改完成。请重新启动命令提示符或 PowerShell 以使更改生效。'
+```
+
+应用程序清单:Scoop使用JSON格式的清单文件来定义应用程序的安装和配置信息。这些清单文件中包含了创建快捷方式所需的信息。
+
+
 
 ### 搜索软件包@buckets
 
@@ -105,9 +228,11 @@ Check out [Scoop's Readme](https://github.com/ScoopInstaller/Scoop#readme) or re
 
 [scoop-installer: scoop及bucket镜像站 (gitee.com)](https://gitee.com/scoop-installer#122-其他优秀的镜像库)
 
-#### 1其他优秀的镜像库
+### 其他优秀的镜像库
 
 优先推荐表格中靠前的仓库，国内常用软件均能在里面找到。
+
+通常`spc`这个巨无霸仓库包含了所有其他bucket中能找到的软件,但是有备用方案总是好的,并且加速方案也不同
 
  
 
@@ -448,7 +573,7 @@ powershell 7.4.5   110372346
 - aria2c中`-s,-x,-k`三个选项合理搭配才能发挥多线程的效果,默认的aria2效果一般,仅使用`-s`下载连接数往往也上不去
 - 不过尽管有时候链接数高达16,下载速度还是不行,那么考虑更换bucket或着镜像重试(注意清理未正确安装的包)
 
-## scoop 安装国内软件
+## scoop 安装国内外软件
 
 - 另见它文[windows@命令行安装国内软件@scoop和winget安装国内软件-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/141682972)
 

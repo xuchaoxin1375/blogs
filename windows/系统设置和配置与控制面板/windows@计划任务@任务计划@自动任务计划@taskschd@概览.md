@@ -242,17 +242,135 @@ Disable-ScheduledTask -TaskName "BackupTask"
 Enable-ScheduledTask -TaskName "BackupTask"
 ```
 
-## 学习计划任务的用法
+## powershell查看计划任务信息
 
-### 官方文档
+- 以一个设定了2个触发器的计划任务`Update-GithubHosts`为例,查看特定已存在的计划任务的信息
+
+  ```powershell
+  PS> $task=get-scheduledTask -TaskName  update-githubhosts
+  PS> $task|fl * -Verbose
+  
+  State                 : Ready
+  Actions               : {MSFT_TaskExecAction}
+  Author                :
+  Date                  :
+  Description           :
+  Documentation         :
+  Principal             : MSFT_TaskPrincipal2
+  SecurityDescriptor    :
+  Settings              : MSFT_TaskSettings3
+  Source                :
+  TaskName              : Update-GithubHosts
+  TaskPath              : \
+  Triggers              : {MSFT_TaskTimeTrigger, MSFT_TaskBootTrigger}
+  URI                   : \Update-GithubHosts
+  Version               :
+  PSComputerName        :
+  CimClass              : Root/Microsoft/Windows/TaskScheduler:MSFT_ScheduledTask
+  CimInstanceProperties : {Actions, Author, Date, Description…}
+  CimSystemProperties   : Microsoft.Management.Infrastructure.CimSystemProperties
+  ```
+
+- 其中`{}`包含的对象里面可以挖出更多信息,尤其是`CimInstanceProperties`属性,包含了`Actions`,`Author`,`Date`等信息
+
+```powershell
+
+
+
+PS☀️[BAT:73%][MEM:25.91% (8.22/31.71)GB][14:28:45]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\exes]
+PS> $task.triggers
+
+Enabled            : True
+EndBoundary        :
+ExecutionTimeLimit :
+Id                 :
+Repetition         : MSFT_TaskRepetitionPattern
+StartBoundary      : 2024-08-22T08:17:16+08:00
+RandomDelay        :
+PSComputerName     :
+
+Enabled            : True
+EndBoundary        :
+ExecutionTimeLimit :
+Id                 :
+Repetition         : MSFT_TaskRepetitionPattern
+StartBoundary      :
+Delay              :
+PSComputerName     :
+
+
+PS☀️[BAT:73%][MEM:25.92% (8.22/31.71)GB][14:28:51]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\exes]
+PS> $task|select triggers
+
+triggers
+--------
+{MSFT_TaskTimeTrigger, MSFT_TaskBootTrigger}
+
+
+PS☀️[BAT:73%][MEM:25.9% (8.21/31.71)GB][14:29:06]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\exes]
+PS> $task|select -ExpandProperty triggers
+
+Enabled            : True
+EndBoundary        :
+ExecutionTimeLimit :
+Id                 :
+Repetition         : MSFT_TaskRepetitionPattern
+StartBoundary      : 2024-08-22T08:17:16+08:00
+RandomDelay        :
+PSComputerName     :
+
+Enabled            : True
+EndBoundary        :
+ExecutionTimeLimit :
+Id                 :
+Repetition         : MSFT_TaskRepetitionPattern
+StartBoundary      :
+Delay              :
+PSComputerName     :
+
+```
+
+从PowerShell的特性角度来分析这些输出，我们可以得出以下几点观察：
+
+1. 对象和成员访问：
+   - `$task.triggers` 直接访问了ScheduledTask对象的triggers属性。PowerShell在这种情况下会自动展开集合中的每个元素，并显示其属性。
+
+2. 集合处理：
+   - triggers属性实际上是一个包含两个触发器对象的集合。这可以从`$task|select triggers`的输出中看出，它显示了两种不同类型的触发器。
+
+3. 类型信息：
+   - PowerShell在处理对象时会保留类型信息。这在`$task|select triggers`的输出中体现得最为明显，显示了触发器的具体类型（MSFT_TaskTimeTrigger和MSFT_TaskBootTrigger）。
+
+4. 默认显示行为：
+   - 直接访问`.triggers`属性时，PowerShell默认显示了集合中每个对象的所有非空属性。
+
+5. Select-Object cmdlet的行为：
+   - `$task|select triggers` 使用Select-Object cmdlet选择了triggers属性，但没有展开它。这导致PowerShell以更简洁的方式显示了集合信息，只列出了触发器类型。
+
+6. -ExpandProperty 参数：
+   - `$task|select -ExpandProperty triggers` 使用了-ExpandProperty参数，这告诉Select-Object展开triggers集合。结果与直接访问`.triggers`属性相同，显示了每个触发器的详细属性。
+
+7. 格式化和输出：
+   - PowerShell的默认格式化系统决定了如何显示不同类型的对象。这就是为什么相同的数据在不同的访问方式下会有不同的显示形式。
+
+8. 属性差异：
+   - 两个触发器对象有略微不同的属性集。例如，第一个触发器有RandomDelay属性，而第二个有Delay属性。这反映了不同类型触发器（时间触发器和启动触发器）的特性。
+
+9. 空值处理：
+   - PowerShell在显示对象属性时，通常会省略空值或null值的显示，除非明确要求显示。
+
+10. 时间表示：
+    - StartBoundary属性使用ISO 8601格式表示时间，这是PowerShell处理日期时间的标准方式。
+
+这个例子很好地展示了PowerShell在处理复杂对象、集合和不同输出方法时的灵活性和一致性。它也突显了理解这些不同方法对于有效使用PowerShell进行系统管理和自动化的重要性。
+
+## 官方文档
 ```powershell
 Get-Help Get-ScheduledTask -Online
 ```
 
-###  学习资源
-利用 PowerShell 社区和学习资源，例如：
 
-- [PowerShell Gallery](https://www.powershellgallery.com/)
-- [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.1)
-- 各种 PowerShell 教程和书籍，如《Learn Windows PowerShell in a Month of Lunches》。
 
