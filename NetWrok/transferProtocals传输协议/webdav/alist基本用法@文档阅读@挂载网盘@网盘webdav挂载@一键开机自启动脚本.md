@@ -509,7 +509,13 @@ Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false #是否免询�
   - 这涉及注册表修改
 - 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
 
-## 用户和权限管理😊
+## 用户和权限管理👺
+
+注意,执行以下配置后,不要以管理员账户登录的状态下查看配置效果(一般是通过管理员账户登录并xiu'gai)
+
+可以在另一个浏览器访问测试,或者另一台设备通过浏览器访问测试配置效果,或者退出当前账号,来测试配置效果
+
+### 权限配置
 
 - 在这个页面里配置和管理用户[Users | AList Manage](http://localhost:5244/@manage/users)
 - 当您想要利用Alist提供的webdav服务分享文件给别人,或者自己的朋友,那么创建一个专门用来共享文件的用户是一个好主意
@@ -517,3 +523,7 @@ Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false #是否免询�
 
 
 
+### 起始页面(base path)设置
+
+- alist支持对不同访问用户(账号)设置不同的访问权限以及起始的访问页面(bash path)
+- 这对于仅分享一个盘或者本地盘的时候尤其合适

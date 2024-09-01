@@ -821,6 +821,15 @@ Microsoft Windows [版本 10.0.19045.4529]
     New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\powershell\7\pwsh.exe" -PropertyType String -Force
     
     ```
+  
+  - scoop版安装的powershell作为默认的ssh链接的shell👺
+  
+    ```powershell
+    New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\ProgramData\scoop\shims\pwsh.exe" -PropertyType String -Force
+    
+    ```
+  
+    
 
 #### 修改实操
 
