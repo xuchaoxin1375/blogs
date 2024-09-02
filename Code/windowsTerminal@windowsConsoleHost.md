@@ -2,6 +2,11 @@
 
 
 
+## abstract
+
+- [Windows 终端概述 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/terminal/)
+- [What's the difference between a console, a terminal, and a shell? - Scott Hanselman's Blog](https://www.hanselman.com/blog/whats-the-difference-between-a-console-a-terminal-and-a-shell)
+
 ## windows终端应用程序
 
 Windows Console Host（conhost.exe）与Windows Terminal是Microsoft提供的两款不同的命令行接口工具，在Windows操作系统中扮演着不同的角色：
