@@ -1,9 +1,14 @@
+[toc]
+
+
+
 ## abstract
 
 - 本文在线链接: [国内用户快速部署Scoop@一键加速安装scoop@Deploy-ScoopForCNUser_scoop 安装-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/141385998)
 
 - 适合中国用户一键部署加速过的scoop包管理器：[scoop-cn/Deploy-ScoopForCNUser at master · xuchaoxin1375/scoop-cn (github.com)](https://github.com/xuchaoxin1375/scoop-cn/tree/master/Deploy-ScoopForCNUser)
 - 脚本参考了多个相关的项目，做了整合，相关参考链接放到函数文档中
+- 直奔本文重点请跳转到 [下载和安装脚本]一节
 
 ## 脚本说明
 
@@ -11,7 +16,7 @@
 - 对于某些精简版或修改版系统默认将用户权限提到Administrator的情况提供安装支持选项
 - 关于脚本的稳定性和部署速度,这主要取决于加速镜像,`Get-AvailableGithubMirros`列出一些常见的镜像,它们当中在不同时段加速表现可能各不相同,如果你发现默认镜像或者你挑选的镜像加速效果不佳,那么请更换镜像
 
-### 可能出现的报错问题
+### 可能出现的报错问题👺
 
 - 在更换镜像后,部署脚本重新执行**可能会报错**(也可能顺利执行),如果报错,可能是因为之前的错误或者不完整的安装执行操作污染了安装环境,可以尝试scoop清理缓存,提升到管理员权限等措施再重试安装
 - 另一类报错是安装完毕而在使用过程中报错
@@ -45,14 +50,24 @@
   'gdb' (14.1) was installed successfully!
   ```
 
-### 还有其他类型的错误
+### 还有其他类型的错误👺
 
+#### 下载阶段发生报错或失败
+
+- 从默认bucket或者指定bucket下载失败,可以考虑更换其他bucket(如果其他bucket也有的话)
 - 启用aria2下载可能会被拒绝,尤其还不恰当的aria2参数配置,可能导致下载出错,考虑禁用(可以临时禁用)掉aria2
-- 下载成功但是安装时报错
-  - 未能够通过hash校验,可以尝试`scoop install`时重新下载`-k`,或者跳过校验`-s`选项
-  - 全局安装权限不足可能报错
-  - 安装过程中由于安装脚本和软件版本适配问题而报错,这种情况就比较复杂,考虑不用scoop安装,采用其他方式安装(这种情况比较少)
-  - 需要的bucket未安装,例如spc bucket中有个包`quarkpan`,但是安装的时候提示你没有`aki`这个bucket,scoop提示你安装添加`aki` bucket,我们可以网络搜`scoop bucket add aki`,获取`aki`链接(可以配合加速镜像),或者找国内的加速项目获取加速的链接,例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
+- 中断和恢复
+  - 假设你的buckets中(可能是同一个bucket但是分别用不同的镜像加速成不同名字的bucket,例如`extras`,`extras1`,`extras2`,...)有多个提供了你想要的包`Pkgx`.那么你可以从中选择一个或者默认不指定由scoop为你选择一个bucket下载并安装
+  - 这时候你可能发现它下载的比较慢或者不够快,于是你尝试手动指定bucket换一个下载来源,这种情况下建议第二次安装时使用`-g`选项,这样会忽略掉之前下载的部分,否则可能因为之前下载的文件因为打断有错误或者版本有差异导致aria2下不动它
+
+#### 下载成功但是安装时报错
+
+- 未能够通过hash校验,可以尝试`scoop install`时重新下载`-k`,或者跳过校验`-s`选项
+- 全局安装权限不足可能报错
+- 安装过程中由于安装脚本和软件版本适配问题而报错,这种情况就比较复杂,考虑不用scoop安装,采用其他方式安装(这种情况比较少)
+- 需要的bucket未安装,例如spc bucket中有个包`quarkpan`,但是安装的时候提示你没有`aki`这个bucket,scoop提示你安装添加`aki` bucket,我们可以网络搜`scoop bucket add aki`,获取`aki`链接(可以配合加速镜像),或者找国内的加速项目获取加速的链接,例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
+
+## 下载脚本
 
 ### 脚本版本更新
 
@@ -65,71 +80,161 @@
 - 个别情况下会出现安装失败,那么请使用管理员身份启动一个powershell窗口,然后在其中运行此部署脚本
   - 在管理员窗口下运行此脚本,脚本中提问你是否使用管理员权限安装时选择`y`才有效
 
-### 下载或安装脚本
+## 安装脚本👺
 
 - 下载或者安装下面的脚本，然后用powershell执行（导入）
 - 当然，您也可以直接复制下面的代码，然后粘贴到powershell中（推荐powershell v7+)
 - 相关函数有多个,其中是`Deploy-ScoopForCNUser`是主函数
+- 代码比较长,推荐到gitee下载最新版脚本文件使用,这里作为备用
 
 ```powershell
 
+
+$GithubMirrors = @(
+    # 注意,如果你的浏览器使用了代理,那么部分镜像站会和代理冲突,所以可能命令行中测试可以访问的链接在浏览器中确打不开镜像站,可以关闭代理或换个浏览器后重新验证该镜像站的可用性
+    'https://github.moeyy.xyz', # Moeyy - 提供 GitHub 文件的加速下载功能
+    'https://ghproxy.cc',
+    'https://ghproxy.net', # GitHub Proxy by GitHub99 - 提供 GitHub 文件的加速下载和克隆服务 #和用户自己的代理可能发生冲突
+    'https://mirror.ghproxy.com',
+    'https://gh.ddlc.top'
+    # 'https://github-mirror.us.kg',#请打开此网站找到可用的镜像站，直接使用此来链接不适合实际用途，仅允许小流量代理
+    
+    # 'https://ghproxy.com/bad/demo'
+
+    '' #空字符串收尾
+)
 function Get-AvailableGithubMirrors
 {
-    <# 
-.SYNOPSIS
-列出流行的或可能可用的github加速镜像站
-列表中的镜像站可能会过期,可用性不做稳定性和可用性保证
+    <#
+    .SYNOPSIS
+    列出流行的或可能可用的 GitHub 加速镜像站。
+    列表中的镜像站可能会过期，可用性不做稳定性和可用性保证。
 
-.DESCRIPTION
-推荐使用aria2等多线程下载工具来加速下载,让镜像加速效果更加明显
+    .DESCRIPTION
+    推荐使用 aria2 等多线程下载工具来加速下载，让镜像加速效果更加明显。
+    
+
+    .LINK
+    # 镜像站搜集和参考
+    https://github-mirror.us.kg/
     #>
     [CmdletBinding()]
     param(
+        $mirrors = $GithubMirrors,
         [switch]$ListView,
-        [switch]$PassThru
+        [switch]$PassThru,
+        [switch]$SkipCheckAvailability
     )
 
-    $m1 = 'https://mirror.ghproxy.com'
-    $m2 = 'https://ghproxy.cc'
-    $m3 = 'https://github.moeyy.xyz'
-    $m4 = 'https://ghproxy.net'
-    $m5 = 'https://gh.ddlc.top'
- 
-    Write-Host 'Available mirrors:'
-    $mirrors = @('', $m1, $m2, $m3, $m4, $m5) 
+    # 定义镜像站列表
+    # $mirrors = @(
+    #     'https://mirror.ghproxy.com',
+    #     'https://ghproxy.cc',
+    #     'https://github.moeyy.xyz',
+    #     'https://github-mirror.us.kg', 
+    #     'https://gh.ddlc.top'
+    #     'https://ghproxy.com/bad/demo'
+    # )
     
+    # 检查镜像站的可用性
+   
 
-    $s = { 
-        $mirrors | ForEach-Object { 
-            $i = [array]::IndexOf($mirrors, $_)
-            Write-Host " ${i}: $_" -NoNewline
-            if ($i -eq 0)
+    Write-Host 'Checking available mirrors...'
+    $availableMirrors = $mirrors
+    # 存储可用的镜像列表
+    if (!$SkipCheckAvailability)
+    {
+        $availableMirrors = @()
+
+        foreach ($mirror in $mirrors)
+        {
+            # Write-Verbose "Testing $mirror..."
+            if (Test-MirrorAvailability -Url $mirror)
             {
-                Write-Host 'Use No Mirror' -NoNewline
+                Write-Verbose "$mirror is available."
+                Write-Host "`t $mirror" -ForegroundColor Green
+                $availableMirrors += $mirror
             }
-            Write-Host ''
+            else
+            {
+                Write-Verbose "$mirror is not available."
+                Write-Host "`t $mirror." -ForegroundColor Red
+            }
         }
     }
 
-    $s.Invoke()
-     
+    # 显示可用的镜像
+    Write-Host "`nAvailable mirrors:"
+    # 空白镜像保留
+    $availableMirrors = @('') + $availableMirrors
+    Write-Host ' 0: Use No Mirror' -NoNewline
+    $index = 1
+    $availableMirrors | ForEach-Object {
+        # $index = [array]::IndexOf($availableMirrors, $_)
+        # if($availableMirrors[$index] -eq ""){continue}
+        if ($_.Trim())
+        {
+
+            Write-Host " ${index}: $_" -NoNewline
+            $index += 1
+        }
+   
+        
+        Write-Host ''
+    }
+
     if ($PassThru)
     {
-
-        return $mirrors
+        return $availableMirrors
     }
-    
 }
+
+function Test-MirrorAvailability
+{
+    [CmdletBinding()]
+    param (
+        [string]$Url
+    )
+
+    try
+    {
+        # 使用 Invoke-WebRequest 检查可用性
+        $response = Invoke-WebRequest -Uri $Url -Method Head -TimeoutSec 5 -ErrorAction Stop
+        
+        $availability = $response.StatusCode -eq 200
+    }
+    catch
+    {
+        $availability = $false
+    }
+    if ($VerbosePreference)
+    {
+
+        if ($availability)
+        {
+
+            Write-Host "Mirror $Url is available." -ForegroundColor Green
+        }
+        else
+        {
+
+            Write-Host "Mirror $Url is not available." -ForegroundColor Red
+        }
+    }
+    return   $availability
+}
+
 function Get-SelectedMirror
 {
     [CmdletBinding()]
     param (
         
+        $default = 1
     )
     $mirrors = Get-AvailableGithubMirrors -PassThru
     $numOfMirrors = $mirrors.Count
     $range = "[0~$($numOfMirrors-1)]"
-    $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: 1)"
+    $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: $default)"
     # $mirror = 'https://mirror.ghproxy.com'
     $n = $num -as [int] #可能是数字或者空$null
     if ($VerbosePreference)
@@ -143,13 +248,14 @@ function Get-SelectedMirror
     if ( $num.trim().Length -eq 0)
     {
         Write-Host 'choose the Default 1'
-        $n = 1
+        $n = $default
     }
     elseif ($n -notin 0..($numOfMirrors - 1))
     {
         Throw " Input a number within the range! $range"
     }
-    elseif ($n -gt 0)
+    
+    if ($n -gt 0)
     {
         # 用户选择了一个合法的数值
         Write-Host "You Selected mirror:[$n : $($mirrors[$n])]"
@@ -270,6 +376,7 @@ function Deploy-ScoopByGithubMirrors
 }
 function Deploy-ScoopByGitee
 {
+    [CmdletBinding()]
     param (
         [switch]$InstallForAdmin,
         [switch]$InstallBasicSoftwares
@@ -298,6 +405,7 @@ function Deploy-ScoopByGitee
     scoop config SCOOP_REPO 'https://gitee.com/scoop-installer/scoop'
     # 拉取新库地址
     scoop update
+    Write-Verbose 'Scoop add more buckets(this process may failed to perform!You can retry to add buckets manually later!'
     scoop bucket add extras
     scoop bucket add scoopcn https://gitee.com/scoop-installer/scoopcn
     if ($InstallBasicSoftwares)
@@ -345,6 +453,130 @@ function Add-ScoopBuckets
     Write-Verbose "The spc bucket is: $spc"
     scoop bucket add spc $spc  
             
+}
+
+function Deploy-ScoopAppsPath
+{
+    <# 
+    .SYNOPSIS
+    让scoop安装的GUI软件可以从命令行中启动(.LNK)
+    .DESCRIPTION
+    通过配置Scoop Apps目录添加到Path变量,以及PathExt系统环境变量中添加.LNK实现命令行中启动LNK快捷方式
+    包括scoop install 和 scoop install -g 所安装的软件
+    # 需要以管理员权限运行此脚本
+    #>
+    [CmdletBinding()]
+    param()
+    # 定义 Scoop Apps 目录路径
+    $scoopAppsPathEx = [System.Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps')
+    $scoopAppsPath = '%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps'
+
+    # 修改用户 PATH 环境变量
+    $userPath = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+    if ($userPath -notlike "*$scoopAppsPathEx*")
+    {
+        $newUserPath = $scoopAppsPath + ';' + $userPath
+        [System.Environment]::SetEnvironmentVariable('PATH', $newUserPath, 'User')
+        Write-Host '已将 Scoop Apps 目录添加到用户 PATH 环境变量中。'
+    }
+    else
+    {
+        Write-Host 'Scoop Apps 目录已在用户 PATH 环境变量中。'
+    }
+    #刷新当前shell中的Path变量(非永久性,当前shell会话有效)
+    $env:path += $scoopAppsPath
+    # 修改系统 PATHEXT 环境变量
+    $systemPathExt = [System.Environment]::GetEnvironmentVariable('PATHEXT', 'Machine')
+    if ($systemPathExt -notlike '*.LNK*')
+    {
+        $newSystemPathExt = '.LNK' + ';' + $systemPathExt
+        [System.Environment]::SetEnvironmentVariable('PATHEXT', $newSystemPathExt, 'Machine')
+        Write-Host '已将 .LNK 添加到系统 PATHEXT 环境变量中。'
+    }
+    else
+    {
+        Write-Host '.LNK 已在系统 PATHEXT 环境变量中。'
+    }
+    #全局安装的GUI软件添加到Path(系统级Path)
+    $systemPath = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
+    $ScoopAppsG = 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps'
+    if ($systemPath -notlike "*$ScoopAppsG*")
+    {
+
+        $newSystemPath = $scoopAppsG + ';' + $SystemPath
+        [System.Environment]::SetEnvironmentVariable( 'Path', $newSystemPath, 'Machine')
+        Write-Host '已将 全局Scoop Apps 添加到系统 PATH 环境变量中。'
+    }
+    else
+    {
+        Write-Host '全局Scoop Apps 已在系统 PATH 环境变量中。'
+    }
+
+    Write-Host '环境变量修改完成。请重新启动命令提示符或 PowerShell 以使更改生效。'
+}
+
+function Update-ScoopMirror
+{
+    [CmdletBinding()]
+    param (
+        $Mirror,
+        [switch]$BasickBucketsOnly,
+        $BackupSpcWithName = '',
+        [switch]$UpdateSpc,
+        [switch]$UpdateSpcOnly
+    )
+    if (!$Mirror)
+    {
+        $Mirror = Get-SelectedMirror
+    }
+    $scoop_repo = "$mirror/https://github.com/ScoopInstaller/Scoop".Trim('/')
+    $Spc = "$mirror/https://github.com/lzwme/scoop-proxy-cn".Trim('/')
+    if ($UpdateSpcOnly)
+    {
+        scoop bucket rm spc
+        scoop bucket add spc $spc
+        return
+    }
+    elseif ($BackupSpcWithName)
+    {
+        scoop bucket add $BackupSpcWithName $Spc
+        return #仅增加spc的冗余bucket,完成后结束函数
+    }
+    if ($VerbosePreference)
+    {
+        # 查询旧的配置和bucket
+        scoop config
+        scoop bucket list    
+
+    }
+    # 是否只更新bucket而不更新scoop_repo
+    if (!$BasickBucketsOnly)
+    {
+        scoop config scoop_repo $scoop_repo
+        scoop update
+    }
+    #更新bucket(先移除,后更新)
+    # 移除旧bucket
+    Write-Verbose 'Removing old buckets...'
+    $buckets = @('main', 'extras')
+    foreach ($bucket in $buckets)
+    {
+        Write-Verbose "Removing $bucket bucket..."
+        scoop bucket rm $bucket 2> $null #如果不存在,直接重定向到$null,利用 2> 重定向错误输出,正常执行则输出普通信息
+    }
+    # 添加(更新)基本 bucket
+    $main = "$mirror/https://github.com/ScoopInstaller/Main".Trim('/')
+    $extras = "$mirror/https://github.com/ScoopInstaller/Extras".Trim('/')
+    scoop bucket add main $main
+    scoop bucket add extras $extras
+    # 是否更新spc bucket
+    if ($UpdateSpc)
+    {
+        scoop bucket rm spc
+        scoop bucket add spc $Spc
+    }
+
+    
 }
 function Deploy-ScoopForCNUser
 {
@@ -420,12 +652,14 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
         [switch]$InstallBasicSoftwares,
         [parameter(ParameterSetName = 'Gitee')]
         [switch]$UseGiteeForkAndBucket,
+        
         # 是否添加一个大型的bucket
         # [switch]$AddMoreBuckets,
+
         # 管理员权限下安装
         [switch]$InstallForAdmin,
         # 延迟启动安装,给用户一点时间反悔
-        $delay = 2
+        $delay = 1
     )
     
     
@@ -446,20 +680,21 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
     {
         Write-Host 'Use manual scheme...'
         # Start-Sleep $delay
-        $mirror = Deploy-ScoopByGithubMirrors -InstallBasicSoftwares:$InstallBasicSoftwares -InstallForAdmin:$InstallForAdmin
+        Deploy-ScoopByGithubMirrors -InstallBasicSoftwares:$InstallBasicSoftwares -InstallForAdmin:$InstallForAdmin
 
     }
 
 
-    if ($addMoreBuckets)
-    {
-        # 可以单独执行add-scoopbuckets
-        Add-ScoopBuckets $mirror #无论$mirror取何值(空值或者链接字符串,采用位置参数传参都不影响执行)
-    }
+    # if ($addMoreBuckets)
+    # {
+    #     # 可以单独执行add-scoopbuckets
+    #     Add-ScoopBuckets $mirror #无论$mirror取何值(空值或者链接字符串,采用位置参数传参都不影响执行)
+    # }
     #检查用户安装了哪些bucket,以及对应的bucket源链接
     scoop bucket list
 
 }
+
 ```
 
 ### Notes
@@ -717,7 +952,21 @@ The spc bucket was added successfully.
 
 ```
 
+## 提高可用性的措施👺
 
+- 为大型仓库spc提供多个镜像加速bucket
+
+- 例如为`spc`这个大型仓库提供更多的冗余bucket(镜像加速)
+
+  - ```bash
+    
+    scoop bucket add spc https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn
+    scoop bucket add spc1 https://ghproxy.cc/https://github.com/lzwme/scoop-proxy-cn 
+    scoop bucket add spc2 https://ghproxy.net/https://github.com/lzwme/scoop-proxy-cn
+    scoop bucket add spc3 'https://mirror.ghproxy.com/https://github.com/lzwme/scoop-proxy-cn'
+    ```
+
+    
 
 ## refs
 

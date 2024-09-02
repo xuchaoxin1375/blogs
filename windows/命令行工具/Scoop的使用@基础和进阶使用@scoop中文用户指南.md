@@ -165,7 +165,7 @@ if($systemPath -notlike "*$ScoopAppsG*"){
 }else{
     Write-Host '全局Scoop Apps 已在系统 PATH 环境变量中。'
 }
-
+sc
 Write-Host '环境变量修改完成。请重新启动命令提示符或 PowerShell 以使更改生效。'
 ```
 
