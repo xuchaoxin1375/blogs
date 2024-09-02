@@ -1,14 +1,20 @@
 [toc]
 
+## abstract
 
+- Scoop的使用@基础和进阶使用@Scoop中文用户
+- 配合aria2多路下载@缓存管理
+- 多版本切换和快捷方式修复等常见问题及其解决方案
 
-## scoop 官方指南@探索 Scoop：Windows 的命令行安装器
+### scoop 官方指南@探索 Scoop：Windows 的命令行安装器
 
 - [Home · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki)
 
 Scoop 是一个面向 Windows 系统的命令行软件安装器，它以其简洁和高效而受到用户的喜爱。以下是对 Scoop 的全面介绍和使用总结。
 
-## 快速开始
+
+
+## 快速开始(安装和部署scoop for CN)
 
 官方默认版本安装部署很慢,成功率低,安装软件慢
 
@@ -50,7 +56,7 @@ Scoop 的设计宗旨是简化从命令行安装程序的过程。它具备以�
 
   
 
-### Scoop 的存储结构@Scoop家目录@快速启动scoop安装的应用
+### Scoop 的存储结构@Scoop家目录@快速启动scoop安装的应用👺👺
 
 Scoop 以便携式方式下载和管理软件包，并将它们整齐地隔离在 `~\scoop` 目录中。它不会在 Scoop 家目录之外安装文件，您可以将 Scoop 安装在任何喜欢的位置。
 
@@ -68,18 +74,26 @@ scoop安装完的命令有两类,其中GUI程序无法直接从终端启动(除�
 
 这样，软件包可以被干净地卸载，您可以清楚地知道当前在 PATH 和开始菜单中的工具。
 
-### 命令行中启动scoop安装的GUI应用
+### 命令行中启动scoop安装的GUI应用👺
 
 - scoop默认让命令行类的工具在安装完毕后就可以直接在命令行内直接调用(只要知道程序的名字即可)
 
 - 而对于GUI程序不会为你添加相应的环境变量到path中,但是scoop创建了一个文件夹,添加到了开始菜单的`Programs`目录中,用户可以在开始菜单的所有程序中找到这个文件夹(但是确无法直接跳转到对应的资源管理器路径)
 
-  - 使用`scoop which <GUIapp>`来找到scoop apps目录,例如我想要找到7-zip的图形界面程序(可以事先安装好)
 
-    ```powershell
-    PS> scoop which 7-zip
-    ~\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\7-Zip.lnk
-    ```
+- 不过鉴于部分软件(electron构建的应用,比如qq-nt,bilibili desktop),如果用命令行直接启动,会输出日志占用命令行窗口,这不是我们想要的
+- 因此我推荐
+  - 通过开始菜单搜索名字来启动(尽可能把名字打完整)
+  - 或者listary这个快速启动软件或者搜索文件/目录的工具,软件体积小,功能强大,免费版足够使用
+
+#### 配置方法
+
+- 使用`scoop which <GUIapp>`来找到scoop apps目录,例如我想要找到7-zip的图形界面程序(可以事先安装好)
+
+  ```powershell
+  PS> scoop which 7-zip
+  ~\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\7-Zip.lnk
+  ```
 
   - 可以看到,这个路径被我们找到,就是`7-zip.lnk`前的部分
 
@@ -200,19 +214,36 @@ Created 'C:\Users\User\Desktop\foobar.json'.
 
 Scoop 清单是简单的 JSON 文件，可以选择性地用内联 PowerShell 语句补充。
 
-### More
+### More 深入了解
 
 如果您正在寻找特定内容或准备深入了解 Scoop 内部结构，请查看 Scoop 的自述文件或维基百科。
 
 Check out [Scoop's Readme](https://github.com/ScoopInstaller/Scoop#readme) or refer to the [Wiki](https://github.com/ScoopInstaller/Scoop/wiki).
 
+## 修复scoop apps快捷方式和命令行启动👺
+
+- 部分情况下不当的操作(比如移动了scoop家目录,或者不合适的备份还原scoop家目录)可能导致快捷方式或命令行中无法直接通过名字启动scoop安装的CLI应用
+- 这时候可以用`scoop reset *`来一键修复
+  - 注意,如果某个scoop app 处于运行状态，那么该软件的修复会无法执行,关闭相应进程后重试
+  - 此外,对于没有正确安装的软件,修复快捷方式时也会失败
+  - 详情查看scoop reset一节或文档
+
+## 安装软件的方案(scope)👺
+
+### 为当前用户安装(Locally)
+
+- 这是默认方式,不需要管理员权限,适合仅当用户的计算机使用
+
+### Scoop全局安装软件@为所有用户安装(Globally)👺
+
+- 这需要管理员权限,并且修改相关配置也需要管理员权限(比如切换版本)
+
+  - [Global Installs · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Global-Installs)
 
 
-## Scoop全局安装软件(为所有用户安装)👺
+  - 例如:`sudo scoop install git -g`  其中`-g`是`--global`的简写
 
-- [Global Installs · ScoopInstaller/Scoop Wiki (github.com)](https://github.com/ScoopInstaller/Scoop/wiki/Global-Installs)
 
-- 例如:`sudo scoop install git -g`  其中`-g`是`--global`的简写
 - 对于单用户设备其实是否全局安装无所谓
 - 但是如果你的设备是多用户的,那么全局安装比较合适,这样新建一个用户,他就不需要重新安装一遍软件
 
@@ -419,7 +450,7 @@ powershell 7.4.5   110372346
 
 清理方法参考文档:`scoop cache rm <app>`来清理指定app,或者清理全部缓存,将`<app>`用`*`替换:`scoop cache rm *`
 
-## 清理异常或失败的安装
+### 清理异常或失败的安装
 
 - ```cmd
   PS> scoop cleanup -h
@@ -437,6 +468,44 @@ powershell 7.4.5   110372346
   ```
 
 - 尤其是使用aria2下载的包,如果下载过程中断或者失败,如果切换下载方案,可能需要清理一下下载的缓存
+
+### scoop 当做软件下载器来用👺
+
+- scoop 不仅可以用来直接安装软件(install),还提供了仅下载的选项(download)
+
+- 同样可以调用aria2下载(以listary为例)
+
+  ```
+  PS> scoop download listary
+  INFO  Downloading 'listary' [64bit] from extras bucket
+  Starting download with aria2 ...
+  Download: Download Results:
+  Download: gid   |stat|avg speed  |path/URI
+  Download: ======+====+===========+=======================================================
+  Download: a8b3fb|OK  |   341KiB/s|C:/Users/cxxu/scoop/cache/listary#6.3.0.78#890345a.exe
+  Download: Status Legend:
+  Download: (OK):download completed.
+  Checking hash of Listary.exe ... ok.
+  'listary' (6.3.0.78) was downloaded successfully!
+  ```
+
+- 然后也可以通过scoop install安装(读取下载的缓存包安装)
+
+  ```
+  PS> scoop install -g listary
+  WARN  Scoop uses 'aria2c' for multi-connection downloads.
+  WARN  Should it cause issues, run 'scoop config aria2-enabled false' to disable it.
+  WARN  To disable this warning, run 'scoop config aria2-warning-enabled false'.
+  Installing 'listary' (6.3.0.78) [64bit] from 'extras' bucket
+  Loading Listary.exe from cache.
+  Checking hash of Listary.exe ... ok.
+  Extracting Listary.exe ... done.
+  Linking C:\ProgramData\scoop\apps\listary\current => C:\ProgramData\scoop\apps\listary\6.3.0.78
+  Creating shortcut for Listary (Listary.exe)
+  'listary' (6.3.0.78) was installed successfully!
+  ```
+
+  
 
 ## 使用aria2多路下载👺👺
 
@@ -635,7 +704,124 @@ PS> git reset --hard head
 HEAD is now at d6ed68c08 trid: Update to version 2.24-24.08.24
 ```
 
+## scoop家目录不可以轻易移动或复制
 
+- scoop使用了符号链接来区分并指定不同软件的当前版本,每个apps下的软件目录中都存在一个`current`符号,指向当前使用的版本
+
+- 如果你打算通过复制scoop家目录来备份,那么复制后的scoop目录中的current指向可能会失效(变为空文件夹`current`而不再是一个有效符号)
+
+- 可以尝试以下方式修复(先进入到scoop家目录(这里进入全局安装的scoop家目录下的apps目录))
+
+  ```powershell
+  #⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\ProgramData\scoop\apps]
+  PS> 
+  $items = Get-ChildItem C:\ProgramData\scoop\apps 
+  $items | ForEach-Object { Write-Host $_ -NoNewline ; New-Item -ItemType SymbolicLink -Path $_/current -Target $_/*.* -Force }
+  ```
+
+  - 部分目录可能需要手动创建符号
+
+- 其他方法参考下面的`scoop reset`
+
+## 安装多个版本的同名软件👺
+
+- 例如安装python3的不同版本,openjdk的不同版本,powershell7的不同版本
+
+### 预备工作
+
+- 注意
+
+  - 在安装第二个版本或其他版本前,请关闭相关进程,否则可能会失败,例如安装另一个版本的powershell7
+  - 对于全局安装可能需要管理员权限窗口启动powershell(v5)来操作(安装或切换新版本)
+
+- 对于powershell7比较特殊点,因为scoop一般运行在powershell上,并且很可能是powershell7(pwsh)
+
+  - 如果要安装两个powershell 7,建议你先关闭所有powershell7窗口,然后打开winodws powershell(v5.1)
+
+  - 在powershell(v5.1)中执行安装第二个版本的powershell7
+
+  - 例如我当前用的是scoop安装的powershell 7.4.5,可以打开windows powershell 安装powershell 7.2.4
+
+    ```powershell
+    (base) PS C:\Users\cxxu> scoop install powershell@7.2.4 -g
+    WARN  Given version (7.2.4) does not match manifest (7.4.5)
+    WARN  Attempting to generate manifest for 'powershell' (7.2.4)
+    Autoupdating powershell
+    Searching hash for PowerShell-7.2.4-win-x86.zip in https://github.com/PowerShell/PowerShell/releases/tag/v7.2.4/
+    Found: 56e9a7a0b2617181bfbd7ae1318215a43360bba578ecef872beb0a7da1a2ad08 using Extract Mode
+    Searching hash for PowerShell-7.2.4-win-x64.zip in https://github.com/PowerShell/PowerShell/releases/tag/v7.2.4/
+    Found: edcd6b626ee983c2eb8dbc3cc7bc222263b60bcf1dda4f02c53018528d09bb14 using Extract Mode
+    Searching hash for PowerShell-7.2.4-win-arm64.zip in https://github.com/PowerShell/PowerShell/releases/tag/v7.2.4/
+    Found: 750317b603c379a289f2e51dde9adba66dfe2759032aaee1f02c5342fc67df9d using Extract Mode
+    Writing updated powershell manifest
+    WARN  Scoop uses 'aria2c' for multi-connection downloads.
+    WARN  Should it cause issues, run 'scoop config aria2-enabled false' to disable it.
+    WARN  To disable this warning, run 'scoop config aria2-warning-enabled false'.
+    Installing 'powershell' (7.2.4) [64bit] from 'C:\Users\cxxu\scoop\workspace\powershell.json'
+    Loading PowerShell-7.2.4-win-x64.zip from cache.
+    Checking hash of PowerShell-7.2.4-win-x64.zip ... ok.
+    Extracting PowerShell-7.2.4-win-x64.zip ... done.
+    Linking C:\ProgramData\scoop\apps\powershell\current => C:\ProgramData\scoop\apps\powershell\7.2.4
+    Creating shim for 'pwsh'.
+    Creating shortcut for PowerShell (pwsh.exe)
+    'powershell' (7.2.4) was installed successfully!
+    ```
+
+### 版本检查
+
+例如powershell 7的两个子版本共存,并且current会自动重定向到最后安装的一个版本
+
+```powershell
+PS🌙[BAT:71%][MEM:31.15% (9.88/31.71)GB][20:23:42]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\ProgramData\scoop\apps\powershell]
+PS> ls
+
+        Directory: C:\ProgramData\scoop\apps\powershell
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d----          2024/9/2     20:17                  7.2.4
+d----          2024/9/2     17:40                  7.4.5
+l-r--          2024/9/2     20:17                  current 󰁕 C:\ProgramData\scoop\apps\powershell\7.2.4
+```
+
+### 切换版本
+
+- 查看下一节
+
+## scoop app版本切换和current当前版本指向符号重置👺
+
+- 使用`scoop reset <app>`可以重置scoop app,也会重新创建current符号
+
+  ```powershell
+  PS>  scoop reset -h
+  Usage: scoop reset <app>
+  
+  Used to resolve conflicts in favor of a particular app. For example,
+  if you've installed 'python' and 'python27', you can use 'scoop reset' to switch between
+  using one or the other.
+  
+  You can use '*' in place of <app> or `-a`/`--all` switch to reset all apps.
+  ```
+
+  - 文档表明,`scoop reset`可以切换指定软件的当前使用版本(更新app下的current符号)
+  - 如果使用`scoop reset *`会更新或创建(如果没有的话)app下的current符号
+  - 那么reset会有其他副作用吗?
+    - 我在powershell的两个版本目录中分别放置了一个文件,然后用`scoop reset`执行切换版本操作,两个文件并没有被删除,所以reset应该是比较安全的命令,不会破坏你的修改
+
+- ```
+  (base) PS C:\Users\cxxu> ps pwsh|kill
+  (base) PS C:\Users\cxxu> scoop reset powershell@7.4.5
+  Resetting powershell (7.4.5).
+  Linking C:\ProgramData\scoop\apps\powershell\current => C:\ProgramData\scoop\apps\powershell\7.4.5
+  Creating shim for 'pwsh'.
+  Creating shortcut for PowerShell (pwsh.exe)
+  (base) PS C:\Users\cxxu> pwsh
+  PowerShell 7.4.5
+  ```
+
+  
 
 ## 扩展
 
