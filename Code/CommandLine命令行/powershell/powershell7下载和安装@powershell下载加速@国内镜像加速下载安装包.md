@@ -34,7 +34,17 @@
 
 
 
+## 老系统更新powershell
 
+- powershell7的最新官方文档要起系统是windows10以上
+
+- windows7 更新powershell
+
+  - [Update for Windows Management Framework 5.1 for Windows 7 and Windows Server 2008 R2 - Microsoft Support](https://support.microsoft.com/en-us/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0)
+
+  - 安装此更新允许你将win7自带的windows powershell(v2.0)更新到powershell 5.1
+
+- 这时候可以下载powershell7,大概可以支持到7.2,可以选择使用编写版,更高版本会提示要求windows8.1之后的系统
 
 ## 默认安装目录
 
