@@ -2,10 +2,18 @@
 
 # powershell@foreach@foreach-object@continue的行为
 
-## ref
+## abstract
 
-- [about Continue - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_continue?view=powershell-7.3)
-- [powershell - Why does 'continue' behave like 'break' in a Foreach-Object? - Stack Overflow](https://stackoverflow.com/questions/7760013/why-does-continue-behave-like-break-in-a-foreach-object)
+- continue和break
+
+  - [about Continue - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_continue?view=powershell-7.3)
+
+  - [powershell - Why does 'continue' behave like 'break' in a Foreach-Object? - Stack Overflow](https://stackoverflow.com/questions/7760013/why-does-continue-behave-like-break-in-a-foreach-object)
+
+
+- foreache并行执行
+  - [ForEach-Object (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/foreach-object?view=powershell-7.4)
+  - [PowerShell ForEach-Object Parallel Feature - PowerShell Team (microsoft.com)](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/)
 
 ## foreach@foreach-object
 
