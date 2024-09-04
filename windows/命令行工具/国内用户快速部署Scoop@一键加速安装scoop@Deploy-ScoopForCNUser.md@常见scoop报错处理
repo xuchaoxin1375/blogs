@@ -73,7 +73,7 @@
 - 安装过程中由于安装脚本和软件版本适配问题而报错,这种情况就比较复杂,考虑不用scoop安装,采用其他方式安装(这种情况比较少)
 - 需要的bucket未安装,例如spc bucket中有个包`quarkpan`,但是安装的时候提示你没有`aki`这个bucket,scoop提示你安装添加`aki` bucket,我们可以网络搜`scoop bucket add aki`,获取`aki`链接(可以配合加速镜像),或者找国内的加速项目获取加速的链接,例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
 
-## 下载脚本
+## 下载脚本👺
 
 ### 脚本版本更新
 
@@ -98,17 +98,143 @@
 
 $GithubMirrors = @(
     # 注意,如果你的浏览器使用了代理,那么部分镜像站会和代理冲突,所以可能命令行中测试可以访问的链接在浏览器中确打不开镜像站,可以关闭代理或换个浏览器后重新验证该镜像站的可用性
+    #搜集到的链接可以用gpt进行修改,将链接包裹引号(指令:为这些链接分别添加引号);或者自己粘贴到文件文件中然后编写脚本转换为数组格式
     'https://github.moeyy.xyz', # Moeyy - 提供 GitHub 文件的加速下载功能
     'https://ghproxy.cc',
     'https://ghproxy.net', # GitHub Proxy by GitHub99 - 提供 GitHub 文件的加速下载和克隆服务 #和用户自己的代理可能发生冲突
     'https://mirror.ghproxy.com',
-    'https://gh.ddlc.top'
     # 'https://github-mirror.us.kg',#请打开此网站找到可用的镜像站，直接使用此来链接不适合实际用途，仅允许小流量代理
     
-    # 'https://ghproxy.com/bad/demo'
+    # 'https://ghproxy.com/bad/demo', #虚假镜像,用来测试代码是否能够正确处理不可用的镜像链接
+    'https://ghproxy.homeboyc.cn/',
+    'https://gh-proxy.com/',
+    
+    'https://gh.ddlc.top',
+    'https://github.ur1.fun/',
 
     '' #空字符串收尾
 )
+$GithubMirrorsTest = @(
+    'https://gh-proxy.com/',
+    'https://ghps.cc/',
+    'https://ghproxy.net/',
+    'https://github.moeyy.xyz/',
+    'https://gh.ddlc.top/',
+    'https://slink.ltd/',
+    'https://gh.con.sh/',
+    'https://hub.gitmirror.com/',
+    'https://sciproxy.com/',
+    'https://cf.ghproxy.cc/',
+    'https://gh.noki.icu/',
+
+    ''#收尾
+)
+$GithubMirrors = $GithubMirrors + $GithubMirrorsTest
+$GithubMirrors = $GithubMirrors | Where-Object { $_ }#移除空串
+$GithubMirrors = $GithubMirrors | ForEach-Object { $_.trim('/') } | Sort-Object
+$GithubMirrors = $GithubMirrors | Get-Unique
+
+function Test-LinksLinearly
+{
+    [cmdletbinding()]
+    param (
+        $Mirrors,
+        $TimeOutSec
+    )
+    $availableMirrors = @()
+    
+    # foreach ($mirror in $Mirrors)
+    $Mirrors | ForEach-Object {
+        $mirror = $_
+        # Write-Verbose "Testing $mirror..."
+        if (Test-MirrorAvailability -Url $mirror -TimeoutSec $TimeOutSec)
+        {
+            Write-Verbose "$mirror is available "
+            Write-Host "`t $mirror" -ForegroundColor Green
+            # 插入到数组中(这里如果foreach用了-parallel,就会导致无法访问外部的$availableMirros)
+            $availableMirrors += $mirror
+        }
+        else
+        {
+            Write-Verbose "$mirror is not available "
+            Write-Host "`t $mirror " -ForegroundColor Red
+        }
+    } 
+    return $availableMirrors
+}
+function Test-LinksParallel
+{
+    <# 
+    .SYNOPSIS
+    
+    #>
+    [CmdletBinding()]
+    param (
+        $Mirrors,
+        $TimeOutSec,
+        $ThrottleLimits = 16
+    )
+    $availableMirrors = @()
+    # 为了能够让$TimeOutSec能够被传递到子进程,这里使用了$env:来扩大其作用域
+    # $env:TimeOutSec = $TimeOutSec
+    # powershell提供了更好的方式访问并行scriptblock外的变量,使用$using: 这个关键字
+    # 并行执行链接测试
+    $Mirrors | ForEach-Object -Parallel {
+        $mirror = $_
+        # Write-Debug "`$TimeOutSec=$env:TimeOutSec" -Debug #parallel 参数$DebugPreference无法起作用
+        # if (Test-MirrorAvailability -Url $mirror -TimeoutSec $env:TimeOutSec)
+        if (Test-MirrorAvailability -Url $mirror -TimeoutSec $using:TimeOutSec)
+        {
+            Write-Verbose "TimeOutSec=$using:TimeOutSec" # -Verbose
+            Write-Output $mirror
+        }
+        else
+        {
+            Write-Verbose "$mirror is not available "
+            Write-Host "`t $mirror." -ForegroundColor Red
+        }
+    } -ThrottleLimit $ThrottleLimits | ForEach-Object {
+        $availableMirrors += $_
+        Write-Verbose "$_ is available "
+        Write-Host "`t $_" -ForegroundColor Green
+    }
+    return $availableMirrors
+}
+function Test-MirrorAvailability
+{
+    [CmdletBinding()]
+    param (
+        [string]$Url,
+        $TimeoutSec = 3
+    )
+
+    try
+    {
+        # 使用 Invoke-WebRequest 检查可用性
+        $response = Invoke-WebRequest -Uri $Url -Method Head -TimeoutSec $TimeOutSec -ErrorAction Stop
+        
+        $availability = $response.StatusCode -eq 200
+    }
+    catch
+    {
+        $availability = $false
+    }
+    if ($VerbosePreference)
+    {
+
+        if ($availability)
+        {
+
+            Write-Host "Mirror $Url is available" -ForegroundColor Green
+        }
+        else
+        {
+
+            Write-Host "Mirror $Url is not available" -ForegroundColor Red
+        }
+    }
+    return   $availability
+}
 function Get-AvailableGithubMirrors
 {
     <#
@@ -117,62 +243,88 @@ function Get-AvailableGithubMirrors
     列表中的镜像站可能会过期，可用性不做稳定性和可用性保证。
 
     .DESCRIPTION
-    推荐使用 aria2 等多线程下载工具来加速下载，让镜像加速效果更加明显。
-    
+    这里采用了多线程的方式来加速对不同镜像链接的可用性进行检查
+    并且更容易获取其中相应最快的可用的镜像站,这是通过串行检查无法直接达到的效果
+    .EXAMPLE
+    例如,两次执行期间,列出的顺序发生了变化,其中mirror.ghproxy.com和ghproxy.net排名发生了互换
+    PS> Get-AvailableGithubMirrors -TimeOutSec 2
+    Checking available Mirrors...
+            https://github.moeyy.xyz
+            https://gh.ddlc.top
+            https://mirror.ghproxy.com
+            https://ghproxy.net
+            https://ghproxy.cc
 
+    Available Mirrors:
+    0: Use No Mirror
+    1: https://github.moeyy.xyz
+    2: https://gh.ddlc.top
+    3: https://mirror.ghproxy.com
+    4: https://ghproxy.net
+    5: https://ghproxy.cc
+
+    第二次执行
+    PS> Get-AvailableGithubMirrors -TimeOutSec 2
+    Checking available Mirrors...
+            https://github.moeyy.xyz
+            https://gh.ddlc.top
+            https://ghproxy.net
+            https://mirror.ghproxy.com
+            https://ghproxy.cc
+
+    Available Mirrors:
+    0: Use No Mirror
+    1: https://github.moeyy.xyz
+    2: https://gh.ddlc.top
+    3: https://ghproxy.net
+    4: https://mirror.ghproxy.com
+    5: https://ghproxy.cc
+
+ .NOTES
+    推荐使用 aria2 等多线程下载工具来加速下载，让镜像加速效果更加明显。
+ 
     .LINK
     # 镜像站搜集和参考
     https://github-mirror.us.kg/
+    https://github.com/hunshcn/gh-proxy/issues/116
     #>
     [CmdletBinding()]
     param(
-        $mirrors = $GithubMirrors,
+        $Mirrors = $GithubMirrors,
+        $ThrottleLimits = 16,
+        $TimeOutSec = 3,
         [switch]$ListView,
         [switch]$PassThru,
-        [switch]$SkipCheckAvailability
+        [switch]$SkipCheckAvailability,
+        # 是否启用线性试探镜像可访问性(默认是并行试探)
+        [switch]$Linearly
     )
-
-    # 定义镜像站列表
-    # $mirrors = @(
-    #     'https://mirror.ghproxy.com',
-    #     'https://ghproxy.cc',
-    #     'https://github.moeyy.xyz',
-    #     'https://github-mirror.us.kg', 
-    #     'https://gh.ddlc.top'
-    #     'https://ghproxy.com/bad/demo'
-    # )
     
     # 检查镜像站的可用性
    
 
-    Write-Host 'Checking available mirrors...'
-    $availableMirrors = $mirrors
-    # 存储可用的镜像列表
+    Write-Host 'Checking available Mirrors...'
+    $availableMirrors = $Mirrors
+    # 检查可用的镜像列表
     if (!$SkipCheckAvailability)
     {
-        $availableMirrors = @()
-
-        foreach ($mirror in $mirrors)
+        if ($Linearly)
         {
-            # Write-Verbose "Testing $mirror..."
-            if (Test-MirrorAvailability -Url $mirror)
-            {
-                Write-Verbose "$mirror is available."
-                Write-Host "`t $mirror" -ForegroundColor Green
-                $availableMirrors += $mirror
-            }
-            else
-            {
-                Write-Verbose "$mirror is not available."
-                Write-Host "`t $mirror." -ForegroundColor Red
-            }
+            $availableMirrors = Test-LinksLinearly -Mirrors $Mirrors -TimeOutSec $TimeOutSec
         }
-    }
+        else
+        {
+            $availableMirrors = Test-LinksParallel -Mirrors $Mirrors -TimeOutSec $TimeOutSec -ThrottleLimits $ThrottleLimits -Verbose:$VerbosePreference 
+        }
+    } 
 
+    # Start-Sleep $TimeOutSec
     # 显示可用的镜像
-    Write-Host "`nAvailable mirrors:"
-    # 空白镜像保留
+    Write-Host "`nAvailable Mirrors:"
+    # 空白镜像保留(作为返回值)
     $availableMirrors = @('') + $availableMirrors
+
+    # 按序号列举展示
     Write-Host ' 0: Use No Mirror' -NoNewline
     $index = 1
     $availableMirrors | ForEach-Object {
@@ -195,40 +347,10 @@ function Get-AvailableGithubMirrors
     }
 }
 
-function Test-MirrorAvailability
-{
-    [CmdletBinding()]
-    param (
-        [string]$Url
-    )
 
-    try
-    {
-        # 使用 Invoke-WebRequest 检查可用性
-        $response = Invoke-WebRequest -Uri $Url -Method Head -TimeoutSec 5 -ErrorAction Stop
-        
-        $availability = $response.StatusCode -eq 200
-    }
-    catch
-    {
-        $availability = $false
-    }
-    if ($VerbosePreference)
-    {
+ 
 
-        if ($availability)
-        {
 
-            Write-Host "Mirror $Url is available." -ForegroundColor Green
-        }
-        else
-        {
-
-            Write-Host "Mirror $Url is not available." -ForegroundColor Red
-        }
-    }
-    return   $availability
-}
 
 function Get-SelectedMirror
 {
@@ -237,8 +359,8 @@ function Get-SelectedMirror
         
         $default = 1
     )
-    $mirrors = Get-AvailableGithubMirrors -PassThru
-    $numOfMirrors = $mirrors.Count
+    $Mirrors = Get-AvailableGithubMirrors -PassThru
+    $numOfMirrors = $Mirrors.Count
     $range = "[0~$($numOfMirrors-1)]"
     $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: $default)"
     # $mirror = 'https://mirror.ghproxy.com'
@@ -264,10 +386,65 @@ function Get-SelectedMirror
     if ($n -gt 0)
     {
         # 用户选择了一个合法的数值
-        Write-Host "You Selected mirror:[$n : $($mirrors[$n])]"
+        Write-Host "You Selected mirror:[$n : $($Mirrors[$n])]"
     }
-    $mirror = $mirrors[$n]
+    $mirror = $Mirrors[$n]
     return $mirror
+}
+function Install-BasicSoftwares
+{
+    param (
+        $Mirror
+    )
+    New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket"
+    New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip"
+    New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git"
+    # 7zip软件资源
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/7zip.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\7zip.json"
+    #注册7-zip的右键菜单等操作
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/7-zip/install-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip\install-context.reg"
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/7-zip/uninstall-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip\uninstall-context.reg"
+ 
+    # git软件资源
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/git.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\git.json"
+      
+    #注册git右键菜单等操作
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/install-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\install-context.reg"
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/uninstall-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\uninstall-context.reg"
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/install-file-associations.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\install-file-associations.reg"
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/uninstall-file-associations.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\uninstall-file-associations.reg"
+    #注册aria2
+    Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/aria2.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\aria2.json"
+  
+    # 安装时注意顺序是 7-Zip, Git, Aria2
+    # 基础软件可以考虑全局安装(所有用户可以用,这需要管理员权限)
+    scoop install scoop-cn/7zip -g
+    scoop install scoop-cn/git -g
+    scoop install scoop-cn/aria2 -g
+}
+function Set-ScoopAria2Options
+{
+    param (
+        [ValidateSet('False', 'True')]$Enabled = 'True',
+        [switch]$DefaultConfig
+    )
+    
+    scoop config aria2-enabled $Enabled
+    if ($Enabled -eq 'False')
+    {
+        return
+    }
+    
+    if ($DefaultConfig)
+    {
+        $options = ''
+    }
+    else
+    {
+
+        $options = '-s 16 -x 16 -k 1M --retry-wait=2 --async-dns false'
+    }
+    scoop config aria2-options $options
 }
 function Deploy-ScoopByGithubMirrors
 {
@@ -317,41 +494,19 @@ function Deploy-ScoopByGithubMirrors
     # 将 Scoop 的仓库源替换为代理的
     scoop config scoop_repo $mirror/https://github.com/ScoopInstaller/Scoop
  
-    
+    #确保git可用
+    Confirm-GitCommand
     
     # 可选部分
     ## 如果没有安装 Git等常用工具,可以解开下面的注释
     ## 先下载几个必需的软件的 JSON，组成一个临时的应用仓库
     if ($InstallBasicSoftwares)
     {
-        New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket"
-        New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip"
-        New-Item -ItemType 'directory' -Path "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git"
-        # 7zip软件资源
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/7zip.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\7zip.json"
-        #注册7-zip的右键菜单等操作
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/7-zip/install-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip\install-context.reg"
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/7-zip/uninstall-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\7-zip\uninstall-context.reg"
-
-        # git软件资源
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/git.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\git.json"
-     
-        #注册git右键菜单等操作
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/install-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\install-context.reg"
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/uninstall-context.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\uninstall-context.reg"
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/install-file-associations.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\install-file-associations.reg"
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/scripts/git/uninstall-file-associations.reg -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\scripts\git\uninstall-file-associations.reg"
-        #注册aria2
-        Invoke-RestMethod -Uri $mirror/https://raw.githubusercontent.com/duzyn/scoop-cn/master/bucket/aria2.json -OutFile "$env:USERPROFILE\scoop\buckets\scoop-cn\bucket\aria2.json"
- 
-        # 安装时注意顺序是 7-Zip, Git, Aria2
-        # 基础软件可以考虑全局安装(所有用户可以用,这需要管理员权限)
-        scoop install scoop-cn/7zip -g
-        scoop install scoop-cn/git -g
-        scoop install scoop-cn/aria2 -g
+        Install-BasicSoftwares
+    
         # 推荐使用aria2,设置多路下载
         # scoop config aria2-split 16
-        scoop config aria2-options '-s 16 -x 16 -k 1M --retry-wait=2 --async-dns false'
+        Set-ScoopAria2Options 
     }
      
  
@@ -380,6 +535,42 @@ function Deploy-ScoopByGithubMirrors
     return $mirror
      
 }
+function Confirm-GitCommand
+{
+    <# 
+    .SYNOPSIS
+    检查当前设备是否可以执行git命令
+    .NOTES
+    Confirm-GitCommand
+    #>
+    param(
+        [switch]$CheckOnly,
+        # [switch]$InstallGitByScoop,
+        [switch]$CurrentUser
+    )
+    $gitCommand = Get-Command -Name git -ErrorAction SilentlyContinue
+    if ($gitCommand)
+    {
+        return $true
+    }
+    else
+    {
+        # if ($InstallGitByScoop)
+        if (!$CheckOnly)
+        {
+            $exp = 'scoop install git'
+            # 为所有用户安装(默认)
+            if (! $CurrentUser)
+            {
+                $exp = $exp + ' -g'
+            }
+            Invoke-Expression $exp 
+            return
+        }
+        return $false
+    }
+}
+
 function Deploy-ScoopByGitee
 {
     [CmdletBinding()]
@@ -409,6 +600,8 @@ function Deploy-ScoopByGitee
     #添加包含国内软件的的scoopcn bucket,其他bucket可以自行添加
     # 更换scoop的repo地址
     scoop config SCOOP_REPO 'https://gitee.com/scoop-installer/scoop'
+    # 确保git可用
+    Confirm-GitCommand 
     # 拉取新库地址
     scoop update
     Write-Verbose 'Scoop add more buckets(this process may failed to perform!You can retry to add buckets manually later!'
@@ -426,11 +619,18 @@ function Add-ScoopBuckets
     基本上，添加spc这个bucket就够了,软件数量很丰富
     .DESCRIPTION
     可以根据自己的需要往里面修改或添加更多的bucket
+
+    创建冗余bucket,提高可用性和更大几率,更好的加速备选选择(使用scoop install -k 来避免可能造成错误的断点恢复下载)
+    scoop bucket add spc https://github.moeyy.xyz/https://github.com/lzwme/scoop-proxy-cn
+    scoop bucket add spc1 https://ghproxy.cc/https://github.com/lzwme/scoop-proxy-cn 
+    scoop bucket add spc2 https://ghproxy.net/https://github.com/lzwme/scoop-proxy-cn
+    scoop bucket add spc3 'https://mirror.ghproxy.com/https://github.com/lzwme/scoop-proxy-cn'
+
     .NOTES
     建议在Deploy-ScoopForCNUser调用时就指定相应的参数,不推荐单独调用(需要传入加速镜像地址参数)
     .EXAMPLE
     Add-ScoopBuckets -mirror  'https://mirror.ghproxy.com'
-    #>
+     
     #>
     [CmdletBinding()]
     param (
@@ -523,30 +723,127 @@ function Deploy-ScoopAppsPath
 
 function Update-ScoopMirror
 {
-    [CmdletBinding()]
+
+    <# 
+    .SYNOPSIS
+    更新 Scoop 使用的加速镜像,用来提高scoop的加速可用性和用户主动性
+    本函数主要用于更新已有的bucket的source
+    不适合直接添加新的bucket
+    .DESCRIPTION
+    更新 Scoop 使用的加速镜像
+    更新scoop_repo的镜像
+    更新指定bucket的加速镜像(兼容为不曾加速过的bucket source做加速)
+    .EXAMPLE
+    
+PS🌙[BAT:70%][MEM:31.42% (9.96/31.71)GB][22:28:30]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\Desktop]
+PS> scoop bucket list
+
+Name         Source                                                                       Updated            Manifests
+----         ------                                                                       -------            ---------
+main         https://ghproxy.cc/https://github.com/ScoopInstaller/Main                    2024/9/3 12:28:38       1340
+extras       https://ghproxy.cc/https://github.com/ScoopInstaller/Extras                  2024/9/3 12:31:26       2067
+sysinternals https://github.com/niheaven/scoop-sysinternals                               2024/7/24 0:37:20         75
+nerd-fonts   https://github.moeyy.xyz//https://github.com/matthewjberger/scoop-nerd-fonts 2024/8/31 16:26:12       336
+ 
+# 为不曾加速的原始github链接添加加速镜像
+PS🌙[BAT:70%][MEM:32.21% (10.21/31.71)GB][22:28:52]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\Desktop]
+PS> Update-ScoopMirror -BucketName sysinternals -UpdateBucket
+Checking available Mirrors...
+         https://gh.con.sh
+         https://gh.ddlc.top.
+         https://gh-proxy.com
+
+Select the number of the mirror you want to use [0~10] ?(default: 1): 2
+You Selected mirror:[2 : https://gh-proxy.com]
+The sysinternals bucket was removed successfully.
+Checking repo... OK
+The sysinternals bucket was added successfully.
+Updating Scoop...
+Updating Buckets...
+ 
+Scoop was updated successfully!
+
+PS🌙[BAT:70%][MEM:32.8% (10.4/31.71)GB][22:30:49]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\Desktop]
+PS> scoop bucket list
+
+Name         Source                                                                       Updated            Manifests
+----         ------                                                                       -------            ---------
+main         https://ghproxy.cc/https://github.com/ScoopInstaller/Main                    2024/9/3 20:32:16       1340
+extras       https://ghproxy.cc/https://github.com/ScoopInstaller/Extras                  2024/9/3 20:35:06       2067
+sysinternals https://gh-proxy.com/https://github.com/niheaven/scoop-sysinternals          2024/7/24 0:37:20         75
+
+对指定bucket更新加速镜像
+PS🌙[BAT:70%][MEM:32.59% (10.33/31.71)GB][22:31:07]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\Desktop]
+PS> Update-ScoopMirror -BucketName sysinternals -UpdateBucket
+Checking available Mirrors...
+ 
+Available Mirrors:
+ 0: Use No Mirror
+ 1: https://gh.con.sh
+ 2: https://cf.ghproxy.cc
+ 3: https://hub.gitmirror.com
+ 4: https://github.moeyy.xyz
+ 
+Select the number of the mirror you want to use [0~13] ?(default: 1): 4
+You Selected mirror:[4 : https://github.moeyy.xyz]
+The sysinternals bucket was removed successfully.
+Checking repo... OK
+The sysinternals bucket was added successfully.
+Updating Scoop...
+Updating Buckets...
+Scoop was updated successfully!
+
+# 检查更新效果
+PS🌙[BAT:70%][MEM:32.69% (10.37/31.71)GB][22:32:09]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\Desktop]
+PS> scoop bucket list|sls sysinternal
+
+@{Name=sysinternals; Source=https://github.moeyy.xyz/https://github.com/niheaven/scoop-sysinternals; Updated=07/24/2024 00:37:20; Manifests=75}
+
+    #>
+    <# 
+    .EXAMPLE
+    PS> update-scoopMirror -BucketName spc -BackupBucketWithName spc1
+Checking available Mirrors...
+         https://ghproxy.cc
+...
+
+Available Mirrors:
+ 0: Use No Mirror
+ 1: https://ghproxy.cc
+...
+ 10: https://slink.ltd
+ 11: https://sciproxy.com
+ 12: https://ghproxy.homeboyc.cn
+Select the number of the mirror you want to use [0~12] ?(default: 1): 10
+You Selected mirror:[10 : https://slink.ltd]
+Checking repo... OK
+The spc1 bucket was added successfully.
+    #>
+    
+    [CmdletBinding(DefaultParameterSetName = 'BasicRepoBuckets')]
     param (
+        [parameter(ParameterSetName = 'Bucket')]
         $Mirror,
-        [switch]$BasickBucketsOnly,
-        $BackupSpcWithName = '',
-        [switch]$UpdateSpc,
-        [switch]$UpdateSpcOnly
+        # [parameter(ParameterSetName = 'gitee')]
+        [switch]$UseGiteeScoop,
+        [parameter(ParameterSetName = 'BasicRepoBuckets')]
+        [switch]$BasicRepoBuckets,
+        [parameter(ParameterSetName = 'Bucket')]
+        $BucketName ,
+        [parameter(ParameterSetName = 'Bucket')]
+        [switch]$UpdateBucket,
+        [parameter(ParameterSetName = 'Bucket')]
+        $BackupBucketWithName
     )
-    if (!$Mirror)
+
+    if (!$Mirror -and !$UseGiteeScoop)
     {
         $Mirror = Get-SelectedMirror
-    }
-    $scoop_repo = "$mirror/https://github.com/ScoopInstaller/Scoop".Trim('/')
-    $Spc = "$mirror/https://github.com/lzwme/scoop-proxy-cn".Trim('/')
-    if ($UpdateSpcOnly)
-    {
-        scoop bucket rm spc
-        scoop bucket add spc $spc
-        return
-    }
-    elseif ($BackupSpcWithName)
-    {
-        scoop bucket add $BackupSpcWithName $Spc
-        return #仅增加spc的冗余bucket,完成后结束函数
     }
     if ($VerbosePreference)
     {
@@ -555,33 +852,79 @@ function Update-ScoopMirror
         scoop bucket list    
 
     }
-    # 是否只更新bucket而不更新scoop_repo
-    if (!$BasickBucketsOnly)
+
+
+    # $Spc = "$mirror/https://github.com/lzwme/scoop-proxy-cn".Trim('/')
+
+    
+    $Name = $BucketName
+    $Source = scoop bucket list | Where-Object { $_.name -eq $Name } | Select-Object -ExpandProperty source
+    $count = ($Source | Select-String -Pattern 'http' -AllMatches).Matches.Count
+    if ($count -gt 1)
     {
+
+        $newSource = $Source -replace '(http.*)(http)', $($mirror + '/$2')
+    }
+    else
+    {
+        $newSource = "$mirror/$Source"
+    }
+    Write-Verbose "newSource: $newSource"
+    if ($UpdateBucket)
+    {
+        
+        $s = {
+            scoop bucket rm $Name
+            scoop bucket add $Name $newSource 
+            scoop update #可以留到后面一起调用
+
+        }    
+        & $s
+        return
+    }
+    elseif ($BackupBucketWithName)
+    {
+        scoop bucket add $BackupBucketWithName $newSource
+        return #仅增加spc的冗余bucket,完成后结束函数
+    }
+    # 是否只更新bucket而不更新scoop_repo,如果不特别说明,那么连同scoop_repo一起更新
+    elseif ($BasicRepoBuckets)
+    {
+        # 添加(更新)基本 bucket
+        $scoop_repo = "$mirror/https://github.com/ScoopInstaller/Scoop".Trim('/')
+        $main = "$mirror/https://github.com/ScoopInstaller/Main".Trim('/')
+        $extras = "$mirror/https://github.com/ScoopInstaller/Extras".Trim('/')
         scoop config scoop_repo $scoop_repo
+        scoop update #这里不适合后面一起调用,当场调用以便后续更新main,extras
+
+
+    }
+    elseif ($UseGiteeScoop)
+    {
+        scoop config scoop_repo https://gitee.com/scoop-installer/scoop
         scoop update
+        # 这种情况下直接 执行 scoop bucket add main 或 extras 而不需要用指定链接 
+        # scoop bucket add main $null 不会报错,这里不做$main的更改,留到最后一节一并执行
     }
-    #更新bucket(先移除,后更新)
-    # 移除旧bucket
-    Write-Verbose 'Removing old buckets...'
-    $buckets = @('main', 'extras')
-    foreach ($bucket in $buckets)
+    if (
+        $BasicRepoBuckets 
+        # -or $UseGiteeScoop
+    )
     {
-        Write-Verbose "Removing $bucket bucket..."
-        scoop bucket rm $bucket 2> $null #如果不存在,直接重定向到$null,利用 2> 重定向错误输出,正常执行则输出普通信息
-    }
-    # 添加(更新)基本 bucket
-    $main = "$mirror/https://github.com/ScoopInstaller/Main".Trim('/')
-    $extras = "$mirror/https://github.com/ScoopInstaller/Extras".Trim('/')
-    scoop bucket add main $main
-    scoop bucket add extras $extras
-    # 是否更新spc bucket
-    if ($UpdateSpc)
-    {
-        scoop bucket rm spc
-        scoop bucket add spc $Spc
+        #更新bucket(先移除,后更新)
+        # 移除旧bucket
+        Write-Verbose 'Removing old buckets...'
+        $buckets = @('main', 'extras')
+        foreach ($bucket in $buckets)
+        {
+            Write-Verbose "Removing $bucket bucket..."
+            scoop bucket rm $bucket 2> $null #如果不存在,直接重定向到$null,利用 2> 重定向错误输出,正常执行则输出普通信息
+        }
+        scoop bucket add main $main
+        scoop bucket add extras $extras
     }
 
+    scoop update
     
 }
 function Deploy-ScoopForCNUser
@@ -707,6 +1050,56 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
 
 - 上述脚本经过测试,可以正常工作
 - 可以新建一个本地账户(利用语句`net user tester 1 /add`创建一个测试用户`tester`,密码是`1`);登陆`tester`来验证其是否能工作
+
+## 部署方案说明👺
+
+- 一般来说,使用`Gitee`方案部署对于许多来自非github但是国内又不容易下载的资源来说是更合适的Scoop安装方案
+- 而`Mirror`方案则主要针对github上的资源
+- 为了方便切换,我提供了`Update-ScoopMirror`这个函数,允许用户灵活切换`Scoop_repo`,并且更新scoop
+
+- 例如
+
+```powershell
+ Update-ScoopMirror -UseGiteeScoop #切换当前scoop为gitee版
+```
+
+- 使用不带参数的`Update-ScoopMirror`来从新选择一个镜像切换为`Mirror`版scoop
+- 还支持更新基础`Buckets`或者更新指定bucket的source所使用的加速Mirror,详情查看`Update-ScoopMirror`文档
+
+### 用例
+
+下载typora,这个软件不是放在github上的,而且国内网络难以直接下载,需要借助代理下载,github的加速镜像也下不动,需要使用proxy模式下载
+
+为了使用通用proxy下载,需要切换到`gitee`方案的scoop(这不是说gitee方案一定更好,有时gitee的scoop做出的决策不一定最好,可能会选用慢速的Mirror来代理,导致指定不同`bucket`还下不动,这种情况需要借助`update-ScoopMirror`将scoop版本切换到官方版本Mirror加速的方案;或者直接指定自己的代理资源)
+
+- 这里我指定从`spc1`这个bucket下载typora
+
+  - ```powershell
+    PS> scoop download spc1/typora
+    INFO  Downloading 'typora' [64bit] from spc1 bucket
+    proxy: https://download.typora.io/windows/typora-setup-x64-1.9.5.exe
+    Starting download with aria2 ...
+    Download: Download Results:
+    Download: gid   |stat|avg speed  |path/URI
+    Download: ======+====+===========+=======================================================
+    Download: 9fc611|OK  |   7.1MiB/s|C:/Users/cxxu/scoop/cache/typora#1.9.5#2505486.exe
+    Download: Status Legend:
+    Download: (OK):download completed.
+    Checking hash of typora-setup-x64-1.9.5.exe ... ok.
+    'typora' (1.9.5) was downloaded successfully!
+    ```
+
+- 这里虽然也是gitee版,但是默认从`extras`bucket下载,没有触发非CN代理方案,所以还是下不动
+
+  ```powershell
+  PS> scoop download typora
+  INFO  Downloading 'typora' [64bit] from extras bucket
+  direct (Not in CN): https://download.typora.io/windows/typora-setup-x64-1.9.5.exe
+  Starting download with aria2 ...
+  Download: [#fa59b5 0B/0B CN:1 DL:0B]
+  ```
+
+  
 
 ## 获取脚本文件及其使用
 

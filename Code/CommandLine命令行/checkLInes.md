@@ -1,6 +1,8 @@
-@[toc]
+[toc]
 
-# powershell_格式化字符串(composite formating)/windows的类似cat -n(查看文件显示行号)/powershell查看文件指定范围的行
+## abstract
+
+powershell_格式化字符串(composite formating)/windows的类似cat -n(查看文件显示行号)/powershell查看文件指定范围的行
 
 * [Use PowerShell to Format Strings with Composite Formatting - Scripting Blog (microsoft.com)](https://devblogs.microsoft.com/scripting/use-powershell-to-format-strings-with-composite-formatting/)
 * MSDN:[Composite formatting | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting?redirectedfrom=MSDN#code-examples)
