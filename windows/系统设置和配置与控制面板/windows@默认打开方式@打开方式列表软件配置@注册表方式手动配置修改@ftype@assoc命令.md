@@ -2,93 +2,23 @@
 
 ## abstract
 
+## 修改注册表来配置默认打开软件
+
 [On Windows 10, is there a file I can modify to configure the default apps? ](https://superuser.com/questions/1748620/on-windows-10-is-there-a-file-i-can-modify-to-configure-the-default-apps)
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/4eaff1f9e3114fdfaf2569413aff9bcc.png)
 
-## 相关命令行
-
-[ftype | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/ftype)
-
-### 案例:将powershell 7设置为ps1文件的默认打开方式
-
- Windows 系统中：要通过命令行将 `.ps1` 文件的默认打开方式设置为 PowerShell 7 (`pwsh`)，你可以使用 PowerShell 的 `ftype` 和 `assoc` 命令。
-
-
-
-1. **打开命令提示符**（以管理员身份运行）。
-
-2. **设置 .ps1 文件的文件类型关联**：
-   
-    ```cmd
-    assoc .ps1=Microsoft.PowerShellScript.1
-    ```
-    
-3. **设置 PowerShell 7 (pwsh) 为 .ps1 文件的默认打开方式**：
-    ```cmd
-    ftype Microsoft.PowerShellScript.1="C:\Program Files\PowerShell\7\pwsh.exe" "%1"
-    ```
-
-    这里假设 PowerShell 7 安装在 `C:\Program Files\PowerShell\7\` 目录下。如果安装在其他目录，请修改路径。
-
-完整的步骤如下：
-
-```cmd
-assoc .ps1=Microsoft.PowerShellScript.1
-ftype Microsoft.PowerShellScript.1="C:\Program Files\PowerShell\7\pwsh.exe" "%1"
-```
-
-这将使 .ps1 文件默认使用 PowerShell 7 (pwsh) 打开。
-
-### 检查路径
-
-确保 PowerShell 7 安装在预期的目录中。如果不确定其安装路径，可以通过以下命令在 PowerShell 7 中查找路径：
-
-```powershell
-Get-Command pwsh | Select-Object -ExpandProperty Source
-```
-
-这将返回 `pwsh.exe` 的完整路径，您可以根据此路径进行设置。
-
-### 示例说明
-
-假设您的 PowerShell 7 安装在 `D:\PowerShell\7\` 目录中，则命令应修改为：
-
-```cmd
-ftype Microsoft.PowerShellScript.1="D:\PowerShell\7\pwsh.exe" "%1"
-```
-
-这样设置后，双击 .ps1 文件时将使用 PowerShell 7 打开它们。
-
-## 设置指定软件添加到打开方式程序列表
-
-相关powershell函数:
-
-以下函数指定使用powershell7添加到打开方式列表(候选),无论这个被想要被打开的文件是什么格式
-
-```powershell
-function Set-ProgramToOpenWithList
-{
-    <# 
-    .SYNOPSIS
-    Set the Program to the Open with Program list or the Program list popup when the user want to open a file with a strange file extension
-    .NOTES
-    The function is not to set the default apps to open a specific file 
-    but this function will help the action which set the defualt app to open the files with a specific extension more convenient
-    #>
-    param (
-        $ProgramName= 'pwsh.exe' #不需要指定完整路径:例如'C:\Program Files\powershell\7\pwsh'
-    )
-    
-    $regPath = "Registry::\HKEY_CLASSES_ROOT\Applications\$ProgramName\shell\open\command "
-    write-host $regPath 
-    New-Item $regPath -Value '$ProgramName'+" %1" -Force
-}
-```
 
 
 
 ## 设置某个文件类型的默认打开方式
+
+windows中,文件通常有扩展名(可以通过设置显示扩展名或者用命令行列出文件,可以看到文件扩展名)
+
+而扩展名是为了表示一个文件的类型,以便系统知道用那个软件来打开它(如果你的电脑安装过支持该类型文件的软件并且注册了它能够支持的格式或类型)
+
+格式和类型有关但是并不完全相同,例如音频类型的文件包含了`.mp3,.wav,.flac`等格式,而许多音乐软件同时支持多种不同格式的音乐类型文件
+
+在windows中,`assoc`可以用来查看或指定扩展名被定义为哪一种文件类型,例如`.cmd`脚本文件被定义为`cmdfile`类型文件;而`ftype`可以查看或指定某个类型文件的打开方式(打开命令行),比如`cmdfile`
 
 用管理员权限打开一个cmd命令行窗口(powershell不支持直接运行属于`cmd`中的`ftype`命令)
 
@@ -102,15 +32,56 @@ assoc [<.[ext]>[=[<filetype>]]]
 ftype [<filetype>[=[<opencommandstring>]]]
 ```
 
+### 将sublime-text设置为某个文件类型的打开方式
 
+为例演示指定扩展名(格式)文件的打开方式,以sublime-text 打开`.demo`文件为例
+
+**使用管理员权限运行**以下命令
+
+#### 设置指定格式文件用指定方式打开
 
 ```powershell
-
-$pwsh7_home="C:\Program Files\powershell\7"
-cmd /c 'ftype Microsoft.PowerShellScript.1="$pwsh7_home\pwsh.exe" "%1"'
+cmd /c assoc .demo=demofile
+cmd /c ftype demofile=C:\Users\cxxu\scoop\shims\subl.exe %1
 ```
 
+这里我将`.demo`后缀的文件指定为`demofile`类型的文件
 
+然后针对`demofile`类型的文件指定了打开软件(打开命令行)`C:\Users\cxxu\scoop\shims\subl.exe %1`
+
+这样,当您的桌面上有后缀为.demo的文件,那么右键打开方式会提供`subl.exe`(也就是sublime-text的缩写)
+
+#### 例:设置powershell脚本文件的打开方式
+
+```powershell
+#关联指定格式文件为文件类型
+cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
+#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+# $pwsh7_home="C:\Program Files\powershell\7" #powershell 7
+$pwsh_home="C:\ProgramData\scoop\apps\powershell\current" #scoop 安装的最新版powershell
+cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
+```
+
+### FAQ
+
+#### 脚本文件特殊情况
+
+- 注意脚本文件比较特殊,例如powershell脚本文件,系统要求后缀必须是`.ps1`才能够被powershell或pwsh程序执行,而其他后缀的文件,即便用`assoc`指定为powershell脚本文件类型,也是无法被powershell执行的
+- 类似的`cmd`文件,后缀必须是`.bat`或者`.cmd`才能正确被cmd执行,否则会造成错误,无法返回结果并且陷入死循环消耗资源或引起反病毒软件的反应
+
+#### 设置完没有生效
+
+- 例如我在桌面事先创建了`file.demo`文件,然后执行`assoc,ftype`设置后发现右键打开方式么有想要的方式
+
+- 那么考虑重启资源管理器来刷新,然后重新观察配置是否生效
+
+  - 重启资源管理器的代码如下
+
+    ```powershell
+    stop-process explorer;explorer
+    ```
+
+## 相关命令
 
 ###  cmd下的`ftype` 和 `assoc` 命令
 
@@ -240,8 +211,14 @@ cmd /c ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
 
 使用 `assoc` 和 `ftype` 命令，您可以轻松地在 Windows 操作系统中管理文件类型与程序之间的关联。这对于需要自定义文件类型行为的高级用户和系统管理员特别有用。尽管 PowerShell 没有直接的等效命令，通过使用 PowerShell 调用 CMD 命令或操作注册表，我们仍然可以实现类似的功能。
 
-希望这篇文章能帮助你更好地理解和使用 Windows 的文件类型关联功能！
+## 补充:检查指定程序的路径
 
----
+例如,确保 PowerShell 7 安装在预期的目录中。如果不确定其安装路径，可以通过以下命令在 PowerShell 7 中查找路径：
 
-通过以上步骤，您可以灵活地设置和更改 Windows 文件类型的关联，从而更好地控制文件的打开方式。
+```powershell
+Get-Command pwsh | Select-Object -ExpandProperty Source
+```
+
+这将返回 `pwsh.exe` 的完整路径，您可以根据此路径进行设置。
+
+## 设置指定软件添加到打开方式程序列表(todo)

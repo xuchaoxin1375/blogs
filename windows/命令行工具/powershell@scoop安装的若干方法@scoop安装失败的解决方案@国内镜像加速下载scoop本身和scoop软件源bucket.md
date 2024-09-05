@@ -188,39 +188,69 @@
   scoop bucket add scoopcn https://gitee.com/scoop-installer/scoopcn
   ```
 
-- ### 可选操作
 
-  - 如果之前已安装原版scoop,仅需要更换镜像来加速scoop下载软件或更新的速度,可以执行
+### 可选操作
 
-    - ```
-      # 更换scoop的repo地址
-      scoop config SCOOP_REPO "https://gitee.com/scoop-installer/scoop"
-      # 拉取新库地址
-      scoop update
-      ```
+- 如果之前已安装原版scoop,仅需要更换镜像来加速scoop下载软件或更新的速度,可以执行
 
-  - 切换分支:库包含如下分支
-
-    | 分支    | 含义                              | 基于原版分支 |
-    | ------- | --------------------------------- | ------------ |
-    | master  | 代理分流,根据电脑网络环境自动判断 | master       |
-    | develop | 代理分流，同上                    | develop      |
-    | archive | 原版，无任何修改                  | master       |
-
-    安装默认选择`master`分支，想要切换到其他分支，可执行如下命令
-
-    ```
-    # 切换分支到develop
-    scoop config scoop_branch develop
-    # 重新拉取git
+  - ```
+    # 更换scoop的repo地址
+    scoop config SCOOP_REPO "https://gitee.com/scoop-installer/scoop"
+    # 拉取新库地址
     scoop update
     ```
 
-  - 如果遇到某些软件无法下载安装成功,可以尝试将分支切换到`archive`中
+- 切换分支:库包含如下分支
+
+  | 分支    | 含义                              | 基于原版分支 |
+  | ------- | --------------------------------- | ------------ |
+  | master  | 代理分流,根据电脑网络环境自动判断 | master       |
+  | develop | 代理分流，同上                    | develop      |
+  | archive | 原版，无任何修改                  | master       |
+
+  安装默认选择`master`分支，想要切换到其他分支，可执行如下命令
+
+  ```
+  # 切换分支到develop
+  scoop config scoop_branch archive
+  # 重新拉取git
+  scoop update
+  ```
+
+- 如果遇到某些软件无法下载安装成功,可以尝试将分支切换到`archive`中
+
+### 说明
 
 - 然后就可以安装使用原版scoop的方式使用scoop,比如添加bucket,搜索或安装软件等,查看仓库原文档或者scoop官方文档
 
 - 这个项目很好,很有爱心,但我们可以更进一步让scoop更加可用(添加其他知名的bucket,扩充可用软件数量和版本更新来源)
+
+- 使用本方案仍然可能出现软件下不动或者下载慢的情况,原仓库的ReadMe对相关问题做出总结
+
+  - [常见问题 (gitee.com)](https://gitee.com/scoop-installer/scoop#:~:text=4. 常见问题)
+
+- 总的来说最可能遇到的是下载问题(代理分流问题)
+
+  - **无法正确下载软件资源**
+
+    - 解决办法:
+
+      1. 执行`scoop update`将程序更新至最新版本，然后再执行下载（推荐）；
+
+      2. 放弃优化软件库，使用仓库推荐的几个`bucket`；
+
+      3. 切换至`archive`分支，放弃本镜像的代理优化。
+
+         ```cmd
+         scoop config scoop_branch archive
+         scoop update
+         ```
+
+         
+
+  - **远程主机强迫关闭了一个现有的连接**
+
+    - 解决办法：关闭`aria2`下载
 
 
 
