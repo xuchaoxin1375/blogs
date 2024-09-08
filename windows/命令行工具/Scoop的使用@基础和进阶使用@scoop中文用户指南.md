@@ -86,20 +86,76 @@ scoop安装完的命令有两类,其中GUI程序无法直接从终端启动(除�
   - 通过开始菜单搜索名字来启动(尽可能把名字打完整)
   - 或者listary这个快速启动软件或者搜索文件/目录的工具,软件体积小,功能强大,免费版足够使用
 
-#### 配置方法
+#### 软件路径检查
 
-- 使用`scoop which <GUIapp>`来找到scoop apps目录,例如我想要找到7-zip的图形界面程序(可以事先安装好)
+- 使用`scoop which <GUIapp>`来找到scoop安装的软件(apps)所在目录,例如我想要找到7-zip的图形界面程序(可以事先安装好)
 
   ```powershell
   PS> scoop which 7-zip
   ~\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\7-Zip.lnk
   ```
 
-  - 可以看到,这个路径被我们找到,就是`7-zip.lnk`前的部分
+  - 可以看到,这个路径被我们找到`~\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\7-Zip.lnk`
 
-  - 然而`7-zip`是数字开头的程序名,shell无法直接为其提供补全,
 
-    - 在powershell中,您可以考虑用`&`打头,然后输入`7-`加上`Tab`键可以触发补全(7-zip)会自动加上引号`PS> & '7-Zip.lnk'`
+#### 确定启动名称
+
+- 确定启动名称对于命令行中启动软件是至关重要的
+  - 特别是有些软件名字里面带有空格,或者是数字开头的软件(比如7-zip)
+  - 首先我们可以进入到scoop apps开始菜单目录中查看各个GUI软件的名字(一般都是lnk链接的名字)
+
+##### 特殊的启动名
+
+- 数字开头
+
+  - `7-zip`是数字开头的程序名,shell无法直接为其提供补全,也就是说,在shell中输入`7`,然后按下tab不会有回应(除非特殊配置过);又比如360安全卫士也是类似的
+
+  - 在`powershell`中,您可以考虑用`&`打头,然后输入`7-`加上`Tab`键可以触发补全(7-zip)会自动加上引号以及运行符号`&`最后命令行内容如下:`PS> & '7-Zip.lnk'`
+
+- 启动名字包含空格
+
+  - 比如,我安装了redpanda-cpp这个软件,然而它的启动名字确不是这个,而是带空格的名字,我们输入`red`,然后使用按下tab键补全,得到:`PS> & 'Red Panda C++.lnk'`
+
+- 也许你希望将这些名字规范化,以便我们在命令行中能够直接以一个单词的形式启动(或者tab补全)的方式启动,并且这个单词足够直观,那么请参考以下方案
+
+#### 统一化启动名字规范方案
+
+- 在scoop apps开始菜单目录为例,并且以其中的`7-zip.lnk`快捷方式为典型对象进行讨论
+  - 复制`7-zip.lnk`并重命名新快捷方式为一个你喜欢的规范化新名字`SevenZip`(或者是期待比如`Z7`)
+- 上述情况(数字开头或者包含符号)您可以考虑为你的软件(或其快捷方式)新建一个符号链接或者快捷方式(套一层娃,二重链接),并且赋予一个符合**变量命名规范**(字母或下划线开头的字符串,比如采用驼峰命名法)
+- 下面给出一个演示流程(如果是要操作全局安装的scoop apps,则需要**管理员权限**!)
+
+```powershell
+#进入到安装了7-zip的目录(这里我是全局安装,所以进入到C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps);这里面有许多快捷方式
+PS> cd (Split-Path (scoop which 7-zip))
+rograms\Scoop Apps]
+PS> ls
+
+        Directory: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---          2024/9/2     20:40           1075   7-Zip.lnk
+-a---          2024/9/2     20:40           1179   百度网盘.lnk
+-a---          2024/9/2     21:06           1119   bilibili.lnk
+-a---          2024/9/2     20:40           1155   Everything.lnk
+-a---          2024/9/2     20:40           1131   FastCopy.lnk
+-a---          2024/9/2     21:03           1116   Git Bash.lnk
+....
+
+PS☀️[BAT:70%][MEM:32.91% (10.44/31.71)GB][9:48:12]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps]
+#为7-zip快捷键增加一个启动别名快捷方式为z7.lnk,这里使用cp命令复制的同时更改名字
+PS> cp .\7-Zip.lnk z7.lnk
+#输入z7或者z7.lnk就可以直接启动7-zip图形界面了(从z7可以按下tab键补全为z7.lnk)
+PS> z7
+ps>
+```
+
+上述流程在资源管理器中也可以完成操作
+
+#### 开始菜单快捷启动scoop安装的GUI软件的实现原理
 
 - Scoop安装的GUI软件能在开始菜单的Scoop Apps中找到,主要是通过以下机制实现的:
 
