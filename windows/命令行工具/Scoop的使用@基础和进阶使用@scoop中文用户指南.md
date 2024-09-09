@@ -877,7 +877,13 @@ l-r--          2024/9/2     20:17                  current 󰁕 C:\ProgramDat
   PowerShell 7.4.5
   ```
 
-  
+
+### scoop多版本安装的局限性
+
+- scoop在理想情况下可以安装一个软件的多个版本
+- 但是scoop本身没有对多版本做专门的设计,也就是到底能不能多版本要看软件变换(安装方式)变换大不大
+- 并且软件有哪些可用的历史版本也难以直接从scoop直接推出
+- 相关讨论链接:[[Feature\] scoop info [app] 可以支持查看软件的所有版本（Can support viewing all versions of the software） · Issue #5105 · ScoopInstaller/Scoop (github.com)](https://github.com/ScoopInstaller/Scoop/issues/5105)
 
 ## 扩展
 
