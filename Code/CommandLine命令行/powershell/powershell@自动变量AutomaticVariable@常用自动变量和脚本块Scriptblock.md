@@ -330,6 +330,11 @@ p2: Second
 
 有关 ArgumentList 的行为的详细信息，请参阅 [about_Splatting](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-7.4#splatting-with-arrays)。
 
+## powershell特殊执行方式
+
+- [Invoke-Command](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/invoke-command?view=powershell-7.4)
+- [about_Scopes](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7.4)
+
 ### Invoke-command 和调用运算符&
 
 可以使用变量来存储和执行脚本块。 以下示例将脚本块存储在变量中并将其传递给 `Invoke-Command`。
