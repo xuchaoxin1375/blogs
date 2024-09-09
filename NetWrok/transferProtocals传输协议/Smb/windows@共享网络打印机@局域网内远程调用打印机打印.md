@@ -19,7 +19,11 @@
 
 官方文档给出了设置和控制面板两种设置界面内的设置方法,并且主要分为主设备打印机设置,辅设备打印机设置 
 
-## 预备工作:启动服务
+## 预备工作
+
+- 使用powershell来快速执行(要求管理员权限)
+
+### 启动服务🎈
 
 - 启用相关服务,比如spooler服务
 
@@ -37,23 +41,114 @@
    Set-Service -Name Spooler -StartupType Automatic
   ```
 
+### 启用网络发现和共享开关
+
+```powershell
+function Set-NetworkDiscovery
+{
+    <#
+    .SYNOPSIS
+        设置网络网络发现
+    .EXAMPLE
+        PS> Set-NetworkDiscovery -state on
+    .EXAMPLE
+        PS> Set-NetworkDiscovery -state off
+    #>
+    
+    param(
+        [ValidateSet('on', 'off')]
+        [string]
+        $state = 'on'
+    )
+    $switch = ($state -eq 'on') ? 'yes':'no'
+    # Write-Host $switch
+
+    #对于英文系统
+    netsh advfirewall firewall set rule group="Network Discovery" new enable=$switch 
+    #对于中文系统
+    netsh advfirewall firewall set rule group="网络发现" new enable=$switch 
+
+}
+function Set-NetworkFileAndPrinterSharing
+{
+    <#
+    .SYNOPSIS
+        设置文件和打印机共享
+    .EXAMPLE
+        PS> Set-NetworkFileAndPrinterSharing -state on
+    .EXAMPLE
+        PS> Set-NetworkFileAndPrinterSharing -state off
+    #>
+    
+    param(
+        [ValidateSet('on', 'off')]
+        [string]
+        $state = 'on'
+    )
+    $switch = ($state -eq 'on') ? 'yes':'no'
+    # Write-Host $switch
+    netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=$switch
+    netsh advfirewall firewall set rule group="文件和打印机共享" new enable=$switch
+
+}
+#调用两个函数
+Set-NetworkDiscovery;
+Set-NetworkFileAndPrinterSharing;
+
+
+```
+
+### 检查共享密码保护(可选)
+
+- 设置(password protected sharing)这个步骤不是必须的,如果访问过程中遇到问题,再考虑执行设置
+
+- 关于匿名访问的配置对应的powershell修改注册表参考脚本
+
+  ```powershell
+  $everyoneKeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
   
+  # 检查 everyoneincludesanonymous 值
+  $everyoneValue = Get-ItemProperty -Path $everyoneKeyPath -Name "everyoneincludesanonymous" -ErrorAction SilentlyContinue
+  $restrictValue = Get-ItemProperty -Path $everyoneKeyPath -Name "restrictanonymous" -ErrorAction SilentlyContinue
+  
+  if ($everyoneValue -eq $null) {
+      Write-Output "everyoneincludesanonymous 不存在，将新建并设置默认值 0"
+      New-ItemProperty -Path $everyoneKeyPath -Name "everyoneincludesanonymous" -Value 0 -PropertyType DWord -Force
+  } else {
+      Write-Output "everyoneincludesanonymous 当前值为: $($everyoneValue.everyoneincludesanonymous)"
+  }
+  
+  if ($restrictValue -eq $null) {
+      Write-Output "restrictanonymous 不存在，将新建并设置默认值 1"
+      New-ItemProperty -Path $everyoneKeyPath -Name "restrictanonymous" -Value 1 -PropertyType DWord -Force
+  } else {
+      Write-Output "restrictanonymous 当前值为: $($restrictValue.restrictanonymous)"
+  }
+  
+  # 修改值，启用密码保护共享
+  Set-ItemProperty -Path $everyoneKeyPath -Name "everyoneincludesanonymous" -Value 0 -Force
+  Write-Output "everyoneincludesanonymous 已设置为 0（禁用匿名访问）"
+  
+  Set-ItemProperty -Path $everyoneKeyPath -Name "restrictanonymous" -Value 1 -Force
+  Write-Output "restrictanonymous 已设置为 1（启用身份验证）"
+  
+  ```
 
-## 使用开始菜单直接跳转到打印机设置
-
-- 在开始菜单中搜`printer`
-- 点击打印机和扫描仪
+  
 
 ## 相关概念
 
 - 主设备:和打印机直接连接的计算机
 - 辅设备:本身没有直接连接打印机,希望共享使用其他设备(主设备)的打印机
 
-## 传统方式逐步操作
+## 通过GUI设置局域网共享打印机
 
-### **通过GUI设置局域网共享打印机**
+### 使用开始菜单直接跳转到打印机设置
 
-#### **步骤：**
+- 在开始菜单中搜`printer`
+- 点击打印机和扫描仪
+
+### 逐步操作
 1. **连接打印机**：确保打印机已经连接到一台Windows计算机，并能够正常使用。
 2. **共享打印机**：
    - 打开“控制面板” > “设备和打印机”。
@@ -68,11 +163,11 @@
 
 ## 命令行配置方式
 
-### 通过命令行简化共享打印机的配置
+
 
 在命令行中使用命令可以简化共享打印机的配置。常用的命令行工具是`net`命令和`PowerShell`。
 
-#### 使用`net`命令共享打印机
+### 使用`net`命令共享打印机
 可以使用`net share`命令来共享打印机。
 
 主设备上设置共享:
@@ -84,9 +179,11 @@ net share PrinterName=C:\Windows\System32\spool\PRINTERS /grant:Everyone,full
 - `PrinterName`是你为共享打印机指定的名称。
 - `/grant:Everyone,full`意味着向网络中的所有用户提供完全控制权限。
 
+### 使用powershell相关模块配置
 
+- 详见下一节
 
-##  使用PowerShell共享打印机🎈
+##  使用PowerShell 配置共享打印机🎈
 
 - [PrintManagement Module | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/printmanagement/?view=windowsserver2022-ps)
 
@@ -257,6 +354,12 @@ JobStatus     : Printing, Retained
 
 可以看到,一个打印任务包含了`spooling`,`Printing`等阶段或状态
 
+**`Printing`**：打印作业正在进行中。
+
+**`Retained`**：打印作业完成后被保留在队列中，以便日后重复打印或保存记录。
+
+打印任务结束一段时间后,`Get-Printer`将返回空
+
 ### 重命名打印机
 
 - 也许你希望打印机的名字简单一些,powershell提供了相应的命令:[Rename-Printer (PrintManagement) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/printmanagement/rename-printer?view=windowsserver2022-ps)
@@ -264,11 +367,39 @@ JobStatus     : Printing, Retained
 
 ## FAQ
 
+### 打印机驱动检查
+
+```powershell
+PS> Get-PrinterDriver
+
+Name                                PrinterEnvironment MajorVersion    Manufacturer
+----                                ------------------ ------------    ------------
+HP DJ 2700 series PCL-3             Windows x64        4               HP
+Microsoft enhanced Point and Print… Windows x64        4               Microsoft
+Universal Print Class Driver        Windows x64        4               Microsoft
+Microsoft Virtual Print Class Driv… Windows x64        4               Microsoft
+Microsoft Print To PDF              Windows x64        4               Microsoft
+Microsoft IPP Class Driver          Windows x64        4               Microsoft
+Remote Desktop Easy Print           Windows x64        3               Microsoft
+Microsoft enhanced Point and Print… Windows x64        3               Microsoft
+Adobe PDF Converter                 Windows x64        3               Adobe
+Microsoft enhanced Point and Print… Windows NT x86     3               Microsoft
+```
+
+其中只有第一个是实体打印机,其他都是虚拟打印机
+
+```powershell
+ $s= Get-PrinterDriver;$s[0]|select *
+```
+
+通过此命令来获取指定打印机(列表中第1个)打印机驱动详情
+
 ### 连接扫描到的打印机时遇到失败
 
 - 有些修改版系统做了组件删减等原因,导致驱动无法自动处理
 - 这种情况下可能需要**辅设备**安装打印机的驱动才能使用,但是许多产生提供的驱动安装程序要求检测到打印机后才让你安装,这就造成共享打印机不可用问题;可以考虑从已经安装了驱动的计算机上找到并备份对应的打印机驱动,然后以某种方式提供给辅设备,比如共享文件夹(不要求驱动)
 - 主设备和辅设备使用不同操作系统（如32位与64位系统）时，共享打印机的设置和使用可能会更加复杂。
+- 在powershell(v7+)中执行`add-printer`如果发生错误,描述不太具体,可以尝试用`windows powershell`来执行,抛出的错误会更详细点
 
 ### 共享打印使用的凭证
 
@@ -280,7 +411,7 @@ JobStatus     : Printing, Retained
 
 如果其他设备不能访问共享打印机，检查是否禁用了“密码保护的共享”，并确保“Everyone”组有相应的权限。
 
-### 总结：
+### 总结
 Windows局域网共享打印机可以通过GUI或命令行来配置，命令行工具如`net share`、`rundll32`以及PowerShell都可以简化设置过程。此外，自动化批处理脚本可以极大提高配置效率。以下是主要命令的简要总结：
 
 | 命令                         | 说明                         |
@@ -291,6 +422,4 @@ Windows局域网共享打印机可以通过GUI或命令行来配置，命令行�
 | `Add-Printer`                | 使用PowerShell添加网络打印机 |
 | `netsh advfirewall firewall` | 配置防火墙规则               |
 
-通过命令行工具和批处理脚本，可以有效简化局域网共享打印机的配置过程。
-
-## 
+ 
