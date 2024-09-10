@@ -467,6 +467,134 @@ Hack-NF       3.2.1   spc
   scoop update  #及时执行,更新main bucket
   ```
 
+## 代理加速scoop下载
+
+以python为例,scoop下载python还是会到python官网下载,github加速链接对它不起作用
+
+这种情况下可以考虑下载miniconda,简洁获得python;
+
+scoop安装miniconda或anaconda比较快,并且miniconda安装完毕后,就可以直接从命令行中执行`python.exe`,`py`是`python.exe`的别名,`pip`也可以直接使用
+
+可以检查以下miniconda安装后相关命令的路径
+
+```powershell
+ 
+PS> gcm pip|select Definition
+
+Definition
+----------
+C:\ProgramData\scoop\apps\miniconda3\current\scripts\pip.exe
+  
+PS> gcm python|select Definition
+
+Definition
+----------
+C:\ProgramData\scoop\shims\python.exe
+
+ 
+ 
+PS> gcm py|fl *
+
+HelpUri             :
+ResolvedCommandName : python.exe
+DisplayName         : py -> python.exe
+```
+
+### 配置代理
+
+windows下通过配置环境变量来设置代理:(根据自己的情况设置2个环境变量`http_proxy`,`https_proxy`)
+
+```powershell
+
+function Set-Proxy
+{
+   
+    <# 
+    .synopsis
+    通过配置环境变量来设置powershell的代理(自动识别$env:http_proxy和$env:https_proxy)
+    我们可以配置临时的环境变量,也可以配置永久的环境变量,这里用临时的就足够了
+
+    准确的说,这里配置的是http,https两种协议的代理,并且局限于当前的powershell环境
+
+    通过配置$env:http_proxy和$env:https_proxy,只能让cmdlet走代理,有些应用不受上述配置项目的影响,例如ping,仍然无法走代理
+    而curl在powershell中invoke-webRequset,是可以走代理的
+
+    如果想要ping也能走代理,就需要其他方案,例如cfw中安装服务模式并且启用tun;
+    或者再其他设备配置代理,例如android设备安装every proxy将代理环境分享给其他设备,从底层走代理(这和局域网内系统代理有区别)
+    这对于vscode中许多插件的下载加速是有用的,例如codeium插件
+    #>
+    param(
+        [ValidateSet('On', 'Off')]$Status = 'On',
+        #开关选项,默认不使用该选项,表示开启代理,使用该选项表示关闭代理
+        $port = '7890',
+        #这里假设走本地提供的代理服务,或者localhost通常就是127.0.0.1,如果是其他服务器,可以自己修改
+        $serverhost = 'http://localhost',
+        [switch]$TestProxyAvailable
+
+    )
+    $socket = "$serverhost`:$port"
+    # Write-Output $socket
+
+    # 启用代理
+    if ($Status -eq 'On')
+    {
+        
+        Set-Item Env:http_proxy $socket  # 代理地址
+        Set-Item Env:https_proxy $socket # 代理地址
+        #也可用$env:https_proxy = $socket;$env:http_proxy = $socket代替上述set-item的用法
+        #注意set-item和set-variable 是不同的
+
+        if ($TestProxyAvailable)
+        {
+
+            Write-Output 'use curl(invoke-webRequset) google to test the environment! ...'
+			Invoke-WebRequest www.google.com|select StatusCode #返回200说明代理可用
+            # Invoke-WebRequest ddg.gg | nl
+        }
+    }
+    elseif ($Status -eq 'Off' -or $status -eq '')
+    {   
+        Remove-Item Env:http_proxy
+        Remove-Item Env:https_proxy
+    }
+    return @(
+
+        "`$env:http_proxy=$env:http_proxy",
+        "`$env:https_proxy=$env:https_proxy"    
+    )
+    
+}
+#调用
+Set-Proxy 
+
+```
+
+关闭代理执行`Set-proxy off`即可
+
+使用自己的代理服务器加速下载/安装python本体(该试验整个安装过程大约2秒就完成安装,十分快速)
+
+如果没有稳定的代理服务,则下载速度很不稳定
+
+```powershell
+PS> scoop download python39
+INFO  Downloading 'python39' [64bit] from versions bucket
+Starting download with aria2 ...
+Download: Download Results:                                                 ]
+Download: gid   |stat|avg speed  |path/URI
+Download: ======+====+===========+=======================================================
+Download: cd7fa6|OK  |    47KiB/s|C:/Users/cxxu/scoop/cache/python39#3.9.13#5e20995.reg
+Download: 1706e7|OK  |   288KiB/s|C:/Users/cxxu/scoop/cache/python39#3.9.13#8ace22d.reg
+Download: 2cfc77|OK  |    17MiB/s|C:/Users/cxxu/scoop/cache/python39#3.9.13#1b7f0ab.exe
+Download: Status Legend:
+Download: (OK):download completed.
+Checking hash of python-3.9.13-amd64.exe ... ok.
+Checking hash of install-pep-514.reg ... ok.
+Checking hash of uninstall-pep-514.reg ... ok.
+'python39' (3.9.13) was downloaded successfully!
+```
+
+
+
 ## scoop的缓存机制(cache)
 
 - scoop会缓存每次的下载,即便安装完毕后,也不会删除掉安装包,然而这个安装包的名字可能已经和软件名字相差甚远而变得难以分辨

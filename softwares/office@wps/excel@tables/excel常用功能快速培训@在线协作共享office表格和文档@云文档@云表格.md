@@ -16,6 +16,7 @@
 
 - 现在云文档比较流行,尤其是协作云表格,主流厂商产品
   - [金山文档 | WPS云文档@帮助中心(kdocs.cn)](https://www.kdocs.cn/help?id=help)
+    - [智能表格产品说明书 (kdocs.cn)](https://www.kdocs.cn/l/coB7v3NVEyIC)
     - [表格  | WPS云文档 (kdocs.cn)](https://www.kdocs.cn/help?id=WpsSheet)
   - [腾讯文档使用教程 (qq.com)](https://docs.qq.com/doc/p/6636c337646cddf32cd363495c1542d61c9e3642)
   - [钉钉文档：协作就用钉钉文档 (dingtalk.com)](https://alidocs.dingtalk.com/i/p/Y7kmbokZp3pgGLq2/docs/4Pko7gla1mAWR2p3GKZXWBxz5qZY9Q6j)

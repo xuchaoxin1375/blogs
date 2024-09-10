@@ -219,12 +219,15 @@ Unregister-ScheduledTask -TaskName "BackupTask" -Confirm:$false
 
 #### 4. `Set-ScheduledTask`
 
-用于修改现有计划任务。
+用于修改现有计划任务。例如
 ```powershell
 Set-ScheduledTask -TaskName "BackupTask" -Action (New-ScheduledTaskAction -Execute "C:\Scripts\new_backup.bat")
 ```
 
+
+
 #### 5. `Start-ScheduledTask`
+
 用于手动启动计划任务。
 ```powershell
 Start-ScheduledTask -TaskName "BackupTask"
@@ -367,7 +370,55 @@ PSComputerName     :
 
 这个例子很好地展示了PowerShell在处理复杂对象、集合和不同输出方法时的灵活性和一致性。它也突显了理解这些不同方法对于有效使用PowerShell进行系统管理和自动化的重要性。
 
+## 计划任务超时自动停止运行设置
+
+- 默认情况下,windows 计划任务将设置一个任务运行超时自动停止的选项(stop the task if it runs longer than xxx 默认为3天)
+- 对于一般使用的计算机通常是一天一次开关机,所以这个选项关系不大,但是部分用户可能很少关机,那么这种设置变得会有影响
+- powershell 取消设定 stop the task if it runs longer than xxx 计划任务似乎没有直接的设置,可以选择用`taskschd.msc`程序手动更改指定计划任务的settings部分,取消这个勾选
+
+### 电源状态对计划任务执行的影响
+
+- Windows上的电源状态确实会对计划任务的执行产生影响。以下是一个简单的描述：
+
+  1. 插电状态：
+     - 当计算机处于插电状态时，大多数计划任务会按照设定正常执行。
+     - 这是最理想的状态，因为不会受到电源管理的限制。
+
+  2. 电池状态：
+     - 默认情况下，某些计划任务可能不会在电池供电模式下运行，以节省电量。
+     - 这取决于任务的具体设置和系统的电源管理策略。
+
+  3. 睡眠/休眠状态：
+     - 当计算机处于睡眠或休眠状态时，计划任务通常不会执行。
+     - 如果到了任务执行时间点而计算机正处于这些状态，任务可能会被跳过或推迟到下一次唤醒时执行。
+
+  4. 唤醒功能：
+     - 某些计划任务可以配置为在需要执行时唤醒计算机。
+     - 这需要在任务设置中特别指定，并且计算机硬件需要支持这个功能。
+
+  5. 低电量模式：
+     - 在电池电量较低时，Windows可能会限制某些非关键任务的执行，以延长电池寿命。
+
+  6. 电源计划设置：
+     - Windows的电源计划设置可以影响计划任务的行为。例如，某些积极的节能设置可能会限制后台任务的执行。
+
+  要确保计划任务在各种电源状态下都能正常执行，您可以：
+
+  1. 在任务计划程序中，选择特定任务，然后在"条件"选项卡中调整电源相关设置。
+  2. 考虑将关键任务设置为"以最高权限运行"。
+  3. 对于重要任务，可以设置"如果任务运行失败，则每隔一段时间重新启动任务"选项。
+
+  powershell提供了`New-ScheduledTaskSettingsSet`来设置电源相关的选项,比如
+
+  ```powershell
+  $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable  
+  
+  ```
+
+  然后结合`Register-ScheduledTask`的`Settings`选项使用上述`settings`对象
+
 ## 官方文档
+
 ```powershell
 Get-Help Get-ScheduledTask -Online
 ```

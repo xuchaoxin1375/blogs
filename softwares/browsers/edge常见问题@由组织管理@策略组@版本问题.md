@@ -18,15 +18,15 @@
 
 - 关键字:HubsSidebarEnabled,到注册表中删除相应关键字
 
-### 接触edge策略限制(删除相关注册表条目)
+### 解除edge策略限制(删除相关注册表条目)
 
 - 命令行方式:在管理员权限下打开cmd或powershell,输入以下内容并回车执行
 
   - ```powershell
-    reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
+    reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge /f
     ```
 
-    
+- 演示
 
   - ```bash
     PS C:\Users\cxxu\Desktop> reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
@@ -43,6 +43,9 @@
     HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft
     HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft
     ```
+
+
+### 重载生效👺
 
 - 进入`edge://policy/`;点击重载策略(`Reload Policies`)按钮
 
