@@ -388,13 +388,14 @@ JobStatus     : Printing, Retained
 - 也许你希望打印机的名字简单一些,powershell提供了相应的命令:[Rename-Printer (PrintManagement) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/printmanagement/rename-printer?view=windowsserver2022-ps)
 - 这个命令需要管理员权限的账户才能够设置
 
-## 整合脚本:链接打印机👺
+## 整合脚本:辅设备链接打印机👺
 
-管理员权限运行
+管理员权限运行以下powershell命令行,对第一行做必要修改
 
 ```powershell
-start-Service spooler
+$cn='\\front\ptr' #设置打印机访问路径,这里以局域网内的UNC路径为例,front是主设备名称,ptr是共享打印机的名称,分别替换为你自己的实际情况值
 
+start-Service spooler
 $switch=yes
 #对于英文系统
 netsh advfirewall firewall set rule group="Network Discovery" new enable=$switch 
@@ -402,6 +403,29 @@ netsh advfirewall firewall set rule group="Network Discovery" new enable=$switch
 netsh advfirewall firewall set rule group="网络发现" new enable=$switch 
 netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=$switch
 netsh advfirewall firewall set rule group="文件和打印机共享" new enable=$switch
+
+#连接到指定打印机
+Add-Printer -ConnectionName $cn
+```
+
+最后一行执行依赖于对主设备有可用的凭证,否则无法执行成功
+
+这里推荐使用GUI的方法操作,比较直观,必要时会自动提醒你输入用户名和密码
+
+关于凭据的添加命令行,未验证的参考如下
+
+```powershell
+$username = "your-username"  # 替换为目标网络的用户名
+$password = "your-password"  # 替换为目标网络的密码
+$cn= "\\front\ptr" #修改为实际情况值
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
+
+# 挂载网络路径并使用凭据
+New-PSDrive -Name "Z" -PSProvider "FileSystem" -Root $cn -Credential $credential
+
+# 之后可以尝试再次添加打印机
+Add-Printer -ConnectionName $cn
 
 ```
 

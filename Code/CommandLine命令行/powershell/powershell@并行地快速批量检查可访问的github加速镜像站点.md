@@ -25,7 +25,14 @@ param(
     [switch]$PassThru,
     [switch]$SkipCheckAvailability,
     # 是否启用线性试探镜像可访问性(默认是并行试探)
-    [switch]$Linearly
+    [switch]$Linearly,
+    # First是为串行测试准备的,对于并行测试，是多余的参数
+    [parameter(ParameterSetName = 'First')]
+    $First = 5,
+    [parameter(ParameterSetName = 'All')]
+    [Alias('Full')]
+    [switch]
+    $All
 )
 
 $GithubMirrors = @(
@@ -35,7 +42,6 @@ $GithubMirrors = @(
     'https://ghproxy.cc',
     'https://ghproxy.net', # GitHub Proxy by GitHub99 - 提供 GitHub 文件的加速下载和克隆服务 #和用户自己的代理可能发生冲突
     'https://mirror.ghproxy.com',
-    # 'https://github-mirror.us.kg',#请打开此网站找到可用的镜像站，直接使用此来链接不适合实际用途，仅允许小流量代理
     
     # 'https://ghproxy.com/bad/demo', #虚假镜像,用来测试代码是否能够正确处理不可用的镜像链接
     'https://ghproxy.homeboyc.cn/',
@@ -63,21 +69,35 @@ $GithubMirrorsTest = @(
 )
 $GithubMirrors = $GithubMirrors + $GithubMirrorsTest
 $GithubMirrors = $GithubMirrors | Where-Object { $_ }#移除空串
-$GithubMirrors = $GithubMirrors | ForEach-Object { $_.trim('/') } | Sort-Object
-$GithubMirrors = $GithubMirrors | Get-Unique
+$GithubMirrors = $GithubMirrors | ForEach-Object { $_.trim('/') } | Sort-Object #统一链接风格(去除末尾的`/`如果有的话)
+$GithubMirrors = $GithubMirrors | Get-Unique #移除重复条目
 
 function Test-LinksLinearly
 {
-    [cmdletbinding()]
+    <# 
+    .SYNOPSIS
+    线性地(串行地)测试链接是否能够在指定时间内响应,为powershell5 设计
+    .NOTES
+    链接数量多的话会造成测试时间很长,尽量使用并行方案(pwsh7),或者考虑设置小的$timeoutSec=1
+    #>
+    [cmdletbinding(DefaultParameterSetName = 'First')]
     param (
-        $Mirrors,
-        $TimeOutSec
+        $Mirrors = $GithubMirrors,
+        $TimeOutSec = 4,
+        [parameter(ParameterSetName = 'First')]
+        $First = 5,
+        [parameter(ParameterSetName = 'All')]
+        [Alias('Full')]
+        [switch]
+        $All
     )
     $availableMirrors = @()
     
-    # foreach ($mirror in $Mirrors)
-    $Mirrors | ForEach-Object {
-        $mirror = $_
+    foreach ($mirror in $Mirrors)
+    {
+        # $Mirrors | ForEach-Object {
+        # $mirror = $_
+
         # Write-Verbose "Testing $mirror..."
         if (Test-MirrorAvailability -Url $mirror -TimeoutSec $TimeOutSec)
         {
@@ -91,49 +111,114 @@ function Test-LinksLinearly
             Write-Verbose "$mirror is not available "
             Write-Host "`t $mirror " -ForegroundColor Red
         }
+
+        if ($pscmdlet.ParameterSetName -eq 'First')
+        {
+
+            if (($availableMirrors.Count -ge $First))
+            {
+                break #在foreach-object中会直接停止函数的运行,而使用传统foreach则是正常的
+            }
+        }
     } 
+    if ($availableMirrors.Count -eq 0)
+    {
+        throw 'No mirrors are available!'
+    }
     return $availableMirrors
 }
 function Test-LinksParallel
 {
     <# 
     .SYNOPSIS
-    
+    为powershell 7+设计的并行测试链接是否能够在指定时间内响应
     #>
     [CmdletBinding()]
     param (
-        $Mirrors,
-        $TimeOutSec,
+        $Mirrors = $GithubMirrors,
+        $TimeOutSec = 2,
         $ThrottleLimits = 16
+        # $First = 5
     )
+    # 如果不是powershell 7报错
+    if ($host.Version.Major -lt 7)
+    {
+        Throw 'PowerShell 7 or higher is required to run parallel foreach!'
+        # return 
+    }
     $availableMirrors = @()
     # 为了能够让$TimeOutSec能够被传递到子进程,这里使用了$env:来扩大其作用域
     # $env:TimeOutSec = $TimeOutSec
     # powershell提供了更好的方式访问并行scriptblock外的变量,使用$using: 这个关键字
+    #然而这个关键字引用的变量无法更改(只读),可以考虑用.Net线程安全容器,或者用$env:来实现共享局部环境变量
+    # $Envbak = $env:StopLoop
+    # $env:StopLoop = 0
+    # 创建线程安全容器(队列)
+    $mirs = [System.Collections.Concurrent.ConcurrentQueue[Object]]::new()
+    # $mirs.Enqueue('First_Demo')
+    # Write-Host $mirs
     # 并行执行链接测试
     $Mirrors | ForEach-Object -Parallel {
+        # if ([int]$env:StopLoop)
+        # {
+        #     return
+        # }
+        # Write-verbose $_
+        #引用外部变量,并且赋值给简化的临时变量,方便后续引用(直接在-Parallel中引用外部变量是不合期望的)
+        $mirs = $using:mirs
+        $TimeOutSec = $using:TimeOutSec
+        # $First = $using:First
+        #  并行方案里用First参数指定前n个意义不大,而且会让代码变得复杂
+        # Write-Verbose "mirs.cout=$($mirs.Count)" -Verbose
+        # if ($mirs.Count -ge $First)
+        # {
+        #     # Write-Host $First
+        #     Write-Verbose "The available links enough the $First !" -Verbose
+        #     return
+        # }
+         
+
         $mirror = $_
         # Write-Debug "`$TimeOutSec=$env:TimeOutSec" -Debug #parallel 参数$DebugPreference无法起作用
         # if (Test-MirrorAvailability -Url $mirror -TimeoutSec $env:TimeOutSec)
+        # 测试链接是否可用
         if (Test-MirrorAvailability -Url $mirror -TimeoutSec $using:TimeOutSec)
         {
             Write-Verbose "TimeOutSec=$using:TimeOutSec" # -Verbose
-            Write-Output $mirror
+            Write-Host "`t $_" -ForegroundColor Green
+            # Write-Output $mirror
+
+            #写入队列
+            $mirs.Enqueue($mirror)
+            # 查看$mirs队列长度
+            # $mirs.Count, $mirs
+
         }
         else
         {
             Write-Verbose "$mirror is not available "
             Write-Host "`t $mirror." -ForegroundColor Red
         }
-    } -ThrottleLimit $ThrottleLimits | ForEach-Object {
-        $availableMirrors += $_
-        Write-Verbose "$_ is available "
-        Write-Host "`t $_" -ForegroundColor Green
+
+    } -ThrottleLimit $ThrottleLimits 
+
+    $availableMirrors = $mirs #.ToArray()
+    if ($availableMirrors.Count -eq 0)
+    {
+        throw 'No mirrors are available!'
     }
     return $availableMirrors
 }
 function Test-MirrorAvailability
 {
+    <# 
+    .SYNOPSIS
+    测试指定链接是否在规定时间内相应
+    .NOTES
+    此函数主要用来辅助Test-LinksLinearly和Test-LinksParallel调用
+    .DESCRIPTION
+    如果及时正确相应,将链接打印为绿色,否则打印为红色
+    #>
     [CmdletBinding()]
     param (
         [string]$Url,
@@ -178,39 +263,7 @@ function Get-AvailableGithubMirrors
     这里采用了多线程的方式来加速对不同镜像链接的可用性进行检查
     并且更容易获取其中相应最快的可用的镜像站,这是通过串行检查无法直接达到的效果
     .EXAMPLE
-    例如,两次执行期间,列出的顺序发生了变化,其中mirror.ghproxy.com和ghproxy.net排名发生了互换
-    PS> Get-AvailableGithubMirrors -TimeOutSec 2
-    Checking available Mirrors...
-            https://github.moeyy.xyz
-            https://gh.ddlc.top
-            https://mirror.ghproxy.com
-            https://ghproxy.net
-            https://ghproxy.cc
-
-    Available Mirrors:
-    0: Use No Mirror
-    1: https://github.moeyy.xyz
-    2: https://gh.ddlc.top
-    3: https://mirror.ghproxy.com
-    4: https://ghproxy.net
-    5: https://ghproxy.cc
-
-    第二次执行
-    PS> Get-AvailableGithubMirrors -TimeOutSec 2
-    Checking available Mirrors...
-            https://github.moeyy.xyz
-            https://gh.ddlc.top
-            https://ghproxy.net
-            https://mirror.ghproxy.com
-            https://ghproxy.cc
-
-    Available Mirrors:
-    0: Use No Mirror
-    1: https://github.moeyy.xyz
-    2: https://gh.ddlc.top
-    3: https://ghproxy.net
-    4: https://mirror.ghproxy.com
-    5: https://ghproxy.cc
+    
 
  .NOTES
     推荐使用 aria2 等多线程下载工具来加速下载，让镜像加速效果更加明显。
@@ -228,8 +281,12 @@ function Get-AvailableGithubMirrors
         [switch]$ListView,
         [switch]$PassThru,
         [switch]$SkipCheckAvailability,
-        # 是否启用线性试探镜像可访问性(默认是并行试探)
-        [switch]$Linearly
+        # 是否启用串行地试探镜像可访问性(默认是并行试探)
+        [switch]
+        # [parameter(ParameterSetName = 'Serial')]
+        [Alias('Serial')]$Linearly,
+        # [parameter(ParameterSetName = 'Serial')]
+        $First = 5
     )
     
     # 检查镜像站的可用性
@@ -240,13 +297,23 @@ function Get-AvailableGithubMirrors
     # 检查可用的镜像列表
     if (!$SkipCheckAvailability)
     {
-        if ($Linearly)
+        $psVersion = $host.Version.Major 
+        # 默认尝试并行测试
+        if ($psVersion -lt 7 -and !$Linearly)
         {
-            $availableMirrors = Test-LinksLinearly -Mirrors $Mirrors -TimeOutSec $TimeOutSec
+
+            Write-Host 'PowerShell 7 or higher is required to run parallel foreach!' -ForegroundColor Red
+            Write-Host 'Testing Links Linearly...'
+            $Linearly = $true
+        }
+        if ($Linearly ) #-or $PSVersion -lt 7
+        {
+            $availableMirrors = Test-LinksLinearly -Mirrors $Mirrors -TimeOutSec $TimeOutSec -First $First -Verbose:$VerbosePreference
         }
         else
         {
-            $availableMirrors = Test-LinksParallel -Mirrors $Mirrors -TimeoutSec $TimeOutSec -ThrottleLimits $ThrottleLimits -Verbose:$VerbosePreference 
+        
+            $availableMirrors = Test-LinksParallel -Mirrors $Mirrors -TimeOutSec $TimeOutSec -ThrottleLimits $ThrottleLimits -Verbose:$VerbosePreference 
         }
     } 
 
@@ -280,8 +347,64 @@ function Get-AvailableGithubMirrors
 }
 
 
+function Get-SelectedMirror
+{
+    [CmdletBinding()]
+    param (
+        
+        $Default = 1, # 默认选择第一个(可能是响应最快的)
+        [switch]$Linearly,
+        [switch]$Silent # 是否静默模式,不询问用户,返回第$Default个链接($Default默认为1)
+    )
+    $Mirrors = Get-AvailableGithubMirrors -PassThru -Linearly:$Linearly
+
+    if (!$Silent)
+    {
+        # 交互模式
+        $numOfMirrors = $Mirrors.Count
+        $range = "[0~$($numOfMirrors-1)]"
+        $num = Read-Host -Prompt "Select the number of the mirror you want to use $range ?(default: $default)"
+        # $mirror = 'https://mirror.ghproxy.com'
+        $n = $num -as [int] #可能是数字或者空$null
+        if ($VerbosePreference)
+        {
+            
+            Write-Verbose "`$n=$n"
+            Write-Verbose "`$num=$num"
+            Write-Verbose "`$numOfMirrors=$numOfMirrors"
+        }
+   
+        #  如果输入的是空白字符,则默认设置为0
+        if ( $num.trim().Length -eq 0)
+        {
+            Write-Host 'choose the Default 1'
+            $n = $default
+        }
+        elseif ($n -notin 0..($numOfMirrors - 1))
+        {
+            Throw " Input a number within the range! $range"
+        } 
+    }
+    else
+    {
+        $n = $default
+    }
+    if ($n -gt 0)
+    {
+        # 用户选择了一个合法的镜像代号(0表示不使用镜像)
+        Write-Host "Selected mirror:[$n : " -NoNewline
+        Write-Host "$($Mirrors[$n])" -BackgroundColor Gray -NoNewline
+        Write-Host ']'#打印一个空行
+    }
+    $mirror = $Mirrors[$n]
+    return $mirror
+}
+
+
 Get-AvailableGithubMirrors -ThrottleLimits $ThrottleLimits `
--TimeOutSec $TimeOutSec -PassThru:$PassThru -SkipCheckAvailability:$SkipCheckAvailability -Linearly:$Linearly
+    -TimeOutSec $TimeOutSec -PassThru:$PassThru -SkipCheckAvailability:$SkipCheckAvailability `
+     -Linearly:$Linearly -First $First 
+     
 ```
 
 ## 使用示例
@@ -333,12 +456,33 @@ Available Mirrors:
 
 线性检查(支持powershell v5)
 
-```
-PS> .\GetMirrors.ps1 -Linearly
+这里指定找出2个可用链接就结束查找(默认找5个)
+
+```powershell
+PS C:\Users\cxxu\Desktop> .\TL.ps1 -Linearly -First 2
 Checking available Mirrors...
          https://cf.ghproxy.cc
-         https://gh-proxy.com
          https://gh.con.sh
-         https://gh.ddlc.top
+
+Available Mirrors:
+ 0: Use No Mirror
+ 1: https://cf.ghproxy.cc
+ 2: https://gh.con.sh
+```
+
+powershell5中不指定`Linearly`参数也不会报错,自动切换为Linearly模式
+
+```
+PS C:\Users\cxxu\Desktop> .\GetMirrors.ps1 -First 2
+Checking available Mirrors...
+PowerShell 7 or higher is required to run parallel foreach!
+Testing Links Linearly...
+         https://cf.ghproxy.cc
+         https://gh.con.sh
+
+Available Mirrors:
+ 0: Use No Mirror
+ 1: https://cf.ghproxy.cc
+ 2: https://gh.con.sh
 ```
 
