@@ -247,7 +247,59 @@ Enable-ScheduledTask -TaskName "BackupTask"
 
 ## powershell查看计划任务信息
 
+相关命令
+
+- `Get-ScheduledTask` 是用来获取任务的**定义**，即任务的配置元数据。
+
+  - ```powershell
+    PS> get-ScheduledTask -taskName startupservices|fl
+    
+    Actions            : {MSFT_TaskExecAction}
+    Author             :
+    Date               :
+    Description        :
+    Documentation      :
+    Principal          : MSFT_TaskPrincipal2
+    SecurityDescriptor :
+    Settings           : MSFT_TaskSettings3
+    Source             :
+    State              : Ready
+    TaskName           : StartupServices
+    TaskPath           : \
+    Triggers           : {MSFT_TaskBootTrigger}
+    URI                : \StartupServices
+    Version            :
+    PSComputerName     :
+    ```
+
+    
+
+- `Get-ScheduledTaskInfo` 是用来获取任务的**状态信息**，即任务的实际运行情况。
+
+  - ```powershell
+    PS> get-ScheduledTaskInfo -taskName startupservices
+    
+    LastRunTime        : 2024/9/11 9:19:45
+    LastTaskResult     : 0
+    NextRunTime        :
+    NumberOfMissedRuns : 0
+    TaskName           : startupservices
+    TaskPath           :
+    PSComputerName     :
+    ```
+
+    
+
+返回信息的侧重点：
+
+- `Get-ScheduledTask` 更关注任务的配置，如触发器、操作等。
+- `Get-ScheduledTaskInfo` 更关注任务的状态，如上次运行时间、是否成功运行等。
+
+### 例
+
 - 以一个设定了2个触发器的计划任务`Update-GithubHosts`为例,查看特定已存在的计划任务的信息
+
+- 这里使用`Get-ScheduledTask`命令来查看信息
 
   ```powershell
   PS> $task=get-scheduledTask -TaskName  update-githubhosts
@@ -368,13 +420,33 @@ PSComputerName     :
 10. 时间表示：
     - StartBoundary属性使用ISO 8601格式表示时间，这是PowerShell处理日期时间的标准方式。
 
-这个例子很好地展示了PowerShell在处理复杂对象、集合和不同输出方法时的灵活性和一致性。它也突显了理解这些不同方法对于有效使用PowerShell进行系统管理和自动化的重要性。
+###  使用foreach-object 来查看ScheduledTask属性
+
+例如,使用foreach-object(别名为`%`),来查看指定任务的`Actions`或`Triggers`
+
+```powershell
+Get-ScheduledTask -TaskName startupservices|ForEach-Object -MemberName Actions
+```
+
+可以简写为
+
+```powershell
+PS> Get-ScheduledTask -TaskName startupservices|% Actions
+
+Id               :
+Arguments        : -ExecutionPolicy ByPass -NoProfile -WindowStyle Hidden -File C:\repos\scripts\PS\Deploy\..\Startup\s
+                   ervices.ps1
+Execute          : pwsh
+WorkingDirectory :
+```
+
+
 
 ## 计划任务超时自动停止运行设置
 
 - 默认情况下,windows 计划任务将设置一个任务运行超时自动停止的选项(stop the task if it runs longer than xxx 默认为3天)
 - 对于一般使用的计算机通常是一天一次开关机,所以这个选项关系不大,但是部分用户可能很少关机,那么这种设置变得会有影响
-- powershell 取消设定 stop the task if it runs longer than xxx 计划任务似乎没有直接的设置,可以选择用`taskschd.msc`程序手动更改指定计划任务的settings部分,取消这个勾选
+- powershell 取消设定 `stop the task if it runs longer than xxx` 计划任务似乎没有直接的设置,可以选择用`taskschd.msc`程序手动更改指定计划任务的settings部分,取消这个勾选
 
 ### 电源状态对计划任务执行的影响
 
@@ -423,5 +495,5 @@ PSComputerName     :
 Get-Help Get-ScheduledTask -Online
 ```
 
-
+ 
 

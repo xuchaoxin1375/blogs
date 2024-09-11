@@ -41,7 +41,7 @@
    Set-Service -Name Spooler -StartupType Automatic
   ```
 
-### 启用网络发现和共享开关
+### 启用网络发现和共享开关👺
 
 ```powershell
 function Set-NetworkDiscovery
@@ -136,9 +136,11 @@ Set-NetworkFileAndPrinterSharing;
 
   
 
-## 相关概念
+## 相关概念👺
 
-- 主设备:和打印机直接连接的计算机
+### 主设备和辅设备
+
+- 主设备:和打印机直接连接的计算机,或者共享文件夹的创建者计算机
 - 辅设备:本身没有直接连接打印机,希望共享使用其他设备(主设备)的打印机
 
 ## 通过GUI设置局域网共享打印机
@@ -253,19 +255,40 @@ WorkflowPolicy               :
 
 - 启用了网络发现后,可以在资源管理器中通过unc地址`\\server`,(例如`\\front`),会尝试列出`\\front`设备共享出来的共享文件夹和打印机等资源,显示的名字是`ShareName`,而不是打印机或共享文件夹本身的名字
 
-### 共享打印机(主设备)
+### 共享打印机(主设备)👺
 
 ```powershell
 Set-Printer -Name "PrinterName" -Shared $true -ShareName "SharedPrinterName"
 ```
 
-### 添加网络打印机(辅设备)
+### 添加网络共享打印机@连接到共享打印机(辅设备)👺
+
+#### 命令行方式
 
 ```powershell
 Add-Printer -ConnectionName "\\ServerName\PrinterName"
 ```
 
+上述格式的命令不一定能够直接执行成功(如果你使用过主设备上分享的共享文件夹,并且记住了凭证,那么上述命令一般可以直接执行成功)
+
+但是如果驱动有问题的话(原版或非精简版的windows系统一般没有这个问题,魔改系统可能会有问题),还是可能添加失败.
+
+#### GUI方式👺
+
+打开资源管理器,点击左侧边栏下的网络按钮(如果有的话);或者点击资源管理器地址栏,输入`Network`,也可以跳转到网络设备页面,您可以尝试找到共享了打印机或者文件夹的**主设备**(需要您在主设备上启用网络发现,文件和打印机共享功能),辅设备(试图连接主设备的设备需要启用网络发现)
+
+然后点击**主设备**(如果你之前访问过主设备并保存了凭证(比如访问过共享文件夹),那么可以直接打开,否则可能会提示你输入主设备上的用户名及访问密码)
+
+如果主设备上正确配置了打印机共享,那么辅设备上能够看到打印机图标,如果还配置了共享文件夹,那么也能够看到共享文件夹
+
+双击目标被共享的打印机,此时会尝试链接共享打印机(会花费若干秒),如果你的辅设备上没有启动spooler服务,那么会提示你启用该服务,用**管理员命令行**powershell执行`sasv spooler`或者cmd中执行`net start spooler`或`sc start spooler`
+
+然后重新双击点击资源管理器中打印机图标,重新尝试链接
+
+连接成功后,会弹出一个打印机窗口,如果分配了打印任务，可以通过这个窗口检查打印任务
+
 #### 设置防火墙规则
+
 确保Windows防火墙允许文件和打印机共享。可以通过以下命令启用相应规则：(中英文系统语言通用)
 
 ```cmd
@@ -364,6 +387,25 @@ JobStatus     : Printing, Retained
 
 - 也许你希望打印机的名字简单一些,powershell提供了相应的命令:[Rename-Printer (PrintManagement) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/printmanagement/rename-printer?view=windowsserver2022-ps)
 - 这个命令需要管理员权限的账户才能够设置
+
+## 整合脚本:链接打印机👺
+
+管理员权限运行
+
+```powershell
+start-Service spooler
+
+$switch=yes
+#对于英文系统
+netsh advfirewall firewall set rule group="Network Discovery" new enable=$switch 
+#对于中文系统
+netsh advfirewall firewall set rule group="网络发现" new enable=$switch 
+netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=$switch
+netsh advfirewall firewall set rule group="文件和打印机共享" new enable=$switch
+
+```
+
+
 
 ## FAQ
 

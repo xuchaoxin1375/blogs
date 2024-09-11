@@ -242,9 +242,9 @@
     }
     ```
 
-### 配置软件国内源🎈
+### 配置软件国内源🎈👺
 
-- 执行一下powershell脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
+- 执行以下**powershell**脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
 
   - ```powershell
     conda config --set show_channel_urls yes

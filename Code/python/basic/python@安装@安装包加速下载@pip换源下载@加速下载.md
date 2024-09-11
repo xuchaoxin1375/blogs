@@ -45,34 +45,40 @@
 
 ### 安装conda
 
-- windows比较简单,不必多说
+#### windows
+
+- windows上安装conda比价简单,这里简单提一下
+  - 使用`scoop` 国内加速版安装conda(miniconda/anaconda)十分便捷
+  - 传统方式安装则建议到国内加速镜像下载安装文件
+
+
+#### linux
+
 - linux上安装文档(文件可以去国内镜像下载)[Installing on Linux — conda documentation](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
-#### 镜像下载
+##### 下载安装文件
 
-- 实操(linux上安装)
+```bash
+#下载镜像(从国内镜像下载比较快)
+# cxxu @ ColorfulCxxu in ~ [11:39:13]
+$ wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py312_24.3.0-0-Linux-x86_64.sh
 
-  ```bash
-  #下载镜像(从国内镜像下载比较快)
-  # cxxu @ ColorfulCxxu in ~ [11:39:13]
-  $ wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py312_24.3.0-0-Linux-x86_64.sh
-  
-  --2024-04-17 11:55:01--  https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py312_24.3.0-0-Linux-x86_64.sh
-  Resolving mirrors.tuna.tsinghua.edu.cn (mirrors.tuna.tsinghua.edu.cn)... 101.6.15.130, 202.204.128.61, 101.6.6.172, ...
-  Connecting to mirrors.tuna.tsinghua.edu.cn (mirrors.tuna.tsinghua.edu.cn)|101.6.15.130|:443... connected.
-  HTTP request sent, awaiting response... 200 OK
-  Length: 143351488 (137M) [application/octet-stream]
-  Saving to: ‘Miniconda3-py312_24.3.0-0-Linux-x86_64.sh’
-  
-  Miniconda3-py312_24.3.0-0-Linux-x86_64.sh    100%[============================================================================================>] 136.71M  42.6MB/s    in 3.6s
-  
-  2024-04-17 11:55:05 (38.3 MB/s) - ‘Miniconda3-py312_24.3.0-0-Linux-x86_64.sh’ saved [143351488/143351488]
-  
-  ```
+--2024-04-17 11:55:01--  https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py312_24.3.0-0-Linux-x86_64.sh
+Resolving mirrors.tuna.tsinghua.edu.cn (mirrors.tuna.tsinghua.edu.cn)... 101.6.15.130, 202.204.128.61, 101.6.6.172, ...
+Connecting to mirrors.tuna.tsinghua.edu.cn (mirrors.tuna.tsinghua.edu.cn)|101.6.15.130|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 143351488 (137M) [application/octet-stream]
+Saving to: ‘Miniconda3-py312_24.3.0-0-Linux-x86_64.sh’
 
-#### 开始安装
+Miniconda3-py312_24.3.0-0-Linux-x86_64.sh    100%[============================================================================================>] 136.71M  42.6MB/s    in 3.6s
 
-- 
+2024-04-17 11:55:05 (38.3 MB/s) - ‘Miniconda3-py312_24.3.0-0-Linux-x86_64.sh’ saved [143351488/143351488]
+
+```
+
+##### 开始安装
+
+- 使用一个安装脚本安装
 
   ```bash
   
@@ -481,7 +487,7 @@ Conda的一些核心功能要求直接与调用它的Shell进行交互。`conda 
 
 ## 其他下载资源
 
-### python安装包国内镜像
+### python安装包国内镜像👺
 
 - 官网下载往往是很慢的,可以考虑国内源下载
   - 华为源[Index of python-local (huaweicloud.com)](https://mirrors.huaweicloud.com/python/)
@@ -492,7 +498,7 @@ Conda的一些核心功能要求直接与调用它的Shell进行交互。`conda 
 - 从windows store下载,这里的速度一般还可以,但是安装路径和安装选项不是那么灵活和易于改动
 - [Python 3 - Microsoft Apps](https://apps.microsoft.com/detail/9nrwmjp3717k?hl=en-us&gl=US)
 
-### pip 换源下载
+### pip 换源下载👺
 
 - [python@python@本地文档@帮助系统@pip@配置和换源_pip更换国内源-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/121534377)
 
