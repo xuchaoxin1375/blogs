@@ -6,10 +6,6 @@
 
 [On Windows 10, is there a file I can modify to configure the default apps? ](https://superuser.com/questions/1748620/on-windows-10-is-there-a-file-i-can-modify-to-configure-the-default-apps)
 
-
-
-
-
 ## 设置某个文件类型的默认打开方式
 
 windows中,文件通常有扩展名(可以通过设置显示扩展名或者用命令行列出文件,可以看到文件扩展名)
@@ -31,6 +27,12 @@ windows中,文件通常有扩展名(可以通过设置显示扩展名或者用�
 assoc [<.[ext]>[=[<filetype>]]]
 ftype [<filetype>[=[<opencommandstring>]]]
 ```
+
+## 设置指定文件打开方式的案例👺
+
+- 这里推荐一下windows下的软件安装器,建议使用部署**国内加速过的版本**
+- 通过scoop安装的软件,具有很一致的安装/卸载等操作的体验,并且安装速度十分快速(特别是被scoop收录的国内软件,比如qq,qqnt,微信(wechat)等软件,开发者工具类大多可以从scoop上直接下载)
+- 下面演示的sublime-text,typora等软件都可以通过scoop安装,并且路径没有包含空格,非常适合在命令行中直接引用
 
 ### 将sublime-text设置为某个文件类型的打开方式
 
@@ -61,6 +63,21 @@ cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为�
 $pwsh_home="C:\ProgramData\scoop\apps\powershell\current" #scoop 安装的最新版powershell
 cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
 ```
+
+### 将typora设置为Markdown打开方式
+
+- 假设我将typora安装在以下目录(通过scoop安装)
+
+  ```
+  C:\ProgramData\scoop\apps\typora\current\Typora.exe
+  ```
+
+- ```powershell
+  cmd /c assoc .md=MarkdownFile #这里的MarkdownFile是自定义的名字，也可以是别的名字,注意在ftype中使用同一个文件类型名字
+  cmd /c ftype MarkdownFile=C:\ProgramData\scoop\apps\typora\current\Typora.exe %1 
+  ```
+
+- 设置完毕后,相关文件(.md)图标不一定有变化,但是
 
 ### FAQ
 
@@ -198,7 +215,7 @@ ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
 
 #### 4. PowerShell 的替代方案
 
-PowerShell 本身没有直接的命令来设置文件关联，但是你可以使用 PowerShell 调用 CMD 命令来完成相同的任务：
+PowerShell 本身没有直接的命令(诸如`assoc,ftype`来设置文件关联，但是你可以使用 PowerShell 调用 CMD 命令来完成相同的任务：(即使用`cmd /c`开头执行相关命令)
 
 ```powershell
 cmd /c assoc .mytxt=MYTXTFILE
@@ -207,7 +224,7 @@ cmd /c ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
 
 此外，PowerShell 提供了 `New-ItemProperty` 和 `Set-ItemProperty` cmdlet 可以通过操作注册表来实现文件关联，但这需要更深入的 Windows 注册表知识。
 
-#### 总结
+### 总结
 
 使用 `assoc` 和 `ftype` 命令，您可以轻松地在 Windows 操作系统中管理文件类型与程序之间的关联。这对于需要自定义文件类型行为的高级用户和系统管理员特别有用。尽管 PowerShell 没有直接的等效命令，通过使用 PowerShell 调用 CMD 命令或操作注册表，我们仍然可以实现类似的功能。
 
