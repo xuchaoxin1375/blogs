@@ -353,11 +353,10 @@ robocopy X:\repos\scripts C:\repos\scripts_bak /E /TEE /LOG:C:\temp\robocopy_log
 - 下面这个函数需要调用辅助函数`Get-PsIoItemInfo`
 
 ```powershell
-
 function Copy-Robocopy
 {
     <# 
-     .Synopsis
+    .Synopsis
     对多线程复制工具Robocopy的简化使用封装,使更加易于使用,语法更加接近powershell命令
     默认启用多线程复制,如果需要递归,需要手动启用-Recurse选项
     .DESCRIPTION
@@ -371,6 +370,7 @@ function Copy-Robocopy
     PS C:\Users\cxxu\Desktop> copy-Robocopy -Source .\dir4 -Destination .\dir1\ -Recurse
     The Destination directory name is different from the Source directory name! Create the Same Name Directory? {Continue? [y/n]} : y
     Executing: robocopy ".\dir4" ".\dir1\dir4"  /E /MT:16 /R:1 /W:1
+
 #>
     [CmdletBinding()]
     param (
@@ -424,17 +424,25 @@ function Copy-Robocopy
     #向用户展示参数设置
     $PSBoundParameters  
     # 这里要求$source和$destination在函数参数定义出不可以定为String类型,会导致Get-PsIOItemInfo返回值无法正确赋值
-    $Source = Get-PsIOItemInfo $Source
-    $destination = Get-PsIOItemInfo $Destination
+    # $Source = Get-PsIOItemInfo $Source
+    # $destination = Get-PsIOItemInfo $Destination
 
     # 检查目录名是否相同(basename)
+    # $SN = $source.name
+    # $DN = $Destination.name
+    $SN = Split-Path -Path $Source -Leaf
+    $DN = Split-Path -Path $Destination -Leaf
 
-    if ($Source.name -ne $destination.name)
+    Write-Verbose "$SN,$DN"
+    if ($SN -ne $DN)
     {
+        # Write-Verbose "$($Source.name) -ne $($destination.name)"
+
         $continue = Confirm-UserContinue -Description 'The Destination directory name is different from the Source directory name! Create the Same Name Directory?'
         if ($continue)
         {
-            $Destination = Join-Path $Destination $Source.name
+            $Destination = Join-Path $Destination $Source.Name
+            Write-Verbose "$Destination"
         }
     }
 
@@ -479,10 +487,10 @@ function Copy-Robocopy
     {
         $robocopyCmd += ' /E'
     }
-    if ($ContinueIfbroken)
-    {
-        $robocopyCmd += ' /Z'
-    }
+    # if ($ContinueIfbroken)
+    # {
+    #     $robocopyCmd += ' /Z'
+    # }
     if ($RecurseWithoutEmptyDirs)
     {
         $robocopyCmd += ' /S'
@@ -496,77 +504,14 @@ function Copy-Robocopy
 
     # 默认使用(每个参数前有一个空格分割)
     $robocopyCmd += " /MT:$Threads"
+    #默认启用自动重连(断点续传)
+    $robocopyCmd += ' /z' 
+    # 重试次数和间隔限制
     $robocopyCmd += " /R:$Retry /W:$Wait"
 
     # Invoke the robocopy command
     Write-Host "Executing: $robocopyCmd"
     Invoke-Expression $robocopyCmd
-}
-
-```
-
-### Get-PsIoItemInfo
-
-- 上面的`Copy-Robocopy`调用到了这个辅助函数
-
-```powershell
-
-function Get-PsIOItemInfo
-{
-    <# 
-    .SYNOPSIS
-    获取文件或目录的.Net对象(路径对象),传入的Path对应的是文件,则返回[System.IO.FileInfo]对象，
-    传入的Path对应的是目录,则返回[System.IO.DirectoryInfo]对象
-    .EXAMPLE
-    获取某个目录的路径对象
-    PS C:\repos\scripts> 
-    Get-PsIOItemInfo ./                                                                               
-
-    Mode                 LastWriteTime         Length Name
-    ----                 -------------         ------ ----
-    da---           2024/7/29    23:23                scripts
-
-
-    PS [C:\repos\scripts]> Get-PsIOItemInfo .\PS\
-
-    Mode                 LastWriteTime         Length Name
-    ----                 -------------         ------ ----
-    da---           2024/7/29     9:10                PS
-    .EXAMPLE
-    PS [C:\repos\scripts]> (Get-PsIOItemInfo .\PS\).fullname
-    C:\repos\scripts\PS\
-
-    .EXAMPLE
-    获取某个文件的路径对象
-    PS [C:\repos\scripts]> Get-PsIOItemInfo .\readme_zh.md
-
-    Mode                 LastWriteTime         Length Name
-    ----                 -------------         ------ ----
-    -a---           2024/7/29    21:58            581 readme_zh.md
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Path
-    )
-
-    if (Test-Path $Path)
-    {
-        if (Test-Path $Path -PathType Leaf)
-        {
-            # 如果是文件，返回 [System.IO.FileInfo] 对象
-            return [System.IO.FileInfo]::new($Path)
-        }
-        elseif (Test-Path $Path -PathType Container)
-        {
-            # 如果是目录，返回 [System.IO.DirectoryInfo] 对象
-            return [System.IO.DirectoryInfo]::new($Path)
-        }
-    }
-    else
-    {
-        Write-Error "The path '$Path' does not exist."
-    }
 }
 
 ```
@@ -577,7 +522,7 @@ function Get-PsIOItemInfo
 
 ### 复制指定文件时指定正确的参数
 
-#### 复制单个文件
+#### robocopy复制单个文件
 
 ```powershell
 ****  /MIR 可以删除文件也可以复制文件!
@@ -809,5 +754,4 @@ robocopy C:\Source D:\Destination /E /NP /LOG:C:\temp\rbcopy_log.txt /NFL /NDL /
   ```
 
   
-
 

@@ -238,7 +238,7 @@ gitee没有提供下载按钮,可以点击查看原始数据(或者直接点击�
 
 或者从本仓库的GHU目录下载
 
-## 一键运行整合脚本🤖🐽
+## 一键运行整合脚本🤖🐽👺
 
 上面的步骤也许不是你关心的,那么一键运行了解以下
 
@@ -261,7 +261,7 @@ Set-Location $home\desktop
 $files | ForEach-Object {
     Move-Item "$home/desktop/$_" $GHU -Force -Verbose
 }
-#调用它(可以传参,也可以不穿,使用默认参数) #号后面是传参示例
+#调用它(可以传参,也可以不传,使用默认参数) #号后面是传参示例
 powershell -f  "$GHU\AutoFetch.ps1 " # -f $GHU\fetch-github-hosts.ps1 -shell powershell
 
 ```

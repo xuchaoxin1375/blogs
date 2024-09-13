@@ -2,11 +2,40 @@
 
 ## abstract
 
-## 修改注册表来配置默认打开软件
+- windows上设置指定文件格式用指定软件打开有两类方法
+  - GUI设置
+    - 从一个特定文件开始,右键选择打开方式,找到对应的程序后打开,一般可以设置为始终用此方式打开(可以是一次性,也可以是默认始终)
+    - 从系统设置中根据后缀名批量设置,或者将一个程序设置为其支持打开的所有格式文件的默认打开程序(默认方式设置)
+  - 命令行设置
+    - 使用cmd中的`assoc,ftype`命令配置,适合脚本化和自动化部署配置(默认方式设置,或者添加到打开方式列表中)
+    - 修改注册表(相对繁琐,也比较危险)
+
+### 相关文档
+
+- [在 Windows 中更改默认应用 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中更改默认应用-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
+- [Change default apps in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/change-default-apps-in-windows-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
+
+- 其他
+  - [Changing Default File Associations in Windows 10 and 11 | Windows OS Hub (woshub.com)](https://woshub.com/managing-default-file-associations-in-windows-10/#:~:text=You can automatically assign a specific app with the file)
+  - [默认程序 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/default-programs)
+    - windows上很多软件都支持设定自己为某些软件的默认打开方式,尤其是解压缩软件最为典型
+    - 这个文档介绍了相关的api
+
+### 本文重点
+
+如果你方便操作GUI,那么使用GUI方案是直观和简单的(注册表方式也是尽量不用)
+
+如果你希望配置打开方式能够脚本化,那么可以考虑命令行方式配置
+
+本文主要介绍如何通过windows提供的两个命令`assoc,ftype`来相对简单的完成文件类型和打开方式设置
+
+脚本文件类型和格式的配置比较敏感,这部分不建议去动,其他格式可以参考着设置
+
+### 修改注册表来配置默认打开软件
 
 [On Windows 10, is there a file I can modify to configure the default apps? ](https://superuser.com/questions/1748620/on-windows-10-is-there-a-file-i-can-modify-to-configure-the-default-apps)
 
-## 设置某个文件类型的默认打开方式
+## 设置某个文件类型和打开方式
 
 windows中,文件通常有扩展名(可以通过设置显示扩展名或者用命令行列出文件,可以看到文件扩展名)
 
@@ -30,7 +59,7 @@ ftype [<filetype>[=[<opencommandstring>]]]
 
 ## 设置指定文件打开方式的案例👺
 
-- 这里推荐一下windows下的软件安装器,建议使用部署**国内加速过的版本**
+- 这里推荐一下windows下的软件安装器`scoop`,建议使用部署**国内加速过的版本**
 - 通过scoop安装的软件,具有很一致的安装/卸载等操作的体验,并且安装速度十分快速(特别是被scoop收录的国内软件,比如qq,qqnt,微信(wechat)等软件,开发者工具类大多可以从scoop上直接下载)
 - 下面演示的sublime-text,typora等软件都可以通过scoop安装,并且路径没有包含空格,非常适合在命令行中直接引用
 
@@ -77,7 +106,9 @@ cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
   cmd /c ftype MarkdownFile=C:\ProgramData\scoop\apps\typora\current\Typora.exe %1 
   ```
 
-- 设置完毕后,相关文件(.md)图标不一定有变化,但是
+- 设置完毕后,相关文件(.md)图标不一定有变化,但是右键打开方式应该能够找到typora选项
+
+- 或者尝试重启资源管理器再检查(上述试验经过测试可以正确设置)
 
 ### FAQ
 
@@ -90,13 +121,27 @@ cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
 
 - 例如我在桌面事先创建了`file.demo`文件,然后执行`assoc,ftype`设置后发现右键打开方式么有想要的方式
 
-- 那么考虑重启资源管理器来刷新,然后重新观察配置是否生效
+- 那么考虑**重启资源管理器**来刷新,然后重新观察配置是否生效
 
-  - 重启资源管理器的代码如下
+  - 重启资源管理器的代码如下(powershell下执行)
 
     ```powershell
     stop-process explorer;explorer
+    #cmd下可以执行: powershell -c "spps -name explorer;explorer"
     ```
+  
+  - CMD执行以下内容来重启资源管理器(通用)
+  
+    ```cmd
+    taskkill /f /im explorer.exe && start explorer.exe
+    ```
+  
+    这个命令的作用如下：
+    1. `taskkill /f /im explorer.exe` 强制结束 `explorer.exe` 进程。
+    2. `&&` 确保前一个命令成功执行后再执行下一个命令。
+    3. `start explorer.exe` 重新启动 `explorer.exe`。
+  
+    你只需将上述命令复制并粘贴到 CMD 中，然后按 Enter 键即可。
 
 ## 相关命令
 
@@ -226,7 +271,7 @@ cmd /c ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
 
 ### 总结
 
-使用 `assoc` 和 `ftype` 命令，您可以轻松地在 Windows 操作系统中管理文件类型与程序之间的关联。这对于需要自定义文件类型行为的高级用户和系统管理员特别有用。尽管 PowerShell 没有直接的等效命令，通过使用 PowerShell 调用 CMD 命令或操作注册表，我们仍然可以实现类似的功能。
+使用 `assoc` 和 `ftype` 命令，您可以轻松地在 Windows 操作系统中管理文件类型与程序之间的关联.
 
 ## 补充:检查指定程序的路径
 
@@ -238,4 +283,3 @@ Get-Command pwsh | Select-Object -ExpandProperty Source
 
 这将返回 `pwsh.exe` 的完整路径，您可以根据此路径进行设置。
 
-## 设置指定软件添加到打开方式程序列表(todo)
