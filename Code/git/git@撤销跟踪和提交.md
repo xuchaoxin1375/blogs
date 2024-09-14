@@ -39,8 +39,32 @@ git 的新版本发生些许变化,这使得git help reset上的内容可能发�
 执行`git reset --soft 5920`,观察HEAD指针的变化
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/7c7c7f3ab5e0466dafe5a21cdb77baa6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-##  git rm --cached
+##  git rm --cached👺
 `git rm --cached <itemName>`或许也能解决undo add 的需求
+
+### 撤销对以跟踪目录的跟踪
+
+- 指定撤销跟踪的路径要准确指定(可以是相对路径),否则会提示找不到
+
+```powershell
+PS🌙[BAT:79%][MEM:47.3% (15/31.71)GB][22:51:32]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\repos\scripts]{Git:main}
+PS> git rm -r --cached  .\pythonScripts\MKTrain\__pycache__
+rm 'pythonScripts/MKTrain/__pycache__/turtle.cpython-311.pyc'
+```
+
+错误示例(指定的路径不够具体)
+
+```powershell
+
+PS🌙[BAT:79%][MEM:50.93% (16.15/31.71)GB][22:48:48]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\repos\scripts]{Git:main}
+PS> git rm -r --cached  __pycache__/
+fatal: pathspec '__pycache__/' did not match any files
+```
+
+
+
 #  undo commit
 `git reset --soft <commit_id>`
 

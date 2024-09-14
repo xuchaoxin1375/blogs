@@ -78,6 +78,10 @@
 ### 脚本版本更新
 
 - 脚本版本说明(建议参考代码仓库以获取最新版本的部署脚本:[PS/Deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/Deploy/deploy.psm1)) 或者下载此文件导入到powershell后调用
+  - 仓库代码可能会被误报违规,如果无法直接查看,你有如下选择
+    - 无法在线查看,但是可以下载/克隆本仓库离线查看
+    - 将链接中的`gitee.com`修改为`github.com`再尝试访问源代码(从github导入gitee的仓库)
+
 - 相关基础软件的我建议用`scoop install -g`选项全局安装,让windows上的所有用户都可以使用而不需要重复安装
 
 ### 权限说明
@@ -1049,7 +1053,9 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
 ### Notes
 
 - 上述脚本经过测试,可以正常工作
-- 可以新建一个本地账户(利用语句`net user tester 1 /add`创建一个测试用户`tester`,密码是`1`);登陆`tester`来验证其是否能工作
+  - 可以将`scoop`家目录重命名为`scoop.bak`(包括用户家目录下的`scoop`和通过全局安装软件产生的`C:\programdata\scoop`目录(如果有的话,也都重命名));然后重新测试此`scoop`部署方案
+  - 也可以新建一个本地账户(利用语句`net user tester 1 /add`创建一个测试用户`tester`,密码是`1`);登陆`tester`来验证其是否能工作
+
 
 ## 部署方案说明👺
 

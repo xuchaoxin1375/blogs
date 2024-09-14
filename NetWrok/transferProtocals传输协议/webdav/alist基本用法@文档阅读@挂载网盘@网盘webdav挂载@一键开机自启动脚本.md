@@ -503,6 +503,8 @@ Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false #是否免询�
 
 - [windows配置开机自启动软件或脚本-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/136098694?csdn_share_tail={"type"%3A"blog"%2C"rType"%3A"article"%2C"rId"%3A"136098694"%2C"source"%3A"xuchaoxin1375"})
 
+
+
 ## 挂载到资源管理器(模拟本地磁盘分区)👺
 
 - [windows@允许映射挂载http链接@挂载局域网http链接的webdav磁盘-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137939514)
