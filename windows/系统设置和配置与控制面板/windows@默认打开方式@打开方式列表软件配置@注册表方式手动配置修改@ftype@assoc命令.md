@@ -63,6 +63,19 @@ ftype [<filetype>[=[<opencommandstring>]]]
 - 通过scoop安装的软件,具有很一致的安装/卸载等操作的体验,并且安装速度十分快速(特别是被scoop收录的国内软件,比如qq,qqnt,微信(wechat)等软件,开发者工具类大多可以从scoop上直接下载)
 - 下面演示的sublime-text,typora等软件都可以通过scoop安装,并且路径没有包含空格,非常适合在命令行中直接引用
 
+### 将notepad--设置为文本文件打开方式
+
+假设你将notepad--安装在`"C:\ProgramData\scoop\shims\notepad--.exe"`路径,那么利用guan'li'y执行以下命令设置
+
+```cmd
+#$p="C:\ProgramData\scoop\shims\notepad--.exe" #scoop 安装的,命令行直接启动,没有软件图标
+$p="C:\ProgramData\scoop\apps\notepad--\current\Notepad--.exe"  #GUI软件路径,有图标
+cmd /c assoc .txt=txtfile
+cmd /c ftype txtfile=$p %1
+```
+
+
+
 ### 将sublime-text设置为某个文件类型的打开方式
 
 为例演示指定扩展名(格式)文件的打开方式,以sublime-text 打开`.demo`文件为例
