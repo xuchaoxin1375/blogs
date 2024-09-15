@@ -60,11 +60,14 @@
 - 如果愿意稍微配置一下,那么使用vscode+C/C++ extension 也是很好的选择,可以搜索带有配置文件的相关的仓库,下载下来,几乎就是开箱即用的程度,又有丰富的插件生态,可以用得非常舒服,但是对于大项目来说,还是要用更专业的工具
 - 使用CLion的用户也有不少,这个软件比较占用资源
 
-### 在线运行环境
+## 在线运行环境👺
 
 - [ Installing an Integrated Development Environment (IDE) – Learn C++ (learncpp.com)](https://www.learncpp.com/cpp-tutorial/installing-an-integrated-development-environment-ide/)	
   - 这里提到了几款在线编译运行环境
   - 实际上在线编译运行环境有很多,但是终归比较受限,所以还是有必要配置本地开发环境
+
+
+### 普通在线运行环境
 
 - Q: Can I use a web-based compiler?
 
@@ -77,6 +80,21 @@
   - [Godbolt](https://godbolt.org/) (can see assembly)
 
   Web-based compilers are fine for dabbling and simple exercises. However, they are generally quite limited in functionality -- many won’t allow you to create multiple files or effectively debug your programs, and most don’t support interactive input. You’ll want to migrate to a full IDE when you can.
+
+### 支持代码补全的在线运行环境👺
+
+有一些在线编程环境支持 C++ 代码补全功能，以下是几个推荐的选项：
+
+| **平台**      | **特点**                                                   | **网址**                               |
+| ------------- | ---------------------------------------------------------- | -------------------------------------- |
+| **OnlineGDB** | 提供在线编译器和调试器，支持代码补全和运行                 | [OnlineGDB](https://www.onlinegdb.com) |
+| **Paiza.IO**  | 提供支持多语言的在线编程环境，包括 C++，支持代码补全和运行 | [Paiza.IO](https://paiza.io)           |
+
+这些平台不仅支持 C++ 的代码补全，还提供了运行和调试功能，适合在线编程和学习。你可以根据自己的需求选择合适的平台。
+
+[(C++) | Online editor and compiler (paiza.io)](https://paiza.io/projects/g1amGrjR_S0_o2rIMym-Mw?language=cpp)
+
+
 
 ### 其他情形
 

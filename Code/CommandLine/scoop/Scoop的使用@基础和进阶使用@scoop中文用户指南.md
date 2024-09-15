@@ -188,6 +188,93 @@ ps>
 
      - 类似的,把目录`C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps`添加到`Path`变量中,就可以实现命令行中启动相应的软件(同样要求`PathExt`变量配置了`.LNK`)
 
+### scoop 别名
+
+- scoop 提供了别名机制
+
+  - 获取文档说明:
+
+    ```powershell
+    scoop help alias
+    ```
+
+  - 常用操作总结：
+
+    | 操作         | 命令示例                            |
+    | ------------ | ----------------------------------- |
+    | 添加别名     | `scoop alias add su 'scoop update'` |
+    | 删除别名     | `scoop alias rm su`                 |
+    | 查看所有别名 | `scoop alias list`                  |
+
+- 对scoop 自带命令取别名
+
+  - [Scoop Aliases (github.com)](https://gist.github.com/idleberg/e0872d37f792d3d969f4f3d24698773f)
+
+  ```powershell
+  Install app (不够灵活,指定参数不便,酌情使用)
+  #scoop alias add i 'scoop install $args[0]' 'Install app' #安装单个应用
+  #scoop alias add i 'foreach ($_ in $args) {scoop install $_}' 'Install apps' #支持安装多个应用
+  
+  scoop alias add add 'scoop install $args[0]' 'Install app'
+  
+  # Uninstall app
+  scoop alias add rm 'scoop uninstall $args[0]' 'Uninstall an app'
+  scoop alias add remove 'scoop uninstall $args[0]' 'Uninstall an app'
+  
+  # List apps
+  scoop alias add ls 'scoop list' 'List installed apps'
+  
+   
+  ```
+
+- 对已安装软件或外部命令创建别名,例如
+
+  ```powershell
+   scoop alias add z7z '7z $args ' 'alias for 7z'
+  ```
+
+  检查别名列表
+
+  ```cmd
+  PS> scoop alias list -v
+  
+  Name    Command                          Summary
+  ----    -------                          -------
+  add     scoop install $args[0]           Install app
+  i       scoop install （$args -join " ") Install apps
+  ls      scoop list                       List installed apps
+  remove  scoop uninstall $args[0]         Uninstall an app
+  rm      scoop uninstall $args[0]         Uninstall an app
+  u       scoop update $args[0]            Update apps, or Scoop itself
+  upgrade scoop update $args[0]            Update apps, or Scoop itself
+  z7z     7z $args                         alias for 7z(7-zip)
+  ```
+
+- 用例
+
+  - ```powershell
+    PS> scoop z7z l C:\Users\cxxu\downloads\Compressed\OpenSSH.zip
+    
+    7-Zip 24.08 (x64) : Copyright (c) 1999-2024 Igor Pavlov : 2024-08-11
+    
+    Scanning the drive for archives:
+    1 file, 4856219 bytes (4743 KiB)
+    
+    Listing archive: C:\Users\cxxu\downloads\Compressed\OpenSSH.zip
+    
+    --
+    Path = C:\Users\cxxu\downloads\Compressed\OpenSSH.zip
+    Type = zip
+    Physical Size = 4856219
+    
+       Date      Time    Attr         Size   Compressed  Name
+    ------------------- ----- ------------ ------------  ------------------------
+    2023-12-13 16:53:42 D....            0            0  OpenSSH-Win64\_manifest
+    2023-12-13 16:42:44 .....        16775         9541  OpenSSH-Win64\FixHostFilePermissions.ps1
+    2023-12-13 16:42:32 .....        15805         9267  OpenSSH-Win6
+    ```
+
+    
 
 ### 一键配置脚本👺👺
 
