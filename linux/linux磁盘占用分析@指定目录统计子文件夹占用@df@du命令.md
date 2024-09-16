@@ -3,7 +3,6 @@
 ### references
 
 * [Understanding the Linux df And du Commands - Make Tech Easier](https://www.maketecheasier.com/linux-df-du-commands/#:~:text=Understanding%20the%20Linux%20df%20And%20du%20Commands%201,files%20which%20are%20occupying%20large%20amounts%20of%20space.)
-* 
 
 ## df
 

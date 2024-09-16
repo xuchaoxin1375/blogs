@@ -6,16 +6,13 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 ## ref
 
-
-
 - 有关身份验证的部分
   - [创建存储库 - GitHub 文档](https://docs.github.com/zh/get-started/quickstart/create-a-repo)
   - [身份验证 - GitHub 文档](https://docs.github.com/zh/authentication)
   - [关于 SSH - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/about-ssh)
 - 这里主要讨论
-  - [新增 SSH 密钥到 GitHub 帐户 - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
-
+- [通过 SSH 连接到 GitHub - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh)
 
 ## 使用ssh进行连接github
 
@@ -28,13 +25,15 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 - 生成 SSH 密钥时，可以添加密码以进一步保护密钥。 每当使用密钥时，都必须输入密码。 
 
-- **<u>如果密钥具有密码并且你不想每次使用密钥时都输入密码，则可以将密钥添加到 SSH 代理。</u>** 
+- **如果密钥具有密码并且你不想每次使用密钥时都输入密码，则可以将密钥添加到 SSH 代理。** 
 
 - SSH 代理会管理 SSH 密钥并记住你的密码。
 
 - 如果您还没有 SSH 密钥，则必须生成新 SSH 密钥用于身份验证。 如果不确定是否已经拥有 SSH 密钥，您可以检查现有密钥。 有关详细信息，请参阅“[检查现有 SSH 密钥](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/checking-for-existing-ssh-keys)”。
 
   如果要使用硬件安全密钥向 GitHub 验证，则必须为硬件安全密钥生成新的 SSH 密钥。 使用密钥对进行身份验证时，您必须将硬件安全密钥连接到计算机。 有关详细信息，请参阅 [OpenSSH 发行说明](https://www.openssh.com/txt/release-8.2)。
+
+### 常用密钥类型
 
 #### rsa
 
@@ -145,7 +144,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
   注意，如果你使用的是 Windows，需要在 Git Bash 中执行以上步骤，而不是在 Windows 命令提示符或 PowerShell 中执行。
 
-###  关联到云端
+###  关联到云端👺
 
 - 文档:[新增 SSH 密钥到 GitHub 帐户 - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
@@ -155,19 +154,20 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 - GPG（GNU Privacy Guard）是一个开源的加密软件，可以用于加密、签名和验证文件、电子邮件和其他数据。GPG 使用公钥加密和私钥解密的方式来保护数据的安全性，可以用于保护个人隐私、保护敏感数据等。
 - 与 GPG 不同，SSH（Secure Shell）是一种网络协议，用于在网络上安全地远程登录到另一台计算机。SSH 使用公钥加密和私钥解密的方式来保护登录过程的安全性，可以用于远程管理、文件传输等。
-- 虽然 GPG 和 SSH 都使用公钥加密和私钥解密的方式来保护数据的安全性，但它们的使用场景和目的有所不同。GPG 主要用于加密、签名和验证文件、电子邮件和其他数据，可以用于保护个人隐私、保护敏感数据等；而 SSH 主要用于远程登录和管理计算机，可以用于远程管理、文件传输等。
-- 总的来说，GPG 和 SSH 都是保护数据安全性的工具，但它们的使用场景和目的有所不同，需要根据具体情况来选择使用哪种工具。
+- 虽然 GPG 和 SSH 都使用公钥加密和私钥解密的方式来保护数据的安全性，但它们的使用场景和目的有所不同。
+  - GPG 主要用于加密、签名和验证文件、电子邮件和其他数据，可以用于保护个人隐私、保护敏感数据等；
+  -  SSH 主要用于远程登录和管理计算机，可以用于远程管理、文件传输等。
 
 
+### github中的GPG和SSH
 
 - 在 GitHub 中，SSH 和 GPG keys 是用于身份验证和安全性的重要工具，它们可以帮助你更安全地访问和管理你的 GitHub 账户和仓库。
 - SSH keys 是一种用于通过 SSH 协议进行身份验证的加密密钥对。在 GitHub 上，你可以将你的公钥添加到你的账户中，这样就可以使用私钥来进行身份验证，使你能够更加安全地访问和管理你的 GitHub 仓库。要添加 SSH key，你需要生成一个密钥对，并将公钥添加到你的 GitHub 账户中。你可以在 GitHub 的设置页面中找到 SSH key 的选项。
 - GPG keys 是一种用于加密、签名和验证数据的密钥对。在 GitHub 上，你可以将你的公钥添加到你的账户中，这样就可以使用私钥来加密、签名和验证提交的代码、合并请求等数据，使你的代码更加安全可靠。要添加 GPG key，你需要生成一个密钥对，并将公钥添加到你的 GitHub 账户中。你可以在 GitHub 的设置页面中找到 GPG key 的选项。
-- 总的来说，SSH 和 GPG keys 都是非常重要的安全工具，可以帮助你更加安全地访问和管理你的 GitHub 账户和仓库。为了保护你的账户和代码的安全性，建议你在使用 GitHub 时添加 SSH 和 GPG keys。
 
-##  Note 粘贴公钥而非私钥👺
+##  使用生成的公钥和私钥👺
 
-- 将ssh key粘贴到githus上的时候,不要把`私钥`张贴进去,而是`公钥`要粘贴进去
+- 上述介绍可知,公钥要用私钥来解密将ssh key粘贴到github上的时候,不要把`私钥`张贴进去,而是`公钥`要粘贴进去(文件后缀为`.pub`)
 - 粘贴你的SSH公钥，通常包含在文件'~/.ssh/id_ed25519.pub'或'~/.ssh/id_rsa.pub' 中，并以“ssh-ed25519”或“ssh-rsa”开头。不要粘贴你的SSH私钥，因为这会泄漏你的身份信息。
 - `私钥`的可能格式
 
@@ -213,11 +213,41 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 
 
-### gitee 设置
+### Gitee 设置
 
 - [SSH 公钥设置 | Gitee 产品文档](https://help.gitee.com/base/account/SSH公钥设置/)
 
 - 直达连接:「[添加公钥](https://gitee.com/profile/sshkeys)」
+
+## FAQ
+
+### ssh相关目录或文件处于风险状态
+
+- ssh对于`ssh`家目录的检查是比较严格的,如果对其设置了不恰当的访问权限,会导致用于验证的私钥无法生效
+
+#### Bad permissions
+
+- 例如,在终端输入 `ssh -T git@github.com` 来测试本地密钥是否正常工作：
+
+  ```cmd
+  PS> ssh -T git@github.com
+  The authenticity of host 'github.com (140.82.114.3)' can't be established.
+  ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+  This key is not known by any other names.
+  Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+  
+  Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+  Bad permissions. Try removing permissions for user: UNKNOWN\\UNKNOWN (S-1-5-21-1150093504-2233723087-916622917-1001) on file C:/Users/cxxu/.ssh/id_rsa.
+  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  @         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  Permissions for 'C:\\Users\\cxxu/.ssh/id_rsa' are too open.
+  It is required that your private key files are NOT accessible by others.
+  This private key will be ignored.
+  Load key "C:\\Users\\cxxu/.ssh/id_rsa": bad permissions
+  Hi xuchaoxin1375! You've successfully authenticated, but GitHub does not provide shell access.
+  ```
+
 
 
 

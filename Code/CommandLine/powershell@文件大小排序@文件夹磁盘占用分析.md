@@ -9,6 +9,10 @@
 - 统计目录或文件的大小,文件或目录占用大小数值支持单位指定,格式友好
 - 对指定目录以友好的格式列出所有文件和子目录的大小
 
+在linux上有`du`命令可以完成相关统计任务
+
+扩展介绍其他能够完成此类任务的部分工具,例如everything
+
 ### powershell对于列出子目录大小的支持状况
 
 列出子目录大小是一个常见的需求，而 PowerShell 的 `ls` 命令（或 `Get-ChildItem` cmdlet）默认没有直接提供这个功能，这可能有几个原因：
@@ -461,3 +465,32 @@ d---- .mypy_cache            52.72 MB
 
 - 利用**everything**排序(高性能),文件索引完毕后,指定目录,选择size排序
   - 软件官网https://www.voidtools.com/
+
+- sysinternals工具集有Microsoft开发维护,里面的磁盘相关的工具或许能够满足您更多的需要
+- [磁盘使用情况 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/du)
+
+- [文件和磁盘实用工具 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/file-and-disk-utilities)
+
+```powershell
+PS> du -v|sort -Descending
+Processing...
+
+Totals:
+Sysinternals - www.sysinternals.com
+Size:         578,286 bytes
+Size on disk: 1,462,272 bytes
+Files:        112
+DU v1.62 - Directory disk usage reporter
+Directories:  58
+Copyright (C) 2005-2018 Mark Russinovich
+          82  C:\repos\scripts\PS\Deploy
+          78  C:\repos\scripts\PS\Basic
+          52  C:\repos\scripts\PS\Pwsh
+          40  C:\repos\scripts\PS\TaskSchdPwsh
+          27  C:\repos\scripts\PS\Deprecated
+          24  C:\repos\scripts\PS\PwshVar
+          21  C:\repos\scripts\PS\EnvVar
+          20  C:\repos\scripts\PS\Search
+  ....
+```
+
