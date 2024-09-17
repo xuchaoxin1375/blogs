@@ -61,13 +61,16 @@ longest common word.cpp                                      4289
 
 针对此类文件大小排列相关任务,编写扩展的函数
 
+代码仓库最新版本
 
+[PS/Pwsh/Pwsh.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/Pwsh/Pwsh.psm1)
 
-### 统计目录或文件的大小👺
+### 统计目录或文件的大小@Get-Size👺
 
 - 以下函数专门为此类任务设计,并且支持指定显示格式,文件大小单位
 
 ```powershell
+
 function Get-Size
 {
     <#
@@ -97,7 +100,7 @@ function Get-Size
     计算多个路径的大小，并以 MB 为单位显示结果。
     .EXAMPLE
     指定显示单位为KB ,显示5位小数
-    PS> Get-Size -PrecisionFormatTable -Precision 5 -Unit KB
+    PS> Get-Size -SizeAsString -Precision 5 -Unit KB
 
     Mode  BaseName Size      Unit
     ----  -------- ----      ----
@@ -121,7 +124,7 @@ function Get-Size
     指定显示精度为4为小数(由于这里恰好第3,4位小数为0,所以没有显示出来,指定更多位数,可以显示)
     PS🌙[BAT:79%][MEM:44.52% (14.12/31.71)GB][0:03:01]
     # [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\repos\scripts\PS]
-    PS> Get-Size -PrecisionFormatTable -Precision 4
+    PS> Get-Size -SizeAsString -Precision 4
 
     Mode  BaseName Size Unit
     ----  -------- ---- ----
@@ -130,7 +133,7 @@ function Get-Size
     指定显示精度为5为小数
     PS🌙[BAT:79%][MEM:44.55% (14.13/31.71)GB][0:03:05]
     # [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\repos\scripts\PS]
-    PS> Get-Size -PrecisionFormatTable -Precision 5
+    PS> Get-Size -SizeAsString -Precision 5
 
     Mode  BaseName Size    Unit
     ----  -------- ----    ----
@@ -157,7 +160,7 @@ function Get-Size
 
         #文件大小精度
         $Precision = 2,
-        [switch]$PrecisionFormatTable,
+        [switch]$SizeAsString,
         [switch]$Detail,
         [switch]$FormatTable
     )
@@ -166,7 +169,7 @@ function Get-Size
     {
         if ($VerbosePreference)
         {
-
+            # 即使外部不显示传入-Verbose参数,也会显示Verbose信息
             $PSBoundParameters | Format-Table  
             
         }
@@ -212,7 +215,7 @@ function Get-Size
                 Write-Verbose "`$sizeInSpecifiedUnit: $sizeInSpecifiedUnit"
                 $Size = [math]::Round($sizeInSpecifiedUnit, [int]$Precision)
                 Write-Verbose "`$size: $Size"
-                if ($PrecisionFormatTable)
+                if ($SizeAsString)
                 {
                     $size = "$size"
                 }
@@ -237,7 +240,7 @@ function Get-Size
                         $res | Add-Member -MemberType NoteProperty -Name $p.Name -Value $p.value
                     }
                 }
-
+                # 这个选项其实有点多余,用户完全可以自己用管道符|ft获取表格试图,有更高的灵活性
                 if ($FormatTable)
                 {
 
@@ -251,7 +254,12 @@ function Get-Size
             }
         }
     }
+    end
+    {
+        # return $res
+    }
 }
+
 ```
 
 用例:除了函数内部的文档和例子,在举例
@@ -287,7 +295,7 @@ Mode  BaseName             Size Unit
 
 
 
-### 对指定目录以友好的格式列出所有文件和子目录的大小
+### 对指定目录以友好的格式列出所有文件和子目录的大小@Get-ItemSizeSorted
 
 用例可以参考函数内部的注释文档`.Example`
 
@@ -302,6 +310,21 @@ function Get-ItemSizeSorted
     对指定目录以文件大小从大到小排序展示其中的子目录和文件列表
     .DESCRIPTION
     继承大多数Get-Size函数的参数,比如可以指定文件文件大小的单位，大小数值保留的小数位数等(详情请参考Get-Size函数)。
+    .NOTES
+    这里默认不是用并行计算,如果需要启用并行计算，可以通过参数-Parallel来启用。
+    
+    .PARAMETER Parallel
+    这里可以考虑使用并行方案进行统计,但是建议不要滥用,因为并行计算创建多线程也是需要资源和时间开销的,在文件数量不是很巨大的情况下,使用并行方案反而会降低速度,并行数量通常建议不超过3个为宜;
+    .PARAMETER ThrottleLimit
+    并行计算时的并发数,如果启用并行计算，ThrottleLimit参数默认为5,可以通过此参数指定为其他正整数
+
+    .PARAMETER Path
+    要排序的目录
+    .PARAMETER Unit
+    将文件大小单位转换为指定单位
+    
+
+
     .EXAMPLE
     PS🌙[BAT:79%][MEM:44.53% (14.12/31.71)GB][0:00:19]
     # [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][C:\repos\scripts\PS]
@@ -314,6 +337,7 @@ function Get-ItemSizeSorted
     d---- Pwsh                             49.91 KB
     d---- TaskSchdPwsh                     40.06 KB
     #>
+    [CmdletBinding()]
     param (
         $Path = '.',
         [Parameter(Mandatory = $false)]
@@ -322,13 +346,58 @@ function Get-ItemSizeSorted
         #文件大小精度
         $Precision = 3,
         [switch]$Detail,
-        [switch]$PrecisionFormatTable,
-        [switch]$FormatTable
+        [switch]$SizeAsString,
+        [switch]$FormatTable,
+        [switch]$Parallel,
+        $ThrottleLimit = 5
     )
-    $res = Get-ChildItem $Path | ForEach-Object {
-        $_ | Get-Size -Unit $Unit -Precision $Precision -Detail:$Detail `
-            -PrecisionFormatTable:$PrecisionFormatTable # -FormatTable:$FormatTable 
+    if ($VerbosePreference)
+    {
+        $PSBoundParameters | Format-Table
     }
+    $verbose = $VerbosePreference
+    if ($Parallel)
+    {
+        Write-Host 'Parallel Mode.'
+        $res = Get-ChildItem $Path | ForEach-Object -Parallel {
+            $Unit = $using:Unit
+            $Precision = $using:Precision
+            $Detail = $using:Detail
+            $SizeAsString = $using:SizeAsString
+            $item = $_ | Get-Size -Unit $Unit -Precision $Precision -Detail:$Detail `
+                -SizeAsString:$SizeAsString # -FormatTable:$FormatTable 
+            
+            # Write-Output $item 
+            # $item | Format-Table  | Out-String 
+            $verbose = $using:verbose
+            if ($verbose)
+            {
+                Write-Host $item -ForegroundColor blue
+            }
+            return $item
+        } -ThrottleLimit $ThrottleLimit
+    }
+    else
+    {
+        Write-Host 'Calculating ... '
+        $res = Get-ChildItem $Path | ForEach-Object {
+            $item = $_ | Get-Size -Unit $Unit -Precision $Precision -Detail:$Detail -SizeAsString:$SizeAsString -Verbose:$false # -FormatTable:$FormatTable 
+            
+            # Write-Host $item  -ForegroundColor Red
+            # $item | Format-Table #会被视为返回值,后续的管道服sort将无法正确执行(利用break可以验证,这个语句本身没有问题,但是后续的管道无法正常执行)
+            # break
+            # 非-parallel脚本块,可以直接引用外部变量
+            if ($VerbosePreference)
+            {
+
+                Write-Host $item
+            }
+            # Write-Output $item 
+            return $item
+        }
+    }
+        
+
     $sorted = $res | Sort-Object -Property size -Descending
     if ($FormatTable)
     {
@@ -337,7 +406,6 @@ function Get-ItemSizeSorted
     }
     return $sorted
 }
-
 ```
 
 ### 函数灵活性说明👺
@@ -453,7 +521,7 @@ da--- PS                      0.55 MB
 d---- .mypy_cache            52.72 MB
 ```
 
-## 其他相关软件
+## 其他相关软件👺
 
 - Onecommander [OneCommander - Modern files manager for Windows 11 and Windows 10](https://onecommander.com/)
   - 是一款扩展了windows资源管理器(explorer)的软件,可以启用目录占用大小的功能(这会引起高的cpu占用,灵活性不如单独计算指定目录的供,windows自带的资源管理器虽然默认计算文件夹大小,但是可以右键属性单独查看指定目录占用大小)
@@ -461,15 +529,23 @@ d---- .mypy_cache            52.72 MB
 - eza [eza-community/eza: A modern alternative to ls (github.com)](https://github.com/eza-community/eza)
   - 在windows平台上功能受限
 
-### 易用系列
+### 易用高性能系列
+
+#### everything
 
 - 利用**everything**排序(高性能),文件索引完毕后,指定目录,选择size排序
   - 软件官网https://www.voidtools.com/
 
-- sysinternals工具集有Microsoft开发维护,里面的磁盘相关的工具或许能够满足您更多的需要
-- [磁盘使用情况 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/du)
 
-- [文件和磁盘实用工具 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/file-and-disk-utilities)
+#### du (sysinternals du)
+
+- sysinternals工具集有Microsoft开发维护,里面的磁盘相关的工具或许能够满足您更多的需要
+  - [磁盘使用情况 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/du)
+  - [文件和磁盘实用工具 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/file-and-disk-utilities)
+
+##### 用例
+
+- 查看指定目录下所有子目录下文件的大小,可以配合管道符进行排序
 
 ```powershell
 PS> du -v|sort -Descending
@@ -494,3 +570,79 @@ Copyright (C) 2005-2018 Mark Russinovich
   ....
 ```
 
+
+
+#### WizTree
+
+- 专业的磁盘占用分析工具,直观易用
+  - [WizTree - The Fastest Disk Space Analyzer (diskanalyzer.com)](https://diskanalyzer.com/?ref=wiztree)
+
+- 其他类似的工具有spacesniffer,windirstat等(速度可能较慢)
+
+## 简单性能比较
+
+利用du和本文提供的powershell函数`Get-itemSizeSorted`进行性能比较,可以发现,powershell下此函数执行速度可以比du快
+
+```powershell
+PS🌙[BAT:100%][MEM:74.01% (11.37/15.37)GB][20:20:10]
+#⚡️[cxxu@BEFEIXIAOXINLAP][<W:192.168.1.77>][C:\repos]
+PS> Measure-Command -Expression {du -l 1}|select TotalSeconds
+Processing...
+
+
+TotalSeconds
+------------
+        0.72
+
+
+PS🌙[BAT:100%][MEM:72.88% (11.2/15.37)GB][20:22:01]
+#⚡️[cxxu@BEFEIXIAOXINLAP][<W:192.168.1.77>][C:\repos]
+PS> Measure-Command -Expression {Get-ItemSizeSorted}|select TotalSeconds
+
+TotalSeconds
+------------
+        0.32
+
+```
+
+使用powershell 7的并行特性,速度可以更快,下面是利用`foreach-object -parallel`并行计算,速度比原来的
+
+```powershell
+# [cxxu@BEFEIXIAOXINLAP][<W:192.168.1.77>][C:\exes]
+PS> measure-Command {Get-ItemSizeSorted}|select TotalSeconds
+
+TotalSeconds
+------------
+        0.39
+
+```
+
+在另一组文件数量较多的测试中,`powershell`下的方案比`du`工具要快得多
+
+```powershell
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][C:\exes]
+PS> Measure-Command {du -l 1}
+Processing...
+
+TotalSeconds      : 7.7222352
+TotalMilliseconds : 7722.2352
+
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][C:\exes]
+PS> Measure-Command {Get-ItemSizeSorted -Parallel -ThrottleLimit 4}
+Parallel Mode.
+
+ 
+TotalSeconds      : 1.4366758
+TotalMilliseconds : 1436.6758
+
+
+PS🌙[BAT:79%][MEM:28.58% (9.06/31.71)GB][23:11:23]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][C:\exes]
+PS> Measure-Command {Get-ItemSizeSorted}
+Calculating ...
+ 
+TotalSeconds      : 1.72188
+TotalMilliseconds : 1721.88
+```
+
+- 可以看到4线程并行最快,单线程也不错,都控制在2秒内,`du`命令最慢,耗时7秒钟以上
