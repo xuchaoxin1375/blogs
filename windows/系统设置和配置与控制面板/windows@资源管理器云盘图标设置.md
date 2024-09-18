@@ -133,24 +133,84 @@ Set-Acl -Path $path -AclObject $acl
 下面的命令行尽可能考虑到这些问题,并且在我的计算机上测试通过(注意,如果用gui方式查看注册表访问权限,在命令行执行完更改后,请刷新注册表(F5),然后在检查注册表权限)
 
 ```powershell
-$path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace"
-$acl = Get-Acl -Path $path
+function Set-ExplorerSoftwareIcons
+{
+    <# 
+    .SYNOPSIS
+    本命令用于禁用系统Explorer默认的计算机驱动器以外的软件图标,尤其是国内的网盘类软件(百度网盘,夸克网盘,迅雷,以及许多视频类软件)
+    也可以撤销禁用
+    .PARAMETER Enabled
+    是否允许软件设置资源管理器内的驱动器图标
+    使用True表示允许
+    使用False表示禁用(默认)
+    .NOTES
+    使用管理员权限执行此命令
+    .EXAMPLE
+    PS C:\Users\cxxu\Desktop> set-ExplorerSoftwareIcons -Enabled True
+    refresh explorer to check icons
+    #禁用其他软件设置资源管理器驱动器图标
+    PS C:\Users\cxxu\Desktop> set-ExplorerSoftwareIcons -Enabled False
+    refresh explorer to check icons
+    .EXAMPLE
+    显示设置过程信息
+    PS C:\Users\cxxu\Desktop> set-ExplorerSoftwareIcons -Enabled True -Verbose
+    VERBOSE: Enabled Explorer Software Icons (allow Everyone Permission)
+    refresh explorer to check icons
+    .EXAMPLE
+    显示设置过程信息,并且启动资源管理器查看刷新后的图标是否被禁用或恢复
+    PS C:\Users\cxxu\Desktop> set-ExplorerSoftwareIcons -Enabled True -Verbose -RefreshExplorer
+    VERBOSE: Enabled Explorer Software Icons (allow Everyone Permission)
+    refresh explorer to check icons
+    PS C:\Users\cxxu\Desktop> set-ExplorerSoftwareIcons -Enabled False -Verbose -RefreshExplorer
+    VERBOSE: Disabled Explorer Software Icons (Remove Everyone Group Permission)
+    refresh explorer to check icons
+    
+    #>
+    [CmdletBinding()]
+    param (
+        [ValidateSet('True', 'False')]$Enabled ,
+        [switch]$RefreshExplorer
+    )
+    $path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace'
+    $acl = Get-Acl -Path $path
 
-# 禁用继承并删除所有继承的访问规则
-$acl.SetAccessRuleProtection($true, $false)
+    # 禁用继承并删除所有继承的访问规则
+    $acl.SetAccessRuleProtection($true, $false)
 
-# 清除所有现有的访问规则
-$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+    # 清除所有现有的访问规则
+    $acl.Access | ForEach-Object {
+        $acl.RemoveAccessRule($_) | Out-Null
+    }
 
-# 添加SYSTEM和Administrators的完全控制权限
-$identities = @("NT AUTHORITY\SYSTEM", "BUILTIN\Administrators")
-foreach ($identity in $identities) {
-    $rule = New-Object System.Security.AccessControl.RegistryAccessRule($identity, "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
-    $acl.AddAccessRule($rule)
+
+    # 添加SYSTEM和Administrators的完全控制权限
+    $identities = @('NT AUTHORITY\SYSTEM', 'BUILTIN\Administrators')
+    if ($Enabled -eq 'True')
+    {
+        $identities += @('Everyone')
+        Write-Verbose 'Enabled Explorer Software Icons (allow Everyone Permission)'
+    }
+    else
+    {
+        Write-Verbose 'Disabled Explorer Software Icons (Remove Everyone Group Permission)'
+    }
+    foreach ($identity in $identities)
+    {
+        $rule = New-Object System.Security.AccessControl.RegistryAccessRule($identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+        $acl.AddAccessRule($rule)
+    }
+
+    # 应用新的ACL
+    Set-Acl -Path $path -AclObject $acl # -ErrorAction Stop
+    Write-Host 'refresh explorer to check icons'    
+    if ($RefreshExplorer)
+    {
+        explorer.exe
+    }
 }
+#管理员权限限一键执行
+set-ExplorerSoftwareIcons -Enabled False
 
-# 应用新的ACL
-Set-Acl -Path $path -AclObject $acl # -ErrorAction Stop
 ```
 
 这个脚本做了以下几件事：

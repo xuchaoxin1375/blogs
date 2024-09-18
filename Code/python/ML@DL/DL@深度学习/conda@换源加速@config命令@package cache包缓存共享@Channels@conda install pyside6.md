@@ -263,7 +263,7 @@
 
 ### 不恰当的url Channel导致的错误
 
-- 于是我尝试使用`-c url`的方式来指定通道,没想清华源和阿里源都提示:`UnavailableInvalidChannel: HTTP 404 NOT FOUND for channel anaconda/cloud...`
+- 我尝试使用`-c url`的方式来指定通道,没想清华源和阿里源都提示:`UnavailableInvalidChannel: HTTP 404 NOT FOUND for channel anaconda/cloud...`
 
 - 后来发现,是url不完整的问题
 

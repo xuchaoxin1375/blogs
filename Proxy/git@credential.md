@@ -1,5 +1,7 @@
-@[toc]
+[toc]
+
 #  synopses
+
 > 如何避免每次输入密码
 
 - 如果你正在使用 HTTPS URL 来推送，Git 服务器会询问用户名与密码。 默认情况下它会在终端中提示服务器是否允许你进行推送。
@@ -38,9 +40,9 @@ $ git config --global credential.helper 'cache --timeout 10000'
      --global
                For writing options: write to global ~/.gitconfig file rather than the repository .git/config, write to $XDG_CONFIG_HOME/git/config file if this file exists and the
                ~/.gitconfig file doesn’t.
-    
+      
                For reading options: read only from global ~/.gitconfig and from $XDG_CONFIG_HOME/git/config rather than from all available files.
-    
+      
                See also the section called “FILES”.
     ```
 

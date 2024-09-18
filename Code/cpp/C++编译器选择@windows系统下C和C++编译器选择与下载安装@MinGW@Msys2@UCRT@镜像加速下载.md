@@ -386,7 +386,7 @@ MinGW 是一个功能强大且灵活的开发工具集，适合那些希望在 W
 
 ## MSYS2实际应用
 
-### MSYS2换源👺
+### MSYS2换源👺👺
 
 - 安装ucrt(体积蛮大的,下面的例子用国内镜像下载)
 
@@ -394,14 +394,15 @@ MinGW 是一个功能强大且灵活的开发工具集，适合那些希望在 W
 
   - 在msys2的shell(默认为bash)内执行换源(清华源)
 
-  - 换源前可以检查一下或者备份原来的源
+  - 换源前可以检查一下原来的源,可以执行备份操作
 
     ```bash
     cat /etc/pacman.d/mirrorlist*
+    # cp /etc/pacman.d/mirrorlist* ~/pacman.bak
     ```
-
+  
   - 执行换源语句
-
+  
     ```bash
     sed -i "s#https\?://mirror.msys2.org/#https://mirrors.tuna.tsinghua.edu.cn/msys2/#g" /etc/pacman.d/mirrorlist*
     ```

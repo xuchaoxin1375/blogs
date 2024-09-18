@@ -36,7 +36,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   - 如果发生这种情况,使用该软件重新设置一个有密码的专用账户来登录
 - 如果您不关心匿名登录,追求更加可控的一键设置,那么使用下面的脚本创建共享文件夹会更加方便和直接
 
-### 基于Powershell脚本方案的简单操作步骤
+### 基于Powershell脚本方案的简单操作步骤👺
 
 如果您对共享文件夹创建细节不感兴趣,可以直接执行以下操作
 
@@ -44,12 +44,14 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
 
 - 复制粘贴以下内容(你可以将脚本粘贴到记事本或其他编辑器再**手动修改相关变量**来符合自己的需要)
 
-  - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[modulesByCxxu/deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/deploy/deploy.psm1)
+  - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[modulesByCxxu/deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/deploy/deploy.psm1) 
+  - 或者将链接中的gitee修改为github在线查看
+  - 在线展示代码可能会被误报违规,建议您下载本仓库到本地(体积很小),里面还有众多实用的powershell函数或命令
 
-- 下面的脚本包含了多个powershell函数,其中`Deploy-SmbSharing`是主函数,其他为辅助函数
+- 下面的一键执行脚本包含了多个powershell函数,其中`Deploy-SmbSharing`是主函数,其他为辅助函数
 
   ```powershell
-  #下面这四个函数是用来启用网络共享和网络发现的并部署带有使用说明文档的共享文件夹
+  #下面这几个函数是用来启用网络共享和网络发现的并部署带有使用说明文档的共享文件夹
   function Grant-PermissionToPath
   {
       <# 
@@ -121,7 +123,8 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
           Write-Error "设置权限时出错: $_"
       }
   }
-  
+  #一键部署局域网内smb共享文件夹
+  # 本模块包含其中的4个函数,另一个函数是权限设定函数,Grant-PermissionToPath
   function Enable-NetworkDiscoveyAndSharing
   {
       <# 
@@ -251,8 +254,11 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   
       一个思路是新建一个SMB组,设置其拥有对被共享文件夹的权限,然后新建一个目录将其加入到SMB组中
       .EXAMPLE
+      #不创建新用户来用于访问Smb共享文件夹,指定C:\share1作为共享文件夹,其余参数保持默认
+      PS C:\> Deploy-SmbSharing -Path C:\share1 -NoNewUserForSmb
+      .EXAMPLE
       # 指定共享名称为ShareDemo，其他参数默认:共享目录为C:\Share，权限为Change，用户为ShareUser，密码为1
-      PS> Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -password 1
+      PS> Deploy-SmbSharing -ShareName ShareDemo -SmbUser ShareUser -SmbUserkey 1
       .EXAMPLE
       完整运行过程(逃过次要信息)
       使用强制Force参数修改被共享文件夹的权限(默认为任意用户完全控制,如果需要进一步控制,需要开放更多参数,为了简单起见,这里就默认选项)
@@ -310,10 +316,11 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
           $Path = 'C:\Share',
           $ShareName = 'Share',
           [ValidateSet('Read', 'Change', 'Full')]$Permission = 'Change', #合法的值有:Read,Change,Full 权限从低到高 分别是只读(Read),可读可写(change),完全控制(full)
-          
-           #指定是否不创建新用户(仅使用已有用户凭证访问smb文件)
-          # 这里的Mandatory=$true不能轻易移除,本函数用了参数集,并且基本上都用默认参数来使配置更简单;为了让powershell能够在不提供参数的情况下分辨我们调用的是哪个参数集，这里使用了Mandatory=$true来指定一个必须显式传递的参数,让函数能够不提供参数可调用
-          [parameter(Mandatory=$true ,ParameterSetName = 'NoNewUser')]
+  
+          #指定是否不创建新用户(仅使用已有用户凭证访问smb文件)
+          # 这里的Mandatory=$true不能轻易移除,本函数用了参数集,并且基本上都用默认参数来使配置更简单;
+          # 为了让powershell能够在不提供参数的情况下分辨我们调用的是哪个参数集，这里使用了Mandatory=$true来指定一个必须显式传递的参数,让函数能够不提供参数可调用
+          [parameter(Mandatory = $true , ParameterSetName = 'NoNewUser')]
           [switch]$NoNewUserForSmb,
   
           # [parameter(ParameterSetName = 'SmbUser')]
@@ -325,6 +332,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
           #密码可以改,但是建议尽可能简单,默认为1(为了符合函数设计的安全规范,这里不设置明文默认密码)
           [parameter(ParameterSetName = 'SmbUser')]
           $SmbUserkey = '1',
+          [switch]$DisableSmbUserLogonLocally,
           # 设置宽松的NTFS权限(但是仍然不一定会生效),如果可以用,尽量不要用Force选项
           [switch]$Force
       )
@@ -361,7 +369,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
               # 定义新用户的用户名和密码
               $username = $SmbUser
   
-              # 创建新用户(为了规范起见,最好在使用本地安全策略将Smb共享账户设置为禁止本地登录(加入本地登录黑名单,详情另见它文,这个步骤难以脚本化))
+              # 创建新用户(为了规范起见,最好在使用本地安全策略将Smb共享账户设置为禁止本地登录(加入本地登录黑名单,详情另见它文,这个步骤(加入本地登录黑名单,详情另见它文,这个步骤难以脚本化)这里尝试使用Disable-SmbSharingUserLogonLocallyRight函数来实现此策略设置)难以脚本化))
               net user $username $SmbUserKey /add /fullname:"Shared Folder User" /comment:"User for accessing shared folder" /expires:never 
               # 由于New-LocalUser在不同windows平台上可能执行失败,所以这里用net user,而不是用New-LocalUser
               # New-LocalUser -Name $username -Password $SmbUserKey -FullName 'Shared Folder User' -Description 'User for accessing shared folder'
@@ -390,18 +398,77 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   
       # 创建Smb共享文件夹的README
       New-SmbSharingReadme
-      
+      if ($DisableSmbUserLogonLocally)
+      {
+          Disable-SmbSharingUserLogonLocallyRight -SmbUser $SmbUser
+      }
+  }
+  
+  function Disable-SmbSharingUserLogonLocallyRight
+  {
+      <# 
+      .SYNOPSIS
+      使用管理员权限运行函数
+      #>
+      param (
+          $SmbUser,
+          $WorkingDirectory = 'C:/tmp'
+      )
+      if (!(Test-Path $WorkingDirectory ))
+      {
+  
+          New-Item -ItemType Directory -Path $WorkingDirectory -Force -Verbose
+      }
+      $path = Get-Location
+      Set-Location $WorkingDirectory
+  
+      Write-Host 'setting Smb User Logon Locally Right' -ForegroundColor Blue
+      # 添加用户到拒绝本地登录策略
+      secedit /export /cfg secconfig.cfg
+      #修改拒绝本地登陆的项目,注意$smbUser变量的取值,依赖于之前的设置,或者在这里重新设置
+      $smbUser = 'smb'#如果和你的设定用户名不同,则需要重新设置
+  
+  (Get-Content secconfig.cfg) -replace 'SeDenyInteractiveLogonRight = ', "SeDenyInteractiveLogonRight =$smbUser," | Set-Content secconfig.cfg
+   
+      secedit /configure /db secedit.sdb /cfg secconfig.cfg > $null
+      #上面这个语句可能会提示你设置过程中遇到错误,但是我检查发现其成功设置了响应的策略,您可以重启secpol.msc程序来查看响应的设置是否更新,或者检查切换用户时列表中会不会出现smbUser选项
+      Remove-Item secconfig.cfg #移除临时使用的配置文件
+      Set-Location $path
   }
   
   #调用:
   #无参数默认调用
-  Deploy-SmbSharing
+  deploy-SmbSharing -DisableSmbUserLogonLocally
   #自定义参数举例
   # Deploy-SmbSharing -Path C:\share -SmbUser smb2 -SmbUserkey 1 -Force
 
 Note:上述脚本非常适合电脑小白,如果您的计算机没有用过相关功能,那么执行完上述脚本,您的`C:\`下有一个`Share`目录,并且里面有说明文档
 
-### 本方案的特点
+## 禁止账户本地登陆(推荐操作)
+
+要配置本地用户以阻止桌面登录，但允许文件夹或打印机共享，可以按以下步骤进行：
+
+### 使用本地安全策略(GUI)
+
+1. **打开本地安全策略**
+   - 按 `Win + R`，输入 `secpol.msc`，然后按 Enter。
+
+2. **导航到本地策略**
+   - 展开“本地策略”，选择“用户权利指派”。
+
+3. **拒绝本地登录**
+   - 在右侧窗口中找到“拒绝本地登录”，双击它。
+   - 点击“添加用户或组”，输入用户名 `smb`，然后确认。
+
+### 使用命令行(CLI)👺
+
+你也可以使用命令行来配置：
+
+使用管理员权限打开powershell,相关脚本在上一节中给出,您可以自行找到复制,函数名称为`Disable-SmbSharingUserLogonLocallyRight`
+
+
+
+## 本方案的特点
 
 使用上述提供的一键创建共享文件夹脚本创建的共享文件夹在被访问时通常不会遇到**权限**不足被拒绝的问题(如果有应该是NTFS权限的问题,而不是共享权限,此时你使用`-ClearExistingRules`来清空权限限制(其实可通过`Deploy-SmbSharing `启用`-Force`选项来间接重置权限)或者通过GUI右键您所共享的文件夹属性进行调整)
 
