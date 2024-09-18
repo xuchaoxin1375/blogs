@@ -2,18 +2,20 @@
 
 
 
-## 如何避免每次输入密码
+### 相关文档
 
-- 如果你正在使用 HTTPS URL 来推送，Git 服务器会询问用户名与密码。 默认情况下它会在终端中提示服务器是否允许你进行推送。
+- [Git - 凭证存储 (git-scm.com)](https://git-scm.com/book/zh/v2/Git-工具-凭证存储#:~:text=Git 凭证辅助工具)
 
+### 凭证助手@常见 `credential.helper` 选项总结
 
-### 凭证助手
-
-- 如果不想在每一次推送时都输入用户名与密码，你可以设置一个 “credential cache”。 
-  - 最简单的方式就是将其保存在内存一段时间，可以简单地运行` git config --global credential.helper cache` 来设置它。
-
-  - 想要了解更多关于不同验证缓存的可用选项，查看 `凭证存储` 文档。
-
+| Helper         | 描述                                                         |
+| -------------- | ------------------------------------------------------------ |
+| `cache`        | 在内存中临时缓存凭证，默认 15 分钟，可以通过 `--timeout` 设置。 |
+| `store`        | 以明文方式存储凭证在本地文件，默认位置 `~/.git-credentials`。 |
+| `osxkeychain`  | 使用 macOS 的 Keychain 进行凭证存储。                        |
+| `wincred`      | 在 Windows 系统中使用 Windows Credential Store。             |
+| `manager`      | 使用 Git Credential Manager (GCM) 进行跨平台安全存储。       |
+| `manager-core` | 新版 Git Credential Manager，支持更现代的认证机制。          |
 
 ##  credential store
 
@@ -38,28 +40,6 @@ $ git config --global credential.helper 'cache --timeout 10000'
 ```
 
 ##  git 全局配置文件
-
-
-
-### 获取帮助
-
-- `git config --help`
-
-```
- --global
-           For writing options: write to global ~/.gitconfig file rather than the repository .git/config, write to $XDG_CONFIG_HOME/git/config file if this file exists and the
-           ~/.gitconfig file doesn’t.
-
-           For reading options: read only from global ~/.gitconfig and from $XDG_CONFIG_HOME/git/config rather than from all available files.
-
-           See also the section called “FILES”.
-```
-
-
-
-###  linux的git配置文件目录
-
-- `~/.gitconfig`
 
 
 
@@ -100,9 +80,7 @@ $ git config --global credential.helper 'cache --timeout 10000'
 $ git config --global credential.helper 'store --file ~/.my-credentials'
 ```
 
-##  采用非对公钥-私钥验证方法@ssh key方法
 
-- 另见ta'wen
 
 
 
