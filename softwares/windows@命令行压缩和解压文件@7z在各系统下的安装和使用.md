@@ -454,7 +454,57 @@ Everything is Ok
 
 - Expand-Archive:[Expand-Archive (Microsoft.PowerShell.Archive) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.archive/expand-archive?view=powershell-7.4)
 
+### Expand-Archive
 
+- `Expand-Archive` 是 PowerShell 中用于解压缩 ZIP 文件的 cmdlet。它可以方便地将压缩文件中的内容解压到指定的目录，无需依赖于第三方工具。
+
+### 语法
+
+```powershell
+Expand-Archive [-Path] <String> [-DestinationPath] <String> [-Force] [-PassThru] [-Update] [-WhatIf] [-Confirm]
+```
+
+### 常用参数
+
+- **-Path**: 指定要解压的 ZIP 文件路径。
+- **-DestinationPath**: 指定解压后的目标目录。
+  - 默认情况下，`Expand-Archive` 会在当前位置创建一个与 ZIP 文件同名的文件夹。
+  -  此参数允许指定其他文件夹的路径。
+  -  **如果目标文件夹不存在，则会创建目标文件夹**。
+  - 在此参数非空的情况下(比如指定为`d1`目录),如果压缩包文件名为`x.zip`,此包内的是一个名为`y`的目录,那么解压后的结果为`d1/y`,也就是说,这时候压缩包的名字`x`不会体现在解压结果目录上
+- **-Force**: 如果目标目录中已经存在同名文件或文件夹，使用此参数可以强制覆盖。
+- **-Update**: 仅解压新的文件或已修改的文件。
+- **-PassThru**: 输出解压后的文件列表。
+
+### 示例
+
+1. **解压 ZIP 文件到指定目录**
+   ```powershell
+   Expand-Archive -Path "C:\example.zip" -DestinationPath "C:\output"
+   ```
+   该命令将 `example.zip` 文件解压到 `C:\output` 目录。
+
+2. **强制覆盖已存在的文件**
+   ```powershell
+   Expand-Archive -Path "C:\example.zip" -DestinationPath "C:\output" -Force
+   ```
+   如果解压目标目录中有同名文件，将使用 `-Force` 参数强制覆盖。
+
+3. **更新模式解压**
+   ```powershell
+   Expand-Archive -Path "C:\example.zip" -DestinationPath "C:\output" -Update
+   ```
+   该命令仅解压 ZIP 文件中更新过的文件，或是目标目录中不存在的新文件。
+
+4. **获取解压后的文件列表**
+   ```powershell
+   Expand-Archive -Path "C:\example.zip" -DestinationPath "C:\output" -PassThru
+   ```
+   使用 `-PassThru` 参数，可以输出所有被解压的文件。
+
+### 小结
+
+`Expand-Archive` 是处理 ZIP 文件的一个简单而有效的工具，特别适合自动化任务中解压缩操作的需求。
 
 ##  linux: 7z/p7zip
 
