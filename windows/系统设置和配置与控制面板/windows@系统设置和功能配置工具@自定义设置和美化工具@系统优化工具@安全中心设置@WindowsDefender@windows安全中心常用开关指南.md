@@ -70,7 +70,13 @@
 - [Ultimate Windows Tweaker 4 for Windows 10 (thewindowsclub.com)](https://www.thewindowsclub.com/ultimate-windows-tweaker-4-windows-10)
 - 软件为英文,没有语言相关设置,有的有汉化版
 
-### UI修改方面的工具
+#### RyTuneX
+
+- [rayenghanmi/RyTuneX: RyTuneX is a cutting-edge optimizer built with the WinUI 3 framework, designed to amplify the performance of Windows devices. Crafted for both Windows 10 and 11. (github.com)](https://github.com/rayenghanmi/RyTuneX)
+
+- [RyTuneX - Windows 10 and 11 Optimizer | Boost Performance & Privacy (rayenghanmi.github.io)](https://rayenghanmi.github.io/rytunex/index.html)
+
+## UI修改方面的工具
 
 ### windHawk
 
@@ -82,7 +88,7 @@ Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以
 
 部分Mod,可能引发问题,例如部分类型的弹窗无法弹出导致UI被阻塞而无法继续操作,设置卡死而无法正常退出,必须强杀
 
-#### ExplorerPatcher
+### ExplorerPatcher
 
 [GitHub - valinet/ExplorerPatcher: This project aims to enhance the working environment on Windows](https://github.com/valinet/ExplorerPatcher)
 
@@ -92,7 +98,7 @@ Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以
 - 如果您的系统不是很新,那么软件可以较好工作
 - 相关概念:[Symbols · valinet/ExplorerPatcher Wiki · GitHub](https://github.com/valinet/ExplorerPatcher/wiki/Symbols)
 
-#### DWMBlurGlass
+### DWMBlurGlass
 
 [GitHub - Maplespe/DWMBlurGlass: Add custom effect to global system title bar, support win10 and win11.](https://github.com/Maplespe/DWMBlurGlass)
 
@@ -100,7 +106,7 @@ Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以
 
 类似于ExplorerPatcher,对于最新的系统或者预览版系统可能无法及时兼容
 
-#### MyDockFinder👺
+### MyDockFinder👺
 
 - 软件早期是免费软件,2021年开始的版本上架到steam上是收费软件
   - 经过近些年更新,软件的稳定性有所提高,并且推出了许多新功能,特别窗口动画,很优雅,搭配高刷屏幕,效果更佳
