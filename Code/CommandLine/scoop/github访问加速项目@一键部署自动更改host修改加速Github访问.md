@@ -239,40 +239,47 @@ gitee没有提供下载按钮,可以点击查看原始数据(或者直接点击�
 
 或者从本仓库的GHU目录下载
 
+
+
 ## 一键运行整合脚本🤖👺
 
-上面的步骤也许不是你关心的,那么一键运行了解以下
+上面的步骤也许不是你关心的,那么一键运行了解一下
 
 下面的代码自动下载需要的脚本文件,自动执行并注册到计划任务
 
 以**管理员身份**打开powershell(支持powershell 5+版本(win10系统自带powershell满足此要求))
 
-Note:hosts文件的修改是需要管理员权限的,计划任务要使用具有以足够的权限角色来执行
+Note:hosts文件的修改是需要**管理员权限**的,计划任务要使用具有以足够的权限角色来执行
+
+### 方案1:在线部署
+
+- 此方案以`System`角色运行运行此自动更新任务,复制以下语句
 
 ```powershell
 irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
 
 ```
 
-管理员方式打开powershell,然后复制粘贴上述代码,运行即可
+- **管理员**方式打开powershell,然后复制粘贴上述代码,运行即可
+
+### 方案2:离线部署
+
+如果上述方案执行失败,或者您想要体验下作者编写的其他实用模块,那么可以克隆或下载这个仓库(体积很小),然后离线部署,部署方案详见仓库的readme文档,可以一键部署(要求powershell7+版本)
+
+- [PwshModuleByCxxu.md · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/PwshModuleByCxxu.md#自动部署一键运行脚本)
+
+- 管理员权限打开powershell7 (pwsh)然后直接执行函数
+
+```powershell
+deploy-GithubHostsAutoUpdater -Verbose
+```
+
+- 注意，由于System方式启动计划任务虽然权限高,但是难以读取用户级别的环境变量,比如`$PsModulePath`,造成外部自动导入模块可能失效(无法调用其中的命令),为了简单起见,这里将启动用户设置为当前用户
+- 如果您设置完感觉不满意,可以手动到`taskschd.msc`中找到此任务`Update-GithubHosts`,然后双击修改用户角色为其他,保存更改
 
 ## 检查
 
 - 上述脚本自动检查是否更新成功,您可以查看最后部署报告和hosts文件
-
-- 例如
-
-  ```
-  PS> $hosts = 'C:\Windows\System32\drivers\etc\hosts'
-  
-  PS☀️[BAT:77%][MEM:23.37% (7.41/31.71)GB][10:23:35]
-  #⚡️[cxxu@CXXUCOLORFUL][192.168.1.178][C:\tmp\scoop-cn\Deploy-ScoopForCNUser]
-  PS> ls $hosts|select LastWriteTime
-  
-  LastWriteTime
-  -------------
-  2024/8/21 10:14:25
-  ```
 
   
 
