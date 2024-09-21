@@ -191,7 +191,7 @@ PowerShell 中的 `ScheduledTask` 模块提供了一组用于管理计划任务�
 ### 常用 cmdlet 简介
 
 #### 1. `Get-ScheduledTask`
-用于获取计划任务的信息。
+用于获取计划任务的信息。部分计划任务需要**管理员权限**才能够查看到(使用taskschd程序可以查看到全部计划任务)
 ```powershell
 Get-ScheduledTask -TaskName "BackupTask"
 ```
@@ -247,7 +247,7 @@ Enable-ScheduledTask -TaskName "BackupTask"
 
 ## powershell查看计划任务信息
 
-相关命令
+### 相关命令
 
 - `Get-ScheduledTask` 是用来获取任务的**定义**，即任务的配置元数据。
 
@@ -295,7 +295,13 @@ Enable-ScheduledTask -TaskName "BackupTask"
 - `Get-ScheduledTask` 更关注任务的配置，如触发器、操作等。
 - `Get-ScheduledTaskInfo` 更关注任务的状态，如上次运行时间、是否成功运行等。
 
-### 例
+### Notes:指定任务不存在或不可见👺
+
+- 部分计划任务需要**管理员权限**才能够查看到(使用taskschd程序可以查看到全部计划任务)
+- 如果计划任务被禁用了,可能也需要管理员权限才能启用任务或者查看任务
+- 检查拼写是否错误,然后重新尝试
+
+### 示例
 
 - 以一个设定了2个触发器的计划任务`Update-GithubHosts`为例,查看特定已存在的计划任务的信息
 

@@ -91,7 +91,70 @@ function Get-SpeedupUri{
 ### 加速网站
 
 - [Respeed 🐳 Download (chromiumer.com)](https://respeed.chromiumer.com/)
-  - 供xue'xi
+  - 供学习使用
+
+## 基于powershell的一键加速脚本👺
+
+- 为了方便下载github上的资源,这里提供有关加速github下载的powershell函数
+
+### 使用示例
+
+```powershell
+PS> Invoke-GithubResourcesSpeedup https://github.com/hellzerg/optimizer/releases/download/16.7/Optimizer-16.7.exe
+Checking available Mirrors...
+         https://gh.con.sh
+         https://gh.ddlc.top
+         https://github.moeyy.xyz
+         https://gh-proxy.com
+         https://hub.gitmirror.com
+         https://slink.ltd
+         https://cf.ghproxy.cc
+         https://ghps.cc
+         https://ghproxy.homeboyc.cn
+         https://sciproxy.com
+         https://mirror.ghproxy.com
+         https://github.ur1.fun
+         https://ghproxy.cc
+         https://ghproxy.net
+         https://gh.noki.icu.
+
+Available Mirrors:
+ 0: Use No Mirror
+ 1: https://gh.con.sh
+ 2: https://gh.ddlc.top
+ 3: https://github.moeyy.xyz
+ 4: https://gh-proxy.com
+ 5: https://hub.gitmirror.com
+ 6: https://slink.ltd
+ 7: https://cf.ghproxy.cc
+ 8: https://ghps.cc
+ 9: https://ghproxy.homeboyc.cn
+ 10: https://sciproxy.com
+ 11: https://mirror.ghproxy.com
+ 12: https://github.ur1.fun
+ 13: https://ghproxy.cc
+ 14: https://ghproxy.net
+Select the number(s) of the mirror you want to use [0~14] ?(default: 1):
+choose the Default 1
+Selected mirror:[
+        https://gh.con.sh
+]
+Download from: https://gh.con.sh/https://github.com/hellzerg/optimizer/releases/download/16.7/Optimizer-16.7.exe
+
+09/21 08:48:49 [NOTICE] Downloading 1 item(s)
+[#7ec5e1 2.1MiB/2.4MiB(88%) CN:1 DL:870KiB]
+09/21 08:49:03 [NOTICE] Download complete: C:/Users/cxxu/Downloads/Optimizer-16.7.exe
+
+Download Results:
+gid   |stat|avg speed  |path/URI
+======+====+===========+=======================================================
+7ec5e1|OK  |   202KiB/s|C:/Users/cxxu/Downloads/Optimizer-16.7.exe
+
+Status Legend:
+(OK):download completed.
+```
+
+
 
 ## vscode codeium手动下载服务器
 

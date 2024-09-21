@@ -11,15 +11,22 @@
 - Windows Defender 最初设计用于对抗间谍软件，随着时间的发展，特别是在Windows 8及后续版本中，其功能逐渐增强成为一个全面的安全解决方案，提供针对各种恶意软件（包括病毒、蠕虫、特洛伊木马等）的防护。
 - Windows Defender 简称可以写作 "Defender" 或 "MS Defender"，在正式场合或文档中有时也称为 "Microsoft Defender"。随着其功能扩展到更全面的终端防护解决方案，现在常被提及为 "Microsoft Defender Antivirus" 
 
+### 称呼说明
+
+为了方便讨论,下面简称**Windows Defender** 为**WD**或**Defender**
+
 ### 相关服务👺
 
 - windows antimalware service executable
   - 这个服务大约会吃掉200M内存,而且是不是会有比较高的cpu占用,风扇呼呼转
   - 虽然现在电脑普遍是16GB或更大内存,但是我认为该服务不仅仅会占用内存资源,还会影响使用体验
+  - 如果关闭安全防护(比如防火墙)还会时不时弹出通知(无法关闭WD的通知)
   - 更重要的是windows defender会无意间将某些被怀疑的软件或文件删除,造成困扰
 - [How to Fix Antimalware Service Executable High CPU Usage on Windows (makeuseof.com)](https://www.makeuseof.com/fix-antimalware-service-executable-high-cpu-usage-on-windows-10/)
 
-## 停用windows Defender
+## 停用windows Defender👺
+
+分为两类,一类是临时停用,一类是长期停用,本文主要介绍后者
 
 ### 临时关闭实时防护
 
@@ -28,7 +35,20 @@
 
 - 如果需要长期关闭,需要其他的进一步操作
 
+
+### 彻底关闭@长期停用Defender
+
+详见后续章节
+
 ## 使用软件工具修改系统设置👺
+
+### windows optimizer
+
+[hellzerg/optimizer: The finest Windows Optimizer (github.com)](https://github.com/hellzerg/optimizer)
+
+### windows轻松设置
+
+- [Windows11轻松设置（最新版） - 哔哩哔哩 (bilibili.com)](https://www.bilibili.com/opus/904672369138729017)
 
 #### windows defender remover
 

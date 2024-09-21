@@ -4,6 +4,7 @@
 
 - 尽管这里实现了一键部署自动更新hosts的脚本,但是可用性仍然取决于原项目提供的hosts是否可用
 - 主要用来加速访问github网站，用来直接查看原github项目链接的,对于资源下载效果不大,这方面的需要可以用加速镜像来加速下载或克隆,或者cgit等工具
+- 如果你对操作细节不感兴趣,那么可以直接跳转到后面的**一键运行整合脚本**一节中,直接一键部署
 
 ## powershell 版本的一键更新hosts文件
 
@@ -238,31 +239,18 @@ gitee没有提供下载按钮,可以点击查看原始数据(或者直接点击�
 
 或者从本仓库的GHU目录下载
 
-## 一键运行整合脚本🤖🐽👺
+## 一键运行整合脚本🤖👺
 
 上面的步骤也许不是你关心的,那么一键运行了解以下
 
 下面的代码自动下载需要的脚本文件,自动执行并注册到计划任务
 
+以**管理员身份**打开powershell(支持powershell 5+版本(win10系统自带powershell满足此要求))
+
+Note:hosts文件的修改是需要管理员权限的,计划任务要使用具有以足够的权限角色来执行
+
 ```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy bypass 
-$files = ('AutoFetch.ps1', 'fetch-github-hosts.ps1')
-$files | ForEach-Object {
-    Invoke-RestMethod https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/$_ > $home\desktop\$_ 
-}
-
-$GHU = 'C:\GUH'
-if (! (Test-Path $GHU) )
-{ 
-    mkdir $GHU
-}
-Set-Location $home\desktop
-
-$files | ForEach-Object {
-    Move-Item "$home/desktop/$_" $GHU -Force -Verbose
-}
-#调用它(可以传参,也可以不传,使用默认参数) #号后面是传参示例
-powershell -f  "$GHU\AutoFetch.ps1 " # -f $GHU\fetch-github-hosts.ps1 -shell powershell
+irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
 
 ```
 
@@ -270,18 +258,7 @@ powershell -f  "$GHU\AutoFetch.ps1 " # -f $GHU\fetch-github-hosts.ps1 -shell pow
 
 ## 检查
 
-- 你可以通过以下命令来立即触发更新host的任务，看看是否生效
-
-  ```powershell
-  start-scheduledTask -TaskName Update-githubhosts
-  
-  sleep 5 #等待5秒钟，让更新操作完成
-  # 检查hosts文件修改情况(上一次更改时间)
-  $hosts = 'C:\Windows\System32\drivers\etc\hosts'
-  ls $hosts|select LastWriteTime
-  cat $hosts|select -Last 5 #查看hosts文件的最后5行信息
-  # Notepad $hosts 查看整个hosts文件
-  ```
+- 上述脚本自动检查是否更新成功,您可以查看最后部署报告和hosts文件
 
 - 例如
 
@@ -295,6 +272,18 @@ powershell -f  "$GHU\AutoFetch.ps1 " # -f $GHU\fetch-github-hosts.ps1 -shell pow
   LastWriteTime
   -------------
   2024/8/21 10:14:25
+  ```
+
+  
+
+## 移除计划任务
+
+- 您可以打开`taskschd.msc` GUI程序对计划任务进行管理
+
+- 或者使用以下命令移除上述方案注册的自动任务
+
+  ```powershell
+  unregister-ScheduledTask -TaskName Update-GithubHosts -Confirm:0
   ```
 
   
