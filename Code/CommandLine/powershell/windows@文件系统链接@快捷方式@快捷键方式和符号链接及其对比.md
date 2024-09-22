@@ -17,7 +17,7 @@
 
 ### 如何创建快捷方式
 
-- 另见它文
+- 另见它文:[windows@快捷方式的创建使用和管理@powershell@CLI命令行创建和修改快捷方式@New-Shortcut_cmd shortcut lnk-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/129276484)
 
 ### 快捷方式的作用
 - **快速访问目标**：通过双击快捷方式，用户可以快速打开文件、文件夹或程序，而不必导航到其实际位置。
