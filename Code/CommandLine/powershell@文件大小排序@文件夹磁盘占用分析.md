@@ -61,11 +61,9 @@ longest common word.cpp                                      4289
 
 针对此类文件大小排列相关任务,编写扩展的函数
 
-代码仓库最新版本
+代码仓库最新版本:[PS/Deploy · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/tree/main/PS/Deploy#用户使用方法)
 
-[PS/Pwsh/Pwsh.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/Pwsh/Pwsh.psm1)
-
-### 快速安装此命令命令👺
+### 快速安装相关命令👺
 
 - 以下命令行尝试为你在线安装相应的powershell工具集合,包众多使用脚本同时体积小巧
 
@@ -545,10 +543,16 @@ d---- .mypy_cache            52.72 MB
 
 - 这些系统在linux下都可用,其中部分支持或适配了windows(有相应的发行版),但是少数平台特性的功能可能有阉割,总得来说下面几个工具或者类似工具还是值得使用的
 - 这类工具在windows下通常可以考虑通过`scoop`安装(推荐使用国内加速版),或者在github上手动下载
-  - [bootandy/dust: A more intuitive version of du in rust (github.com)](https://github.com/bootandy/dust)
-  - [dundee/gdu: Fast disk usage analyzer with console interface written in Go (github.com)](https://github.com/dundee/gdu)
-  - 这是交互式的命令行工具,支持查询容量以外的功能,比如浏览子目录,删除指定文件(夹)等功能,是高性能软件
 
+#### dust
+
+- [bootandy/dust: A more intuitive version of du in rust (github.com)](https://github.com/bootandy/dust)
+- 高性能直观易用的命令行工具,跨平台
+
+#### gdu
+
+- [dundee/gdu: Fast disk usage analyzer with console interface written in Go (github.com)](https://github.com/dundee/gdu)
+- 这是交互式的命令行工具,支持查询容量以外的功能,比如浏览子目录,删除指定文件(夹)等功能,是高性能软件
 
 
 
