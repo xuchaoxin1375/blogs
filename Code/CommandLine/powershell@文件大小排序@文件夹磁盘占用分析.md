@@ -4,14 +4,14 @@
 
 ## abstract
 
-在powershell中完成以下任的参考方案
+在powershell中完成以下任务的参考方案
 
 - 统计目录或文件的大小,文件或目录占用大小数值支持单位指定,格式友好
 - 对指定目录以友好的格式列出所有文件和子目录的大小
 
-在linux上有`du`命令可以完成相关统计任务
+在linux上有`du`命令可以完成相关统计任务,以及经过现代化发展的相关命令`duf`等(支持windows)
 
-扩展介绍其他能够完成此类任务的部分工具,例如everything
+扩展介绍其他能够完成此类任务的部分工具,例如everything,详情见**相关软件一节**
 
 ### powershell对于列出子目录大小的支持状况
 
@@ -64,6 +64,19 @@ longest common word.cpp                                      4289
 代码仓库最新版本
 
 [PS/Pwsh/Pwsh.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/Pwsh/Pwsh.psm1)
+
+### 快速安装此命令命令👺
+
+- 以下命令行尝试为你在线安装相应的powershell工具集合,包众多使用脚本同时体积小巧
+
+  ```powershell
+  $url = 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsModules.ps1'
+  $scripts = Invoke-RestMethod $url
+  $scripts | Invoke-Expression
+  
+  ```
+
+  
 
 ### 统计目录或文件的大小@Get-Size👺
 
@@ -521,27 +534,38 @@ da--- PS                      0.55 MB
 d---- .mypy_cache            52.72 MB
 ```
 
-## 其他相关软件👺
+## 相关软件👺
 
 - Onecommander [OneCommander - Modern files manager for Windows 11 and Windows 10](https://onecommander.com/)
   - 是一款扩展了windows资源管理器(explorer)的软件,可以启用目录占用大小的功能(这会引起高的cpu占用,灵活性不如单独计算指定目录的供,windows自带的资源管理器虽然默认计算文件夹大小,但是可以右键属性单独查看指定目录占用大小)
 
 - eza [eza-community/eza: A modern alternative to ls (github.com)](https://github.com/eza-community/eza)
-  - 在windows平台上功能受限
 
-### 易用高性能系列
+### 类Unix系du衍生发展出来的跨平台工具
+
+- 这些系统在linux下都可用,其中部分支持或适配了windows(有相应的发行版),但是少数平台特性的功能可能有阉割,总得来说下面几个工具或者类似工具还是值得使用的
+- 这类工具在windows下通常可以考虑通过`scoop`安装(推荐使用国内加速版),或者在github上手动下载
+  - [bootandy/dust: A more intuitive version of du in rust (github.com)](https://github.com/bootandy/dust)
+  - [dundee/gdu: Fast disk usage analyzer with console interface written in Go (github.com)](https://github.com/dundee/gdu)
+  - 这是交互式的命令行工具,支持查询容量以外的功能,比如浏览子目录,删除指定文件(夹)等功能,是高性能软件
+
+
+
+
+### windows专属软件
 
 #### everything
 
 - 利用**everything**排序(高性能),文件索引完毕后,指定目录,选择size排序
   - 软件官网https://www.voidtools.com/
 
-
 #### du (sysinternals du)
 
 - sysinternals工具集有Microsoft开发维护,里面的磁盘相关的工具或许能够满足您更多的需要
   - [磁盘使用情况 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/du)
   - [文件和磁盘实用工具 - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/file-and-disk-utilities)
+
+- 此工具较为原始,建议使用其他工具,比如`dust`,`gdu`,更加现代化和通用
 
 ##### 用例
 
@@ -570,8 +594,6 @@ Copyright (C) 2005-2018 Mark Russinovich
   ....
 ```
 
-
-
 #### WizTree
 
 - 专业的磁盘占用分析工具,直观易用
@@ -581,7 +603,9 @@ Copyright (C) 2005-2018 Mark Russinovich
 
 ## 简单性能比较
 
-利用du和本文提供的powershell函数`Get-itemSizeSorted`进行性能比较,可以发现,powershell下此函数执行速度可以比du快
+- Microsoft 提供的du程序不够现代化,性能也不行
+- 建议使用其他工具代替(`dust`,`gdu`),或者使用本文介绍的powershell函数也是很直观易用的
+- 本文提供的powershell函数`Get-itemSizeSorted`进行性能比较,可以发现,powershell下此函数执行速度可以比du快
 
 ```powershell
 PS🌙[BAT:100%][MEM:74.01% (11.37/15.37)GB][20:20:10]
