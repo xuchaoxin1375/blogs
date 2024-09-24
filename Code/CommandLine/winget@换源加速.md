@@ -331,7 +331,7 @@ Successfully uninstalled
 
 
 
-## 换源加速👺
+## winget换源加速👺
 
 - [winget source 命令 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/package-manager/winget/source)
 
