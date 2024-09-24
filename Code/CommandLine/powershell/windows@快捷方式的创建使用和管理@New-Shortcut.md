@@ -1,9 +1,5 @@
 [toc]
 
-
-
-[toc]
-
 ## abstract
 
 - windows中的快捷方式有两类
