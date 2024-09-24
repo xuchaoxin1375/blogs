@@ -157,31 +157,107 @@ git config --global credential.https://gitee.com.helper manager
 
 ## 各种凭据助手的特点和选择建议
 
-1. **Git Credential Manager (`manager` 或 `manager-core`)**:
-   - **推荐使用场景**：如果你在 Windows、macOS 或 Linux 上工作，并且需要更安全和灵活的凭据管理（例如支持多因素身份验证、OAuth 或 Personal Access Token），`Git Credential Manager Core` 是一个很好的选择。它能够在多个平台上提供一致的体验和增强的安全性。
-   - **特点**：支持 Windows（Git Credential Manager for Windows）和跨平台版本（Git Credential Manager Core），与 Windows 凭据管理器和 macOS 钥匙串集成良好，同时支持 Linux 系统。支持多种身份验证方式（例如，OAuth 和 PAT）。
+**Git Credential Manager (`manager` 或 `manager-core`)**:
 
-2. **Windows Credential Manager (`wincred`)**:
-   - **推荐使用场景**：如果你仅在 Windows 环境下工作，并且不需要高级认证方式，这个助手提供了简单且无缝的体验。
-   - **特点**：直接与 Windows 凭据管理器集成，使用起来非常简单，无需额外配置。但仅适用于 Windows 环境，无法跨平台。
+- **推荐使用场景**：如果你在 Windows、macOS 或 Linux 上工作，并且需要更安全和灵活的凭据管理（例如支持多因素身份验证、OAuth 或 Personal Access Token），`Git Credential Manager Core` 是一个很好的选择。它能够在多个平台上提供一致的体验和增强的安全性。
+- **特点**：支持 Windows（Git Credential Manager for Windows）和跨平台版本（Git Credential Manager Core），与 Windows 凭据管理器和 macOS 钥匙串集成良好，同时支持 Linux 系统。支持多种身份验证方式（例如，OAuth 和 PAT）。
 
-3. **macOS Keychain (`osxkeychain`)**:
-   - **推荐使用场景**：如果你在 macOS 上工作，`osxkeychain` 是个不错的选择，简单易用，并且直接与 macOS 的钥匙串服务集成，确保了凭据的安全性。
-   - **特点**：仅适用于 macOS 平台，简单安全，但没有跨平台支持。
+**Windows Credential Manager (`wincred`)**:
 
-4. **Credential Cache (`cache`)**:
-   - **推荐使用场景**：适用于短期任务或不需要长时间存储凭据的场景，例如在公共电脑上进行一次性操作时使用。
-   - **特点**：凭据临时存储在内存中，安全性较好但不适合长期使用。每次重启 Git 进程或超时时，缓存的凭据都会失效。
+- **推荐使用场景**：如果你仅在 Windows 环境下工作，并且不需要高级认证方式，这个助手提供了简单且无缝的体验。
+- **特点**：直接与 Windows 凭据管理器集成，使用起来非常简单，无需额外配置。但仅适用于 Windows 环境，无法跨平台。
 
-5. **Credential Store (`store`)**:
-   - **推荐使用场景**：适用于安全性要求不高的场景，例如内部开发或个人项目，可以使用明文凭据存储方便操作。
-   - **特点**：凭据明文存储在磁盘文件中，易于配置和使用，但存在严重的安全风险。适用于不担心凭据泄露的环境。
+**macOS Keychain (`osxkeychain`)**:
 
-6. **Libsecret (`libsecret`)**:
-   - **推荐使用场景**：适用于使用 GNOME 桌面环境的 Linux 用户，重视凭据的安全性。
-   - **特点**：凭据存储在 GNOME 的安全密钥环中，安全性高，但仅适用于 GNOME 桌面环境，配置相对复杂。
+- **推荐使用场景**：如果你在 macOS 上工作，`osxkeychain` 是个不错的选择，简单易用，并且直接与 macOS 的钥匙串服务集成，确保了凭据的安全性。
+- **特点**：仅适用于 macOS 平台，简单安全，但没有跨平台支持。
 
-### 结论
+**Credential Cache (`cache`)**:
+
+- **推荐使用场景**：适用于短期任务或不需要长时间存储凭据的场景，例如在公共电脑上进行一次性操作时使用。
+- **特点**：凭据临时存储在内存中，安全性较好但不适合长期使用。每次重启 Git 进程或超时时，缓存的凭据都会失效。
+
+**Credential Store (`store`)**:
+
+- **推荐使用场景**：适用于安全性要求不高的场景，例如内部开发或个人项目，可以使用明文凭据存储方便操作。
+- **特点**：凭据明文存储在磁盘文件中，易于配置和使用，但存在严重的安全风险。适用于不担心凭据泄露的环境。
+
+**Libsecret (`libsecret`)**:
+
+- **推荐使用场景**：适用于使用 GNOME 桌面环境的 Linux 用户，重视凭据的安全性。
+- **特点**：凭据存储在 GNOME 的安全密钥环中，安全性高，但仅适用于 GNOME 桌面环境，配置相对复杂。
+
+## windows上的凭据选择器老是弹出
+
+`git-credential-helper-selector` 弹出的问题，可能与以下几个原因有关：
+
+### 1. 凭证选择器配置未保存成功
+
+即便你选择了 `Always`，Git 可能没有正确保存这个设置，导致每次都弹出选择器窗口。这通常是由于配置文件或权限问题导致的。
+
+### 2. Git 配置文件（`gitconfig`）中没有正确设置凭证助手
+Git 使用的凭证助手（credential helper）信息是通过配置文件（`.gitconfig`）管理的。需要确保 `git-credential-helper-selector` 确实将你的选择写入了配置文件。
+
+### 解决步骤👺
+
+#### 1. 手动配置凭证助手
+可以手动将凭证助手配置到 Git 的全局或仓库级别的配置中，这样就不会再弹出选择窗口。
+
+你可以通过以下命令设置凭证助手，选择 `git-credential-manager` 作为默认的凭证管理工具：
+
+```bash
+git config --global credential.helper manager
+```
+
+这将把 Git 凭证管理器（GCM）设置为全局默认的凭证助手，并且不会再弹出 `credential-helper-selector` 窗口。你可以根据你的操作系统选择适合的凭证助手：
+
+- **Windows**：`manager-core` 或 `manager`
+- **macOS**：`osxkeychain`
+- **Linux**：`cache` 或其他可用的选项
+
+#### 2. 确认配置是否正确
+
+检查 Git 的全局配置是否已经保存了凭证助手的设置：
+
+```bash
+git config --global credential.helper
+```
+
+如果返回的是 `manager` 或 `manager-core`，说明设置已经生效。
+
+#### 3. 清理缓存或重新登录
+如果凭证助手选择器依然弹出，可能是因为之前的凭证缓存出了问题。可以尝试清除 Git 缓存的凭证，强制 Git 重新请求并保存新的凭证：
+
+```bash
+git credential-cache exit
+```
+
+或使用以下命令手动删除当前凭证：
+
+```bash
+git config --global --unset credential.helper
+```
+
+然后重新配置。
+
+#### 4. 检查配置文件权限
+确认 `gitconfig` 文件是否有正确的写入权限，尤其是在使用 Scoop 安装 Git 的情况下，有时系统权限可能会阻止配置文件的修改。
+
+你可以通过以下路径查看 `.gitconfig` 文件：
+- **Windows**: `C:\Users\你的用户名\.gitconfig`
+- **Linux/macOS**: `~/.gitconfig`
+
+### 总结
+
+你可以通过手动设置凭证助手来避免 `credential-helper-selector` 一直弹出的问题。配置命令如下：
+
+```bash
+git config --global credential.helper manager
+```
+
+如果问题持续，可以检查权限或清除之前缓存的凭证并重新配置。
+
+## 结论
 
 综合来看，如果你在 **Windows 上工作**并希望有简单的体验，`wincred` 是不错的选择；如果你希望有 **跨平台支持**，并且使用 **高级认证功能**，`Git Credential Manager Core` 是更好的选择；在 **macOS** 上使用 `osxkeychain`，在 **GNOME 环境的 Linux** 上使用 `libsecret`，可以保证凭据的安全和方便性。
 
