@@ -153,6 +153,68 @@ Line 4
 
 - [about Split - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_split?view=powershell-7.3)
 
+### 多行跨行匹配和替换
+
+要启用跨行匹配，你可以使用正则表达式的单行模式（singleline mode）。在 PowerShell 中，这可以通过 `(?s)` 标志来实现。这个模式使得 `.` 能够匹配包括换行符在内的所有字符。
+
+以下是一个使用跨行匹配进行替换的例子：
+
+```powershell
+$multiLineText = @"
+This is line 1
+This is line 2
+This is line 3
+"@
+
+$pattern = "(?s)This is line 1.*This is line 3"
+$replacement = "This is a replacement for all three lines"
+
+$result = $multiLineText -replace $pattern, $replacement
+$result
+```
+
+
+
+在这个例子中：
+
+1. `(?s)` 启用了单行模式。
+2. `This is line 1.*This is line 3` 匹配从 "This is line 1" 开始到 "This is line 3" 结束的所有内容，包括中间的换行符。
+3. 整个匹配的内容被替换为 "This is a replacement for all three lines"。
+
+如果你需要更复杂的跨行匹配和替换，你可以结合使用其他正则表达式特性。例如：
+
+```powershell
+$multiLineText = @"
+<start>
+Content line 1
+Content line 2
+Content line 3
+<end>
+Some other content
+<start>
+More content
+<end>
+"@
+
+$pattern = "(?s)<start>.*?<end>"
+$replacement = "<start>Replaced content<end>"
+
+$result = $multiLineText -replace $pattern, $replacement
+$result
+```
+
+在这个例子中：
+
+1. `(?s)` 仍然启用了单行模式。
+2. `<start>.*?<end>` 匹配从 `<start>` 到最近的 `<end>` 之间的所有内容。`*?` 是非贪婪匹配，确保只匹配到最近的 `<end>`。
+3. 每个匹配的块都被替换为 `<start>Replaced content<end>`。
+
+这种方法可以在保留文本结构的同时替换特定的内容块。
+
+记住，使用 `(?s)` 时要小心，因为它会改变 `.` 的行为，可能导致意外的匹配。在某些情况下，你可能需要结合使用 `(?m)` （多行模式）来处理行首 `^` 和行尾 `$` 的匹配。
+
+如果你有特定的跨行匹配需求，可以告诉我，我会帮你设计一个更具体的解决方案。
+
 ### 将指定的多种字符作为分隔符
 
 - ```powershell

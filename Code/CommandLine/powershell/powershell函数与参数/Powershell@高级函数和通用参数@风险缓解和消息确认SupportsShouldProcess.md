@@ -205,7 +205,11 @@ Remove-CxxuFile -FilePath "C:\example.txt" -Confirm
 ## 小结
 
 - 当 `ShouldProcess` 被触发时，PowerShell 会显示一条消息给用户，询问他们是否希望继续执行指定的操作。
-- 用户可以通过 `-WhatIf` 参数来模拟操作而不实际执行，或者使用 `-Confirm` 参数来强制每次执行前都要求确认。两个参数都是小心的行为,前者不会正真执行,后者在正真执行前会询问用户,询问时会带上提示信息(和Whatif提示的内容一致);并且不同命令,只要通过cmdletbinding中设置`SpportsShouldProcess`来提供`-Confirm`选项,那么就具有基本一致的请求确认消息的格式
+- 用户可以通过 `-WhatIf` 参数来模拟操作而不实际执行，或者使用 `-Confirm` 参数来强制每次执行前都要求确认。
+
+  - 两个参数都是小心的行为,前者不会正真执行,后者在正真执行前会询问用户,询问时会带上提示信息(和Whatif提示的内容一致);并且不同命令,只要通过cmdletbinding中设置`SpportsShouldProcess`来提供`-Confirm`选项,那么就具有基本一致的请求确认消息的格式
+  - 然而,当`-Confirm`参数被指定为`$False`,则是一个放弃消息确认的行为,此时函数调用的影响基本别忽略(相当于`None`,这是风险行为,类似于`Force`的含义)
+
 - 如果用户设置了 `$ConfirmPreference` 变量为低级别(`Low`),或者相关函数内的`ConfirmImpact`设置为高级别(`High`)，那么即使没有显式地使用 `-Confirm` 参数，`ShouldProcess` 也会自动触发确认提示(在函数内将`$ConfirmPreference`设置为`High`)。在这种情况下,上述例子`Remove-CxxuFile`会提示两次,第一次是`Remove-CxxuFile`自身定义而触发,第二次是因为内部的`Remove-Item`检查到`$ConfirmPreference='High'`,所以也会跑出自己的消息确认请求(仔细观察两者的提示部分内容的不同)
 
   ```powershell
@@ -275,3 +279,52 @@ What if: Performing the operation "Remove file(by Remove-CxxuFile)" on target "C
 ### 关于yes to all选项
 
 - [Confirmation Messages - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/confirmation-messages?view=powershell-7.4#specifying-the-operation-and-resource)
+
+要创建一个类似于文档中描述的 `Test-RequestConfirmationTemplate` 函数，您可以使用 PowerShell 的 `ShouldProcess` 和 `ShouldContinue` 方法来实现两步确认。
+
+`ShouldProcess` 方法用于询问用户是否要对目标资源执行特定的操作，而 `ShouldContinue` 则提供第二次确认，询问用户是否继续执行操作。这通常用于更危险的操作，确保用户确认执行。
+
+### 示例 Test-RequestConfirmationTemplate
+
+下面是一个实现示例：
+
+```powershell
+function Test-RequestConfirmationTemplate {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')] 
+    param (
+        [string]$Target = "MyResource"
+    )
+
+    # Step 1: ShouldProcess prompts the user for confirmation
+    if ($PSCmdlet.ShouldProcess($Target, "Test-RequestConfirmationTemplate1")) {
+
+        # Step 2: If user confirms, we use ShouldContinue for a second prompt
+        $shouldContinue = $PSCmdlet.ShouldContinue(
+            "Continue with this operation?", 
+            "Confirm"
+        )
+        
+        if ($shouldContinue) {
+            # If both confirmations are positive, perform the operation
+            Write-Host "Operation on $Target confirmed and proceeding."
+        } else {
+            # If user cancels in the second confirmation
+            Write-Host "Operation on $Target canceled by user."
+        }
+    } else {
+        # If user cancels in the first confirmation
+        Write-Host "Operation on $Target not confirmed."
+    }
+}
+
+# 测试函数
+Test-RequestConfirmationTemplate -Target "MyResource"
+```
+
+### 解释：
+1. **`CmdletBinding(SupportsShouldProcess=$true)`**: 这是启用 `ShouldProcess` 功能的关键，使得命令能够请求用户确认。
+2. **`ConfirmImpact`**: 设置为 `'Medium'`，意味着当用户的 `$ConfirmPreference` 设置为 `Medium` 或更低时，系统会提示确认。你可以根据需要调整这一参数。
+3. **`ShouldProcess($Target, "Test-RequestConfirmationTemplate1")`**: 第一次确认用户是否希望对目标资源执行某个操作。
+4. **`ShouldContinue()`**: 在用户确认后，进一步确认是否继续操作。这用于二次确认，一般用于执行更敏感的操作。
+
+执行时，首先会要求用户确认是否希望对目标执行操作，确认后会再询问是否继续执行。
