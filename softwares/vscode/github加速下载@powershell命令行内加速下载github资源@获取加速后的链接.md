@@ -167,6 +167,10 @@ VERBOSE: aria2c  https://ghproxy.net/https://github.com/hellzerg/optimizer/relea
 
 ## 其他加速
 
+### 特定资源加速
+
+- [加速下载 (serctl.com)](https://d.serctl.com/?dl_start)
+
 ### 克隆加速
 
 - 克隆github仓库的加速资源有很多,比如使用cgit克隆
