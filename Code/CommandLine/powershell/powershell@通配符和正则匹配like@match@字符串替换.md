@@ -143,6 +143,17 @@ Line 3
 Line 4
 ```
 
+### 例
+
+```powershell
+#采用reg query命令查询而不使用Get-ItemProperty 查询注册表,因为Get-ItemProperty 会自动转换或丢失%var%形式的Path变量
+$RawPathValue = reg query 'HKEY_CURRENT_USER\Environment' /v Path
+$RawPathValue -match 'Path\s+REG_EXPAND_SZ\s+(.+)'
+$UserPath = $Matches[1] 
+write-host $UserPath
+Write-Verbose "Path value of [$env:Username] `n$($UserPath -split ';' -join "`n")" -Verbose
+```
+
 
 
 # 字符串相关操作符

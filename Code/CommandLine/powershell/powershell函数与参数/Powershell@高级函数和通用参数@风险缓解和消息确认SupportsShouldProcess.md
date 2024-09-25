@@ -4,7 +4,27 @@
 
 ## abstract
 
-## 相关文档和主题
+### 编写自定义的powershell命令
+
+- 如果用于对于powershell有一定兴趣和了解,并且想要编写自己的powershell命令或函数(尤其是规范的高级函数),那么需要对相关的概念和文档有一定了解
+  - [Cmdlet 概述 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/cmdlet-overview?view=powershell-7.2)
+  - [编写 Cmdlet 的教程 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/tutorials-for-writing-cmdlets?view=powershell-7.2)
+  - 最新版的文档一般只有英文文档,如果需要中文文档,可以尝试将文档版本调到前期,比如7.4时,可以参考7.2的文档(虽然可能有一些差异,但是大多数还是一样的)
+- Cmdlet相关的内容很多,包括许多方面,有些不好理解,尤其是对于.Net和C#不了解的用户而言,而许多高级特性依赖于这方面的知识,幸运的是,我们可以结合AI来学习这些文档,并且寻求更多的示例供我们验证想法和针对性学习
+- 此外,官方在线文档【了解PowerShell】提供的101教程是极好的容易上手的系统的对新手有好的学习资料,相比直接查阅文档和使用powershell,101让学习思路更加清晰
+- 相邻的几个主题也很知道看,帮助你了解powershell的强大之处(虽然启动速度慢了些)
+  - 了解PowerShell
+    1. PowerShell 101
+    2. 优化shell体验
+    3. 深入探讨
+    4. 示例脚本
+- 实际上这些特性不是必须的,只不过了解这些特性能够让我们自己编写的函数更加适合在命令行中使用,并且让某些任务变得更简单,实现更加规范和易于管理,尤其是参数集和参数验证等特性
+
+### 本文主题
+
+- 介绍powershell中的通用参数和自动变量的典型应用:shouldprocess消息确认机制
+
+- [关于 ShouldProcess 的各项须知内容 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.4)
 
 ### 通用参数和自动变量
 
@@ -64,7 +84,7 @@ SupportsShouldProcess
 - 在执行潜在影响较大的操作之前请求用户的确认。
 - 提供一种机制来模拟（模拟）操作，而不是实际执行它们。
 
-### 对应参数
+### 引入的参数
 
 [supportsshouldprocess|about_Functions_CmdletBindingAttribute - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.4#supportsshouldprocess)
 
@@ -77,9 +97,11 @@ SupportsShouldProcess
 
 ### 使用 `ShouldProcess`
 
-要在 PowerShell 函数或脚本中实现 `ShouldProcess`，需要使用 `CmdletBinding` 属性并启用 `SupportsShouldProcess`,此外,还指定了`ConfirmImpact='High'`,将此函数的功能显式指定为**高风险**(容易出发系统提示是否继续执行)
+要在 PowerShell 函数或脚本中实现 `ShouldProcess`，需要使用 `CmdletBinding` 属性并启用 `SupportsShouldProcess`
 
-#### 示例函数:Remove-CxxuFile
+此外,还可以指定了`ConfirmImpact`,将此函数的功能显式指定为特定的影响级别(有关自动询问用户是否继续操作)
+
+### 示例函数:Remove-CxxuFile👺
 
 ```powershell
 function Remove-CxxuFile
@@ -100,8 +122,6 @@ function Remove-CxxuFile
 }
 ```
 
-### 详细步骤
-
 1. **定义参数**：
    - 使用 `CmdletBinding` 属性启用 `SupportsShouldProcess`。
 
@@ -110,9 +130,10 @@ function Remove-CxxuFile
    - 根据返回值决定是否执行操作。
 
 3. **设置 `ConfirmImpact`**：
-   - 可选地设置 `ConfirmImpact`，影响 `-Confirm` 参数的默认行为。值为 `Low`、`Medium`、`High` 或 `None`。
+   - 可选地设置 `ConfirmImpact`，值为 `Low`、`Medium`、`High` 或 `None`。级别越高,表明此函数执行操作时对系统的影响越大,特别是`High`,即便用户不使用`-confirm`参数,命令在执行前也会询问用户是否继续
+4. 下一节详解此属性
 
-### 操作效果
+#### 操作效果
 
 ```powershell
 
@@ -148,7 +169,7 @@ Remove file: .\example.txt
 
 ## `ConfirmImpact` 和`$ConfirmPreference`
 
-在 PowerShell 中，`ConfirmImpact` 是用来指定一个命令或函数的潜在影响级别，它会影响到 `-Confirm` 参数的默认行为。简单来说，它帮助决定何时提示用户确认操作。
+在 PowerShell 中，`ConfirmImpact` 是用来指定一个命令或函数的潜在影响级别，简单来说，它帮助决定何时提示用户确认操作。
 
 ### `ConfirmImpact` 级别
 
@@ -249,25 +270,6 @@ Mode                LastWriteTime         Length Name
 
 调用上述自定义函数进行删除试验
 
-```powershell
-function Remove-CxxuFile
-{
-    #这里将confirmImpact设置为Medium
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$FilePath
-    )
-
-    if ($PSCmdlet.ShouldProcess($FilePath, 'Remove file(by Remove-CxxuFile)'))
-    {
-        # 实际删除文件的代码
-        Write-Host "Remove file: $FilePath" -ForegroundColor Red
-        Remove-Item -Path $FilePath 
-    }
-}
-```
-
 ```
 PS [C:\Users\cxxu\Desktop]> ls *txt|%{Remove-CxxuFile $_ -WhatIf}
 What if: Performing the operation "Remove file(by Remove-CxxuFile)" on target "C:\Users\cxxu\Desktop\1.txt".
@@ -276,11 +278,152 @@ What if: Performing the operation "Remove file(by Remove-CxxuFile)" on target "C
 
 ```
 
-### 关于yes to all选项
+如果使用`-confirm`选项,那么删除上述三个文件时会分别询问
+
+### Confirm [A]yes to all
+
+```powershell
+PS🌙[BAT:99%][MEM:41.7% (3.27/7.85)GB][23:16:56]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> ls *txt
+
+        Directory: C:\Users\cxxu\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---         2024/9/25      0:55              0 󰈙  1.txt
+-a---         2024/9/25      0:55              0 󰈙  2.txt
+-a---         2024/9/25      0:55              0 󰈙  3.txt
+
+
+PS🌙[BAT:99%][MEM:41.7% (3.27/7.85)GB][23:16:59]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> ls *txt|Remove-Item -Confirm
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Remove File" on target
+"C:\Users\cxxu\Desktop\1.txt".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Remove File" on target
+"C:\Users\cxxu\Desktop\2.txt".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Remove File" on target
+"C:\Users\cxxu\Desktop\3.txt".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):
+
+```
+
+#### 使用yes to all
+
+```
+
+PS🌙[BAT:99%][MEM:39.38% (3.09/7.85)GB][23:17:35]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> 1..3|%{New-Item -ItemType File  "${_}.txt"}
+
+        Directory: C:\Users\cxxu\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---         2024/9/25     23:17              0 󰈙  1.txt
+-a---         2024/9/25     23:17              0 󰈙  2.txt
+-a---         2024/9/25     23:17              0 󰈙  3.txt
+
+
+PS🌙[BAT:99%][MEM:39.05% (3.07/7.85)GB][23:17:41]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> ls *txt|Remove-Item -Confirm
+#或者  Remove-Item -Path *.txt -Confirm
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Remove File" on target
+"C:\Users\cxxu\Desktop\1.txt".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):A
+
+```
+
+#### verbose和confirm	
+
+verbose 在 confirm 使用收到Yes to All后不生效
+
+```
+
+PS🌙[BAT:99%][MEM:39.35% (3.09/7.85)GB][23:17:57]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> 1..3|%{New-Item -ItemType File  "${_}.txt"}
+
+        Directory: C:\Users\cxxu\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---         2024/9/25     23:18              0 󰈙  1.txt
+-a---         2024/9/25     23:18              0 󰈙  2.txt
+-a---         2024/9/25     23:18              0 󰈙  3.txt
+
+
+PS🌙[BAT:99%][MEM:39.21% (3.08/7.85)GB][23:18:03]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> ls *txt|Remove-Item -Confirm -Verbose
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Remove File" on target
+"C:\Users\cxxu\Desktop\1.txt".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):A
+
+```
+
+```powershell
+
+PS🌙[BAT:99%][MEM:39.22% (3.08/7.85)GB][23:18:13]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> 1..3|%{New-Item -ItemType File  "${_}.txt"}
+
+        Directory: C:\Users\cxxu\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---         2024/9/25     23:18              0 󰈙  1.txt
+-a---         2024/9/25     23:18              0 󰈙  2.txt
+-a---         2024/9/25     23:18              0 󰈙  3.txt
+
+
+PS🌙[BAT:99%][MEM:39.57% (3.11/7.85)GB][23:18:18]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> ls *txt|Remove-Item  -Verbose
+VERBOSE: Performing the operation "Remove File" on target "C:\Users\cxxu\Desktop\1.txt".
+VERBOSE: Performing the operation "Remove File" on target "C:\Users\cxxu\Desktop\2.txt".
+VERBOSE: Performing the operation "Remove File" on target "C:\Users\cxxu\Desktop\3.txt".
+```
+
+
+
+### 使用yes to all 选项
+
+- [yes to all|关于 ShouldProcess 的各项须知内容 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.4#yes-to-all)
+
+### 关于二重确认
 
 - [Confirmation Messages - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/confirmation-messages?view=powershell-7.4#specifying-the-operation-and-resource)
 
-要创建一个类似于文档中描述的 `Test-RequestConfirmationTemplate` 函数，您可以使用 PowerShell 的 `ShouldProcess` 和 `ShouldContinue` 方法来实现两步确认。
+例如,创建一个类似于文档中描述的 `Test-RequestConfirmationTemplate` 函数，您可以使用 PowerShell 的 `ShouldProcess` 和 `ShouldContinue` 方法来实现两步确认。
 
 `ShouldProcess` 方法用于询问用户是否要对目标资源执行特定的操作，而 `ShouldContinue` 则提供第二次确认，询问用户是否继续执行操作。这通常用于更危险的操作，确保用户确认执行。
 
@@ -289,42 +432,92 @@ What if: Performing the operation "Remove file(by Remove-CxxuFile)" on target "C
 下面是一个实现示例：
 
 ```powershell
-function Test-RequestConfirmationTemplate {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')] 
+
+function Test-RequestConfirmationTemplate
+{
+    <# 
+    .SYNOPSIS
+    演示ShouldProcess和ShouldContinue组合使用,提供二次消息确认
+
+    #>
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')] 
     param (
-        [string]$Target = "MyResource"
+        [string]$Target = 'MyResource'
     )
 
     # Step 1: ShouldProcess prompts the user for confirmation
-    if ($PSCmdlet.ShouldProcess($Target, "Test-RequestConfirmationTemplate1")) {
+    if ($PSCmdlet.ShouldProcess($Target <# , 'Test-RequestConfirmationTemplate' #>))
+    {
 
-        # Step 2: If user confirms, we use ShouldContinue for a second prompt
-        $shouldContinue = $PSCmdlet.ShouldContinue(
-            "Continue with this operation?", 
-            "Confirm"
-        )
+        # After ShouldProcess, you can call ShouldContinue for further confirmation
+        $message = 'Message:Continue with this operation?(by ShouldContinue)'
+        $caption = 'Caption:Confirm(ShouldContinue)'
+        $shouldContinue = $PSCmdlet.ShouldContinue($message, $caption)
         
-        if ($shouldContinue) {
+        if ($shouldContinue)
+        {
             # If both confirmations are positive, perform the operation
             Write-Host "Operation on $Target confirmed and proceeding."
-        } else {
+        }
+        else
+        {
             # If user cancels in the second confirmation
             Write-Host "Operation on $Target canceled by user."
         }
-    } else {
-        # If user cancels in the first confirmation
-        Write-Host "Operation on $Target not confirmed."
     }
+    
 }
-
-# 测试函数
-Test-RequestConfirmationTemplate -Target "MyResource"
 ```
 
-### 解释：
-1. **`CmdletBinding(SupportsShouldProcess=$true)`**: 这是启用 `ShouldProcess` 功能的关键，使得命令能够请求用户确认。
-2. **`ConfirmImpact`**: 设置为 `'Medium'`，意味着当用户的 `$ConfirmPreference` 设置为 `Medium` 或更低时，系统会提示确认。你可以根据需要调整这一参数。
-3. **`ShouldProcess($Target, "Test-RequestConfirmationTemplate1")`**: 第一次确认用户是否希望对目标资源执行某个操作。
-4. **`ShouldContinue()`**: 在用户确认后，进一步确认是否继续操作。这用于二次确认，一般用于执行更敏感的操作。
+解释
+
+- **`ShouldContinue()`**: 在用户确认后，进一步确认是否继续操作。这用于二次确认，一般用于执行更敏感的操作。
 
 执行时，首先会要求用户确认是否希望对目标执行操作，确认后会再询问是否继续执行。
+
+#### 演示
+
+```powershell
+
+PS🌙[BAT:100%][MEM:49.79% (3.91/7.85)GB][21:59:26]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> test-RequestConfirmationTemplate -WhatIf
+What if: Performing the operation "Test-RequestConfirmationTemplate" on target "MyResource".
+
+PS🌙[BAT:100%][MEM:49.79% (3.91/7.85)GB][21:59:29]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> test-RequestConfirmationTemplate
+
+Caption:Confirm(ShouldContinue)
+Message:Continue with this operation?(by ShouldContinue)
+[Y] Yes  [N] No  [S] Suspend  [?] Help (default is "Y"): y
+Operation on MyResource confirmed and proceeding.
+
+PS🌙[BAT:100%][MEM:51.34% (4.03/7.85)GB][22:00:07]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> test-RequestConfirmationTemplate -Confirm
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Test-RequestConfirmationTemplate" on target
+"MyResource".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):y
+
+Caption:Confirm(ShouldContinue)
+Message:Continue with this operation?(by ShouldContinue)
+[Y] Yes  [N] No  [S] Suspend  [?] Help (default is "Y"): y
+Operation on MyResource confirmed and proceeding.
+
+PS🌙[BAT:100%][MEM:50.97% (4/7.85)GB][22:00:35]
+# [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][~\Desktop]
+PS> test-RequestConfirmationTemplate -Confirm
+
+Confirm
+Are you sure you want to perform this action?
+Performing the operation "Test-RequestConfirmationTemplate" on target
+"MyResource".
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help
+(default is "Y"):n
+```
+
