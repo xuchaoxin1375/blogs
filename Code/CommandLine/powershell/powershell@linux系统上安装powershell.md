@@ -35,7 +35,7 @@
 - 下面这段脚本是给Debian设计的脚本
 - 我在ubuntu22上试过也可以安装(源是阿里源)
 
-```
+```bash
 # Install system components
 sudo apt update  && sudo apt install -y curl gnupg apt-transport-https
 
@@ -58,7 +58,7 @@ pwsh
 
 - `cat /etc/shells|grep powershell`
 
-```
+```bash
 # cxxu @ cxxuAli in ~ [11:04:44]
 $ cat /etc/shells
 # /etc/shells: valid login shells

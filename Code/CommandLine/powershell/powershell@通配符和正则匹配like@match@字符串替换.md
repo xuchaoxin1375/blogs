@@ -3,7 +3,11 @@
 
 # powershell 处理文本文件和字符串
 
+## abstract
 
+- powrshell自带的许多操作符支持正则表达式
+- 但是对于复杂的需求,我们转向调用`.Net`api来执行复杂的匹配任务
+- [正则表达式的选项 - .NET | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-options)
 
 ## 经典案例
 
@@ -92,11 +96,281 @@ InputStream:379:      "5.72" -replace "(.+)", "`$`$`$1"
 
 - 经过上述查找,我们可以到about_Regular_Expressions 中一探究竟.
 
+## 正则表达式的选项
+
+选项有多种
+
+下面其中经典的例子说明正则选项,在powershell下的正则表达式的使用
+
+### 忽略大小写
+
+- 启用忽略大小写的选项(-match操作符本身忽略大小写,而使用-cmatch则是大小写敏感的,但是如果正则表达式里内敛选项(?i)指定了要忽略大小写,则强制忽略大小写)
+- 事实上,正则表达式中指定的内敛选项的优先级比较高,`-match,-imatch`的优先级比较低,前者尝试忽略大小写,后者试图区分大小写
+
+- ```powershell
+  PS> 'Fishing' -cmatch '(?i)fish.*' 
+  True
+  PS> 'Fishing' -cmatch 'fish.*'
+  False
+  ```
+
+  ```powershell
+  
+  PS [C:\repos\scripts]> $string = "hello World"
+  
+  PS [C:\repos\scripts]> $regex = "(?i)HELLO(?-i) world"  # 启用忽略大小写匹配，但仅针对 "HELLO"
+  
+  PS [C:\repos\scripts]> $string -match $regex
+  False
+  
+  PS [C:\repos\scripts]> $regex = "(?i)HELLO(?-i) World"  # 启用忽略大小写匹配，但仅针对 "HELLO"
+  
+  PS [C:\repos\scripts]> $string -match $regex
+  True
+  
+  PS [C:\repos\scripts]> $string -imatch $regex
+  True
+  
+  ```
+
+## 使用.Net Regex api
+
+powershell中使用`.Net`的`[regex]`,如果查询其全名，可以访问其`FullName`属性
+
+```powershell
+PS [C:\repos\scripts]>  [regex].FullName
+System.Text.RegularExpressions.Regex
+```
+
+`[regex]::Match` 是 PowerShell 中使用正则表达式进行字符串匹配的重要方法之一，属于 .NET Framework 的 `System.Text.RegularExpressions.Regex` 类。它用于查找字符串中符合指定正则表达式模式的匹配内容，并返回一个 `Match` 对象，该对象包含匹配信息，如匹配的文本、匹配的位置等。
+
+### 常用的相关方法和属性
+
+#### 1. `Match` 方法
+
+有三个重载方法
+
+```powershell
+PS> [regex]::Match(
+Match    Matches
+
+static System.Text.RegularExpressions.Match Match(string input, string pattern)
+
+static System.Text.RegularExpressions.Match Match(string input, string pattern, System.Text.RegularExpressions.RegexOptions options)
+
+static System.Text.RegularExpressions.Match Match(string input, string pattern, System.Text.RegularExpressions.RegexOptions options, timespan matchTimeout)
+```
+
+`Match` 方法用于返回第一个匹配项，返回的是一个 `Match` 对象。
+
+```powershell
+# 查找字符串中匹配模式的第一个结果
+$result = [regex]::Match("PowerShell is powerful", "Power\w+")
+$result.Value  # 输出：PowerShell
+```
+
+```powershell
+$match = [regex]::Match("PowerShell 7.4.5", "\d+\.\d+\.\d+")
+$match.Value  # 输出：7.4.5
+```
+
+#### 常用的 `RegexOptions` 选项：
+
+- `IgnoreCase`：忽略大小写。
+- `Multiline`：启用多行模式。
+- `Singleline`：启用单行模式，使 `.` 可以匹配换行符。
+- `ExplicitCapture`：仅捕获显式命名或编号的组。
+- `Compiled`：将正则表达式编译为程序集，提供更好的运行时性能。
+
+示例：
+
+```powershell
+$match = [regex]::Match("PowerShell is Awesome!", "powershell", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+$match.Value  # 输出：PowerShell
+```
+
+其中`[System.Text.RegularExpressions.RegexOptions]::IgnoreCase`这个量有点长,可以借助补全来输入:`[RegexOptions`按下Tab键补全(借助预测器插件补全)
+
+```
+PS> $match = [regex]::Match("PowerShell is Awesome!", "powershell")  
+PS> $match
+
+Groups    : {0}
+Success   : False
+Name      : 0
+Captures  : {}
+Index     : 0
+Length    : 0
+Value     :
+ValueSpan :
+```
+
+
+
+#### 2. `Matches` 方法
+
+`Matches` 方法会返回所有匹配项的集合（`MatchCollection` 对象），而不是只返回第一个匹配。
+
+```powershell
+# 返回所有匹配项
+$matches = [regex]::Matches("PowerShell is powerful, PowerShell is cool", "Power\w+")
+foreach ($match in $matches) {
+    $match.Value  # 输出：PowerShell，PowerShell
+}
+```
+
+#### 3. `IsMatch` 方法
+
+`IsMatch` 方法用于判断字符串中是否存在符合正则表达式的匹配项，返回布尔值 `True` 或 `False`。
+
+```powershell
+# 检查字符串中是否存在匹配项
+$isMatch = [regex]::IsMatch("PowerShell is powerful", "Power\w+")
+$isMatch  # 输出：True
+```
+
+#### 4. `Replace` 方法
+
+`Replace` 方法用于将匹配项替换为指定的字符串。
+
+```powershell
+# 将匹配的内容替换为指定字符串
+$result = [regex]::Replace("PowerShell is powerful", "Power\w+", "Awesome")
+$result  # 输出：Awesome is powerful
+```
+
+#### 5. `Split` 方法
+
+`Split` 方法用于根据正则表达式模式将字符串分割为数组。
+
+```powershell
+# 使用正则表达式进行分割
+$result = [regex]::Split("one,two,three", ",")
+$result  # 输出：one two three
+```
+
+#### 6. `Groups` 属性
+
+`Groups` 是 `Match` 对象的一个属性，用于访问正则表达式中的分组匹配（捕获组）。
+
+```powershell
+# 使用分组进行匹配
+$match = [regex]::Match("Date: 2024-09-26", "Date: (\d{4})-(\d{2})-(\d{2})")
+$year = $match.Groups[1].Value  # 捕获年份：2024
+$month = $match.Groups[2].Value  # 捕获月份：09
+$day = $match.Groups[3].Value  # 捕获日期：26
+```
+
+#### 7. `Success` 属性
+
+`Success` 属性是 `Match` 对象的一个布尔值，表示是否找到了匹配。
+
+```powershell
+# 检查是否匹配成功
+$match = [regex]::Match("PowerShell", "Power\w+")
+if ($match.Success) {
+    Write-Host "匹配成功"
+} else {
+    Write-Host "匹配失败"
+}
+```
+
+### 示例
+
+#### 示例 1：查找字符串中的第一个匹配项
+
+```powershell
+$string = "The quick brown fox jumps over the lazy dog"
+$pattern = "\b\w{5}\b"  # 匹配所有长度为5的单词
+$match = [regex]::Match($string, $pattern)
+$match.Value  # 输出：quick
+```
+
+#### 示例 2：查找所有符合条件的匹配项
+
+```powershell
+$string = "The quick brown fox jumps over the lazy dog"
+$pattern = "\b\w{5}\b"  # 匹配所有长度为5的单词
+$matches = [regex]::Matches($string, $pattern)
+foreach ($match in $matches) {
+    Write-Host $match.Value  # 输出：quick jumps
+}
+```
+
+#### 示例 3：使用分组提取数据
+
+```powershell
+$string = "Name: John Doe, Age: 30, Email: john.doe@example.com"
+$pattern = "Name: (\w+ \w+), Age: (\d+), Email: (\S+)"
+$match = [regex]::Match($string, $pattern)
+
+$name = $match.Groups[1].Value  # John Doe
+$age = $match.Groups[2].Value   # 30
+$email = $match.Groups[3].Value  # john.doe@example.com
+
+Write-Host "Name: $name, Age: $age, Email: $email"
+```
+
+### 总结
+
+- `Match`：返回第一个匹配项的 `Match` 对象。
+- `Matches`：返回所有匹配项的集合（`MatchCollection`）。
+- `IsMatch`：判断是否存在匹配项，返回布尔值。
+- `Replace`：替换匹配项。
+- `Split`：根据正则表达式分割字符串。
+- `Groups`：用于捕获正则表达式中的分组内容。
+  
+
+通过这些方法，你可以灵活地使用正则表达式处理和操作字符串。
+
 ## 定位点
 
 [定位点|关于正则表达式 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4#anchors)
 
-### 多行匹配
+### 定位始末位置
+
+```powershell
+PS [C:\repos\configs]> 'fish' -match '^fish$'
+True
+
+PS [C:\repos\configs]> 'fishing' -match '^fish.*$'
+True
+
+PS [C:\repos\configs]> 'fishing' -match '^fish$'
+False
+```
+
+
+
+### `$Matches`变量
+
+- [组、捕获和替换](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4#groups-captures-and-substitutions)
+
+```powershell
+PS🌙[BAT:79%][MEM:49.34% (15.64/31.71)GB][18:02:59]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
+PS> 'The last logged on user was CONTOSO\jsmith' -match '(.+was )(.+)'
+True
+
+PS🌙[BAT:79%][MEM:48.34% (15.33/31.71)GB][18:14:11]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
+PS> $Matches
+
+Name                           Value
+----                           -----
+2                              CONTOSO\jsmith
+1                              The last logged on user was
+0                              The last logged on user was CONTOSO\jsmith
+```
+
+
+
+### 多行匹配和单行匹配
+
+在 PowerShell 中使用定位点时，应了解 **Singleline** 和 **Multiline** 正则表达式选项之间的差异。
+
+- **Multiline**：多行模式强制 `^` 和 `$` 匹配每行的开头和结尾，而不是输入字符串的开头和结尾。
+- **Singleline**：单行模式将输入字符串视为 **SingleLine**。 **它强制 `.` 字符匹配每个字符（包括换行符）**，而不是匹配除换行符 `\n` 之外的每个字符。
 
 在 PowerShell 中可以使用正则表达式来匹配多行内容。通常，使用 `-match` 运算符以及多行模式的标志 `(?s)` 来实现这一点。以下是一个示例：
 

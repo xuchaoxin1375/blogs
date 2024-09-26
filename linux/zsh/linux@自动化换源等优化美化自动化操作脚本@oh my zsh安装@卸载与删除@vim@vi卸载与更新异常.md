@@ -46,9 +46,12 @@
 ### 换源脚本模板😊
 
 - 不要直接使用
-  - 以kali-linux 更换国内镜像源(阿里源为例)
-  - 只提供流程参考
-  - 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
+
+#### kali-linux 
+
+- 更换国内镜像源(阿里源为例)
+- 只提供流程参考
+- 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
 
 
 - ```bash
@@ -95,7 +98,7 @@
 
 
 
-#### 例:ubuntu 换源😊
+#### ubuntu 换源👺
 
 - [ubuntu | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)
 - [ubuntu源by阿里](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
