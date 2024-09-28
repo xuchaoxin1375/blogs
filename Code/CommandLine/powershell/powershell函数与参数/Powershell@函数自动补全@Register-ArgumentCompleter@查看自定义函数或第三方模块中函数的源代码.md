@@ -101,5 +101,58 @@ Register-ArgumentCompleter -CommandName Get-CommandSourceCode -ParameterName Nam
 
 
 
+## 补全相关
 
+[关于函数参数补全 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion?view=powershell-7.4)
+
+让Value的补全列表由Type来决定
+
+```powershell
+#定义补全器函数(或代码块)
+function MyArgumentCompleter{
+    param ( $commandName,
+            $parameterName,
+            $wordToComplete,
+            $commandAst,
+            $fakeBoundParameters )
+
+	$possibleValues = @{
+        Fruits = @('Apple', 'Orange', 'Banana')
+        Vegetables = @('Onion', 'Carrot', 'Lettuce')
+    }
+
+    if ($fakeBoundParameters.ContainsKey('Type')) {
+            $possibleValues[$fakeBoundParameters.Type] | Where-Object {
+                $_ -like "$wordToComplete*"
+            }
+        } else {
+            $possibleValues.Values | ForEach-Object {$_}
+    }
+}
+
+function Test-ArgumentCompleter {
+	[CmdletBinding()]
+ 	param (
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('Fruits', 'Vegetables')]
+        $Type,
+
+	[Parameter(Mandatory=$true)]
+        [ArgumentCompleter({ MyArgumentCompleter @args })]
+        $Value
+      )
+}
+```
+
+
+
+```powershell
+PS> Test-ArgumentCompleter -Type Fruits -Value Apple
+Apple   Orange  Banana
+```
+
+```powershell 
+PS> Test-ArgumentCompleter -Type Vegetables -Value Onion
+Onion    Carrot   Lettuce
+```
 
