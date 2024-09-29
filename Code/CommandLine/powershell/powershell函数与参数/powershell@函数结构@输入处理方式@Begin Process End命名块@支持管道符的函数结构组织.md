@@ -1,6 +1,9 @@
 [toc]
 
+## abstract
 
+- powershell@函数结构@输入处理方式
+- Begin Process End@支持管道符的函数结构组织
 
 ## 函数分块
 
@@ -14,7 +17,7 @@
 
 - **end 块**：在所有输入处理完后执行一次，通常用于清理或汇总结果。
 
-### 案例Get-Upper
+### 案例Get-Upper👺
 
 以下是一个示例：其同时支持管道符传参和普通方式传参
 
@@ -130,10 +133,27 @@ Function Test-ScriptCmdlet {
 - **注意事项**：
   - 如果函数参数设置为接受管道输入，而未定义 `process` 块，则记录逐条处理将失败。**在这种情况下，函数将只执行一次，无论输入如何。**(管道符方式传参参数绑定和普通调用方式绑定参数有所不同)
   - 在使用 CmdletBinding 的情况下，`process` 块应使用您为管道输入定义的参数变量，而不是 `$_` 或 `$PSItem`。
-- **示例**：
+
+
+
+### `end` 块
+
+- **用途**：用于提供可选的一次性后处理。
+
+### `clean` 块 (新增于 PowerShell 7.3)
+- **用途**：提供用户清理跨越 `begin`、`process` 和 `end` 块的资源的便利方法，语义上类似于覆盖所有其他命名块的 `finally` 块。
+- **执行场景**：
+  - 当管道执行正常完成且没有终止错误时。
+  - 当管道执行因终止错误而中断时。
+  - 当通过 `Select-Object -First` 停止管道时。
+  - 当通过 Ctrl+C 或 `StopProcessing()` 停止管道时。
+- **注意事项**：添加 `clean` 块是一个破坏性更改。因为 `clean` 被解析为关键字，阻止用户直接在脚本块的第一条语句中调用名为 `clean` 的命令。可以使用调用运算符 `(& clean)` 来调用该命令。
+
+## 示例
+
+### Get-SumOfNumbers👺
 
 ```powershell
-
 function Get-SumOfNumbers
 {
     <# 
@@ -203,19 +223,6 @@ function Get-SumOfNumbersTestPipeLine
 
 
 
-### `end` 块
-
-- **用途**：用于提供可选的一次性后处理。
-
-### `clean` 块 (新增于 PowerShell 7.3)
-- **用途**：提供用户清理跨越 `begin`、`process` 和 `end` 块的资源的便利方法，语义上类似于覆盖所有其他命名块的 `finally` 块。
-- **执行场景**：
-  - 当管道执行正常完成且没有终止错误时。
-  - 当管道执行因终止错误而中断时。
-  - 当通过 `Select-Object -First` 停止管道时。
-  - 当通过 Ctrl+C 或 `StopProcessing()` 停止管道时。
-- **注意事项**：添加 `clean` 块是一个破坏性更改。因为 `clean` 被解析为关键字，阻止用户直接在脚本块的第一条语句中调用名为 `clean` 的命令。可以使用调用运算符 `(& clean)` 来调用该命令。
-
-### 总结
+## 总结
 
 通过合理使用 `begin`、`process`、`end` 和 `clean` 块，PowerShell 函数能够有效管理输入数据流和资源。理解这些块的功能和最佳实践可以帮助您编写更加健壮和灵活的脚本。
