@@ -212,6 +212,42 @@
    Win32NT             10.0.26100.0 Microsoft Windows NT 10.0.26100.0
   ```
 
+- 其实windows powershell(v5)也可以查看到版本后的build和revision号,但和最新版本号不一定相同,仅供参考
+
+  - powershell7 内也可以查询
+
+    ```powershell
+    PS> powershell.exe -c '$host.version|select build,revision'
+    
+    Build Revision
+    ----- --------
+    22621     4111
+    
+    ```
+
+  - windows powershell(v5.1)直接用`$host.Version`查询,其中后面两个字段和windows版本号相挂钩
+
+    ```
+    Windows PowerShell
+    版权所有（C） Microsoft Corporation。保留所有权利。
+    
+    安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows
+    
+    PS C:\Users\cxxu> $host.Version
+    
+    Major  Minor  Build  Revision
+    -----  -----  -----  --------
+    5      1      22621  4111
+    ```
+
+  - 该试验中实际的版本号是
+
+    ```bash
+    Win 11 专业版@23H2:10.0.22631.4169
+    ```
+
+    
+
 ### 查看对应的注册表
 
 - 在reg中查看以下路径
