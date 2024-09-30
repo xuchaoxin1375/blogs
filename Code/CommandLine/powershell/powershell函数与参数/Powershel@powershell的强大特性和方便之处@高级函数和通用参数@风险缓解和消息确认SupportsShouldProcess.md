@@ -13,20 +13,43 @@
   - [Cmdlet 概述 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/cmdlet-overview?view=powershell-7.2)
   - [编写 Cmdlet 的教程 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/tutorials-for-writing-cmdlets?view=powershell-7.2)
   - 最新版的文档一般只有英文文档,如果需要中文文档,可以尝试将文档版本调到前期,比如7.4时,可以参考7.2的文档(虽然可能有一些差异,但是大多数还是一样的)
+
+## 认识和学习powershell
+
+- [什么是 PowerShell？ - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/overview?view=powershell-7.4) powershell的三大用途(主要介绍第一类用途,学习成本比较低,有可以方便处理很多任务)
+  1. 命令行 Shell
+     - 可靠的命令行[历史记录](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_history)
+     - Tab 自动补全和命令预测（请参阅 [about_PSReadLine](https://learn.microsoft.com/zh-cn/powershell/module/psreadline/about/about_psreadline)）
+     - 支持命令和参数[别名](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_aliases)
+     - 用于链接命令的[管道](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_pipelines)
+     - 控制台内[帮助](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/get-help)系统，类似于 Unix `man` 页面
+  2. 脚本语言
+     - 可通过[函数](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_functions_advanced)、[类](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_classes)、[脚本](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_scripts)和[模块](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_modules)进行扩展
+     - 便于输出的可扩展[格式系统](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_format.ps1xml)
+     - 用于创建动态类型的可扩展[类型系统](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_types.ps1xml)
+     - 对常用数据格式（例如 [CSV](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.utility/convertfrom-csv)、[JSON](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.utility/convertfrom-json) 和 [XML](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.utility/convertto-xml)）的内置支持(这一点相对上述三点更容易理解和常用)
+  3. 自动化平台
+
+### 学习和利用powershell长处
+
 - Cmdlet相关的内容很多,包括许多方面,有些不好理解,尤其是对于.Net和C#不了解的用户而言,而许多高级特性依赖于这方面的知识,幸运的是,我们可以结合AI来学习这些文档,并且寻求更多的示例供我们验证想法和针对性学习
 - 此外,官方在线文档【了解PowerShell】提供的101教程是极好的容易上手的系统的对新手有好的学习资料,相比直接查阅文档和使用powershell,101让学习思路更加清晰
 - 相邻的几个主题也很知道看,帮助你了解powershell的强大之处(虽然启动速度慢了些)
   - 了解PowerShell
     1. PowerShell 101(十分容易上手的教程)
-    2. 优化shell体验(powershell支持强大的补全和预测补全器,甚至有基于机器学习的补全插件,让shell交互更加简单高效,prompt美化也不在话下,无论是自定义还是使用第三方模块)
-    3. 深入探讨(编写规范的powershell命令)
+    2. 优化shell体验
+       - (powershell支持强大的补全和预测补全器,甚至有基于机器学习的补全插件,让shell交互更加简单高效,prompt美化也不在话下,无论是自定义还是使用第三方模块)
+       - 最值得看的特性
+         - [使用动态帮助 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/shell/dynamic-help?view=powershell-7.4)
+         - [在 PSReadLine 中使用预测器 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/shell/using-predictors?view=powershell-7.4)
+         - [使用 PSReadLine 键处理程序 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/shell/using-keyhandlers?view=powershell-7.4)
+    3. 深入探讨(编写规范和强大的powershell命令)
     4. 示例脚本(经典的规范例程)
 - 实际上这些特性不是必须的,只不过了解这些特性能够让我们自己编写的函数更加适合在命令行中使用,并且让某些任务变得更简单,实现更加规范和易于管理,尤其是参数集和参数验证等特性
 
-### powershell的现代特性和方便之处
+## powershell的现代特性和方便之处
 
-- 诚然powershell的高级特性有一定复杂度,但是基础部分也容易上手,而且能够快速完成很多工作
-- powershell 开源跨平台
+- 诚然powershell的高级特性有一定复杂度,但是基础部分也容易上手,而且能够快速完成很多工作,而且powershell 开源跨平台
 
 - 很多任务powershell只需要少量代码就可以完成,例如将仓库内已经提交二进制文件(.exe)移除,那么可以执行
 
@@ -61,6 +84,37 @@
   ```
 
   此外,powershell7还原生支持并行特性,许多耗时任务执行效率大为提高
+  
+  例如测试100个网站的相应速度或可用性,使用并行方案高效得多
+
+### 获取优秀模块
+
+- powershell支持模块,并且使用方便,别人编写的模块很容易分享给其他用户,例如我把自己编写的模块集合放到开源平台,下载到指定目录或者配置以下环境变量就可以自动导入
+
+- 外部模块分为两大类,一类是可以通过`install-module`在线安装的模块,或者其他方式下载模块然后用此命令离线安装的模块;另一类是使用下载命令下载部署脚本,然后通过`iex`等命令执行部署脚本进行更自由的模块或者软件安装,例如
+
+  - `scoop`
+
+    ```powershell
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+    ```
+
+  - `CxxuPsModule`
+
+    ```powershell
+    Invoke-Expression (Invoke-RestMethod 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsModules.ps1')
+    
+    ```
+
+  - 或者是即临时地导入一组函数或命令到当前shell环境
+
+    ```powershell
+    irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/deploy.psm1'|iex
+    ```
+
+    - 此命令会将作者编写的windows上部署许多环境或软件的命令行导入到当前shell环境中,可以快速体验一些命令或模块功能
+    - 例如此模块中包含了` Deploy-ScoopForCNUser`命令,可以为国内用户快速部署scoop 加速版
 
 ### 本文主题
 
