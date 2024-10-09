@@ -81,9 +81,11 @@
   Microsoft Corporation。保留所有权利
   ```
 
-### systeminfo程序
+### 命令行工具:systeminfo程序
 
-1. 通过在命令行(cmd/powershell)执行`systeminfo`查看信息
+- 通过在命令行(cmd/powershell)执行`systeminfo`查看信息
+
+   - 特点是速度慢,信息相对较全面,和powershell的Get-systeminfo命令类似
 
    - ```powershell
      PS> systeminfo
@@ -167,6 +169,7 @@
 
    - 注意到这个显示了更丰富的信息,特别是不同的网卡具有友好的名称和**ip地址字段**
 
+
 ### 使用`msinfo32`程序
 
 - 这个GUI程序可能是windows上能够显示最全信息的自带软件了
@@ -184,11 +187,40 @@
   (c) Microsoft Corporation。保留所有权利。
   ```
 
-  
+- 或者使用`cmd`的`ver`命令
 
+  ```cmd
+  cmd /c ver
+  ```
 
+- 如果在powershell中想要获取结果，可以执行
+
+  ```powershell
+  cmd /c ver | sls '\d+\.\d+\.\d+\.\d+' | select -ExpandProperty Matches|select Value
+  ```
+
+  执行时间大约为几十毫秒,`systeminfo`等方法快,但是比注册表查询方法要慢几倍
+
+  前者的优势在于不同版本的系统兼容性强,注册表对于系统版本比较敏感,需要做兼容和适配
 
 ### 使用powershell查看
+
+方法有多种,有的速度快,有的信息全
+
+#### 使用`Get-ComputerInfo`命令
+
+这个命令的特点是信息全面,但是速度慢(和通用的systeminfo程序类似)
+
+```powershell
+PS> Get-ComputerInfo |select WindowsProductId ,windowsversion,windowsUBR,OsHardwareAbstractionLayer |fl
+
+WindowsProductId           : 00330-80000-00000-AA824
+WindowsVersion             : 2009
+WindowsUBR                 : 1742
+OsHardwareAbstractionLayer : 10.0.26100.1
+```
+
+#### 使用`Get-CimINstance`命令查看
 
 - ```powershell
   Get-CimInstance Win32_OperatingSystem 
@@ -302,8 +334,13 @@
 
 #### powershell函数
 
+下面的两个powershell函数兼容win10,win11
+
+第二个函数基于cmd,支持cmd ver命令的系统都支持(但是函数需要powershell运行)
+
 ```powershell
-function Get-WindowsVersionFromRegistry
+
+function Get-WindowsOSVersionFromRegistry
 {
     <# 
     .SYNOPSIS
@@ -322,6 +359,9 @@ function Get-WindowsVersionFromRegistry
     构造完整版本号（CurrentBuild.UBR）。
     格式化输出信息。
     返回格式化后的输出。
+    .NOTES
+    win10的注冊表和win11有所不同,win10可能有:WinREVersion : 10.0.19041.3920 这种字段
+    而win11则是其他形式,比如LCUVersion
         #>
     $registryPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
 
@@ -335,7 +375,8 @@ function Get-WindowsVersionFromRegistry
     {
         $result.ProductName = $result.ProductName -replace 'Windows 10', 'Windows 11'
     }
-    # $fullVersion = "$($result.CurrentMajorVersionNumber).$($result.CurrentMinorVersionNumber).$($result.CurrentBuild).$($result.UBR)"
+    # 下面这个拼接方式兼容性好点,可以兼容win10,win11
+    $fullVersion = "$($result.CurrentMajorVersionNumber).$($result.CurrentMinorVersionNumber).$($result.CurrentBuild).$($result.UBR)"
 
     $res = [PSCustomObject]@{
         ProductName               = $result.ProductName
@@ -345,16 +386,28 @@ function Get-WindowsVersionFromRegistry
         CurrentMinorVersionNumber = $result.CurrentMinorVersionNumber
         CurrentBuild              = $result.CurrentBuild
         UBR                       = $result.UBR
-        # FullVersion               = $fullVersion
+        FullVersion               = $fullVersion
         LCUVer                    = $result.LCUVer
+        WinREVersion              = $result.WinREVersion
         
         # IsWindows11               = $isWindows11
     }
     return $res
 }
-#调用
-Get-WindowsVersionFromRegistry
 
+function Get-windowsOSFullVersionCode
+{
+    <# 
+    .SYNOPSIS
+    利用cmd /c ver命令获取相应的包含完整系统版本号的字符串
+    然后利用powershell的字符串处理方法进行过滤,最后提取出相应的字符串
+    #>
+    param (
+        
+    )
+    cmd /c ver | Select-String '\d+\.\d+\.\d+\.\d+' | Select-Object -ExpandProperty Matches | Select-Object Value
+    
+}
 ```
 
 ```powershell
