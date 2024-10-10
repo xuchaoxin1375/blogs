@@ -1,22 +1,28 @@
 [toc]
 
+## abstract
+
 git 的新版本发生些许变化,这使得git help reset上的内容可能发生了变化
 在了解相关命令和做法前,建议您先了解git管理下的文件的三种状态:
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/99b001ef902741cd935d2271f465eb94.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-## Working tree directory, staging area, and Git directory
+Working tree directory, staging area, and Git directory
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/3c52d929712b4f8d820f0cf481fed2a3.png)
 
-##  target for undo operations
+target for undo operations
+
 做撤销的行为一般是由于不小心将当前文件改乱了,进而想让工作区中的文件恢复到被修改之前.
-#  undo modified (undo woking directory modification)(level1)
+
+undo modified (undo woking directory modification)(level1)
+
 当工作区workspace中的内容尚未add 到index时,您可以将index区中的内容调出来覆盖掉当前工作区的文件内容
 如果是这样,用check命令即可(撤销workspace中的修改)
 `git checkout  fileName`
 一般来说,这个命令很够用了,一般我们没有完成一定程度的修改,是不会add到staging area中的.(而且,在把文件改乱了又返回的时候都还处在这个阶段)
 
-#  undo add(level2)
+undo add(level2)
+
 ##  git reset
 - 但如果您不小心将working space 中尚未完善的修改add到了`staging area`,那么可以针对某个文件利用`git reset [HEAD] fileName/directory`来撤销add 操作(该操作并不影响到工作空间中的文件,单纯地回到add之前的状态)
 
@@ -63,9 +69,68 @@ PS> git rm -r --cached  __pycache__/
 fatal: pathspec '__pycache__/' did not match any files
 ```
 
+## 批量地移除git中的二进制或缓存文件
 
+从 Git 存储库中删除所有 `.exe` 文件的缓存记录。
 
-#  undo commit
+### powershell方案
+
+我们可以利用powershell处理这个任务
+
+```powershell
+ ls *.exe -Recurse |%{git rm --cached $_.FullName -r}
+```
+
+它首先使用 `ls` 命令列出所有 `.exe` 文件，并通过 `-Recurse` 参数递归地搜索子目录。然后，使用管道 (`|`) 将结果传递给一个脚本块 `{}`，该脚本块遍历 (`%{...%}`) 每一个文件路径，并执行 `git rm --cached` 命令来从 Git 缓存中删除这些文件，但不删除实际文件系统中的文件。
+
+### bash方案
+
+在 Linux 或 macOS 的 Bash shell 中，可以这样做：
+
+```bash
+ find . -name "*.exe" -type f -exec git rm --cached {} \;
+```
+
+这个命令的工作方式如下：
+
+- `find .` 命令从当前目录开始递归地查找文件。
+- `-name "*.exe"` 指定只查找扩展名为 `.exe` 的文件。
+- `-type f` 确保只找到文件而不是目录。
+- `-exec` 允许执行外部命令，这里的命令是 `git rm --cached {} \;`，其中 `{}` 是 find 命令找到的每个文件的占位符。
+- `\;` 表示结束 `-exec` 后面的命令。
+
+请注意，在执行上述命令之前，请确保你是在一个 Git 工作树中，并且你有权限执行 `git rm` 命令。如果你不确定这些 `.exe` 文件是否应该被移除出 Git 跟踪，最好先检查一下它们是什么以及为何存在于你的项目中。另外，如果你不想立即提交这些更改，你可以稍后再手动添加并提交这些文件。
+
+### 演示示例
+
+```powershell
+ PS> ls *.exe -Recurse |%{git rm --cached $_.FullName -r}
+ rm 'Cpp/stars_printer/2.exe'
+ rm 'Cpp/stars_printer/a.exe'
+ rm 'Cpp/a.exe'
+ rm 'Cpp/StarsPrinter.exe'
+  
+```
+
+### 步骤总结👺
+
+- 在 `.gitignore`文件中写好规则(如果之前疏忽了,将不需要或不适合的东西提交上去了,就添加对应的排除规则)
+
+- 扫描出需要移除提交的文件,然后传递给 `git rm --cached` 进行撤销提交
+
+- 最后根据需要是否要删除这些仓库中不需要提交的文件(通常可以不删除,否则运行起来重新生成,而且新的规则下它们不会再被提交,就可以了)
+
+- 如果确实要删除,那么仍然可以用类似的方法
+
+  - ```powershell
+     
+     PS🌙[BAT:94%][MEM:51.14% (4.01/7.85)GB][2:53:09]
+     # [cxxu@CXXUREDMIBOOK][<W:192.168.1.46>][Win 11 专业版@10.0.26100.1297][C:\repos\scripts]{Git:main}
+     PS> ls *.exe -Recurse |%{rm $_}  
+    ```
+
+##  undo commit
+
 `git reset --soft <commit_id>`
 
 (通过移动HEAD指针实现),`--soft` 比`--hard`安全(温和)
@@ -123,7 +188,9 @@ fatal: pathspec '__pycache__/' did not match any files
 
 - (可学上网)(但是参考`git help reset`文档也不错)
 [参考链接](https://devconnected.com/how-to-undo-last-git-commit/#:~:text=Undo%20Last%20Git%20Commit%20with%20reset%20The%20easiest,commit%20will%20be%20removed%20from%20your%20Git%20history.)
-#  指定文件版本回滚
+
+## 指定文件版本回滚
+
 实用性强的`checkout`
 您可以像这样回滚某个文件到早些版本
 `git checkout <commit_id> fileName`
@@ -133,6 +200,7 @@ fatal: pathspec '__pycache__/' did not match any files
 当然其他文件不会受到影响
 [参考链接](https://stackoverflow.com/questions/215718/how-can-i-reset-or-revert-a-file-to-a-specific-revision)
 
-# 使用reset后push 时注意
+## 使用reset后push 时注意
+
 当您在本地使用git reset 后,如果想要push到远程仓库,那么就需要使用--force参数进行强制push(否则会因为您的分支落后于远程仓库而push 不上去
 (当然,如果您使用reset --hard 回到的commit_id 领先于或者持平于远程仓库,这时候您还是可以直接push,而不需要采用--force参数.
