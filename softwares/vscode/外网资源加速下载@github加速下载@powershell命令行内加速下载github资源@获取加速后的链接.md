@@ -167,7 +167,7 @@ VERBOSE: aria2c  https://ghproxy.net/https://github.com/hellzerg/optimizer/relea
 
 ## 其他加速
 
-### 特定资源加速
+### 特定资源加速👺（外网资源加速下载)
 
 - [加速下载 (serctl.com)](https://d.serctl.com/?dl_start)
 
