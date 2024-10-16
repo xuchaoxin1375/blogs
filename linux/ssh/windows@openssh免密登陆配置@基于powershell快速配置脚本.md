@@ -27,28 +27,55 @@
   - ```powershell
     function Set-SSHServerInit
     {
+        <# 
+        .SYNOPSIS
+        初始化ssh server 端的sshd服务
+        包括初次启动服务，以及开机自启动设置,防火墙设置以及验证
+        .DESCRIPTION
+        使用-Confirm选项来缓解风险
+        #>
         # Start the sshd service
-        Start-Service sshd
+        [CmdletBinding(SupportsShouldProcess = $true)]
+        param(
+            
+        )
+        Start-Service sshd -Confirm:$false
     
         # OPTIONAL but recommended:
-        Set-Service -Name sshd -StartupType 'Automatic'
+        Set-Service -Name sshd -StartupType 'Automatic' -Confirm:$false
     
         # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
-        if (!(Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue | Select-Object Name, Enabled))
+        $ruleName = 'OpenSSH-Server-In-TCP'
+        $ruleDisplayName = 'OpenSSH Server (sshd)'
+        $rule = Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue 
+        $res = $rule | Select-Object Name, Enabled
+    
+        if (!$res)
         {
-            Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
-            New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+            Write-Output "Firewall Rule $ruleName does not exist, creating it..."
+            
         }
         else
         {
-            Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+            Write-Output "Firewall rule $ruleName has been created.Try reset it..."
+            $continue = $PSCmdlet.ShouldProcess($ruleName, 'Reset Firewall Rule')
+            if ($continue)
+            {
+                Remove-NetFirewallRule -Name $ruleName -Verbose
+                # Set-SSHServerInit
+            }
+            else
+            {
+                return
+            }
         }
+        New-NetFirewallRule -Name $ruleName -DisplayName $ruleDisplayName -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 -Verbose
     }
     
     Set-SSHServerInit #调用定义的函数
     
     ```
-
+    
     
 
 - 您可以尝试用`type C:\ProgramData\ssh\sshd_config`命令行来查看配置文件中的内容
@@ -386,7 +413,20 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 此外,ssh server 端还需要进一步配置`sshd_config`文件(可以在创建公钥之前就完成配置)
 
-您可以将上述提供的各个powershell函数分别在ssh client 和ssh server上导入(不是直接运行),为了方便这一点,可以从gitee仓库复制整合好的脚本:[modulesByCxxu/SSH/SSH.psm1 · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/SSH/SSH.psm1) 如果仓库被误报违规,请克隆或下载仓库压缩包解压使用其中的对应文件
+您可以将上述提供的各个powershell函数分别在ssh client 和ssh server上导入(不是直接运行),为了方便这一点,可以从gitee仓库复制整合好的脚本:
+
+- [PS/SSH/SSH.psm1 · xuchaoxin1375/scripts - 码云 - 开源中国 (gitee.com)](https://gitee.com/xuchaoxin1375/scripts/blob/main/PS/SSH/SSH.psm1)
+
+  - 如果仓库被误报违规,请克隆或下载仓库压缩包解压使用其中的对应文件
+
+  - 或者一键部署这个项目:可以直接调用相关命令和其他实用命令
+
+    ```powershell
+    irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsModules.ps1'|iex
+    
+    ```
+
+    
 
 ## 操作流程👺
 
@@ -548,3 +588,12 @@ Microsoft Windows [版本 10.0.19045.4529]
 如果顺利的话,就可以登录到远程windows server (ssh),默认命令行shell是cmd
 
 输入`powershell`或`pwsh`可以切换shell,如果要更换默认的ssh登陆使用的shell,参考本文开头列出的链接
+
+## FAQ
+
+- 按照上述流程配置后,发现局域网内的其他设备无法链接?
+  - 首先检查一下链接命令行是否正确,比如ssh服务器的名称是否正确(启用了网络发现才有效),或者尝试用服务器的ip地址代替服务器名字重新尝试
+  - 如果还是不行就要将排查地点转移到服务器上
+    - 在ssh服务器上使用ssh客户端链接自己(比如服务器S上有一个用户A,那么在S上尝试用用ssh链接A),这样可以检查ssh相关软件在服务器上是否正确安装,也能够避免防火墙设置的干扰
+    - 如果服务器自己登录自己上面的用户可以成功的话,那么其他设备无法链接到ssh服务器的异常很可能是防火墙设置不当(比如防火墙规则中指定的端口仅针对指定的文件,那么当这个文件地址错误时就无法正确应用防火墙规则,需要重新创建防火墙规则),或者暂时关闭防火墙后重新尝试链接以确定是防火墙设置的问题
+    - 如果ssh服务器自己登录不了自己,那么可能是安装openssh的某个环节出现问题,比如sshd服务安装不正确等,需要卸载相关服务和软件重新安装
