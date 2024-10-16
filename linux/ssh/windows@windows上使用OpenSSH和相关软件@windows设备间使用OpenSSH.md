@@ -97,8 +97,7 @@ windows上需要手动安装ssh server软件(拓展模块),并且配置防火墙
     $p=scoop which sshd ;$dir=Split-Path $p;cd $dir; & .\install-sshd.ps1
     ```
     
-
-  - scoop安装openssh如果下载顺利的话使用很方便,相关环境变量都不用配置了
+- scoop安装openssh如果下载顺利的话使用很方便,相关环境变量都不用配置了
 
 ##### scoop 安装的ssh:注册sshd为服务
 

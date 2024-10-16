@@ -27,15 +27,18 @@
 
 - [How to Allow or Block or a Program in Windows Firewall (winbuzzer.com)](https://winbuzzer.com/2021/12/26/windows-firewall-how-to-allow-or-block-or-a-program-from-accessing-the-internet-xcxwbt/)
 
+- [使用命令行管理 Windows 防火墙 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line?tabs=powershell)
+
 ### powershell
 
+- [NetSecurity Module | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/netsecurity/?view=windowsserver2022-ps)
+
 - [Where is Powershell NetSecurity module? - Stack Overflow](https://stackoverflow.com/questions/15262426/where-is-powershell-netsecurity-module)
-- 防火墙管理功能的NetSecurity模块似乎只有服务器版本的windows server powershell
-- 个人电脑中是没有相应模块的
+- 防火墙管理功能的NetSecurity模块不一定对所有powershell版本可用
 
 ### netsh
 
-- 古老的网络控制命令行windows自带工具
+- 古老的网络控制命令行windows自带工具,下一节介绍
 
 ## netsh
 
