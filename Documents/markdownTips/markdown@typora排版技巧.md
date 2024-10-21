@@ -1,7 +1,16 @@
-@[toc]
+[toc]
+
 #  typora 样式嵌套中的样式化与反操作
 ##  通用小技巧
-##  表格内换行
+
+##  表格
+
+### 条装相邻格宽度
+
+- 利用空格填充来调整(标题可能无法起作用,尝试选择一个过窄的单元格追加空格)
+
+### 格内换行
+
 - 在表格单元内要换行的化追加html元素`<br/>`
 - 快捷键可能是`ctrl+shift+enter`
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/c4f0be26917d41d1be75d4916aaa47cf.png)
@@ -51,8 +60,8 @@
 
 
 
-
 ###  列表项缩进(无序列表)🎈
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/f42f62f2d9ce4e5ab72d60a3cc5c7c33.png)
 - 将光标点击在列表黑点的前面,如图所示:
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/7a824e8e7d614a1baa64ab5d1bc043c9.png)
