@@ -22,7 +22,82 @@
 
 
 
-### 一览相关命令
+### net user本地帮助
+
+```cmd
+PS> net help user
+此命令的语法是:
+
+NET USER
+[username [password | *] [options]] [/DOMAIN]
+         username {password | *} /ADD [options] [/DOMAIN]
+         username [/DELETE] [/DOMAIN]
+         username [/TIMES:{times | ALL}]
+         username [/ACTIVE: {YES | NO}]
+
+NET USER 将创建并修改计算机上的用户帐户。在不使用命令开关的情况下，
+将列出计算机的用户帐户。用户帐户信息存储在用户帐户数据库中。
+
+username     为可添加、删除、修改或查看的用户帐户的名称。用户帐户名称
+             最多可以有 20 个字符。
+password     指定或更改用户帐户的密码。密码的长度必须符合 NET ACCOUNTS
+             命令的 /MINPWLEN 选项所设置的最小长度。
+             最多可以有 14 个字符。
+*            生成密码提示。在密码提示下键入密码时，将不会显示密码。
+/DOMAIN      在当前域的域控制器上执行此操作。
+/ADD         向用户帐户数据库添加用户帐户。
+/DELETE      从用户帐户数据库删除用户帐户。
+
+选项         如下所示:
+
+   选项                       描述
+      --------------------------------------------------------------------
+   /ACTIVE:{YES | NO}         激活或取消激活帐户。如果该帐户处于非激活状态 ，
+                              用户将无法访问服务器。默认设置为“YES”。
+   /COMMENT:"text"            提供有关用户帐户的描述性注释。请将文本用引号
+                              括起来。
+   /COUNTRYCODE:nnn           使用操作系统国家/地区代码执行指定的语言文件，
+                              以显示用户帮助和错误消息。值 0 表示使用默认
+                              的国家/地区代码。
+   /EXPIRES:{date | NEVER}    如果设置了日期，可导致帐户过期。
+                              NEVER 将帐户设置为无时间限制。
+                              过期日期采用格式 mm/dd/yy(yy)。
+                              月份可以是一个数字、完整字母拼写，
+                              或使用三个字母的缩写。年份可以使用两位数字
+                              或四位数字。使用斜线(/)(不留空格)
+                              将日期的各个部分隔开。
+   /FULLNAME:"name"           用户的全名(而不是用户名)。请将该名称用引号
+                              括起来。
+   /HOMEDIR:pathname          用户的主目录设置路径。该路径必须存在。
+   /PASSWORDCHG:{YES | NO}    指定用户是否可以更改其密码。默认设置
+                              为“YES”。
+   /PASSWORDREQ:{YES | NO}    指定用户帐户是否必须拥有密码。
+                              默认设置为“YES”。
+   /LOGONPASSWORDCHG:{YES|NO} 指定用户是否应在下次登录时更改其密码。
+                              默认设置为“NO”。
+   /PROFILEPATH[:path]        为用户登录配置文件设置路径。
+   /SCRIPTPATH:pathname       用户登录脚本的位置。
+   /TIMES:{times | ALL}       登录小时数。TIMES 表示为
+                              day[-day][,day[-day]],time[-time][,time
+                              [-time]]，增量限制为 1 小时。
+                              日期可以是完整拼写，也可以是缩写。
+                              小时可以是 12 或 24 小时表示法。对于
+                              12 小时表示法，请使用 am、pm、a.m. 或
+                              p.m。ALL 表示用户始终可以登录，
+                              空白值表示用户始终不能登录。使用逗号将日期和 时
+                              间隔开，使用分号将多个日期和时间隔开。
+   /USERCOMMENT:"text"        允许管理员添加或更改帐户的用户注释。
+   /WORKSTATIONS:{computername[,...] | *}
+                              列出用户可用于登录到网络的计算机，最多为八台 。
+                              如果 /WORKSTATIONS 没有列表，或其列表为 *，
+                              则用户可以通过任何计算机登录到网络。
+
+NET HELP 命令 | MORE 显示帮助内容，一次显示一屏。
+```
+
+
+
+### 一览相关powershell命令
 
 - ```powershell
   PS>gcm *user*,*group*|?{$_.CommandType -eq 'cmdlet'}
@@ -260,6 +335,100 @@ net user NewUsername YourPassword /add
 
 - 和有密码用户的创建方法类似,不适用密码参数即可
 - 这种情况比较少用
+
+### 创建密码不过期的账户👺
+
+此类修改需要管理员权限!
+
+#### 使用cmd实现
+
+先说结论:要在Windows上使用`net user`创建一个密码不过期的用户似乎是无法做到的
+
+> 如果您的系统上powershell可以用,那么建议使用powershell方法(下一节介绍)
+
+net user命令相关选项:(注意下面这些选项都无法设置**密码不过期**,尤其是`/expires`选项,并不是指密码不过期)
+
+| Command-line option syntax                                   | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| /expires:{{<MM/DD/YYYY> \| <DD/MM/YYYY> \| <mmm,dd,YYYY>} \| never} | Causes the user account to expire if you specify the date. Expiration dates can be in [MM/DD/YYYY], [DD/MM/YYYY], or [mmm,dd,YYYY] formats, depending on the Country/Region code. Note that the account expires at the beginning of the specified date. For the month value, you can use numbers, spell it out, or use a three-letter abbreviation (that is, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec). You can use two or four numbers for the year value. Use commas or slashes to separate parts of the date. Do not use spaces. If you omit <YYYY>, the next occurrence of the date (that is, according to your computer's date and time) is assumed. For example, the following entries are equivalent if entered between Jan. 10, 1994, and Jan. 8, 1995:<br />jan,9<br/><br/>1/9/95<br/><br/>january,9,1995<br/><br/>1/9 |
+| /passwordchg:{yes \| no}                                     | Specifies whether users can change their own password. The default is **yes**. |
+| /passwordreq:{yes \| no}                                     | Specifies whether a user account must have a password. The default is **yes**. |
+
+这里使用`wmic`命令行工具来设置和实现密码不过期
+
+可以使用以下命令：(密码处使用`*`表示使用交互模式填写密码,而不明文显示密码,比较安全)
+
+```cmd
+
+#新建一个带密码的用户
+net user <UserName> <password/*> /add /expires:never
+#如果是对已有的账户操作,则跳过上一步骤
+wmic useraccount where "Name='UserName'" Set PasswordExpires=false
+```
+
+对于已存在的账户，设置密码不过期可以使用：
+
+案例:修改一个已经存在的用户`userx`的密码为永不过期属性
+
+```cmd
+PS> wmic useraccount where "Name='userx'" Set PasswordExpires=false
+正在更新“\\BFXUXIAOXIN\ROOT\CIMV2:Win32_UserAccount.Domain="BFXUXIAOXIN",Name="userx"”的属性
+属性更新成功。
+
+PS[Mode:1][BAT:100%][MEM:57.13% (8.78/15.37)GB][Win 11 专业版@24H2:10.0.26100.2033][17:07:19][UP:1.86Days]
+#⚡️[cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\configs]{Git:main}
+PS> wmic useraccount where "Name='userx'" Set PasswordExpires=false^C
+
+```
+
+查询修改结果
+
+```cmd
+
+PS[Mode:1][BAT:100%][MEM:57.15% (8.78/15.37)GB][Win 11 专业版@24H2:10.0.26100.2033][17:07:25][UP:1.86Days]
+#⚡️[cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\configs]{Git:main}
+PS> net user userx
+用户名                 userx
+全名
+注释
+用户的注释
+国家/地区代码          000 (系统默认值)
+帐户启用               Yes
+帐户到期               从不
+
+上次设置密码           2024/10/23 16:39:30
+密码到期               从不
+密码可更改             2024/10/23 16:39:30
+需要密码               Yes
+用户可以更改密码       Yes
+
+允许的工作站           All
+登录脚本
+用户配置文件
+主目录
+上次登录               从不
+
+可允许的登录小时数     All
+
+本地组成员             *Users
+全局组成员             *None
+命令成功完成。
+
+```
+
+可以看到账户和密码从不到期,也可以用lusrmgr来验证
+
+#### powershell 快捷实现
+
+如果想通过PowerShell实现，可以使用以下命令：
+
+先用powershell直接创建一个用户(密码会过期),然后设置现有用户为密码不过期：
+
+```powershell
+Set-LocalUser "用户名" -PasswordNeverExpires $true
+```
+
+
 
 ## 将用户归入用户组
 
