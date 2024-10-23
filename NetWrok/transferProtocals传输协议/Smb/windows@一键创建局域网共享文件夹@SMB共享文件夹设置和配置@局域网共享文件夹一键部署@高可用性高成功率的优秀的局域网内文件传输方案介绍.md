@@ -44,7 +44,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
 
 - 复制粘贴以下内容(你可以将脚本粘贴到记事本或其他编辑器再**手动修改相关变量**来符合自己的需要)
 
-  - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[modulesByCxxu/deploy/deploy.psm1 · xuchaoxin1375/scripts - Gitee.com](https://gitee.com/xuchaoxin1375/scripts/blob/main/modulesByCxxu/deploy/deploy.psm1) 
+  - 也可以查看在线的版本(最新版本,浏览器内搜索同名函数):[scripts: 实用脚本集合,以powershell模块为主(针对powershell 7开发) 支持一键部署,改善windows下的shell实用体验](https://gitee.com/xuchaoxin1375/scripts)
   - 或者将链接中的gitee修改为github在线查看
   - 在线展示代码可能会被误报违规,建议您下载本仓库到本地(体积很小),里面还有众多实用的powershell函数或命令
 
@@ -371,6 +371,7 @@ windows自带的共享文件夹的创建方式也算简单,可以右键文件夹
   
               # 创建新用户(为了规范起见,最好在使用本地安全策略将Smb共享账户设置为禁止本地登录(加入本地登录黑名单,详情另见它文,这个步骤(加入本地登录黑名单,详情另见它文,这个步骤难以脚本化)这里尝试使用Disable-SmbSharingUserLogonLocallyRight函数来实现此策略设置)难以脚本化))
               net user $username $SmbUserKey /add /fullname:"Shared Folder User" /comment:"User for accessing shared folder" /expires:never 
+               Set-LocalUser -PasswordNeverExpires $true -Name $username #设置账户的密码永不过期
               # 由于New-LocalUser在不同windows平台上可能执行失败,所以这里用net user,而不是用New-LocalUser
               # New-LocalUser -Name $username -Password $SmbUserKey -FullName 'Shared Folder User' -Description 'User for accessing shared folder'
               # 将新用户添加到Smb共享文件夹的用户组,这不是必须的(默认是没有SMB组的)
