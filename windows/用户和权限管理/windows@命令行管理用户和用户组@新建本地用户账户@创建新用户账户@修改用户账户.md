@@ -340,11 +340,21 @@ net user NewUsername YourPassword /add
 
 此类修改需要管理员权限!
 
+#### powershell 快捷实现
+
+如果想通过PowerShell实现，可以使用以下命令：
+
+先用powershell直接创建一个用户(密码会过期),然后设置现有用户为密码不过期：
+
+```powershell
+Set-LocalUser "用户名" -PasswordNeverExpires $true
+```
+
 #### 使用cmd实现
 
 先说结论:要在Windows上使用`net user`创建一个密码不过期的用户似乎是无法做到的
 
-> 如果您的系统上powershell可以用,那么建议使用powershell方法(下一节介绍)
+> 如果您的系统上powershell可以用,那么建议使用powershell方法
 
 net user命令相关选项:(注意下面这些选项都无法设置**密码不过期**,尤其是`/expires`选项,并不是指密码不过期)
 
@@ -418,15 +428,68 @@ PS> net user userx
 
 可以看到账户和密码从不到期,也可以用lusrmgr来验证
 
-#### powershell 快捷实现
 
-如果想通过PowerShell实现，可以使用以下命令：
 
-先用powershell直接创建一个用户(密码会过期),然后设置现有用户为密码不过期：
+在 Windows 系统中，你可以通过组策略或命令行工具来设置所有用户的密码不过期。具体步骤如下：
 
-```powershell
-Set-LocalUser "用户名" -PasswordNeverExpires $true
-```
+## 设置所有用户密码不过期
+
+这是个降低安全性的操作,但是可以为一般情况提供方便
+
+建议使用命令行`net accounts /maxpwage:unlimited`一键执行,更为方便(打开管理员权限命令行执行)
+
+详情如下
+
+### 通过组策略设置（适用于 Windows 专业版及以上版本）
+
+1. **打开组策略编辑器**：
+   - 按 `Win + R`，输入 `gpedit.msc`，回车打开“本地组策略编辑器”。
+
+2. **导航到安全设置**：
+   - 在组策略编辑器中，依次展开：
+     ```
+     计算机配置 → Windows 设置 → 安全设置 → 账户策略 → 密码策略
+     ```
+
+3. **修改“密码最长使用期限”**：
+   - 找到并双击“密码最长使用期限”。
+   - 在弹出的窗口中，将值设置为 `0`，这表示密码永不过期。
+   - 点击“应用”并“确定”。
+
+4. **应用更改**：
+   - 关闭组策略编辑器，重启计算机或运行命令 `gpupdate /force` 强制更新组策略。
+
+### 通过命令行（适用于所有 Windows 版本）
+
+你可以使用 `net accounts` 命令设置所有用户的密码不过期。
+
+1. **打开命令提示符**：
+   - 按 `Win + R`，输入 `cmd`，按下 `Ctrl + Shift + Enter` 以管理员身份运行命令提示符。
+
+2. **执行命令**：
+   - 输入以下命令，设置密码永不过期：
+     ```
+     net accounts /maxpwage:unlimited
+     ```
+
+3. **验证设置**：
+   - 你可以输入 `net accounts` 查看当前的密码策略设置。`Maximum password age (密码最长使用期限)` 应该显示为 `Unlimited`，表示密码永不过期。
+
+### 通过 PowerShell 设置
+
+如果你想针对特定用户设置密码不过期，可以使用 PowerShell 命令。
+
+1. **打开 PowerShell**：
+   - 按 `Win + R`，输入 `powershell`，按下 `Ctrl + Shift + Enter` 以管理员身份运行 PowerShell。
+
+2. **执行命令**：
+   - 针对所有用户执行以下命令：
+     ```powershell
+     Get-LocalUser | ForEach-Object { Set-LocalUser -Name $_.Name -PasswordNeverExpires $true }
+     ```
+   - 该命令会遍历所有本地用户，并设置每个用户的密码永不过期。
+
+
 
 
 
