@@ -13,6 +13,22 @@
 - [NEXT, ITELLYOU](https://next.itellyou.cn/)
 - 新版系统则是建议到Microsoft官网下载
 
+### 第三方下载源👺
+
+#### Iot@LTSC版本
+
+包含了企业版或LTSC版下载,IoT Enterprise LTSC版本等(Windows 10/11 Enterprise LTSC (Long-Term Servicing Channel))
+
+体验下来LTSC版本尤其是Iot enterprise LTSC是不错的,老机器可以较好运行.Iot可以转为非Iot,所以是不是iot问题不大,后期可以自己转换
+
+注意下载镜像时选择合适的语言(默认可能是en-us(美国英语))
+
+不是所有版本都提供多语言,例如IOT Enterprise LTSC可能只有英语版(不过后期安装中文包也可以,虽然还是有一定差异)
+
+此外功能相近的版本之间可以使用版本转换工具或密钥进行转换,如果是低版本转高版本也可以,比如从家庭版转到专业版以上,可能需要下载额外的东西
+
+- [Download Windows / Office | MAS (massgrave.dev)](https://massgrave.dev/genuine-installation-media)
+
 ### 预览版/开发版进行下载
 
 - 稳定性和可靠性一般不如正式版
@@ -85,29 +101,35 @@
 
 
 ### 方法1：提取setup.exe查看产品版本
+
 1. 将ISO镜像文件挂载到虚拟光驱或者直接解压ISO文件。
 2. 找到`sources`文件夹内的`setup.exe`文件。
 3. 右键点击`setup.exe`，选择“属性”，然后切换到“详细信息”选项卡。
 4. 在详细信息中，你会看到“产品版本”，通过查看这个字段可以判断Windows镜像的版本号。
 
 ### 方法2：使用第三方工具
+
 - **Dism++**：
   Dism++是一款强大的Windows映像管理工具，可以直接读取ISO镜像中的系统版本信息，无需解压或安装镜像。
 
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/147937dc93824447bbf8a6c18194f343.png)
-  
+
 - **命令提示符**：
   通过命令行工具也可查看，但通常需要先将ISO镜像挂载到一个虚拟驱动器或解压后访问到install.wim文件。
+
   ```shell
   dism /Get-WimInfo /WimFile:<path_to_install.wim>
   ```
+
   运行上述命令，路径指向ISO中`sources`文件夹内的`install.wim`文件，此命令将会列出WIM文件内各个图像的信息，包括版本号。
 
 ### 方法3：查看ISO文件名
+
 - ISO文件名有时也会包含版本信息，如“Windows 10 Pro 21H2”之类的字样，但这种方法不准确，因为文件名有可能并未严格按照官方命名规则。
 
 
 ### 方法4：解压ISO并查阅内部文档
+
 - 如果你有权限解压ISO镜像，可以打开`sources`文件夹里面的`ei.cfg`文件（如果有的话），查看里面关于SKU和版本的相关配置信息。
 
 - 请注意，随着时间推移，Windows的版本不断更新，具体的版本号会有新的对应关系，请结合当时的最新Windows版本信息进行解读。
@@ -146,7 +168,9 @@
 - 在引导环节使用快捷键`shift+F10`输入以下命令
 
   - `OOBE\BYPASSNRO`重启,然后**断网**/选择跳过网络连接以使用本地账户
+
   - [计算机首次开机如何跳过Microsoft 帐户登录，快速进入Windows桌面 | 华为官网 (huawei.com)](https://consumer.huawei.com/cn/support/content/zh-cn15898703/)
+
   - [[技巧\] 微软禁止通过OOBE跳过Windows 11账户登录 下面是最新可用办法 – 蓝点网 (landiannews.com)](https://www.landiannews.com/archives/96628.html)
 
   - `no@thankyou.com`
