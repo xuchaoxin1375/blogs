@@ -51,3 +51,16 @@ The operation completed successfully.
 
 方式一、powershell中输入命令：`slmgr /xpr`
 方式二、`win+r` 窗口中输入命令：`slmgr.vbs /xpr`
+
+### 命令行方式切换版本
+
+获取不同windows edition key
+
+- [HWID Activation | MAS](https://massgrave.dev/hwid#supported-products)
+
+
+
+```powershell
+cscript.exe c:\windows\system32\slmgr.vbs /ipk XQQYW-NFFMW-XJPBH-K8732-CKFFD
+```
+
