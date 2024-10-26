@@ -1,6 +1,8 @@
 [toc]
 
+## windows版本切换
 
+windows版本(edition)切换不是任意两个版本都可以切换,比如pro无法直接切换到enterprise LTSC,只能切换到IOT enterprise
 
 - [Windows-Edition-Switcher/Windows-Edition-Switcher.bat at master · jetfir3/Windows-Edition-Switcher · GitHub](https://github.com/jetfir3/Windows-Edition-Switcher)
 - [Change Windows Edition | MAS (massgrave.dev)](https://massgrave.dev/change_windows_edition)
