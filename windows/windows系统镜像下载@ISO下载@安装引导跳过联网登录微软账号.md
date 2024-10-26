@@ -168,18 +168,19 @@
 - 在引导环节使用快捷键`shift+F10`输入以下命令
 
   - `OOBE\BYPASSNRO`重启,然后**断网**/选择跳过网络连接以使用本地账户
-
   - [计算机首次开机如何跳过Microsoft 帐户登录，快速进入Windows桌面 | 华为官网 (huawei.com)](https://consumer.huawei.com/cn/support/content/zh-cn15898703/)
-
   - [[技巧\] 微软禁止通过OOBE跳过Windows 11账户登录 下面是最新可用办法 – 蓝点网 (landiannews.com)](https://www.landiannews.com/archives/96628.html)
-
   - `no@thankyou.com`
 
-  - ```
-    
-    ```
+## 系统激活
 
-    
+在powershell中执行以下命令尝试激活(弹出的窗口中一般选择1即可)
+
+```powershell
+Invoke-RestMethod https://massgrave.dev/get | Invoke-Expression
+```
+
+
 
 ## 虚拟机上安装注意事项
 
@@ -213,4 +214,6 @@
 - 困难模式需要有一定运气才能通过,中等难度才是最好玩的,可以做几乎全部的推理
 
 - ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/f656bafd8a924a4fa2a9eebfd42b272e.png)
+
+博客园:63105e53-f4bd-4cb0-9257-ae85decf52b1
 
