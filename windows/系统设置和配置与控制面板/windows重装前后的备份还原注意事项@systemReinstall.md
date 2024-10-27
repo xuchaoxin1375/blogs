@@ -62,6 +62,27 @@
 - 更新包括驱动下载(windows现在将驱动下载放到了更新中,因此除了自己到官网下载驱动还可以看看system update)傻等着可能不会自动给你装上
 - 类似于显卡驱动,声卡驱动(以及DTS音效),都可以在windows update更新得到
 
+### 部署powershell7和CxxuPsModule模块集合
+
+```powershell
+irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsModules.ps1'|iex
+```
+
+但是加速链接用`invoke-webrequest`直接下载可能下不动,需要用浏览器访问一下链接后才能下得动
+
+#### 独立安装pwsh7
+
+上述命令不顺利,则尝试独立安装powershell7
+
+[powershell7下载和安装@pwsh一键部署@powershell下载加速@国内镜像加速下载安装包 - xuchaoxin1375 - 博客园 (cnblogs.com)](https://www.cnblogs.com/xuchaoxin1375/p/18505385)
+
+- ```
+  irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-Pwsh7Portable.ps1'|iex
+   
+  ```
+
+  
+
 ## 第二批恢复
 
 ### 字体
@@ -82,6 +103,32 @@
 
 - vscode 注意下载system版的而不是user版[Download Visual Studio Code - Mac, Linux, Windows](https://code.visualstudio.com/Download)
 
+  - user版仅限当前用户使用，同时设备其他系统难以使用
+  - 类似的原因，scoop 安装vscode也不是那么合适
+
+- 这里可以使用winget来安装（如果精简版或ltsc版没有winget,可以借助scoop安装winget)，注意先对winget进行换源
+
+- 全局安装需要管理员权限命令行窗口
+
+  - ```cmd
+    winget install Microsoft.VisualStudioCode --scope machine
+    ```
+
+    
+
+  - ```cmd
+    PS> winget install Microsoft.VisualStudioCode --scope machine
+    Found Microsoft Visual Studio Code [Microsoft.VisualStudioCode] Version 1.94.2
+    This application is licensed to you by its owner.
+    Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+    Downloading https://vscode.download.prss.microsoft.com/dbazure/download/stable/384ff7382de624fb94dbaf6da11977bba1ecd427/VSCodeSetup-x64-1.94.2.exe
+      ██████████████████████████████  95.7 MB / 95.7 MB
+    Successfully verified installer hash
+    Starting package install...
+    Successfully installed
+    ```
+
+    
 
 
 ### 命令行工具👺
@@ -103,7 +150,16 @@
 
     
 
+## 网盘云盘类
 
+不是所有软件支持全局安装，如果支持也需要管理员权限，条件允许的话使用管理员权限命令行窗口来执行winget安装，避免潜在的权限不足问题
+
+- ```cmd
+  winget install --id=Alibaba.aDrive -e
+  winget install Alibaba.QuarkCloudDrive --scope machine
+  ```
+
+  
 
 ## 网速问题🎈
 
