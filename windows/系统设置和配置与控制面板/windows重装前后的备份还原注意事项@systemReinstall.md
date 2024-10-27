@@ -81,13 +81,27 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
    
   ```
 
-  
+
+### 包管理器
+
+- 部署scoop
+
+  - 如果前面已经部署好了CxxuPsModule,那么直接调用`Deploy-ScoopforCnUser`,并使用合适的参数进行部署
+
+  - 如果是是双系统,那么新系统可以通过重定向scoop目录,避免重复安装一遍软件
+
+    ```powershell
+    New-Junction C:\ProgramData\scoop D:\ProgramData\scoop
+    ```
+
+    
 
 ## 第二批恢复
 
 ### 字体
 
-- hack nerd font
+- 主要安装NerdFont家族中的任意一种字体,推荐LiberationMono
+
 - LiterationMonoFont兼容性更好(注意，字体包名为Liberation...，但内部字体文件名却为Literation...)
 
   - 可以使用scoop安装
@@ -96,19 +110,21 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
     scoop install liberationMono-NF -g
     ```
 
-    
 
+  
 
 ### 编辑器
 
-- vscode 注意下载system版的而不是user版[Download Visual Studio Code - Mac, Linux, Windows](https://code.visualstudio.com/Download)
+- 手动传统安装
+  - vscode 注意下载system版的而不是user版[Download Visual Studio Code - Mac, Linux, Windows](https://code.visualstudio.com/Download)
 
-  - user版仅限当前用户使用，同时设备其他系统难以使用
-  - 类似的原因，scoop 安装vscode也不是那么合适
+    - user版仅限当前用户使用，同时设备其他系统难以使用
+    - 类似的原因，scoop 安装vscode也不是那么合适
 
-- 这里可以使用winget来安装（如果精简版或ltsc版没有winget,可以借助scoop安装winget)，注意先对winget进行换源
 
-- 全局安装需要管理员权限命令行窗口
+- 条件允许可以使用winget来安装（如果精简版或ltsc版没有winget,可以借助scoop安装winget)，注意先对winget进行换源
+
+  - 全局安装需要管理员权限命令行窗口
 
   - ```cmd
     winget install Microsoft.VisualStudioCode --scope machine
@@ -133,6 +149,8 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
 
 ### 命令行工具👺
 
+主要使用scoop安装
+
 - winget
   - [使用 winget 工具安装和管理应用程序 | Microsoft Learn](https://learn.microsoft.com/zh-CN/windows/package-manager/winget/)
 - powershell
@@ -146,11 +164,11 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
 
   - [Download Python | Python.org](https://www.python.org/downloads/)
 
-  - 下载源替换:
+  - 下载源替换
 
     
 
-## 网盘云盘类
+### 网盘云盘类软件
 
 不是所有软件支持全局安装，如果支持也需要管理员权限，条件允许的话使用管理员权限命令行窗口来执行winget安装，避免潜在的权限不足问题
 
@@ -179,8 +197,14 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
 
 ## 同设备双系统链接式恢复
 
-- 利用符号链接（symbolicLink）重定向用户家目录
+- 利用符号链接（symbolicLink）或链接点(JunctionLink)重定向用户家目录
   - 优点是方便，缺点是隔离性较差，容易造成相互影响
+
+- ```powershell
+  Deploy-LinksFromFile -Path C:\repos\scripts\ps\Deploy\confs\HomeLinks.conf -DirectoryOfLinks $HOME -Directorysource D:\users\cxxu
+  ```
+
+  
 
 ### 偷懒式
 
