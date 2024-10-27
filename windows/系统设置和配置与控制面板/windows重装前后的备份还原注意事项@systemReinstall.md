@@ -67,7 +67,16 @@
 ### 字体
 
 - hack nerd font
-- LiterationMonoFont兼容性更好
+- LiterationMonoFont兼容性更好(注意，字体包名为Liberation...，但内部字体文件名却为Literation...)
+
+  - 可以使用scoop安装
+
+    ```cmd
+    scoop install liberationMono-NF -g
+    ```
+
+    
+
 
 ### 编辑器
 
