@@ -14,7 +14,7 @@
   - 两个立方数之和$a^3+b^3=(a+b)(a^2-ab+b^2)$
   - 其中等幂和可以由等幂差公式直接变式得到
 
-##  等幂差
+##  等幂差👺
 
 - 等幂差展开公式$a^{n}-b^{n}$可以展开为如下公式
 
@@ -29,7 +29,11 @@
     
 
 
-- 例如$n=3$时:$a^3-b^3=(a-b)(a^2+ab+b^2)$
+- 例如
+
+  - $n=3$,$a^3-b^3=(a-b)(a^2+ab+b^2)$
+  - $n=4$,$a^{4}-b^{4}$=$(a-b)(a^{3}+a^{2}b+ab^2+b^{3})$
+
 - 公式特点
 
   - 公式右边分为2部分,$a-b$和求和部分,求和式共有$n$项,每项的幂都是$n-1$次幂
@@ -41,9 +45,9 @@
 
 
 
-### 等比数列性质推导
+### 推导
 
-
+利用等比数列性质推导
 
 - 对于$a^{n}-b^{n}$,构造等比数列$\set{a_n}$,$a_1=1$,$q=\frac{a}{b}$;令数列$\set{a_n}$的前$n$项和为$S_n$,
 
@@ -52,12 +56,12 @@
   - $S_n$=$\sum\limits_{i=1}^{n}1\cdot q^{i-1}$=$q^0+q^1+q^2+\dots+q^{n-1}$=$\frac{q^n-1}{q-1}$`(1)`
   - 将$S_n$表示为$a,b$的求和式$S_n=\sum\limits_{i=0}^{n-1}q^i$=$\sum\limits_{i=0}^{n-1}\frac{a^i}{b^i}$=$\sum\limits_{i=0}^{n-1}{a^i}{b^{-i}}$`(2)`
 
-- `(1)`代入$q=\frac{a}{b}$,得到$S_n$=$\frac{q^n-1}{q-1}$=$\Large\frac{\frac{a^n}{b^n}-1}{\frac{a}{b}-1}$=$\Large\frac{\frac{a^n-b^n}{b^n}}{\frac{a-b}{b}}$=$\frac{a^n-b^n}{b^{n-1}(a-b)}$,
-- 从而$a^{n}-b^{n}$=$S_{n}b^{n-1}(a-b)$
-  - $b^{n-1}S_n$=$b^{n-1}\sum\limits_{i=0}^{n-1}{a^i}{b^{-i}}$=$\sum\limits_{i=0}^{n-1}{a^i}{b^{-i}}b^{n-1}$=$\sum\limits_{i=0}^{n-1}{a^i}{b^{n-1-i}}$
+- `(1)`代入$q=\frac{a}{b}$,得到$S_n$=$\frac{q^n-1}{q-1}$=$\Large\frac{\frac{a^n}{b^n}-1}{\frac{a}{b}-1}$=$\Large\frac{\frac{a^n-b^n}{b^n}}{\frac{a-b}{b}}$=$\frac{a^n-b^n}{b^{n-1}(a-b)}$`(3)`,
+- 从而$a^{n}-b^{n}$=$S_{n}b^{n-1}(a-b)$`(3-1)`,将式(2)带入式(3-1)
   - $a^n-b^n=b^{n-1}S_n(a-b)$=$(a-b)\sum\limits_{i=0}^{n-1}{a^i}{b^{n-1-i}}$=$(a-b)\sum\limits_{i=0}^{n-1}{a^{n-1-i}}{b^i}$
-    - =$(a-b)\sum\limits_{i=1}^{i=n}a^{n-i}b^{i-1}$
-    - =$(a-b)\sum\limits_{r_1+r_2=n-1}a^{r_1}b^{r_2}$,${(r_1,r_2\in\mathbb{Z})}$
+    - =$(a-b)\sum\limits_{i=1}^{n}a^{n-i}b^{i-1}$
+    - =$(a-b)\sum\limits_{r_1+r_2=n-1}a^{r_1}b^{r_2}$,${(r_1,r_2\in{\mathbb{N}})}$
+- 观察上述公式可知,求和部分内是一个$n$项多项式
 - 特别的,$n=3$时,$a^3-b^3$=$(a-b)\sum\limits_{i=1}^{3}a^{3-i}b^{i-1}$=$(a-b)(a^2b^0+a^1b^1+a^0b^2)$
 
 ### 二项式展开的思路

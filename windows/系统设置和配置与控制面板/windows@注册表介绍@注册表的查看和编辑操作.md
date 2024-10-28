@@ -97,119 +97,6 @@
   - 不能再创建或打开下一层的路径称为键值对(或称为**叶子路径**)
   - 否则称为**非叶路径**
 
-#### Get-ChildItem查看注册表路径下的项👺
-
-`Get-ChildItem`(简写为`ls`)功能简介是:获取一个或多个指定位置中的项和子项。
-
-`Get-ChildItem`可以查看哪些东西？我们可以利用`Get-Psdrive`来获取
-
-其中Name字段列出的各个项表示可以被以`ls <Name>:[\...]`的形式所访问,其中`[\...]`可以省略,此时访问的是驱动器的根路径
-
-```powershell
-PS C:\Users\cxxu\Desktop> Get-PSDrive
-
-Name           Used (GB)     Free (GB) Provider      Root
-----           ---------     --------- --------      ----
-Alias                                  Alias
-C                  23.64        101.36 FileSystem    C:\
-Cert                                   Certificate   \
-D                 361.25        261.37 FileSystem    D:\
-E                  43.02        152.30 FileSystem    E:\
-Env                                    Environment
-F                                      FileSystem    \\front\share…
-Function                               Function
-HKCU                                   Registry      HKEY_CURRENT_USER
-HKLM                                   Registry      HKEY_LOCAL_MACHINE
-R                                      FileSystem    \\cxxuredmibook\share…
-Temp               23.64        101.36 FileSystem    C:\Users\cxxu\AppData\Local\Tem…
-Variable                               Variable
-WSMan                                  WSMan
-```
-
-例如查看环境变量:`ls Env:\`,查看别名`ls Alias:\`,查看powershell函数`ls Function:`
-
-```powershell
-
-PS C:\Users\cxxu\Desktop> ls Env:\tmp
-
-Name                           Value
-----                           -----
-TMP                            C:\Users\cxxu\AppData\Local\Temp
-
-PS C:\Users\cxxu\Desktop> ls alias:\
-
-CommandType     Name                                               Version    Source
------------     ----                                               -------    ------
-Alias           ? -> Where-Object
-Alias           % -> ForEach-Object
-Alias           ac -> Add-Content
-..
-```
-
-
-
-- 可见,这里的`ls`指定位置`Path`不仅可以是文件系统的位置,也可以是注册表的位置(路径),当然也可以是环境变量的路径
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e657784af9cc494d92778f77b0248d26.png)
-
-#### ls 查看注册表路径示例
-
-这里使用`registry::`来引导注册表路径,后面跟的`HKLM`是`HKEY_LOCAL_MACHINE`的缩写
-
-可以看大到,`ls`命令可以列出注册表路径的子路径(本例子中的注册表路径简称为`Print`路径),对应于regedit界面中左侧栏的文件夹图标结构;
-
-而`Print`右侧的属性项目不会被`ls`列出(一个文件夹下的文件和子文件夹有所不同),与之互补的,可以使用`gp`命令,也就是`Get-ItemProperty`
-
-```powershell
-PS C:\Users\cxxu\Desktop> ls "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
-
-    Hive: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
-
-Name                           Property
-----                           --------
-Cluster
-Connections
-PackageInstallation
-PackagesToAdd
-PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
-                               LANGIDOfLastDefaultDevmode : 1033
-                               ResetDevmodesAttempts      : 3
-Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
-                               ResetDevmodesAttempts      : 3
-                               LANGIDOfLastDefaultDevmode : 1033
-V4 Connections
-
-PS C:\Users\cxxu\Desktop> ls "registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
-
-    Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
-
-Name                           Property
-----                           --------
-Cluster
-Connections
-PackageInstallation
-PackagesToAdd
-PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
-                               LANGIDOfLastDefaultDevmode : 1033
-                               ResetDevmodesAttempts      : 3
-Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
-                               ResetDevmodesAttempts      : 3
-                               LANGIDOfLastDefaultDevmode : 1033
-```
-
-使用`gp`命令查看注册表路径层级包含的属性(和`ls`不同,`gp`没有`recurse`参数,而`ls`是有`Recurse`参数)
-
-```powershell
-PS> gp "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
-
-3DPrintApps                                   : {89006A2E.AutodeskTinkercad_tf1gferkr813w!App, SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App, 10281CorgisoftIndustries.PrintersBloc
-                                                kBeta_032b3fvfvhzrc!App, FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App}
-DoNotInstallCompatibleDriverFromWindowsUpdate : 0
-PSPath                                        : Microsoft.PowerShell.Core\Registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
-PSParentPath                                  : Microsoft.PowerShell.Core\Registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
-PSChildName                                   : Print
-PSProvider                                    : Microsoft.PowerShell.Core\Registry
-```
-
 #### 使用reg query查看注册表
 
 相当于`ls`和`gp`结合
@@ -496,7 +383,11 @@ S-1-5-21-1150093504-2233723087 ProfileImagePath                        : C:\User
 
   
 
-### 查看指定路径下的属性或键值对
+## powershell查看注册表路径
+
+相关命令:
+
+- [Get-Item (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-item?view=powershell-7.4)
 
 - [Get-ItemPropertyValue (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-itempropertyvalue?view=powershell-7.4&viewFallbackFrom=powershell-7.3&WT.mc_id=ps-gethelp)
 - [Get-ItemProperty (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-itemproperty?view=powershell-7.4)
@@ -504,7 +395,104 @@ S-1-5-21-1150093504-2233723087 ProfileImagePath                        : C:\User
 - 在PowerShell中，`Get-ItemProperty` 和 `Get-ItemPropertyValue` 都是用于获取项的属性值，但它们之间存在一些差异
 
 
-#### Get-ItemProperty
+### Get-ChildItem
+
+#### 查看注册表路径下的项👺
+
+`Get-ChildItem`(简写为`ls`)功能简介是:获取一个或多个指定位置中的项和子项。
+
+`Get-ChildItem`可以查看哪些东西？我们可以利用`Get-Psdrive`来获取
+
+总之powershell的ls不是传统意义上的ls,查看文件系统的路径的功能只是功能之一,更多用法查看文档
+
+通过`Get-PsDrive`命令查看`ls`可以获取的信息的路径(驱动器),其中Name字段列出的各个项表示可以被以`ls <Name>:[\...]`的形式的命令所访问,其中`[\...]`可以省略,此时访问的是驱动器的根路径
+
+例如:
+
+```powershell
+PS C:\Users\cxxu\Desktop> Get-PSDrive
+
+Name           Used (GB)     Free (GB) Provider      Root
+----           ---------     --------- --------      ----
+Alias                                  Alias
+C                  23.64        101.36 FileSystem    C:\
+Cert                                   Certificate   \
+D                 361.25        261.37 FileSystem    D:\
+E                  43.02        152.30 FileSystem    E:\
+Env                                    Environment
+F                                      FileSystem    \\front\share…
+Function                               Function
+HKCU                                   Registry      HKEY_CURRENT_USER
+HKLM                                   Registry      HKEY_LOCAL_MACHINE
+R                                      FileSystem    \\cxxuredmibook\share…
+Temp               23.64        101.36 FileSystem    C:\Users\cxxu\AppData\Local\Tem…
+Variable                               Variable
+WSMan                                  WSMan
+```
+
+例如查看环境变量:`ls Env:\`,查看别名`ls Alias:\`,查看powershell函数`ls Function:`
+
+```powershell
+PS C:\Users\cxxu\Desktop> ls Env:\tmp
+
+Name                           Value
+----                           -----
+TMP                            C:\Users\cxxu\AppData\Local\Temp
+
+PS C:\Users\cxxu\Desktop> ls alias:\
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Alias           ? -> Where-Object
+Alias           % -> ForEach-Object
+Alias           ac -> Add-Content
+..
+```
+
+
+
+#### ls 查看注册表路径
+
+根据上述查询结果
+
+```powershell
+HKCU                                   Registry      HKEY_CURRENT_USER
+HKLM                                   Registry      HKEY_LOCAL_MACHINE
+```
+
+表明我们可以利用ls查看`HKCU`,`HKLM`两个注册表(Registry类型的"驱动器"),他们的Root(驱动器全名)分别为`HKEY_CURRENT_USER`,和`HKEY_LOCAL_MACHINE`
+
+此外,这里可以使用`registry::`来引导注册表路径,后面跟的`HKLM`是`HKEY_LOCAL_MACHINE`的缩写
+
+
+
+### Get-Item
+
+显示注册表项的内容
+
+此示例显示 **Microsoft.PowerShell** 注册表项的内容。 可以将此 cmdlet 与 PowerShell 注册表提供程序一起使用以获取注册表项和子项，但必须使用 `Get-ItemProperty` cmdlet 来获取注册表值和数据。
+
+
+
+```powershell
+PS> Get-Item 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
+
+    Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft
+
+Name                           Property
+----                           --------
+Windows Defender               DisableRoutinelyTakingAction : 1
+                               ServiceKeepAlive             : 0
+                               AllowFastServiceStartup      : 0
+                               DisableLocalAdminMerge       : 1
+                               PUAProtection                : 0
+                               RandomizeScheduleTaskTimes   : 0
+                               DisableAntiSpyware           : 1
+```
+
+
+
+### Get-ItemProperty
 
 - **功能**：此cmdlet用于获取指定路径下项的所有属性及其对应的值。当你需要查看某个路径下对象（如文件、注册表项）的所有属性时，它非常有用。
 - **返回类型**：它返回的是一个包含多个属性名称和其对应值的对象（通常是一个哈希表或PSObject）。这意味着，如果你只关心某个特定属性，你还需进一步处理返回的结果来提取该属性的值。
@@ -590,7 +578,7 @@ PSProvider                : Microsoft.PowerShell.Core\Registry
 
 
 
-#### Get-ItemPropertyValue
+### Get-ItemPropertyValue
 
 - **功能**：此cmdlet设计用于直接获取指定路径下项的特定属性值。相比`Get-ItemProperty`，它更加专注于单一属性的快速检索。
 - **返回类型**：它直接返回所请求属性的值，而不是一个包含多个属性的哈希表或对象。这使得代码更简洁，特别是在只需要某一个属性值的场合。
@@ -615,7 +603,130 @@ PS C:\Users\cxxu> (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Servic
 
 总结来说，选择使用哪个cmdlet取决于你的具体需求：如果你需要查看或操作多项属性，应使用`Get-ItemProperty`；如果你的目标明确，只需获取一个特定属性的值，则`Get-ItemPropertyValue`更为直接和方便。
 
-#### 联系
+### 案例
+
+以路径`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`为例(在regedit中是路径`HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`)
+
+为了便于讨论,将上述路径记为`r1`
+
+
+
+`ls`命令可以列出注册表路径的子路径(本例子中的注册表路径简称为`Print`路径),对应于regedit界面中左侧栏的文件夹图标结构;
+
+而`Print`右侧的属性项目不会被`ls`列出(一个文件夹下的文件和子文件夹有所不同),与之互补的,可以使用`gp`命令,也就是`Get-ItemProperty`
+
+
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/e657784af9cc494d92778f77b0248d26.png)
+
+```powershell
+PS C:\Users\cxxu\Desktop> ls "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+    Hive: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
+
+Name                           Property
+----                           --------
+Cluster
+Connections
+PackageInstallation
+PackagesToAdd
+PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               LANGIDOfLastDefaultDevmode : 1033
+                               ResetDevmodesAttempts      : 3
+Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               ResetDevmodesAttempts      : 3
+                               LANGIDOfLastDefaultDevmode : 1033
+V4 Connections
+
+PS C:\Users\cxxu\Desktop> ls "registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+    Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print
+
+Name                           Property
+----                           --------
+Cluster
+Connections
+PackageInstallation
+PackagesToAdd
+PrinterMigrationEx             DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               LANGIDOfLastDefaultDevmode : 1033
+                               ResetDevmodesAttempts      : 3
+Printers                       DefaultSpoolDirectory      : C:\WINDOWS\system32\spool\PRINTERS
+                               ResetDevmodesAttempts      : 3
+                               LANGIDOfLastDefaultDevmode : 1033
+```
+
+使用`gp`命令查看注册表路径层级包含的属性(和`ls`不同,`gp`没有`recurse`参数,而`ls`是有`Recurse`参数)
+
+```powershell
+PS> gp "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+3DPrintApps                                   : {89006A2E.AutodeskTinkerca
+                                                d_tf1gferkr813w!App, Sieme
+												...
+                                                tYourOwnT.Rex_n7rr7swxes1n
+                                                6!App}
+DoNotInstallCompatibleDriverFromWindowsUpdate : 0
+PSPath                                        : Microsoft.PowerShell.Core\
+                                                Registry::HKLM\SOFTWARE\Mi
+                                                crosoft\Windows
+                                                NT\CurrentVersion\Print
+PSParentPath                                  : Microsoft.PowerShell.Core\
+                                                Registry::HKLM\SOFTWARE\Mi
+                                                crosoft\Windows
+                                                NT\CurrentVersion
+PSChildName                                   : Print
+PSProvider                                    : Microsoft.PowerShell.Core\
+                                                Registry
+```
+
+可以发现,`gp`的输出展示了路径`r1`下的两个键`3DPrintApps`和`DoNotInstallCompatibleDriverFromWindowsUpdate`的取值;并且还展示了其他信息,这些信息是powershell提供的,我们可以不用关心
+
+总之这两个取值使用`ls`是观察不到的
+
+那么使用`gi`命令(`Get-Item`)会是如何?
+
+```powershell
+PS> gi "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print"
+
+    Hive: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+
+Name                           Property
+----                           --------
+Print                          3DPrintApps
+                                  : {89006A2E.AutodeskTinkercad_tf1gferkr8
+                               13w!App, SiemensPLMSoftware.JT2Go_qtbmxjdag
+                               z8xc!App, 10281CorgisoftIndustries.Printers
+                               BlockBeta_032b3fvfvhzrc!App, FuturePlatform
+                               sLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!
+                               App}
+                               DoNotInstallCompatibleDriverFromWindowsUpda
+                               te : 0
+```
+
+主要观察Property字段,这里列出了两个键值对(同`gp`,但是默认将其他powershell提供的信息隐藏起来)
+
+如果只想知道路径`r1`下有几个什么键而不关心取值,那么可以用`|select property`过滤
+
+现在观察`gpv`,它可以查询指定路径下指定的键的取值,如果路径或键不存在,hui
+
+```powershell
+PS> gpv "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print" 3dprintapps
+89006A2E.AutodeskTinkercad_tf1gferkr813w!App
+SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App
+10281CorgisoftIndustries.PrintersBlockBeta_032b3fvfvhzrc!App
+FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App
+#对应使用的参数如下(path,name)
+PS> gpv -Path  "registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print" -Name 3dprintapps
+89006A2E.AutodeskTinkercad_tf1gferkr813w!App
+SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App
+10281CorgisoftIndustries.PrintersBlockBeta_032b3fvfvhzrc!App
+FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App
+```
+
+
+
+### 联系
 
 从结果上看,Get-ItemPropertyValue可以看作是Get-ItemProperty 传递给管道符`|select Property`的结果
 
@@ -695,42 +806,8 @@ C:\Users
 
 ## 修改和编辑注册表👺
 
-- 操作注册表时应当慎重，因为不当的修改可能会导致系统故障。如果不熟悉注册表的操作，建议尽量不要随意修改。
+- 另见它文
 
-- 如果需要修改注册表，可以使用Windows操作系统自带的注册表编辑器（`regedit`），或者通过一些系统辅助软件来进行。
-
-- 也可以用系统自带的命令行工具`reg`来修改,通过`reg /?`来获取使用帮助,或则在线搜索
-
-- 详情查看文档:[Windows registry for advanced users - Windows Server | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/windows-registry-advanced-users#edit-the-registry)
-
-- 相关的powershell函数:[Set-ItemProperty (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/set-itemproperty?view=powershell-7.4)
-
-- 此外,还有导入的方式进行修改(创建.reg文件导入):
-  - [如何使用 .reg 文件添加、修改或删除注册表子项和值 - Microsoft 支持](https://support.microsoft.com/zh-cn/topic/如何使用-reg-文件添加-修改或删除注册表子项和值-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
-  - [How to add, modify, or delete registry subkeys and values by using a .reg file - Microsoft Support](https://support.microsoft.com/en-us/topic/how-to-add-modify-or-delete-registry-subkeys-and-values-by-using-a-reg-file-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
-
-例
-
-- ```powershell
-  # 设置LargeSystemCache的值为1  
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
-    
-  # 注意：上面的命令假设LargeSystemCache项已经存在。如果不存在，你需要先创建它。  
-  # 但通常，这个项在Windows系统中是存在的，只是值可能不是1。  
-    
-  # 如果LargeSystemCache项不存在，你需要先创建它，然后再设置值。但PowerShell没有直接的命令来创建不存在的注册表项。  
-  # 一种方法是使用New-ItemProperty，但如果你不确定项是否存在，你可以先检查它：  
-    
-  if (-NOT (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\LargeSystemCache")) {  
-      # 如果项不存在，则创建它  
-      New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -PropertyType DWord -Force  
-  } else {  
-      # 如果项存在，则直接设置值  
-      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
-  }
-  ```
-
-  
 
 ## 拓展和补充
 

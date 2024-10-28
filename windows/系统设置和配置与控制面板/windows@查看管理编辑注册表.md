@@ -1,10 +1,53 @@
 [toc]
 
-
-
-
-
 ## 命令行操作注册表
+
+- 操作注册表时应当慎重，因为不当的修改可能会导致系统故障。如果不熟悉注册表的操作，建议尽量不要随意修改。
+
+- 如果需要修改注册表，可以使用Windows操作系统自带的注册表编辑器（`regedit`），或者通过一些系统辅助软件来进行。
+
+
+### 两类方法命令行方法
+
+- 也可以用系统自带的命令行工具`reg`来修改,通过`reg /?`来获取使用帮助,或则在线搜索
+
+- 详情查看文档:[Windows registry for advanced users - Windows Server | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/windows-registry-advanced-users#edit-the-registry)
+
+- 相关的powershell函数:[Set-ItemProperty (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/set-itemproperty?view=powershell-7.4)
+
+
+### 从reg文件导入注册表更改(通用)
+
+- 此外,还有导入的方式进行修改(创建.reg文件导入):
+  - [如何使用 .reg 文件添加、修改或删除注册表子项和值 - Microsoft 支持](https://support.microsoft.com/zh-cn/topic/如何使用-reg-文件添加-修改或删除注册表子项和值-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
+  - [How to add, modify, or delete registry subkeys and values by using a .reg file - Microsoft Support](https://support.microsoft.com/en-us/topic/how-to-add-modify-or-delete-registry-subkeys-and-values-by-using-a-reg-file-9c7f37cf-a5e9-e1cd-c4fa-2a26218a1a23)
+
+## powershell操作注册表
+
+主要有2个命令:New-ItemProperty,Set-ItemProperty
+
+- ```powershell
+  # 设置LargeSystemCache的值为1  
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
+    
+  # 注意：上面的命令假设LargeSystemCache项已经存在。如果不存在，你需要先创建它。  
+  # 但通常，这个项在Windows系统中是存在的，只是值可能不是1。  
+    
+  # 如果LargeSystemCache项不存在，你需要先创建它，然后再设置值。但PowerShell没有直接的命令来创建不存在的注册表项。  
+  # 一种方法是使用New-ItemProperty，但如果你不确定项是否存在，你可以先检查它：  
+    
+  if (-NOT (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\LargeSystemCache")) {  
+      # 如果项不存在，则创建它  
+      New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -PropertyType DWord -Force  
+  } else {  
+      # 如果项存在，则直接设置值  
+      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Value 1 -Type DWord  
+  }
+  ```
+
+  
+
+## reg命令操作注册表(通用)
 
 - 注册表操作是一个危险操作(不恰当的修改容易导致系统崩溃)
   - 因此,当您确实需要编辑注册表的时候,一定要先备份
