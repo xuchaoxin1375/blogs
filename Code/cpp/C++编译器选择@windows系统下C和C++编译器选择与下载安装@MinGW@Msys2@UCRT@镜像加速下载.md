@@ -37,9 +37,43 @@ MinGW-w64是MinGW的一个分支，旨在提供对64位Windows平台的支持以
 
 这里使用scoop(国内加速版)作为演示,可以快速地安装和配置C/C++编程环境相关工具
 
+### 方案0:安装Mingw
+
+查找mingw
+
+```powershell
+ scoop info mingw
+```
+
+版本信息
+
+```
+PS [C:\repos\C_Cpp_ConsoleApps\cpp]> scoop info mingw
+
+Name        : mingw
+Description : Minimalistic GNU for Windows is a runtime environment for GCC, GDB, make and related binutils.
+Version     : 14.2.0-rt_v12-rev0
+Bucket      : main
+Website     : https://www.mingw-w64.org
+License     : ZPL-2.1
+Updated at  : 9/5/2024 8:31:42 PM
+Updated by  : github-actions[bot]
+Path Added  : <root>\bin
+```
+
+安装mingw
+
+普通安装:
+
+```cmd
+scoop install MinGw 
+```
+
+为所用用户安装请使用管理员权限命令行窗口或sudo,再追加`-g`参数
+
 ### 方案1:直接安装编程环境套装
 
-这里我选择`mingw-winlibs-ucrt`这个包,里面包含了gcc,g++,gdb等常用组件,包的大小大概为100MB,镜像加速配合多线程下载,也就十几秒就能下载下来,整个安装过程不超过30秒
+`mingw-winlibs-ucrt`里面也包含了gcc,g++,gdb等常用组件,包的大小大概为100MB,镜像加速配合多线程下载,也就十几秒就能下载下来,整个安装过程不超过30秒
 
 如果不用scoop,`winLibs`官网也有提供安装包
 

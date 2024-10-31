@@ -96,7 +96,7 @@ int main(){
   - 尽管我们提倡在代码中尽可能使用英文,但是对于部分用户来说这个要求有点高
   - 因此我们还需要解决vscode中编译和调试中文名的C++程序会乱码的问题
 
-### 中文路径和中文源代码文件名
+### 中文路径和中文源代码文件名👺
 
 - 选择好一个目录,不要包含有中文,容易导致各种问题
 
@@ -166,10 +166,193 @@ int main(){
         
         ```
 
+### 编译运行成功但是输出中文乱码@编译参数的选择
+
+本节介绍以下编译参数在处理程序打印中文乱码的问题
+
+`-finput-charset=UTF-8 -fexec-charset=gbk`
+
+```powershell
+PS[Mode:1][BAT:97%][MEM:62.35% (9.58/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:45:25 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> g++.exe  "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.cpp" -o "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.exe"
+
+PS[Mode:1][BAT:97%][MEM:62.47% (9.6/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:45:31 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024 12:44 PM            915 hellowworld你好世界.cpp
+-a---          10/31/2024 12:45 PM          65691 hellowworld你好世界.exe
+
+
+PS[Mode:1][BAT:97%][MEM:62.47% (9.6/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:45:34 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> .\hellowworld你好世界.exe
+Hello World!(浣犲ソ,涓栫晫)
+```
+
+使用编译参数,可以发现程序输出为正常
+
+```powershell
+PS[Mode:1][BAT:97%][MEM:62.48% (9.6/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:46:18 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> g++.exe  "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.cpp" -o "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.exe"  -finput-charset=UTF-8 -fexec-charset=gbk
+
+PS[Mode:1][BAT:97%][MEM:62.41% (9.59/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:47:32 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024 12:44 PM            915 hellowworld你好世界.cpp
+-a---          10/31/2024 12:47 PM          65691 hellowworld你好世界.exe
+
+
+PS[Mode:1][BAT:97%][MEM:62.41% (9.59/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:47:34 PM][UP:2.69Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\repos\C_Cpp_ConsoleApps\测试中文目录]
+PS> .\hellowworld你好世界.exe
+Hello World!(你好,世界)
+```
+
+### 相对路径
+
+同样延续上述例子
+
+```powershell
+ g++.exe  ".\hellowworld你好世界.cpp" -o ".\hellowworld你好世界.exe"  -finput-charset=UTF-8 -fexec-charset=gbk
+```
+
+实验可知,相对路径也是顺利编译,并且输出正常
+
+## 不同版本的g++编译效果和使用体验不同👺
+
+- 有些版本的g++比较好用,有些则不好用,尤其是对于国内用户,存在中文乱码问题,对于纯英文用户基本上没有相关烦恼和问题
+- 本节主要针对中文用户介绍
+- MinGw/g++并不是越新越好用,不好用的版本体现在不同shell环境下同一个语句的编译结果不同(不仅仅是编译失败/成功,还包括输出的文件的名称是否乱码)
+- 下面是体验不佳的版本的使用过程中出现的问题记录
+
+### 调试问题(GDB执行异常)👺
+
+讨论成功编译但是调试失败或无法进行
+
+- 有些中文名程序(甚至代码中包含中文注释也可可能导致gdb执行异常),虽然可以顺利编译并且运行,但是gdb却无法顺利调试,所以有时候断电调试无法使用,这种情况下只能改名
+- 这种情况能发生在命令行调试,vscode,dev c++等各种依赖于gdb调试的情况
+
+vscode中，c/c++插件方案下虽然可以利用`-finput-charset=UTF-8 -fexec-charset=gbk`配合适当的MinGw版本可以编译出没有乱码的可执行程序,但是GDB对于非英文支持的不够好，不保证能够调试g++/gcc编译出来的非英文名可执行程序
+
+所以兼容性好的方式是总是将编译出来的程序名保存为英文名,比如`a.exe`,这样可以尽可能避免gdb潜在的无法调试的问题,或者使用日志方式来调试程序
+
+### 路径的斜杠和反斜杠
+
+一般来说,windows上使用g++编译c/cpp源文件指定路径时使用`/`或`\`风格的路径都可以,但是部分情况下可能会导致编译失败
+
+```cmd
+g++.exe  "C:/repos/C_Cpp_ConsoleApps/测试中文目录/hellowworld你好世界.cpp" -o "C:/repos/C_Cpp_ConsoleApps/测试中文目录/hellowworld你好世界.exe" -finput-charset=UTF-8 -fexec-charset=gbk
+
+g++.exe  "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.cpp" -o "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.exe" -finput-charset=UTF-8 -fexec-charset=gbk
+```
+
+经过实验,第一种会报错,但是第二种可以顺利编译
+
+```powershell
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024 12:44 PM            915 hellowworld你好世界.cpp
+
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> g++.exe  "C:/repos/C_Cpp_ConsoleApps/测试中文目录/hellowworld你好世界.cpp" -o "C:/repos/C_Cpp_ConsoleApps/测 试中文目录/hellowworld你好世界.exe" -finput-charset=UTF-8 -fexec-charset=gbk
+C:/ProgramData/scoop/apps/winlibs-mingw-ucrt/14.2.0-12.0.0-ucrt-r2/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file C:/repos/C_Cpp_ConsoleApps/测试中文目录/hellowworld你好世界.exe: No such file or directory
+collect2.exe: error: ld returned 1 exit status
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024 12:44 PM            915 hellowworld你好世界.cpp
+
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> g++.exe  "C:\repos\C_Cpp_ConsoleApps\测试中文目录\hellowworld你好世界.cpp" -o "C:\repos\C_Cpp_ConsoleApps\测 试中文目录\hellowworld你好世界.exe" -finput-charset=UTF-8 -fexec-charset=gbk
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024 12:44 PM            915 hellowworld你好世界.cpp
+-a---          10/31/2024  1:02 PM          65691 hellowworld你好世界.exe
+
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> .\hellowworld你好世界.exe
+Hello World!(你好,世界)
+```
+
+### vscode中同样的编译语句结果不同
+
+在vscode外的非继承终端中编译正常且无乱码
+
+```powershell
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk "hellowworld你好世界.cpp" -o "hellowworld你好世 界.exe"
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024  1:04 PM            915 hellowworld你好世界.cpp
+-a---          10/31/2024  1:12 PM          65529 hellowworld你好世界.exe
+```
+
+在vscode中编译成功但是输出的文件乱码(不过运行输出倒是没有乱码)
+
+```powershell
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]>  PS> powershell.exe -c g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk "hellowworld你好世界.cpp" -o "hellowworld你好世界.exe"
+
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]>  PS> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/31/2024  1:04 PM            915 hellowworld你好世界.cpp
+-a---          10/31/2024  1:11 PM          65529 hellowworld�������.exe
+PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]>  PS> .\hellowworld�������.exe 
+Hello World!(你好,世界)
+
+```
+
+
 
 ### 小结
 
 - 综上,可以推测 vscode c/c++ extension 在解析中文文件名时后造成编码错误乱码,而使用命令行直接执行编译和运行任务则是正常工作的
+
+## 推荐的MinGw编译器版本
+
+- 这里的版本不仅仅指版本号,还有程序来源(比如来自不同项目编译出来的二进制文件g++,使用体验可能不同)
+
+- 经过实验,小熊猫c++这个IDE有一个打包了编译器的版本,里面提供的MinGw编译中文名或路径的C/C++是比较好用的
+
+- 或者通过scoop安装MingW
+
+- ```cmd
+  sudo scoop install spc/mingw -g
+  ```
+
+  - 这里需要你添加spc bucket [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。](https://github.com/lzwme/scoop-proxy-cn/tree/main)
 
 ## 获取配置文件@相关试验仓库😊
 
@@ -289,6 +472,85 @@ int main(){
 # ========细节和拓展=========
 
 ## 拓展阅读(可选 推荐阅读)
+
+### 快速编译运行👺
+
+如果您的编程场景相对简单,比如仅仅是写一些算法题(比如学生党)或者是检查验证某些语言特性或验证猜想,这类用途下只要将所有代码放到同一个源文件中(`.c/.cpp`)中,那么使用快捷键快速编译运行将会是更快捷的方法
+
+您当然可以选择通用而灵活的命令行做编译运行操作,但是远不如快捷键来的方便,不过对于复杂编译场景或需求,还是用命令比较合适,比如需要频繁修改编译参数,或者需要编译多个文件等复杂情况
+
+vscode中编译和调试可以分开,编译环节可以使用命令`Run build task`(command palette),或者使用快捷键启动,这么做可以实现快速编译,跳过调试(gdb)部分,但是不会自动运行编译出来的程序,仍然不够快捷
+
+
+
+本方案是相对独立的方案,甚至不需要使用c/c++扩展,只要安装了c/c++编译器即可(配置环境变量或者提供编译器程序的绝对路径)
+
+- 这个方案虽然简单,但是意味着补全和提示,断点调试功能会受到影响,所以仍然建议配置以下c/c++插件,code runner 插件作为快速编译运行的选项灵活使用(可以选择独立或不同版本的编译器,提供编译器绝对路径即可)
+
+主打快捷地编译运行,不考虑复杂的编译需求和方案选项,也不考虑调试操作,但是这已经能够满足基本的c/c++编程环境的需要了
+
+这里的快捷键快速编译运行采用的方案是使用插件:
+
+[Code Runner - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=formulahendry.code-runner)
+
+为了兼容中文源文件名的编译,这里给出`c/cpp`两种语言的源文件编译的配置json
+
+这里默认将编译结果的文件名设置为`a.exe`,并且运行也是用这个名字
+
+```json
+"c": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"a.exe\" &&  .\\\"a.exe\"",
+"cpp": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"a.exe\" &&  .\\\"a.exe\"",
+
+
+```
+
+如果你想要保留源文件的名字(兼容中文),也是可以的,这里使用`-finput-charset=UTF-8 -fexec-charset=gbk`来指定中文文件名编码,并且使用了预设变量` $fileName,$fileNameWithoutExt`等
+
+```json
+// "c": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+
+\\"cpp": "cd $dir && g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+// "cpp": "cd $dir && C:\\exes\\RedPanda-CPP\\mingw64\\bin\\g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+```
+
+产检相关配置文档:(详情查看上述链接)
+
+#### Code Runner Configuration
+
+- Make sure the executor PATH of each language is set in the environment variable. 
+- You could also add entry into `code-runner.executorMap` to set the executor PATH. e.g. To set the executor PATH for ruby, php and html:
+
+```json
+{
+    "code-runner.executorMap": {
+        "javascript": "node",
+        "php": "C:\\php\\php.exe",
+        "python": "python",
+        "perl": "perl",
+        "ruby": "C:\\Ruby23-x64\\bin\\ruby.exe",
+        "go": "go run",
+        "html": "\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\"",
+        "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+    }
+}
+```
+
+**Supported customized parameters**
+
+- $workspaceRoot: The path of the folder opened in VS Code
+- $dir: The directory of the code file being run
+- $dirWithoutTrailingSlash: The directory of the code file being run without a trailing slash
+- $fullFileName: The full name of the code file being run
+- $fileName: The base name of the code file being run, that is the file without the directory
+- $fileNameWithoutExt: The base name of the code file being run without its extension
+- $driveLetter: The drive letter of the code file being run (Windows only)
+- $pythonPath: The path of Python interpreter (set by `Python: Select Interpreter` command)
+
+**Please take care of the back slash and the space in file path of the executor**
+
+- Back slash: please use `\\`
+- If there ares spaces in file path, please use `\"` to surround your file path
 
 ### 相关指令和快捷键
 
