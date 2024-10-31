@@ -25,11 +25,83 @@
 
 ## 安装scoop
 
+安装文档(官方原版文档)[ScoopInstaller/Install: 📥 Next-generation Scoop (un)installer](https://github.com/ScoopInstaller/Install)
+
 分别介绍默认安装方式(不推荐)
 
 两类加速方案(推荐镜像加速)
 
+### 高级安装@自定义安装@指定安装位置
 
+- 默认情况下会安装到当前用户家目录下
+
+- 可以自定义安装位置(以国内魔改版为例,兼容原版安装方法和参数)
+
+  ```powershell
+  irm scoop.201704.xyz -outfile 'install.ps1'
+  .\install.ps1 -ScoopDir 'C:\Scoop' # -ScoopGlobalDir 'C:\ScoopGlobal'
+  ```
+
+- 上述指定非默认路径后,会在配置文件中增加字段`root_path`,如果共存多个版本scoop就要注意了
+
+  - 相关默认值
+
+    ```powershel
+    
+    root_path: $Env:UserProfile\scoop
+          Path to Scoop root directory.
+    
+    global_path: $Env:ProgramData\scoop
+          Path to Scoop root directory for global apps.
+    ```
+
+    
+
+- 此外还可以通过环境变量来更改默认安装路径
+
+  
+
+#### Advanced Installation
+
+
+
+If you want to have an advanced installation, you can download the installer and manually execute it with parameters.
+
+```
+irm get.scoop.sh -outfile 'install.ps1'
+```
+
+
+
+To see all configurable parameters of the installer.
+
+```
+.\install.ps1 -?
+```
+
+```powershell
+PS> gcm .\install.ps1 -Syntax
+.\install.ps1 (alias) -> C:\Users\cxxu\Desktop\install.ps1
+
+.\install.ps1 [[-ScoopDir] <string>] [[-ScoopGlobalDir] <string>] [[-ScoopCacheDir] <string>] [[-Proxy] <uri>] [[-ProxyCredential] <pscredential>] [-NoProxy] [-ProxyUseDefaultCredentials] [-RunAsAdmin]
+```
+
+For example, you could install scoop to a custom directory, configure scoop to install global programs to a custom directory, and bypass system proxy during installation.
+
+```cmd
+.\install.ps1 -ScoopDir 'D:\Applications\Scoop' -ScoopGlobalDir 'F:\GlobalScoopApps' -NoProxy
+```
+
+
+
+Or you can use the legacy method to configure custom directory by setting Environment Variables. (**Not Recommended**)
+
+```powershell
+$env:SCOOP='D:\Applications\Scoop'
+$env:SCOOP_GLOBAL='F:\GlobalScoopApps'
+[Environment]::SetEnvironmentVariable('SCOOP_GLOBAL', $env:SCOOP_GLOBAL, 'Machine')
+irm get.scoop.sh | iex
+```
 
 ### 默认方案(无代理)
 

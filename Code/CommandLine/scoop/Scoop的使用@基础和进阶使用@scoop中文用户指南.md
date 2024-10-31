@@ -411,6 +411,35 @@ Check out [Scoop's Readme](https://github.com/ScoopInstaller/Scoop#readme) or re
 - 对于单用户设备其实是否全局安装无所谓
 - 但是如果你的设备是多用户的,那么全局安装比较合适,这样新建一个用户,他就不需要重新安装一遍软件
 
+## 列出为当前用户安装或全局安装的apps
+
+查看所有:`scoop list`
+
+下面介绍分开查看
+
+### 当前用户(locally)
+
+```powershell
+scoop list|?{$_.info -eq ''}
+
+```
+
+### 所有用户Globally
+
+```powershell
+ scoop list|?{$_.info }
+```
+
+### 卸载所有普通安装的apps
+
+遍历和循环上述方法获得的结果
+
+```powershell
+scoop list|?{$_.info -eq ''} |%{scoop uninstall $_}
+```
+
+
+
 ## 卸载scoop@重装scoop
 
 - 一般来说使用国内优化过的方案安装和使用scoop不会遇到scoop安装失败

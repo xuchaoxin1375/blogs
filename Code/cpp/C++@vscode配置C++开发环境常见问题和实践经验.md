@@ -24,62 +24,12 @@
 
 
 
-### 更快地编译运行
-
-- 使用`launch.json`启动编译和调试虽然可以一键执行,但是速度比较慢
-
-- 要知道直接用g++命令行编译是很快的,所以我们可以设法改进这一点
-
-- 我们可以用Code Runner插件来快速执行编译并直接运行,而不是编译后启动调试运行
-
-  - [Code Runner - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=formulahendry.code-runner)
-
-- 我们以hellow，world为例
-
-  - 配置后按下快捷键可以有如下效果
-
-    ```bash
-    PS C:\repos\C_CPP_ConsoleApps> cd "c:\repos\C_CPP_ConsoleApps\cpp\" ; if ($?) { g++ -std=c++11 "hellowworld2.cpp" -o "hellowworld2.exe" } ; if ($?) {  .\"hellowworld2.exe" }
-    Hello World!
-    ```
-
-  - 如果使用默认的`start debugging`,速度要慢上许多
-
-    - ```cmd
-      PS C:\repos\C_CPP_ConsoleApps>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.20.3-win32-x64\debugAdapters\bin\WindowsDebugLauncher.exe' '--stdin=Microsoft-MIEngine-In-pcmtfxlj.w4p' '--stdout=Microsoft-MIEngine-Out-f12ge22g.01f' '--stderr=Microsoft-MIEngine-Error-i3ud5s4n.nq2' '--pid=Microsoft-MIEngine-Pid-cwud2zvq.q2k' '--dbgExe=C:\msys64\ucrt64\bin\gdb.exe' '--interpreter=mi' 
-      Hello World!
-      ```
-
-    
-
-- 配置`tasks.json`(不推荐)
-
-  - ```bash
-    "args": [
-            "-fdiagnostics-color=always",
-            // "-g",
-            "${file}",
-            "-o",
-            "${fileDirname}\\a.exe",
-            "&&",
-            "a.exe"
-        ],
-    ```
-
-  - 您或许考虑创建一个task令其编译完成后追加运行
-
-  - 但是这并不好用,估计vscode c++ extension并没有打算让用户这么用
-
-    - 如果仅仅是输出hello,world 这种程序还要,但是如果先要输入,那么build task就会被卡住
-
 ### 调试时调用外部终端控制台
 
 -  通常没有必要设置为外部终端打开,vscode内的集成终端以及足够使用了;
    - vscode中程序执行完毕后外置终端就会自动退出,除非使用Pause来阻止退出
    - Pause可以在源代码末尾中添加system("Pause");但是这就显得有些繁琐了,Dev C++等IDE会自动执行这个命令,而不需要我们手动设置
 -  目前vscode c/c++ extension 没有支持这种自动pause的功能,因此我建议是除非必要或者心理过不去,否则就用vscode继承终端来调试程序的运行(输入和输出数据)
-
-
 
 ### 二次编译失败问题
 
@@ -248,9 +198,7 @@
 
 - 如果确实需要所有编译出来的可执行文件,那么写个脚本就行
 
-## 早期使用MinGw配置Vscode的C/C++编程环境的探索
 
-- 早期的实践,操作比较稚嫩,有缘可能会回去改改:链接在此[浏览 (csdn.net)](https://blog.csdn.net/xuchaoxin1375/article/details/108942931)
 
 
 

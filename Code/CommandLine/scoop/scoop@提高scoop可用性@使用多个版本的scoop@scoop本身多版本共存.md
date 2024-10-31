@@ -47,6 +47,7 @@
 - 如果之前使用过scoop,那么使用此函数前一定要检查更改已有scoop的目录名字,否则可能将造成数据丢失
 
 - ```powershell
+  
   function Set-ScoopVersion
   {
       <# 
@@ -113,14 +114,48 @@
           # 这里指定scoop安装目录(家目录)(也是符号/链接点链接所在目录),可以创建相应的环境变量来更优雅指定此路径,比如`setx Scoop $home\scoop`,然后使用$env:scoop 表示scoop家目录
           $Path = "$home\scoop",
           # 在这里设置默认版本,当你不提供参数时,默认使用这个默认指定的版本
+          [parameter(Position=0)]
           $ToPath = "$home\scoop0"
       )
+      #检查现有目录
+      $mode = Get-Item $Path | Select-Object -ExpandProperty Mode -ErrorAction SilentlyContinue
+      if ($mode -notlike 'l*')
+      {
+          Write-Warning "The scoop path [$Path] already exist! Try to backup it first"
+          $NewPath = Read-Host "Please input the new name of the path (default is [$ToPath])"
+          if ($NewPath.Trim() -eq '')
+          {
+              $NewPath = $ToPath
+              Write-Host "Use default backup Path name $NewPath"
+          }
+          # return 
+          Rename-Item $Path -NewName $NewPath -Verbose
+      }
+      else
+      {
+          Write-Verbose "The scoop [link] already exist,change to $ToPath" -Verbose
+      }
       # 确保指定目录存在
       $path, $ToPath | ForEach-Object {
           New-Item -Path $_ -ItemType Directory -Verbose -ErrorAction SilentlyContinue 
       }
       $ToPath = Resolve-Path $ToPath
       New-Item -ItemType Junction -Path $Path -Target $ToPath -Verbose -Force
+  
+      $NewName = Split-Path $ToPath -Leaf #用作配置文件目录
+      $ConfigHome = "$home\.config"
+      $ScoopConfigHome = "$ConfigHome\scoop"
+      $ToScoopConfigHome = "$configHome\$newName"
+  
+      $mode = Get-Item $ScoopConfigHome | Select-Object -ExpandProperty Mode
+      if ($mode -notlike 'l*')
+      {
+          Write-Warning 'The scoop config path already exist! Try to backup it first'
+        
+          Rename-Item $ScoopConfigHome -NewName $ToScoopConfigHome -Verbose
+      }
+      New-Item -ItemType Directory -Path $ToScoopConfigHome -Verbose -ErrorAction SilentlyContinue
+      New-Item -ItemType Junction -Path $scoopConfigHome -Target $ToScoopConfigHome -Verbose -Force
       #检查切换后的目录内是否有scoop可以用
       $res = Get-Command scoop -ErrorAction SilentlyContinue
       if (!$res)
@@ -136,7 +171,7 @@
       }
   }
   ```
-
+  
 - 可以将这个函数写到`$profile`中方便随时调用
 
 ## 补充说明👺
@@ -172,36 +207,15 @@
 
 - scoop除了家目录,还有配置文件,默认位于用户家目录下的`.config\scoop`目录中
 - 这里的配置会影响scoop版本间干扰问题,主要是`scoop_repo `的取值
-- 为了区分配置文件,还需要处理这部分问题
+- 为了区分配置文件,还需要处理这部分问题,包含在了上述函数中
 
 ## 效果
 
 ```powershell
-#检查当前版本的scoop
-PS> gi $home\scoop #假设你的scoop安装位置(符号位置)为$home\scoop
-
-    Directory: C:\Users\cxxu
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-l----          10/30/2024  5:19 PM                scoop -> C:\Users\cxxu\scoop1
-#上述命令中指出了scoop -> C:\Users\cxxu\scoop1,说明当前版本是scoop1
-
-
-#检查当前版本scoop可用bucket
-PS> scoop bucket list
-
-Name    Source                                                       Updated                Manifests
-----    ------                                                       -------                ---------
-main    https://gitee.com/scoop-installer/Main.git                   10/30/2024 12:29:54 PM      1344
-extras  https://gitee.com/scoop-installer/Extras                     10/30/2024 12:32:18 PM      2092
-java    https://gitee.com/scoop-installer/Java                       10/25/2024 9:20:21 AM        294
-scoopcn https://gitee.com/scoop-installer/scoopcn                    10/28/2024 4:39:06 PM         30
-spc     https://gh-proxy.com/https://github.com/lzwme/scoop-proxy-cn 10/30/2024 9:53:02 AM      10017
-
-
-# 切换到scoop1版本
-PS> Set-ScoopVersion -ToPath C:\Users\cxxu\scoop1
+PS[Mode:3][BAT:96%][MEM:54.59% (8.39/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][7:51:48 PM][UP:2.99Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][~]
+PS> Set-ScoopVersion ~/scoop1
+VERBOSE: The scoop [link] already exist,change to ~/scoop1
 VERBOSE: Performing the operation "Create Junction" on target "Destination: C:\Users\cxxu\scoop".
 VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\Users\cxxu\scoop".
 
@@ -209,17 +223,83 @@ VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-l----          10/30/2024  5:19 PM                scoop -> C:\Users\cxxu\scoop1
+l----          10/31/2024  7:51 PM                scoop -> C:\Users\cxxu\scoop1
+VERBOSE: Performing the operation "Create Junction" on target "Destination: C:\Users\cxxu\.config\scoop".
+VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\Users\cxxu\.config\scoop".
 
-#检查切换后的scoop版本中有哪些bucket
+    Directory: C:\Users\cxxu\.config
 
-# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][~]
-PS> scoop bucket list
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+l----          10/31/2024  7:51 PM                scoop -> C:\Users\cxxu\.config\scoop1
+Scoop was found in C:\Users\cxxu\scoop1,so scoop is available now!
+
 
 Name     Source                                                          Updated               Manifests
 ----     ------                                                          -------               ---------
 main     https://github.moeyy.xyz/https://github.com/ScoopInstaller/Main 10/30/2024 4:31:22 PM      1344
 scoop-cn https://github.moeyy.xyz/https://github.com/duzyn/scoop-cn      10/30/2024 9:52:06 AM      5734
 spc      https://gh-proxy.com/https://github.com/lzwme/scoop-proxy-cn    10/30/2024 9:53:02 AM     10017
+
+
+PS[Mode:3][BAT:96%][MEM:54.72% (8.41/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][7:51:57 PM][UP:2.99Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][~]
+PS> scoop config
+
+last_update   : 10/31/2024 11:41:25 AM
+scoop_repo    : https://github.moeyy.xyz/https://github.com/ScoopInstaller/Scoop
+scoop_branch  : master
+aria2-options : -s 16 -x 16 -k 1M --retry-wait=2 --async-dns false
+aria2-enabled : True
+proxy         : none
+alias         : @{add=scoop-add; rm=scoop-rm; remove=scoop-remove; ls=scoop-ls; u=scoop-u; upgrade=scoop-upgrade;
+                i=scoop-i; z7z=scoop-z7z}
+
+
+PS[Mode:3][BAT:96%][MEM:54.72% (8.41/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][7:52:01 PM][UP:2.99Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][~]
+PS> Set-ScoopVersion
+VERBOSE: The scoop [link] already exist,change to C:\Users\cxxu\scoop0
+VERBOSE: Performing the operation "Create Junction" on target "Destination: C:\Users\cxxu\scoop".
+VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\Users\cxxu\scoop".
+
+    Directory: C:\Users\cxxu
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+l----          10/31/2024  7:52 PM                scoop -> C:\Users\cxxu\scoop0
+VERBOSE: Performing the operation "Create Junction" on target "Destination: C:\Users\cxxu\.config\scoop".
+VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\Users\cxxu\.config\scoop".
+
+    Directory: C:\Users\cxxu\.config
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+l----          10/31/2024  7:52 PM                scoop -> C:\Users\cxxu\.config\scoop0
+Scoop was found in C:\Users\cxxu\scoop0,so scoop is available now!
+
+
+Name    Source                                                       Updated                Manifests
+----    ------                                                       -------                ---------
+main    https://gitee.com/scoop-installer/Main.git                   10/31/2024 12:30:23 PM      1344
+extras  https://gitee.com/scoop-installer/Extras                     10/31/2024 5:14:10 PM       2093
+java    https://gitee.com/scoop-installer/Java                       10/25/2024 9:20:21 AM        294
+scoopcn https://gitee.com/scoop-installer/scoopcn                    10/28/2024 4:39:06 PM         30
+spc     https://gh-proxy.com/https://github.com/lzwme/scoop-proxy-cn 10/31/2024 9:53:50 AM      10020
+
+
+PS[Mode:3][BAT:96%][MEM:55.06% (8.46/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][7:52:16 PM][UP:2.99Days]
+# [cxxu@BFXUXIAOXIN][<W:192.168.1.77>][~]
+PS> scoop config
+
+last_update   : 10/31/2024 7:51:37 PM
+scoop_repo    : https://gitee.com/scoop-installer/scoop
+scoop_branch  : master
+aria2-options : -s 16 -x 16 -k 1M --retry-wait=2 --async-dns false
+aria2-enabled : True
+proxy         : none
+alias         : @{add=scoop-add; rm=scoop-rm; remove=scoop-remove; ls=scoop-ls; u=scoop-u; upgrade=scoop-upgrade;
+                i=scoop-i; z7z=scoop-z7z}
+
 ```
 
