@@ -208,14 +208,12 @@
 
 ## 获取环境变量的对象
 
-- powershell中可以用**System.Environment** 类提供 **GetEnvironmentVariable** 和 **SetEnvironmentVariable** 方法来
+- powershell中可以用**System.Environment** 类提供 **GetEnvironmentVariable** 和 **SetEnvironmentVariable** 方法来实现
 
-### 用户环境变量和系统环境变量👺
+### 直接查看用户环境变量和系统环境变量👺
 
 - 通常,您可以通过使用命令`$env:<VarName>`的方式查询**环境变量**
-
 - 但是如果`VarName`这个变量名字同时存在于系统,那么上述命令只能查到生效的那个(也就是用户环境变量)
-
 
 ### [Environment]对象@powershell环境变量搜索
 
@@ -355,7 +353,7 @@
 
 
 
-#### `Get-EnvVar👺`
+#### `Get-EnvVar`
 
 - 上面的函数作为铺垫,继承到如下的`Get-EnvVar`函数
 
@@ -531,6 +529,10 @@
   ```
 
   
+
+### 命令行中获取环境变量不展开的取值
+
+- 详见它文
 
 ## 备份环境变量
 

@@ -6,7 +6,62 @@
   - 包括下载编译器,调试器,代码编辑器
   - 推荐使用scoop (cn)来下载这些软件
   
-  
+
+## 编程语言和编译器
+
+以C语言为例,介绍编程语言和编译器,以及编译器对于源代码到可执行程序这个过程的作用和影响
+
+编程语言和编译器是软件开发的核心工具，**编程语言提供了表达逻辑的方法**，而**编译器负责将这种逻辑转换成计算机能够执行的机器指令**。
+
+
+
+### 编译器的作用
+编译器的作用是将高级编程语言（如C语言）编写的源代码转换为计算机可以执行的机器代码。C语言属于编译型语言，这意味着在执行前必须经过编译器的编译过程，将源代码转化为二进制可执行文件。编译器主要完成以下几个步骤：
+
+1. **词法分析（Lexical Analysis）**：将源代码分解为基本的“单词”或“记号”（Tokens），例如关键词（如`int`、`return`）、标识符（如变量名、函数名）、运算符和分隔符（如`;`和`{`）。
+2. **语法分析（Syntax Analysis）**：检查记号序列是否符合语言的语法规则，并生成语法树（Syntax Tree）结构。语法树反映了程序的层次结构，有助于理解代码的含义。
+3. **语义分析（Semantic Analysis）**：在这一步，编译器确保代码的逻辑正确性。例如，检查变量是否在使用前声明，数据类型是否匹配等。
+4. **中间代码生成（Intermediate Code Generation）**：编译器将语法树转换为中间代码，例如三地址代码或汇编代码。这种中间代码接近机器语言，但仍与硬件无关，便于优化和移植。
+5. **代码优化（Code Optimization）**：编译器对中间代码进行优化，减少不必要的指令，提升执行效率。例如，删除死代码、合并冗余的表达式等。
+6. **目标代码生成（Target Code Generation）**：将优化后的中间代码转换为特定平台的机器代码（Machine Code）。
+7. **汇编和链接（Assembly and Linking）**：将机器代码转换为可执行文件，并与外部库或系统库链接。链接器会把程序和依赖的库、资源等整合在一起，生成最终的可执行程序。
+
+### 从源代码到可执行程序的过程
+以C语言为例，编译器将代码从源文件（如`main.c`）编译为可执行程序（如`main.exe`）的过程如下：
+
+1. **编译阶段**：编译器将`main.c`文件中的代码编译成目标文件（Object File），其扩展名通常为`.o`或`.obj`。目标文件包含的是机器指令，但并未完全与外部依赖整合。
+
+2. **链接阶段**：链接器将目标文件与标准库或用户定义的库（如C标准库）链接，生成最终的可执行文件。链接的过程包括重定位代码段和数据段、解析外部符号等。
+
+3. **加载与执行**：可执行文件最终会被操作系统加载到内存，供处理器执行。
+
+### 编译器对程序性能和效率的影响
+编译器不仅将源代码转换为机器代码，还通过优化代码来提升程序性能。例如，GCC（GNU Compiler Collection）和Clang等现代编译器支持多种优化等级（如`-O1`、`-O2`、`-O3`等），能够提升执行效率。此外，不同编译器在优化策略和支持的指令集上也有所不同，这会影响生成程序的大小、运行速度和内存使用情况。
+
+编译器的作用体现在两个层面：
+
+1. **转译作用**：将高级语言转化为机器能够执行的低级语言指令。
+2. **优化作用**：在保持程序语义的前提下，改进代码结构以提高性能。
+
+通过编译器的优化，C语言代码在执行效率上可以接近汇编代码，甚至超过手写的汇编，充分体现了编译器在现代编程中的重要性。
+
+## C语言标准@同一份代码编译出来的程序有差异👺
+
+- 关于这部分内容可以阅读**The C programming Language**(C程序设计语言)这本经典著作的序言和引言,包括第一版和第二版,以认识编程语言(例如C语言)及其编译器的关系
+  - 附录A 是一个语言参考手册。
+    - 虽然C 语言的语法和语义的官方正式定义是ANSI 标准本身，但是，ANSI 标准的文档首先是写给编译器的编写者看的，因此，对程序员来说不一定最合适。
+    - 本书中的参考手册采用了一种不很严格的形式，更简洁地对C 语言的定义进行了介绍。
+  - 附录B 是对标准库的一个总结
+    - 它同样是为程序员而非编译器实现者准备的。附录C 对标准C 语言相对最初的C 语言版本所做的变更做了一个简短的小结。
+    - 但是，如果有不一致或疑问的地方，标准本身和各个特定的编译器则是解释语言的最终权威。
+- 总之,C语言标准虽然规定了C语言的语法等方面的内容，但是具体功能落实以及行为依赖于编译器的实现
+  - C语言标准规定了大多数但并非全部情况下 语句的行为,某些语句是容易易发歧义和分歧的,这些问题的最终结果取决于编译器的实现
+- 例如
+  - 新版本C语言的程序(源代码)无法在过于老旧的编译器上通过编译,因为新标准的特性(语句写法)不被旧标准的编译器所识别或理解,可能造成编译失败,而在新标准编译器上是可以顺利编译运行
+  - 即便在编译运行成功的情况下，不同编译器编译出来的程序仍然可能有功能或行为上的差异
+  - 下列语句就是一个典型的令人不愉快的情况： 
+    `a[i] = i++;` 
+    问题是：数组下标`i` 是引用旧值还是引用新值？对这种情况编译器的解释可能不同，并因此产生不同的结果。C 语言标准对大多数这类问题有意未作具体规定。
 
 ## Windows上可以选择的C++编译器或编程环境👺
 
@@ -164,7 +219,24 @@ C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe
 
 ### 其他方案:使用其他编译器(clang+llvm)
 
-- scoop可以安装`llvm-mingw`,包含了`clang++`编译器,本文不介绍这种方案,详情另见它文
+- scoop可以安装`llvm-mingw`,包含了`clang++`编译器,本文不介绍这种方案
+
+  - 这个套装包含了很多工具,包括了g++.exe,但是和MinGw中的版本不同,支持的选项和参数也不同,因此两个套装不要混用
+  
+  - 在powershell中可以用`gcm g++*`来查看计算机上可以直接调用的`g++`程序
+  
+    ```powershell
+    PS>  gcm g++*|ft -AutoSize
+    
+    CommandType Name    Version Source
+    ----------- ----    ------- ------
+    Application g++.exe 0.0.0.0 C:\ProgramData\scoop\apps\llvm-mingw\current\bin\g++.exe
+    Application g++.exe 0.0.0.0 C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe
+    ```
+  
+    注意这种情况容易引发混乱，建议屏蔽掉一种(从环境变量Path中删除掉相应的目录)
+  
+- 详情另见它文
 
   - ```powershell
     PS> scoop-search llvm
@@ -195,32 +267,6 @@ C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe
     scoop install llvm-mingw # -g 使用-g 全局安装,需要管理员权限
     ```
 
-    
-
-- 安装后,你的计算机上获得以下组件
-
-  ```powershell
-  PS> gcm clang* |select name ,Source
-  
-  Name                        Source
-  ----                        ------
-  clang++.exe                 C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang++.exe
-  clang-19.exe                C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-19.exe
-  clang-format.exe            C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-format.exe
-  clang-scan-deps-real.exe    C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-scan-deps-real.exe
-  clang-scan-deps-wrapper.exe C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-scan-deps-wrapper.exe
-  clang-scan-deps.exe         C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-scan-deps.exe
-  clang-target-wrapper.exe    C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-target-wrapper.exe
-  clang-tidy.exe              C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang-tidy.exe
-  clang.exe                   C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clang.exe
-  clang32.cmd                 C:\ProgramData\scoop\shims\clang32.cmd
-  Clang32.lnk                 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps\Clang32.lnk
-  clang64.cmd                 C:\ProgramData\scoop\shims\clang64.cmd
-  Clang64.lnk                 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps\Clang64.lnk
-  clangarm64.cmd              C:\ProgramData\scoop\shims\clangarm64.cmd
-  ClangArm64.lnk              C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Scoop Apps\ClangArm64.lnk
-  clangd.exe                  C:\ProgramData\scoop\apps\llvm-mingw\current\bin\clangd.exe
-  ```
 
   
 
@@ -252,16 +298,21 @@ C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe
 
 ## 传统方法下载安装MinGw-w64👺
 
-windows上,建议使用scoop(国内版)比较方便,但是如果不用scoop,也可用许多方式下载安装MInGW
+### scoop方式安装
+
+windows上,建议使用scoop(国内版)比较方便
+
+例如`scoop install mingw`或`scoop install spc/tdm-gcc`(依赖于spc bucket)
+
+### 传统方法可执行文件下载安装
+
+如果不用scoop也可用许多方式下载安装MInGW
 
 - 官方地址[Downloads - MinGW-w64](https://www.mingw-w64.org/downloads/)
+- 已经不再直接发布单纯的MinGW 程序了,网络上有各种编译版本,以及镜像站
+- 下面给出其中可用的几个选择
 
-  - 已经不再直接发布MinGW gcc了,网络上有各种编译版本,以及镜像站
-
-
-### 可执行文件下载
-
-#### 选择1
+#### niXman
 
 - [Releases · niXman/mingw-builds-binaries (github.com)](https://github.com/niXman/mingw-builds-binaries/releases)
   - 可以用镜像站加速下载github的资源,相关网站和工具很多
@@ -275,38 +326,21 @@ windows上,建议使用scoop(国内版)比较方便,但是如果不用scoop,也�
     - **DWARF**更常见于POSIX系统，但在这里主要用于调试信息格式。
   - **API兼容性**: 如果你的项目依赖特定的Windows API（如Win32），选择对应的版本。
 
-#### 选择2
+#### WinLibs
 
 [WinLibs - GCC+MinGW-w64 compiler for Windows](https://winlibs.com/)
 
 - 可以下载可执行文件
 - 也可以用国内加速版的scoop来一键安装
+- 体验一般
 
-### 安装说明
+#### TDM-gcc
 
-- 如果下载过慢,可以找找网盘资源,也可以选择免安装的版本,占用磁盘的空间比较小(解压后也有接近一个G的体积)
+- 国内加速下载[TDM-GCC-联想应用商店](https://lestore.lenovo.com/detail/L101412)
 
-- 其实Msys2的镜像加速资源更多,通过安装Msys2来安装Mingw或代替MinGw是更好的做法,就是比较占用空间,有很多功能下载下来用不上
+- 官网卸载[tdm-gcc (jmeubank.github.io)](https://jmeubank.github.io/tdm-gcc/)
 
-- 也可通过下载某些集成MinGW的开箱即用的C++ 开发环境,比如DEV C++等,它们可能安装目录里面可能有MinGW,可以借用给其他C++编辑器,比如vscode c/c++ extension
-
-- 经过试验,Msys2里的g++可以更好地配合vscode 将中文名源代码文件编译出来,尽管名字可能是乱码
-
-- 有些早期版本的MINGW在`tasks.json`指导下找中文文件名都能识别不正确,编译都做不到
-
-  - ```bash
-    g++ .\勾股.cpp -o 勾股.exe -finput-charset=UTF-8
-    cc1plus.exe: fatal error: .\??.cpp: Invalid argument
-    compilation terminated.
-    ```
-
-    
-
-### TDM-gcc
-
-- [tdm-gcc (jmeubank.github.io)](https://jmeubank.github.io/tdm-gcc/)
-
-  - TDM-GCC 是一个针对 Windows 平台优化和定制的 GCC（GNU Compiler Collection）编译器套件。它是免费的，并且包含了开发 C、C++ 以及 Fortran 应用程序所需的所有关键组件。
+- TDM-GCC 是一个针对 Windows 平台优化和定制的 GCC（GNU Compiler Collection）编译器套件。它是免费的，并且包含了开发 C、C++ 以及 Fortran 应用程序所需的所有关键组件。
 
   - TDM-GCC 结合了最新的 GCC 工具集稳定版本，同时集成了 GNU Binutils 和 MinGW-W64 库，为开发者提供了一个功能全面的开发环境。
 
@@ -334,6 +368,26 @@ windows上,建议使用scoop(国内版)比较方便,但是如果不用scoop,也�
   - 下载的时候有web在线安装版的,不是很推荐在线的,可以考虑离线的,现在基本是用64位的
 
 - 但是更新的频率不是那么高,MinGW比较推荐其他项目,比如MSYS2,以及MINGW builds
+
+### 安装说明
+
+- 如果下载过慢,可以找找网盘资源,也可以选择免安装的版本,占用磁盘的空间比较小(解压后也有接近一个G的体积)
+
+- 其实Msys2的镜像加速资源更多,通过安装Msys2来安装Mingw或代替MinGw是更好的做法,就是比较占用空间,有很多功能下载下来用不上
+
+- 也可通过下载某些集成MinGW的开箱即用的C++ 开发环境,比如DEV C++等,它们可能安装目录里面可能有MinGW,可以借用给其他C++编辑器,比如vscode c/c++ extension
+
+- 经过试验,Msys2里的g++可以更好地配合vscode 将中文名源代码文件编译出来,尽管名字可能是乱码
+
+- 有些早期版本的MINGW在`tasks.json`指导下找中文文件名都能识别不正确,编译都做不到
+
+  - ```bash
+    g++ .\勾股.cpp -o 勾股.exe -finput-charset=UTF-8
+    cc1plus.exe: fatal error: .\??.cpp: Invalid argument
+    compilation terminated.
+    ```
+
+    
 
 ## MinGW编译的程序跨平台执行问题
 
