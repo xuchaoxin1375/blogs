@@ -36,13 +36,14 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 如果你想要保留源文件的名字(兼容中文),也是可以的,这里使用`-finput-charset=UTF-8 -fexec-charset=gbk`来指定中文文件名编码,并且使用了预设变量` $fileName,$fileNameWithoutExt`等
 
 ```json
-// "c": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+"c": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
 
-\\"cpp": "cd $dir && g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+"cpp": "cd $dir && g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+
 // "cpp": "cd $dir && C:\\exes\\RedPanda-CPP\\mingw64\\bin\\g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
 ```
 
-产检相关配置文档:(详情查看上述链接)
+相关配置文档:(详情查看上述链接)
 
 #### Code Runner Configuration
 
