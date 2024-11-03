@@ -53,7 +53,7 @@ sudo adduser 用户名
 
 
 
-##  查看本机用户
+##  查看本机用户👺
 ###  具有家目录的用户(非root用户)
 - `ls /home`
 
@@ -63,10 +63,14 @@ arch  cxxu  roo
 ```
 ###  查看所有用户(包括隐藏用户)
 
-- `cat /etc/passwd | nl|tac|less`
+- ```bash
+	cat /etc/passwd | nl|tac|less
+	```
+	
+	
 	- tac命令用于逆序输出(这一般是我们最先想看到的!) 
+	
 - 通常,列出的`末尾若干行`是我们创建给人登录的(具有通常具有家目录)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/b8ab962ecdde40a28ceb861b97f18f83.png)
 
 ## 添加用户
 
@@ -166,7 +170,7 @@ deleteLinuxUser(){
     sudo userdel --remove $1
 }
 ```
-## 切换用户总结
+## 切换用户👺
 
 - 使用 `su -l <userName>` 切换到指定用户
   - `-l` 可以简写为 `-`

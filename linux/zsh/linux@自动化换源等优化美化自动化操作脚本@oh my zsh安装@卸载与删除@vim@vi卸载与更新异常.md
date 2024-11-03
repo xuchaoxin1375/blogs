@@ -43,13 +43,63 @@
   - 确保当前用户 `sudo`命令可用
 
 
-### 换源脚本模板😊
+### 换源脚本模板👺
 
-- 不要直接使用
+- 不要直接使用，找好对应的源后替换内部的源再用
+
+- 
+
+```bash
+#  ubuntu 更换国内镜像源(清华源为例)
+# 备份:backup the origin source.list(or just rename(use move command))
+# 注意sources.list 不要拼错(带s)
+cd /etc/apt
+sudo mv sources.list sources.list.bak_bySh
+# 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
+#这里以阿里源为例
+cd ~
+# 多行输入
+sudo tee >sources.list <<EOF
+#换源内容粘贴在这里面
+
+
+
+
+
+#结束文档
+EOF
+#上面的EOF间的内容不要写入其他与源无关的内容(除了注释和源,其他命令不要写在里头)
+# 检查写入的内容:
+echo "check the conetent of the file 'source.list'"
+## 将家目录下的sources.list 转移到/etc/apt目录下(sodu可以作用与mv/cp等命令,
+## 但好像不可以直接作用于cat,所以没有直接在/etc/apt目录下创建新文件)
+sudo mv sources.list /etc/apt
+cat /etc/apt/sources.list
+# 更新并使得apt配置文件生效
+echo "updating the apt..."
+sudo apt update
+#可选的升级
+#sudo apt upgrade
+
+```
+
+
 
 #### kali-linux 
 
 - 更换国内镜像源(阿里源为例)
+
+  - [kali源by阿里](https://developer.aliyun.com/mirror/kali?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
+  - 清华源kali
+
+  ```bash
+  deb http://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
+  
+  deb-src https://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
+  
+  ```
+
+  
 - 只提供流程参考
 - 如果要使用,请打开编辑器,将[国内源部分]替换为自己的发行版的国内源
 
@@ -97,17 +147,17 @@
 
 
 
-
-#### ubuntu 换源👺
+#### ubuntu
 
 - [ubuntu | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)
 - [ubuntu源by阿里](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
 - 版本较多,操作类似,可以按阿里源那样一步步做,也可以将上述脚本中的源地址更换位对应版本的ubuntu源即可
 - 这里以清华源的 `21.10`版本为例
 - 其他版本将源地址群换为对应版本
-####  通用版模板
 
-- 以下是ubuntu22为例的还原,其他版本把`<<EOF`后到`EOF`的一段内容更换为自己的版本,比如22版本等
+####  示例
+
+- 以下是**ubuntu22**为例的还原,其他版本把`<<EOF`后到`EOF`的一段内容更换为自己的版本,比如22版本等
 
 ```bash
 #  ubuntu 更换国内镜像源(清华源为例)
@@ -120,6 +170,8 @@ sudo mv sources.list sources.list.bak_bySh
 cd ~
 # 多行输入
 sudo tee >sources.list <<EOF
+#换源内容粘贴在这里面
+
 # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
 deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
@@ -134,6 +186,7 @@ deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe m
 # 预发布软件源，不建议启用
 # deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
 # # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+
 
 #结束文档
 EOF
@@ -152,9 +205,9 @@ sudo apt update
 #sudo apt upgrade
 
 ```
-#### 简化版(从默认源替换为国内源)
+### 简化版 (从默认源替换为国内源)
 
-####  将source.list 文件修改为清华源ubutun22😊
+将source.list 文件修改为清华源ubutun22😊
 
 - (清华源为例,使用sed处理`/etc/apt/sources.list`文件)
 
@@ -182,17 +235,7 @@ sudo apt update
 
     
 
-### kali
 
-- [kali源by阿里](https://developer.aliyun.com/mirror/kali?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
-- 清华源kali
-
-```bash
-deb http://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
-
-deb-src https://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
-
-```
 
 ### 云服务器的源
 
@@ -251,7 +294,7 @@ cd -
 
 
 
-### 脚本重点jie'shi
+### 脚本重点解释
 
 - 一般来说,重试一两次即可clone(install)成功
 - 若始终无法clone下来,可以修改 `install.sh`中的特定几行,使其去拉取gitee上的文件

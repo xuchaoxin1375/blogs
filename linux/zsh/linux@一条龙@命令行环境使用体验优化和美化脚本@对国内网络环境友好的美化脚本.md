@@ -8,18 +8,15 @@
 - 理想情况下,不需要太多时间就可以完成部署
 - 我在 ubuntu,linux Mint两个发行版上试验过,都可以良好运行(windows wsl 子系统也没问题)
 
-## Oh my zsh
 
-### 官网
 
-- https://github.com/ohmyzsh/ohmyzsh
-- 镜像加速站:[Gitee 极速下载/oh-my-zsh](https://gitee.com/mirrors/oh-my-zsh)
+## 环境准备
 
-## 国内推荐安装方式
+国内推荐安装方式
 
-先安装必要软件
+先更换软件镜像源(不同发行版有不同的源,另见它文),然后执行下列任务
 
-### apt方式安装:
+### apt系列
 
 ```bash
 # 工作目录设定为用户家目录
@@ -28,7 +25,7 @@ sudo apt update
 sudo apt install zsh curl git  man wget -y
 ```
 
-### pacman方式安装:
+### pacman系列
 
 - 可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源
 
@@ -39,9 +36,23 @@ sudo apt install zsh curl git  man wget -y
 
   
 
+## Oh my zsh
+
+- https://github.com/ohmyzsh/ohmyzsh
+- 镜像加速站:[Gitee 极速下载/oh-my-zsh](https://gitee.com/mirrors/oh-my-zsh)
+
+- [Oh My Zsh - a delightful & open source framework for Zsh](https://ohmyz.sh/#install)
+- 以下两种安装方式,如果网络环境不好,容易失败
+  - `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+  - `sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"`
+
+### 国内推荐安装方式一键安装
+
 ```bash
-
-
+# 工作目录设定为用户家目录
+cd ~
+sudo apt update
+sudo apt install zsh curl git  man wget -y
 wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh
 # 由于国内网络问题,可能需要多尝试几次一下source 命令才可以安装成功.(我将其注释掉,采用换源后再执行clone
 #source install.sh
@@ -63,6 +74,8 @@ cd -
 
 
 
+
+
 ## oh-my-zsh 插件
 
 - 这里推荐2个插件
@@ -78,9 +91,10 @@ cd -
      
      ```
 
-2. 在bash下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
+2. 在**bash**下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
    - ```bash
+     bash
      #将工作目录转移到家目录
      cd ~
      path=.zshrc
@@ -99,9 +113,10 @@ cd -
      
      ```
 
-3. 进入到zsh刷新`~/.zshrc`,让zsh的配置生效
+3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效
 
    - ```bash
+     zsh
      source ~/.zshrc
      ```
 
