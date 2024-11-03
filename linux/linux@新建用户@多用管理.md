@@ -172,15 +172,58 @@ deleteLinuxUser(){
 ```
 ## 切换用户👺
 
-- 使用 `su -l <userName>` 切换到指定用户
-  - `-l` 可以简写为 `-`
-  - 不写用户名默认切换到 `root`
-- 还支持指定切换后的环境:(工作目录和shell)
-  - -p 指定工作目录
-  - -s 指定shell
+在Linux上，用户切换通常使用`su`和`sudo`命令。它们各自的功能和使用场景如下：
 
-* > In Linux, the `su` command (switch user) is used to run a command as a different user.
-  >
+### su 命令
+
+`su`（switch user）命令允许你切换到另一个用户，默认情况下是切换到超级用户（root）。使用方式如下：
+
+- 切换到root用户：
+
+```bash
+su -
+```
+
+- 切换到其他用户（假设用户为`username`）：
+
+```bash
+su - username
+```
+
+在使用`su`命令时，系统会提示你输入目标用户的密码。
+
+使用`su -`可以加载目标用户的环境变量，`su username`则会保持当前用户的环境。
+
+### sudo 命令
+
+`sudo`（superuser do）命令允许用户以其他用户（通常是root）权限执行命令，而无需完全切换到那个用户。使用方式如下：
+
+- 以root用户身份运行命令：
+
+```bash
+sudo command
+```
+
+例如：
+
+```bash
+sudo apt-get update
+```
+
+- 切换到其他用户并执行命令：
+
+```bash
+sudo -u username command
+```
+
+`sudo`命令需要用户在`/etc/sudoers`文件中有相应的权限。使用`sudo`时，系统会提示你输入当前用户的密码，而不是目标用户的密码。
+
+### 总结
+
+- 使用`su`命令可以切换到另一个用户，需输入目标用户的密码。
+- 使用`sudo`命令可以执行命令并提升权限，需输入当前用户的密码，且要有相应的权限。
+
+这两种命令在系统管理和权限控制中非常重要，各有其适用场景。
 
 ## How the su Command Works
 

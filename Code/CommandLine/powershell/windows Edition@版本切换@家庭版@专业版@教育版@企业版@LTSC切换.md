@@ -10,7 +10,7 @@ windows版本(edition)切换不是任意两个版本都可以切换,比如pro无
 
 - [OSSQ - Windows10 Windows11 版本切换](https://ossq.cn/switching.html)
 
-### 版本升级可用版本检查
+### 版本升级/切换可用版本检查
 
 使用管理员命令行窗口执行以下命令
 
@@ -63,6 +63,15 @@ The operation completed successfully.
 
 
 ```powershell
-cscript.exe c:\windows\system32\slmgr.vbs /ipk XQQYW-NFFMW-XJPBH-K8732-CKFFD
+cscript.exe c:\windows\system32\slmgr.vbs /ipk <key>
+#常用key
+XQQYW-NFFMW-XJPBH-K8732-CKFFD #iot enterprise 
+CGK42-GYN6Y-VD22B-BX98W-J8JXD #iot enterprise ltsc 2024
+```
+
+例如切换为iot enterprise ltsc: 
+
+```cmd
+cscript.exe c:\windows\system32\slmgr.vbs /ipk CGK42-GYN6Y-VD22B-BX98W-J8JXD #iot enterprise ltsc 2024
 ```
 

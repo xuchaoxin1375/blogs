@@ -342,8 +342,10 @@ Successfully uninstalled
 - ```cmd
   winget source remove winget  #移除默认源（太慢）
   winget source add winget https://mirrors.ustc.edu.cn/winget-source #添加国内科大源
+  winget source list
+  
   ```
-
+  
   
 
 ### 查看换源结果
