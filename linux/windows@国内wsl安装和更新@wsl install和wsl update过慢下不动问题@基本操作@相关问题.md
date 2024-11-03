@@ -91,6 +91,42 @@
 
 - 安装具体的发行版:打开应用商店选择linux发行版下载安装
 
+
+### 安装具体的linux发行版
+
+- 可以到应用商店安装
+
+- 也可以用winget命令行安装(建议换一下源)
+
+  - 假设你要安装ubuntu,可以先搜索`winget search ubuntu`
+
+  - ```cmd
+    PS> winget search ubuntu
+    Name               Id                      Version     Match           Source
+    ------------------------------------------------------------------------------
+    Ubuntu             9PDXGNCFSCZV            Unknown                     msstore
+    Ubuntu 22.04.5 LTS 9PN20MSR04DW            Unknown                     msstore
+    Ubuntu 20.04.6 LTS 9MTTCL66CPXJ            Unknown                     msstore
+    Ubuntu 18.04.6 LTS 9PNKSF5ZN4SW            Unknown                     msstore
+    Ubuntu 24.04.1 LTS 9NZ3KLHXDJP5            Unknown                     msstore
+    Ubuntu (Preview)   9P7BDVKVNXZ6            Unknown                     msstore
+    Ubuntu             Canonical.Ubuntu        2204.1.8.0                  winget
+    Ubuntu 18.04 LTS   Canonical.Ubuntu.1804   1804.6.4.0  Command: ubuntu winget
+    Ubuntu 20.04 LTS   Canonical.Ubuntu.2004   2004.6.16.0 Command: ubuntu winget
+    Ubuntu 22.04 LTS   Canonical.Ubuntu.2204   2204.2.47.0 Command: ubuntu winget
+    Ubuntu 24.04 LTS   Canonical.Ubuntu.2404   2404.0.5.0  Command: ubuntu winget
+    YTDownloader       aandrew-me.ytDownloader 3.17.1      Tag: ubuntu     winget
+    alarm-cron         bl00mber.alarm-cron     0.1.1       Tag: ubuntu     winget
+    ```
+
+  - 其中来源为msstore的下载速度比较快
+
+  例如安装ubuntu 22 ltsc
+
+  ```cmd
+  winget install 9PN20MSR04DW
+  ```
+
   
 
 ### 更新wsl基础环境

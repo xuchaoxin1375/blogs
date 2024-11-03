@@ -12,9 +12,62 @@
 
 ## 环境准备
 
-国内推荐安装方式
+国内安装方式
+
+### 换国内源加速
 
 先更换软件镜像源(不同发行版有不同的源,另见它文),然后执行下列任务
+
+以ubuntu 22 ltsc为例的一键换源脚本(模板)
+
+```bash
+#  ubuntu 更换国内镜像源(清华源为例)
+# 备份:backup the origin source.list(or just rename(use move command))
+# 注意sources.list 不要拼错(带s)
+cd /etc/apt
+sudo mv sources.list sources.list.bak_bySh
+# 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
+#这里以阿里源为例
+cd ~
+# 多行输入
+sudo tee >sources.list <<EOF
+#换源内容粘贴在这里面
+
+# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+
+deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+# deb-src http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+
+# 预发布软件源，不建议启用
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+# # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+
+
+#结束文档
+EOF
+
+#上面的EOF间的内容不要写入其他与源无关的内容(除了注释和源,其他命令不要写在里头)
+# 检查写入的内容:
+echo "check the conetent of the file 'source.list'"
+## 将家目录下的sources.list 转移到/etc/apt目录下(sodu可以作用与mv/cp等命令,
+## 但好像不可以直接作用于cat,所以没有直接在/etc/apt目录下创建新文件)
+sudo mv sources.list /etc/apt
+cat /etc/apt/sources.list
+# 更新并使得apt配置文件生效
+echo "updating the apt..."
+sudo apt update
+#可选的升级
+#sudo apt upgrade
+
+```
+
+
 
 ### apt系列
 
@@ -81,7 +134,7 @@ cd -
 - 这里推荐2个插件
   - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
 
-1. 进入bash下载插件到对应的目录(`.oh-my-zsh`)
+1. 进入**bash**下载插件到对应的目录(`.oh-my-zsh`)
 
    - ```bash
      # 将两个插件下载到指定目录下:(git 已经指定好了目录)
@@ -94,7 +147,7 @@ cd -
 2. 在**bash**下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
    - ```bash
-     bash
+     #bash
      #将工作目录转移到家目录
      cd ~
      path=.zshrc
@@ -120,13 +173,18 @@ cd -
      source ~/.zshrc
      ```
 
-4. 合并版
-
-   - 等候后续改进
-     - 将各个能够单独运行脚本制作成shell文件,打包制作成一个仓库
-     - 用户克隆下来执行安装程序
 
 
+
+合并版
+
+- 等候后续改进
+  - 将各个能够单独运行脚本制作成shell文件,打包制作成一个仓库
+  - 用户克隆下来执行安装程序
+
+  
+
+  
 
 
 ## 配置oh my zsh主题
