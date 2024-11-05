@@ -99,7 +99,9 @@ Hello World!(你好,世界)
 
    
 
-2. 使用vscode 的C/C++ extension也可以通过一定技巧配置为编译运行(跳过调试),但是这个方案存在一定限制(对中文路径不友好,虽然支持文件名为中文,但是中间路径包含中文可能会失败,而且速度比上一种方案慢(比带debug调试还是要快的))
+2. vscode 提供了`start without debugging`指令,可以跳过调试部分,直接编译运行,默认快捷键为`Ctrl+F5`
+
+3. 使用vscode 的C/C++ extension也可以通过一定技巧配置为编译运行(跳过调试),但是这个方案存在一定限制(对中文路径不友好,虽然支持文件名为中文,但是中间路径包含中文可能会失败,而且速度比上一种方案慢(比带debug调试还是要快的))
 
    下面的例子编译的也是`勾股.cpp`,对应的task为`run and build`
 
@@ -174,6 +176,13 @@ Hello World!(你好,世界)
   - 尽管我们提倡在代码中尽可能使用英文,但是对于部分用户来说这个要求有点高
   - 因此我们还需要解决vscode中编译和调试中文名的C++程序会乱码的问题
 
+### 编译和调试问题
+
+- 在linux环境下,gcc/g++/gdb对于中文路径名编译出来的程序可以良好的编译和调试
+- windows上好的版本的mingw的g++/gcc编译中文路径是可以的,但是
+  - gdb调试中文路径文件部分情况在会翻车(断点调试会无法进行下去或造成假死卡死)
+  - gdb调试问题后面会重新提及
+
 ### 中文路径和中文源代码文件名👺
 
 - 选择好一个目录,不要包含有中文,容易导致各种问题
@@ -206,49 +215,52 @@ Hello World!(你好,世界)
            #936表示中文
            ```
 
-     - 为了不让g++编译结果输出中文时出现乱码,可以添加:`-finput-charset=UTF-8 -fexec-charset=gbk`编译选项,第一个选项有时可以去掉，简化为` -fexec-charset=gbk`
 
-        ```powershell
-        
-        PS[BAT:98%][MEM:31.52% (9.99/31.70)GB][21:56:54]
-        # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
-        PS> g++ .\hellowworld2.cpp -o a.exe -finput-charset=UTF-8 -fexec-charset=gbk
-        
-        PS[BAT:98%][MEM:31.46% (9.97/31.70)GB][21:57:27]
-        # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
-        PS> .\a.exe
-        Hello World!(你好,世界)
-        ```
+### 编译器编码选项👺编译运行成功但是输出中文乱码
 
-     - ```powershell
-        PS[BAT:98%][MEM:31.42% (9.96/31.70)GB][21:59:12]
-        # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
-        PS> g++ C:\repos\C_CPP_ConsoleApps\测试中文目录\hellowworld2.cpp -o 你好世界console.exe -finput-charset=UTF-8 -fexec-charset=gbk
-        
-        PS[BAT:98%][MEM:31.44% (9.97/31.70)GB][21:59:35]
-        # [C:\repos\C_CPP_ConsoleApps\测试中文目录]
-        PS> ls
-        
-                Directory: C:\repos\C_CPP_ConsoleApps\测试中文目录
-        
-        
-        Mode                LastWriteTime         Length Name
-        ----                -------------         ------ ----
-        -a---          2024/5/2     21:59         135300 
-        󰣆  你好世界console.exe
-        -a---          2024/5/2     21:59         135300 󰣆  a.exe
-        -a---          2024/5/2     19:05            257 󰙲  hellowworld2.cpp
-        
-        PS> .\你好世界console.exe
-        Hello World!(你好,世界)
-        
-        ```
+- 部分编译器支持不好,为了不让g++编译结果输出中文时出现乱码,可以添加:`-finput-charset=UTF-8 -fexec-charset=gbk`编译选项,第一个选项有时可以去掉，简化为` -fexec-charset=gbk`
 
-### 编译运行成功但是输出中文乱码@编译参数的选择
+- 但是良好的编译器不需要这些参数,使用他们反而可能导致乱码!
 
-本节介绍以下编译参数在处理程序打印中文乱码的问题
+下面是使用的例子,按需使用
 
-`-finput-charset=UTF-8 -fexec-charset=gbk`
+```powershell
+
+PS[BAT:98%][MEM:31.52% (9.99/31.70)GB][21:56:54]
+# [C:\repos\C_CPP_ConsoleApps\测试中文目录]
+PS> g++ .\hellowworld2.cpp -o a.exe -finput-charset=UTF-8 -fexec-charset=gbk
+
+PS[BAT:98%][MEM:31.46% (9.97/31.70)GB][21:57:27]
+# [C:\repos\C_CPP_ConsoleApps\测试中文目录]
+PS> .\a.exe
+Hello World!(你好,世界)
+```
+
+```powershell
+PS[BAT:98%][MEM:31.42% (9.96/31.70)GB][21:59:12]
+# [C:\repos\C_CPP_ConsoleApps\测试中文目录]
+PS> g++ C:\repos\C_CPP_ConsoleApps\测试中文目录\hellowworld2.cpp -o 你好世界console.exe -finput-charset=UTF-8 -fexec-charset=gbk
+
+PS[BAT:98%][MEM:31.44% (9.97/31.70)GB][21:59:35]
+# [C:\repos\C_CPP_ConsoleApps\测试中文目录]
+PS> ls
+
+        Directory: C:\repos\C_CPP_ConsoleApps\测试中文目录
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a---          2024/5/2     21:59         135300 
+󰣆  你好世界console.exe
+-a---          2024/5/2     21:59         135300 󰣆  a.exe
+-a---          2024/5/2     19:05            257 󰙲  hellowworld2.cpp
+
+PS> .\你好世界console.exe
+Hello World!(你好,世界)
+
+```
+
+像下面这种情况,就需要使用上述所提及的选项参数(不过应该是编译器不行,建议更换)
 
 ```powershell
 PS[Mode:1][BAT:97%][MEM:62.35% (9.58/15.37)GB][Win 11 IoT 企业版@24H2:10.0.26100.2033][12:45:25 PM][UP:2.69Days]
@@ -298,15 +310,7 @@ PS> .\hellowworld你好世界.exe
 Hello World!(你好,世界)
 ```
 
-### 相对路径
 
-同样延续上述例子
-
-```powershell
- g++.exe  ".\hellowworld你好世界.cpp" -o ".\hellowworld你好世界.exe"  -finput-charset=UTF-8 -fexec-charset=gbk
-```
-
-实验可知,相对路径也是顺利编译,并且输出正常
 
 ## 不同版本的g++编译效果和使用体验不同👺
 
@@ -322,9 +326,10 @@ Hello World!(你好,世界)
 - 有些中文名程序(甚至代码中包含中文注释也可可能导致gdb执行异常),虽然可以顺利编译并且运行,但是gdb却无法顺利调试,所以有时候断电调试无法使用,这种情况下只能改名
 - 这种情况能发生在命令行调试,vscode,dev c++等各种依赖于gdb调试的情况
 
-vscode中，c/c++插件方案下虽然可以利用`-finput-charset=UTF-8 -fexec-charset=gbk`配合适当的MinGw版本可以编译出没有乱码的可执行程序,但是GDB对于非英文支持的不够好，不保证能够调试g++/gcc编译出来的非英文名可执行程序
+- 例如,你可能会遇到名为`分解质因数.cpp`编译出来的程序(可以成功编译)但是进行调试(调用gdb)时会假死(需要用Ctrl+C来停止调试);但是如果把名字改改,它可能又能够调试了,我试过改为`分解因数.cpp`编译出来,假设名字为`a.exe`是可以gdb调试的
 
-所以兼容性好的方式是总是将编译出来的程序名保存为英文名,比如`a.exe`,这样可以尽可能避免gdb潜在的无法调试的问题,或者使用日志方式来调试程序
+
+所以兼容性好的方式是总是将编译出来的程序名保存为英文名,比如`a.exe`,这样可以尽可能(仍然不保证)避免gdb潜在的无法调试的问题,或者使用日志方式来调试程序
 
 ### 路径的斜杠和反斜杠
 
@@ -418,13 +423,13 @@ Hello World!(你好,世界)
 
 - 综上,可以推测 vscode c/c++ extension 在解析中文文件名时后造成编码错误乱码,而使用命令行直接执行编译和运行任务则是正常工作的
 
-## 推荐的MinGw编译器版本
+## 推荐的MinGw编译器版本👺
 
 - 这里的版本不仅仅指版本号,还有程序来源(比如来自不同项目编译出来的二进制文件g++,使用体验可能不同)
 
-- 经过实验,小熊猫c++这个IDE有一个打包了编译器的版本,里面提供的MinGw编译中文名或路径的C/C++是比较好用的
+- 经过实验,**小熊猫c++**这个IDE有一个打包了编译器的版本,里面提供的MinGw编译中文名或路径的C/C++是比较好用的
 
-- 或者通过scoop安装MingW
+- 或者通过scoop安装`MingW`
 
 - ```cmd
   sudo scoop install spc/mingw -g
