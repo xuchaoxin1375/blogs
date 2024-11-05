@@ -8,6 +8,10 @@ vscode_ssh/远程开发/直接打开远程主机的某个工作目录/vscode命�
 
 ## 命令
 
-- `code --folder-uri "vscode-remote://ssh-remote+12.23.45.67/home/myuser/dev/"`
+- ```bash
+  code --folder-uri "vscode-remote://ssh-remote+12.23.45.67/home/myuser/dev/"
+  ```
+  
+  
   - 其中,从`+`之前的内容都需要逐字保留,`+`之后的主机ip/域名以及后面的用户家目录等具体目录由自身清空而定
 
