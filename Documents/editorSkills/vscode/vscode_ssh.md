@@ -1,4 +1,4 @@
-# vscode_ssh/远程开发/直接打开远程主机的某个工作目录/vscode命令行中打开某个远程工作目录/How to attach a remote container using vscode command line
+vscode_ssh/远程开发/直接打开远程主机的某个工作目录/vscode命令行中打开某个远程工作目录/How to attach a remote container using vscode command line
 
 ## references
 

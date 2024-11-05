@@ -66,16 +66,16 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 }
 ```
 
-**Supported customized parameters**
+**Supported customized parameters**👺
 
-- $workspaceRoot: The path of the folder opened in VS Code
-- $dir: The directory of the code file being run
-- $dirWithoutTrailingSlash: The directory of the code file being run without a trailing slash
-- $fullFileName: The full name of the code file being run
-- $fileName: The base name of the code file being run, that is the file without the directory
-- $fileNameWithoutExt: The base name of the code file being run without its extension
-- $driveLetter: The drive letter of the code file being run (Windows only)
-- $pythonPath: The path of Python interpreter (set by `Python: Select Interpreter` command)
+1. $workspaceRoot: The path of the folder opened in VS Code
+2. $dir: The directory of the code file being run
+3. $dirWithoutTrailingSlash: The directory of the code file being run without a trailing slash
+4. $fullFileName: The full name of the code file being run
+5. $fileName: The base name of the code file being run, that is the file without the directory
+6. $fileNameWithoutExt: The base name of the code file being run without its extension
+7. $driveLetter: The drive letter of the code file being run (Windows only)
+8. $pythonPath: The path of Python interpreter (set by `Python: Select Interpreter` command)
 
 **Please take care of the back slash and the space in file path of the executor**
 
@@ -132,14 +132,15 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
     - 如果仅仅是输出hello,world 这种程序还要,但是如果先要输入,那么build task就会被卡住
 
-## 相关指令和快捷键
+## 相关指令和快捷键👺
 
 - | command                            | shutcut(default) | Notes                                                        |
   | ---------------------------------- | ---------------- | ------------------------------------------------------------ |
   | `Debug:start Debugging`            | `F5`             | 最常用的快捷键,一键编译运行源代码,并且可以设置支持打断点调试 |
   | `Tasks:Run Build Task`             | 无               | 仅编译源代码,可以得到编译后的可执行的二进制文件,但是不会运行,通常是作为`Start Debugging`的第一个步骤,比较少单独使用 |
   | `Debug:Select and Start Debugging` | 无               | 选择一个debug方案,特别是您已经配置了多个方案时,              |
-  | `Tasks:Config Default Build Task`  | 无               | 选择默认的task配置,为了适应不同的编译需要,用户在`task.json`和`launch.json`中可以配置多个版本;可以从中选择一个最常用的配置 |
+  | `Tasks:Config Default Build Task`  | `ctrl+shift+b`   | 选择默认的task配置,为了适应不同的编译需要,用户在`task.json`和`launch.json`中可以配置多个版本;可以从中选择一个最常用的配置 |
+  | `Task:Run task`                    | 无               | 你配置了task.json中有多个可选的方案时,可以用`run task`指令选择一个方案来编译(构建) |
   | `Tasks:Config Task`                | 无               | 配置task,最后会跳转到`tasks.json`文件中的某一个tasks数组中的一个对象,每个对象对应一个task配置 |
 
 
@@ -147,12 +148,13 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 - | 相关指令操作                                                 | 说明                                                         |
   | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/c4acc7ef22124293a42c315684134f3c.png) | 代码构建任务(执行编译操作);其中`run task`在你配置了task.json中有多个可选的方案时,可以用`run task`指令选择一个方案来编译(构建),该指令默认没有快捷键,可以自己配;<br />另一个类似的是`run task build`,会执行配置为默认的task构建方案. |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/7e6d234b46c947cf9e8b07504680ac7a.png) | 我这里配置了3个task,为了名称简洁,以及方便引用,我把各个对象中的`Label`字段简单重名为`task x`的形式;<br />您可以利用这个命令`tasks:configure` |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/a91fcb90ed1d4140bc9670d100d6138c.png) | command paletee中输入:`Run C/C++ File`                       |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/d99f652a21d4448196812f20f71aaa44.png)<br />![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/4de45db50e24487d88be341332005938.png) | `tasks:run build task`可以列出配置在`tasks.json`中的`build task`,(但是如果配置了默认task,可能不会列出全部的task);<br />如果取消掉所有设置默认的task,就会列出所有tasks;<br />选中其中的一个,可以启动编译,顺利的话会得到一个可执行二进制文件;<br /> |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/ca0038cc196543bea188a34ded2108ef.png) | 可以从command palette输入`Debug:Select and Start Debugging`进行选择debug方案 |
   | ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/2eafb8ec984e492197cc32596b4480ba.png) | 也可以找到侧边的按钮中得到列表内选择一个debug方案;           |
-
+  
 - 如果刚刚配置好`tasks.json`,`launch.json`但是列表中没有显示出来对应的方案,可以尝试重载vscode窗口(或者重启vscode)
 
 - 如果始终没有,可能是配置文件(json)出错了
@@ -172,22 +174,25 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 
 
-## 配置文件补充介绍(可选 推荐阅读)😊
+- ## 配置文件补充介绍(可选 推荐阅读)👺
 
-- 下面我给出自己的配置,其特点是基本满足各种编译需求,适用于轻量的`C/C++`编译	
-- 在讲具体配置内容之前,先了解以下内容
-- `tasks.json`中的`tasks`数组
-  - 每个元素是一个对象,视为一个`build task`,分别表示一种build源代码的方案
-  - 首先我的建议是取一个合适的`task`名字,在各个`task`对象的`label`字段中配置,名字可以设置的简单一些
-    - 不需要担心命名太简单而看不出配置的用途,因为我们可以在detail字段中写入详细的信息
-    - 将label字段设置的简单的好处在于`launch.json`中的`preLaunchTask`引用起来就方便,尽管您可以复制粘贴label字段的值代替手动输入到`preLaunchTask`字段😊
-- `launch.json`中的`configurations`数组
-  - 每个元素是一个对象,可以视为一个`launch`方案,表示如何调试源代码(包括使用哪个调试器(debugger),要启动哪一个build task,调试时要传递什么参数给调试器等)
-  - 这里最重要的除了配置正确的调试器路径,还要设置启动正确的task名称,这些名称从`tasks.json`中的label字段查找,比如我在`tasks.json`中配置了3种`build task`方案分别名为`task1,task2,task3`那么合法的名字就只有上述3个
-  - 当然默认产生的task 的`label`一般是`C/C++: g++.exe build active file`,这个东西可以按照自己的喜好和方便使用的角度修改
-  - `launch.json`中有`name`字段可以写得详细一些,因为我们不需要再引用这里的`name`字段了
-  - `name`字段的值会显示在选择debug方案的列表中,供我们辨认不同的debug方案和选择
-- 最后`c_cpp_properties.json`文件,不是必须要的,但是如果有需要可以配置一些库的路径,编译标准版本等
+  - 下面我给出自己的配置,其特点是基本满足各种编译需求,适用于轻量的`C/C++`编译	
+  - 在讲具体配置内容之前,先了解以下内容
+  - `tasks.json`中的`tasks`数组
+    - 每个元素是一个对象,视为一个`build task`,分别表示一种build源代码的方案
+    - 首先我的建议是取一个合适的`task`名字,在各个`task`对象的`label`字段中配置,名字可以设置的简单一些
+      - 不需要担心命名太简单而看不出配置的用途,因为我们可以在detail字段中写入详细的信息
+      - 将label字段设置的简单的好处在于`launch.json`中的`preLaunchTask`引用起来就方便,尽管您可以复制粘贴label字段的值代替手动输入到`preLaunchTask`字段😊
+  - `launch.json`中的`configurations`数组
+    - 每个元素是一个对象,可以视为一个`launch`方案,表示如何调试源代码(包括使用哪个调试器(debugger),要启动哪一个build task,调试时要传递什么参数给调试器等)
+    - 这里最重要的除了配置正确的调试器路径,还要设置启动正确的task名称,这些名称从`tasks.json`中的label字段查找,比如
+      - 在`tasks.json`中配置了3种`build task`方案分别名为`task1,task2,task3`那么合法的名字就只有上述3个
+      - 当然你也可以派生出其他配置,比如`task1c`,`task2c`等
+      - 根据需要选择不同的配置来构建(编译代码),相关指令有`run task`,`run build task`(前者更灵活,后者可以设置默认后更快捷)
+    - 当然默认产生的task 的`label`一般是`C/C++: g++.exe build active file`,这个东西可以按照自己的喜好和方便使用的角度修改
+    - `launch.json`中有`name`字段可以写得详细一些,因为我们不需要再引用这里的`name`字段了
+    - `name`字段的值会显示在选择debug方案的列表中,供我们辨认不同的debug方案和选择
+  - 最后`c_cpp_properties.json`文件,不是必须要的,但是如果有需要可以配置一些库的路径,编译标准版本等
 
 ### 使用vscode预置变量和环境变量
 

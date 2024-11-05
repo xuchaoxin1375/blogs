@@ -18,7 +18,7 @@
 - 或者访问官方教程:
   - [link](https://support.microsoft.com/zh-cn/office/%e5%9c%a8%e7%94%b5%e8%84%91%e6%88%96-mac-%e4%b8%8a%e4%b8%8b%e8%bd%bd%e5%b9%b6%e5%ae%89%e8%a3%85%e6%88%96%e9%87%8d%e6%96%b0%e5%ae%89%e8%a3%85-microsoft-365-%e6%88%96-office-2019-4414eaaf-0478-48be-9c42-23adc4716658?ui=zh-CN&rs=zh-CN&ad=CN)
 
-## 第三方安装
+## 第三方安装👺
 
 - 有些第三方安装office项目可能被废弃了,备份的镜像站也可能会失效
 - 但是相关项目不仅限于这里列出的这些
@@ -27,29 +27,24 @@
   - 另外UWP类型office启动器可以在设置里面搜索office,然后卸载相关应用
 - 途径1,2,3不表示推荐等级,见仁见智
 
-### 安装途径1(achieved)
+### 安装途径1
 
 - 这些资源来自github,由于网路环境的原因,有时打不开,请自行搜索访问方式(比如镜像站/fast)
-- [加速 Microsoft Office 2021 install · GitCode](https://gitcode.net/xuchaoxin1375/microsoft-office-2021-install)
-  - 提供简洁安装选项(可以只安装三件套(word,ppt,excel),而不安装Access,OneNote)
-
-  - 得益于简洁安装,安装速度较快
-
-  - 请认真阅读文档(文档中的下载链接可能失效,但是可以把仓库下载下来,解压运行其中的程序)
 - [asheroto/Deploy-Office: Easily install the latest version of Microsoft Office 2019 or 2021. (github.com)](https://github.com/asheroto/Deploy-Office)
+  - 此方案成功率高,但是组件选择不灵活,容易全家桶
   - 可以选择下载年份的大版本,也可以选择Microsoft 365版本
   - 这里安装的软件可能不仅仅是最常用的三件套,还可能包括access,outlook,onenote,publisher组件
     - 这些组件像是Office 或Microsoft365这个大软件中的一个入口快捷方式,无法单独卸载
     - 卸载其中一个,就会将这个办公全家桶卸载掉
-
+  
   - 虽然安装的全家桶有点多余,但是起码成功率高,可以在一些精简版系统上安装成功
-
-- [Release HEU_KMS_Activator(github.com)](https://github.com/zbezj/HEU_KMS_Activator/releases/tag/30.2.0)
+  
+- [Releases · zbezj/HEU_KMS_Activator](https://github.com/zbezj/HEU_KMS_Activator/releases)
 
 
 ### 安装途径2
 
-- [LKY_OfficeTools: 一键自动化 下载、安装、激活 Office 的利器。 (gitee.com)](https://gitee.com/OdysseusYuan/LKY_OfficeTools/)国内用户推荐
+- [LKY_OfficeTools: 一键自动化 下载、安装、激活 Office 的利器。 (gitee.com)](https://gitee.com/OdysseusYuan/LKY_OfficeTools/)
   - [Mocreak: 基于 LKY_OfficeTools 构建的可视化版本。 (gitee.com)](https://gitee.com/OdysseusYuan/Mocreak)
 
 - github上的仓库[Release LKY OfficeTools v1.2.1 · OdysseusYuan/LKY_OfficeTools · GitHub](https://github.com/OdysseusYuan/LKY_OfficeTools/releases/tag/v1.2.1)

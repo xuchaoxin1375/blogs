@@ -94,9 +94,9 @@
 
 ### 安装具体的linux发行版
 
-- 可以到应用商店安装
+- 可以到应用商店安装(有些特殊版本没有预装Microsoft应用商店,可能下不动,部分软件可以,部分不可以)
 
-- 也可以用winget命令行安装(建议换一下源)
+- 也可以用winget命令行安装(建议换一下源),并且**确保windows功能配置完毕重启过了**
 
   - 假设你要安装ubuntu,可以先搜索`winget search ubuntu`
 
@@ -127,7 +127,36 @@
   winget install 9PN20MSR04DW
   ```
 
-  
+
+### 使用scoop 安装wsl
+
+- scoop的部分bucket提供了wsl安装
+
+- 但是安装完毕后可能需要你手动打开目标目录,运行对应的程序打开发行版
+
+  - ```powershell
+    PS[Mode:1][BAT:100%][MEM:33.55% (5.16/15.37)GB][Win 11 IoT 企业版 LTSC@24H2:10.0.26100.2033][19:14:32][UP:0.01Days]
+    #⚡️[cxxu@BFXUXIAOXIN][<W:192.168.1.77>][C:\ProgramData\scoop\apps\wsl-ubuntu2204\current]
+    PS> ls ubuntu*
+    
+        Directory: C:\ProgramData\scoop\apps\wsl-ubuntu2204\current
+    
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a---          2022/10/26    17:26         147968 ubuntu_wsl_splash.exe
+    -a---          2022/10/26    17:26         595968 ubuntu.exe
+    
+    ```
+
+  - 启动后可以通过`wsl -l -v`查看到安装
+
+    ```powershell
+    PS> wsl -l -v
+      NAME      STATE           VERSION
+    * Ubuntu    Stopped         2
+    ```
+
+    
 
 ### 更新wsl基础环境
 
@@ -185,6 +214,34 @@ cpu和内存等资源现在可以在wsl图形界面配置程序中进行,还包�
     NAME      STATE           VERSION
   * Ubuntu    Stopped         2
   ```
+
+## 使用systemd👺
+
+[使用 systemd 通过 WSL 管理 Linux 服务 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/systemd)
+
+### 一键执行
+
+可以通过在 `wsl.conf` 文件中启用 systemd 来使 systemd 功能在 WSL 环境中启动。你可以直接用以下步骤在 Bash 命令行中一步完成设置：
+
+#### 一步到位的 Bash 命令
+
+```bash
+echo -e "[boot]\nsystemd=true" | sudo tee /etc/wsl.conf > /dev/null && sudo nano /etc/wsl.conf && wsl.exe --shutdown
+```
+
+回车执行后按下`Ctrl+X`,会重启wsl (第一次重启wsl会比较慢,而且可能有异常,关闭掉窗口后再次打开wsl)
+
+这个命令分为以下几个部分：
+
+1. **`echo -e "[boot]\nsystemd=true"`**：构建配置内容，将 `systemd=true` 加入配置项中。
+
+2. **`| sudo tee /etc/wsl.conf > /dev/null`**：使用 `tee` 命令将内容写入 `/etc/wsl.conf` 文件。`> /dev/null` 用来抑制输出。
+
+3. **`sudo nano /etc/wsl.conf`**：打开 `wsl.conf` 文件供手动检查和编辑。
+
+4. **`wsl.exe --shutdown`**：完成修改后关闭 WSL 实例，以便配置生效。
+
+重新启动 WSL 后，systemd 应该被启用。如果后续仍无法使用 `hostnamectl`，则可能需要进一步检查 WSL 版本或手动启用其他替代方法。
 
 
 

@@ -169,8 +169,9 @@ cd -
 3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效
 
    - ```bash
-     zsh
+     #zsh
      source ~/.zshrc
+     
      ```
 
 

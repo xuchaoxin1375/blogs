@@ -109,11 +109,13 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
     ```cmd
     scoop install liberationMono-NF -g
     ```
+    
+    - 注意和`liberationMono-NF-Mono`不同,不要安装Mono包,安装有问题
 
 
-  
 
-### 编辑器
+
+### 编辑器👺
 
 - 手动传统安装
   - vscode 注意下载system版的而不是user版[Download Visual Studio Code - Mac, Linux, Windows](https://code.visualstudio.com/Download)

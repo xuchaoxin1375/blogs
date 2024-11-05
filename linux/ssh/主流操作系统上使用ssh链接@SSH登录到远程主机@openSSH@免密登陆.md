@@ -63,87 +63,19 @@
 ### linux
 
 - linux发行版比较多,但是也能够用命令行方便地安装
+- 总体上在linux上设置ssh server 比较方便,安装完软件后把服务启动起来(通常还要设置开机自启),然后sshd_config默认不需要太多配置就可以用不需要改(对安全性要求不高的话)
+- 详情另见它文
 
 ### windows👺
 
 - 通常windows上使用ssh client就够了(默认自带)
 - 虽然很少用windows去做服务器(尽管有windows server)的,但是Microsoft也给出了如何安装和启动ssh服务的方法
-- 详情另见它文:https://cxxu1375.blog.csdn.net/article/details/140308691
-
-##### 检查相关软件
-
-- 检查是否已经安装了相应软件
-
-- **管理员身份**打开powershell
-
-- 执行:`Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'`
-
-  ```powershell
-  PS>Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
-  
-  Name  : OpenSSH.Client~~~~0.0.1.0
-  State : Installed
-  
-  Name  : OpenSSH.Server~~~~0.0.1.0
-  State : NotPresent
-  
-  ```
+- 配置windows为ssh server,详情另见它文
+  - [windows@openssh免密登陆配置@基于powershell快速配置脚本_windows openssh 密钥配置-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/142217418)
+  - [windows@windows上使用OpenSSH和相关软件@windows设备间使用OpenSSH_openssh windows客户端-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/140308691)
 
 
-##### 安装相关软件
-
-- 如果上述检查结果是`NotPresent`,就说明未安装,执行一下命令安装(国内网络可能需要好几分钟才能下载下来)
-
-  - ```powershell
-    # Install the OpenSSH Client
-    Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-    
-    # Install the OpenSSH Server
-    Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-    ```
-
-- 例如安装OpenSSH server完毕(以sshd调用)
-
-  - ```powershell
-    PS>Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-    
-    Path          :
-    Online        : True
-    RestartNeeded : False
-    ```
-
-
-##### 配置服务端防火墙👺
-
-- 初次ssh服务设置(包括防火墙等,以管理员身份打开powershell执行)
-
-  - ```powershell
-    # Start the sshd service
-    Start-Service sshd
-    
-    # OPTIONAL but recommended:
-    Set-Service -Name sshd -StartupType 'Automatic'
-    
-    # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
-    if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
-        Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
-        New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-    } else {
-        Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
-    }
-    ```
-
-    
-
-### 小结
-
-- SSH是协议层面的概念，定义了如何安全地远程访问和管理计算机的方法。
-- OpenSSH是实现SSH协议的具体软件项目，是Linux和类Unix操作系统中最常见的SSH工具集，同时也是许多其他操作系统上的可选组件，它允许用户在不同系统间通过加密通道安全地进行远程登录、命令执行和文件传输操作。
-- windows上同样也可以使用openSSH
-
-## 其他相关软件
-
-### windows上的ssh客户端
+windows上的常见ssh客户端
 
 - 较新版本的windows自带ssh客户端
 
@@ -160,10 +92,13 @@
   - Putty[Download PuTTY: latest release (0.80) (greenend.org.uk)](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
   - Vscode+extensions:[Developing on Remote Machines using SSH and Visual Studio Code](https://code.visualstudio.com/docs/remote/ssh)
 
-### linux上的ssh软件
+### 小结
 
-- 常用的ubuntu上使用openSSH-server
-  - [OpenSSH Server | Ubuntu](https://ubuntu.com/server/docs/service-openssh)
+- SSH是协议层面的概念，定义了如何安全地远程访问和管理计算机的方法。
+- OpenSSH是实现SSH协议的具体软件项目，是Linux和类Unix操作系统中最常见的SSH工具集，同时也是许多其他操作系统上的可选组件，它允许用户在不同系统间通过加密通道安全地进行远程登录、命令执行和文件传输操作。
+- windows上同样也可以使用openSSH
+
+
 
 ## 服务端软件运行检查😊
 
@@ -172,7 +107,7 @@
 
 ### 在Linux上检查SSH服务是否运行（服务端）
 
-#### 使用Systemd的Linux发行版😊
+#### 使用Systemd的Linux发行版
 
 - （如Ubuntu 15.04以后版本、CentOS 7等）:
 
@@ -181,7 +116,7 @@
 systemctl status sshd
 ```
 
-- 查看shi'li
+- 查看示例
 
   ```bash
   cxxu@mint21:~$ systemctl status sshd
@@ -215,9 +150,9 @@ sudo systemctl enable sshd
 
 
 
-#### 使用SysVinit的老版本Linux系统
+#### 通用方法:使用SysVinit或其他非systemd的Linux系统上查看👺
 
-- （如Ubuntu 14.04及更早版本）:
+- （如Ubuntu 14.04及更早版本）,或者wsl 的某些版本
 
 ```bash
 # 检查服务状态
@@ -226,10 +161,21 @@ service ssh status
 # 如果服务未运行，可以启动服务
 sudo service ssh start
 
-# 设置开机启动
-sudo chkconfig ssh on  # 对于某些系统，如RHEL/CentOS 6
+```
+
+设置开机启动
+
+```bash
 sudo update-rc.d ssh defaults  # 对于Debian/Ubuntu
 ```
+
+```bash
+sudo chkconfig ssh on  # 对于某些系统，如RHEL/CentOS 6
+```
+
+
+
+
 
 ### 在Windows上检查SSH服务是否运行（服务端）👺
 

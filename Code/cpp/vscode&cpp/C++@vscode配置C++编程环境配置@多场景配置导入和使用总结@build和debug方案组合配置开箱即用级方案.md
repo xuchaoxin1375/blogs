@@ -5,7 +5,8 @@
 ## abstract
 
 - 讨论如何配置vscode下c/c++开发环境
-- 利用我提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;并且记录了可能遇到的问题以及解决方案
+- 本文补充介绍了项目:[C_CPP_ConsoleApps: - Vscode C/C++](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps) 提供的配置文件的用法,并且在文末给出了更多补充说明的有用链接
+- 利用本文提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;并且记录了可能遇到的问题以及解决方案
 - 这里假设**用户已经正确安装好了编译器**,并且能够顺利启动
   - 可以是任何一款编译器,比如应用最广泛的GCC或其在不同系统上的移植版
 
@@ -38,6 +39,83 @@ int main(){
 - 如果您目的明确,那么继续往下看
   - vscode 配置C/C++开发环境(通过导入仓库快速完成配置)
   - 配置文件的使用相关细节
+
+## 配置后编译运行效果预览
+
+主要关注对中文路径和中文文件名的编译兼容
+
+编译日志如下(例子中选择了自行配置的task3构建编译方案)
+
+```cmd
+ *  Executing task: task3 
+
+Starting build...
+cmd /c chcp 65001>nul && g++.exe -fdiagnostics-color=always -g C:\repos\C_Cpp_ConsoleApps\zh测试中文目录\helloworld你好世界.cpp -o C:\repos\C_Cpp_ConsoleApps\zh测试中文目录\helloworld你好世界.exe -finput-charset=UTF-8 -fexec-charset=gbk
+
+Build finished successfully.
+ *  Terminal will be reused by tasks, press any key to close it. 
+```
+
+编译结果查看和运行
+
+```powershell
+PS [C:\repos\C_Cpp_ConsoleApps\zh测试中文目录]>  PS> ls
+
+    Directory: C:\repos\C_Cpp_ConsoleApps\zh测试中文目录
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           2024/11/4    18:07         104507 a.exe
+-a---           2024/11/4    17:37            136 helloworld.c
+-a---           2024/11/4    17:52            259 helloworld你好世界.cpp
+-a---           2024/11/4    18:28         104507 helloworld你好世界.exe
+
+PS [C:\repos\C_Cpp_ConsoleApps\zh测试中文目录]>  PS> .\helloworld你好世界.exe
+Hello World!(你好,世界)
+
+```
+
+选择适当的编译器和使用适当的编译参数(配置为task方案),然后执行task构建编译,能够处理中文路径源代码编译问题
+
+但是gdb调试对中文路径程序的兼容和支持欠缺仍然是一个问题,因此后面我推荐将编译出来的文件名保存为
+
+当然本文的重点不仅仅是编译代码,更重要的意义在于写代码时智能提示和语法检查以及头文件跳转,断点调试的支持(虽然gdb调试中文路径文件不是很可靠),还有多种编译方案灵活选择的支持
+
+### 一键编译运行
+
+1. 仅仅想要一键编译运行单个源代码文件,甚至可以不用c/c++插件,使用code runner就够了,而且不调试仅运行的话还兼容中文路径,详情另见拓展阅读
+
+   ```bash
+   PS [C:\repos\C_Cpp_ConsoleApps\cpp]>  PS> cd "c:\repos\C_Cpp_ConsoleApps\cpp\" ; if ($?) { g++  -finput-charset=UTF-8 -fexec-charset=gbk "勾股.cpp" -o "a.exe" } ; if ($?) {  .\"a.exe" }                                                                                   
+   please use a comma to as a separator the two integer:
+   22,55
+   24^2+32^2=40^2
+   24^2+45^2=51^2
+   27^2+36^2=45^2
+   28^2+45^2=53^2
+   30^2+40^2=50^2
+   33^2+44^2=55^2
+   ```
+
+   
+
+2. 使用vscode 的C/C++ extension也可以通过一定技巧配置为编译运行(跳过调试),但是这个方案存在一定限制(对中文路径不友好,虽然支持文件名为中文,但是中间路径包含中文可能会失败,而且速度比上一种方案慢(比带debug调试还是要快的))
+
+   下面的例子编译的也是`勾股.cpp`,对应的task为`run and build`
+
+   ```bash
+   PS [C:\repos\C_Cpp_ConsoleApps]>  PS>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.23.0-win32-x64\debugAdapters\bin\WindowsDebugLauncher.exe' '--stdin=Microsoft-MIEngine-In-tojaovnp.1av' '--stdout=Microsoft-MIEngine-Out-zzbmzcq4.231' '--stderr=Microsoft-MIEngine-Error-hcgd3gxb.wn2' '--pid=Microsoft-MIEngine-Pid-wnwflcf1.csn' '--dbgExe=C:\ProgramData\scoop\apps\mingw\current\bin\gdb.exe' '--interpreter=mi'                                                                                                                   
+   please use a comma to as a separator the two integer:                                                                                 
+   22,55                                                                                                                                 
+   24^2+32^2=40^2                            
+   24^2+45^2=51^2
+   27^2+36^2=45^2
+   28^2+45^2=53^2
+   30^2+40^2=50^2
+   33^2+44^2=55^2
+   ```
+
+   
 
 ## 准备👺
 
@@ -354,7 +432,7 @@ Hello World!(你好,世界)
 
   - 这里需要你添加spc bucket [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。](https://github.com/lzwme/scoop-proxy-cn/tree/main)
 
-## 获取配置文件@相关试验仓库😊
+## 获取vscode c/c++配置文件@相关试验仓库👺👺
 
 - [C_CPP_ConsoleApps: (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps)
   - 您可以打开该链接,网页中的`.vscode`中的内容最为关键
@@ -407,14 +485,14 @@ Hello World!(你好,世界)
 
 - 如果您使用的是MinGw,那么修改相应的g++,gdb路径也可以
 
-## 编译和调试配置方案的使用说明
+## 编译和调试配置方案的使用说明👺
 
 - 编译方案(build tasks)可以独立工作,也可以被(debugging)作为预执行任务调用
   - 然而最容易出问题的是build task,也就是配置在`tasks.json`文件中的一系列对象
   - 特别是如果没有处理好文件名中包含中文的情形,会导致编译都无法成功
   - 另一方面为了能够一键启动编译和调试,我们需要配置好`launch.json`,并且实际上我们通常直接利用`lauch.json`中配置的方案来启动`build and debug`任务(虽然可以做到一键编译运行调试,但是速度不够快,后面的扩展部分会讲加速方案)
 
-### 常用编译方案
+### 常用编译方案👺
 
 - 编译运行单个C/C++代码文件通常选用`task2`的配置
   - 如果要运行的程序被拆分为单个或多个C++源代码文件,他们被组织在各自的目录里面且不包含其他程序的源文件,那么使用`task1`来编译并运行或调试(如果是C源代码,那么使用`task1c`)
@@ -433,6 +511,106 @@ Hello World!(你好,世界)
 
 - 当然通常我们用`launch.json`来配置编译和调试(build and debug)一条龙,而不是直接用`tasks.json`来直接编译
 - 因此您可以选择command palette中输入`debug: select and start debugging`选择一个方案进行编译调试(我提供的仓库已经组织好了,配置了几种模式,满足绝大部分需求)
+
+### Task中编译语句配置选项说明举例
+
+这是一个 `tasks.json` 文件的编译任务配置，使用 `gcc` 编译 C 或 C++ 文件，并且对字符编码、颜色、输出文件等进行了详细的配置。以下是各个参数的介绍：
+
+以下举例说明
+
+```json
+  {
+            "type": "cppbuild",
+            "label": "task2c",
+            "command": "gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                // "-std=c99",
+                "-lstdc++", //支持编译c/c++两种语言,gcc 需要用上-lstdc++,但是尽量用g++编译c++,避免潜在的问题
+                "-o",
+                "${fileDirname}\\a.exe",
+                "-finput-charset=UTF-8",
+                "-fexec-charset=gbk"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "build active file(c source code single file),output a.exe  (For Englis, Chinese characters and other non-English characters source code file name)."
+        },
+```
+
+其中最终要的是编译参数`args[]`中指定的各个选项字符串,不仅仅是选项本身,还要注意选项间的顺序不能随意,例如`-o`选项后面如果跟的不是文件名而是其他选项,会导致拼接成的命令行不合法而编译失败
+
+#### 参数详解
+
+1. **`-fdiagnostics-color=always`**
+   - 启用诊断信息的颜色输出，使编译输出（如警告和错误信息）带有颜色，以便更易于阅读和定位问题。
+   - **推荐用法**：在 VSCode 终端中使用该选项可以更清晰地查看编译信息。
+
+2. **`-g`**
+   - 生成调试信息（debug information），用于调试模式。生成的可执行文件包含调试符号，可以在调试器（如 `gdb`）中查看源代码、变量等信息。
+   - **推荐用法**：在开发和调试阶段启用该选项。在发布版本中，通常不加此选项以减小文件体积。
+
+3. **`${file}`**
+   - 指代当前编辑的源文件。这是一个 VSCode 的变量，会自动解析成当前正在编辑的文件路径，例如 `C:\repos\C_Cpp_ConsoleApps\cpp\file.c`。
+   - **推荐用法**：用于自动编译当前打开的文件，无需手动指定文件名。
+
+4. **`// "-std=c99"`**
+   - 被注释掉的部分（`//` 表示注释）。这个参数可以指定 C 的标准版本为 `C99`。如果需要特定的 C 标准，可以取消注释并使用。例如 `-std=c99` 指定为 C99 标准，`-std=c11` 则指定为 C11。
+   - **推荐用法**：根据项目需要选择合适的标准，比如现代项目中推荐使用 C11 或更新标准。
+
+5. **`-lstdc++`**
+   - 链接 C++ 标准库。使用 `gcc` 编译 C++ 代码时必须加上该选项，`gcc` 默认不包含 C++ 标准库，容易导致链接错误。
+   - **注意**：尽量用 `g++` 编译 C++ 代码，因为 `g++` 会自动链接 C++ 标准库，可以省去 `-lstdc++` 的麻烦。
+
+6. **`-o ${fileDirname}\\a.exe`**
+   - **`-o`**：指定输出文件的名称和路径，紧跟其后的参数即为输出文件。
+   - **`${fileDirname}\\a.exe`**：表示输出文件的路径和文件名，其中 `${fileDirname}` 是当前文件所在的文件夹路径，`a.exe` 是输出文件名。这里用双反斜杠 `\\` 来表示 Windows 文件路径。
+   - **推荐用法**：适合 Windows 环境。如果在 Linux 或 macOS 上，可以将路径写为 `${fileDirname}/a.out`（或不加 `.exe` 后缀）。
+
+7. **`-finput-charset=UTF-8`**
+   - 指定源文件的字符编码为 `UTF-8`。适用于包含非 ASCII 字符（如中文注释或字符串）的代码文件。
+   - **推荐用法**：在源代码中使用 UTF-8 编码的情况下使用该选项，确保正确读取文件内容。
+
+8. **`-fexec-charset=gbk`**
+   - 指定可执行文件的输出字符编码为 `GBK`，适用于 Windows 环境（中文支持）。如果程序会在 Windows 终端输出中文字符，这个选项可以避免字符编码问题。
+   - **推荐用法**：Windows 中文系统中用来支持控制台中文输出。如果目标系统是英语环境或 UTF-8 终端，不建议使用此选项。
+
+### 配置中可用的预设变量 Variables Reference
+
+
+
+Visual Studio Code supports variable substitution in [Debugging](https://code.visualstudio.com/docs/editor/debugging) and [Task](https://code.visualstudio.com/docs/editor/tasks) configuration files as well as some select settings. Variable substitution is supported inside some key and value strings in `launch.json` and `tasks.json` files using **${variableName}** syntax.
+
+[Predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables)
+
+The following predefined variables are supported:
+
+- **${userHome}** - the path of the user's home folder
+- **${workspaceFolder}** - the path of the folder opened in VS Code
+- **${workspaceFolderBasename}** - the name of the folder opened in VS Code without any slashes (/)
+- **${file}** - the current opened file
+- **${fileWorkspaceFolder}** - the current opened file's workspace folder
+- **${relativeFile}** - the current opened file relative to `workspaceFolder`
+- **${relativeFileDirname}** - the current opened file's dirname relative to `workspaceFolder`
+- **${fileBasename}** - the current opened file's basename
+- **${fileBasenameNoExtension}** - the current opened file's basename with no file extension
+- **${fileExtname}** - the current opened file's extension
+- **${fileDirname}** - the current opened file's folder path
+- **${fileDirnameBasename}** - the current opened file's folder name
+- **${cwd}** - the task runner's current working directory upon the startup of VS Code
+- **${lineNumber}** - the current selected line number in the active file
+- **${selectedText}** - the current selected text in the active file
+- **${execPath}** - the path to the running VS Code executable
+- **${defaultBuildTask}** - the name of the default build task
+- **${pathSeparator}** - the character used by the operating system to separate components in file paths
+- **${/}** - shorthand for **${pathSeparator}**
 
 ## 目录.vscode中的相关文件说明
 
