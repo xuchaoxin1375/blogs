@@ -384,7 +384,9 @@ Hello World!(你好,世界)
 
 ### vscode中同样的编译语句结果不同
 
-在vscode外的非继承终端中编译正常且无乱码
+这里记录一下vscode中编译语句(命令行)在外部terminal中编译会有不同的结果
+
+在vscode外的非集成终端中编译正常且无乱码
 
 ```powershell
 PS [C:\repos\C_Cpp_ConsoleApps\测试中文目录]> g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk "hellowworld你好世界.cpp" -o "hellowworld你好世 界.exe"
@@ -419,23 +421,86 @@ Hello World!(你好,世界)
 
 
 
-### 小结
-
-- 综上,可以推测 vscode c/c++ extension 在解析中文文件名时后造成编码错误乱码,而使用命令行直接执行编译和运行任务则是正常工作的
-
-## 推荐的MinGw编译器版本👺
+## 推荐的MinGw编译器版本👺👺
 
 - 这里的版本不仅仅指版本号,还有程序来源(比如来自不同项目编译出来的二进制文件g++,使用体验可能不同)
 
-- 经过实验,**小熊猫c++**这个IDE有一个打包了编译器的版本,里面提供的MinGw编译中文名或路径的C/C++是比较好用的
+- 两个情况的推荐版本
 
-- 或者通过scoop安装`MingW`
+  - 推荐`winlibs-mingw-ucrt`,它在配合vscode方面比较好,能够处理中文路径和中文文件名,gdb调试也比较顺利
+  - 如果是小熊猫或dev,则不是很推荐`winlibs-mingw-ucrt`,而可以尝试[Releases · niXman/mingw-builds-binaries](https://github.com/niXman/mingw-builds-binaries/releases)
+    - 或者下载小猫的时候选择带有编译器版本
 
-- ```cmd
-  sudo scoop install spc/mingw -g
+- 或者通过**scoop**安装`MingW`
+
+  - 打开管理员权限窗口,执行下面其中一个语句
+
+  ```cmd
+  scoop install  spc/winlibs-mingw-ucrt -g
+  scoop install spc/mingw -g
   ```
 
   - 这里需要你添加spc bucket [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。](https://github.com/lzwme/scoop-proxy-cn/tree/main)
+
+- 如果用scoop安装,并且想要两个都安装,要小心冲突/竞争,这俩安装后都会向系统path环境变量注册对应的路径,比如;
+
+  ```powershell
+  C:\ProgramData\scoop\apps\winlibs-mingw-ucrt\current\bin
+  C:\ProgramData\scoop\apps\mingw\current\bin
+  ```
+
+  - 你可以在这里面注释带一个,保留一个来实现版本的切换.
+  - 在小熊猫里,你可以手动指定编译器路径,也可以自动扫描path中可用的编译器,然后选择合适的版本也可以
+
+- 也可以手动安装[WinLibs - GCC+MinGW-w64 compiler for Windows](https://winlibs.com/#:~:text=UCRT runtime)
+
+### gcc/g++多版本检查
+
+powershell中使用`gcm g++ |ft -autosize`来检查,gcc/gdb类似
+
+```powershell
+PS [C:\repos\C_Cpp_ConsoleApps]> gcm g++ |ft -AutoSize
+
+CommandType Name    Version Source
+----------- ----    ------- ------
+Application g++.exe 0.0.0.0 C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe
+```
+
+
+
+### 注意事项
+
+但是,vscode c/c++ extension虽然调用你安装的编译器和调试器,但是vscode调用gcc/g++编译的语句和我们在命令行终端内手写命令行编译存在不同,vscode会有其他处理,造成在处理中文(尤其是调试编译出来的可执行文件时可能有明显差异,还包括打印中文字符是否会乱码的问题)
+
+这种现象可能会让用户感到奇怪,但这种差异却是存在于某些版本的MinGw中,为了获得更加统一的体验,下面给出建议
+
+如果你确定主要在vscode开发或学习C/C++,那么就先不要管手写命令行编译的结果(编译英文路径的代码通常都没有问题,如果连直接编译都会失败,那趁早换一个)
+
+然后我们在看乱码问题,例如我在命令行中执行
+
+```bash
+PS [C:\repos\C_Cpp_ConsoleApps\cpp]>  g++ .\hellowworld你好2.cpp -o a.exe  -finput-charset=UTF-8 -fexec-charset=gbk
+
+PS [C:\repos\C_Cpp_ConsoleApps\cpp]> .\a.exe
+Hello World!(你好,世界111)
+
+PS [C:\repos\C_Cpp_ConsoleApps\cpp]>  g++ .\hellowworld你好2.cpp -o a.exe
+
+PS [C:\repos\C_Cpp_ConsoleApps\cpp]> .\a.exe
+Hello World!(浣犲ソ,涓栫晫111)
+```
+
+可以看到,使用了` -finput-charset=UTF-8 -fexec-charset=gbk`选项编译结果`a.exe`执行可以输出正常的中文,如果不使用,那么输出的是乱码
+
+这个时候你可能会考虑在vscode中的配置中将上述的编译参数给加上,但是这不一定是好事,经过实验发现,默认参数的手动命令行编译的程序会输出乱码但vscode中不一定会乱码,反之亦然;
+
+总之要以vscode的行为为主,看看不使用上述编码参数编译是否成功以及程序运行时输出中文会不会乱码,如果会在加上即可
+
+### 小结
+
+- winlibs系列编译器比较好 
+  - 配合vscode效果不错(注意配置文件中使用合理的编译选项,否则会有乱码等问题),我试验下来是不要使用` -finput-charset=UTF-8 -fexec-charset=gbk`,这组编译选项是为手动编译准备的,而且是为要打印中文的情况下准备的
+  - 小熊猫C++默认使用了这两个参数,到底要不要用取决于编译效果,当然你也可以指定可用的编译器,或者更改小熊猫里面的编译参数
 
 ## 获取vscode c/c++配置文件@相关试验仓库👺👺
 

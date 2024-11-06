@@ -272,7 +272,7 @@ C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe
     ```
 
 
-  
+
 
 ### 小结
 
@@ -336,7 +336,7 @@ windows上,建议使用scoop(国内版)比较方便
 
 - 可以下载可执行文件
 - 也可以用国内加速版的scoop来一键安装
-- 体验一般
+- 配合vscode效果不错(注意配置文件中使用合理的编译选项,否则会有乱码等问题)
 
 #### TDM-gcc
 
