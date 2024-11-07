@@ -57,7 +57,7 @@
 
 ### 解决办法
 
-- 可以用--allow-unrelated-histories选型进行pull
+- 可以用--allow-unrelated-histories选项进行pull
   - `git pull origin main --allow-unrelated-histories`
 - 可以考虑在push的时候换一个分支名
 - 也可以在github端将默认分支删除，然后再push

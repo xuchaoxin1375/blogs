@@ -10,7 +10,7 @@
 
 vscode中编译和调试可以分开,编译环节可以使用命令`Run build task`(command palette),或者使用快捷键启动,这么做可以实现快速编译,跳过调试(gdb)部分,但是不会自动运行编译出来的程序,仍然不够快捷
 
-### code runner插件方案
+### code runner插件方案👺
 
 主打快捷地编译运行,不考虑复杂的编译需求和方案选项,也不考虑调试操作,但是这已经能够满足基本的c/c++编程环境的需要了
 
@@ -26,6 +26,15 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 这里默认将编译结果的文件名设置为`a.exe`,并且运行也是用这个名字
 
+你可以选择将编译结果总是放到统一的位置,并始终使用同一个名字`a.exe`便于定位可执行文件,比如总是将编译结果放到项目的根目录下(由于名字都是同一个,因此编译不同程序会替代或覆盖之前的`a.exe`,这对于联系c/c++问题不大)
+
+```json
+"c": " gcc  -finput-charset=UTF-8 -fexec-charset=gbk $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\"",
+"cpp": " g++  -finput-charset=UTF-8 -fexec-charset=gbk  $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\" ",
+```
+
+如果想要把不同目录下的文件编译的结果放回该目录,那么使用下面的一组配置
+
 ```json
 "c": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"a.exe\" &&  .\\\"a.exe\"",
 "cpp": "cd $dir && g++ -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"a.exe\" &&  .\\\"a.exe\"",
@@ -40,7 +49,12 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 "cpp": "cd $dir && g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
 
-// "cpp": "cd $dir && C:\\exes\\RedPanda-CPP\\mingw64\\bin\\g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
+```
+
+额外可选的,你可以指定不存在于path变量指定的目录中的g++/gcc编译器,而选择使用指定目录下的编译器也是可以的,例如
+
+```json
+"cpp": "cd $dir && C:\\exes\\RedPanda-CPP\\mingw64\\bin\\g++.exe -std=c++11 -finput-charset=UTF-8 -fexec-charset=gbk \"$fileName\" -o \"$fileNameWithoutExt.exe\" &&  .\\\"$fileNameWithoutExt.exe\"",
 ```
 
 相关配置文档:(详情查看上述链接)
@@ -68,14 +82,14 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 **Supported customized parameters**👺
 
-1. $workspaceRoot: The path of the folder opened in VS Code
-2. $dir: The directory of the code file being run
-3. $dirWithoutTrailingSlash: The directory of the code file being run without a trailing slash
-4. $fullFileName: The full name of the code file being run
-5. $fileName: The base name of the code file being run, that is the file without the directory
-6. $fileNameWithoutExt: The base name of the code file being run without its extension
-7. $driveLetter: The drive letter of the code file being run (Windows only)
-8. $pythonPath: The path of Python interpreter (set by `Python: Select Interpreter` command)
+1. `$workspaceRoot`: The path of the folder opened in VS Code
+2. `$dir`: The directory of the code file being run
+3. `$dirWithoutTrailingSlash`: The directory of the code file being run without a trailing slash
+4. `$fullFileName`: The full name of the code file being run
+5. `$fileName`: The base name of the code file being run, that is the file without the directory
+6. `$fileNameWithoutExt`: The base name of the code file being run without its extension
+7. `$driveLetter`: The drive letter of the code file being run (Windows only)
+8. `$pythonPath`: The path of Python interpreter (set by `Python: Select Interpreter` command)
 
 **Please take care of the back slash and the space in file path of the executor**
 

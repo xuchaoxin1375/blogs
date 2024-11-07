@@ -65,9 +65,71 @@
 
   - [g++(1) - Linux manual page (man7.org)](https://www.man7.org/linux/man-pages/man1/g++.1.html)
 
+在使用 `gcc`（GNU Compiler Collection）编译 C 程序时，命令格式通常如下：
+
+```bash
+gcc [options] source_files -o output_file
+```
+
+### 参数详解
+
+1. **source_files**：要编译的源文件，可以是一个或多个 `.c` 文件。
+2. **-o output_file**：指定编译生成的可执行文件名称，若不指定，默认生成文件名为 `a.out`。
+3. **[options]**：编译选项，用于控制编译过程，例如优化、调试信息等。
+
+### 常用选项
+
+| 选项          | 功能描述                                         |
+| ------------- | ------------------------------------------------ |
+| `-c`          | 仅编译为目标文件（`.o` 文件），不进行链接。      |
+| `-o`          | 指定输出文件名。                                 |
+| `-g`          | 生成调试信息，用于调试工具如 `gdb`。             |
+| `-Wall`       | 打开所有警告信息，帮助发现潜在问题。             |
+| `-O` 或 `-O1` | 基本优化，编译器进行少量优化。                   |
+| `-O2`, `-O3`  | 高级优化，增量提高优化级别，`-O3` 优化最为激进。 |
+| `-I`          | 指定头文件搜索路径。                             |
+| `-L`          | 指定库文件搜索路径。                             |
+| `-l`          | 指定链接的库，例如 `-lm` 链接数学库 `libm.so`。  |
+
+### 示例
+
+1. **编译并链接生成可执行文件**
+
+   ```bash
+   gcc main.c add.c multiply.c -o math_program
+   ```
+
+2. **生成目标文件（.o 文件）**
+
+   ```bash
+   gcc -c main.c
+   gcc -c add.c
+   gcc -c multiply.c
+   ```
+
+   使用 `-c` 选项将各个源文件单独编译为目标文件，以便稍后链接。
+
+3. **链接生成可执行文件**
+
+   ```bash
+   gcc main.o add.o multiply.o -o math_program
+   ```
+
+4. **生成带调试信息的可执行文件**
+
+   ```bash
+   gcc -g main.c -o debug_program
+   ```
+
+5. **生成优化后的可执行文件**
+
+   ```bash
+   gcc -O2 main.c -o optimized_program
+   ```
 
 
-### g++常见用例
+
+## g++常见选项用例
 
 - gcc/g++绝大多数的可用选项都一样
 
@@ -145,17 +207,17 @@
 
    使用`-E`选项仅进行预处理，生成预处理后的输出文件`preprocessed_source.i`。
 
-10. **生成汇编代码**：
+### 生成汇编代码
 
-    ```bash
-    g++ -S source.cpp -o assembly.s
-    ```
+```bash
+g++ -S source.cpp -o assembly.s
+```
 
-    使用`-S`选项仅进行编译，生成汇编代码文件`assembly.s`，不进行汇编和链接。
+使用`-S`选项仅进行编译，生成汇编代码文件`assembly.s`，不进行汇编和链接。
 
 
 
-### 设置源文件编码和调试信息选型示例
+### 设置源文件编码和调试信息选项示例
 
 - 示例:` g++.exe  "C:/repos/C_CPP_ConsoleApps/勾股.cpp" -o "C:/repos/C_CPP_ConsoleApps/勾股.exe" -finput-charset=UTF-8 -fexec-charset=gbk -g3 -pipe -Wall`
 

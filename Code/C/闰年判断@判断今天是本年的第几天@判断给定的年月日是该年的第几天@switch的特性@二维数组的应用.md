@@ -142,6 +142,101 @@ end
 
 ## C语言中的switch
 
+
+
+switch语句(`switch-case`结构)是一种**多路判定语句**，它测试表达式是否与一些常量整数值中的某一个值匹配，并执行相应的分支动作,以及该分支之后的动作,除非遇到break/return。 
+
+```C
+switch (表达式) { 
+    case 常量表达式: 语句序列 
+    case 常量表达式: 语句序列 
+	default: 语句序列 
+}
+```
+
+```c
+ switch (expression) { 
+       case const-expr: statements 
+       case const-expr: statements 
+       default: statements 
+   } 
+```
+
+### switch-case 结构
+
+每一个分支都由一个或多个**整数值常量**或**常量表达式标记**。
+
+- 如果某个分支与表达式的值匹配，则从该分支开始执行。
+- 各分支表达式必须互不相同。
+- 如果没有哪一分支能匹配表达式，则执行标记为default的分支。
+  - default分支是可选的。
+  - 如果没有`default`分支也没有其它分支与表达式的值匹配，则该switch语句不执行任何动作。
+
+- 有时各分支及default分支的排列次序是任意的(例如每个分支都有break);但是有时为了利用switch的某方面特点,我们需要安排各个分支的顺序.
+
+学习`switch`之前,我们可以用`if…else if…else` 结构编写过一个程序以统计各个数字、空白符及其它所有字符出现的次数。下面我们用`switch`语句改写该程序如下：
+
+```c
+#include <stdio.h>
+
+int main() /* count digits, white space, others */
+{
+    int c, i, nwhite, nother, ndigit[10];
+
+    nwhite = nother = 0;
+    for (i = 0; i < 10; i++)
+        ndigit[i] = 0;
+    while ((c = getchar()) != EOF)
+    {
+        switch (c)
+        {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            ndigit[c - '0']++;
+            break;
+        case ' ':
+        case '\n':
+        case '\t':
+            nwhite++;
+            break;
+        default:
+            nother++;
+            break;
+        }
+    }
+    printf("digits =");
+    for (i = 0; i < 10; i++)
+        printf(" %d", ndigit[i]);
+    printf(", white space = %d, other = %d\n",
+           nwhite, nother);
+    return 0;
+}
+```
+
+运行示例
+
+```text
+1234321abcdd__++
+^Z
+digits = 0 2 2 2 1 0 0 0 0 0, white space = 1, other = 9
+```
+
+### case不是if👺
+
+break 语句将导致程序的执行立即从switch 语句中退出。
+
+在switch 语句中，**case 的作用只是一个标号**(功能比if要简单得多)，因此，**某个分支中的代码执行完后，程序将进入下一分支继续执行， 除非在程序中显式地跳转**。(也就是说,从命中的分支开始执行,在遇到break,return之前的所有其他分支都会执行,无论这些后续分支是否匹配)
+
+跳出switch语句最常用的方法是使用break语句与return语句。break 语句还可强制控制从while、for 与do 循环语句中立即退出
+
 ### break
 
 ```c
@@ -178,7 +273,7 @@ int main() {
 
 这个例子展示了 `switch` 语句的基本用法，包括多个 `case` 标签、`break` 语句来阻止后续 `case` 的执行，以及 `default` 标签来处理未匹配的所有情况。
 
-### case fall through
+### case fall through(判断季节)
 
 下面是另一个例子，演示了从一个 `case` 跳转到另一个 `case`（fall through）的特性：
 
@@ -222,6 +317,124 @@ int main() {
 在这个例子中，如果 `month` 等于 12、1 或者 2，都会执行相同的代码块，因为在每个 `case` 之后没有 `break`，所以会发生 fall through，直到遇到 `break` 关键字或者 `switch` 语句的结束。
 
 这两个例子都可以直接编译并运行，它们演示了 `switch` 语句的两个主要特性：多路选择和 fall through。
+
+### 不使用break和return导致fall through
+
+下面的例子也很典型,它的特点是不是用break,完整可执行程序见末尾
+
+```c
+// 计算给定年月日是当年的第几天
+int dayOfYear(int year, int month, int day)
+{
+    int days = 0;
+    int leap = isLeapYear(year);
+
+    // 根据月份累加天数
+    switch (month - 1)
+    {
+    case 11:
+        days += 30; // November
+    case 10:
+        days += 31; // October
+    case 9:
+        days += 30; // September
+    case 8:
+        days += 31; // August
+    case 7:
+        days += 31; // July
+    case 6:
+        days += 30; // June
+    case 5:
+        days += 31; // May
+    case 4:
+        days += 30; // April
+    case 3:
+        days += 31; // March
+    case 2:
+        days += (leap ? 29 : 28); // February
+    case 1:
+        days += 31; // January
+    case 0:
+        days += 0; // No need to add anything for the first month
+    }
+
+    // 加上当前月份的天数
+    days += day;
+
+    return days;
+}
+```
+
+### 小结
+
+Falling through cases is a mixed blessing. On the positive side, it allows several cases to be  attached to a single action, as with the digits in this example. But it also implies that normally  each case must end with a break to prevent falling through to the next. Falling through from  one case to another is not robust, being prone to disintegration when the program is modified.  With the exception of multiple labels for a single computation, fall-throughs should be used  sparingly, and commented. 
+
+As a matter of good form, put a break after the last case (the default here) even though it's  logically unnecessary. Some day when another case gets added at the end, this bit of  defensive programming will save you.
+
+
+
+透过 cases （情形标签）逐一执行的机制是一种利弊参半的特性。优点是可以将多个 cases 附加到一个操作上，就像在这个例子中对数字的处理一样。但这也意味着通常每个 case 必须以一个 `break` 语句结束，以防止继续执行到下一个 case。透过 cases 顺序执行不是一种稳健的做法，因为它在程序修改时容易出现问题。除了针对单一运算的多个标签这种情况外，顺序执行应尽量少用，并需加以注释。”
+
+“作为良好的编程习惯，即便在逻辑上不需要，也应该在最后一个 case（在此例中为 `default`）后面加上 `break`。这样做是一种防御性编程，当将来在最后再添加一个 case 时，这个小技巧将会帮助避免潜在的问题。”
+
+1. **顺序执行的利与弊**：
+   在 `switch` 语句中，“透过执行”指的是在一个 case 执行完毕后，如果没有 `break` 语句，程序会自动执行下一个 case。这种设计在某些情况下很有用，比如在多个标签 (cases) 共用同一逻辑时。但它的风险在于，如果没有 `break`，程序会“顺序执行”下一个 case，可能会导致意外的行为，特别是在程序后续被修改时。例如，假设我们有以下代码：
+
+   ```c
+   #include <stdio.h>
+   
+   int main() /* count digits, white space, others */
+   {
+       int value;
+   
+       scanf("%d", &value);
+       switch (value)
+       {
+       case 1:
+       case 2:
+           printf("Value is 1 or 2\n");
+           break;
+       case 3:
+           printf("Value is 3\n");
+           // No break here
+       case 4:
+           printf("Value is 3 or 4\n");
+           break;
+       default:
+           printf("Other values\n");
+       }
+   }
+   ```
+   在这种情况下，如果 `value` 为 `3`，由于没有 `break`，程序不仅会执行`case3`的分支,还会顺序执行 `case 4` 的分支
+   
+   ```bash
+   PS> a.exe
+   3
+   Value is 3
+   Value is 3 or 4
+   ```
+   
+   
+   
+2. **防御性编程**：
+   作者建议即使在最后一个 case 后面也加入 `break`。虽然 `default` 是最后一个 case，从逻辑上讲无需 `break`，但如果后续维护时有人在 `default` 后面再加新的 case，遗漏的 `break` 就会导致不正确的顺序执行。例如：
+
+   ```c
+   switch (value) {
+       case 1:
+           // logic
+           break;
+       default:
+           printf("Default action\n");
+           // Adding break here as good practice
+           break; // 防御性 break
+       case 2:
+           printf("Another case added\n");
+           break;
+   }
+   ```
+
+   通过在 `default` 后加 `break`，我们减少了意外行为的可能性，这是一种“防御性编程”（defensive programming）的方法，帮助代码在未来的维护中更稳健、减少 bug。
 
 ## 问题举例
 
@@ -393,7 +606,7 @@ int main(){
 
 这里不局限于shagn
 
-### switch版
+### switch版👺
 
 - 利用了c语言中switch的特点
 
