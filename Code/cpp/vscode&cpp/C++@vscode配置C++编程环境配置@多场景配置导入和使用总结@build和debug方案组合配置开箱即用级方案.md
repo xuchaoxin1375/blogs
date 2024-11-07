@@ -231,6 +231,64 @@ hello,world 你好世界啊ccc
 
 对于命令行编译中文路径源代码,使用版本1有时候会编译失败,版本2更适合命令行编译
 
+补充(英文系统下中文路径源代码编译输出花式乱码),保存为中文名可能都编译不成功,而改为英文名保存可以成功,但是运行也会有乱码
+
+```bash
+PS[Mode:1][BAT:80%][MEM:16.7% (5.3/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:01:03][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS> C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o 你好.exe -fexec-charset=gbk -finput-charset=UTF-8 ; . ./你好.exe
+D:/ProgramData/scoop/apps/mingw-winlibs-ucrt/14.2.0-12.0.0-r1/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file ??.exe: Invalid argument
+collect2.exe: error: ld returned 1 exit status
+.: The term './你好.exe' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+PS[Mode:1][BAT:80%][MEM:17.12% (5.43/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:03:24][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS> C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o 你好.exe -fexec-charset=gbk -finput-charset=UTF-8 ; . ./hello.exe
+D:/ProgramData/scoop/apps/mingw-winlibs-ucrt/14.2.0-12.0.0-r1/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file ??.exe: Invalid argument
+collect2.exe: error: ld returned 1 exit status
+hello,world Σ╜áσÑ╜Σ╕ûτòîσòèccc
+```
+
+
+
+```bash
+PS[Mode:1][BAT:80%][MEM:16.99% (5.39/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][13:59:26][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS>  C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o 你好.exe -fexec-charset=gbk -finput-charset=UTF-8 ; . ./hello.exe
+D:/ProgramData/scoop/apps/mingw/14.2.0-rt_v12-rev0/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file ??.exe: Invalid argument
+collect2.exe: error: ld returned 1 exit status
+.: The term './hello.exe' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+PS[Mode:1][BAT:80%][MEM:16.66% (5.28/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:00:03][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS>  C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o hello.exe -fexec-charset=gbk -finput-charset=UTF-8 ; . ./hello.exe
+hello,world ─π║├╩└╜τ░íccc
+
+PS[Mode:1][BAT:80%][MEM:17% (5.39/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:00:13][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS>  C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o hello.exe -fexec-charset=gbk -finput-charset=bgk ; . ./hello.exe
+cc1plus.exe: error: conversion from bgk to UTF-8 not supported by iconv
+hello,world ─π║├╩└╜τ░íccc
+
+PS[Mode:1][BAT:80%][MEM:16.76% (5.31/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:00:42][UP:0Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
+PS>  C:\ProgramData\scoop\apps\mingw\current\bin\g++.exe C:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld世界啊.c -o hello.exe  ; . ./hello.exe
+hello,world Σ╜áσÑ╜Σ╕ûτòîσòèccc
+```
+
+而在vscode中,使用`start without debugging`或者`C/C++:Debug C/C++ file`或`Start Debugging (F5)` ,却可以没有乱码输出
+
+```
+PS[Mode:1][BAT:80%][MEM:22.59% (7.16/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:06:03][UP:0.01Days]
+#⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][C:\repos\c_cpp_consoleapps]{Git:main}
+PS>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.23.0-win32-x64\debugAdapters\bin\WindowsDebugLauncher.exe' '--stdin=Microsoft-MIEngine-In-ldjviezn.xnm' '--stdout=Microsoft-MIEngine-Out-kpj5xm3q.bzp' '--stderr=Microsoft-MIEngine-Error-ccwypba0.se3' '--pid=Microsoft-MIEngine-Pid-1zljpa3u.fft' '--dbgExe=C:\ProgramData\scoop\apps\mingw\current\bin\gdb.exe' '--interpreter=mi' 
+hello,world 你好世界啊ccc
+```
+
+
+
 #### scoop方式安装MinGw
 
 - 除了通过官网链接下载安装MinGw,还可以通过**scoop**安装`MingW`
