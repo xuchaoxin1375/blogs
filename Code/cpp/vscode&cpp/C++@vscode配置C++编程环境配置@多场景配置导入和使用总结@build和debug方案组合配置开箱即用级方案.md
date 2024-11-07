@@ -231,6 +231,8 @@ hello,world 你好世界啊ccc
 
 对于命令行编译中文路径源代码,使用版本1有时候会编译失败,版本2更适合命令行编译
 
+#### 英文系统下的中文乱码问题
+
 补充(英文系统下中文路径源代码编译输出花式乱码),保存为中文名可能都编译不成功,而改为英文名保存可以成功,但是运行也会有乱码
 
 ```bash
@@ -287,7 +289,9 @@ PS>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.23.0-win32-x64\deb
 hello,world 你好世界啊ccc
 ```
 
+这是因为vscode task在构建和编译时会自动使用`chcp 65001 `更改活动页代码,注意`chcp 65001`和被执行的`a.exe`放在同一行才有效果,而且经过实验`winlibs mingw`的编译器编译中文路径时不需要用` -fexec-charset=gbk -finput-charset=UTF-8`
 
+详情参考[windows控制台编码@常见字符集标准@chcp程序设置活动页面代码@C&C++编译的程序打印中文乱码问题-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/143607358)
 
 #### scoop方式安装MinGw
 

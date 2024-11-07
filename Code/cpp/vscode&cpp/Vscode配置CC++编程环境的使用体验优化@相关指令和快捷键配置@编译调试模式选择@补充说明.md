@@ -28,6 +28,15 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 你可以选择将编译结果总是放到统一的位置,并始终使用同一个名字`a.exe`便于定位可执行文件,比如总是将编译结果放到项目的根目录下(由于名字都是同一个,因此编译不同程序会替代或覆盖之前的`a.exe`,这对于联系c/c++问题不大)
 
+对于英文系统,使用`chcp 65001`可以常识解决中文乱码
+
+```json
+"c": "chcp 65001 > nul && gcc   $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\"",
+"cpp": "chcp 65001 > nul && g++   $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\" ",
+```
+
+或者直接用下面的配置
+
 ```json
 "c": " gcc  -finput-charset=UTF-8 -fexec-charset=gbk $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\"",
 "cpp": " g++  -finput-charset=UTF-8 -fexec-charset=gbk  $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\" ",
