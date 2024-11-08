@@ -1,8 +1,31 @@
 [toc]
 
+## abstract
+
+- [区域设置和语言 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/intl/locales-and-languages)
+- 国家 [语言支持 (NLS) API 参考中定义了 NLS](https://learn.microsoft.com/zh-cn/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c) 支持的预定义区域设置标识符。
+
 在 Windows 操作系统中，时区（Time Zone）和区域（Region）设置与 PowerShell 中的 `CurrentCulture` 变量有一定的关系，但它们是不同的概念，作用范围也不同。
 
-### 1. 时区（Time Zone）
+### 更改区域
+
+[在 Microsoft Store 中更改所在国家或地区 - Microsoft 支持](https://support.microsoft.com/zh-cn/account-billing/在-microsoft-store-中更改所在国家或地区-5895e006-34f4-10f7-16b1-999e40adb048)
+
+或者直接用命令行输入`intl.cpl`或`intl`,打开控制面板进行设置
+
+或者powershell设置:
+
+- [在 Windows 中配置国际设置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/configure-international-settings-in-windows?view=windows-11)
+
+- [Set-WinSystemLocale (International) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/international/set-winsystemlocale?view=windowsserver2022-ps)
+
+### 不同语言版本的windows语言和时区系统切换
+
+- 假设你的系统镜像是英文(en-us)的(此时的chcp代码可能为437),安装之后对于中文用户和带有中文的程序的运行和显示有一定的影响,比如编译带有中文的程序的时候,`gcc/g++`编译输出可能无法直接通过`-o`保存为中文文件名
+- 这种情况下,用户可以下载中文语言包,然后设置区域为中文区域,当然,还可以选择将显示语言更改为中文(chcp 代码会发生变换,比如从437变为936)
+- 重启系统后生效
+
+### 时区（Time Zone）
 
 时区设置主要影响系统时间的显示和计算。它不直接影响 `CurrentCulture` 或 `CurrentUICulture`。可以通过以下方式查看和设置时区：
 
@@ -20,7 +43,7 @@ Get-TimeZone
 Set-TimeZone -Id "Eastern Standard Time"
 ```
 
-### 2. 区域（Region）
+###  区域（Region）
 
 区域设置影响日期、时间、数字、货币等的显示格式，以及系统的默认语言。这些设置会影响 `CurrentCulture` 和 `CurrentUICulture` 的默认值。
 
@@ -42,7 +65,7 @@ Get-WinSystemLocale
 Set-WinSystemLocale -SystemLocale en-US
 ```
 
-### 3. `CurrentCulture` 和 `CurrentUICulture`
+###  `CurrentCulture` 和 `CurrentUICulture`
 
 - `CurrentCulture`: 影响日期、时间、数字、货币等的格式。
 - `CurrentUICulture`: 影响用户界面元素的语言，如菜单和消息。
@@ -133,4 +156,3 @@ Write-Host "CurrentUICulture: $($host.CurrentUICulture.Name)"
 - **区域（Region）**：影响日期、时间、数字、货币等的显示格式，并且会影响 `CurrentCulture` 和 `CurrentUICulture` 的默认值。
 - **`CurrentCulture` 和 `CurrentUICulture`**：可以在 PowerShell 会话中临时更改这些值，来影响脚本和应用程序的行为。
 
-希望这些信息能帮助你理解 Windows 中时区和区域设置与 PowerShell 文化信息的关系。如果有其他问题，请随时告诉我。
