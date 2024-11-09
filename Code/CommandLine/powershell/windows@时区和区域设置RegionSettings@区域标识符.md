@@ -43,7 +43,7 @@ Get-TimeZone
 Set-TimeZone -Id "Eastern Standard Time"
 ```
 
-###  区域（Region）
+###  区域（Region）👺
 
 区域设置影响日期、时间、数字、货币等的显示格式，以及系统的默认语言。这些设置会影响 `CurrentCulture` 和 `CurrentUICulture` 的默认值。
 
@@ -60,10 +60,16 @@ Get-WinSystemLocale
 
 #### 设置区域
 
+常用的选项有`zh-cn`,`en-us`,例如
+
 ```powershell
-# 设置区域为 en-US
+# 设置区域为 简体中文地区(zh-cn)
+Set-WinSystemLocale -SystemLocale zh-cn
+# 设置区域为 英语美语地区(en-US)
 Set-WinSystemLocale -SystemLocale en-US
 ```
+
+中文windows用户如果要正常使用上mingw的gcc/g++编译保存为中文名的情况下需要设置地区为`zh-cn`,否则会因为文件名被gcc/g++识别为乱码导致编译失败
 
 ###  `CurrentCulture` 和 `CurrentUICulture`
 

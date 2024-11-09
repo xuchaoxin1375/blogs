@@ -235,6 +235,8 @@ hello,world 你好世界啊ccc
 
 补充(英文系统下中文路径源代码编译输出花式乱码),保存为中文名可能都编译不成功,而改为英文名保存可以成功,但是运行也会有乱码
 
+##### 乱码情况
+
 ```bash
 PS[Mode:1][BAT:80%][MEM:16.7% (5.3/31.71)GB][Win 11 IoT Enterprise LTSC@24H2:10.0.26100.2033][14:01:03][UP:0Days]
 #⚡️[cxxu@CXXUCOLORFUL][<W:192.168.1.154>][~\Desktop]
@@ -289,11 +291,23 @@ PS>  & 'c:\Users\cxxu\.vscode\extensions\ms-vscode.cpptools-1.23.0-win32-x64\deb
 hello,world 你好世界啊ccc
 ```
 
+##### 解释和应对方法
+
 这是因为vscode task在构建和编译时会自动使用`chcp 65001 `更改活动页代码,注意`chcp 65001`和被执行的`a.exe`放在同一行才有效果
 
 但是想要通过`-o`保存为中文程序名仅仅更改chcp还不够,需要修改系统的区域(把英语地区改为中文地区才行)
 
-详情参考
+实际上在powershell中执行以下语句即可(可能需要管理员权限)
+
+```powershell
+# 设置区域为 简体中文地区(zh-cn)
+Set-WinSystemLocale -SystemLocale zh-cn
+
+```
+
+**重启后生效**,请使用chcp查看命令行终端中的chcp 值是否默认为936,否则表示修改失败
+
+详情参考[windows中的时区和区域设置@区域标识符-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/143616215)
 
 #### scoop方式安装MinGw
 
