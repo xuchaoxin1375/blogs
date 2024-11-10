@@ -1,0 +1,1 @@
+$\sum_{j=pi}^{pi+(p-1)}K_{j}r^{j}$=$r^{pi}\sum_{j=pi}^{pi+(p-1)}K_{j}r^{j-pi}$=$r^{pi}(K_{pi}r^{0}+K_{pi+1}r^{1}+\cdots+K_{pi+(p-1)}r^{p-1})$

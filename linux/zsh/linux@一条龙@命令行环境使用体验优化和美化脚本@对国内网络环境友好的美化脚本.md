@@ -198,7 +198,7 @@ cd -
   # 利用sed并启用扩展正则原地修改,将Zsh主题设置为随机
   sed -Ei 's/(^ZSH_THEME=)(.*)/\1"random"/' $zshrc
   #设置随机选择的主题的列表为ys,junkfood,rkj-repos;具体可以改成自己喜欢的主题
-  sed -Ei.bak 's/(^#*\s*)(ZSH_THEME_RANDOM.*=)(.*)/\2("ys" "junkfood" "rkj-repos")/' $zshrc
+  sed -Ei.bak 's/(^#*\s*)(ZSH_THEME_RANDOM.*=)(.*)/\2("ys" "junkfood" )/' $zshrc
   #检查修改结果
   cat   ~/.zshrc|grep -E  '^[^#]'|grep -e random -e THEME -e RANDOM|cat -n
   #刷新配置结果

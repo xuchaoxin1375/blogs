@@ -12,15 +12,20 @@
 ## abstract
 
 - 如果你运行`wsl --install`很顺利,那么就按照官方文档安装
-- 如果下不动,那分步骤手动安装也可以
+  - 然而由于网络环境问题,该命令可能会很慢,所以我们可能需要用手动安装(旧版方法)反而会更快安装
+    - 国内`wsl --install`命令或者`wsl --update`,`wsl --list --online`的命令执行可能会失败或者很慢
+    - 你可以跳转到本文FAQ中查找解决方案,如果里面的方案不行的话才考虑手动安装
+  - 如果下不动,那分步骤手动安装也可以
 
-## 环境准备
+
+## 环境准备👺
 
 - 新版本的`wsl --install `似乎已经能够自动执行环境准备工作,也就是下面提到的功能启用
-- 然而由于网络环境问题,该命令可能会很慢,所以我们可能需要用手动安装(旧版方法)反而会更快安装
 - 下面是手动安装的步骤,详情查看上面列出的参考文档
 
-## 传统安装
+## 传统安装(手动安装)
+
+### 功能启用
 
 - 安装wsl前,打开windows功能控制面板,勾选以下两部分功能(如果没有勾选的话,设置完成后重启计算机):
 
@@ -265,157 +270,135 @@ echo -e "[boot]\nsystemd=true" | sudo tee /etc/wsl.conf > /dev/null && sudo nano
 
     - `wsl --set-default-version 1`
 
-### 无法解析服务器
+### 无法解析服务器👺
 
-- 系统语言选择英文时,报错内容比较详细
-
-  ```bash
-  Failed to fetch the list distribution from 'https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json'. The server name or address could not be resolved
-  Error code: Wsl/WININET_E_NAME_NOT_RESOLVED
-  ```
-
-- 如果是中文,报错内容为无法解析
-
-##  wsl命令帮助(中文)
+国内使用`wsl --list --online`时可能会遇到
 
 ```bash
-PS C:\Users\cxxu> wsl --help
-版权所有(c) Microsoft Corporation。保留所有权利。
-有关此产品的隐私信息，请访问 https://aka.ms/privacy。
+Failed to fetch the list distribution from 'https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json'. The server name or address could not be resolved
+Error code: Wsl/WININET_E_NAME_NOT_RESOLVED
+```
 
-用法: wsl.exe [参数] [选项...] [命令行]
+如果是中文,报错内容为无法解析或者
 
-用于运行 Linux 二进制文件的参数:
+```bash
+无法从“https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json”中提取列表分发。无法解析服务器的名称或地址
+错误代码: Wsl/WININET_E_NAME_NOT_RESOLVED
+```
 
-    如果未提供命令行，wsl.exe 将启动默认 shell。
+相关问题链接:[windows子系统的故障，会有这个报错无法从“https://raw.githubusercontent.com/microsoft/WS - Microsoft Community](https://answers.microsoft.com/zh-hans/windows/forum/all/windows子系统的/bb27a829-ddb9-468b-a796-d3d25e72724a)
 
-    --exec, -e <命令行>
-        在不使用默认 Linux shell 的情况下执行指定的命令。
-    --
-        按原样传递剩余的命令行。
+结合报错分析,应该是执行此命令时你的网络无法访问`githubusercontent.com`导致的,在浏览器上你可以通过喝多加速镜像来访问这个文件,但是命令行中访问会麻烦一些;
 
-选项:
-    --cd <目录>
-        将指定的目录设置为当前工作目录。
-        如果使用了 ~，将使用 Linux 用户的主路径。如果路径以 / 字符开头，它将被解释为一个绝 对 Linux 路径。
-        否则，该值必须是一个绝对 Windows 路径。
+最粗暴的方法就是使用代理,而且要配合服务模式启用,并且开启TUN深度代理(应用层代理不行),虽然操作上简单,但是不适合推广
 
-    --distribution, -d <发行版>
-        运行指定的发行版。
+一个相对可行的办法是修改host来访问github内容,或者该DNS(成功率更低了)
 
-    --user, -u <用户名>
-        以指定用户身份运行。
+下面介绍两种修改host的方法来访问github系列网址
 
-    --system
-        启动系统发行版的 shell。
+### 自动一键化部署和更新加速host👺
 
-用于管理适用于 Linux 的 Windows 子系统的参数:
+用管理员方式打开powershell,执行以下部署脚本,该项目是基于计划任务和github520的,每隔1个小时自动更新一次,唯一的确定改任务启动还会在屏幕上一闪而过一个终端窗口,优点是不需要额外的软件,代码开源于gitee.[PS/Deploy/GithubHostsUpdater · xuchaoxin1375/scripts - 码云 - 开源中国](https://gitee.com/xuchaoxin1375/scripts/tree/main/PS/Deploy/GithubHostsUpdater)
 
-    --help
-        显示用法信息。
+```powershell
+irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
 
-    --install <发行版>
-        安装适用于 Linux 的 Windows 子系统发行版。
-        要获得有效发行版的列表，请使用 "wsl.exe --list --online"。
-
-    --mount <磁盘>
-        在所有 WSL 2 发行版中附加并安装物理或虚拟磁盘。
-
-        选项:
-            --vhd
-                指定<磁盘>引用虚拟硬盘。
-
-            --bare
-                将磁盘附加到 WSL2，但不进行安装。
-
-            --name <名称>
-                使用针对安装点的自定义名称安装磁盘。
-
-            --type <类型>
-                安装磁盘时要使用的文件系统，如果未指定， 默认为 ext4。
-
-            --options <选项>
-                其他安装选项。
-
-            --partition <索引>
-                要安装的分区的索引，如果未指定，则默认为 整个磁盘。
-
-    --set-default-version <版本>
-        更改新发行版的默认安装版本。
-
-    --shutdown
-        立即终止所有正在运行的发行版和 WSL 2 轻型实用程序虚拟机。
-
-
-    --status
-        显示适用于 Linux 的 Windows 子系统的状态。
-
-    --unmount [磁盘]
-        从所有 WSL2 发行版中卸载并分离磁盘。
-        如果在没有参数的情况下调用，则卸载和分离所有磁盘
-。
-
-    --update
-        更新适用于 Linux 的 Windows 子系统包。
-
-    --version, -v
-        显示版本信息。
-
-用于管理适用于 Linux 的 Windows 子系统中的发行版的参数:
-
-    --export <发行版> <文件名>
-        将发行版导出为 tar 文件。
-        对于标准输出，文件名可以是 -。
-
-    --import <发行版> <安装位置> <文件名> [选项]
-        将指定的 tar 文件作为新发行版导入。
-        对于标准输入，文件名可以是 -。
-
-        选项:
-            --version <版本>
-                指定用于新发行版的版本。
-
-    --list, -l [选项]
-        列出各个发行版。
-
-        选项:
-            --all
-                列出所有发行版，包括当前正在安装或卸载的
-                发行版。
-
-            --running
-                仅列出当前正在运行的发行版。
-
-            --quiet, -q
-                仅显示发行版的名称。
-
-            --verbose, -v
-                显示有关所有发行版的详细信息。
-
-            --online, -o
-                显示可使用 "wsl.exe --install" 安装的发行版的列表。
-
-    --set-default, -s <发行版>
-        将相应发行版设置为默认发行版。
-
-    --set-version <发行版> <版本>
-        更改指定发行版的版本。
-
-    --terminate, -t <发行版>
-        终止使用指定的发行版。
-
-    --unregister <发行版>
-        注销相应发行版并删除根文件系统。
 
 ```
 
-### 相关常识
+此方案依赖于windows系统的计划任务，如果不想用了可以将对应的计划任务删除掉,执行以下命令(管理员权限powershell)
 
-[windows_控制面板cpl和msc的快速打开_powershell_xuchaoxin](https://blog.csdn.net/xuchaoxin1375/article/details/122659370)
+```powershell
+unregister-ScheduledTask -TaskName  Update-GithubHosts
+```
 
 
 
-##  wsl1/wsl2性能比较
+github520项目里介绍了更多自动更新host的方法,有兴趣可以搜索看看
+
+### 手动方法获取加速host
+
+加速host的获取:[raw.githubusercontent.com - GitHub · Build and ship software on a single, collaborative...](https://www.ipaddress.com/website/raw.githubusercontent.com/)
+
+上述链接自动查询的是`raw.githubusercontent.com`
+
+查询到的结果形如:(举例,它们会过期)
+
+- A Records A Records 地址 将域名连接到网站的 IPv4 地址的记录。它们使 Web 浏览器可以在输入域名时加载感兴趣的网站。
+
+  [185.199.108.133](https://www.ipaddress.com/ipv4/185.199.108.133)
+
+  [185.199.109.133](https://www.ipaddress.com/ipv4/185.199.109.133)
+
+  [185.199.110.133](https://www.ipaddress.com/ipv4/185.199.110.133)
+
+  [185.199.111.133](https://www.ipaddress.com/ipv4/185.199.111.133)
+
+- AAAA Records AAAA 记录 地址记录将域名连接到其 IPv6 地址，允许通过 IPv6 网络访问网站。
+
+  [2606:50c0:8000::154 2606：50C0：8000：：154](https://www.ipaddress.com/ipv6/2606%3A50c0%3A8000%3A%3A154)
+
+  [2606:50c0:8001::154 2606：50C0：8001：：154](https://www.ipaddress.com/ipv6/2606%3A50c0%3A8001%3A%3A154)
+
+  [2606:50c0:8002::154 2606：50C0：8002：：154](https://www.ipaddress.com/ipv6/2606%3A50c0%3A8002%3A%3A154)
+
+  [2606:50c0:8003::154 2606：50C0：8003：：154](https://www.ipaddress.com/ipv6/2606%3A50c0%3A8003%3A%3A154)
+
+向你的hosts文件添加相应的行(我将其添加到第一行),
+
+格式为`<ip> raw.githubusercontent.com`
+
+为了方便操作,整理一下一键替换脚本(将查询到的ip地址填写进去(如果查到多个ip,选择一个即可,注意不一定可以用,那就换一个ip,可以先ping一下试试能不能通))
+
+请以管理员方式打开powershell窗口执行,否则hosts文件无法修改成功,不要直接粘贴，修改第一行在粘贴
+
+```powershell
+$ip=' xxxx	 ' #填写ip地址,例如' 185.199.108.133 '
+$item="$ip raw.githubusercontent.com"
+$hosts='C:\WINDOWS\System32\drivers\etc\hosts'
+$raw=Get-content $hosts -raw
+$content=$item+"`n"+$raw
+$content > $hosts
+notepad $hosts #查看hosts文件修改结果
+ipconfig /flushdns #刷新操作
+
+```
+
+### 使用`--web-download`选项下载
+
+- `wsl --install`下载过慢的话,还可以尝试追加`--web-download`参数,看看能否提速
+
+- `--install`的子选项如下:(仅供参考,随着wsl版本的更新,选项可能会发生变化)
+
+  - ```bash
+      --install [发行版] [选项...]
+            安装适用于 Linux 的 Windows 子系统分发版。
+            有关有效分发版的列表，请使用 'wsl.exe --list --online'。
+    
+            选项:
+                --no-launch, -n
+                    安装后不要启动分发版。
+    
+                --web-download
+                    从 Internet 而不是 Microsoft Store 下载分发版。
+    
+                --no-distribution
+                    仅安装所需的可选组件，不安装分发版。
+    
+                --enable-wsl1
+                    启用 WSL1 支持。
+    ```
+
+    
+
+##  wsl命令帮助(中文)
+
+- 命令行中执行`wsl --help`来获取最新本地帮助,或者在线wsl命令行用法
+- [WSL 的基本命令 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands)
+
+
+
+##  wsl1/wsl2性能比较👺
 
 [比较 WSL 版本 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/compare-versions#comparing-wsl-1-and-wsl-2)
 
