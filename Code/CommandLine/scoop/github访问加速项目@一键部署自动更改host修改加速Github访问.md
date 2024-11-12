@@ -4,15 +4,19 @@
 
 - 尽管这里实现了一键部署自动更新hosts的脚本,但是可用性仍然取决于原项目提供的hosts是否可用
 - 主要用来加速访问github网站，用来直接查看原github项目链接的,对于资源下载效果不大,这方面的需要可以用加速镜像来加速下载或克隆,或者cgit等工具
-- 如果你对操作细节不感兴趣,那么可以直接跳转到后面的**一键运行整合脚本**一节中,直接一键部署
+- 本文介绍powershell 版本的一键更新hosts文件,如果你对操作细节不感兴趣,那么可以直接跳转到后面的**一键运行整合脚本**一节中,直接一键部署
 
-## powershell 版本的一键更新hosts文件
+### 相关项目
 
 - [GitHub520: :kissing_heart: 让你“爱”上 GitHub，解决访问时图裂、加载慢的问题。（无需安装）](https://github.com/xuchaoxin1375/GitHub520/tree/main)
 
-### 更新Hosts
+- 本文的工作是让windows用户不需要安装任何额外的软件就能相对方便的自动更新github hosts,利用的是windows的计划任务自动定时更新
 
-这部分对应于git-bash脚本
+### bash一键更新Hosts
+
+这部分对应于git-bash脚本,虽然是一键更新,但是不能自动定时执行,必须手动操作
+
+如果你不是很经常用github,那么可以将该命令行保存为bash脚本,之后用git-bash执行
 
 ```bash
 _hosts=$(mktemp /tmp/hostsXXX)
@@ -27,9 +31,59 @@ cat "$_hosts" > "$hosts"
 rm "$_hosts"
 ```
 
-## 操作步骤
+## 配置自动更新操作步骤
 
-- 如果你不想了解细节，直接跳转到后面的一键运行整合脚本一节
+- 这里介绍powershell脚本配合windows计划任务进行自动化更新host
+
+- 如果你不想了解细节，用**管理员权限**直接打开powershell,执行以下语句即可
+
+  ```powershell
+  irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
+  
+  ```
+
+  这会从开源项目下载powershell更新hosts的脚本,存放到`C:\GUH`目录中,除非你自己修改脚本，否则这个目录自动创建后不要将它删除掉!否则自动更新host的脚本都会丢失
+
+- 运行结果输出示例
+
+  - ```powershell
+    PS> irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
+    VERBOSE: Performing the operation "Create Directory" on target "Destination: C:\GUH".
+    
+        Directory: C:\
+    
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    d----          2024/11/12    10:40                GUH
+    
+    
+    Key     Value
+    ---     -----
+    File    C:\GUH\fetch-github-hosts.ps1
+    shell   powershell
+    Verbose False
+    
+    Registering...
+    
+    TaskPath TaskName           State
+    -------- --------           -----
+    \        Update-GithubHosts Ready
+    
+    
+    LastWriteTime : 2024/11/12 10:40:46
+    
+    
+    # Update time: 2024-11-07T15:53:00+08:00
+    # Update url: https://raw.hellogithub.com/hosts
+    # Star me: https://github.com/521xueweihan/GitHub520
+    # GitHub520 Host End
+    ```
+
+    
+
+- 其他方案直接跳转到后面的 一键运行整合脚本一节
+
+- 后面的内容可以跳过不看
 
 
 ### 准备:设置powershell执行策略
@@ -42,7 +96,7 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy bypass
 
 详情:[Set-ExecutionPolicy (Microsoft.PowerShell.Security) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4#-executionpolicy)
 
-### powrshell脚本
+### powrshell脚本执行一键更新hosts👺
 
 ```powershell
 

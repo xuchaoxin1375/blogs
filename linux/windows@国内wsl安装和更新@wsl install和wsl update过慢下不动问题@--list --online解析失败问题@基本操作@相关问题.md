@@ -9,6 +9,8 @@
 - [WSL 的基本命令 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands)
 - [什么是适用于 Linux 的 Windows 子系统 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/about)
 
+- [WSL有意思的一些地方：Windows上的Linux子系统 - 哔哩哔哩](https://www.bilibili.com/opus/963594961058529280)
+
 ## abstract
 
 - 如果你运行`wsl --install`很顺利,那么就按照官方文档安装
@@ -133,6 +135,7 @@
   ```
 
 
+
 ### 使用scoop 安装wsl
 
 - scoop的部分bucket提供了wsl安装
@@ -166,6 +169,12 @@
 ### 更新wsl基础环境
 
 - 如果`wsl --update`很慢,仍然可以考虑到上述提供的github链接,配合镜像加速下载新版本,也就是相当于重新安装wsl新版[Wsl|Releases · microsoft/WSL](https://github.com/microsoft/WSL/releases)
+
+## 卸载或移除wsl发行版
+
+- 移除wsl框架`wsl --uninstall`(一定要小心慎用此命令,它移除的不是发行版,而是wsl这个管家)
+- 移除指定发行版`wsl --unregister`
+- 详情查看`wsl --help`列出的帮助
 
 ## 配置wsl资源👺
 
@@ -220,7 +229,11 @@ cpu和内存等资源现在可以在wsl图形界面配置程序中进行,还包�
   * Ubuntu    Stopped         2
   ```
 
-## 使用systemd👺
+## 高级配置
+
+[WSL 中的高级设置配置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/wsl-config)
+
+### 使用systemd👺
 
 [使用 systemd 通过 WSL 管理 Linux 服务 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/systemd)
 
@@ -374,17 +387,17 @@ ipconfig /flushdns #刷新操作
       --install [发行版] [选项...]
             安装适用于 Linux 的 Windows 子系统分发版。
             有关有效分发版的列表，请使用 'wsl.exe --list --online'。
-    
+      
             选项:
                 --no-launch, -n
                     安装后不要启动分发版。
-    
+      
                 --web-download
                     从 Internet 而不是 Microsoft Store 下载分发版。
-    
+      
                 --no-distribution
                     仅安装所需的可选组件，不安装分发版。
-    
+      
                 --enable-wsl1
                     启用 WSL1 支持。
     ```

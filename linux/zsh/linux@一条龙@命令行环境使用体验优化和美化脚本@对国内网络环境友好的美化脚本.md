@@ -18,6 +18,8 @@
 
 先更换软件镜像源(不同发行版有不同的源,另见它文),然后执行下列任务
 
+### ubuntu 22ltsc
+
 以ubuntu 22 ltsc为例的一键换源脚本(模板)
 
 ```bash
@@ -67,7 +69,50 @@ sudo apt update
 
 ```
 
+### kali-linux
 
+```bash
+# 备份:backup the origin source.list(or just rename(use move command))
+# 注意sources.list 不要拼错(带s)
+cd /etc/apt
+sudo mv sources.list sources.list.bak_bySh
+# 切换到家目录,写入国内镜像源到一个文件中(文件名为sources.list),采用多行输入的方式写入
+#这里以阿里源为例
+cd ~
+# 多行输入[国内源]
+cat >sources.list <<EOF
+
+deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
+deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+
+EOF
+
+#上面的EOF间的内容不要写入其他与源无关的内容(除了注释和源,其他命令不要写在里头)
+# 检查写入的内容:
+echo "check the conetent of the file 'source.list'"
+## 将家目录下的sources.list 转移到/etc/apt目录下(sodu可以作用与mv/cp等命令,
+## 但好像不可以直接作用与cat,所以没有直接在/etc/apt目录下创建新文件)
+sudo mv sources.list /etc/apt
+cat /etc/apt/sources.list
+# 更新并使得apt配置文件生效
+echo "updating the apt..."
+sudo apt update
+
+
+# 其他写法:探索中
+
+# sourceCN="
+# deb https://mirrors.aliyun.com/kali kali-rolling main non-free contrib 
+# deb-src https://mirrors.aliyun.com/kali kali-rolling main non-free contrib
+# "
+# echo $sourceCN
+# sudo cat>>source.list<<EOF
+# echo $sourceCN
+# EOF
+
+```
+
+## 基础软件
 
 ### apt系列
 
