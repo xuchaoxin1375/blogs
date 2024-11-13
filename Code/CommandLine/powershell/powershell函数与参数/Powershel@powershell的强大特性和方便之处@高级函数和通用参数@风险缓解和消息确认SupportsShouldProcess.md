@@ -286,7 +286,7 @@ Remove-CxxuFile -FilePath "C:\example.txt" -Confirm
 
 ## 综合示例👺
 
-好的,我会根据文档内容为您编写一个综合的例子,包括实现了两类Force的情形,并生成必要的素材。这个例子将展示ShouldProcess和ShouldContinue的使用,以及如何实现-Force参数。
+这个例子将展示ShouldProcess和ShouldContinue的使用,以及如何实现-Force参数。
 
 首先,让我们创建一个示例文件夹和文件,再来创建一个名为`Remove-TestFiles`的函数,它将展示ShouldProcess和ShouldContinue的使用,以及-Force参数的实现,**脚本文件**如下
 
