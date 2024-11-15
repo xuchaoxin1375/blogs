@@ -1,3 +1,5 @@
+[toc]
+
 ## winget 和scoop的对比
 
 - windows上流行和Microsoft官方的命令行软件安装工具
