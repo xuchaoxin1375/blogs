@@ -52,12 +52,18 @@ IDLE 是 Python 的官方集成开发环境，它简单易用，适合初学者�
 
   IPython原本是一个基于Python的交互式Shell，后来发展成为一个功能更加强大的交互式计算环境，广泛应用于数据科学、机器学习、统计学和其他相关领域
 
-### 安装
+### 安装👺
 
 - [Install and Use — Jupyter Documentation alpha documentation](https://docs.jupyter.org/en/latest/install.html)
   - 简单讲,就是jupyter notebook安装方法分为2类
   - 一类是Anaconda自带jypyter notebook,当你安装了anaconda,jupyter notebook也就被安装了
   - 另一类是用pip 安装,使用`pip3 install jupyter`来安装(推荐使用国内源来加速这个pip install过程,另见它文)
+  
+    - ```bash
+      pip install jupyter
+      ```
+  
+    - 他会自动下载ipython环境,以及notebook都会一并安装
 
 
 IPython 是一个强大的 Python 交互式解释器，它提供了更丰富的功能，适合高级用户。以下是 IPython 的优缺点：

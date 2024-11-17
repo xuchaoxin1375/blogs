@@ -8,6 +8,15 @@
 
 运算符的优先级十分重要,从简单的运算赋值等操作,到类型的复杂声明以及高可读性代码的编写技巧,都离不开对运算符优先级和结合顺序的深刻理解
 
+### 参考文档
+
+- [表达式 - cppreference.com](https://zh.cppreference.com/w/c/language/expressions)
+
+- [C 运算符优先级 - cppreference.com](https://zh.cppreference.com/w/c/language/operator_precedence)
+
+- [C++ 运算符优先级 - cppreference.com](https://zh.cppreference.com/w/cpp/language/operator_precedence)
+- K&R The C
+
 ### 运算符的高级应用
 
 部分运算符和数学中的运算符相挂钩,容易理解,但是另一部分是C语言标准定义的,需要额外的记忆和时间来掌握它们的用法
