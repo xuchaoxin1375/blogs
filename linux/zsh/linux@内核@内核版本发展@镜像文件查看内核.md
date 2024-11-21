@@ -355,7 +355,56 @@ Linux发行版和Linux内核之间有着密切的关系
       6.5.0-27-generic
       ```
 
-      
+
+### 使用`*fetch`来查看系统信息
+
+### fastfetch
+
+[GitHub - fastfetch-cli/fastfetch: A maintained, feature-rich and performance oriented, neofetch like system information tool.](https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file)
+
+相比于neofetch需要下载的东西更少
+
+例如ubuntu下
+
+- [fastfetch : Carter Li](https://launchpad.net/~zhangsongcui3371/+archive/ubuntu/fastfetch)
+
+  - ```bash
+    sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+    sudo apt update
+    sudo apt install fastfetch
+    ```
+
+- ```bash
+  cxxu@CxxuColorful:/etc/apt$ fastfetch
+                               ....              cxxu@CxxuColorful
+                .',:clooo:  .:looooo:.           -----------------
+             .;looooooooc  .oooooooooo'          OS: Ubuntu noble 24.04 x86_64
+          .;looooool:,''.  :ooooooooooc          Host: Windows Subsystem for Linux - Ubuntu (2.4.4)
+         ;looool;.         'oooooooooo,          Kernel: Linux 5.15.167.4-microsoft-standard-WSL2
+        ;clool'             .cooooooc.  ,,       Uptime: 22 mins
+           ...                ......  .:oo,      Packages: 528 (dpkg)
+    .;clol:,.                        .loooo'     Shell: bash 5.2.21
+   :ooooooooo,                        'ooool     Display (XWAYLAND0): 1080x1920 @ 60 Hz
+  'ooooooooooo.                        loooo.    DE: WSLg
+  'ooooooooool                         coooo.    WM: Weston WM (X11)
+   ,loooooooc.                        .loooo.    Theme: Yaru [GTK3]
+     .,;;;'.                          ;ooooc     Icons: Yaru [GTK3]
+         ...                         ,ooool.     Cursor: Adwaita
+      .cooooc.              ..',,'.  .cooo.      Terminal: Windows Terminal
+        ;ooooo:.           ;oooooooc.  :l.       CPU: 12th Gen Intel(R) Core(TM) i7-12700H (20) @ 2.69 GHz
+         .coooooc,..      coooooooooo.           GPU: Intel(R) Iris(R) Xe Graphics (128.00 MiB) [Integrated]
+           .:ooooooolc:. .ooooooooooo'           Memory: 989.32 MiB / 15.47 GiB (6%)
+             .':loooooo;  ,oooooooooc            Swap: 0 B / 4.00 GiB (0%)
+                 ..';::c'  .;loooo:'             Disk (/): 1.56 GiB / 1006.85 GiB (0%) - ext4
+                                                 Disk (/mnt/c): 57.53 GiB / 195.31 GiB (29%) - 9p
+                                                 Disk (/mnt/d): 338.34 GiB / 718.32 GiB (47%) - 9p
+                                                 Disk (/mnt/e): 12.72 GiB / 29.30 GiB (43%) - 9p
+                                                 Local IP (eth0): 172.17.90.162/20
+                                                 Battery (Microsoft Hyper-V Virtual Batte): 74%
+                                                 Locale: C.UTF-8
+  ```
+
+  
 
 #### 虚拟机启动镜像体验版查看内核版本
 

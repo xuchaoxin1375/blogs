@@ -35,6 +35,8 @@
   - [Download the ISO – Windows 11 Enterprise LTSC](https://go.microsoft.com/fwlink/p/?linkid=2195682&clcid=0x409&culture=en-us&country=us)
 - IOT Enterprise LTSC[Please select your Windows 11 IoT Enterprise LTSC download](https://www.microsoft.com/en-us/evalcenter/download-windows-11-iot-enterprise-ltsc-eval)
 
+- [Windows Evaluation Editions | MAS (massgrave.dev)](https://massgrave.dev/evaluation_editions)
+
 - 第三方整理[Download Windows / Office | MAS (massgrave.dev)](https://massgrave.dev/genuine-installation-media)
 
 ### 预览版/开发版进行下载

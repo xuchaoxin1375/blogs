@@ -133,7 +133,7 @@ scoop install MinGw
 
 为所用用户安装请使用管理员权限命令行窗口或sudo,再追加`-g`参数
 
-### 方案1:直接安装编程环境套装
+### 方案1:直接安装编程环境套装 mingw-winlibs-ucrt
 
 `mingw-winlibs-ucrt`里面也包含了gcc,g++,gdb等常用组件,包的大小大概为100MB,镜像加速配合多线程下载,也就十几秒就能下载下来,整个安装过程不超过30秒
 
@@ -277,6 +277,29 @@ C:\ProgramData\scoop\apps\mingw-winlibs-ucrt\current\bin\g++.exe
 ### 小结
 
 完成上述安装方案中的一种(推荐第一种)对于初学者学习c/c++的编程学习已经足够了,特别是做算法题,搭配一个现代化的代码编辑器,比如vscode,编写控制台程序绰绰有余
+
+除了通过官网链接下载安装MinGw,还可以通过**scoop**安装`MingW`
+
+- 打开管理员权限窗口,执行下面其中一个语句
+
+```cmd
+ scoop install  spc/winlibs-mingw-ucrt -g
+ scoop install spc/mingw -g
+```
+
+- 这里需要你添加spc bucket [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。](https://github.com/lzwme/scoop-proxy-cn/tree/main)
+
+- 如果用scoop安装,并且想要两个都安装,要小心冲突/竞争,这俩安装后都会向系统path环境变量注册对应的路径,比如;
+
+  ```powershell
+   C:\ProgramData\scoop\apps\winlibs-mingw-ucrt\current\bin
+   C:\ProgramData\scoop\apps\mingw\current\bin
+  ```
+
+- 你可以在这里面注释掉一个,保留一个来实现版本的切换.
+
+  - 在小熊猫里,你可以手动指定编译器路径,也可以自动扫描path中可用的编译器,然后选择合适的版本也可以
+  - vscode中的配置task也可以指定不同编译器版本
 
 如果对其他部分感兴趣可以继续阅读
 

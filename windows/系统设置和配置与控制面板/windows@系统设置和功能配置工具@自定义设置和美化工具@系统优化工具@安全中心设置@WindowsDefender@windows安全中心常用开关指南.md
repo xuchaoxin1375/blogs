@@ -50,39 +50,6 @@
 
 - [Windows11轻松设置（最新版） - 哔哩哔哩 (bilibili.com)](https://www.bilibili.com/opus/904672369138729017)
 
-#### windows defender remover
-
-- [GitHub - ionuttbara/windows-defender-remover: A tool which is uses to remove Windows Defender in Windows 8.x, Windows 10 (every version) and Windows 11.](https://github.com/ionuttbara/windows-defender-remover)
-
-#### defender control(慎用)
-
-- !!!我用了这个软件后,发现其他软件启动的速度大幅度下降,安装软件更是一卡一卡的,如果你的设备出现了这种情况,请回复windows defender,改用其他方式禁用👺
-  - 平台是windows11(intel 12700H+RTX4060)
-  - 重新启用安全中心后,速度恢复正常
-
-- 使用开源工具:[qtkite/defender-control: An open-source windows defender manager. Now you can disable windows defender permanently. (github.com)](https://github.com/qtkite/defender-control)
-  - 这个工具是命令行方式运行
-  - 包含了关闭和启用两个独立的程序
-- 使用关闭程序(`disable-defender`)前先手动打开安全中心,关闭病毒和威胁防护的实时防护的开关
-- 这可能是设置了策略组
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/92ce20637af34695b97ead7b5e2b0569.png)
-
-#### dism++
-
-- [Chuyu-Team/Dism-Multi-language: Dism++ Multi-language Support & BUG Report (github.com)](https://github.com/Chuyu-Team/Dism-Multi-language)
-
-- [Chuyu Team](https://chuyu.me/en-US/index.html)
-- dism++提供的系统优化中的安全设置有一个开关,功能为关闭windows defender
-- 还提供了用不检查更新的功能,有效性自测
-
-#### dControl
-
-- [Defender Control v2.1 (sordum.org)](https://www.sordum.org/9480/defender-control-v2-1/)
-  - 软件可能会报毒,毕竟它试图关闭安全中心
-  - 可以从其他论坛下载,但是没必要,名字和第一个软件很像,但是这里是GUI软件
-
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/44cf342232dd4559bff56a7f9101b2eb.png)
-
 #### Ultimate Windows Tweaker
 
 - [Ultimate Windows Tweaker 5 for Windows 11 (thewindowsclub.com)](https://www.thewindowsclub.com/ultimate-windows-tweaker-5-for-windows-11)
@@ -140,7 +107,89 @@ Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以
 - 幸运的是mydockfinder支持指定排除某个应用的动画效果,这样可以提高兼容性!
 - 如果这种弹窗是一次性的话,那么临时关闭mydockfinder(退出),然后重新启动出问题的程序看看是否能够解决该问题
 
-## 其他方法修禁用Windows Defender
+## 彻底禁用Windows Defender👺
+
+- [如何关闭 Windows Defender 病毒和威胁防护（临时或永久） - 系统极客](https://www.sysgeek.cn/disable-windows-defender/#7-验证-windows-defender-运行状态)
+- [Defender Module | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/defender/?view=windowsserver2022-ps)
+  - Microsoft提供一个关于Defender的powershell模块
+
+### 相关工具
+
+#### windows defender remover
+
+- [GitHub - ionuttbara/windows-defender-remover: A tool which is uses to remove Windows Defender in Windows 8.x, Windows 10 (every version) and Windows 11.](https://github.com/ionuttbara/windows-defender-remover)
+- 移除后无法恢复!使用镜像升级系统后,可能导致defender页面进不去但是后台运行相关服务误删你的文件,需要慎用
+
+#### defender control(慎用)
+
+- !!!我用了这个软件后,发现其他软件启动的速度大幅度下降,安装软件更是一卡一卡的,如果你的设备出现了这种情况,请恢复windows defender,改用其他方式禁用👺
+  - 平台是windows11(intel 12700H+RTX4060)
+  - 重新启用安全中心后,速度恢复正常
+
+- 使用开源工具:
+  - [Release Defender Control v1.5 · pgkt04/defender-control · GitHub](https://github.com/pgkt04/defender-control/releases/tag/v1.5)
+  - [qtkite/defender-control: An open-source windows defender manager. Now you can disable windows defender permanently. (github.com)](https://github.com/qtkite/defender-control)
+  - 这个工具是命令行方式运行
+  - 包含了关闭和启用两个独立的程序
+- 使用关闭程序(`disable-defender`)前先手动打开安全中心,关闭病毒和威胁防护的实时防护的开关
+- 这可能是设置了策略组
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/92ce20637af34695b97ead7b5e2b0569.png)
+
+#### dism++
+
+- [Chuyu-Team/Dism-Multi-language: Dism++ Multi-language Support & BUG Report (github.com)](https://github.com/Chuyu-Team/Dism-Multi-language)
+
+- [Chuyu Team](https://chuyu.me/en-US/index.html)
+- dism++提供的系统优化中的安全设置有一个开关,功能为关闭windows defender
+- 还提供了用不检查更新的功能,有效性自测
+
+#### dControl
+
+- [Defender Control v2.1 (sordum.org)](https://www.sordum.org/9480/defender-control-v2-1/)
+  - 软件可能会报毒,毕竟它试图关闭安全中心
+  - 可以从其他论坛下载,但是没必要,名字和第一个软件很像,但是这里是GUI软件
+
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/44cf342232dd4559bff56a7f9101b2eb.png)
+
+### UWT
+
+[Ultimate Windows Tweaker 5 for Windows 11](https://www.thewindowsclub.com/ultimate-windows-tweaker-5-for-windows-11)
+
+uwt有2个大版本,一个是4(对于win10),一个是5(对于win11)
+
+软件内由一个关闭windows defender的开关,不知道有效性如何.
+
+#### Scoop 上的相关软件
+
+- ```powershell
+  PS> scoop-search defender
+  'spc' bucket:
+      SordumDefenderExclusionTool-Portable (1.4)
+      defender-control (2.1)
+      windows-defender-control (2.869)
+      windows-defender-remover (release_def_12_8_1)
+  ```
+
+  
+
+### Microsoft defender 运行状态检查
+
+- The `Get-MpComputerStatus` cmdlet gets the status of antimalware software installed on the computer.[Get-MpComputerStatus (Defender) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/defender/get-mpcomputerstatus?view=windowsserver2022-ps)
+
+- ```powershell
+  Get-MpComputerStatus | select AMRunningMode
+  ```
+
+  彻底关闭成功,则显示:
+  
+  ```powershell
+  PS> Get-MpComputerStatus | select AMRunningMode                                                                         
+  AMRunningMode
+  -------------
+  Not running
+  ```
+  
+  
 
 #### 杀毒软件
 
@@ -179,7 +228,7 @@ Note:如果任务栏相关的设置发现字体颜色和背景接近导致难以
 
 
 
-## windows 遥测
+## windows 遥测👺
 
 [隐私至上：5 招轻松关闭 Windows 11 遥测，防止数据收集 - 系统极客 (sysgeek.cn)](https://www.sysgeek.cn/disable-windows-11-telemetry/)
 

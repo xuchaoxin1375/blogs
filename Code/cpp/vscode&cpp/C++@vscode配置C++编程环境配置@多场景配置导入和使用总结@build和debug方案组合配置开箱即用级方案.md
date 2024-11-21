@@ -5,17 +5,16 @@
 ## abstract
 
 - 讨论如何配置vscode下c/c++开发环境
-- 本文补充介绍了项目:[C_CPP_ConsoleApps: - Vscode C/C++](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps) 提供的配置文件的用法,并且在文末给出了更多补充说明的有用链接
-- 利用本文提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;并且记录了可能遇到的问题以及解决方案
-- 这里假设**用户已经正确安装好了编译器**,并且能够顺利启动
-  - 可以是任何一款编译器,比如应用最广泛的GCC或其在不同系统上的移植版
+  - 支持windows,linux等系统,相关配置对此作了兼容
+  - 对于linux,其gcc,gdb等套件对中文路径编译运行显示支持良好(编译运行和终端显示都是UTF-8,字符显示一般没有什么问题,不需要怎么配置和改动
+  - 如果你使用linux或windows下使用wsl来写C/C++,那么要配置的东西少的多,几乎是开箱即用的
+  - 而windows如果了解Mingw中的gcc,g++,gdb对于中文支持方面存在的问题以及windows终端默认的编码问题(比如英文版系统和中文版系统的行为存在不同),本文主要对这方面的问题基于实践做出说明和相应的解决或变通办法,让最终的编程环境相对好用,不至于说中文路径和显示中文输出失败或乱码的问题;
+  - 并且记录了其他可能遇到的问题以及解决方案以及使用建议
+  - 此外,关于vscode中跳过调试,在编译成功后立刻运行的两大类快速运行方案做了对比和推荐,对于初学者linux用户和windows用户都值得参考
 
-```C++
-#include<iostream>
-int main(){
-    return 0;
-}
-```
+- 本文补充介绍了项目:[C_CPP_ConsoleApps: - Vscode C/C++](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps) 提供的配置文件的用法,并且在文末给出了更多补充说明的有用链接
+- 利用本文提供的配置文件,需要的操作十分少就可以完成配置,能够应对大多数初学者学习C/C++编译和运行或调试C/C++语言代码的使用场景;
+- 之所以这么大量篇幅,是为了补充揭示配置的原因和理由,需要动手的地方并不多;
 
 
 
@@ -81,9 +80,9 @@ Hello World!(你好,世界)
 
 当然本文的重点不仅仅是编译代码,更重要的意义在于写代码时智能提示和语法检查以及头文件跳转,断点调试的支持(虽然gdb调试中文路径文件不是很可靠),还有多种编译方案灵活选择的支持
 
-### 一键编译运行
+## 一键编译运行👺
 
-1. 仅仅想要一键编译运行单个源代码文件,甚至可以不用c/c++插件,使用code runner就够了,而且不调试仅运行的话还兼容中文路径,详情另见拓展阅读
+1. 仅仅想要一键编译运行单个源代码文件,甚至可以不用c/c++插件,使用code runner就够了,而且不调试仅运行的话还兼容中文路径,详情另见拓展阅读:[Vscode配置CC++编程环境的使用体验优化@相关指令和快捷键配置@编译调试模式选择@CodeRunner一键编译运行@补充说明_vscode launch 环境变量-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/143417328?sharetype=blogdetail&sharerId=143417328&sharerefer=PC&sharesource=xuchaoxin1375&spm=1011.2480.3001.8118)
 
    ```bash
    PS [C:\repos\C_Cpp_ConsoleApps\cpp]>  PS> cd "c:\repos\C_Cpp_ConsoleApps\cpp\" ; if ($?) { g++  -finput-charset=UTF-8 -fexec-charset=gbk "勾股.cpp" -o "a.exe" } ; if ($?) {  .\"a.exe" }                                                                                   
@@ -123,10 +122,17 @@ Hello World!(你好,世界)
 
 ### 安装并配置C/C++编译器
 
-- 提供的vscode配置是基于`g++`或`gcc`的,可以通过MinGw,或MSYS2间接下载,或者TDM-GCC也可以
+- 提供的vscode配置是基于`g++`或`gcc`的
+  - windows上可以通过MinGw,或MSYS2间接下载,或者TDM-GCC也可以;或者安装scoop (for Chinese)也可以用命令行一键安装:`scoop install mingw `
+  - linux用户就简单了,比如ubuntu直接`sudo apt install g++ gdb -y`就可以安装;
 
-  - 但是注意,中文用户使用vscode官方文档的教程中那样不一定合适,通过msys2安装mingw工具链以本文的经验是对中文不友好的,幸运的是,我们有其他MinGw版本可以选用,并且搭配vscode支持中文的效果不错
+- 注意
+  - 中文用户使用vscode官方文档的教程中那样不一定合适,通过msys2安装mingw工具链以本文的经验是对中文不友好的,幸运的是,我们有其他MinGw版本可以选用,并且搭配vscode支持中文的效果不错
   - 具体推荐见下一节,此外还有外部参考链接[C和C++编译器选择与下载安装@镜像加速下载 浏览 (csdn.net)](https://blog.csdn.net/xuchaoxin1375/article/details/138232597)
+
+
+
+#### g++/gcc编译.c/.cpp的选择
 
 - 由于C++兼容C,所有一般情况下,只需要使用`g++`就可以编译c/c++两种源代码的文件;
 
@@ -309,30 +315,7 @@ Set-WinSystemLocale -SystemLocale zh-cn
 
 详情参考[windows中的时区和区域设置@区域标识符-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/143616215)
 
-#### scoop方式安装MinGw
 
-- 除了通过官网链接下载安装MinGw,还可以通过**scoop**安装`MingW`
-
-  - 打开管理员权限窗口,执行下面其中一个语句
-
-  ```cmd
-  scoop install  spc/winlibs-mingw-ucrt -g
-  scoop install spc/mingw -g
-  ```
-
-  - 这里需要你添加spc bucket [lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。](https://github.com/lzwme/scoop-proxy-cn/tree/main)
-
-- 如果用scoop安装,并且想要两个都安装,要小心冲突/竞争,这俩安装后都会向系统path环境变量注册对应的路径,比如;
-
-  ```powershell
-  C:\ProgramData\scoop\apps\winlibs-mingw-ucrt\current\bin
-  C:\ProgramData\scoop\apps\mingw\current\bin
-  ```
-
-  - 你可以在这里面注释带一个,保留一个来实现版本的切换.
-  - 在小熊猫里,你可以手动指定编译器路径,也可以自动扫描path中可用的编译器,然后选择合适的版本也可以,vscode中的配置task也可以指定不同编译器版本
-
-  
 
 ### 编译器路径配置说明👺
 

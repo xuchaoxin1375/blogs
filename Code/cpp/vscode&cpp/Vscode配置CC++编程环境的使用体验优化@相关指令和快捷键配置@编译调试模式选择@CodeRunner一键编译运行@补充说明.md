@@ -28,14 +28,35 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 你可以选择将编译结果总是放到统一的位置,并始终使用同一个名字`a.exe`便于定位可执行文件,比如总是将编译结果放到项目的根目录下(由于名字都是同一个,因此编译不同程序会替代或覆盖之前的`a.exe`,这对于联系c/c++问题不大)
 
-对于英文系统,使用`chcp 65001`可以常识解决中文乱码
+#### 解决中文乱码
 
-```json
-"c": "chcp 65001 > nul && gcc   $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\"",
-"cpp": "chcp 65001 > nul && g++   $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\" ",
+在linux系统下(或windows wsl),以我的使用经验,编译运行包含中午路径的代码不会出现乱码,因此编程环境天生要比windows更加友好,如果你的机器配置不太老旧,或者条件允许,即便你用的是windows,那使用wsl也是一个推荐选项
+
+对于英文系统,或者中文系统编译运行成功但是输出的中文乱码,使用`chcp 65001`可以尝试解决中文乱码,注意使用chcp指定活动代码是有技巧的,不是随便用的;要将chcp语句放到编译运行语句同一行
+
+### 简单配置👺
+
+这里提供的配置参考仅针对编译单个源文件的情况,也没有使用编码指定参数` -finput-charset,-fexec-charset`
+
+对于linux下，code runner 可以配置如下(不需要特别处理中文乱码)
+
+```bash
+//linux
+"c": " gcc    $fullFileName -o \"$workspaceRoot/a.exe\" ; eval \"$workspaceRoot/a.exe\" ",
+"cpp": " g++    $fullFileName -o \"$workspaceRoot/a.exe\" ; eval \"$workspaceRoot/a.exe\" ",
+
 ```
 
-或者直接用下面的配置
+对于windows下,code runner配置如下(需要用chcp在运行时使用utf-8编码防止乱码)
+
+下面这个配置其实兼容linux,但是由两个语句是linux理解不了的,所以在linux上会慢一点
+
+```json
+"c": " gcc    $fullFileName -o \"$workspaceRoot/a.exe\" ; set-alias eval iex 2>null; chcp 65001 2>null ; eval \"$workspaceRoot/a.exe\" ",
+"cpp": " g++    $fullFileName -o \"$workspaceRoot/a.exe\" ; set-alias eval iex 2>null; chcp 65001 2>null ; eval \"$workspaceRoot/a.exe\" ",
+```
+
+#### 其他候选参考配置
 
 ```json
 "c": " gcc  -finput-charset=UTF-8 -fexec-charset=gbk $fullFileName -o \"$workspaceRoot\\a.exe\" &&  . \"$workspaceRoot\\a.exe\"",
@@ -258,19 +279,21 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
   - 然而,在`tasks.json`中引用环境变量是无效的
 
 
-### 环境变量的使用
+## 环境变量的使用
 
-#### 使用环境变量的好处
+### 使用环境变量的好处
 
-- 如果将相关路径添加到`Path`路径中,那么就可以直接用名字`gcc,g++,gdb`来代替绝对路径
+- 如果将相关路径(gcc,g++,gdb所在路径)添加到`Path`路径中,那么就可以直接用名字`gcc,g++,gdb`来代替绝对路径
 
-  - 无论是先配置`MSYS2_MINGW`,然后将`MSYS2_MINGW`添加到`Path`,或者直接将路径`MSYS2_MINGW`对应的值(我的例子是`C:\msys64\ucrt64\bin`)添加到`Path`变量中都可以
-  - 如果是用户级别的环境变量,不需要管理员权限
-  - 总之这个任务很简单,资料也很丰富,这里不赘述;但是配置了以后很有用
-    - 命令行输入` SystemPropertiesAdvanced.exe`或者开始菜单中输入` 环境变量`搜索就可以打开配置的控制面板,点击环境变量进行配置,用户级别和系统级别的Path任选其一将路径添加到Path变量中即可;
+  - 如果是用户级别的环境变量,不需要管理员权限,否则需要管理员权限
+  - 总之这个任务很简单,资料也很丰富,这里不赘述;但是配置了以后很有用,
+  - 对于windows系统这类给出几个途径
+    - 命令行输入` SystemPropertiesAdvanced.exe`或者开始菜单中输入` 环境变量`或者`path`搜索就可以打开配置环境变量的控制面板,点击环境变量进行配置
+    - 用户级别和系统级别的Path任选其一将路径添加到Path变量中即可;
     - 老手也可以选择用命令行配置,比如`setx`,powershell还可以用` [Environment]::SetEnvironmentVariable()`来配置
+  - 配置完毕后需要重启终端(打开全新终端),而且老终端中启动的程序要全部关掉重新打开才能检测到新环境变量的变化!比如vscode
 
-#### 环境变量可能引起的问题
+### 环境变量可能引起的问题
 
 - 生产环境的环境变量配置需要考虑的问题更多,配置环境变量虽然能够提供方便,但是可能引入潜在的混淆的机会
 - 但是对于学习环境,配置环境变量是方便和可行的,也是很平常的事情

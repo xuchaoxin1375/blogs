@@ -10,68 +10,7 @@
 - 脚本参考了多个相关的项目，做了整合，相关参考链接放到函数文档中
 - 直奔本文重点请跳转到 [下载和安装脚本]一节
 
-## 脚本说明
 
-- 以下脚本对原脚本的扩展和改进,提供更多的灵活性和安装方案,以及更加详细的注释
-- 对于某些精简版或修改版系统默认将用户权限提到Administrator的情况提供安装支持选项
-- 关于脚本的稳定性和部署速度,这主要取决于加速镜像,`Get-AvailableGithubMirros`列出一些常见的镜像,它们当中在不同时段加速表现可能各不相同,如果你发现默认镜像或者你挑选的镜像加速效果不佳,那么请更换镜像
-
-### 可能出现的报错问题👺
-
-- 在更换镜像后,部署脚本重新执行**可能会报错**(也可能顺利执行),如果报错,可能是因为之前的错误或者不完整的安装执行操作污染了安装环境,可以尝试scoop清理缓存,提升到管理员权限等措施再重试安装
-
-  - 直接复制粘贴脚本内容到windows powershell(v5)直接运行容易出问题,建议保存脚本到文本文件中,然后修改后缀为`.ps1`
-  - 然后用管理员权限打开powershell,通过`. <ScriptFilePath>`的方式导入其中的函数,最后调用部署函数即可
-  - 如果安装途中报错,请卸载掉scoop(使用命令`scoop uninstall scoop`),然后重新安装(重新调用部署函数)
-  - 如果你之前没有用过`git`这类工具,部署scoop要加上`-installbasicsoftwares`
-
-- 另一类报错是安装完毕而在使用过程中报错
-- 其中gitee方案部分时候会报错,比如代理服务器代理过程中发生错误(500系列的错误),我们可以选择重试
-
-  ```powershell
-  PS> sudo pwsh -c scoop install gdb -g
-  Installing 'gdb' (14.1) [64bit] from 'main' bucket
-  proxy: https://nuwen.net/files/mingw/components-19.0.7z
-  The remote server returned an error: (530) Server Error.
-  URL https://nuwen.net/files/mingw/components-19.0.7z is not valid
-  ```
-
-  ```powershell
-  PS> sudo pwsh -c scoop install gdb -g
-  #自动清理之前的不成功安装
-  WARN  Purging previous failed installation of gdb.
-  ERROR 'gdb' isn't installed correctly.
-  Removing older version (14.1).
-  'gdb' was uninstalled.
-  
-  Installing 'gdb' (14.1) [64bit] from 'main' bucket
-  proxy: https://nuwen.net/files/mingw/components-19.0.7z
-  components-19.0.7z (58.6 MB) [===================================================] 100%
-  Checking hash of components-19.0.7z ... ok.                                                                             
-  Extracting components-19.0.7z ... done.
-  Running pre_install script...done.
-  Linking C:\ProgramData\scoop\apps\gdb\current => C:\ProgramData\scoop\apps\gdb\14.1
-  Creating shim for 'gdb'.
-  Creating shim for 'gdbserver'.                                                                                          
-  'gdb' (14.1) was installed successfully!
-  ```
-
-### 还有其他类型的错误👺
-
-#### 下载阶段发生报错或失败
-
-- 从默认bucket或者指定bucket下载失败,可以考虑更换其他bucket(如果其他bucket也有的话)
-- 启用aria2下载可能会被拒绝,尤其还不恰当的aria2参数配置,可能导致下载出错,考虑禁用(可以临时禁用)掉aria2
-- 中断和恢复
-  - 假设你的buckets中(可能是同一个bucket但是分别用不同的镜像加速成不同名字的bucket,例如`extras`,`extras1`,`extras2`,...)有多个提供了你想要的包`Pkgx`.那么你可以从中选择一个或者默认不指定由scoop为你选择一个bucket下载并安装
-  - 这时候你可能发现它下载的比较慢或者不够快,于是你尝试手动指定bucket换一个下载来源,这种情况下建议第二次安装时使用`-g`选项,这样会忽略掉之前下载的部分,否则可能因为之前下载的文件因为打断有错误或者版本有差异导致aria2下不动它
-
-#### 下载成功但是安装时报错
-
-- 未能够通过hash校验,可以尝试`scoop install`时重新下载`-k`,或者跳过校验`-s`选项
-- 全局安装权限不足可能报错
-- 安装过程中由于安装脚本和软件版本适配问题而报错,这种情况就比较复杂,考虑不用scoop安装,采用其他方式安装(这种情况比较少)
-- 需要的bucket未安装,例如spc bucket中有个包`quarkpan`,但是安装的时候提示你没有`aki`这个bucket,scoop提示你安装添加`aki` bucket,我们可以网络搜`scoop bucket add aki`,获取`aki`链接(可以配合加速镜像),或者找国内的加速项目获取加速的链接,例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
 
 ## 下载脚本👺
 
@@ -1056,6 +995,69 @@ https://gitee.com/xuchaoxin1375/blogs/blob/main/windows
   - 可以将`scoop`家目录重命名为`scoop.bak`(包括用户家目录下的`scoop`和通过全局安装软件产生的`C:\programdata\scoop`目录(如果有的话,也都重命名));然后重新测试此`scoop`部署方案
   - 也可以新建一个本地账户(利用语句`net user tester 1 /add`创建一个测试用户`tester`,密码是`1`);登陆`tester`来验证其是否能工作
 
+## 脚本说明
+
+- 以下脚本对原脚本的扩展和改进,提供更多的灵活性和安装方案,以及更加详细的注释
+- 对于某些精简版或修改版系统默认将用户权限提到Administrator的情况提供安装支持选项
+- 关于脚本的稳定性和部署速度,这主要取决于加速镜像,`Get-AvailableGithubMirros`列出一些常见的镜像,它们当中在不同时段加速表现可能各不相同,如果你发现默认镜像或者你挑选的镜像加速效果不佳,那么请更换镜像
+
+### 可能出现的报错问题👺
+
+- 在更换镜像后,部署脚本重新执行**可能会报错**(也可能顺利执行),如果报错,可能是因为之前的错误或者不完整的安装执行操作污染了安装环境,可以尝试scoop清理缓存,提升到管理员权限等措施再重试安装
+
+  - 直接复制粘贴脚本内容到windows powershell(v5)直接运行容易出问题,建议保存脚本到文本文件中,然后修改后缀为`.ps1`
+  - 然后用管理员权限打开powershell,通过`. <ScriptFilePath>`的方式导入其中的函数,最后调用部署函数即可
+  - 如果安装途中报错,请卸载掉scoop(使用命令`scoop uninstall scoop`),然后重新安装(重新调用部署函数)
+  - 如果你之前没有用过`git`这类工具,部署scoop要加上`-installbasicsoftwares`
+
+- 另一类报错是安装完毕而在使用过程中报错
+
+- 其中gitee方案部分时候会报错,比如代理服务器代理过程中发生错误(500系列的错误),我们可以选择重试
+
+  ```powershell
+  PS> sudo pwsh -c scoop install gdb -g
+  Installing 'gdb' (14.1) [64bit] from 'main' bucket
+  proxy: https://nuwen.net/files/mingw/components-19.0.7z
+  The remote server returned an error: (530) Server Error.
+  URL https://nuwen.net/files/mingw/components-19.0.7z is not valid
+  ```
+
+  ```powershell
+  PS> sudo pwsh -c scoop install gdb -g
+  #自动清理之前的不成功安装
+  WARN  Purging previous failed installation of gdb.
+  ERROR 'gdb' isn't installed correctly.
+  Removing older version (14.1).
+  'gdb' was uninstalled.
+  
+  Installing 'gdb' (14.1) [64bit] from 'main' bucket
+  proxy: https://nuwen.net/files/mingw/components-19.0.7z
+  components-19.0.7z (58.6 MB) [===================================================] 100%
+  Checking hash of components-19.0.7z ... ok.                                                                             
+  Extracting components-19.0.7z ... done.
+  Running pre_install script...done.
+  Linking C:\ProgramData\scoop\apps\gdb\current => C:\ProgramData\scoop\apps\gdb\14.1
+  Creating shim for 'gdb'.
+  Creating shim for 'gdbserver'.                                                                                          
+  'gdb' (14.1) was installed successfully!
+  ```
+
+### 还有其他类型的错误👺
+
+#### 下载阶段发生报错或失败
+
+- 从默认bucket或者指定bucket下载失败,可以考虑更换其他bucket(如果其他bucket也有的话)
+- 启用aria2下载可能会被拒绝,尤其还不恰当的aria2参数配置,可能导致下载出错,考虑禁用(可以临时禁用)掉aria2
+- 中断和恢复
+  - 假设你的buckets中(可能是同一个bucket但是分别用不同的镜像加速成不同名字的bucket,例如`extras`,`extras1`,`extras2`,...)有多个提供了你想要的包`Pkgx`.那么你可以从中选择一个或者默认不指定由scoop为你选择一个bucket下载并安装
+  - 这时候你可能发现它下载的比较慢或者不够快,于是你尝试手动指定bucket换一个下载来源,这种情况下建议第二次安装时使用`-g`选项,这样会忽略掉之前下载的部分,否则可能因为之前下载的文件因为打断有错误或者版本有差异导致aria2下不动它
+
+#### 下载成功但是安装时报错
+
+- 未能够通过hash校验,可以尝试`scoop install`时重新下载`-k`,或者跳过校验`-s`选项
+- 全局安装权限不足可能报错
+- 安装过程中由于安装脚本和软件版本适配问题而报错,这种情况就比较复杂,考虑不用scoop安装,采用其他方式安装(这种情况比较少)
+- 需要的bucket未安装,例如spc bucket中有个包`quarkpan`,但是安装的时候提示你没有`aki`这个bucket,scoop提示你安装添加`aki` bucket,我们可以网络搜`scoop bucket add aki`,获取`aki`链接(可以配合加速镜像),或者找国内的加速项目获取加速的链接,例如`scoop bucket add aki https://gitee.com/scoop-installer/aki-apps`
 
 ## 部署方案说明👺
 
@@ -1335,7 +1337,7 @@ Checking repo... OK
 The spc bucket was added successfully.
 ```
 
-### 添加额外buckets
+### 添加额外buckets👺
 
 ```powershell
 PS🌙[BAT:100%][MEM:30.2% (2.37/7.85)GB][11:19:24]
@@ -1357,7 +1359,7 @@ The spc bucket was added successfully.
 
 ```
 
-## 提高可用性的措施👺
+## 提高可用性的措施👺spc bucket
 
 - 为大型仓库spc提供多个镜像加速bucket
 
