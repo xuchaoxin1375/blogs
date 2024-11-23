@@ -395,6 +395,44 @@ Hello World!(浣犲ソ,涓栫晫111)
 - winlibs系列编译器比较好,配合vscode效果不错(注意配置文件中使用合理的编译选项,否则会有乱码等问题),我试验下来是不要使用` -finput-charset=UTF-8 -fexec-charset=gbk`,这组编译选项是为手动编译准备的,而且是为要打印中文的情况下准备的
 - 小熊猫C++默认使用了这两个参数,到底要不要用取决于编译效果,当然你也可以指定可用的编译器,或者更改小熊猫里面的编译参数
 
+## 配置外部终端运行(dev c++体验)
+
+- 一般来说,直接在vscode的集成终端中运行可以了,而且是推荐选项,但是如果你喜欢单独弹出一个终端窗口来显示运行内容,则参考一下内容
+
+- 用到的插件:[C/C++ Compile Run - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=danielpinto8zz6.c-cpp-compile-run)
+
+  - 使用该插件,会引入以下快捷键Keybindings),根据需要可以修改或着删除
+
+    | Linux  | Windows | Mac   | Description                                                  |
+    | ------ | ------- | ----- | ------------------------------------------------------------ |
+    | f6     | f6      | cmd+r | Compiles and runs the file                                   |
+    | crtl+6 | ctrl+6  | cmd+6 | Compiles and runs the file                                   |
+    | f8     | f8      | cmd+y | **Compiles and run the file in external console**            |
+    | f7     | f7      | cmd+t | Compiles and run the file specifying custom arguments and flags |
+    | f5     | f5      | cmd+5 | Debugs the file (includes compile)                           |
+
+- 这个插件的配置项目还是挺丰富的,可以用gui设置界面配置,也可以修改settings.json文件
+
+  - ```json
+    "c-cpp-compile-run.run-in-external-terminal": true,
+    "code-runner.runInTerminal": true,
+    "code-runner.saveAllFilesBeforeRun": true,
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.ignoreSelection": true,
+    "c-cpp-compile-run.cpp-flags": "-Wall -Wextra -g3 -fexec-charset=gbk",
+    "c-cpp-compile-run.c-flags": "-Wall -Wextra -g3 -fexec-charset=gbk",
+    ```
+
+  - 第一行表明默认启用外部终端来观察运行,并且程序执行结束不会自动关闭,会供你查看运行结果
+
+  - 最后面两行是为了解决中文windows系统外部终端可能出现中文乱码的问题,关键是选项`-fexec-charset=gbk`
+
+补充说明
+
+- vscode的launch.json文件中提供了`externalConsole`配置项给用户选择,设置位`true`时在调试时如果编译成功会启动外部终端
+- 本文提供的仓库配置中有一个`external Console`编译方案,但是程序执行完毕后会自动关闭,这对于我们观察运行结果是不方便的,并不实用(当然要用也是可以的,但是需要你在代码中添加一个语句`system("pause");`,这就有点繁琐了,除非你乐意,那么这种组合也是可以达到效果的)
+- 幸运的是,vscode插件市场提供有解决此问题的插件(上面介绍的)
+
 ## 获取vscode c/c++配置文件@相关试验仓库👺👺
 
 - [C_CPP_ConsoleApps: (gitee.com)](https://gitee.com/xuchaoxin1375/C_CPP_ConsoleApps)
