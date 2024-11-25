@@ -1,17 +1,1 @@
-#### ***\*标准浮点数类型\****
-
-下列三种类型和它们的 cv 限定版本统称为标准浮点数类型。
-
-float - 单精度浮点数类型。通常是 [IEEE-754 binary32 格式](https://en.wikipedia.org/wiki/Single-precision_floating-point_format)。
-
-double - 双精度浮点数类型。通常是 [IEEE-754 binary64 格式](https://en.wikipedia.org/wiki/Double-precision_floating-point_format)。
-
-long double - 扩展精度浮点数类型。不必映射到 IEEE-754 规定的类型。
-
-§ 一些 HP-UX、SPARC、MIPS、ARM64 和 z/OS 实现使用 [IEEE-754 binary128 格式](https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format)。
-
-§ 最知名的 [IEEE-754 binary64 扩展格式](https://en.wikipedia.org/wiki/Extended_precision)是 80 位 x87 扩展精度格式。许多 x86 和 x86-64 实现使用它（一个典型的例外是 MSVC，它将 long double 实现为与 double 相同的格式，即 binary64）。
-
-§ 在 PowerPC 上可以使用 [double-double](#Double-double_arithmetic)。
-
- 
+浮点数表示@定点数和浮点数比较@表示范围@规格化@溢出@C语言中的浮点数类型
