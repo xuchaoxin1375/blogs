@@ -1,14 +1,29 @@
 [toc]
 
+## abstract
 
+- 介绍windows上查看网络网卡和ip地址信息的各种方法
+- powershell NetTCPIP模块在网络方面的应用
+
+[NetTCPIP Module | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/nettcpip/?view=windowsserver2022-ps)
 
 ## 管理网络适配器的powershell模块
 
+### 网卡查看
+
 - [NetAdapter Module | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/netadapter/?view=windowsserver2022-ps)
 
-- 例如获取计算机上的网卡(包括虚拟网卡)
+- 例如获取计算机上的网卡(包括实体网卡和虚拟网卡)
 
-- ```powershell
+  ```powershell
+  Get-NetAdapter |select Name,InterfaceDescription,MacAddress,Status |sort name
+  ```
+
+  
+
+- 示例
+  
+  ```powershell
   PS [C:\Users\cxxu\Desktop]> Get-NetAdapter |select Name,InterfaceDescription,MacAddress,Status |sort name
   
   Name                          InterfaceDescription                       MacAddress        Status
@@ -21,62 +36,14 @@
   VMware Network Adapter VMnet8 VMware Virtual Ethernet Adapter for VMnet8 00-50-56-C0-00-08 Up
   Wi-Fi                         Intel(R) Wi-Fi 6E AX211 160MHz             30-F6-EF-07-2E-61 Up
   ```
-
+  
 - 这里`Name`属性通常和`InterfaceAlias`属性是相同的
 
-### 网卡中英文对照
-
-这里仅介绍最常见的两种**物理网卡(实体网卡)**(以太网(Ethernet)卡,WLAN(Wi-Fi)网卡)
-
-中文系统:
+### 查看全部网卡信息
 
 ```powershell
-PS☀️[BAT:100%][MEM:41.79% (3.28/7.85)GB][14:19:08]
-#⚡️[cxxu@CXXUREDMIBOOK][~]
-PS>  Get-NetIPAddress -InterfaceAlias 以太网 -AddressFamily IPv4 |select IPAddress
-
-IPAddress
----------
-192.168.1.198
-
-
-PS☀️[BAT:100%][MEM:41.79% (3.28/7.85)GB][14:19:24]
-#⚡️[cxxu@CXXUREDMIBOOK][~]
-PS>  Get-NetIPAddress -InterfaceAlias WLAN -AddressFamily IPv4 |select IPAddress
-
-IPAddress
----------
-192.168.1.158
+Get-NetIPInterface|sort InterfaceAlias #按照网卡名称排序
 ```
-
-英文系统:
-
-```powershell
-PS C:\Users\cxxu\Desktop> get-netipaddress -InterfaceAlias ethernet -AddressFamily IPv4 |select IPAddress
-
-IPAddress
----------
-169.254.21.122
-
-PS C:\Users\cxxu\Desktop> get-netipaddress -InterfaceAlias wi-fi -AddressFamily IPv4 |select IPAddress
-
-IPAddress
----------
-192.168.1.178
-```
-
-### 整合
-
-```powershell
-foreach ()
-```
-
-
-
-## 获取ip地址
-
-- 这里主要关心的是ipv4地址
-- 并介绍了当计算机上有多个网卡(包括物理网卡(分为有线网卡和无线网卡)和虚拟网卡(比如虚拟机注册的网卡,代理工具注册的网卡))
 
 例如
 
@@ -109,10 +76,11 @@ ifIndex InterfaceAlias                  AddressFamily NlMtu(Bytes) InterfaceMetr
 
 ```
 
-又比如某台式机上没有安装虚拟机等注册虚拟网卡的软件,查看网卡列表
+网卡信息这么多一般是安装了虚拟机
+
+又比如某台式机上没有安装虚拟机等注册虚拟网卡的软件,查看网卡列表信息数量就会少,还可以进一步选择关键属性
 
 ```powershell
-
 PS C:\Users\Administrator> Get-NetIPInterface -AddressFamily IPv4|select InterfaceAlias,ConnectionState,AddressFamily
 
 InterfaceAlias              ConnectionState AddressFamily
@@ -123,14 +91,72 @@ Loopback Pseudo-Interface 1       Connected          IPv4
 
 
 
-### 打开图形界面查看
+## 查询ip地址和相关信息👺
+
+
+
+### powershell命令行
+
+[Get-NetIPAddress (NetTCPIP) | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/nettcpip/get-netipaddress?view=windowsserver2022-ps)
+
+- 这里主要关心的是ipv4地址
+- 也一并介绍了当计算机上有多个网卡(包括物理网卡(分为有线网卡和无线网卡)和虚拟网卡(比如虚拟机注册的网卡,代理工具注册的网卡))
+
+### 网卡中英文对照
+
+这里仅介绍最常见的两种**物理网卡(实体网卡)**(以太网(Ethernet)卡,WLAN(Wi-Fi)网卡)
+
+以下命令行兼容中文和英文windows系统
+
+### 只查看ipv4
+
+```powershell
+"Wi-Fi","WLAN","*EtherNet*", "*以太网*"|% {Get-netipaddress -InterfaceAlias $_ -AddressFamily IPv4 -ErrorAction SilentlyContinue|select InterfaceAlias, IPAddress}
+```
+
+### 一口气查看ipv4,ipv6
+
+```powershell
+"Wi-Fi","WLAN","*EtherNet*", "*以太网*" | ForEach-Object { 
+    $p1 = Get-NetIPAddress -InterfaceAlias $_ -AddressFamily IPv4 -ErrorAction SilentlyContinue | Select-Object InterfaceAlias, @{Name = "IPv4"; Expression = { $_.IPAddress } }
+    $p2 = Get-NetIPAddress -InterfaceAlias $_ -AddressFamily IPv6 -ErrorAction SilentlyContinue | Select-Object IPAddress
+    $p1|Add-Member -MemberType NoteProperty -Name "IPv6" -Value $p2.IPAddress -PassThru
+}|fl
+```
+
+运行结果示例
+
+
+
+```powershell
+InterfaceAlias : Wi-Fi
+IPv4           : 192.168.1.154
+IPv6           : {fe80::3758:3e74:5252:a85e%11, 240e:379:3e39:2b00:e807:8d25:1b2a:bee8, 240e:379:3e39:2b00:b99b:becd:740e:f1bf}
+
+InterfaceAlias : Ethernet
+IPv4           : 169.254.149.97
+IPv6           : fe80::f06a:9c5:c285:5169%12
+```
+
+如果要查看表格形式,可以把末尾的`|fl`改为`|ft -wrap`
+
+
+
+### 图形界面查看
+
+#### 系统设置网络
 
 - 对于较新windows,打开系统设置,点击网络(Internet),查看网络属性,其中包括了ip地址
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/5e1dbf4fbcb64afca5ff57ca843a4045.png)
+- 或者在运行窗口(win+r)输入` ms-settings:network `,然后选择一个已连接的网络(wifi或有线以太网)
 
-## 使用命令行查看
+#### 控制面板
 
-### 传统命令
+- 命令行输入`  ncpa.cpl` (Network Control Panel Application)可以快速打开相应的网络控制面板
+- 可以设置网卡以及右键属性查看连接详情,里面包含了ip地址等信息
+
+## 使用传统命令行查看
+
+### cmd/powershell 通用
 
 #### arp
 
@@ -175,9 +201,13 @@ Loopback Pseudo-Interface 1       Connected          IPv4
 netsh interface ip show addresses
 ```
 
-### powershell下的命令
+### powershell 
 
-#### 通过Win32_NetworkAdapterConfiguration获取
+除了`Get-NetIpAddress`这类命令,还有`Get-CimInstance`方法
+
+#### Get-CimInstance
+
+通过Win32_NetworkAdapterConfiguration获取
 
 ```powershell
 PS [C:\Users\cxxu\Desktop]>  Get-CimInstance -Class Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -ne $null } | Select-Object Description, IPAddress
@@ -192,6 +222,8 @@ Microsoft Wi-Fi Direct Virtual Adapter #2  {192.168.137.1, fe80::4569:8dca:ec45:
 ```
 
 
+
+## FAQ
 
 ## 查看到多个ip
 
