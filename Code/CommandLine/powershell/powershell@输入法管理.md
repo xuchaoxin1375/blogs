@@ -1,8 +1,8 @@
 [toc]
 
-# powershell@输入法管理
+## powershell@输入法管理
 
-## ref
+### ref
 
 -  [Default input profiles (input locales) in Windows | Microsoft Learn](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-input-locales-for-windows-language-packs?view=windows-11)
 
@@ -10,60 +10,8 @@
 
 - `Get-WinUserLanguageList|gm|ft -wrap `查询可用方法
 
-- ```cmd
-  Get-WinUserLanguageList|gm
-  
-  
-     TypeName: System.Collections.Generic.List`1[[Microsoft.InternationalSettings.Commands.WinUserLanguage,
-  Microsoft.InternationalSettings.Commands, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]
-  
-  Name           MemberType            Definition
-  ----           ----------            ----------
-  Add            Method                void Add(Microsoft.InternationalSettings.Commands.WinUserLanguage item), void I...
-  AddRange       Method                void AddRange(System.Collections.Generic.IEnumerable[Microsoft.InternationalSet...
-  AsReadOnly     Method                System.Collections.ObjectModel.ReadOnlyCollection[Microsoft.InternationalSettin...
-  BinarySearch   Method                int BinarySearch(int index, int count, Microsoft.InternationalSettings.Commands...
-  Clear          Method                void Clear(), void ICollection[WinUserLanguage].Clear(), void IList.Clear()
-  Contains       Method                bool Contains(Microsoft.InternationalSettings.Commands.WinUserLanguage item), b...
-  ConvertAll     Method                System.Collections.Generic.List[TOutput] ConvertAll[TOutput](System.Converter[M...
-  CopyTo         Method                void CopyTo(Microsoft.InternationalSettings.Commands.WinUserLanguage[] array), ...
-  Equals         Method                bool Equals(System.Object obj)
-  Exists         Method                bool Exists(System.Predicate[Microsoft.InternationalSettings.Commands.WinUserLa...
-  Find           Method                Microsoft.InternationalSettings.Commands.WinUserLanguage Find(System.Predicate[...
-  FindAll        Method                System.Collections.Generic.List[Microsoft.InternationalSettings.Commands.WinUse...
-  FindIndex      Method                int FindIndex(System.Predicate[Microsoft.InternationalSettings.Commands.WinUser...
-  FindLast       Method                Microsoft.InternationalSettings.Commands.WinUserLanguage FindLast(System.Predic...
-  FindLastIndex  Method                int FindLastIndex(System.Predicate[Microsoft.InternationalSettings.Commands.Win...
-  ForEach        Method                void ForEach(System.Action[Microsoft.InternationalSettings.Commands.WinUserLang...
-  GetEnumerator  Method                System.Collections.Generic.List`1+Enumerator[Microsoft.InternationalSettings.Co...
-  GetHashCode    Method                int GetHashCode()
-  GetRange       Method                System.Collections.Generic.List[Microsoft.InternationalSettings.Commands.WinUse...
-  GetType        Method                type GetType()
-  IndexOf        Method                int IndexOf(Microsoft.InternationalSettings.Commands.WinUserLanguage item), int...
-  Insert         Method                void Insert(int index, Microsoft.InternationalSettings.Commands.WinUserLanguage...
-  InsertRange    Method                void InsertRange(int index, System.Collections.Generic.IEnumerable[Microsoft.In...
-  LastIndexOf    Method                int LastIndexOf(Microsoft.InternationalSettings.Commands.WinUserLanguage item),...
-  Remove         Method                bool Remove(Microsoft.InternationalSettings.Commands.WinUserLanguage item), boo...
-  RemoveAll      Method                int RemoveAll(System.Predicate[Microsoft.InternationalSettings.Commands.WinUser...
-  RemoveAt       Method                void RemoveAt(int index), void IList[WinUserLanguage].RemoveAt(int index), void...
-  RemoveRange    Method                void RemoveRange(int index, int count)
-  Reverse        Method                void Reverse(), void Reverse(int index, int count)
-  Sort           Method                void Sort(), void Sort(System.Collections.Generic.IComparer[Microsoft.Internati...
-  ToArray        Method                Microsoft.InternationalSettings.Commands.WinUserLanguage[] ToArray()
-  ToString       Method                string ToString()
-  TrimExcess     Method                void TrimExcess()
-  TrueForAll     Method                bool TrueForAll(System.Predicate[Microsoft.InternationalSettings.Commands.WinUs...
-  Item           ParameterizedProperty Microsoft.InternationalSettings.Commands.WinUserLanguage Item(int index) {get;s...
-  Capacity       Property              int Capacity {get;set;}
-  Count          Property              int Count {get;}
-  IsFixedSize    Property              bool IsFixedSize {get;}
-  IsReadOnly     Property              bool IsReadOnly {get;}
-  IsSynchronized Property              bool IsSynchronized {get;}
-  SyncRoot       Property              System.Object SyncRoot {get;}
-  ```
 
-
-## 编写好的函数脚本@powershell
+## powershell函数
 
 - 下面这几个函数可用在powershell7下调用
 
@@ -71,30 +19,33 @@
 
   - 如果无法成功执行,那么原因可能有多种,而下面的脚本假设输入法环境是这样的
 
-    - ```cmd
-      
-      LanguageTag     : en-US
-      Autonym         : English (United States)
-      EnglishName     : English
-      LocalizedName   : English (United States)
-      ScriptName      : Latin
-      InputMethodTips : {0409:00000409}
-      Spellchecking   : True
-      Handwriting     : False
-      
-      LanguageTag     : zh-Hans-CN
-      Autonym         : 中文(中华人民共和国)
-      EnglishName     : Chinese
-      LocalizedName   : Chinese (Simplified, China)
-      ScriptName      : Chinese (Simplified)
-      InputMethodTips : {0804:{E7EA138E-69F8-11D7-A6EA-00065B844310}{E7EA138F-69F8-11D7-A6EA-000
-                        65B844311}, 0804:{81D4E9C9-1D3B-41BC-9E6C-4B40BF79E35E}{FA550B04-5AD7-41
-                        1F-A5AC-CA038EC515D7}}
-      Spellchecking   : True
-      Handwriting     : True
-      ```
 
-#### 主要代码🎈
+### 查看已安装的语言列表和输入法代号
+
+- ```cmd
+  
+  LanguageTag     : en-US
+  Autonym         : English (United States)
+  EnglishName     : English
+  LocalizedName   : English (United States)
+  ScriptName      : Latin
+  InputMethodTips : {0409:00000409}
+  Spellchecking   : True
+  Handwriting     : False
+  
+  LanguageTag     : zh-Hans-CN
+  Autonym         : 中文(中华人民共和国)
+  EnglishName     : Chinese
+  LocalizedName   : Chinese (Simplified, China)
+  ScriptName      : Chinese (Simplified)
+  InputMethodTips : {0804:{E7EA138E-69F8-11D7-A6EA-00065B844310}{E7EA138F-69F8-11D7-A6EA-000
+                    65B844311}, 0804:{81D4E9C9-1D3B-41BC-9E6C-4B40BF79E35E}{FA550B04-5AD7-41
+                    1F-A5AC-CA038EC515D7}}
+  Spellchecking   : True
+  Handwriting     : True
+  ```
+
+#### 添加或删除搜狗输入法
 
 - 本代码使用了较多的硬编码(因为相关接口提供的信息有限),
 
@@ -147,7 +98,7 @@ function add_sogou_keyboard
 }
 ```
 
-#### 运行结果🎈
+#### 运行结果
 
 - 添加Sogou键盘
 
@@ -183,11 +134,43 @@ function add_sogou_keyboard
 
     ![在这里插入图片描述](https://img-blog.csdnimg.cn/1e96c438e4cc4992a0f3b6f365caee10.png)
 
+## 移除指定键盘输入法
+
+- 如果是英文系统,移除英文键盘比较困难(会自动恢复),但是可以将其从默认键盘顶替掉
+- 可以借助搜狗输入法的输入法管理器设置将en-us键盘移除,但是重启后会恢复
+
+```powershell
+powershell.exe { 
+    
+    $zh = 'zh-hans-cn'
+    $en='en-US'
+    $lang=$en
+    
+    $l = Get-WinUserLanguageList; 
+    $Lang = $l | Where-Object { $_.languageTag -match $lang }
+    $LangTips = $Lang.inputMethodTips
+    # 具体的输入法
+    $sogou_keyboard = $LangTips | Where-Object { $_ -like '*e7ea*' }
+    $en_us_keyboard = $LangTips | Where-Object { $_ -like '*0409:00000409*' }
+    $wetype_keyboard = $LangTips | Where-Object { $_ -like '*86598FB9*' }
+    $IME = $en_us_keyboard
+
+    Write-Output "IME:$IME"
+
+    $LangTips.remove($IME)
+    Write-Output $l
+
+    Set-WinUserLanguageList -LanguageList $l -Force -Verbose
+}
+```
+
+
+
 ## 扩展功能
 
 - 如果您还使用其他键盘,可以按照上述方法,记录下来它们的键盘ID,自定义自己的powershell开关
 
-# 补充说明
+
 
 ## powershell5@WinuserLanguageList操作输入法列表布局
 
@@ -297,7 +280,7 @@ WARNING: If the Windows Display Language has changed, it will take effect after 
   WARNING: If the Windows Display Language has changed, it will take effect after the next sign-in.
   ```
 
-### 增加或修改某个语言下的键盘(输入法)🎈
+### 增加或修改某个语言下的键盘(输入法)👺
 
 ```cmd
 PS C:\> $l=Get-WinUserLanguageList
