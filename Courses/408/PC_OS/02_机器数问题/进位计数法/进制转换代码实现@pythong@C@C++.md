@@ -415,6 +415,8 @@ printf("%d", (num >> i) & 1);
 
 在 C/C++ 中，将给定的整数转换为不同进制（如二进制、八进制、十进制和十六进制）的方法有多种。
 
+给定整数一般是十进制，也可以利用`0x,0`开头以十六进制或八进制输入;
+
 ### 根据转换理论编写代码
 
 下面是十进制转$r$进制的简单实现,分为计算整数部分和小数部分的转换,分被有两种写法
@@ -512,7 +514,7 @@ input a number(decimal),such as 4.625: 4.625
 
 ### 二进制转换
 
-
+### 使用bitset
 
 使用 `std::bitset`
 
@@ -531,6 +533,74 @@ int main() {
 `std::bitset<32> binary(num);`：创建一个长度为32位的 `bitset` 对象 `binary`，并用整数 `num` 的值进行初始化。
 
 `bitset` 会将整数 `num` 转换为其对应的二进制形式，长度固定为32位。例如，输入 `42` 会被转换为 `00000000000000000000000000101010`。
+
+### 递归方法
+
+兼容负整数,0,正整数
+
+```c++
+#include <iostream>
+#include <cmath>
+#include <bitset>
+#include <iomanip>
+using namespace std;
+int main(int argc, char const *argv[])
+{
+    extern int decToBin(int x);
+    decToBin(-1022);
+    cout << endl;
+    decToBin(5);
+    cout << endl;
+    decToBin(-5);
+    cout << endl;
+    decToBin(0);
+
+    return 0;
+}
+
+/**
+ * Recursively converts a non-negative integer to its binary representation.
+ * The function prints the binary digits in order.
+ *
+ * @param x The integer to convert, expected to be non-negative.
+ *          If a negative value is passed, it is converted to positive using abs().
+ */
+int decToBinaryAbs(int x)
+{
+    x = abs(x);
+
+    if (x > 0)
+    {
+        int b = x % 2;
+        decToBinaryAbs(x / 2);
+        // 打印数码
+        cout << b;
+    }
+
+    return 0;
+}
+int decToBin(int x)
+{
+    if (x < 0)
+    {
+        cout << "-";
+    }
+    else if (x == 0)
+    {
+        cout << "0";
+        return 0;
+    }
+    decToBinaryAbs(x);
+    return 0;
+}
+```
+
+```bash
+-1111111110
+101
+-101
+0
+```
 
 
 
