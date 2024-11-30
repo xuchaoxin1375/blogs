@@ -6,6 +6,13 @@
 - 主要用来加速访问github网站，用来直接查看原github项目链接的,对于资源下载效果不大,这方面的需要可以用加速镜像来加速下载或克隆,或者cgit等工具
 - 本文介绍powershell 版本的一键更新hosts文件,如果你对操作细节不感兴趣,那么可以直接跳转到后面的**一键运行整合脚本**一节中,直接一键部署
 
+  ```powershell
+  irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/GithubHostsUpdater/Register-GithubHostsAutoUpdater.ps1 |iex
+  
+  ```
+
+  
+
 ### 相关项目
 
 - [GitHub520: :kissing_heart: 让你“爱”上 GitHub，解决访问时图裂、加载慢的问题。（无需安装）](https://github.com/xuchaoxin1375/GitHub520/tree/main)
@@ -31,7 +38,7 @@ cat "$_hosts" > "$hosts"
 rm "$_hosts"
 ```
 
-## 配置自动更新操作步骤
+## 配置自动更新操作步骤👺
 
 - 这里介绍powershell脚本配合windows计划任务进行自动化更新host
 

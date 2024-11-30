@@ -63,7 +63,7 @@
 
 ### 修改注册表方案
 
-- 将更新日期推迟到几十年后
+- 将更新日期推迟到几十年后(不一定彻底,后台还有可能运行windows update service)
 
 - [GitHub - Aetherinox/windows-update-killer: Allows you to pause Windows update until 12-31-2051. Supports Windows 10 and 11. Includes script to re-enable updates.](https://github.com/Aetherinox/windows-update-killer?tab=readme-ov-file#install)
 

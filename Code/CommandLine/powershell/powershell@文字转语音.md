@@ -4,6 +4,11 @@
 
 [附录 A：支持的语言和语音 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/附录-a-支持的语言和语音-4486e345-7730-53da-fcfe-55cc64300f01)
 
+## 下载安装语音和相关问题
+
+- 下载语音引擎需要将网络计费模式关闭,否则无法下载(下载失败,或者相关选项不可见或不可点击)
+- 可以设置已安装语言包的text-to-speech一项
+
 ## powershell文字转语音
 
 - 免费简单
