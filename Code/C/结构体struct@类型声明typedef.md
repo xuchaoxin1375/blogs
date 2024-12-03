@@ -1,6 +1,10 @@
 [toc]
 
+## struct
 
+C语言中`struct name { }`定义的结构体类型,在定义变量时,需要使用`struct name var`这类形式来定义变量;如果想要省略`struct`,需要用`typedef`来修饰`struct name`
+
+而在C++中,定义结构变量时,`struct`一般情况下可以省略不写
 
 ## 类型定义（typedef） 
 
