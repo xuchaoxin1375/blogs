@@ -29,7 +29,7 @@
 
 #### LTSC下载地址
 
-填写表单获取评估副本下载
+填写表单获取评估副本下载(评估版和完整版是有区别的,评估版体积比完整版要小,激活需要征升级到完整版)
 
 - Enterprise LTSC[Windows 11 Enterprise | Microsoft Evaluation Center](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
   - [Download the ISO – Windows 11 Enterprise LTSC](https://go.microsoft.com/fwlink/p/?linkid=2195682&clcid=0x409&culture=en-us&country=us)
@@ -42,7 +42,7 @@
 ### 预览版/开发版进行下载
 
 - 稳定性和可靠性一般不如正式版
-- [使用 ISOs - Windows Insider Program | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-insider/isos)
+  - [使用 ISOs - Windows Insider Program | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-insider/isos)
   - [Download Windows Insider Preview ISO (microsoft.com)](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso)
 
 - 可以在系统更新中**申请内测**(称为预览版成员,可以选择预览Canary,Dev,Beta,Preview 等通道),然后重启系统后检查更新(顺利的话可以收到更新推送，但是有时候收不到更新,特别是大版本更新,比如从23H2更新到24H)
