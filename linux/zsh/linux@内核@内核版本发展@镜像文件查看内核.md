@@ -358,7 +358,7 @@ Linux发行版和Linux内核之间有着密切的关系
 
 ### 使用`*fetch`来查看系统信息
 
-### fastfetch
+### fastfetch👺
 
 [GitHub - fastfetch-cli/fastfetch: A maintained, feature-rich and performance oriented, neofetch like system information tool.](https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file)
 

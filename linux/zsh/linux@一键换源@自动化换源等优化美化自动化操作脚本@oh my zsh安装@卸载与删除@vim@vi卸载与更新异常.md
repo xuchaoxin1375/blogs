@@ -153,7 +153,9 @@ sudo apt update
 - 这里以清华源的 `21.10`版本为例
 - 其他版本将源地址群换为对应版本
 
-####  示例
+###  示例
+
+#### ubuntu 22
 
 - 以下是**ubuntu22**为例,其他版本把`<<EOF`后到`EOF`的一段内容更换为自己的版本,比如22版本等
 
@@ -203,7 +205,7 @@ sudo apt update
 #sudo apt upgrade
 
 ```
-### ubuntu24 清华源
+#### ubuntu24 清华源
 
 ```bash
 # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
@@ -225,7 +227,7 @@ deb http://security.ubuntu.com/ubuntu/ noble-security main restricted universe m
 
 
 
-### 简化版 (从默认源替换为国内源)
+### sed换源法 (从默认源替换为国内源)
 
 将source.list 文件修改为清华源ubutun22😊
 
