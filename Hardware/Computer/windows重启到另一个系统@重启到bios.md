@@ -2,6 +2,16 @@
 
 ## abstract
 
+本文介绍从windows系统重启到BIOS和安装在其他盘符的系统的方法(一次性或临时切换系统)
+
+其实重启到其他系统和BIOS有常规办法,前者可以到`msconfig`中设置默认启动系统项,但是不够方便,因为下次可能还要改回来,除非你确实想要替换默认启动项
+
+而重启BIOS不同机器主板可能有不同的进入方法,一般是趁开机时快速连续按下某个(组合)键,如果能从windows直接重启到BIOS,就会方便许多
+
+时间仓促,本文没有将BIOS和多系统整合起来,有兴趣可以自己修改
+
+### 重启到BIOS
+
 windows重启到BIOS命令`shutdown /r /fw /t 0` 是一个在 Windows 操作系统中用于重新启动计算机并打开固件（通常是 BIOS/UEFI 界面）选项的命令。
 
 ### 解释
@@ -28,9 +38,36 @@ shutdown /r /fw /t 0 #立即重启
 
 ![](https://i-blog.csdnimg.cn/direct/83c98678511442609e097c54f9f712a9.png)
 
+### 注意选项
+
+- 第一个选项是Boot Manager,这个选项不一定管用,重启后可能会提示你丢失文件,这时候选择重启到已安装系统中即可
+
+### 在线一键启动选择窗口👺
+
+```powershell
+ irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1 |iex #代码下载到本地
+ rebootToOS #打开重启到另一个系统的选择窗口
+ 
+```
+
+推荐使用这个方式运行,可以将其做成快捷方式,下次就可以双击运行了
+
+### 保存为桌面脚本/快捷方式
+
+```powershell
+@"
+powershell -noprofile -nologo -c "Invoke-RestMethod https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1 | Invoke-Expression ;rebootToOS "
+pause
+
+"@ > $home\desktop\rebootToOS.bat
+
+```
+
+保存为cmd(.bat)文件到桌面,下次双击会通过cmd调用powershell下载代码(一瞬间)打开重启系统选择窗口
+
 ### powershell一键操作
 
-将以下代码粘贴到powershell中回车执行
+将以下代码粘贴到powershell中回车执行(老版本,可以离线粘贴运行)
 
 ```powershell
 function Get-BootEntries
