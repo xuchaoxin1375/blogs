@@ -15,7 +15,31 @@
 
 ### 示例
 如果你在命令行中输入以下命令：
-```
-shutdown /r /fw
+```bash
+shutdown /r /fw /t 0 #立即重启
 ```
 系统会关闭所有正在运行的应用并保存设置，然后重启，并在重启时自动进入 BIOS/UEFI 界面，用户可以对系统配置进行修改。
+
+## 重启到另一个系统
+
+```bash
+
+#⚡️[cxxu@CXXUREDMIBOOK][~\Desktop][21:49:21][UP:0.03Days]
+PS> cmd /c bcdedit /bootsequence '{b794f931-144f-11ef-bbb1-dcfb484e80bc}'
+操作成功完成。
+
+#⚡️[cxxu@CXXUREDMIBOOK][~\Desktop][21:49:23][UP:0.03Days]
+PS> cmd /c bcdedit /bootsequence '{current}'
+操作成功完成。
+```
+
+注意,需要用`{}`来包为`identifier`
+
+```bash
+#⚡️[cxxu@CXXUREDMIBOOK][~\Desktop][21:49:15][UP:0.03Days]
+PS> cmd /c bcdedit /bootsequence 'b794f931-144f-11ef-bbb1-dcfb484e80bc'
+按规定项列表数据无效。
+运行 "bcdedit /?" 获得命令行帮助。
+参数错误。
+```
+
