@@ -10,6 +10,10 @@
 
 时间仓促,本文没有将BIOS和多系统整合起来,有兴趣可以自己修改
 
+或者使用功能类似的更完整的第三方软件
+
+- [Download iReboot - NeoSmart Technologies](https://neosmart.net/iReboot/?utm_source=EasyBCD&utm_medium=software&utm_campaign=EasyBCD iReboot)
+
 ### 重启到BIOS
 
 windows重启到BIOS命令`shutdown /r /fw /t 0` 是一个在 Windows 操作系统中用于重新启动计算机并打开固件（通常是 BIOS/UEFI 界面）选项的命令。
@@ -40,7 +44,10 @@ shutdown /r /fw /t 0 #立即重启
 
 ### 注意选项
 
-- 第一个选项是Boot Manager,这个选项不一定管用,重启后可能会提示你丢失文件,这时候选择重启到已安装系统中即可
+- 第一个选项是Boot Manager,这个选项不一定管用,重启后可能会提示你丢失文件,这时候选择重启到已安装系统中或进入到BIOS
+  - Enter键选择进入已安装系统
+  - ESC键进入到BIOS
+
 
 ### 在线一键启动选择窗口👺
 

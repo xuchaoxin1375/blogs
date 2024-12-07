@@ -16,6 +16,14 @@
 
 关于bcdedit更改启动项的操作演示和说明,可以直接跳转到相应章节
 
+## 相关软件
+
+第三软件有集成系统引导设置功能的入口,提供更完整和方便的设置体验
+
+- [EasyBCD - NeoSmart Technologies](https://neosmart.net/EasyBCD/)
+  - 个人用户选择最后一个非商用版本(免费,需要填写邮箱)
+- [windows重启到另一个系统@重启到bios-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/144302302)
+
 ## 修改Windows启动项名称的步骤
 
 ### 准备工作
