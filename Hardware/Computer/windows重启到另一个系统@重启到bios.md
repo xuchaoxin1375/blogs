@@ -48,6 +48,9 @@ shutdown /r /fw /t 0 #立即重启
   - Enter键选择进入已安装系统
   - ESC键进入到BIOS
 
+## 获取软件代码
+
+运行此窗口十分简单,打开powershell,复制粘贴以下命令行回车执行即可
 
 ### 在线一键启动选择窗口👺
 
@@ -59,22 +62,30 @@ shutdown /r /fw /t 0 #立即重启
 
 推荐使用这个方式运行,可以将其做成快捷方式,下次就可以双击运行了
 
-### 保存为桌面脚本/快捷方式
+### 保存为桌面脚本/快捷方式👺
+
+打开powershell,复制粘贴执行以下内容
 
 ```powershell
+$p="$home\desktop\rebootToOS.bat" #可以根据需要修该保存目录(或者默认保存到桌面后,再移动到你想要的地方)
 @"
 powershell -noprofile -nologo -c "Invoke-RestMethod https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1 | Invoke-Expression ;rebootToOS "
 pause
 
-"@ > $home\desktop\rebootToOS.bat
+"@ > $p
+. $p
 
 ```
 
 保存为cmd(.bat)文件到桌面,下次双击会通过cmd调用powershell下载代码(一瞬间)打开重启系统选择窗口
 
-### powershell一键操作
+这里之所以保存为`.bat`是powershell脚本文件`.ps1`启动时有安全策略问题,保存为`.bat`更方便
 
-将以下代码粘贴到powershell中回车执行(老版本,可以离线粘贴运行)
+
+
+### 离线版本
+
+将以下代码粘贴到powershell中回车执行(老版本,可以离线粘贴运行,代码会更新)
 
 ```powershell
 function Get-BootEntries
