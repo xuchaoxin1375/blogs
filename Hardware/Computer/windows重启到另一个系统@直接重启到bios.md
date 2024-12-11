@@ -8,9 +8,7 @@
 
 而重启BIOS不同机器主板可能有不同的进入方法,一般是趁开机时快速连续按下某个(组合)键,如果能从windows直接重启到BIOS,就会方便许多
 
-时间仓促,本文没有将BIOS和多系统整合起来,有兴趣可以自己修改
-
-或者使用功能类似的更完整的第三方软件
+或者使用功能类似的更完整的第三方软件(EasyBCD家族工具)
 
 - [Download iReboot - NeoSmart Technologies](https://neosmart.net/iReboot/?utm_source=EasyBCD&utm_medium=software&utm_campaign=EasyBCD iReboot)
 
@@ -36,11 +34,13 @@ shutdown /r /fw /t 0 #立即重启
 
 ## 重启到另一个系统
 
-使用powershell启动到指定系统(win10之后系统测试通过,win7可能要安装最新补丁运行powershell5以上)
+使用powershell启动到指定系统
+
+有powershell5以上就能运行,win10之后系统测试通过,win7可能要安装最新补丁运行powershell5以上
 
 功能预览
 
-![](https://i-blog.csdnimg.cn/direct/83c98678511442609e097c54f9f712a9.png)
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/dd09076657664028a3186b898aff70a7.png)
 
 ### 注意选项
 
@@ -321,6 +321,8 @@ Identifier                             device                             Descri
 
 ### 手动操作
 
+在powershell执行的话,需要对`{}`外加`' '`单引号对包裹
+
 ```bash
 
 #⚡️[cxxu@CXXUREDMIBOOK][~\Desktop][21:49:21][UP:0.03Days]
@@ -332,7 +334,7 @@ PS> cmd /c bcdedit /bootsequence '{current}'
 操作成功完成。
 ```
 
-注意,需要用`{}`来包为`identifier`
+注意,需要用`{}`来包为`identifier`,否则命令行无法识别
 
 ```bash
 #⚡️[cxxu@CXXUREDMIBOOK][~\Desktop][21:49:15][UP:0.03Days]

@@ -51,10 +51,24 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 
 下面这个配置其实兼容linux,但是由两个语句是linux理解不了的,所以在linux上会慢一点
 
+为了将输出结果和终端命令行可读性更好,这里设置了一个空行,间隔命令行和输出
+
 ```json
-"c": " gcc    $fullFileName -o \"$workspaceRoot/a.exe\" ; set-alias eval iex 2>null; chcp 65001 2>null ; eval \"$workspaceRoot/a.exe\" ",
-"cpp": " g++    $fullFileName -o \"$workspaceRoot/a.exe\" ; set-alias eval iex 2>null; chcp 65001 2>null ; eval \"$workspaceRoot/a.exe\" ",
+// Windows
+"c": " gcc    $fullFileName -o \"$workspaceRoot/a.exe\" &&  chcp 65001 >$null; echo '' ;. \"$workspaceRoot/a.exe\" ",
+"cpp": " g++    $fullFileName -o \"$workspaceRoot/a.exe\" && chcp 65001 >$null;echo '' ; . \"$workspaceRoot/a.exe\" ",
 ```
+
+运行结果
+
+```powershell
+PS>  g++    "c:\repos\c_cpp_consoleapps\zh测试中文目录\helloworld你好世界Pause.cpp" -o "c:\repos\c_cpp_consoleapps/a.exe" ; if ($?) { chcp 65001 >$null;echo '' ; . "c:\repos\c_cpp_consoleapps/a.exe"  }
+
+Hello World!(你好,世界123)
+
+```
+
+
 
 #### 其他候选参考配置
 
@@ -126,7 +140,11 @@ vscode中编译和调试可以分开,编译环节可以使用命令`Run build ta
 - Back slash: please use `\\`
 - If there ares spaces in file path, please use `\"` to surround your file path
 
+### 利用vscode profiles设置多套配置
 
+vscode profiles 是vscode的一项强大特性,能够为你隔离不同的vscode环境,在不同的profile配置下,可以定制各自profile下的插件启用和配置,比如可以配置linux下的C/C++变成环境,和windows下的C/C++编程环境进行独立自定义
+
+[Profiles in Visual Studio Code](https://code.visualstudio.com/docs/editor/profiles)
 
 ### 直接配置
 
