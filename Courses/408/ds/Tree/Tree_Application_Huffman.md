@@ -1,6 +1,8 @@
-@[toc]
+[toc]
 
-# dataStructrue_二叉树的应用__Huffman/哈夫曼树和哈夫曼编码/最优归并树/最优m叉树/UnionSet
+# abstract
+
+dataStructrue_二叉树的应用__Huffman/哈夫曼树和哈夫曼编码/最优归并树/最优m叉树/UnionSet
 
 # 相关概念
 

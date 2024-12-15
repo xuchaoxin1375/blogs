@@ -153,7 +153,7 @@ flowchart LR
 	b---c & e
 ```
 
-## 子图
+## 子图👺
 
 ### 例子1
 
@@ -194,6 +194,7 @@ flowchart LR
         B ---->|No| E[End]
         %%flowchart TB   
         c1-->a2
+        
         subgraph one
         a1-->a2
         end
@@ -205,7 +206,7 @@ flowchart LR
         end
        
     ```
-
+    
     - ```m
       flowchart TD
           A[Start] --> B{Is it?}
@@ -228,7 +229,7 @@ flowchart LR
           end
          
       ```
-
+    
       
 
 ### 例子3
@@ -358,7 +359,7 @@ flowchart TB
   ```
 
   - ```tex
-    flowchart LR
+    flowchart LR;
     	subgraph net1
     	 H1 & H2
     	end
