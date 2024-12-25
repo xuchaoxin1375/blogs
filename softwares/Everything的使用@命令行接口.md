@@ -6,6 +6,8 @@
 
 Everything 是一款功能强大的文件搜索工具，它能快速地在 Windows 系统中搜索文件和文件夹。除了图形用户界面（GUI）之外，Everything 还提供了命令行接口（CLI），使得用户可以通过命令行来进行搜索和执行各种操作。使用 CLI 接口的优势在于它可以方便地集成到脚本中，自动化搜索任务，或者通过管道将搜索结果与其他命令结合使用。
 
+- [使用文档|支持|中文 Everything - voidtools](https://www.voidtools.com/zh-cn/support/everything/)
+  
 - [Command Line Options - voidtools](https://www.voidtools.com/zh-cn/support/everything/command_line_options/#搜索)
 - [Command Line Interface - voidtools](https://www.voidtools.com/zh-cn/support/everything/command_line_interface/)
 - [Searching - voidtools|搜索语法(GUI/CLI通用)](https://www.voidtools.com/support/everything/searching/)
@@ -16,7 +18,13 @@ Everything 是一款功能强大的文件搜索工具，它能快速地在 Windo
 
 ## Everything CLI 接口使用介绍
 
+### 搜索
 
+相关中文文档如下
+
+- [Searching - voidtools](https://www.voidtools.com/zh-cn/support/everything/searching/)
+
+- [搜索|常见问题 - voidtools](https://www.voidtools.com/zh-cn/faq/#搜索)
 
 ###  安装 Everything CLI
 
@@ -36,9 +44,19 @@ scoop install everything-cli -g
 
 一步到位,但是需要部署scoop,建议是加速版本scoop 
 
-### 基本命令用法
+## everything局限性
 
-Everything CLI 的核心命令是 `es`，它用于在命令行中执行搜索。下面是一些基本的使用示例：
+- everything无法设置跟踪符号链接(软连接)进行搜索
+- 例如,`C:\share`的target是`D:\share`,则想要搜share目录中的内容,指定`C:\share`是达不到目的,everything会将其认为是一个文件
+- 要么移除掉盘符,直接指定`share\`,或者指定target的目录`D:\share`
+
+## 基本命令行用法👺
+
+Everything CLI 的核心命令是 `es`，它用于在命令行中执行搜索。
+
+### es命令行
+
+下面是一些基本的使用示例：
 
 #### 搜索文件
 
@@ -53,6 +71,22 @@ es "关键字"
 ```bash
 es "document"
 ```
+
+### 搜索包含指定文本的文件
+
+```cmd
+es 数学\ content:根号
+```
+
+搜索计算机上目录名为`数学`,且内容包含了`根号`的文件
+
+```cmd
+PS> es 初中数学\ content:根号
+D:\share\textbooks\初中数学\义务教育教科书·数学1级下册.pdf
+D:\share\textbooks\初中数学\义务教育教科书·数学2级下册.pdf
+```
+
+
 
 #### 使用通配符
 

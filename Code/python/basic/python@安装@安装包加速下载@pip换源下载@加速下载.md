@@ -1,5 +1,15 @@
 [toc]
 
+[toc]
+
+## abstract
+
+介绍安装windows中安装python的各种方法
+
+包括直接安装和间接安装,初步学习可以使用直接安装,深入学习可以使用间接安装,比如使用conda或minicond来安装
+
+无论哪一种方法,都是试图避开官网的龟速下载,并且可以免使用代理加速就可以获得快速的下载或环境部署体验
+
 ## 安装python
 
 - python官网资源
@@ -9,19 +19,90 @@
 - 安装python时我们有多种选择
   - 不同系统的方式有所不同,例如linux系统基本都自带python,但是如果版本不满足需要,我们还是需要做升级或者额外安装
   - 对于需要同时使用多个版本的python,使用Conda这类管理软件来管理则是一个常用的做法
-- 以windows为例
-  1. 官网下载后安装(下载慢,有耐心可以等等,通常是可以下载下来的)
-  2. windows命令行工具(比如winget)下载安装(下载慢,甚至下载不下来)
-  3. windows 中的Microsoft Store应用商店(下载速度还可以,但是对于老版windows不友好)
-  4. 使用**MiniConda**(或Anaconda)来安装python(MiniConda最通用,资源丰富,功能强大,体积会比单独的python安装包大点,但是国内镜像资源多,下载反而是最容易最快的)
-  5. 某些论坛其他人通过云盘等方式分享来下载,但是安全性就不能保证了
 
-### 小结
+### windows上安装python方法列举👺
+
+1. 官网下载后安装(下载慢,有耐心可以等等,通常是可以下载下来的)
+2. windows命令行工具(比如winget)下载安装(下载慢,甚至下载不下来)
+3. windows 中的Microsoft Store应用商店(下载速度还可以,但是对于老版windows不友好)
+4. 使用命令行包管理器工具下载(适合于对相关工具有使用经验的用户)
+   1. winget
+   2. scoop
+5. 使用**MiniConda**(或Anaconda)来安装python(MiniConda最通用,资源丰富,功能强大,体积会比单独的python安装包大点,但是国内镜像资源多,下载反而是最容易最快的)
+6. 某些论坛其他人通过云盘等方式分享来下载,但是安全性就不能保证了
+
+
+
+### 小结和方法推荐
 
 - 考虑到国内的网络环境,我**个人最推荐安装python的方法是用MiniConda简介安装**,好处有
   - 免费跨平台,windows,linux等都可以,新老系统都可以运行
   - 资源丰富,镜像下载快速,而且安装快速(注意是Miniconda快,它够用了;如果是Anaconda因为体积很大,速度就慢不少)
   - 功能强大,可以方便地管理多个python环境
+
+### 包管理器命令行中下载python
+
+#### winget
+
+先搜索相关包,比如搜`python 3.13`
+
+```cmd
+PS> winget search 'python 3.13'
+Name        Id                 Version Source
+-----------------------------------------------
+Python 3.13 9PNRBTZXMB4Z       Unknown msstore
+Python 3.13 Python.Python.3.13 3.13.1  winget
+```
+
+来源于`msstore`的版本下载速度一般比较快,也就是应用商店版
+
+而来源于winget速度不能保证,一般比较慢
+
+查询到id后,拷贝下来或者手敲,然后执行安装操作`winget install 9PNRBTZXMB4Z`
+
+```cmd
+PS> winget install 9pnrbtzxmb4z
+Found Python 3.13 [9PNRBTZXMB4Z] Version Unknown
+This package is provided through Microsoft Store. winget may need to acquire the package from Microsoft Store on behalf of the current user.
+Agreements for Python 3.13 [9PNRBTZXMB4Z] Version Unknown
+Version: Unknown
+Publisher: Python Software Foundation
+Publisher Url: https://www.python.org/
+Publisher Support Url: https://www.python.org/doc/
+License: https://docs.python.org/3.13/license.html
+Privacy Url: https://www.python.org/privacy
+Copyright: (c) Python Software Foundation
+Agreements:
+  Category: Developer tools
+  Pricing: Free
+  Free Trial: No
+  Terms of Transaction: https://aka.ms/microsoft-store-terms-of-transaction
+  Seizure Warning: https://aka.ms/microsoft-store-seizure-warning
+  Store License Terms: https://aka.ms/microsoft-store-license
+
+The publisher requires that you view the above information and accept the agreements before installing.
+Do you agree to the terms?
+[Y] Yes  [N] No: y
+Starting package install...
+  ██████████████████████████████  100%
+Successfully installed
+```
+
+卸载也很方便
+
+```cmd
+PS> winget uninstall 'python 3.13'
+Found Python 3.13 [9PNRBTZXMB4Z]
+Starting package uninstall...
+  ██████████████████████████████  100%
+Successfully uninstalled
+```
+
+#### scoop 
+
+scoop 需要部署国内版,而且一般需要添加bucket(python在main bucket就有最新版,但是下载路径是官网地址,任然可能遇到卡慢或下不动的情况,而且jiu'suan不用关心bucket,但是如果要用老一点的版本,可能需要其他bucket)
+
+
 
 ## python下载
 

@@ -106,7 +106,7 @@ $pwsh_home="C:\ProgramData\scoop\apps\powershell\current" #scoop 安装的最新
 cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
 ```
 
-### 将typora设置为Markdown打开方式
+### 将typora设置为Markdown打开方式👺
 
 - 假设我将typora安装在以下目录(通过scoop安装)
 

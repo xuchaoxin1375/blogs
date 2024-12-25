@@ -51,9 +51,13 @@
 
 ## 证明
 
-- 设 ${\displaystyle x_{1},x_{2},\dots ,x_{n}}$ 是一元 n 次多项式 ${M(x)=a_{n}x^{n}+a_{n-1}x^{n-1}+\cdots +a_{1}x+a_{0}}$ 的 n 个根。
+- 设 ${\displaystyle x_{1},x_{2},\dots ,x_{n}}$ 是一元 $n$ 次多项式 ${M(x)=a_{n}x^{n}+a_{n-1}x^{n-1}+\cdots +a_{1}x+a_{0}}$ 的 n 个根。
 
-- 于是有${a_{n}x^{n}+a_{n-1}x^{n-1}+\cdots +a_{1}x+a_{0}=a_{n}(x-x_{1})(x-x_{2})\cdots (x-x_{n})}$
+- 于是有${a_{n}x^{n}+a_{n-1}x^{n-1}+\cdots +a_{1}x+a_{0}}$=$a_{n}(x-x_{1})(x-x_{2})\cdots (x-x_{n})$
+
+  - $a_{n-1}x^{n-1}$=$a_{n}(-x_{1}x^{n-1}-x_{2}x^{n-1}\cdots-x_{n}x^{n-1})$=$-a_{n}(x_{1}+x_{2}+\cdots+x_{n})x^{n-1}$;
+  - 即$a_{n-1}$=$-a_{n}(x_{1}+x_{2}+\cdots+x_{n})$
+  - $a_{n-i}$=$(-1)^{i}a_{n} \left[\sum\limits_{j_{1}<j_{2}<\cdots{<j_{i}}}x_{j_{1}}x_{j_{2}}\cdots{x_{j_{i}}}\right]$
 
 - 根据乘法原理展开右式，比较等号两边的各项系数可得
 
