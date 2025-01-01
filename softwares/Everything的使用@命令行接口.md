@@ -44,11 +44,31 @@ scoop install everything-cli -g
 
 一步到位,但是需要部署scoop,建议是加速版本scoop 
 
-## everything局限性
+## everything局限性👺
 
-- everything无法设置跟踪符号链接(软连接)进行搜索
+- everything无法设置跟踪**符号链接(软连接)**进行搜索(有时候搜不出内容来就是这个原因!)
+
+  - ```bash
+    #⚡️[cxxu@CXXUREDMIBOOK][C:\share][23:30:21][UP:13.03Days]
+    PS> es parent:C:\share *.txt
+    
+    #⚡️[cxxu@CXXUREDMIBOOK][C:\share][23:30:54][UP:13.03Days]
+    PS> es parent:D:\share *.txt
+    D:\share\readme.txt
+    D:\share\readme_zh-cn(本共享文件夹使用说明).txt
+    D:\share\redmibook.txt
+    D:\share\共享数据站点(三种协议)使用说明.txt
+    ```
+
+    
+
 - 例如,`C:\share`的target是`D:\share`,则想要搜share目录中的内容,指定`C:\share`是达不到目的,everything会将其认为是一个文件
+
 - 要么移除掉盘符,直接指定`share\`,或者指定target的目录`D:\share`
+
+## 直观的高级搜索
+
+- everything的搜索可用参数十分多,使用GUI程序里的高级搜索可以更方便的限定搜索条件,比如时间,目录等
 
 ## 基本命令行用法👺
 
@@ -72,18 +92,64 @@ es "关键字"
 es "document"
 ```
 
+### 限定搜索目录范围👺
+
+```cmd
+搜索指定路径下的文件和文件夹 (不包含子文件夹)。
+parent:<path>
+infolder:<path>
+nosubfolders:<path>	
+匹配完整路径和文件名或仅文件名。
+path: 如果某个文件或目录的绝对路径中存在或匹配上需要查找的关键字,则命中(这个修饰符很少用,搜索出来的内容比较啰嗦)
+nopath: 仅对于文件名或目录名(不考虑父母录或其绝对路径上的其他部分)做匹配(默认行为)
+```
+
+```cmd
+PS> es infolder:D:\repos\blogs\todo
+D:\repos\blogs\ToDo\demo
+D:\repos\blogs\ToDo\MK例会记录
+D:\repos\blogs\ToDo\cpp@try.md
+D:\repos\blogs\ToDo\L1.md
+D:\repos\blogs\ToDo\L2.md
+D:\repos\blogs\ToDo\爬坡挑战 (爬坡小车)1.md
+```
+
+
+
 ### 搜索包含指定文本的文件
+
+#### 例1
+
+搜索计算机上目录名为`数学`,且内容包含了`根号`的文件
 
 ```cmd
 es 数学\ content:根号
 ```
 
-搜索计算机上目录名为`数学`,且内容包含了`根号`的文件
+
 
 ```cmd
 PS> es 初中数学\ content:根号
 D:\share\textbooks\初中数学\义务教育教科书·数学1级下册.pdf
 D:\share\textbooks\初中数学\义务教育教科书·数学2级下册.pdf
+```
+
+#### 例2
+
+搜索计算机上所有`blogs`目录下的包含`spider`关键字的文件或目录
+
+```powershell
+#⚡️[cxxu@CXXUREDMIBOOK][C:\repos\blogs][22:51:51][UP:13Days]{Git:main}
+PS> es blogs\ spider
+D:\repos\blogs\softwares\loSpider
+D:\repos\blogs\LocySpider
+```
+
+搜索`blogs`目录下的`demo`子目录
+
+```
+PS> es blogs\ folder:demo
+D:\repos\blogs\ToDo\demo
 ```
 
 
@@ -177,7 +243,7 @@ pause
 es -path "C:\Projects" -n 5 -s "date modified" "*.cpp" > recent_cpp_files.txt
 ```
 
-### 搜索某个目录下的某个子目录或文件
+### 搜索某个目录下的某个子目录或文件👺
 
 ```powershell
 #搜索计算机上路径中包含msys开头的(子)目录并且该目录下存在包含g++.exe的文件

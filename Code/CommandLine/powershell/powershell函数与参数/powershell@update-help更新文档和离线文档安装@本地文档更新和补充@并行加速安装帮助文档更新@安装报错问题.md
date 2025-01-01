@@ -94,12 +94,12 @@ PS🌙[BAT:99%][MEM:33.57% (2.64/7.85)GB][1:34:18]
 
 安装了快5分钟才结束,总体积大约2~3MB
 
-### 使用并行下载策略
+### 使用并行下载策略保存帮助文档
 
 ```powershell
 $modules = Get-Module -ListAvailable | Where-Object -Property HelpInfoUri
 
-$Destination = 'C:\PsHelpx' #指定你想要的下载目录即可
+$Destination = 'C:\share\PsHelpx' #指定你想要的下载目录即可
 New-Item -ItemType Directory -Path $Destination -Verbose -Force
 
 $modules.Name | ForEach-Object -Parallel {
@@ -112,7 +112,16 @@ $modules.Name | ForEach-Object -Parallel {
 
 耗时在10秒内
 
-也可以用并发的方式在线安装
+### 安装本地帮助
+
+```powershell
+$Destination = 'C:\share\PsHelpx' #指定你想要的下载目录即可
+update-Help -Path $Destination -UICulture en-US -Verbose 
+```
+
+
+
+### 并发的方式在线安装
 
 ```powershell
 $modules = Get-Module -ListAvailable | Where-Object -Property HelpInfoUri
