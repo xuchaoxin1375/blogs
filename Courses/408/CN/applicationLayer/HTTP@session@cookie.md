@@ -1,15 +1,20 @@
 [toc]
 
-# CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session ID)
+## abstract
+
+CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session ID)
 
 ###  references
+
+[HTTP | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP)
 
 - [HTML表单指南 - 学习 Web 开发 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Learn/Forms)
 
 - [创建我的第一个表单 - 学习 Web 开发 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Learn/Forms/Your_first_form)
 
 - [发送表单数据 - 学习 Web 开发 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Learn/Forms/Sending_and_retrieving_form_data)
-- [HTTP | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP)
+
+
 
 ## 告知服务器意图的 HTTP 方法🎈
 
@@ -97,6 +102,22 @@ HTTP 协议使用 URI 定位互联网上的资源。正是因为 URI 的特定�
 
 ![image-20220529123819238](https://s2.loli.net/2022/05/29/bEOYCXLelMGsRD3.png)
 
+- URI为完整的请求URI
+  - ```http
+    GET http://hackr.jp/index.htm HTTP/1.1
+    ```
+  
+    
+  
+- 在首部字段Host中写明网络域名或IP地址
+  - ```http
+     GET /index.htm HTTP/1.1
+     Host: hackr.jp
+    
+    ```
+  
+    
+
 #### 请求服务器本身
 
 > 如果**不是访问特定资源**而是**对服务器本身**发起请求，可以**用一个 * 来代替请求 URI**。
@@ -107,7 +128,7 @@ HTTP 协议使用 URI 定位互联网上的资源。正是因为 URI 的特定�
 
 
 
-## 使用 Cookie 的状态管理
+## 使用 Cookie 的状态管理👺
 
 #### HTTP cookies
 

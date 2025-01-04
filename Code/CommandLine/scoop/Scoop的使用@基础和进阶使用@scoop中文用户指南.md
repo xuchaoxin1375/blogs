@@ -637,7 +637,7 @@ ResolvedCommandName : python.exe
 DisplayName         : py -> python.exe
 ```
 
-### 配置代理
+### 配置代理👺
 
 windows下通过配置环境变量来设置代理:(根据自己的情况设置2个环境变量`http_proxy`,`https_proxy`)
 
