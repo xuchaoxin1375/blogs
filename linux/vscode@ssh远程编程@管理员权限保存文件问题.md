@@ -19,29 +19,30 @@
     > 192.168.37.129
     ```
 
-- 正式启动示例
 
-  linux server
+### 启动示例
 
-  ```powershell
-  #根据查询到的ip地址,创建变量
-  $target_host="192.168.37.129"
-  $target_dir="/home/cxxu" #用户cxxu家目录
-  #$target_dir="/home/" #非家目录测试
-  code --folder-uri "vscode-remote://ssh-remote+$target_host/$target_dir"
-  ```
+linux server
 
-  windows server
+```powershell
+#根据查询到的ip地址,创建变量
+$target_host="192.168.37.129"
+$target_dir="/home/cxxu" #用户cxxu家目录
+#$target_dir="/home/" #非家目录测试
+code --folder-uri "vscode-remote://ssh-remote+$target_host/$target_dir"
+```
 
-  ```powershell
-  #如果是windows,方式类似,并且如果启用了网络发现,可以用计算机名代替ip,创建变量
-  $Server = 'redmibookpc'
-  $target_dir = 'C:\users\cxxu' #用户cxxu家目录
-  # $target_dir="C:\repos\scripts" #非家目录测试
-  code --folder-uri "vscode-remote://ssh-remote+$Server/$target_dir"
-  ```
+windows server
 
-  
+```powershell
+#如果是windows,方式类似,并且如果启用了网络发现,可以用计算机名代替ip,创建变量
+$Server = 'cxxuRedmibook'
+$target_dir = 'C:\users\cxxu' #用户cxxu家目录
+# $target_dir="C:\repos\scripts" #非家目录测试
+code --folder-uri "vscode-remote://ssh-remote+$Server/$target_dir"
+```
+
+
 
 - 不出意外,则可以看到一个打开ubt22主机的家目录的vscode
 
