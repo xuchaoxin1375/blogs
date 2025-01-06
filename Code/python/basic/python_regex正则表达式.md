@@ -334,7 +334,25 @@
   - A word is defined as a sequence of word characters. Note that formally, `\b` is defined as the **boundary** between a `\w` and a `\W` character (or vice versa), or between `\w` and the beginning/end of the string. 
   - This means that `r'\bfoo\b'` matches `'foo'`, `'foo.'`, `'(foo)'`, `'bar foo baz'` but not `'foobar'` or `'foo3'`.By default Unicode alphanumerics are the ones used in Unicode patterns, but this can be changed by using the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag. 
   - Word boundaries are determined by the current locale if the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used. Inside a character range, `\b` represents the backspace character, for compatibility with Python’s string literals.
-
+  - ```python
+    import re
+    
+    text = "这是一个测试字符串，test testing tested @@@test"
+    pattern = r'\btest\b'
+    matches = re.finditer(pattern, text)
+    
+    for match in matches:
+        start = match.start()
+        end = match.end()
+        print(f"匹配位置: {start}-{end-1}")  # 输出匹配开始和结束的位置
+    """ 
+    匹配位置: 10-13
+    匹配位置: 33-36
+     """
+    ```
+  
+    
+  
 - `\B`
 
   Matches the empty string, but only when it is *not* at the beginning or end of a word. This means that `r'py\B'` matches `'python'`, `'py3'`, `'py2'`, but not `'py'`, `'py.'`, or `'py!'`. `\B` is just the opposite of `\b`, so word characters in Unicode patterns are Unicode alphanumerics or the underscore, although this can be changed by using the [`ASCII`](https://docs.python.org/3/library/re.html?highlight=findall#re.ASCII) flag. Word boundaries are determined by the current locale if the [`LOCALE`](https://docs.python.org/3/library/re.html?highlight=findall#re.LOCALE) flag is used.
