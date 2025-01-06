@@ -70,7 +70,7 @@
 
 - 借助模式对象的`finditer()`方法,再迭代它可以获取索引信息,末尾的例子中使用了`finditer`
 
-## 辅助GUI程序redemo.py
+## 辅助GUI程序redemo.py👺
 
 - 如果你有 [`tkinter`](https://docs.python.org/zh-cn/3/library/tkinter.html#module-tkinter)，你可能还想查看 [Tools/demo/redemo.py](https://github.com/python/cpython/tree/3.11/Tools/demo/redemo.py)，这是 Python 发行附带的演示程序。
 
