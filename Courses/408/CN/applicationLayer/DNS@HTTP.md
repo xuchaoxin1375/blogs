@@ -195,6 +195,10 @@ HTTP 协议规定，请求从客户端发出，最后服务器端响应该请求
   - 比如，用户登录到一家购物网站，即使他跳转到该站的其他页面后，也需要能继续保持登录状态。
   - 针对这个实例，网站为了能够掌握是谁送出的请求，需要保存用户的状态。
 
+### URL链接介绍
+
+- [什么是 URL？ - 学习 Web 开发 | MDN](https://developer.mozilla.org/zh-CN/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL)
+
 ## Cookie
 
 
