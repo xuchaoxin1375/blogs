@@ -6,17 +6,22 @@
 
 - [Entity - 术语表 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Glossary/Entity)
 
+- [Unicode 符号表 - 所有 Unicode 字符及其代码都在一页上 (◕‿◕) SYMBL](https://symbl.cc/cn/unicode-table/)
+
 ### 部分表格预览
 
-- | `nbsp;`   | U+000A0         | 空格 |
-  | --------- | --------------- | ---- |
-  | `nbump;`  | U+0224E U+00338 | ≎̸    |
-  | `nbumpe;` | U+0224F U+00338 | ≏̸    |
-  | `ncap;`   | U+02A43         | ⩃    |
-  | `Ncaron;` | U+00147         | Ň    |
-  | `ncaron;` | U+00148         | ň    |
-  | `Ncedil;` | U+00145         | Ņ    |
-  | `ncedil;` | U+00146         |      |
+参照表:[HTML Standard](https://html.spec.whatwg.org/multipage/named-characters.html#named-character-references)
+
+- | 实体编号(html代码) | UniCode编号     | 描述 |
+  | ------------------ | --------------- | ---- |
+  | `nbsp;`            | U+000A0         | 空格 |
+  | `nbump;`           | U+0224E U+00338 | ≎̸    |
+  | `nbumpe;`          | U+0224F U+00338 | ≏̸    |
+  | `ncap;`            | U+02A43         | ⩃    |
+  | `Ncaron;`          | U+00147         | Ň    |
+  | `ncaron;`          | U+00148         | ň    |
+  | `Ncedil;`          | U+00145         | Ņ    |
+  | `ncedil;`          | U+00146         |      |
 
 ## 渲染失败案例
 
