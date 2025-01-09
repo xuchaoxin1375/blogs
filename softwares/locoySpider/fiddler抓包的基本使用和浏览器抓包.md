@@ -49,11 +49,19 @@ Copyright ©2003-2024 Progress Software Corporation. All rights reserved.
 
 方便起见,可以将解密窗口中的复选框都打勾(只勾选解密可能达不到预期效果)
 
-## 解码抓到的内容
+## 解码(解压)抓到的内容
 
 默认抓到的包是被编码压缩的,为了查看原来的内容,需要选择解码
 
 点击窗格中的横条`Response body is encoded.Click to decode`,将被编码的内容解码会人类可读的形式
+
+### 设置自动解压
+
+工具栏中有一个`Decode`按钮,点击它可以切换是否自动解压功能
+
+鼠标悬停会提示:When enabled,all traffic is decompressed for easy viewing
+
+这个功能默认不启用,需要手动设置
 
 ## 搜索抓到的包中的内容
 
