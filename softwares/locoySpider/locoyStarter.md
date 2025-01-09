@@ -29,7 +29,7 @@
 
 - 部分细节操作可以参考官方录制的视频(质量不是很好,不够利落,供参考)
 
-## 网址采集👺
+## 1:网址采集👺
 
 没有sitemap的情况下,编写规则获取采集网址
 
@@ -124,7 +124,7 @@
 
 本例中,结合打开的页面判断,需要采集的链接级别形如`https://www.boohee.com/shiwu/jidan_junzhi`
 
-### 分页采集(列表页分页)
+### 分页采集(列表页分页)👺
 
 例如,目标链接群呗组织在某个页面列,而且有多个页面
 
@@ -144,7 +144,9 @@
 
 本例火车采集器可以正常访问
 
-### 高级模式
+#### 高级模式采集网址
+
+可以对多级列表页进行链接采集
 
 #### 模式切换
 
@@ -152,7 +154,93 @@
 
 ![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image015.jpg)
 
-## 内容(字段)采集
+### 在采集测试页和规则编辑页间切换
+
+![image-20250109145852187](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109145852187.png)
+
+可以避免多余的重复采集测试,节约时间
+
+有些网站二级列表内网站数量很多,如果仅仅测试网址采集是否可用,可以提前停止采集,查看规则能否按照预期效果运行
+
+## 定位标签或区间👺
+
+确定网页中某个部分区域是核心操作,也是最长执行的操作,提高定位效率显得至关重要;
+
+定位标签的方法有多种
+
+### 根据字符到源码中定位
+
+这种方式效率不是很高,但是也可以作为一种选择
+
+![image-20250109164329447](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109164329447.png)
+
+这是某个商品的描述,假如我想要将这段描述爬取下来,通常需要定位其所在区域的边界(或附近)的标签
+
+在源码中查找(相关字符串可能出现在不同位置,因此结合标签以及附近的内容需要鉴别一下)
+
+![image-20250109164647683](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109164647683.png)
+
+
+
+
+
+### 根据浏览器开发者工具定位
+
+![image-20250109165457269](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109165457269.png)
+
+然后选择比如编辑为
+
+![image-20250109164026149](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109164026149.png)
+
+### 案例补充
+
+多级列表页中,最后一级列表页内的链接提取
+
+一般用自动获取链接地址够用,此时设置区域范围,两侧各有自己的通配符,但是这里不常用,下面仅仅说明可以快捷插入`(*)`
+
+![image-20250109145027623](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109145027623.png)
+
+例如,对于这个例子:   https://www.nexles.com/es/sitemap.xml
+
+这是一个商品站的sitemap.xml;是一个列表页;
+
+内容片段
+
+```xml
+<url>
+...
+</url>
+<url>
+<loc>https://www.nexles.com/es/pop-vriend-semilla-frijoles-clara-de-huevo-100-g.html</loc>
+<lastmod>2025-01-08</lastmod>
+<changefreq>daily</changefreq>
+<priority>1.0</priority>
+</url>
+<url>
+<loc>https://www.nexles.com/es/pieterpikzonen-semilla-col-brunswick-10-g.html</loc>
+<lastmod>2025-01-08</lastmod>
+<changefreq>daily</changefreq>
+<priority>1.0</priority>
+</url>
+```
+
+每个链接被`<loc>`标签包裹
+
+并且每个列表项中包含一个新的页面链接,它仍然是一个列表页
+
+![image-20250109145609595](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109145609595.png)
+
+获取上述页面的链接(采集这些链接,采集到的链接就是商品的详情页)
+
+借助F12定位分析列表页结构,比直接看网页源码方便,但是不能完全代替源码,可以用它来确定标签,尤其是标签引用的css类明,然后到源码中去定位,顺利的话直接用html标签属性来界定列表所在区域的范围代码
+
+![image-20250109150508336](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109150508336.png)
+
+![image-20250109145234045](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109145234045.png)
+
+![image-20250109150011285](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109150011285.png)
+
+## 2:内容(字段)采集👺
 
 ### 前后截取
 
@@ -214,7 +302,7 @@
 
 ![image-20250108153056352](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108153056352.png)
 
-## 内容分页的采集
+### 内容分页的采集👺
 
 测试网址: https://bbs.locoy.com/spider-189148-1-1.html
 
@@ -323,7 +411,7 @@
 
 
 
-## UserAgent和Cookie
+## UserAgent和Cookie👺
 
 ### 在浏览器中查看
 
@@ -387,5 +475,100 @@ UserAgent点击客户端标识表示会引发闪退
 |                                                              |                                                              |                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![image-20250109075830103](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109075830103.png) | ![image-20250109075840023](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109075840023.png) | ![image-20250109075823873](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109075823873.png) |
-|                                                              |                                                              |                                                              |
+
+### http请求方法参考文档
+
+[HTTP 请求方法 - HTTP | MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods)
+
+### 采集Post页面
+
+示例网站[江苏省建设工程招标网](http://www.jszb.com.cn/JSZB/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?categoryNum=012)：http://www.jszb.com.cn/JSZB/YW_info/ZhaoBiaoGG/MoreInfo_ZBGG.aspx?categoryNum=012
+
+![image-20250109092456469](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109092456469.png)
+
+由于post方法的规范，点击不同分页并不会改变地址栏网址
+
+打开配置好的fiddler捕获功能，点击示例网址的若干不同分页，可以捕获到若干post数据包
+
+上述示例页面展示的是列表页,具体的内容页例如
+
+![image-20250109092756448](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109092756448.png)
+
+
+
+![image-20250109092126151](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109092126151.png)
+
+在fiddler捕获状态下确定某个文章链接属于哪个列表页
+
+![image-20250109092923663](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109092923663.png)
+
+### 多个Post 数据包对比分析
+
+区分Get数据包和Post数据包
+
+![image-20250109093444647](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109093444647.png)
+
+尤其是post包要勾选解密,否则搜不出来
+
+这样可以从数据包的角度定位内容页的网址在哪一个列表页分页中
+
+## 创建基本采集规则模板
+
+### 路径保存设置👺
+
+高铁采集器(火车采集器破解版)可以保存为excel,不需要手动编写模板,比较方便
+
+#### 文本内容
+
+![image-20250109114104784](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109114104784.png)
+
+#### 附件图片
+
+![image-20250109114221938](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109114221938.png)
+
+## 关于描述和额外信息的数据采集👺
+
+许多商品页面的描述不是只有文本描述,还带有表格的丰富的数据呈现格式,采集时如果想要保留这些特征比较困难,除非带上html源码(一般指html5,下面简称html为h5)标签,才能携带这些排版信息
+
+幸运的是,wordpress可以正确处理并渲染html源码标签,比如描述部分的加粗,换行排版,特殊字符或html实体字符的编码就不需要手动转换,是的爬取任务大为简化,同时在wordpress网页端渲染效果页和数据采集源站的排版保持相对一致的风格,相比直接渲染文本段更为美观;
+
+但是有一个点要注意,虽然直接爬取源码片段相对简单,但是要注意爬取到的h5源码中可能有一些不适合出现的内容,比如暗藏某些链接,因此我们要对这些链接(或其所在标签,通常是`http(s)`这类`url`需要过滤掉)
+
+
+
+## 规则导出|备份|分享
+
+支持单个导出和批量导出,方法类似
+
+以单个导出和导入为例
+
+### 采集任务(规则)导出
+
+![image-20250109114942419](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109114942419.png)
+
+![image-20250109115037218](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109115037218.png)
+
+
+
+### 规则导入
+
+![image-20250109142005767](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109142005767.png)
+
+### 任务回收站
+
+- 被删除的任务可以在任务回收站中找到,可以恢复或彻底删除
+
+## 采集器软件使用问题
+
+采集器可能会出现打不开的情况(后台有进程,但是窗口弹不出来),可以采取如下办法
+
+- 打开资源管理,搜索**采集器**(无论是火车还是高铁都能扫描到),右键结束任务
+
+- 或者用命令行来结束异常的采集器进程
+
+  ```powershell
+  ps *采集器*|kill
+  ```
+
+结束进程后重新打开采集器
 

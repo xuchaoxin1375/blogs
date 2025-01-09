@@ -18,7 +18,47 @@ CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session I
 
 ## 告知服务器意图的 HTTP 方法🎈
 
-#### GET：获取资源
+[HTTP 请求方法 - HTTP | MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods)
+
+HTTP 定义了一组**请求方法**，以表明要对给定资源执行的操作。指示针对给定资源要执行的期望动作。虽然它们也可以是名词，但这些请求方法有时被称为 *HTTP 动词*。每一个请求方法都实现了不同的语义，但一些共同的特征由一组共享：例如一个请求方法可以是[安全的](https://developer.mozilla.org/zh-CN/docs/Glossary/Safe)、[幂等的](https://developer.mozilla.org/zh-CN/docs/Glossary/Idempotent)或[可缓存的](https://developer.mozilla.org/zh-CN/docs/Glossary/Cacheable)。
+
+- [`GET`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)
+
+  `GET` 方法请求一个指定资源的表示形式，使用 `GET` 的请求应该只被用于获取数据。
+
+- [`HEAD`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/HEAD)
+
+  `HEAD` 方法请求一个与 `GET` 请求的响应相同的响应，但没有响应体。
+
+- [`POST`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/POST)
+
+  `POST` 方法用于将实体提交到指定的资源，通常导致在服务器上的状态变化或副作用。
+
+- [`PUT`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/PUT)
+
+  `PUT` 方法用有效载荷请求替换目标资源的所有当前表示。
+
+- [`DELETE`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/DELETE)
+
+  `DELETE` 方法删除指定的资源。
+
+- [`CONNECT`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/CONNECT)
+
+  `CONNECT` 方法建立一个到由目标资源标识的服务器的隧道。
+
+- [`OPTIONS`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/OPTIONS)
+
+  `OPTIONS` 方法用于描述目标资源的通信选项。
+
+- [`TRACE`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/TRACE)
+
+  `TRACE` 方法沿着到目标资源的路径执行一个消息环回测试。
+
+- [`PATCH`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/PATCH)
+
+  `PATCH` 方法用于对资源应用部分修改。
+
+### GET：获取资源
 
 - GET 方法用来请求访问**已被 URI 识别的资源**。
 
@@ -31,8 +71,7 @@ CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session I
 
 - 如果是像 CGI（Common Gateway Interface，通用网关接口）那样的程序，则返回经过执行后的输出结果。
 
-
-#### POST：传输实体主体
+### POST：传输实体主体
 
 - POST 方法用来传输实体的主体。 
 
@@ -40,7 +79,7 @@ CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session I
 - 虽然用 GET 方法也可以传输实体的主体，但一般不用 GET 方法进行传输，而是用 POST 方法。
 - 虽说 POST 的功能与 GET 很相似，但POST 的主要目的并不是获取响应的主体内容。
 
-#### PUT：传输文件
+### PUT：传输文件
 
 - PUT 方法用来传输文件。
 
@@ -53,24 +92,23 @@ CN form表单指南&基于表单认证:Session 管理及 Cookie 应用(Session I
 
 - 若配合 Web 应用程序的验证机制，或架构设计采用 REST（REpresentational State Transfer，表征状态转移）标准的同类 Web 网站，就可能会开放使用 PUT 方法。
 
-
-#### HEAD：获得报文首部
+### HEAD：获得报文首部
 
 - HEAD 方法和 GET 方法一样，只是不返回报文主体部分。
 - 用于确认URI 的有效性及资源更新的日期时间等。
 
-#### DELETE：删除文件
+### DELETE：删除文件
 
 DELETE 方法用来删除文件，是与 PUT 相反的方法。
 
 - DELETE 方法按请求 URI 删除指定的资源。
 - 但是，HTTP/1.1 的 DELETE 方法本身和 PUT 方法一样不带验证机制，所以一般的 Web 网站也不使用 DELETE 方法。当配合 Web 应用程序的验证机制，或遵守 REST 标准时还是有可能会开放使用的
 
-#### OPTIONS：询问支持的方法
+### OPTIONS：询问支持的方法
 
 OPTIONS 方法用来查询针对请求 URI 指定的资源支持的方法。
 
-#### TRACE：追踪路径
+### TRACE：追踪路径
 
 > TRACE 方法不怎么常用，再加上它容易引发 XST（Cross-Site Tracing，跨站追踪）攻击，通常就更不会用到了。
 
@@ -80,11 +118,11 @@ TRACE 方法是让 Web 服务器端**将之前的请求通信环回给客户端*
 - 客户端通过 TRACE 方法可以**查询发送出去的请求是怎样被加工修改 / 篡改的**。
 - 这是因为，请求想要连接到源目标服务器可能会通过**代理中转**，TRACE 方法就是用来**确认连接过程中发生的一系列操作**。
 
-#### CONNECT：要求用隧道协议连接代理
+### CONNECT：要求用隧道协议连接代理
 
 CONNECT 方法要求在与代理服务器通信时建立隧道，实现用隧道协议进行 TCP 通信。主要使用 SSL（Secure Sockets Layer，安全套接层）和 TLS（Transport Layer Security，传输层安全）协议把通信内容加密后经网络隧道传输。 
 
-#### pipelining
+### pipelining
 
 - 持久连接使得多数请求以管线化（pipelining）方式发送成为可能。
 - 从前发送请求后需等待并收到响应，才能发送下一个请求。管线化技术出现后，不用等待响应亦可直接发送下一个请求。 这样就能够做到同时并行发送多个请求，而不需要一个接一个地等待响应了。
@@ -113,7 +151,7 @@ HTTP 协议使用 URI 定位互联网上的资源。正是因为 URI 的特定�
   - ```http
      GET /index.htm HTTP/1.1
      Host: hackr.jp
-    
+      
     ```
   
     
@@ -126,7 +164,66 @@ HTTP 协议使用 URI 定位互联网上的资源。正是因为 URI 的特定�
 
 `OPTIONS * HTTP/1.1`
 
+## RESTful规范👺
 
+[REST - MDN Web 文档术语表：Web 相关术语的定义 | MDN](https://developer.mozilla.org/zh-CN/docs/Glossary/REST)
+
+[RESTful 架构详解 |](https://www.runoob.com/w3cnote/restful-architecture.html)
+
+### 应用于Web服务
+
+ 
+
+符合REST设计风格的Web API称为**RESTful API**。它从以下三个方面资源进行定义：
+
+- 直观简短的资源地址：URI，比如：`http://example.com/resources`。
+- 传输的资源：Web服务接受与返回的[互联网媒体类型](https://zh.wikipedia.org/wiki/互联网媒体类型)，比如：[JSON](https://zh.wikipedia.org/wiki/JSON)，[XML](https://zh.wikipedia.org/wiki/XML)，[YAML](https://zh.wikipedia.org/wiki/YAML)等。
+- 对资源的操作：Web服务在该资源上所支持的一系列[请求方法](https://zh.wikipedia.org/wiki/超文本传输协议#请求方法)（比如：POST，GET，PUT或DELETE）。
+
+下表列出了在实现RESTful API时HTTP请求方法的典型用途。
+
+|                          资源                          |                             GET                              |                          PUT                          |                             POST                             |        DELETE        |
+| :----------------------------------------------------: | :----------------------------------------------------------: | :---------------------------------------------------: | :----------------------------------------------------------: | :------------------: |
+|   一组资源的URI，比如`https://example.com/resources`   | **列出**URI，以及该资源组中每个资源的详细信息（后者可选）。  |       使用给定的一组资源**替换**当前整组资源。        | 在本组资源中**创建/追加**一个新的资源。该操作往往返回新资源的URL。 |  **删除**整组资源。  |
+| 单个资源的URI，比如`https://example.com/resources/142` | **获取**指定的资源的详细信息，格式可以自选一个合适的网络媒体类型（比如：XML、JSON等） | **替换/创建**指定的资源。并将其追加到相应的资源组中。 | 把指定的资源当做一个资源组，并在其下**创建/追加**一个新的元素，使其隶属于当前资源。 | **删除**指定的元素。 |
+
+PUT和DELETE方法是[幂等方法](https://zh.wikipedia.org/wiki/超文本传输协议#幂等方法)。GET方法是[安全方法](https://zh.wikipedia.org/wiki/超文本传输协议#安全方法)（不会对服务器端有修改，因此当然也是幂等的）。
+
+不像基于[SOAP](https://zh.wikipedia.org/wiki/SOAP)的Web服务，RESTful Web服务并没有“正式”的标准 。这是因为REST是一种架构，而SOAP只是一个协议。虽然REST不是一个标准，但大部分RESTful Web服务实现会使用[HTTP](https://zh.wikipedia.org/wiki/HTTP)、[URI](https://zh.wikipedia.org/wiki/URI)、[JSON](https://zh.wikipedia.org/wiki/JSON)和[XML](https://zh.wikipedia.org/wiki/XML)等各种标准。
+
+### 实现举例
+
+例如，一个简单的网络商店应用：
+
+1. 列举所有商品：
+
+   ```
+   GET http://www.store.com/products
+   ```
+
+2. 呈现某一件商品：
+
+   ```
+   GET http://www.store.com/products/12345
+   ```
+
+3. 下单购买：
+
+   ```
+   POST http://www.store.com/orders
+   <purchase-order>
+     <item> ... </item>
+   </purchase-order>
+   ```
+
+## REST的优点
+
+- 可更高效利用缓存来提高响应速度
+- 通讯本身的无状态性可以让不同的服务器的处理一系列请求中的不同请求，提高服务器的扩展性
+- 浏览器即可作为客户端，简化软件需求
+- 相对于其他叠加在[HTTP协议](https://zh.wikipedia.org/wiki/超文本传输协议)之上的机制，REST的软件依赖性更小
+- 不需要额外的资源发现机制
+- 在软件技术演进中的长期的兼容性更好
 
 ## 使用 Cookie 的状态管理👺
 
