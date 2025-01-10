@@ -274,11 +274,25 @@
 
 ### 正则提取
 
+#### 参数正则
+
+最常用的粗提取是参数正则提取
+
 这个最常用(注意不是正文而是正则),也最通用和强大(但不一定是最简单和最优的,但是熟练掌握后基本就用它);
 
 ![image-20250108141713637](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108141713637.png)
 
 ![image-20250108140814992](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108140814992.png)
+
+#### 纯正则提取
+
+在数据处理中可以进行纯正则提取
+
+![image-20250110144418491](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110144418491.png)
+
+而数据获取部分的`(?<content>?)`功能的使用存疑,尤其是组合结果中捕获结果的使用
+
+![image-20250110144606697](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110144606697.png)
 
 ### 正文提取
 
@@ -564,6 +578,97 @@
 这里应用了大量的`(*)`,以防止站点其他同类相关页面的内容无法捕获
 
 关于正则匹配超时,可能就是因为细节空格地方没有注意到,而正则规则又比较长的情况下无法在限定时间内完整匹配,很可能就是要检查空格改进匹配规则
+
+### 空白字符和不可见字符的辨析和处理
+
+html源码中部分字符是不可见的空白字符,但不一定是普通的空格,可以借助工具分析出来,这样方便我们进行数据处理
+
+打开windows powershell,输入你要分析的字符串
+
+对于普通的空格,其ascii值是32,此外不是空格
+
+```powershell
+# 加载 Windows Forms 程序集
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# 定义函数
+function Get-CharacterEncoding {
+    param (
+        [string]$InputString
+    )
+    $utf8 = [System.Text.Encoding]::UTF8
+
+    $InputString.ToCharArray() | ForEach-Object {
+        $char = $_
+        $unicode = [int][char]$char
+        $utf8Bytes = $utf8.GetBytes([char[]]$char)
+        $utf8Hex = $utf8Bytes | ForEach-Object { "0x{0:X2}" -f $_ }
+        $ascii = if ($unicode -lt 128) { $unicode } else { "N/A" }
+
+        [PSCustomObject]@{
+            Character    = $char
+            UnicodeCode  = "U+{0:X4}" -f $unicode
+            UTF8Encoding = ($utf8Hex -join " ")
+            AsciiCode    = $ascii
+        }
+    }
+}
+
+# 创建主窗体
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "字符编码实时解析"
+$form.Size = New-Object System.Drawing.Size(800, 600)
+$form.StartPosition = "CenterScreen"
+
+# 创建输入框
+$inputBox = New-Object System.Windows.Forms.TextBox
+$inputBox.Location = New-Object System.Drawing.Point(10, 10)
+$inputBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$inputBox.Font = New-Object System.Drawing.Font("Microsoft Sans Serif", 12)
+$inputBox.Size = New-Object System.Drawing.Size(760, 30)
+$form.Controls.Add($inputBox)
+
+# 创建结果显示框
+$resultBox = New-Object System.Windows.Forms.TextBox
+$resultBox.Location = New-Object System.Drawing.Point(10, 50)
+$resultBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
+$resultBox.Multiline = $true
+$resultBox.ScrollBars = "Vertical"
+$resultBox.ReadOnly = $true
+$resultBox.Size = New-Object System.Drawing.Size(760, 500)
+$form.Controls.Add($resultBox)
+
+# 实时解析事件
+$inputBox.Add_TextChanged({
+    $input = $inputBox.Text
+    if (-not [string]::IsNullOrEmpty($input)) {
+        $result = Get-CharacterEncoding -InputString $input | Format-Table -AutoSize | Out-String
+        $resultBox.Text = $result
+    } else {
+        $resultBox.Clear()
+    }
+})
+
+# 窗体大小调整事件
+$form.Add_SizeChanged({
+    $inputBox.Width = $form.ClientSize.Width - 20
+    $resultBox.Width = $form.ClientSize.Width - 20
+    $resultBox.Height = $form.ClientSize.Height - $inputBox.Height - 30
+})
+
+# 显示窗口
+[void]$form.ShowDialog()
+
+```
+
+
+
+### 谨慎使用清空或删除按钮
+
+采集器的标签列表和数据处理规则有类似的添加,删除和清空,还有调整顺序
+
+![image-20250110143726834](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110143726834.png)
 
 ## 经常采集的属性
 
