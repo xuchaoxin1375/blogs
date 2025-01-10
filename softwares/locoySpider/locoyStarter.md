@@ -581,88 +581,29 @@
 
 ### 空白字符和不可见字符的辨析和处理
 
+#### 分析(可选)
+
 html源码中部分字符是不可见的空白字符,但不一定是普通的空格,可以借助工具分析出来,这样方便我们进行数据处理
 
 打开windows powershell,输入你要分析的字符串
 
-对于普通的空格,其ascii值是32,此外不是空格
-
 ```powershell
-# 加载 Windows Forms 程序集
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-
-# 定义函数
-function Get-CharacterEncoding {
-    param (
-        [string]$InputString
-    )
-    $utf8 = [System.Text.Encoding]::UTF8
-
-    $InputString.ToCharArray() | ForEach-Object {
-        $char = $_
-        $unicode = [int][char]$char
-        $utf8Bytes = $utf8.GetBytes([char[]]$char)
-        $utf8Hex = $utf8Bytes | ForEach-Object { "0x{0:X2}" -f $_ }
-        $ascii = if ($unicode -lt 128) { $unicode } else { "N/A" }
-
-        [PSCustomObject]@{
-            Character    = $char
-            UnicodeCode  = "U+{0:X4}" -f $unicode
-            UTF8Encoding = ($utf8Hex -join " ")
-            AsciiCode    = $ascii
-        }
-    }
-}
-
-# 创建主窗体
-$form = New-Object System.Windows.Forms.Form
-$form.Text = "字符编码实时解析"
-$form.Size = New-Object System.Drawing.Size(800, 600)
-$form.StartPosition = "CenterScreen"
-
-# 创建输入框
-$inputBox = New-Object System.Windows.Forms.TextBox
-$inputBox.Location = New-Object System.Drawing.Point(10, 10)
-$inputBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-$inputBox.Font = New-Object System.Drawing.Font("Microsoft Sans Serif", 12)
-$inputBox.Size = New-Object System.Drawing.Size(760, 30)
-$form.Controls.Add($inputBox)
-
-# 创建结果显示框
-$resultBox = New-Object System.Windows.Forms.TextBox
-$resultBox.Location = New-Object System.Drawing.Point(10, 50)
-$resultBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Bottom
-$resultBox.Multiline = $true
-$resultBox.ScrollBars = "Vertical"
-$resultBox.ReadOnly = $true
-$resultBox.Size = New-Object System.Drawing.Size(760, 500)
-$form.Controls.Add($resultBox)
-
-# 实时解析事件
-$inputBox.Add_TextChanged({
-    $input = $inputBox.Text
-    if (-not [string]::IsNullOrEmpty($input)) {
-        $result = Get-CharacterEncoding -InputString $input | Format-Table -AutoSize | Out-String
-        $resultBox.Text = $result
-    } else {
-        $resultBox.Clear()
-    }
-})
-
-# 窗体大小调整事件
-$form.Add_SizeChanged({
-    $inputBox.Width = $form.ClientSize.Width - 20
-    $resultBox.Width = $form.ClientSize.Width - 20
-    $resultBox.Height = $form.ClientSize.Height - $inputBox.Height - 30
-})
-
-# 显示窗口
-[void]$form.ShowDialog()
-
+irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; Get-CharacterEncodingsGUI
 ```
 
+对于普通的空格,其ascii值是32,此外不是空格
 
+用例 测试字符串为:`"  0.46"`这里第一个空白字符和第二个空白字符其实是不一样的
+
+![image-20250110152142565](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110152142565.png)
+
+#### 使用正则匹配空白或不可见字符
+
+通常使用`\s+`可以匹配一段连续的不可见字符(如果没有空格也不会有影响),包括普通空格或其他空白符)
+
+例如某个价格`"  0.46"`附近有空白字符,可以用:`\s*(.*)\s*`提取出价格
+
+![image-20250110152558490](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110152558490.png)
 
 ### 谨慎使用清空或删除按钮
 
@@ -670,13 +611,90 @@ $form.Add_SizeChanged({
 
 ![image-20250110143726834](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110143726834.png)
 
-## 经常采集的属性
+## 经常采集的属性👺
 
 考虑到不同国家有不同的规范,比如价格,欧元将的小数点是逗号`,`,如果要采集这种价格,需要将逗号替换为小数点`.`;与此同时,欧元的千位分隔符用的是小数点,然后千分位符对于一个数字的正确性没有影响,只是便于人们阅读,因此可以将千位分隔符去掉(简单起见)
 
 当然后期再去处理也来得及,比如采集原来的价格形式,在到excel中做替换
 
+### 产品名
+
+- 通常用`<h1(*)>[参数]</h1>`去匹配
+- 此外,根据经验,有时候产品页的最后一级和产品名是一致的
+
+### 产品信息
+
+以采集html源码为主,过滤掉多余的空格,或不可见字符,包括换行等冗余标签,保留核心的标签
+
+比如产品信息是以表格呈现的,那么把`<table>`标签处理后采集下来即可,文本段描述类似,已知wordpress可以正确渲染这些html源码
+
 ### 价格采集
+
+- 货币数量的表示规范(尤其是欧元,千位分隔符使用小数点,采集的时候可以做移除处理,而逗号作为实际的小数点,做替换处理)
+- 货币符号的过滤
+
+### 面包屑👺
+
+- 理想情况下,同一个网站下面包屑的采集并不复杂,所有页面面包屑的级数相同的情况比较简单
+- 或者,将面包屑的各个级别都放到同一个字段中,也是比较容易实现的
+- 若同一个网站下不同产品页中面包屑的级数不同,并且要求不同层级的面包屑分别提取到不同的字段中保存,则需要考虑东西比较多(事实上从高级语言编程的层面实现这类任务是相对简单的,比如利用python+pandas对采集下来的面包屑串进行分割,但是在火车头内部直接处理显得力不从心)
+  - 比如,一个网站的商品页中有2级,3级,4级的面包屑可能,那么第一部可以考虑将所有地面包屑字符串集中起来
+  - 为了简单起见,同一设置3个字段(b1,b2,b3)存储面包屑的不同层级,如果只有2级,那么b3就会是空的
+  - 如果有4级(比如(`a/b/c/d`),那么b3就会存储`c/d`
+
+为了进一步说明问题,这里给出一个例子和解决方案(方案不唯一)
+
+处理效果要求如下
+
+|                                                              |                                                              |      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+| ![image-20250110214608407](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110214608407.png) | ![image-20250110214729397](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110214729397.png) |      |
+| ![image-20250110214824894](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110214824894.png) | ![image-20250110214851883](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110214851883.png) |      |
+|                                                              |                                                              |      |
+
+操作步骤
+
+先将面包屑所在区间的代码确定并提取出来
+
+![image-20250110215138755](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110215138755.png)
+
+这里使用前后截取或者正则提取都可以;然后排除所有html标签,留下内容(在排除html标签前先利用纯正则移除掉所有标签间的多余空格,比如`(>)(\s+)(<)`)
+
+还可以追加第三部将`/`附近的空白字符移除
+
+![image-20250110220524153](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110220524153.png)
+
+![image-20250110212551401](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110212551401.png)
+
+![image-20250110212622138](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110212622138.png)
+
+考虑到火车头的正则行为,当分组捕获失败或者制定的分组不存在时,会直接将原来的串返回,我们需要针对性的处理这个问题
+
+可以看到,下面的方法中使用两次纯正则替换
+
+第一条假设所采集的页面的面包屑至少有3级,那么可以正确处理b3的捕获,否则b3的取值将和完整面包屑字段取一样的值
+
+![image-20250110212812869](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110212812869.png)
+
+![image-20250110212825677](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110212825677.png)
+
+若处理`b3`时,发现面包屑只有2级,那么第三级的第一次正则匹配(分组捕获)将会失败,这时候我们已经可以断言面包屑只有两级(b1,b2),所有b3就应该处理为空,或者用产品名填补,本例选择处理为空的方案
+
+
+
+### 爬取部分内容后检查纰漏
+
+例如,启动任务后,开始爬取,当任务运行了几秒后(一般10秒左右,不要太短,不然前在可能出问题的问题可能不会暴露出来)
+
+- 一般就是标签过滤没设置好过滤得不干净(过于宽松)
+
+- 或者是数据缺失(过于严格或者通用性不行,对于部分产品页面无法正确匹配)
+
+![image-20250110153744398](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110153744398.png)
+
+遇到了明显的纰漏就应该及时停止爬取,避免资源的浪费,然后修改并优化规则后对有问题的链接(如上述例子所示PageUrl),将其复制出来到采集测试里进行针对性地改进,同时要顾忌规则的泛用性,把后面出问题的链接一起测试一下
+
+事实上,问题可能会更加复杂,比如一个站点的有不同风格的商品呈现风格,有的涉及到post请求,普通的抓取方法(针对Get请求编写的规则)可能就无法完整捕获需要的信息,如果这部分商品数量不多,可以考虑跳过(处理他们的性价比低),如果数据量大,并且很多网站都有这种问题,那么考虑掌握破解的方法提高抓取能力,比如利用fiddler抓包解析
 
 ## UserAgent和Cookie👺
 
@@ -882,7 +900,31 @@ wps office也有类似功能
 
 幸运的是,wordpress可以正确处理并渲染html源码标签,比如描述部分的加粗,换行排版,特殊字符或html实体字符的编码就不需要手动转换,是的爬取任务大为简化,同时在wordpress网页端渲染效果页和数据采集源站的排版保持相对一致的风格,相比直接渲染文本段更为美观;
 
-但是有一个点要注意,虽然直接爬取源码片段相对简单,但是要注意爬取到的h5源码中可能有一些不适合出现的内容,比如暗藏某些链接,因此我们要对这些链接(或其所在标签,通常是`http(s)`这类`url`需要过滤掉)
+### 过滤多余的内容:
+
+但是有一个点要注意,虽然直接爬取源码片段相对简单,但是要注意爬取到的h5源码中可能有一些不适合出现的内容,比如暗藏某些链接,因此我们要对这些链接(或其所在标签,通常是`http(s)`这类`url`需要过滤掉,通常对应于过滤掉`<a>`标签(链接通常作为`<a>`的属性));此外`<a>content</a>`中的content倒是可以考虑保留,否则可能会导致一些缺失
+
+![image-20250110170612887](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110170612887.png)
+
+此外,还要过滤掉`<script>`标签,部分网站会将`<script>code</script>`写入到html源码中,我们要注意这类多余内容的过滤,过滤可以直接用替换`<script(*)</script>`,不仅移除标签对,还要移除标签包裹的代码
+
+![image-20250110170658170](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110170658170.png)
+
+移除标签与标签之间的空白内容
+
+可以用纯正则替换将标签与标签之间的空白符移除(而标签包裹的串包含空格可以考虑保留)
+
+```bash
+(>)(\s+)(<)
+```
+
+![image-20250110171200595](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110171200595.png)
+
+处理结果举例
+
+```html
+<h3 id="product_info">Información del producto</h3><div class="std">        Disinfectant B Braun Meliseptol Rapid, 1 litre    </div></div><h3 id="additional_info">Información adicional</h3><table cellpading="0" cellspacing="0" class="data-table" id="product-attribute-specs-table"><col width="40%" /><col /><tbody><tr><th class="label">Fabricante</th><td class="data">B Braun</td></tr><tr><th class="label">Dimensiones Caja</th><td class="data">1 litro</td></tr><tr><th class="label">Enfocado a uso</th><td class="data">Personal cualificado, Población, Profesionales</td></tr><tr><th class="label">Vida útil (años)</th><td class="data">3</td></tr><tr><th class="label">Fórmulas</th><td class="data">Líquido</td></tr><tr><th class="label">Tratamiento de</th><td class="data">Superficies médicas</td></tr><tr><th class="label">Espectro</th><td class="data">Bactericida, Fungicida, Médico, Virucida</td></tr><tr><th class="label">Patógenos</th><td class="data">Hepatitis B, Tuberculosis, VIH</td></tr><tr><th class="label">Principios Activos</th><td class="data">Cloruro de didecildimetilamonio, Propanol</td></tr></tbody></table></div><div class="box-collateral box-additional"><h3 id="precautionaty_statements">Consejos de prudencia</h3><div class ="pictograms"><div  title="GHS02 - Llama" class="pictogram-ghs02 - llama">&nbsp;</div><div  title=" GHS05 - Corrosión" class="pictogram-ghs05 - corrosión">&nbsp;</div><div  title=" GHS07 - Signo De Exclamación" class="pictogram-ghs07 - signo de exclamación">&nbsp;</div></div><table cellpading="0" cellspacing="0" class="data-table" id="product-attribute-prec-statement"><col width="40%" /><col /><tbody><tr><th class="label">P210</th><td class="data">Mantener alejado de fuentes de calor, chispas, llama abierta o superficies calientes. – No fumar</td></tr><tr><th class="label"> P260</th><td class="data">No respirar el polvo/el humo/el gas/la niebla/los vapores/el aerosol</td></tr><tr><th class="label"> P280</th><td class="data">Llevar guantes/prendas /gafas/máscara de protección</td></tr><tr><th class="label"> P304+P340</th><td class="data">EN CASO DE INHALACIÓN: Transportar a la víctima al exterior y mantenerla en reposo en una posición confortable para respirar</td></tr><tr><th class="label"> P305+P351+P338</th><td class="data"> EN CASO DE CONTACTO CON LOS OJOS: Aclarar cuidadosamente con agua durante varios minutos. Quitar las lentes de contacto, si lleva y resulta fácil. Seguir aclarando</td></tr><tr><th class="label"> P312</th><td class="data">Llamar a un CENTRO DE INFORMACION TOXICOLOGICA o a un médico en caso de malestar.</td></tr><tr><th class="label">H225</th><td class="data">Líquido y vapores muy inflamables</td></tr><tr><th class="label"> H226</th><td class="data">Líquidos y vapores inflamables</td></tr><tr><th class="label"> H302</th><td class="data">Nocivo en caso de ingestión</td></tr><tr><th class="label"> H314</th><td class="data">Provoca quemaduras graves en la piel y lesiones oculares graves</td></tr><tr><th class="label"> H318</th><td class="data">Provoca lesiones oculares graves</td></tr><tr><th class="label"> H336</th><td class="data">Puede provocar somnolencia o vértigo</td></tr><tr><th class="label"> H400</th><td class="data">Muy tóxico para los organismos acuáticos.</td></tr></tbody></table></div>
+```
 
 
 
@@ -908,7 +950,9 @@ wps office也有类似功能
 
 - 被删除的任务可以在任务回收站中找到,可以恢复或彻底删除
 
-## 采集器软件使用问题
+## 采集器软件使用问题👺
+
+### 窗口弹不出来
 
 采集器可能会出现打不开的情况(后台有进程,但是窗口弹不出来),可以采取如下办法
 
@@ -922,3 +966,6 @@ wps office也有类似功能
 
 结束进程后重新打开采集器
 
+### 快捷键隐藏窗口
+
+`ctrl+T`会隐藏窗口,再次执行该快捷键会弹出窗口
