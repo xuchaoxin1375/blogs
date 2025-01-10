@@ -316,17 +316,105 @@
 
 本例中有11个内容页面,我们尝试利用采集器的分页采集功能,采集多个内容页面,届时应该有11个页面会被采集
 
-### 循环匹配采集
+### 循环匹配采集格式类似的内容
+
+当需要采集同样格式的多条数据时，可以使用循环匹配。
+
+> 循环匹配有时很有效,特别是对于某些标签区分度强的同类标签,例如本例中的论坛回复);但是有的地方就不是那么直接,例如爬取某个产品站产品页的多个细节图,如果循环匹配的规则区分度不够,就可能吧不需要的内容一起捕获了,例如我们只需要jpg细节图,不要gif这类的动图
 
 ![image-20250108152019734](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108152019734.png)
 
-循环设置可以设置为添加为新纪录
+循环设置可以设置为添加为新记录
 
 ![image-20250108152135717](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108152135717.png)
 
 默认情况下是直接用指定的分隔符追加到同一条记录中
 
 ![image-20250108152259485](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108152259485.png)
+
+相对复杂的情况(不太适合用循环匹配)
+
+```html
+<div
+    class="fotorama"
+    data-click="false"
+    data-loop="true"
+    data-arrows="true"
+    data-nav="thumbs"
+    data-width="100%"
+    data-thumbwidth="88"
+    data-thumbheight="88"
+    data-allowfullscreen="true"
+    data-fit="contain"
+    data-transition="crossfade"
+>
+
+    <img
+        src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/g/h/ghilotina_bait_station_s13_mice_cart_1_3.jpg"
+        width="500"
+        height="500"
+        title="es ghilotina bait station s13 mice cart - 4"
+        alt="es ghilotina bait station s13 mice cart - 4"
+    />
+    <img
+        src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/g/h/ghilotina_bait_station_s13_mice_cart_s13.jpg"
+        width="500"
+        height="500"
+        title="es ghilotina bait station s13 mice cart - 4"
+        alt="es ghilotina bait station s13 mice cart - 4"
+    />
+    <img
+        src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/g/h/ghilotina_bait_station_s13_mice_cart_dimensions.jpg"
+        width="500"
+        height="500"
+        title="es ghilotina bait station s13 mice cart - 4"
+        alt="es ghilotina bait station s13 mice cart - 4"
+    />
+    <img
+        src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/i/m/img_8088_final_1_.jpg"
+        width="500"
+        height="500"
+        title="es ghilotina bait station s13 mice cart - 4"
+        alt="es ghilotina bait station s13 mice cart - 4"
+    />
+    <img
+        src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/i/m/img_8087_final.jpg"
+        width="500"
+        height="500"
+        title="es ghilotina bait station s13 mice cart - 4"
+        alt="es ghilotina bait station s13 mice cart - 4"
+    />
+
+
+
+</div>
+```
+
+如果使用
+
+```html
+<img src="[参数]"
+```
+
+作为循环匹配,就容易匹配到其他我们不需要的地方,还需要过滤处理
+
+非要用的话可以将一个图片的样式拷出来
+
+```html
+<img src="https://www.nexles.com/media/catalog/product/cache/7/thumbnail/500x/8083c875e83be300356bb052a4e4af68/g/h/ghilotina_bait_station_s13_mice_cart_1_3.jpg" 
+                         width="500" height="500" 
+                         title="es ghilotina bait station s13 mice cart - 4"
+                         alt="es ghilotina bait station s13 mice cart - 4"/>
+```
+
+挖掉具体的参数(不唯一,顺手就行,在测试检查一下是否能爬取正确)
+
+```
+<img src="[参数]" 
+                         width(*)                         title=(*)                         alt=(*)"/>
+```
+
+最后再运行批量爬取,检查同网站下的其他产品页面是否也能生效
 
 ### 从内容页和分页模式中采集多页内容
 
@@ -409,7 +497,81 @@
 
 ![image-20250108163816070](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108163816070.png)
 
+### 数据处理👺
 
+![image-20250110115056271](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110115056271.png)
+
+对采集到的数据进行数据处理,处理的形式和角度有很多,我们可以编写数据处理序列,每一条处理环节都列举在处理窗格左侧,相关介绍可以参考官方文档手册
+
+最常用的有
+
+- 替换
+- 标签过滤
+- 纯正则替换(最强大)
+
+![image-20250110114655050](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110114655050.png)
+
+### html源码不规范|正则匹配超时问题😂👺
+
+部分网站的源码程序员在编写html框架时没有格式化代码,导致多余的空格让同类别的标签有不同的长度,最常见的就是存在多余的空格
+
+例如 站点 https://www.nexles.com/es/portacebos/ghilotina-portacebo-s13-mice-cart.html 
+
+在浏览器开发者工具中经过格式化处理的dom结构如下
+
+![image-20250110111209232](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110111209232.png)
+
+然而对应区域的html源码片段如下,这种排版的源码看起来是令人沮丧的,采集的时候设置的规则是需要扣空格数量的
+
+```html
+<div class="breadcrumbs">       
+        <ul itemscope itemtype="https://schema.org/BreadcrumbList" >
+                                        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="home">                    
+                      
+                                                                                                                                    <a itemscope itemtype="https://schema.org/WebPage" itemprop="item"  itemid="https://www.nexles.com/es/" href="https://www.nexles.com/es/" title="Ir a la página de inicio">
+                                        <span itemprop="name" >Inicio</span></a><meta itemprop="position" content="0" />
+                                                                                                    <span>/ </span>
+                                                                                                 </li>
+                                        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="category338">                    
+                      
+                                                                                                                                    <a itemscope itemtype="https://schema.org/WebPage" itemprop="item"  itemid="https://www.nexles.com/es/portacebos.html" href="https://www.nexles.com/es/portacebos.html" title="">
+                                        <span itemprop="name" >Portacebos</span></a><meta itemprop="position" content="1" />
+                                                                                                    <span>/ </span>
+                                                                                                 </li>
+                                        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="product">                    
+                      
+                                                                                                <span  itemprop="name">s13 Mice Cart</span><meta itemprop="position" content="2" />
+                                                                                                                                 </li>
+                    </ul>
+```
+
+
+
+例如,为了提取面包屑(各级)的所有字段(简单期间提取前3个字段)到不同的标签(b1,b2,b3)中分被保存
+
+仔细观察可以发现
+
+- `<span  itemprop="name">`中`span`和`itemprop`间隔了2个空格,而前面的两个同类标签`<span itemprop="name" >`相同都只用1个空格
+
+- 而且`"name"`和尾随的`>`号之间的空格数量又不相同(前两个标签有1个空格,第三个没有)
+
+编写的正则采集规则的一种参考:
+
+```html
+<div class="breadcrumbs">(*)<span(*)itemprop="name"(*)>[参数]</span>(*)<span(*)itemprop="name"(*)>[参数]</span>(*)<span(*)itemprop="name"(*)>[参数]</span>(*)
+```
+
+这里应用了大量的`(*)`,以防止站点其他同类相关页面的内容无法捕获
+
+关于正则匹配超时,可能就是因为细节空格地方没有注意到,而正则规则又比较长的情况下无法在限定时间内完整匹配,很可能就是要检查空格改进匹配规则
+
+## 经常采集的属性
+
+考虑到不同国家有不同的规范,比如价格,欧元将的小数点是逗号`,`,如果要采集这种价格,需要将逗号替换为小数点`.`;与此同时,欧元的千位分隔符用的是小数点,然后千分位符对于一个数字的正确性没有影响,只是便于人们阅读,因此可以将千位分隔符去掉(简单起见)
+
+当然后期再去处理也来得及,比如采集原来的价格形式,在到excel中做替换
+
+### 价格采集
 
 ## UserAgent和Cookie👺
 
@@ -514,17 +676,100 @@ UserAgent点击客户端标识表示会引发闪退
 
 ## 创建基本采集规则模板
 
-### 路径保存设置👺
+### 路径保存设置|更改保存位置👺
 
 高铁采集器(火车采集器破解版)可以保存为excel,不需要手动编写模板,比较方便
 
-#### 文本内容
+而除了爬取文本或字符形数据,还有图片这类二进制附件爬取
+
+需要设置的路径主要有3个地方:
+
+- 内容发布规则中设置保存为本地文件,启用**本地文件保存**功能,设置保存格式(比如保存为`excel`文件),然后设置**保存位置**(是个目录),此外文件名格式(比如前面采集到的数据存放到excel文件中)
+
+另外要注意,如果要制作基础的采集规则和任务的模板,不同的站点爬取到数据需要做区分,因此一定要注意保存位置的更改,为了提示模板使用者及时更改保存路径，这里在路径中插入`<template>`字符串,强调提示用户记得修改路径,否则保存不下来!
+
+设置位置参考分别如下
+
+#### 文本或字符形式的内容采集保存位置
 
 ![image-20250109114104784](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109114104784.png)
 
-#### 附件图片
+#### 附件|文件和图片保存设置
 
 ![image-20250109114221938](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109114221938.png)
+
+
+
+可以设置同时下载数,多线程提高下载效率
+
+这里有两块内容可以设置:普通文件和图片文件,通常我们主要是图片文件,图片文件保存路径在普通文件中一起设置(通用设置)
+
+对于图片文件有专属的水印设置,一般不用管
+
+在普通文件中,有两个路径(字符串)设置:
+
+- 所有文件保存根目录(顾名思义,制定文件保存位置,但是不影响其他文件名或采集图片链接)
+- 文件链接地址前缀(会反应到爬取的数据的字段值中)
+
+![image-20250110084016265](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110084016265.png)
+
+这个例子中我们想要一个字段(产品图片),该字段记录图片下载后存储的文件路径
+
+为了更清楚,看看这个例子
+
+![image-20250110084400756](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110084400756.png)
+
+![image-20250110084321275](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110084321275.png)
+
+这说明**文件链接地址前缀**是会影响到**产品图片**字段的取值,产生一个拼接的效果
+
+> 你可能注意到上述路径`C:/2025/Spider/EU/nexleslimg/PrefixC:te42p/ghilotina_bait_station_s13_nice_cart_1_3.jpg`出现了两个`C:/`,这是因为在规则页中文件下载设置保存目录和后面的其他设置冲突了,移除掉其中一个就行(通常保留**其他设置**里的就行)
+
+![image-20250110092531024](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110092531024.png)
+
+### 定位文件下载到哪里了?
+
+- 可以利用`everything`这个搜索工具来搜索制定文件名,看看文件有没有被保存在系统的某个位置
+- 下面这个例子中文件路径不规范,不是一个正确的可用路径,但是采集器提示文件下载没有报错,说明很可能缓存到了系统中,借助everything搜索路径最后一个名字`ghilotina_bait_station_s13_mice_cart_1_3.jpg`,定位到了采集测试的文件所在
+- ![image-20250110084952018](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110084952018.png)
+
+根据使用经验,采集器会在路径错误的情况下将文件下载到采集器的安装目录中
+
+### 可能引起路径(保存位置)异常的设置
+
+![image-20250110090329496](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110090329496.png)
+
+编辑标签(本例中是**产品图片**)时,若设置文件下载页面时要注意文件**保存目录**和采集流程中的**其他设置**内设置的**文件链接地址前缀**可能相冲突(结果就是出现了像`C:/2025/Spider/EU/nexleslimg/Prefix/C:te42p/ghilotina_bait_station_s13_nice_cart_1_3.jpg`这种错误的图片所在路径)
+
+![image-20250110084400756](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110084400756.png)
+
+
+
+### 关于发布👺
+
+为了查看或处于调试目的,我们希望采集规则任务运行初期能够查看采集下来的数据,比如保存标签到`excel`文件中,包括图片,那么务必勾上发布,并且新建任务后,通常也建议勾上,有时候忘记了,数据就不会保存下载
+
+一个快捷勾选的方式是直接勾选任务所在的文件夹(分组),则其子项都会一并勾选发布
+
+![image-20250110091452675](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110091452675.png)
+
+在**其他设置**环节中设置**边采集边发布**,
+
+![image-20250110091337706](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110091337706.png)
+
+### 查看发布(保存)的数据
+
+如果保存为excel文件,为了便于观察,可以设置自动调整列宽
+
+比如Microsoft office Excel可以从开始->单元格->格式中选择自动调整列宽,行高也可以
+
+选择整个表格后应用此功能,否则效果不好
+
+![image-20250110092135602](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110092135602.png)
+
+wps office也有类似功能
+
+设置了自动调整列宽后,没有被展开的列说明数据为空
 
 ## 关于描述和额外信息的数据采集👺
 
@@ -536,7 +781,7 @@ UserAgent点击客户端标识表示会引发闪退
 
 
 
-## 规则导出|备份|分享
+## 规则导出|备份|分享👺
 
 支持单个导出和批量导出,方法类似
 
