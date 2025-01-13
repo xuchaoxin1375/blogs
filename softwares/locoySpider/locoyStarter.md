@@ -1,6 +1,6 @@
 [toc]
 
-
+# 采集器的使用介绍
 
 ## abstract
 
@@ -27,19 +27,320 @@
 
 #  教程部分
 
-- 部分细节操作可以参考官方录制的视频(质量不是很好,不够利落,供参考)
-
-## 1:网址采集👺
-
-没有sitemap的情况下,编写规则获取采集网址
+- 部分细节操作可以参考官方录制的视频(质量不是很好,不够利落,供参考),还有bilibili上有相关教程,包括采集器官方的教程
+- 官方文档有两种,一种是pdf手册,一种是软件内置的教程,可以在需要的时候参考一下,虽然有些地方写得不够详细
+- 此外火车采集器(官方版本v10+)提供了许多国内不同类别的网站的数据采集案例,供参考练手(高铁采集器没有这些案例)
+- 搜索引擎或官方论坛 http://faq.locoy.com/search.html?&keyword
 
 本文出来记录关键部分还有补充一些使用经验和技巧
+
+## 基础概念
+
+### html
+
+[HTML（超文本标记语言） | MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML)
+
+HTML 是用来**描述网页的一种语言**。
+
+- HTML 指的是超文本标记语言 (**H**yper **T**ext **M**arkup **L**anguage),HTML 用于指定你的网页内容应被识别为段落、列表、标题、链接、图像、多媒体播放器、表单或是其他可用元素之一，甚至是你定义的新元素。
+- **HTML **是构成 Web 世界的一砖一瓦。它**定义了网页内容的含义和结构**。
+- 除 HTML 以外的其他web技术则通常用来描述一个网页的**表现与展示效果**（如 [CSS](https://developer.mozilla.org/zh-CN/docs/Web/CSS)），或**功能与行为**（如 [JavaScript](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)）。
+
+#### 相关术语
+
+[HTML 基础 - 学习 Web 开发 | MDN](https://developer.mozilla.org/zh-CN/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content)
+
+本文讨论的内容术语(主要指html相关术语)依据上述链接MDN文档中描述的那样
+
+[HTML 元素详解](https://developer.mozilla.org/zh-CN/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content#html_元素详解)
+
+让我们深入探索一下段落元素。
+
+![段落元素，包含：开始标签，‘my cat is very grumpy’的内容，结束标签](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\grumpy-cat-small.png)
+
+这个元素的主要部分有：
+
+1. **开始标签**（Opening tag）：包含元素的名称（本例为 p），及一对包围名称的**尖括号**。这表示元素从这里开始或者开始起作用——在本例中即段落由此开始。
+2. **结束标签**（Closing tag）：与开始标签相似，只是其在元素名之前包含了一个*正斜杠*。这表示元素到这里结束——在本例中即段落在此结束。初学者常常会犯忘记添加结束标签的错误，这可能会产生一些奇怪的结果。
+3. **内容**（Content）：元素的内容，本例中就是所输入的文本本身。
+4. **元素**（Element）：开始标签、结束标签与内容相结合，便是一个完整的元素。
+
+元素也可以有下图中那样的属性（Attribute）：
+
+![段落开始标签，以及高亮的 class 属性：class=editor-note](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\grumpy-cat-attribute-small.png)
+
+属性包含的是不想在真正的内容中出现的和元素有关的额外信息。本例中，`class` 是属性*名*，`editor-note` 是属性*值*。`class` 属性是可以用于定位元素（以及任何其他有相同 `class` 值的元素）的标识名称，以便进一步为元素指定样式或进行其他操作时使用。一些属性没有值，如 [`required`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Attributes/required)。
+
+有值的属性应该包含：
+
+1. 属性与元素名称（或上一个属性，如果元素有超过一个属性的话）之间的一个空格。
+2. 属性名，后接一个等号。
+3. 一对引号包围的属性值。
+
+html标签(元素)可以嵌套,并且这种现象大量存在,是采集中可能造成规则复杂的原因之一,特别是嵌套很深的标签分析源码的时候比较费劲,比如使用了大量的`<div>`
+
+### xml
+
+由于网站的sitemap通常是xml语言描述的,相关介绍如下
+
+[XML 简介 - XML：可扩展标记语言 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/XML/XML_introduction)
+
+
+
+### 采集对象
+
+采集网页中的信息,通常是通过采集器采集源码中的关键信息,通常网页中不仅仅含有html,还包含大量的css和javascript代码,这些非html元素虽然会然网页内容呈现效果和功能更加丰富,但是会干扰我们采集的效率,有时候标签的属性字符数量远远超过标签内容,这类信息的提取在阅读源码的时候就比较费劲,在采集器中,一般使用标签过滤,来清楚嵌套,方便进一步提取
+
+我们需要对站点编写针对性的采集规则,当然类似的网站,比如商品站的采集规则有很多共同点,可以整理一个模板来提高对不同网站的采集规则的编写效率
+
+
+
+## 网址采集👺
+
+本文主要以采集商品网站的角度讨论采集网址(内容页网址采集)任务
+
+
+
+### 有sitemap
+
+如果有sitemap,那么网址采集任务就相对轻松;(有的网站的sitemap也不一定很好用,这种情况则推荐手动分析站点源码进行网址采集)
+
+例如这个https://www.agricoal.es/1_es_0_sitemap.xml 就不是那么直白,不过只要sitemap完整收录所有商品,即便参杂非商品页面,也可以找到其中某一个商品页面编写采集规则，不满足要求的记录(网址)可以后面设置过滤掉;或者仔细分析看看链接特征或优先级标签,或许可以筛出商品页
+
+![image-20250111202400691](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111202400691.png)
+
+大多数商品网站都有sitemap,但是获取sitemap需要一定的尝试,其中以在域名后面加上`/sitemap.xml`成功率最高
+
+- [如何找到任意网站的站点地图sitemap | WordPress建站 | 谷歌SEO | SEO培训](https://shelleydigital.com/how-to-find-sitemap/)
+
+有一些在线工具可以帮助我们分析sitemap
+
+例如我打算找找`https://www.agricoal.es/`的sitemap,可以将其粘贴到网站分析工具中,比如https://seositecheckup.com/
+
+![image-20250111200315055](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111200315055.png)
+
+#### 在线sitemap搜索工具👺
+
+或者专门检查sitemap的在线工具
+
+[XML Sitemap Checker - SEOptimer](https://www.seoptimer.com/sitemap-checker)
+
+### sitemap和原域名不同的现象
+
+经验表明,有些网站它的sitemap中的网址全是其他域名的链接,这种的就当做没有sitemap处理,手动到原站中解析html源码进行网址采集
+
+![image-20250113090841394](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113090841394.png)
+
+#### sitemap打开显示问题
+
+部分sitemap打开是这样的,使用edge浏览器渲染结果
+
+![image-20250112093648155](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112093648155.png)
+
+如果用google chrome或firefox浏览器就是带有样式化的
+
+![image-20250112093849610](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112093849610.png)
+
+出现这种现象可能是数据量较大或者xml标签闭合问题
+
+但通常我们只要关心源码,也就是 [view-source:https://www.agricoal.es/1_es_0_sitemap.xml](view-source:https://www.agricoal.es/1_es_0_sitemap.xml),可以在xml页面通过快捷键`ctrl+u`打开
+
+#### 部分xml采集器无法解析
+
+我们可以保存/下载sitemap.xml到本地文件进行分析
+
+原因可能有多种,比如xml数据量过大,空白字符编码有问题,或者标签不规范造成匹配表达式过于复杂导致超时
+
+有许多xml的阅读和编辑工具可以分析xml语法问题
+
+不管怎样,知网xml源码中有完整的站点链接,我们就可以灵活处理,比如利用其他工具或编写一个链接提取程序保存到文件中,然后导入给采集器进行采集
+
+或者建立本地简易web服务器(方法很多,比如python http,vscode web预览插件,chfs,alist等),将本地的xml文件的http链接提供给采集器进行采集,降低下载延迟提高网址采集成功率,但是优先考虑手动处理,成功率高
+
+##### 编写正则提取大数据量的sitemap.xml中的网址
+
+比如使用vscode截取目标网址,我们首选确定目标内容是`priority`为0.9的标签,那么可以并且捕获0.9所在`<url>`块中的`<loc>`网址
+
+###### 使用vscode处理
+
+vscode支持有限灵活度的多行匹配,对于本例,可以编写如下的正则定位
+
+```bash
+<loc><!\[CDATA\[(.*)\]\]></loc>
+<.*
+<.*
+<.*0.9.*>
+```
+
+![image-20250112113104470](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112113104470.png)
+
+然后替换掉所有其他xml标签
+
+最后会留下一些空白和url,我们利用`^\s*\n`清理掉空行(这个正则是标准的空行清理式),`^\s*\r?\n?`同时还可以将每行开头的空白字符移除(如果有的话)
+
+最后得到的一行一个`url`链接的文档,我们将文件复制到`.txt`或者修改原来的`.xml`文件为`.txt`后缀即可,因为采集器要求导入网址的文件格式为`txt`
+
+```http
+...
+https://gardencenterejea.com/plantas/8522-boronia-crenulata-.html 
+https://gardencenterejea.com/macetas-y-jardineras/8523-soporte-jardinera-con-fijacion.html 
+https://gardencenterejea.com/ocultacion-y-sombreo/8524-pinzas-para-fijacion-de-mallas.html 
+
+```
+
+本例中最后得到5073个商品
+
+###### 使用powershell代码处理👺
+
+比如使用windows自带的**powershell**来处理`.xml`源码文件来提取链接
+
+对于上述例子,一个参考的powershell命令行如下(模板,修改前几行的值即可),一般修改两个地方`$xml_url,$domain`
+
+```powershell
+
+<# 
+.SYNOPSIS
+将sitemap.xml文件提取商品页链接信息并保存为txt文件
+.DESCRIPTION
+如果个别链接不符合需要,可打开保存的txt文件修改或删除
+.NOTES
+👺根据不同的网站正则表达式可能要修改,比如`priority`数值不一定是0.9是商品页面(如果采集器能够直接采集xml中的网址,就不用此脚本)
+.NOTES
+参考xml文件内容:一般有两类
+<loc><![CDATA[https://gardencenterejea.com/255-cesped-artificial]]></loc>...
+或
+<url><loc>https://www.piscinasferromar.com/productos-quimicos/limpieza-vaso-piscina-filtro</loc><lastmod>2024-09-04T21:06:13+00:00</lastmod><changefreq>daily</changefreq><priority>0.5</priority></url>
+
+#>
+#>
+#设置信息
+#多余的空格可以保留,不需要删除
+$xml_url = "    " #设置xml文件地址url,比如:http://www.example.com/sitemap.xml, 又比如 https://www.agricoal.es/1_es_0_sitemap.xml
+$domain = "     "   #设置要采集的网站的域名,比如www.agricoal.es,那就取中间的agricoal,也可以设置国家代号缩写,比如西班牙es
+#以下正则可能要根据不同网站来更改,比如priority数值不一定是0.9,无论如何,抓取到的页面仍然可能有非产品页,采集器会自动跳过,问题不大
+#(采集效率会低一些,但是网址采集环节规则编写效率比较高)
+# 使用前先观察一下sitemap的源码,确定一个合适的正则表达式(如果下面的两种模式有一种满足,那么把)
+$regex1 = '<loc><!\[CDATA\[(http.*?)\]\]></loc>[\s\S]*?<priority>0.9</priority>' #尽可能抓取产品页,源码中每一级都换行的情况下
+$regex2 = '<loc>.*(http.*?)<[\]>]*<' #强力抓取所有链接(无论是否为产品页,但仅限于<loc>内部的url)
+$regex3 = '.*?<loc>.*(http.*?)<.*<priority>1.0</priority>' #无论是否换行
+$regex = $regex3 #选择一种模式,这里假设选择2
+$sitemap_local_xml = " " #可选如果不行请手动设置xml文件保存的位置
+
+#移除多余的空格
+$xml_url, $domain = foreach ($var in @($xml_url, $domain))
+{
+    $var.trim()
+}
+
+$dir = "C:\2025\Spider\EU\$domain" #设置链接信息提取成txt后要保存到哪个目录
+$urls_txt = "$dir\${domain}_urls.txt" #设置处理完的链接保存到哪个txt文件
+$save_xml = "$dir\${domain}_sitemap.xml"
+#开始处理...
+#检查是否存在本地xml文件,如果不存在,则尝试自动缓存xml文件到本地,以提高测试效率降低流量浪费,还可以提高浏览器渲染xml数据的成功率,尤其是edge浏览器
+if (!(Test-Path $save_xml))
+{
+    $text = (Invoke-WebRequest $xml_url).content
+    Write-Verbose "下载xml文件成功,保存到本地"
+    $text > $save_xml  #保存xml文件到本地,可选
+}
+else
+{
+    Write-Verbose "本地xml文件已存在,无需下载"
+    $text = Get-Content $save_xml -Raw #读取本地xml文件
+}
+#也如果直接指定本地xml文件路径,则直接读取文件内容
+if (!$text)
+{
+    $text = Get-Content $sitemap_local_xml -Raw
+}
+New-Item -ItemType Directory -Path $dir -ErrorAction SilentlyContinue #确保目录存在
+
+$res = $text -replace $regex, '$1' -replace '<.*>', '' -replace '(?m)^\s*\r?\n?', '' 
+# $res = $text -replace $regex, '$1' -replace '<.*>', '' -replace '(?m)^\s*\r?\n?', '' 
+#执行去重操作
+$res = $res -split "`n" | Select-Object -Unique
+#保存链接到txt文件
+$res > $urls_txt
+Write-Host "操作结束,检查文件..."
+Get-ChildItem $urls_txt
+Get-Content $urls_txt | Select-Object -First 10 #预览前十行
+Get-Content $urls_txt | Measure-Object | Select-Object Count #报告行数
+
+explorer $dir
+Start-Sleep -Milliseconds 500
+& $urls_txt #使用默认应用打开txt文件,可以到右键任意一个txt文件,选择打开方式,更改默认打开方式,可以设置为指定应用打开
+
+# 优先尝试使用vscode打开(可选)
+# $vscode = Get-Command code -ErrorAction SilentlyContinue
+# if ($vscode)
+# {
+#     code $urls_txt
+# }
+
+
+Write-Host "个别链接不要可以手动删除哦,如果网址格式错误,请检查选用的regex是否合适"
+
+#拷贝到这里运行
+```
+
+输出预览
+
+```
+PS C:\repos\php> Get-ChildItem $urls_txt
+
+
+    目录: C:\2025\Spider\EU\gardencenterejea
+
+https://gardencenterejea.com/garden-center-ejea-plantas-mascotas-y-productos-de-jardineria
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/43-amaryllis-aphrodite-1-ud.html
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/44-amaryllis-celica.html
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/45-amaryllis-red-peacock-1-ud.html
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/46-amaryllis-double-record-1-ud.html
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/47-amaryllis-christmas-gift-blanco-1-ud.html
+https://gardencenterejea.com/amarilis-amaryllis-hipeastrun/48-amaryllis-doble-naranja-1-ud.html
+https://gardencenterejea.com/calas-de-colores/52-cala-treasure-1-ud.html
+https://gardencenterejea.com/calas-de-colores/53-cala-black-negra.html
+PS C:\repos\php> Get-Content $urls_txt | Measure-Object
+
+
+Count    : 5074
+```
+
+
+
+##### 命令行中直接下载到指定位置
+
+打开powershell
+
+为了访问顺利先设置一下代理环境变量;然后使用curl配合`-o`参数下载到指定位置,比如桌面`$home/desktop/test.xml`
+
+```bash
+#⚡️[Administrator@CXXUDESK][C:\Share][10:18:41][UP:1.05Days]
+PS> $env:HTTP_PROXY="http://127.0.0.1:7897"; $env:HTTPS_PROXY="http://127.0.0.1:7897"
+
+#⚡️[Administrator@CXXUDESK][C:\Share][10:19:55][UP:1.05Days]
+PS> curl https://gardencenterejea.com/1_es_0_sitemap.xml -o C:\repos\php\gardencenterejea.xml
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 4991k  100 4991k    0     0  1371k      0  0:00:03  0:00:03 --:--:-- 1370k
+```
+
+##### 使用浏览器打开xml源码保存
+
+浏览器打开xml源码,右键查看源码,然后复制全部内容,粘贴到文本文件中保存
+
+### 没有sitemap
+
+如果上述方法用尽也没有找到sitemap,在没有sitemap的情况下,我们得分析网站的源码,编写规则获取采集网址
+
+### 性价比(投入产出比)高的网站👺
+
+- 通过sitemap(可以用火车头爬一下sitemap中的商品页)我们可以大致了解该站点有多少个产品,通常我们更乐意采集产品数量多的站点,因为通常一套规则适用于整个站点,产品数量越多,编写的采集规则发挥的价值越大
+- 极端点就是一个网站产品很多,而且采集规则很容易写,那么采集优先级高,如果一个网站采集规则难写,产品数量又少,则优先级低,排到后面去采,性价比低
 
 ### 采集演示案例
 
 以https://www.boohee.com/(薄荷网为例子)
-
-食物
 
 #### 多级
 
@@ -60,19 +361,17 @@
 
 ![image-20250108105227171](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108105227171.png)
 
-### 自动采集
+### 两类采集方式
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg)
+具体参考官方手册
 
-注意地址参数和预览窗格(列表是一行一个数据,用换行符分割
+#### 自动采集
 
- 
-
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image004.jpg)
+注意地址参数和预览窗格(列表是一行一个数据,用换行符分割)
 
 根据源码设定采集网址区域(标签),不唯一时以第一个出现的位置为准(结束的标签不一定适合设置为开始标签的闭合标签,可能时下一个章节的起始标签(本例中开头为`<ul…>`,结尾也用用`</ul>`就容易提前结束
 
-### 手动采集
+#### 手动采集
 
  
 
@@ -82,23 +381,9 @@
 
 可以配置拼接
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image006.jpg)
-
 参考官方文档手册可知,[参数]和[标签:xxx]都可以捕获匹配的内容字符,并有返回可供组合,用来拼接地址等([参数]用的多,[标签:xxx]用的较少
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image008.jpg)
-
- 
-
-#### 链接过滤
-
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image010.jpg)
-
-可以和区域范围条件连用
-
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image011.png)
-
- 
+  
 
 #### 获取多级内容链接👺
 
@@ -146,13 +431,19 @@
 
 #### 高级模式采集网址
 
-可以对多级列表页进行链接采集
+高级模式：该模式对0级,多级，POST 类型网址的抓取有效。
+
+- 即当起始网址就是内容页网址； 
+- 或者需要对多级列表网址采集才能得到最终内容页链接； 
+- 或者是 post 网址类型抓取等情况下使用高级模式。
+
+详情可以参考手册中:**网址采集规则**一节内容
 
 #### 模式切换
 
 ![image-20250108104536276](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108104536276.png)
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image015.jpg)
+
 
 ### 在采集测试页和规则编辑页间切换
 
@@ -191,6 +482,26 @@
 然后选择比如编辑为
 
 ![image-20250109164026149](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109164026149.png)
+
+### 使用Quicker动作获取网页指定区域的源代码
+
+[元素HTML - by 绿橘子233 - 动作信息 - Quicker](https://getquicker.net/Sharedaction?code=11ab2d7e-7461-4df6-fada-08dcf4b7eea3)
+
+使用前先安装浏览器上的quicker拓展:[浏览器控制 - Quicker](https://getquicker.net/kc/help/doc/chromecontrol)
+
+- | 方案 | 浏览器                         | 安装地址                                                     | 说明                                                         |
+  | ---- | ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | 1    | 微软Edge                       | [Edge应用商店](https://microsoftedge.microsoft.com/addons/detail/quicker-connector/hcnknmobjnlekfkbcllhcoldbppkgpda?hl=zh-CN) | 使用Edge浏览器打开网页后，点击“获取”按钮。                   |
+  | 2    | 谷歌Chrome                     | [谷歌应用商店](https://chrome.google.com/webstore/detail/quicker-connector/klggbkjfmbonefdcfkiidhcmfjdfnepa?hl=zh-CN) | 打开网页后，点击“添加至Chrome”按钮。如果您的网络访问不了此网址，请使用crx安装方式。(如果访问不了谷歌浏览器应用商店,可以考虑方案4) |
+  | 3    | 火狐Firefox                    | [下载xpi文件](https://getquicker.net/download/item/firefox_ext) | 下载到的xpi文件拖放到火狐浏览器窗口中。                      |
+  | 4    | 其他第三方基于Chromium的浏览器 | [下载crx文件](https://getquicker.net/download/item/browser_ext) | 请参考对应浏览器的说明文档。通常是将crx文件拖放到浏览器扩展管理窗口中。（可能需要在扩展管理界面中开启“开发者模式”） |
+
+#### 快捷预览html代码
+
+- [预览HTML - by darcyc - 动作信息 - Quicker](https://getquicker.net/Sharedaction?code=9f6086d1-753f-473c-fb8e-08d9020bab70)
+  - 该动作会在预览后执行`F12`,导致浏览器弹出开发者工具页面,你可以编辑动作将这个步骤移除
+  - 或者直接找类似的动作
+- 还可以修改动作使得不需要选中自动选中窗口内的所有html代码进行预览
 
 ### 案例补充
 
@@ -240,7 +551,7 @@
 
 ![image-20250109150011285](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250109150011285.png)
 
-## 2:内容(字段)采集👺
+## 内容(字段)采集👺
 
 ### 前后截取
 
@@ -272,11 +583,32 @@
 
 另一类情况是,临时测试一个其他域名的链接,也要修改测试链接,而不仅仅是修改采集规则
 
-### 正则提取
+### 正则提取👺👍
+
+#### 正则匹配测试工具
+
+正则匹配工具可以帮助我们检查编写的正则是否按照预期的那样匹配原串
+
+工具有很多,比如在线的正则工具(已知采集器的正则行为和`perl-style`相近,采集器估计是C#开发的),使用更流的python regex测试也可以,下面以python解释正则并进行匹配,测试不同语言勾选左侧列表对应的选项即可
+
+![image-20250112153952925](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112153952925.png)
+
+#### 本地匹配工具(python)
+
+下面这个正则匹配GUI工具是用python+tkinter编写的,来自于python官方教程,源代码开源于github,简单易用,但是需要你的机器上安装python
+
+在powershell粘贴以下代码可以启动此窗口
+
+```powershell
+irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; regex_tk_tool;
+
+```
+
+![image-20250112153331236](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112153331236.png)
 
 #### 参数正则
 
-最常用的粗提取是参数正则提取
+最常用的**粗提取**是**前后截取**和**参数正则**提取,后者更灵活点,因此用的也多(但是仍然局限性大,纯正则提取会更强大)
 
 这个最常用(注意不是正文而是正则),也最通用和强大(但不一定是最简单和最优的,但是熟练掌握后基本就用它);
 
@@ -284,19 +616,80 @@
 
 ![image-20250108140814992](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108140814992.png)
 
-#### 纯正则提取
+试验表明,参数正则中`(*)`相当于纯正则中的`.*?`非贪婪提取,同时是可**跨行匹配的**(这很好理解,如果`(*)`是贪婪的,那么由于其贪婪性`(*)`出现的位置及其滞后的所有字符(除了换行符)都会被匹配
+
+而正则参数中的`prefix[参数]postfix`则相当于纯正则中的`[\s\S]*?`,仍然是非贪婪的,也是可**跨行**的,他会匹配prefix和postfix之间的所有字符,包括换行符,所有字符直到**第一次**遇到`postfix`字符(如果是贪婪的,则会对数据提取造成不便)
+
+
+
+#### 纯正则提取👺
 
 在数据处理中可以进行纯正则提取
 
+正则提取：支持两种正则，一个纯正则，一个参数正则。
+
+1. 介绍纯正则：
+
+   1. [正则提取标签的语法讲解 - 火车采集器帮助中心](http://faq.locoy.com/q-1064.html)
+
+   2. 在火车采集器中,许多地方可以使用正则,在内容采集的初步采集中支持的纯正则要求集中在`(?<content>...)`中,将你的正则表达式代替掉模板中的省略号`...`,在使用时,通常是`beforeString(?<content>[\s\S]*?)laterString`的形式
+
+   3. 比如,`前字符串(?<content>[\s\S]*?)后字符串`，这个正则其实**效果**跟**前后截取**一样，程序提取匹配到的 `content` 组的内容（注意：`content` 是**程序约定的组名**，必须包含,如果用其他名字,不会被识别为纯正则,此时会调到到**参数正则**模式)；如果将这这个例子中的`[\s\S]*?`替换为其他纯正则表达式,可以匹配更复杂的情况
+
+   4. 纯正则的例子
+
+      - ```html
+         <body>
+             <p><p>abcUUUcba</p></p>
+         </body>
+         ```
+
+         可以利用vscode建立网页浏览服务
+
+         规则:
+
+         1. 内容(参数正则)`<p(*)>[参数]</p>`,组合参数:`[参数1]`
+
+         2. 内容(纯正则)`<p>(?<content>.*?)</p>`,没有组合参数(也不可用)
+
+         3. 内容(纯正则2)`<p>(?<content>.*?</p>)`,和2相仿,但是这里将`</p>`放到了正则捕获组中,并且后缀字符串缺失
+
+         4. 内容(纯正则3)`<p>(?<content>.*?U)`,这里在`content`分组中的表达式以字母`U`结尾,彻底移除`</p>`,试图匹配`<p>abcU`
+
+         5. 内容(纯正则4)`<p>(?<content>.*?U)</p>`,首尾构成闭合`<p>...</p>`元素
+
+            > - 注意,如果前缀和后缀都设置,那么此时的正则变得很严格,如果没有处理好,会捕获不到内容
+
+         匹配结果:![image-20250113203315778](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113203315778.png)
+
+   5. | 截图                                                         | 正则提取的模式 |                                                              |
+      | ------------------------------------------------------------ | -------------- | ------------------------------------------------------------ |
+      | ![image-20250108141713637](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250108141713637.png) | 默认参数正则   | 应用于简单场景                                               |
+      | ![image-20250110144606697](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110144606697.png) | 纯正则(受限)   | 可以提取邮箱,号码,等更加灵活,但是也有一定限制,必须要写成`(?<content>...)`的形式,我们也无法使用多组纯正则;<br />如果需要后续处理的话,得在数据处理中的高级->纯正则替换再处理 |
+
+      
+
+2. 关于参数正则，是通过参数组合，来生成内容。
+
+   - 比如说要匹配如下内容：标题：正则表示式 30 分钟教学视频，我们想要得到的字符如下，`正则表示式XXX视频`可以这样写
+     1. 内容匹配串(带有两个参数)：`[参数]30 分钟教学[参数]`
+     2. 组合结果部分：[参数 1] XXX[参数 2]。
+
+此功能运用需有一定的正则基础,尤其是**纯正则**(在粗提取阶段用的相对少,在数据处理部分用得较多)。
+
 ![image-20250110144418491](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110144418491.png)
 
-而数据获取部分的`(?<content>?)`功能的使用存疑,尤其是组合结果中捕获结果的使用
 
-![image-20250110144606697](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110144606697.png)
+
+##### 提取网页源码
+
+- 使用纯正则提取`^(?<content>[\s\S]*?)$`,可以拿下源码,虽然这是个无聊的需求,但确实可以做到
+
+
 
 ### 正文提取
 
-这类提取不是很好用,经常满足不了需要,弃之
+这类提取不是很好用,经常满足不了需要,而且据说性能不行,弃之
 
 ### 其他提取方式(optional)
 
@@ -461,7 +854,7 @@
 
 也可以考虑上下页模式(比如页面跳转部分为1,2,3,...,11 下一页按钮)
 
-### #### 上下页模式
+### 上下页模式
 
 上下页模式规律
 
@@ -525,7 +918,62 @@
 
 ![image-20250110114655050](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110114655050.png)
 
-### html源码不规范|正则匹配超时问题😂👺
+- 其中批量替换可以从文件导入规则
+
+#### 数据处理功能一览
+
+1. ①提取内容为空：如果提取内容为空，则使用正则匹配从原始页面中再次提取。
+
+2. ②内容替换/排除：将采集到的内容进行字符串替换，如需排除，则替换为空字符串即可。
+3. ③html 标签过滤：**过滤指定 html 标签，比如`<a ，<font`**。
+   - 性能提示:我们经常要过滤掉某段源码中的**所有标签**,比如
+     - 提取整个面包屑,那么移除所有标签,在配合一个移除空白字符的正则就可以获取到整行面包屑,这种方法比单步骤编写一个复杂正则去匹配标签内容不仅规则编写上要容易,而且匹配运行效率往往更高
+   - 推荐的做法是直接勾选**所有标签<**的复选框,而不是点击下面的全选;
+   - ![image-20250111163557618](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111163557618.png)
+   - 内部还有一个[`换行|Tab \r\n\t`]的选项,可以将提取的html代码片段都拼接到同一行,可以方便后续使用纯正则替换(无法直接处理跨行情况)
+   - 不过为了规则效率的编写速度,可以酌情考虑全选
+   - 保留指定标签,其余标签排除的做法:
+     - ![image-20250111165856356](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111165856356.png)
+     - 对应的正则表达式可以参考`<p.*?>(.*?)</p>`
+
+   - 其中**去首尾空白字符**还可以对非html标签元素进行处理,可以将串首尾的字符移除,例如
+
+     - ```text
+                   
+           a/b/c
+          
+          
+       ```
+
+       经过去首尾字符移除得到`a/b/c`没有多余的字符,其功能类似于纯正则替换中的`\s*(.*)\s*`替换为`$1`
+4. ④字符截取：通过**开始和结束字符串对内容进行截取**。
+5. ⑤**纯正则替换**：通过强大的正则表达式进行**复杂的替换**。
+
+   - 采集器中默认是**跨行匹配模式?**,也就是将输入字符串作为一整个串进行匹配,并且所有出现的位置都会被替换
+   - 这一点和powershell的`-replace`默认行为类似(singleLine)
+
+6. ⑥数据转换：包括将结果汉译英、将结果简转繁、将结果繁转简、自动转化为拼音和时间修正转化，共计五项处理。
+7. ⑦智能提取：包括提取第一张图片、智能提取时间、智能提取邮箱、智能提取手机号码、智能提取电话号码。
+8. ⑧高级功能：包括自动摘要、自动分词、Http 头信息提取、Http 请求、字符编码转换、同义词替换、空内容缺省值、内容加前后缀、随机插入、**运行 C#代码**、**批量内容替换**，统计标签字符串长度等一系列功能。
+9. ⑨补全单网址：将当前内容作为一个网址进行补全。
+
+#### 过滤掉指定类型html元素
+
+- 例如我要过滤`<a>`标签及其内容(也就是完整的`<a>`元素),可以通过**纯正则**替换:`<a.*?</a>`为空
+
+#### 内容不得为空|过滤
+
+例如我们要采集某个商品,并且不希望(不想要)没有图片或采集不到图片的商品,那么可以在数据处理中设置采集结果不得为空
+
+![image-20250111191703004](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111191703004.png)
+
+值得注意的是,这种过滤不一定正确,比如`logo`的含义在非英语中可能不是英语`logo`的含义,对应图片也不一定是logo,容易误杀,如果为了保险起见,则舍弃这些商品记录
+
+这种情况下,如果对应标签采集为空时,不会添加到发布,并且采集日志中会给出相应的提示(警报)
+
+![image-20250111193641323](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111193641323.png)
+
+### html源码不规范|正则匹配超时问题👺
 
 部分网站的源码程序员在编写html框架时没有格式化代码,导致多余的空格让同类别的标签有不同的长度,最常见的就是存在多余的空格
 
@@ -611,11 +1059,40 @@ irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; G
 
 ![image-20250110143726834](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250110143726834.png)
 
-## 经常采集的属性👺
+## 经常采集的标签|内容👺👺
 
-考虑到不同国家有不同的规范,比如价格,欧元将的小数点是逗号`,`,如果要采集这种价格,需要将逗号替换为小数点`.`;与此同时,欧元的千位分隔符用的是小数点,然后千分位符对于一个数字的正确性没有影响,只是便于人们阅读,因此可以将千位分隔符去掉(简单起见)
+(1)   **面包屑**不能为空,如果网站没有,需要自己判断填充合适的值
 
-当然后期再去处理也来得及,比如采集原来的价格形式,在到excel中做替换
+- 面包屑为对应采集**产品的分类**，如果没有可以用**对应产品的品牌类**代替分类
+  - 如果两者都没有可以**固定词**来代替（新进产品、热卖产品、推荐产品等来代替）	
+- 品牌/标签(类别
+
+(2)   **产品名、价格、图片、描述**是必须要有的信息,首先采集它们
+
+(3)   产品型号可以为空
+
+产品属性如对应采集产品有则必须要采
+
+最好采集的一类情况是html源码中有对应的数据集合,例如
+
+- https://plantanddo.es/tienda/control-de-plagas-en-el-hogar/antihormigas/cebo-hormigas-gel-protect-home-4-g/
+
+```html
+<script id="gtm4wp-additional-datalayer-pushes-js-after"> dataLayer.push({"ecommerce":{"currency":"EUR","value":5.9500000000000002,"items":[{"item_id":3395,"item_name":"Herbicida Selectivo – Compo – 25 mL","sku":"CMP-2401702011","price":5.9500000000000002,"stocklevel":6,"stockstatus":"instock","google_business_vertical":"retail","item_category":"Cuidado de plantas y tratamientos","item_category2":"Herbicidas","id":3395}]},"event":"view_item"}); </script>
+```
+
+这种情况下我们需要的主要数据都在这个`json`中,比如价格(value/price),型号`sku`,
+
+![image-20250111094229046](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250111094229046.png)
+
+- `Inicio / Tienda / Control de plagas en el hogar / Antihormigas / Cebo Hormigas Gel – Protect Home – 4 g`
+- `首页 / 商店 / 家庭害虫防治 / 蚂蚁 / 蚂蚁诱饵凝胶 – 保护家居 – 4 克`
+
+但是有些网站不那么规范,同一个站点下可能商品A可以找这种json数据获取信息,但是商品B可能就获取不到了,这是有可能遇到的
+
+所以最保险的方案仍然是去分析html标签
+
+但是考虑到投入产出比,如果无法通过json获取关键数据的产品页面不多,就放弃采集,只采集有这类json数据的就可以了
 
 ### 产品名
 
@@ -628,21 +1105,233 @@ irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; G
 
 比如产品信息是以表格呈现的,那么把`<table>`标签处理后采集下来即可,文本段描述类似,已知wordpress可以正确渲染这些html源码
 
-### 价格采集
+然而,对于有些排版是利用css的虽然有表格或列表的布局,但是不是用`<table>`标签的,这种情况下如果直接爬,则在wordpress渲染就会出现错乱,应当进行粗提取处理(如果只有这个区域有描述)或者跳过(在其他地方有文段描述,如果网站数据量很小,只有几百条,那么就可以考虑跳过抽取复杂的部分描述,或者作为练手)
 
+https://plantanddo.es/tienda/control-de-plagas-en-el-hogar/antihormigas/cebo-hormigas-gel-protect-home-4-g/
+
+![image-20250111103116900](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250111103116900.png)
+
+这个站点的商品数量很少,如果投入大量精力,不划算
+
+![image-20250111104005297](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250111104005297.png)
+
+为了使例子更加完整,这里给出本例的提取方案:
+
+> 注意本例中,这个属性清单源代码很长,标签使用了大量的属性和css,因此我们考虑第一步先将清单对应源码的区域内的标签清除,来迅速缩短源码(方便期间,这里全选标签后反选我们要保留的关键标签)
+
+- 提取规则(粗提取)
+
+  - ![image-20250111181402982](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111181402982.png)使用前后截取将清单所在源码区域大致的确定下来(本例源码可读性很差)
+
+- 数据处理
+
+  - ![image-20250111180649924](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111180649924.png)
+  - ![image-20250111180604449](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111180604449.png)
+
+  - ![image-20250111180558667](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111180558667.png)
+
+
+
+提取结果(简化版),用心的话还可以包装为表格来渲染
+
+```html
+<h4 class="elementor-heading-title elementor-size-default">¿Contra qué plagas actúa este producto?</h4>   <p>Plaga=Hormigas</p>
+ <p>Origen=Sintético</p>
+ <p>Composición=0,031% Imidacloprid</p>
+<p>Componentes adicionales=0,01% Sustancia de sabor amargo</p>
+ <p>Formato=Gel</p>
+<p>Preparación=Listo Uso</p>
+<p>Uso en=Interiores, Exteriores</p>
+<p>Aplicación=Colocación estratégica</p>
+<p>Tamaño=4 g</p>
+ <p>Dosis media=200 mg/m2</p>
+<p>Rendimiento aprox=20 m2</p>
+<p>Coste de aplicación=0,45 €/m2</p>
+ <p>Número de Registro=ES/BB(MR)-2018-18-00489</p>
+<p class="elementor-heading-title elementor-size-default"></p> 
+```
+
+将其粘贴到一个html文件中用浏览器打开它可以发现结果如下(为了便于阅读,翻译为汉语,机器翻译供参考)
+
+![image-20250111175848877](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111175848877.png)
+
+事实上,这种提取仍然算不上完美,理想情况下,该站的所有商品都有一个这样的描述清单,并且一行一个属性;
+
+但是很难保证每个商品的每行不会有更多属性,但是通常情况下,这数据处理规则足够使用,因为列数更多的话应该会采用`<table>`标签来设计,这中情况下我们爬取`<table>`即可
+
+#### 数据抽查👺
+
+上面提到复制采集到的html或经过粗提取的源码到html中用浏览器打开步骤有些繁琐,采集器提供了直接检查数据的功能,让检查爬取结果变得方便
+
+![image-20250112222827269](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112222827269.png)
+
+然而,该视图在采集任务进行中时可能只有url一列有内容,要在任务停止后才能这么查看,也可能能够正常显示各列数据
+
+可以用实时数据视图粗略预览
+
+如果勾选了**边采集边发布**,可以到保存采集数据的目录中复制一份当前正在被采集器使用的数据文件,比如保存为excel文件,那么就复制excel文件(不要直接用excel打开正在被采集器访问的源文件,excel软件在打开excel文件后锁定文件,这样会导致采集器无法写入数据堆积在内存中)
+
+### 价格👺
+
+- 考虑到不同国家有不同的规范,比如价格,**欧元**将的小数点是逗号`,`,如果要采集这种价格,需要将逗号替换为小数点`.`;与此同时,欧元的千位分隔符用的是小数点,然后千分位符对于一个数字的正确性没有影响,只是便于人们阅读,因此可以将千位分隔符去掉(简单起见)
+
+  当然后期再去处理也来得及,比如采集原来的价格形式,在到excel中做替换
 - 货币数量的表示规范(尤其是欧元,千位分隔符使用小数点,采集的时候可以做移除处理,而逗号作为实际的小数点,做替换处理)
 - 货币符号的过滤
+- 将采集到的数据处理为浮点数,在wordpress中选择对应国家时会自动翻译为成正确的千分位符合小数点
+
+#### 常用的正则表达式👺
+
+- [常用正则表达式大全](https://stackoverflow.org.cn/regexdso/)
+
+##### 匹配小数和货币价格
+
+- 匹配小数(正小数):`\d+(\.\d+)?`
+
+  - ```powershell
+    PS> '1;123;12.34' -replace '\d+(\.\d+)?','($0)'
+    (1);(123);(12.34)
+    ```
+
+- 匹配欧元价格(注意移除千分位符(`.`),将欧元小数点`,`)
+
+- 匹配价格的目的有两类
+
+  1. 一类是要提取价格来知道商品的售价,通常不提取货币符号,也就是要过滤掉货币符号,因为根据业务,我们按照国家统一指定货币,而为了数据处理,这里提取价格为可处理的小数
+  2. 另一类是多套餐规格中带有加价,根据业务的需求,我们要移除这个价格,用别的方式处理售价
+
+- 综上结合业务需求,我们先把货币符号过滤掉,比如欧盟欧元符号€,在浏览器中有这些可能的形态出现`€;&euro; &#8364;`
+
+  - 查找相关代码:[HTML Entities](https://www.tutorialspoint.com/html/pdf/html_entities.pdf)
+
+- 匹配欧元的正则(这里尽可能匹配80%以上的情况,不敢干保证一定可以匹配,不过我们可以保证一定去掉货币符号,这样少数情况下即便留下数值也不是太重要;注意不能粗暴的把小数直接移除,因为有的套餐选项中的参数就是小数),比如溶液浓度等
+
+- 此外我们还要注意空格或空白字符的清理,有的源码很不规范,例如
+
+  ```html
+  <select name="options[736]" id="select_736" class=" required product-custom-option admin__control-select" title=""  data-selector="options[736]"><option value="" >--Seleccione--</option><option value="4004"  price="1" >AstralPool tabletas reactivo DPD Nº4 Cloro Total y Oxígeno +
+  
+  
+          1,00 €
+          
+  </option>
+  ```
+
+  可以看到`1,00`&euro; 附近一大片空白字符,那么用正则移除**多余**的空格(不能是正常的空格都移除,英文或类似语言的单词之间的空格是不能移除的),利用正则`\s{2,}`来移除连续超过1个空白符的字串,替换为单个空格` `;
+
+##### 匹配标签元素|内容
+
+虽然`.`可以匹配大多数(几乎全部的)字符,但是无法匹配换行符
+
+而html源码中,部分情况会出现标签包裹的内容是多行的,这会导致`.*`这类模式无法跨行匹配,需要用能够匹配字符全集的模式,例如`[\s\S]`来匹配任意字符
+
+例如来自于https://www.piscinasferromar.com/astralpool-tabletas-reactivo-51844.html的一段源码片段
+
+```
+<option value="4004"  price="1" >AstralPool tabletas reactivo DPD Nº4 Cloro Total y Oxígeno +
+
+
+        1,00 €
+        
+</option><option value="4005"  price="10.9" >AstralPool tabletas reactivo Alcalinidad +
+
+
+        10,90 €
+        
+</option>  
+```
+
+这里出现的`<option>`标签的内容都是多行的,如果用`<option.*?>(.*?)</option>`是无法跨行匹配,导致最终的匹配结果是空!
+
+需要修改为`<option.*?>([\s\S]*?)</option>`
+
+而在火车头中,要实现标签内容(包括跨行的情况),使用普通参数正则替换会更加直接
+
+### 图片
+
+- 一般先搜索源码中`og:image`部分来采集主图效率高(但是图片质量要检查),例如`<meta property="og:image"...`
+
+- 如果没有,或者有,但是图片是小图或者logo,则抛弃,必须手动定位到正文中的图片代码
+
+- 定位有时不是那么容易,我们需要比对同站的不同产品页进行对比,以找出较为精确的区间
+
+  - ![image-20250113221159034](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113221159034.png)
+  - ![image-20250113221206066](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113221206066.png)
+
+- 观察两个DOM格式化后的html标签,大致可以看出共同点:有`class="fotorama__img"`和`aria-hidden="false"`,其他属性值变化
+
+  此时观察对应的源码,可以看到和dom中的样子(`<img>`)差别较大,但是仍然有共同点:有相同的`alt`和`class`
+
+  ![image-20250113221711150](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113221711150.png)
+
+  ![image-20250113221732111](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113221732111.png)
+
+于是采集器中可以利用**参数正则**提取写入
+
+```html
+    <img
+        alt="main product photo"
+        class="gallery-placeholder__image"
+        src="[参数]"
+    />
+```
+
+由于参数正则中只有一个`[参数]`,所以组合结果写入`[参数1]`即可
+
+### 产品类别或标签
+
+通常在源码中找category(catego),如果没有相关字段,则跳过,或者看面包屑中可能有分类
 
 ### 面包屑👺
 
 - 理想情况下,同一个网站下面包屑的采集并不复杂,所有页面面包屑的级数相同的情况比较简单
 - 或者,将面包屑的各个级别都放到同一个字段中,也是比较容易实现的
-- 若同一个网站下不同产品页中面包屑的级数不同,并且要求不同层级的面包屑分别提取到不同的字段中保存,则需要考虑东西比较多(事实上从高级语言编程的层面实现这类任务是相对简单的,比如利用python+pandas对采集下来的面包屑串进行分割,但是在火车头内部直接处理显得力不从心)
+- 若同一个网站下不同产品页中面包屑的级数不同,并且要求不同层级的面包屑分别提取到不同的字段中保存,则需要考虑东西比较多
+- 经验表明,绝大多数的网站的商品页面上都有面包屑,虽然有些是废话没有什么用,比如`开始>商品名`,面包屑中没有体现分类或者品牌的(顶多一个商品名这个信息还是可以通过`<h1>`标签确定的,可以不采,但是面包屑字段必须有,可以用固定值来代替,比如`热销`,`特卖`,当然,不同国家的语言要转换翻译一下)
+
+#### 代码方案(C#)
+
+- [.NET 正则表达式 - .NET | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expressions)
+
+- 事实上从高级语言编程的层面实现这类任务是相对简单的,比如利用python+pandas对采集下来的面包屑串进行分割,但是在采集器中内部用简化的功能直接处理显得力不从心,幸运的是,采集器提供了`C#`代码运行功能,例如
+
+  ```c#
+  using System;
+  using System.Collections.Generic;
+  using System.Text;
+  using System.Text.RegularExpressions;
+  using SpiderInterface;
+  class LocoyCode{
+      
+      public string Run(string content,ResponseEntry response){
+          //使用正则表达式获取标题
+          string pattern = @"<span[^>]*>(.*?)<\/span>";
+          MatchCollection matches = Regex.Matches(content, pattern);
+          
+        
+          if(matches.Count >= 2){
+              return matches[1].Groups[1].Value;
+          }else{
+              return "venta caliente";
+          }
+      
+         
+      }
+  }
+  
+  ```
+
+- 不同的网站可能需要改动
+- 编写此类`C#`的正则任务对于程序员而言并不难,即便没有写过C#,也可以快速学习掌握
+
+#### 非代码方案
+
+- 不写`C#`代码直接用采集器多次简化的数据处理流程也可以达到类似的效果
   - 比如,一个网站的商品页中有2级,3级,4级的面包屑可能,那么第一部可以考虑将所有地面包屑字符串集中起来
   - 为了简单起见,同一设置3个字段(b1,b2,b3)存储面包屑的不同层级,如果只有2级,那么b3就会是空的
   - 如果有4级(比如(`a/b/c/d`),那么b3就会存储`c/d`
 
-为了进一步说明问题,这里给出一个例子和解决方案(方案不唯一)
+为了进一步说明问题,这里给出一个例子(来自站点https://www.nexles.com)和解决方案(方案不唯一)
 
 处理效果要求如下
 
@@ -680,9 +1369,83 @@ irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; G
 
 若处理`b3`时,发现面包屑只有2级,那么第三级的第一次正则匹配(分组捕获)将会失败,这时候我们已经可以断言面包屑只有两级(b1,b2),所有b3就应该处理为空,或者用产品名填补,本例选择处理为空的方案
 
+这里`(.*/.*)`是为了检测`/`,当检测到`/`,则将整个字符串匹配上,而不是直接用`.*`去匹配,这无法区分b3是否应该为kong
+
+#### 其他思路
+
+编写复杂的正则,串联正则处理,复杂度高
+
+```bash
+.*?(<span\s*itemprop="name"\s*>(.*?)<).*?(<span\s*itemprop="name"\s*>(.*?)<).*?(<span\s*itemprop="name"\s*>(.*?)<).*
+```
+
+#### 面包屑字段说明👺
+
+- 经验表明,一般商品网站的面包屑为3级到4级居多,也存在2级甚至5级的
+- 而且有的站点不同的产品页面包屑级数页不一样,这为采集哪一级带来了问题,特别是哪一级面包屑比较有标志性的意义值得采集
+- 例如,有的站点产品页的面包屑很罗嗦
+  - `首页/商店/肥料/钾肥/K1`,又比如`主页 / 商店 / 五金 / 帽子、帽子和手杖 / 带尖芦苇手杖 20/22mm`这种面包屑很显然前两级没什么用,看不出来这个商品到底是哪个类别的,就是废话;第三级才有一定含义
+  - 这类情况我们可以采集倒数第2级面包屑,可以先提取面包屑全串,然后用正则捕获倒数第二级,比如`.*/(.*?)/.*`,提取分组`$1`;但是若要考虑为了兼容只有2级的情况,可以对全串先做一个前缀拼接,保证至少有2个`/`,然后再执行该替换
+- 而有的面包屑也很没有信息量,例如https://www.nexles.com/es/b-braun-desinfectante-meliseptol-rapid-1-litro.html
+  - `开始 / Meliseptol Rapid，1 升`一共两级,第一级`开始`没什么意思,第二级实际上就是产品名了,该面包屑中没有对该商品进行分类
+  - 这种情况下,采集面包屑全串中的最后一级(和产品名相同,这种站点,可考虑干脆将产品名作为面包屑的最后一级,毕竟原站就是这么干的)
+
+### 产品多套餐属性爬取👺
+
+有的网站没有多套餐属性,有的网站是部分产品有多属性,有的没有
+
+示例网站产品页:
+
+- [AstralPool tabletas reactivo | Piscinas Ferromar](https://www.piscinasferromar.com/astralpool-tabletas-reactivo-51844.html)
+
+- https://www.tienda.sercopag.com/producto/epik-insecticida-sistemico-acetamiprid-20/
+
+如果有的话,则需要爬取,根据采集工作注意事项的要求:
+
+属性值采集规则:(购买时的产品选择属性,比如尺码,颜色选项,而不是产品的详细参数属性,例如成分,体积,重量)
+
+有两类情况,比如鞋子商品为例,有的站提供了尺码/颜色的选择,有的站同时提供尺码或颜色的选择
+
+根据业务要求,需要将属性处理为以下格式
+
+1. `Size#36|37|38|39` 单个选项格式
+2. `Size#36|37|38|39~Color#red|green|blue|yellow` 多个选择格式（中间用~分割）
+
+其中36|37|38|39 red|green|blue|yellow 这些**属性值**里不能包含`,` ,`#`, `:`这三个符号，**属性值**里有包含价格、有无库存信息这些等都过滤掉就留选项值下来
+
+属性值比较不好采，一般是获取属性值那一部分所有的代码，然后使用替换，把属性换成总监需要的格式、加上html过滤排除掉不需要的html代码来进行采集。
+
+#### 示例
+
+![image-20250113151435550](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113151435550.png)
+
+```html
+<select name="options[736]" id="select_736" class=" required product-custom-option admin__control-select" title=""  data-selector="options[736]"><option value="" >--Seleccione--</option><option value="4004"  price="1" >AstralPool tabletas reactivo DPD Nº4 Cloro Total y Oxígeno +
 
 
-### 爬取部分内容后检查纰漏
+        1,00 €
+        
+</option><option value="4005"  price="10.9" >AstralPool tabletas reactivo Alcalinidad +
+
+
+        10,90 €
+        
+</option><option value="4007"  price="0" >AstralPool tabletas reactivo DPD Nº3 Cloro Combinado </option><option value="4008"  price="0" >AstralPool tabletas reactivo DPD Nº1 </option><option value="4009"  price="0" >AstralPool tabletas reactivo Phenol (ph) </option></select> 
+```
+
+![image-20250113223249723](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113223249723.png)
+
+### 品牌/制造商(brand/manufacture)
+
+一般可以试试查找源码中的brand或manufacturer
+
+```json
+"brand":{"@type":"Brand","name":"Lovibond"},"manufacturer":{"@type":"Organization","name":"Lovibond"}
+```
+
+
+
+### 爬取部分内容后检查纰漏👺
 
 例如,启动任务后,开始爬取,当任务运行了几秒后(一般10秒左右,不要太短,不然前在可能出问题的问题可能不会暴露出来)
 
@@ -696,21 +1459,57 @@ irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; G
 
 事实上,问题可能会更加复杂,比如一个站点的有不同风格的商品呈现风格,有的涉及到post请求,普通的抓取方法(针对Get请求编写的规则)可能就无法完整捕获需要的信息,如果这部分商品数量不多,可以考虑跳过(处理他们的性价比低),如果数据量大,并且很多网站都有这种问题,那么考虑掌握破解的方法提高抓取能力,比如利用fiddler抓包解析
 
+> 检查爬取的图片是否普遍清晰,大小足够,且没有水印很关键,如果发现图片不合格,及时停止任务修改图片采集规则
+
+### 文件图片下载
+
+[下载图片文件 - 火车采集器帮助中心](http://faq.locoy.com/q-725.html)
+
+我们采集内容的时候经常遇到内容里面有图片的，或者我们就采集图片并下载。采集的图片格式有2种：
+
+1，带html标签的 ，这样的情况我们只要在下载设置那里勾选“图片下载”；
+
+2，不带html标签的就单单是采集图片地址，这样的情况在下载设置那里我们要勾选“探测文件下载”。
+
+采集器只会把包含`<img` 标签的看成图片文件，勾选下载图片就可以了，
+
+其他地方的**图片地址**的就会当成其他文件下载，就需要勾选探测文件下载
+
+### 采集多线程设置
+
+![image-20250111192629925](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111192629925.png)
+
+采集任务开始后,可以在任务详情中设置线程数
+
+这里虽然有一个请求间隔设置,但是进档线程数为1的时候间隔设置才有效,但是一般我们不用单线程,所以这个请求间隔基本上没什么用
+
 ## UserAgent和Cookie👺
 
-### 在浏览器中查看
+浏览器可以访问但是采集器无法访问,可能有多个原因
+
+- 网络环境,部分网站被墙,无法访问(设置代理,打开tun模式走底层代理)
+- UserAgent(UA)设置
+- Cookie设置,比如需要登录的网站
+
+### 在浏览器中查看cookie
+
+cookie可以用**浏览器插件**(插件市场好多cookie插件)或者fiddler抓包获取
+
+### 采集器相关设置
 
 #### 设置cookie
 
-网站语言对不上。就在火车头里面加上cookie。每写一个规则最好都是把cookie添加上。避免不必要的麻烦。
+网站语言对不上。或者浏览器可以访问但是采集器无法采集到内容,就在火车头里面加上cookie。每写一个规则最好都是把cookie添加上。避免不必要的麻烦。
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg)
+![image-20250111160245514](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250111160245514.png)
 
 #### 设置UserAgent
 
 部分情况下某些网站浏览器可以正常访问，命令行的curl命令也可以获取网站内容，但是火车头却无法访问,这时候需要考虑设置UserAgent(简称UA),让火车头伪装成主流浏览器来获取请求(比如Chrom或Edge浏览器的UA)
 
-#### 采集器闪退问题👺
+一般在采集模板中设置一下即可
+
+### 采集器闪退问题👺
 
 对于pj版采集器(高铁采集器)的部分功能不可用,点击可能引起闪退,比如编辑任务窗口中->其他设置->http请求设置里,功能:使用浏览器获取网页登录信息会引发闪退
 
@@ -720,9 +1519,9 @@ UserAgent点击客户端标识表示会引发闪退
 
 #### 操作示例
 
-分被获取UserAgent(比较通用,可以放到采集任务模板里),cookie(针对特定网站有特定的cookie,一般的网站不需要)
+分别获取UserAgent(比较通用,可以放到采集任务模板里),cookie(针对特定网站有特定的cookie,一般的网站不需要)
 
-![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image004.jpg)![img](file:///C:/Users/Administrator/AppData/Local/Temp/msohtmlclip1/01/clip_image006.jpg)
+
 
 ### 使用浏览器插件查看
 
@@ -748,6 +1547,10 @@ UserAgent点击客户端标识表示会引发闪退
 - [什么是SKU？ - 知乎](https://zhuanlan.zhihu.com/p/458474137)
 
 ## 采集难点
+
+示例
+
+https://www.tienda.sercopag.com/producto/epik-insecticida-sistemico-acetamiprid-20/
 
 | 中文翻译                                                     | 商品原文                                                     |      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
@@ -799,7 +1602,7 @@ UserAgent点击客户端标识表示会引发闪退
 
 ## 创建基本采集规则模板
 
-### 路径保存设置|更改保存位置👺
+### 路径保存设置|更改保存位置|更改位置👺
 
 高铁采集器(火车采集器破解版)可以保存为excel,不需要手动编写模板,比较方便
 
@@ -811,7 +1614,11 @@ UserAgent点击客户端标识表示会引发闪退
 
 另外要注意,如果要制作基础的采集规则和任务的模板,不同的站点爬取到数据需要做区分,因此一定要注意保存位置的更改,为了提示模板使用者及时更改保存路径，这里在路径中插入`<template>`字符串,强调提示用户记得修改路径,否则保存不下来!
 
-设置位置参考分别如下
+设置位置参考分别如下👺
+
+更改建议:先确保任务名从模板或原任务名修改过来,记为`NewName`,然后复制`NewName`,避免后续手打出现不一致的情况
+
+找到下面指出的位置修改对应位置的字符串,粘贴覆盖旧串
 
 #### 文本或字符形式的内容采集保存位置
 
@@ -952,6 +1759,10 @@ wps office也有类似功能
 
 ## 采集器软件使用问题👺
 
+### 插件管理和导入
+
+- 采集器导入插件是通过将插件(源代码文件)放到指定目录,就是软件安装目录的`plugins`目录中
+
 ### 窗口弹不出来
 
 采集器可能会出现打不开的情况(后台有进程,但是窗口弹不出来),可以采取如下办法
@@ -969,3 +1780,47 @@ wps office也有类似功能
 ### 快捷键隐藏窗口
 
 `ctrl+T`会隐藏窗口,再次执行该快捷键会弹出窗口
+
+### 任务列表中的采集数量显示不正确或滞后
+
+右键刷新后可能会全部显示为0,需要重启软件才可以读取正确数据,总之这个**数据量**显示不靠谱
+
+![image-20250112223812779](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250112223812779.png)
+
+### 采集任务的暂停/恢复/终止
+
+1. 有些站点有防采集，要多采几次才能把数据采全，具体看采集规则(任务)的**已请求量**跟**内容数量**，如果差距较大可能是数据没采全
+2. 还要注意图片文件的下载量是否和内容数量差不多,否则说明很多图片没有下载下来
+
+### 采集日志数据库
+
+![image-20250113075630952](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113075630952.png)
+
+```bash
+#⚡️[Administrator@CXXUDESK][C:\exes\locoypp\Data\50][7:56:51][UP:1.95Days]
+PS> ls
+
+    Directory: C:\exes\locoypp\Data\50
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           2025/1/11     9:00           3072 Failed_List_Copy.db3
+-a---           2025/1/13     7:55           3072 Failed_List.db3
+-a---           2025/1/11     9:01          11909 Log.20250111.090119.txt
+-a---           2025/1/13     7:55            288 Log.20250113.075552.txt
+-a---           2025/1/11     9:01       23981056 SpiderResult.db3
+```
+
+可以看到这里有一些sql文件(db3应该是sqlite3的数据库文件,可以用navicat等工具打开,或者免费的sqlitestudio)
+
+记录的`Failed_List.db3`是采集失败的记录,但是不一定有内容,也不一定可靠,这就导致重新采集上一次失败的内容可能采不到什么新数据
+
+sqlite文件是自动生成保存的
+
+![image-20250113080442840](C:\Users\Administrator\Pictures\typora_imgs\locoyStarter\image-20250113080442840.png)
+
+### 采集造成系统卡顿👺
+
+[关于采集器运行时CPU占用特别高的原因及解决办法 - 火车采集器帮助中心](http://faq.locoy.com/q-970.html)
+
+通常如果采集人员采集规则质量不佳,导致匹配过程中计算量过大,这种情况下就需要改进匹配规则

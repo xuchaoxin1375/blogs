@@ -9,6 +9,20 @@
 - 但是对于复杂的需求,我们转向调用`.Net`api来执行复杂的匹配任务
 - [正则表达式的选项 - .NET | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-options)
 
+## refs
+
+- [replacement-with-regular-expressions|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-with-regular-expressions)
+  - [正则替换|关于比较运算符 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.4&viewFallbackFrom=powershell-7.3#replacement-with-regular-expressions)
+
+- [about Regular Expressions - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.3)
+  - [关于正则表达式 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4&viewFallbackFrom=powershell-7.3)
+
+- [about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-operator)
+- [How to Use PowerShell Replace to Replace Text [Examples] (adamtheautomator.com)](https://adamtheautomator.com/powershell-replace/#:~:text=One%20of%20the%20easiest%20ways%20to%20replace%20strings,and%20replacing%20that%20string%20with%20the%20string%20hi.)
+- [Powershell - Replace first occurrences of String - Stack Overflow](https://stackoverflow.com/questions/38123600/powershell-replace-first-occurrences-of-string)
+
+
+
 ## 经典案例
 
 ### 替换第一个空格为等号
@@ -177,7 +191,7 @@ $match.Value  # 输出：7.4.5
 #### 常用的 `RegexOptions` 选项：
 
 - `IgnoreCase`：忽略大小写。
-- `Multiline`：启用多行模式。
+- `Multiline`：启用**多行**模式。
 - `Singleline`：启用单行模式，使 `.` 可以匹配换行符。
 - `ExplicitCapture`：仅捕获显式命名或编号的组。
 - `Compiled`：将正则表达式编译为程序集，提供更好的运行时性能。
@@ -342,37 +356,23 @@ False
 
 
 
-### `$Matches`变量
+### 多行匹配和单行匹配👺
 
-- [组、捕获和替换](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4#groups-captures-and-substitutions)
-
-```powershell
-PS🌙[BAT:79%][MEM:49.34% (15.64/31.71)GB][18:02:59]
-# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
-PS> 'The last logged on user was CONTOSO\jsmith' -match '(.+was )(.+)'
-True
-
-PS🌙[BAT:79%][MEM:48.34% (15.33/31.71)GB][18:14:11]
-# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
-PS> $Matches
-
-Name                           Value
-----                           -----
-2                              CONTOSO\jsmith
-1                              The last logged on user was
-0                              The last logged on user was CONTOSO\jsmith
-```
-
-
-
-### 多行匹配和单行匹配
+| 相关选项名称                                                 | 选项值 | 解释                                                         | 参考                                                         |
+| ------------------------------------------------------------ | ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [Multiline](https://learn.microsoft.com/zh-cn/dotnet/api/system.text.regularexpressions.regexoptions#system-text-regularexpressions-regexoptions-multiline) | `m`    | 使用多线模式，其中 `^` 和 `$` 表示每行的开头和末尾（不是输入字符串的开头和末尾）。 | [多行模式](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-options#multiline-mode) |
+| [Singleline](https://learn.microsoft.com/zh-cn/dotnet/api/system.text.regularexpressions.regexoptions#system-text-regularexpressions-regexoptions-singleline) | `s`    | 使用单行模式，其中的句号 (.) 匹配每个字符（而不是除了 `\n` 以外的每个字符)。 | [单行模式](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-options#single-line-mode) |
 
 在 PowerShell 中使用定位点时，应了解 **Singleline** 和 **Multiline** 正则表达式选项之间的差异。
 
-- **Multiline**：多行模式强制 `^` 和 `$` 匹配每行的开头和结尾，而不是输入字符串的开头和结尾。
-- **Singleline**：单行模式将输入字符串视为 **SingleLine**。 **它强制 `.` 字符匹配每个字符（包括换行符）**，而不是匹配除换行符 `\n` 之外的每个字符。
+- **Multiline**：多行模式强制 `^` 和 `$` 匹配每行的开头和结尾,适合**以行为单位**进行匹配处理，**而不是输入字符串的开头和结尾**。
+- **Singleline**：单行模式将输入字符串视为单行 **SingleLine**字符串,以启用或实现**跨行匹配**。 **它强制 `.` 字符匹配每个字符（包括换行符）**，而不是匹配除换行符 `\n` 之外的每个字符。(相当于dot match all 模式DotAll)
 
-在 PowerShell 中可以使用正则表达式来匹配多行内容。通常，使用 `-match` 运算符以及多行模式的标志 `(?s)` 来实现这一点。以下是一个示例：
+在 PowerShell 中,默认情况下对读入的串视为单行(singleLine)进行匹配,对应的就是跨行(换行符)匹配,
+
+也就是默认匹配可跨行匹配多行内容,和许多编辑器的正则匹配默认行为不同。
+
+通常，powershell中执行跨行匹配查找(不替换),使用 `-match` 运算符以及标志 `(?s)` 来实现这一点。以下是一个示例：
 
 假设我们有一个文件 `example.txt`，内容如下：
 
@@ -384,6 +384,20 @@ Line 3
 Line 4
 End
 Line 5
+```
+
+运行以下脚本创建该文件
+
+```
+@"
+Line 1
+Line 2
+Start
+Line 3
+Line 4
+End
+Line 5
+"@>example.txt
 ```
 
 我们想要匹配 `Start` 和 `End` 之间的所有内容。
@@ -405,8 +419,8 @@ if ($content -match $pattern) {
 ```
 
 解释：
-- `Get-Content -Raw` 读取整个文件内容为一个字符串。
-- `(?s)` 标志启用多行模式，使 `.` 可以匹配换行符。
+- `Get-Content -Raw` 读取整个文件内容为一个字符串。(不使用参数`-Raw`会得到一个字符串构成的数组,最直观影响到`^`和`$`)
+- `(?s)`标志启用跨行模式(视为单行)，使 `.` 可以匹配换行符。
 - `(.*?)` 使用非贪婪匹配来捕获 `Start` 和 `End` 之间的所有内容。
 - `$matches[1]` 包含第一个捕获组的内容，即 `Start` 和 `End` 之间的内容。
 
@@ -416,6 +430,38 @@ if ($content -match $pattern) {
 Line 3
 Line 4
 ```
+
+```powershell
+# 读取文件内容
+$content = Get-Content -Raw -Path "example.txt"
+
+# 使用正则表达式匹配多行内容
+$pattern = "Start(.*?)End"
+if ($content -match $pattern) {
+    $matches = $matches[1]  # 获取匹配的内容
+    Write-Output $matches
+} else {
+    Write-Output "No match found."
+}
+```
+
+结果为:"No match found."
+
+```powershell
+# 读取文件内容
+$content = Get-Content -Raw -Path "example.txt"
+
+# 使用正则表达式匹配多行内容
+$pattern = "(?m)Start(.*?)End"
+if ($content -match $pattern) {
+    $matches = $matches[1]  # 获取匹配的内容
+    Write-Output $matches
+} else {
+    Write-Output "No match found."
+}
+```
+
+结果为:"No match found."
 
 ### 例
 
@@ -428,7 +474,105 @@ write-host $UserPath
 Write-Verbose "Path value of [$env:Username] `n$($UserPath -split ';' -join "`n")" -Verbose
 ```
 
+### 多行文本字符串在匹配时的注意事项
 
+将一个多行文本字符串(具有换行符`\r\n`或`\n`的字符串),在做可能跨行的匹配时,需要尤为注意
+
+例如,假设我们打算将一个文本文件中的所有换行符移除,使其合并到同一行,那么和利用编辑器执行正则替换所需要的操作不同,编辑器(例如vscode的正则模式)默认情况下是单行处理,也就是对文本中的每一行执行你给定的正则表达式匹配,需要匹配多行时需要手动输入回车,详情参考vscode官网
+
+现在回到powershell的正则处理上，这里讨论`-replace`运算符执行的正则替换(当然可以使用更强大的`.Net`正则`api`来做更灵活的匹配任务)
+
+在powershell `-replace`中,要移除所有空行或合并所有行为同一行(删除所有`\n`),有许多策略,最直接的就是用`cat -Raw`参数读取为一个整个串,然后替换所有`\n`换行符(`\r`回车符可以考虑保留,不会换行)
+
+
+
+
+
+### 测试文本的来源不同导致匹配行为不一致现象的解释和对策👺
+
+```powershell
+
+$text=@"
+<url>
+<loc><![CDATA[https://gardencenterejea.com/rosales-trepadores/5423-sombreuil-clg.html]]></loc>
+<lastmod>2023-05-25T14:44:30+02:00</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+<image:image>
+<image:loc><![CDATA[https://gardencenterejea.com/6341-large_default/sombreuil-clg.webp]]></image:loc>
+<image:caption><![CDATA[Aqui os presentamos Sombreuil Clg a la venta en Garden Center Ejea, es un articulo en la categoría de Rosales y con un pvp de 22,00€]]></image:caption>
+<image:title><![CDATA[Sombreuil Clg]]></image:title>
+</image:image>
+</url>
+<url>
+<loc><![CDATA[https://gardencenterejea.com/semillas-de-flor/5425-centaurea-azul.html]]></loc>
+<lastmod>2023-12-05T13:59:00+01:00</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+<image:image>
+<image:loc><![CDATA[https://gardencenterejea.com/6357-large_default/centaurea-azul.webp]]></image:loc>
+<image:caption><![CDATA[Aqui os presentamos Centáurea azul a la venta en Garden Center Ejea, es un articulo en la categoría de Semillas de Flor y con un pvp de 1,60€]]></image:caption>
+<image:title><![CDATA[Centáurea azul]]></image:title>
+</image:image>
+</url>
+<url>
+"@
+$text -replace '<loc><!\[CDATA\[(.*?)\]\]></loc>[\s\S]*?<priority>0.9</priority>', '$1' -replace '<.*>','' -replace '(?m)^\s*\r?\n?', ''
+
+pause
+```
+
+粘贴到powershell中结果为
+
+```powershell
+PS> $text -replace '<loc><!\[CDATA\[(.*?)\]\]></loc>[\s\S]*?<priority>0.9</priority>', '$1' -replace '<.*>','' -replace '(?m)^\s*\r?\n?', ''
+
+https://gardencenterejea.com/rosales-trepadores/5423-sombreuil-clg.html
+https://gardencenterejea.com/semillas-de-flor/5425-centaurea-azul.html
+```
+
+正确提取出两个`<loc>`标签中的https链接
+
+但是如果将`$text`的内容保存到文本文件`a.xml`中,然后用`cat`命令读取:
+
+- 如果不使用任何参数,则读取结果会是一些分开的行,这时候运行匹配流程会得到一堆空行
+
+  ```powershell
+  #⚡️[Administrator@CXXUDESK][C:\repos\php][17:35:11][UP:1.35Days]
+  PS> cat .\a.xml |measure |select Count
+  
+  Count
+  -----
+     23
+  PS> $text=cat .\a.xml ; $text -replace '<loc><!\[CDATA\[(.*?)\]\]></loc>[\s\S]*?<priority>0.9</priority>', '$1' -replace '<.*>','' -replace '(?m)^\s*\r?\n?', ''
+  
+  
+  
+  ```
+
+  这是因为`$text`是数组类型
+
+  ```powershell
+  PS> (cat .\a.xml).GetType()
+  
+  IsPublic IsSerial Name                                     BaseType
+  -------- -------- ----                                     --------
+  True     True     Object[]                                 System.Array
+  ```
+
+- 为了正确处理多行,需要使用`-Raw`将多行文本读出的时候作为一整个字符串读取
+
+  ```powershell
+  
+  #⚡️[Administrator@CXXUDESK][C:\repos\php][17:36:35][UP:1.35Days]
+  PS> $text=cat .\a.xml -Raw ; $text -replace '<loc><!\[CDATA\[(.*?)\]\]></loc>[\s\S]*?<priority>0.9</priority>', '$1' -replace '<.*>','' -replace '(?m)^\s*\r?\n?', ''
+  
+  https://gardencenterejea.com/rosales-trepadores/5423-sombreuil-clg.html
+  https://gardencenterejea.com/semillas-de-flor/5425-centaurea-azul.html
+  
+  ```
+
+  可以发现,匹配结果就是我们想要的
 
 # 字符串相关操作符
 
@@ -509,11 +653,159 @@ $result
   test b
   ```
 
-## -contains@-match
+## 包含判断和正则匹配判断运算符👺
+
+
 
 - [containment-operators|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#containment-operators)
 
-- [matching-operators|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#matching-operators)
+- [matching-operators|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#matching-operators)
+
+### -match和-nomatch
+
+`-match` 和 `-notmatch` 使用正则表达式搜索左侧值的模式。 正则表达式可以匹配复杂的模式，例如电子邮件地址、UNC 路径或格式的电话号码。 右侧字符串必须遵循[正则表达式](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4)规则。
+
+标量示例：
+
+```powershell
+# Partial match test, showing how differently -match and -like behave
+"PowerShell" -match 'shell'        # Output: True
+"PowerShell" -like  'shell'        # Output: False
+
+# Regex syntax test
+"PowerShell" -match    '^Power\w+' # Output: True
+'bag'        -notmatch 'b[iou]g'   # Output: True
+```
+
+如果输入是集合，则运算符返回该集合的匹配成员。
+
+集合示例：
+
+```powershell
+"PowerShell", "Super PowerShell", "Power's hell" -match '^Power\w+'
+# Output: PowerShell
+
+"Rhell", "Chell", "Mel", "Smell", "Shell" -match "hell"
+# Output: Rhell, Chell, Shell
+
+"Bag", "Beg", "Big", "Bog", "Bug"  -match 'b[iou]g'
+#Output: Big, Bog, Bug
+
+"Bag", "Beg", "Big", "Bog", "Bug"  -notmatch 'b[iou]g'
+#Output: Bag, Beg
+```
+
+
+
+### powershell`$Matches`变量
+
+- [组、捕获和替换](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4#groups-captures-and-substitutions)
+
+```powershell
+PS🌙[BAT:79%][MEM:49.34% (15.64/31.71)GB][18:02:59]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
+PS> 'The last logged on user was CONTOSO\jsmith' -match '(.+was )(.+)'
+True
+
+PS🌙[BAT:79%][MEM:48.34% (15.33/31.71)GB][18:14:11]
+# [cxxu@CXXUCOLORFUL][<W:192.168.1.154>][Win 11 Pro@10.0.26100.1742][C:\repos\configs]{Git:main}
+PS> $Matches
+
+Name                           Value
+----                           -----
+2                              CONTOSO\jsmith
+1                              The last logged on user was
+0                              The last logged on user was CONTOSO\jsmith
+```
+
+
+
+`-match` 和 `-notmatch` 支持正则表达式捕获组。 每次在标量输入上运行，`-match` 结果为 **True**，或者 `-notmatch` 结果为 **False**，它们都会覆盖 `$Matches` 自动变量。
+
+ `$Matches` 是一个**哈希表**，它始终具有名为“0”的键，用于存储整个匹配项。 
+
+如果正则表达式包含捕获组，则 `$Matches` 包含每个组的其他键。
+
+请务必注意，`$Matches` 哈希表仅包含任何匹配模式的第一个匹配项。
+
+示例：
+
+```powershell
+$string = 'The last logged on user was CONTOSO\jsmith'
+$string -match 'was (?<domain>.+)\\(?<user>.+)' #分组捕获,将域名和用户名捕获
+
+$Matches
+
+Write-Output "`nDomain name:"
+$Matches.domain
+
+Write-Output "`nUser name:"
+$Matches.user
+```
+
+输出
+
+```output
+True
+
+Name                           Value
+----                           -----
+domain                         CONTOSO
+user                           jsmith
+0                              was CONTOSO\jsmith
+
+Domain name:
+CONTOSO
+
+User name:
+jsmith
+```
+
+`$matches`仅包含第一个匹配项的含义是指如果被匹配的中有多个字串能够被指定的正则匹配到,但`$Matches`始终只关心第一次匹配到的字串,后续不管
+
+```powershell
+$string = 'The last logged on user was CONTOSO\jsmith;The last logged on user was C2\j2;'
+$string -match 'was (\w+)\\(\w+)' 
+
+$Matches
+
+
+```
+
+```powershell
+
+Name                           Value
+----                           -----
+2                              jsmith
+1                              CONTOSO
+0                              was CONTOSO\jsmith
+
+```
+
+本例中分号`;`(这里`\w+`遇到`;`会结束当次匹配)前后都应该能够被正则`was (\w+)\\(\w+)`所匹配上,但是`$Matches`变量仅记录了一个第一次匹配中的字串及其内部分组`was CONTOSO\jsmith`,`was C2\j2`被忽略了;
+
+如果用`-replace`来处理,则是所有能够匹配正则的字串都会被处理,例如延续上例中的`$string`,把用户名和域名位置对调并用`@`链接
+
+```powershell
+PS> $string -replace 'was (\w+)\\(\w+)','$2@$1'
+The last logged on user jsmith@CONTOSO;The last logged on user j2@C2;
+```
+
+当 `-match` 结果为 **False**，或者 `-notmatch` 结果为 **True** 或输入为集合时，不会覆盖 `$Matches` 自动变量。
+
+ 因此，如果尚未设置变量，它将包含以前设置的值，或 `$null`。 在调用其中一个运算符后引用 `$Matches` 时，请考虑使用条件语句验证当前运算符调用是否设置了变量。
+
+示例：
+
+```powershell
+if ("<version>1.0.0</version>" -match '<version>(.*?)</version>') {
+    $Matches
+}
+```
+
+有关详细信息，请参阅 [about_Regular_Expressions](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4) 和 [about_Automatic_Variables](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4)。
+
+### -contain
 
 - ```powershell
   PS D:\repos\scripts> $s='test_b test b' 
@@ -529,7 +821,7 @@ $result
 
 - The `-contains` operator in PowerShell checks if a collection of objects contains a specified object. 
 - In the example you provided, `$s` is a string, not a collection of objects. Therefore, the `-contains` operator will not work as expected. Instead, you can use the `-match` operator with a regular expression to check if the string contains a space.
--  For example, if you want to check if the string “test_b test b” contains a space, you can use the following code: `"test_b test b" -match '\s'`. This will return `True` if the string contains a space and `False` otherwise.
+- For example, if you want to check if the string “test_b test b” contains a space, you can use the following code: `"test_b test b" -match '\s'`. This will return `True` if the string contains a space and `False` otherwise.
 
 ### 通配符和正则表达式
 
@@ -748,16 +1040,4 @@ $result
       欧拉记号法@Euler's notation
       牛顿记号Newton's notation
   ```
-
-# refs
-
-- [replacement-with-regular-expressions|about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-with-regular-expressions)
-  - [正则替换|关于比较运算符 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.4&viewFallbackFrom=powershell-7.3#replacement-with-regular-expressions)
-
-- [about Regular Expressions - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.3)
-  - [关于正则表达式 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.4&viewFallbackFrom=powershell-7.3)
-
-- [about Comparison Operators - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.3#replacement-operator)
-- [How to Use PowerShell Replace to Replace Text [Examples] (adamtheautomator.com)](https://adamtheautomator.com/powershell-replace/#:~:text=One%20of%20the%20easiest%20ways%20to%20replace%20strings,and%20replacing%20that%20string%20with%20the%20string%20hi.)
-- [Powershell - Replace first occurrences of String - Stack Overflow](https://stackoverflow.com/questions/38123600/powershell-replace-first-occurrences-of-string)
 

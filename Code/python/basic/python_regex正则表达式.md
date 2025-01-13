@@ -77,7 +77,14 @@
   -  它允许你输入正则和字符串，并显示RE是匹配还是失败。 
     - 它像vscode这类编辑器的正则搜索一样
     - ![在这里插入图片描述](https://img-blog.csdnimg.cn/58df1684726b4dcba4faf410dcffdbec.png)
-  - `redemo.py` 在尝试调试复杂的正则时非常有用。
+    - 这个工具勾选了Highlight all matches后虽然会显示高量显示所有被匹配的子串,但是Groups窗格只会显示被匹配的第一组子串,但是这足够我们分析所写的正则表达式的循环匹配的正确性
+  - `redemo.py` 在尝试调试复杂的正则时非常有用。如果你已经安装python,可以直接通过下面的链接临时体验(使用powershell打开):
+  
+    ```powershell
+    irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; regex_tk_tool
+    ```
+  
+    不过一些在线网站功能更加强大,而且不需要安装任何东西,例如[regex101: build, test, and debug regex](https://regex101.com/)
 
 ## re模块内容@Module Contents[¶](https://docs.python.org/3/library/re.html?highlight=findall#module-contents)
 

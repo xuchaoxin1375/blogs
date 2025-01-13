@@ -7,10 +7,18 @@
 - [Entity - 术语表 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Glossary/Entity)
 
 - [Unicode 符号表 - 所有 Unicode 字符及其代码都在一页上 (◕‿◕) SYMBL](https://symbl.cc/cn/unicode-table/)
+  - 内容很全
+
+
+## abstract
+
+往网页中输入特殊字符，需在html代码中加入以&开头的字母组合或以&#开头的数字。下面就是以字母或数字表示的特殊符号大全。
 
 ### 部分表格预览
 
 参照表:[HTML Standard](https://html.spec.whatwg.org/multipage/named-characters.html#named-character-references)
+
+或者文档的json格式呈现:[html.spec.whatwg.org/entities.json](https://html.spec.whatwg.org/entities.json)
 
 - | 实体编号(html代码) | UniCode编号     | 描述 |
   | ------------------ | --------------- | ---- |
@@ -22,6 +30,10 @@
   | `ncaron;`          | U+00148         | ň    |
   | `Ncedil;`          | U+00145         | Ņ    |
   | `ncedil;`          | U+00146         |      |
+
+
+
+
 
 ## 渲染失败案例
 

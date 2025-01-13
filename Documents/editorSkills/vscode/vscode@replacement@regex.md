@@ -7,6 +7,7 @@
 ## refs
 
 - [Case changing in regex replace#](https://code.visualstudio.com/docs/editor/codebasics#_case-changing-in-regex-replace)
+- 多行替换:[Multiline support and Find Widget resizing](https://code.visualstudio.com/docs/editor/codebasics#_multiline-support-and-find-widget-resizing)
 - [Search - Typora Support](https://support.typora.io/Search/)
 
 ## 正则替换

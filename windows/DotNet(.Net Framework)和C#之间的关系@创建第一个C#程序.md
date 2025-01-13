@@ -14,7 +14,7 @@ Microsoft .NET Framework（.NET框架）是由微软开发的一种软件开发�
 
 6. **面向服务架构（Service-Oriented Architecture, SOA）**：.NET Framework支持创建和消费Web服务，使用SOAP（Simple Object Access Protocol）和WSDL（Web Services Description Language）等标准。
 
-### .NET Core和.NET 5/6
+### 运行时版本| .NET Core和.NET 5/6
 
 值得注意的是，.NET Framework是特定于Windows的平台，而近年来，微软发布了跨平台的.NET Core以及合并后的.NET 5和.NET 6。这些新版本提供了跨平台支持，可以在Windows、Linux和macOS上运行，并且引入了更多现代化的功能和性能改进。
 
@@ -91,7 +91,8 @@ class Program
 ### 5. 发展与扩展
 随着时间的推移，微软推出了.NET Core和统一的.NET（例如.NET 5、.NET 6）。这些新的框架版本是跨平台的，可以在Windows、Linux和macOS上运行，且继续支持C#。C#也在不断演进，引入了许多现代语言特性，如异步编程、模式匹配和记录类型等。
 
-### 总结
+## 总结
+
 - **C#**是一种编程语言，用于编写应用程序代码。
 - **.NET Framework**是一个软件开发平台，提供了运行时环境和类库，支持C#及其他语言。
 
@@ -193,4 +194,4 @@ namespace HelloWorld
 4. **运行程序**：
    点击“启动”按钮（或者按F5）来运行程序。你应该会看到控制台窗口输出“Hello, World!”。
 
-通过以上步骤，你可以成功编写并运行一个C#的“Hello, World!”程序。这是了解和学习C#编程的第一步。
+ 
