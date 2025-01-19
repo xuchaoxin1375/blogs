@@ -1,5 +1,56 @@
 [toc]
 
+## mysql的位置
+
+通过使用建站工具箱的数据库功能安装mysql可以灵活地切换版本
+
+以phpStudy为例,这种安装方式定位到工具箱的安装目录
+
+假设你通过phpStudy启动了mysql,然后可以用powershell检查
+
+```powershell
+PS> ps mysqld |select path,CommandLine|fl
+
+Path        : C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin\mysqld.exe
+CommandLine : C:\exes\phpstudy_pro\COM\..\Extensions\MySQL5.5.29\\bin\mysqld.exe
+```
+
+
+
+```powershell
+#⚡️[Administrator@CXXUDESK][C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin][10:27:06][UP:5.06Days]
+PS> ls
+
+    Directory: C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           2025/1/15     8:58         162304 echo.exe
+-a---           2025/1/15     8:58        3584512 my_print_defaults.exe
+-a---           2025/1/15     8:58        3929600 myisam_ftdump.exe
+-a---           2025/1/15     8:58        4056064 myisamchk.exe
+-a---           2025/1/15     8:58        3913216 myisamlog.exe
+-a---           2025/1/15     8:58        3961856 myisampack.exe
+-a---           2025/1/15     8:58       10603520 mysql_embedded.exe
+-a---           2025/1/15     8:58        3603456 mysql_plugin.exe
+-a---           2025/1/15     8:58        3555840 mysql_tzinfo_to_sql.exe
+-a---           2025/1/15     8:58        3683328 mysql_upgrade.exe
+-a---           2025/1/15     8:58        4340736 mysql.exe
+-a---           2025/1/15     8:58        4235264 mysqladmin.exe
+-a---           2025/1/15     8:58        4360192 mysqlbinlog.exe
+-a---           2025/1/15     8:58        4229632 mysqlcheck.exe
+-a---           2025/1/15     8:58        9723392 mysqld.exe
+-a---           2025/1/15     8:58        4305408 mysqldump.exe
+-a---           2025/1/15     8:58        4224000 mysqlimport.exe
+-a---           2025/1/15     8:58        4222464 mysqlshow.exe
+-a---           2025/1/15     8:58        4250624 mysqlslap.exe
+-a---           2025/1/15     8:58        3695616 perror.exe
+-a---           2025/1/15     8:58        3572224 replace.exe
+-a---           2025/1/15     8:58        3582976 resolveip.exe
+```
+
+命令行交互主要使用`mysql.exe`,而另一个是用于服务进程的`mysqld.exe`
+
 ## 获取 mysql 外部命令帮助
 
 `mysql --help`
@@ -17,11 +68,37 @@ Usage: mysql [OPTIONS] [database]
 ## 连接到数据库
 
 - 连接到数据库 root 用户
-  - `mysql -h hostName -u root -p`
-    - 该命令要求输入 root 密码
-    - 如果 hostName 是本地主机,可以省略该选项和参数
-    - 如果是远程连接,主要远程主机的安全组和相关管理软件的端口的放行
-    -
+  ```bash
+  mysql -h hostName -u root -p
+  ```
+
+  
+  - 该命令要求输入 root 密码
+  - 如果 hostName 是本地主机,可以省略该选项和参数
+  - 如果是远程连接,主要远程主机的安全组和相关管理软件的端口的放行
+
+- 如果没有配置环境变量,那么可以cd到`mysql.exe`所在目录
+
+  ```powershell
+  #⚡️[Administrator@CXXUDESK][C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin][10:31:27][UP:5.06Days]
+  PS> .\mysql.exe -h localhost -u root -p
+  Enter password: **********
+  Welcome to the MySQL monitor.  Commands end with ; or \g.
+  Your MySQL connection id is 5049
+  Server version: 5.5.29 MySQL Community Server (GPL)
+  
+  Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+  
+  Oracle is a registered trademark of Oracle Corporation and/or its
+  affiliates. Other names may be trademarks of their respective
+  owners.
+  
+  Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+  
+  mysql>
+  ```
+
+  
 
 ## 基本使用逻辑
 
@@ -351,7 +428,7 @@ mysql> select distinct  user from mysql.user ;
 - 在被授权的主机(本例是 localhost)上使用 ela 用户查看
 - 前一次查询时授权前,后一次查询是授权后(后者多了可用数据库 `menagerie`)
   - məˈnædʒəri
--
+  -
 
 ```sql
 
@@ -807,7 +884,7 @@ mysql> select 5+3/2;
 * `Not Null`不会限制 `空串和0`的插入;因为
 
   - ```sql
-
+    
     mysql>  SELECT 0 IS NULL, 0 IS NOT NULL, '' IS NULL, '' IS NOT NULL;
     +-----------+---------------+------------+----------------+
     | 0 IS NULL | 0 IS NOT NULL | '' IS NULL | '' IS NOT NULL |
@@ -815,7 +892,7 @@ mysql> select 5+3/2;
     |         0 |             1 |          0 |              1 |
     +-----------+---------------+------------+----------------+
     1 row in set (0.00 sec)
-
+    
     ```
 
 ### 插入一条数据

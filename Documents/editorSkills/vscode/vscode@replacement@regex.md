@@ -1,20 +1,43 @@
 [toc]
 
-# vscode@typora正则文本替换@处理
+## abstract
+
+- vscode@typora正则文本替换@处理
 
 - vscode replace content partically
 
-## refs
+### refs
 
 - [Case changing in regex replace#](https://code.visualstudio.com/docs/editor/codebasics#_case-changing-in-regex-replace)
 - 多行替换:[Multiline support and Find Widget resizing](https://code.visualstudio.com/docs/editor/codebasics#_multiline-support-and-find-widget-resizing)
 - [Search - Typora Support](https://support.typora.io/Search/)
 
-## 正则替换
 
-- `ctrl+H`
 
-###  案例1@分组替换
+## 多行匹配
+
+vscode多行(跨行)匹配相比于一般正则表达式比较特殊,需要使用`\n`(windows也可能是`\r`)来匹配换行符
+
+### 跨行匹配
+
+[使用Sublime和Visual Studio Code跨行搜索替换文本 - 天琊蓝 - 博客园](https://www.cnblogs.com/makesense/p/13179983.html)
+
+```html
+<ul class="navbar-nav mx-auto"><li class="nav-item dropdown" data-nav-item="category-494 
+              
+              
+              "><a class="nav-link" href="/arboles-alimenticios-a1ee/" title="Árboles alimenticios">Árboles alimenticios <i class="fa fa-angle-down ml-1 dropdown-aux" data-target-aux="#category_0"></i></a> <a aria-hidden="true" aria-label="Árboles alimenticios" class="d-none" data-toggle="dropdown" href="#" id="category_0"></a><div class="dropdown-menu"><div class="container"><div class="row"><div class="col-12"><ul class="categories-list list-no-style row mt-0 mb-3"><li class="cat-list-block col-xl-4 col-12"><a href="/castanos-hibridos-para-castanas-afb/">Castaños híbridos para castañas</a></li><li class="cat-list-block col-xl-4 col-12"><a href="/frutos-del-bosque-y-frutales-exoticos-af8/">Frutos del bosque y frutales exóticos</a></li><li class="cat-list-block col-xl-4 col-12"><a href="/arboles-frutales-af5/">Árboles frutales</a></li></ul>
+```
+
+以上述html片段匹配为例,假设我们要匹配其中的第一对`<ul>`标签及其内容,可以这么写:
+
+```bash
+<ul.*?>[\s\S\n]*?</ul>
+```
+
+
+
+###  分组匹配
 
 - 实验文本
 
