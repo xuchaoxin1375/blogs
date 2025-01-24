@@ -93,7 +93,10 @@
 
 #### python http.server
 
-- 电脑端下载python安装
+- 电脑端下载python安装(可以到国内联想应用商店下载,比较快速)
+  
+  - python自带`http.server`模块
+  
   - 执行`python -m http.server`将桌面系统(windows/linux通用)建立http服务器
     - 运行成功则给出端口,通常是8000端口
   
@@ -119,7 +122,14 @@
   
     - `--directory` 可以指定需要共享的根目录,默认是当前目录,例如:
   
-      - ` python.exe -m http.server --directory C:\Users\xxx\desktop\`将电脑面设为http服务器根目录
+      - ` python.exe -m http.server --directory C:\Users\cxxu\desktop\`将电脑面设为http服务器根目录
+      
+      - ```bash
+        python.exe -m http.server --directory $home\desktop\
+        ```
+      
+        
+  
 
 #### 效果
 
