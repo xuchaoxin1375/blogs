@@ -37,7 +37,20 @@ Type CHCP without a parameter to display the active code page number.
 
 - [代码页位域 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/intl/code-page-bitfields)
 
-### 常见部分
+### 最常见代码页列表👺
+
+| 代码页 | 描述                  |
+| ------ | --------------------- |
+| 437    | 美国英语              |
+| 936    | 简体中文 (GBK)        |
+| 850    | 西欧语言              |
+| 65001  | UTF-8                 |
+| 1252   | Windows 拉丁-1 (ANSI) |
+| 1251   | 西里尔文 (Windows)    |
+
+
+
+### 其他常见部分
 
 | Code page | Country/region or language |
 | :-------- | :------------------------- |
@@ -54,16 +67,7 @@ Type CHCP without a parameter to display the active code page number.
 | 869       | Modern Greek               |
 | 936       | Chinese👺                   |
 
-### 最常见代码页列表👺
 
-| 代码页 | 描述                  |
-| ------ | --------------------- |
-| 437    | 美国英语              |
-| 850    | 西欧语言              |
-| 936    | 简体中文 (GBK)        |
-| 65001  | UTF-8                 |
-| 1252   | Windows 拉丁-1 (ANSI) |
-| 1251   | 西里尔文 (Windows)    |
 
 ### 注意事项
 

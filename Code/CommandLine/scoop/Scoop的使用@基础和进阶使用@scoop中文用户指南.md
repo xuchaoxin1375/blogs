@@ -985,7 +985,7 @@ powershell 7.4.5   110372346
 
 - [【好软推荐】Scoop - Windows快速软件安装指南 - 老船长SleepyOcean - 博客园 (cnblogs.com)](https://www.cnblogs.com/sleepyocean/p/17017084.html)
 
-## scoop仓库被污染@更新问题
+## scoop仓库被污染@更新问题👺
 
 - 如果你无意中对scoop目录下的某些git仓库做了修改，那么可能导致更新失败
 - 当你在 PowerShell 中运行 `scoop update` 命令时，出现了以下警告：`WARN  Uncommitted changes detected. Update aborted.` 这是 Scoop 检测到 Scoop 本身的 Git 仓库中有未提交的更改，从而阻止更新操作。
@@ -1024,6 +1024,16 @@ PS🌙[BAT:74%][MEM:28.34% (8.99/31.71)GB][21:12:54]
 PS> git reset --hard head
 HEAD is now at d6ed68c08 trid: Update to version 2.24-24.08.24
 ```
+
+批量修复:
+
+```powershell
+cd $home/scoop/buckets
+ls -Directory |%{cd $_;git reset --hard head}
+
+```
+
+
 
 ## scoop家目录不可以轻易移动或复制
 

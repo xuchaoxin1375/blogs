@@ -1,0 +1,26 @@
+[toc]
+
+## abstract
+
+- [检查 Visual Studio Code 用户界面 - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/modules/install-configure-visual-studio-code/3-examine-visual-studio-code-user-interface)
+
+本质上，Visual Studio Code 是一个代码编辑器，其用户界面和布局与许多其他代码编辑器相似。 界面左侧是用于访问代码项目中的文件和文件夹的侧边栏。 右侧是显示应用程序文件内容的编辑器区域。
+
+## 检查用户界面的主要区域
+
+下图显示了 Visual Studio Code 用户界面中包含的五个主要工作区域。
+
+![显示 Visual Studio Code 界面的五个区域的屏幕截图。](https://i-blog.csdnimg.cn/img_convert/105dbb6dbe06e72f1442cad377a9a067.png)
+
+- A - 活动栏是位于窗口最左侧的窄竖栏。 通过活动栏，可在各视图（如资源管理器或扩展）之间切换，并且活动栏提供其他特定于上下文的指示器。
+- B - 侧边栏包含提供工具和资源的视图。 在处理代码项目时，侧边栏视图（例如资源管理器）非常有用。
+- C - 编辑器是用于编辑文件的区域。 可根据需要在垂直和水平方向并排打开任意数量的编辑器。
+- D - 面板区域用于在编辑器区域下方显示输出或调试信息、错误和警告或集成终端的不同面板。
+- E - 状态栏是窗口底部的横栏，显示有关打开的项目和所编辑的文件的信息。
+- F - 主菜单是应用程序窗口顶部的菜单界面。 使用菜单选项可以保存、编辑和运行代码等。
+
+随着你越来越精通 Visual Studio Code，你将在所述的屏幕区域中工作。 但是，首先，需要记住的最重要的区域是活动栏、侧边栏和编辑器。 活动栏是选择要执行的活动的位置。 侧边栏显示工具和选项，编辑器显示你编辑的信息（通常是代码）。
+
+## 官方文档关于UI的介绍
+
+- [Visual Studio Code User Interface](https://code.visualstudio.com/docs/getstarted/userinterface)

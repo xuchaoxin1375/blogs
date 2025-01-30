@@ -10,13 +10,9 @@
 
 也可以参考其他经典软件的布局和功能区域称呼:[Visual Studio Code User Interface](https://code.visualstudio.com/docs/getstarted/userinterface)
 
-## 界面中英文对比
 
 
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/direct/86546ce89ba4474c9cbff8c0cb19527a.png)
-
-### 图示解释
+### 主界面布局解释
 
 - **Tabs (标签页)**：在图中顶部显示，如“File, Home, Insert”等。
 - **Commands (命令)**：在标签页内显示的具体操作按钮，如“Paste, Font Size, Bold”等。
