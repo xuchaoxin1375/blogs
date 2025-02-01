@@ -315,6 +315,30 @@ scoop install powershell
 
 - 会自动配置环境变量
 
+### 通过scoop更新pwsh(powershell7)👺
+
+```powershell
+powershell.exe#进入windows powershell.exe(v5),防止pwsh.exe进程占用
+ps pwsh|kill #杀死潜在的pwsh进程
+scoop update powershell -g #用scoop进行更新
+
+```
+
+
+
+```powershell
+PS > powershell.exe
+PS C:\Users\cxxu> ps pwsh|kill 
+PS C:\Users\cxxu> scoop update powershell -g
+powershell: 7.4.6 -> 7.5.0 (global)
+...
+Creating shortcut for PowerShell (pwsh.exe)
+'powershell' (7.5.0) was installed successfully!
+PS C:\Users\cxxu>
+```
+
+
+
 ## 其他方案
 
 ### powershell安装包程序加速下载(推荐)

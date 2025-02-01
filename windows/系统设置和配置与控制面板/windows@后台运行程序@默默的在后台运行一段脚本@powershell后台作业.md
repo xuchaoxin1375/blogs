@@ -78,7 +78,7 @@ Wscript.quit
 
     
 
-### powershell 启动
+### powershell 方案👺
 
 使用`start-process`可以打开一个新进程,这样原来的命令行窗口被关闭,也不会导致新窗口也被关闭
 
@@ -86,7 +86,7 @@ Wscript.quit
 
 此外,`Start-process`还有一个`WindowStyle`参数,我们可以指定为`hide`,可以对部分窗口做隐藏化窗口启动(比如powershell命令行窗口能够对`windowsStyle`的指定做出相应,就比较服务我们的需要);
 
-#### Note
+Note:
 
 但是,如果使用windows terminal,简称`wt` (而不是自带的console,尤其是选择),部分`wt`版本的则可能导致`start-process  -windowstyle hide`启动的powershell窗口无法彻底隐藏(会有一个空选项卡留在wt的shell活动列表中,容易应该wt被关闭而意外停止我们需要保留的进程)
 
@@ -133,7 +133,21 @@ PS> ps chfs|select -ExpandProperty CommandLine
 "C:\exes\chfs\chfs.exe" -file C:\exes\chfs\chfs.ini
 ```
 
-### 封装为powershell函数 
+#### 例
+
+```powershell
+ Start-Process  -WindowStyle Hidden -FilePath  pwsh -ArgumentList '-c Start-HTTPServer -port 8001'
+```
+
+或
+
+```powershell
+ Start-Process  -WindowStyle Hidden -FilePath  pwsh -ArgumentList {-c Start-HTTPServer -port 8080}
+```
+
+
+
+### 封装为powershell函数
 
 ```powershell
 
