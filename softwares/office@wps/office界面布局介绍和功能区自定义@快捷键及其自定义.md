@@ -18,6 +18,8 @@
 - **Commands (命令)**：在标签页内显示的具体操作按钮，如“Paste, Font Size, Bold”等。
 - **Groups (组)**：在标签页内将命令分类的区域，如“Clipboard, Font, Paragraph”等。
 
+![](https://i-blog.csdnimg.cn/blog_migrate/11be0f0bc9d3b71a53e0513b545bff61.png)
+
 这种组织方式使得复杂的办公软件功能能够以一种逻辑且易于访问的方式呈现给用户，提高了工作效率和用户体验。
 
 ### 软件的用户界面基本概念介绍

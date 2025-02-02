@@ -30,11 +30,11 @@ CMD实际上早就不在被推荐为首选的windows脚本语言,取而代之的
 
 - [关于执行策略 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.4)
 
-
+## 易于运行的免配置方案
 
 总得来说，对于一个小白用户，要让其尽可能简单的执行脚本或命令行，那么使用`cmd`脚本文件比`powershell`脚本文件更方便
 
-### 远程协助脚本方案
+### 双击直接运行脚本|远程协助脚本方案
 
 假设你要帮助某个小白用户执行一段修改系统设置的脚本,您可以有如下选择:
 

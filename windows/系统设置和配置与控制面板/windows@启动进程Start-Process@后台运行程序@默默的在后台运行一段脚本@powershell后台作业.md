@@ -8,7 +8,63 @@
 
 尤其是启动任务P的命令行,假设运行命令行的的窗口为X,当X被关闭后,任务P不会一同被关闭,而是继续在后台运行
 
-## 方案
+## powershell中启动进程的方案
+
+- [Start-Process (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/start-process?view=powershell-7.5)
+- 最重要的参数是`-FilePath`和`ArgumentList`参数;前者是进程程序所在位置,后者用法比较灵活,不一定很符合直觉
+
+### ArgumentList参数
+
+指定此 cmdlet 启动进程时要使用的参数或参数值。
+
+可以将参数接受为包含用**空格分隔**的参数的**单个字符串**，也可以将其接受为**用逗号分隔的字符串数组**。 
+
+该 cmdlet 将数组联接到单个字符串中，其中数组的每个元素用单个空格分隔。
+
+将 **ArgumentList** 值传递到新进程时，不包括 PowerShell 字符串的外部引号。 如果参数或参数值包含空格或引号，则需要用转义双引号括起来。 有关详细信息，请参阅 [about_Quoting_Rules](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.5)。
+
+为获得最佳结果，请使用单个 **ArgumentList** 值，其中包含所有参数和所需的任何引号字符。
+
+#### 指定进程的参数
+
+下面这两个命令都启动 Windows 命令解释器，在 `Program Files` 文件夹中发出 `dir` 命令。 
+
+由于此文件夹名称包含空格，因此值需要用转义引号括起来。 请注意，第一个命令将字符串指定为 **ArgumentList**。 第二个命令是字符串数组。
+
+PowerShell
+
+```powershell
+Start-Process -FilePath "$env:comspec" -ArgumentList "/c dir `"%SystemDrive%\Program Files`""
+Start-Process -FilePath "$env:comspec" -ArgumentList "/c","dir","`"%SystemDrive%\Program Files`""
+```
+
+### 重写进程的环境变量
+
+默认情况下，使用 `Start-Process` 时，将使用与当前会话相同的环境变量创建新进程。 可以使用 **Environment** 参数替代这些变量的值。
+
+在此示例中，将环境变量 `FOO` 添加到会话中，并将 `foo` 作为值。
+
+该示例运行 `Start-Process` 三次，每次都返回 `FOO` 的值。 第一个命令不会重写环境变量。 在第二个命令中，`FOO` 设置为 `bar`。 在第三个命令中，`FOO` 设置为 `$null`，这会将其删除。
+
+PowerShell
+
+```powershell
+$env:FOO = 'foo'
+Start-Process pwsh -NoNewWindow -ArgumentList '-c', '$env:FOO'
+Start-Process pwsh -NoNewWindow -ArgumentList '-c', '$env:FOO' -Environment @{
+    FOO  = 'bar'
+}
+Start-Process pwsh -NoNewWindow -ArgumentList '-c', '$env:FOO' -Environment @{
+    FOO  = $null
+}
+
+foo
+bar
+```
+
+
+
+## 后台启动进程方案
 
 ### vbs脚本
 
@@ -133,7 +189,9 @@ PS> ps chfs|select -ExpandProperty CommandLine
 "C:\exes\chfs\chfs.exe" -file C:\exes\chfs\chfs.ini
 ```
 
-#### 例
+#### 例:powershell启动httpServer
+
+设`Start-HTTPServer`命令是自己编写的powershell函数
 
 ```powershell
  Start-Process  -WindowStyle Hidden -FilePath  pwsh -ArgumentList '-c Start-HTTPServer -port 8001'
@@ -143,6 +201,10 @@ PS> ps chfs|select -ExpandProperty CommandLine
 
 ```powershell
  Start-Process  -WindowStyle Hidden -FilePath  pwsh -ArgumentList {-c Start-HTTPServer -port 8080}
+```
+
+```powershell
+ Start-Process  -WindowStyle Hidden -FilePath  pwsh -ArgumentList {-c Start-HTTPServer -path $home/desktop -port 8080}
 ```
 
 

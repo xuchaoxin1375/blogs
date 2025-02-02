@@ -95,7 +95,23 @@ cmd /c ftype demofile=C:\Users\cxxu\scoop\shims\subl.exe %1
 
 这样,当您的桌面上有后缀为.demo的文件,那么右键打开方式会提供`subl.exe`(也就是sublime-text的缩写)
 
-#### 例:设置powershell脚本文件的打开方式
+### 设置powershell脚本文件的打开方式👺
+
+(在执行相关设置之前,你或许要设置一下windows对于powershell脚本的执行策略,否则可能会被阻止运行
+
+```powershell
+Set-ExecutionPolicy bypass
+```
+
+)
+
+你完全可以通过GUI的方式设置默认打开或执行方式,并且设置是一次性的
+
+常规操作就是右键指定后缀的文件,然后选择运行方式(更多应用->查找这台电脑上的其他应用),然后从本机中找到powershell程序所在路径,这就可以将powershell打开方式添加到列表中;
+
+只是GUI的方式不利于批量和自动化,下面介绍命令行的方式简化这些步骤,使得用户只需要直接在打开方式中选择powershell即可
+
+假设你使用scoop 全局安装了powershell(pwsh),可以执行类似以下的命令类设置ps1文件打开方式
 
 ```powershell
 #关联指定格式文件为文件类型
@@ -105,6 +121,33 @@ cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为�
 $pwsh_home="C:\ProgramData\scoop\apps\powershell\current" #scoop 安装的最新版powershell
 cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
 ```
+
+后者设置使用自带的windows powershell运行
+
+```powershell
+#关联指定格式文件为文件类型
+cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
+#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+# $pwsh7_home="C:\Program Files\powershell\7" #powershell 7
+$pwsh_home="C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" #scoop 安装的最新版powershell
+cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\powershell.exe" "%1"
+```
+
+或者很简单点写:
+
+```powershell
+#关联指定格式文件为文件类型
+cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
+#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+# $pwsh7_home="C:\Program Files\powershell\7" #powershell 
+cmd /c ftype Microsoft.PowerShellScript.1="powershell.exe" "%1"
+```
+
+通常情况下,执行上面的语句后,(可能需要刷新桌面或者重启资源管理),windows就会记住你的设置,这时候双击`ps1`文件就会提示你要如何打开这个文件,这个列表中出现了`windows Powershell`的默认选项
+
+但是系统处于安全考虑,还是会问你是否继续,并且在弹出的对话框中给了一个复选框允许你勾选始终使用此引用打开`.ps1`文件
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/c6a1b68b970b4704a48de8e010c33337.png)
 
 ### 将typora设置为Markdown打开方式👺
 
