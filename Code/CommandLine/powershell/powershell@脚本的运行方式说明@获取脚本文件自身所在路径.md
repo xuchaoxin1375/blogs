@@ -74,7 +74,7 @@ pause
 
 #### 运行本地powershell脚本或命令
 
-
+通过以下`.bat`脚本调用指定位置的`.ps1`脚本
 
 ```cmd
 set p="c:\Users\cxxu\Desktop\t.ps1"  ::设置你要运行的powershell脚本(ps1)文件的路径
@@ -92,6 +92,42 @@ HTTP服务器已启动:
 根目录: C:\ProgramData\scoop\apps\powershell\current
 地址: http://localhost:8080/
 按 Ctrl+C 停止服务器
+```
+
+### .bat脚本调用.ps1脚本
+
+使用powershell.exe(windows powershell)来执行`.ps1`脚本文件
+
+```powershell
+
+
+@REM 设置你要运行的powershell脚本(ps1)文件的路径(可以设置相对路径,比如同目录下的.ps1脚本文件)
+set p=".\Start-HttpServer.ps1"   
+@REM 调用powershell 运行powershell脚本文件(临时设置执行策略为bypass,仅当前回话有效,尽量维持不修改系统当前的安全性设置)
+powershell.exe -executionpolicy bypass -File %p%
+pause
+
+```
+
+注意,对于powershell7( pwsh ),如果通过scoop安装别名有powershell,他们可以处理utf8的脚本文件
+
+但是windows powershell(powershell.exe v5)是老旧的shell,处理utf8容易遇到问题,比如会乱码
+
+这种情况下可以将脚本中的所有中文(一般是注释翻译为英文),就基本不会遇到因为编码的问题而无法运行,除非使用了powershell7+的特性导致powershell5无法执行
+
+翻译可以交给AI翻译
+
+比如,上面的t.ps1脚本包含中文，导致执行时报错,而且输出乱码,将其全部翻译为英文,发现可以正常运行
+
+```cmd
+C:\share\repos\configs\locoySpider>set p=".\Start-HttpServer.ps1"
+
+C:\share\repos\configs\locoySpider>powershell.exe -executionpolicy bypass -File ".\Start-HttpServer.ps1"
+HTTP server has started:
+Root directory: C:\Users\cxxu\Desktop
+Address: http://localhost:8080/
+Press Ctrl+C to stop the server (it may take a few seconds, if you can't wait consider closing the corresponding command line window)
+
 ```
 
 
