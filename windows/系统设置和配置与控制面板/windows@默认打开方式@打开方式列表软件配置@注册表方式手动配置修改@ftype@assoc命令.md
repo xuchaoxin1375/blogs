@@ -57,6 +57,10 @@ assoc [<.[ext]>[=[<filetype>]]]
 ftype [<filetype>[=[<opencommandstring>]]]
 ```
 
+## 脚本双击运行和右键再以shell方式打开运行的区别
+
+前者更还简单一点,但不是重点,关键如果可以双击运行的脚本,也可以放到开机自启的目录中让其开机自动运行,或者计划任务中运行指定脚本
+
 ## 设置指定文件打开方式的案例👺
 
 - 这里推荐一下windows下的软件安装器`scoop`,建议使用部署**国内加速过的版本**
@@ -82,7 +86,7 @@ cmd /c ftype txtfile=$p %1
 
 **使用管理员权限运行**以下命令
 
-#### 设置指定格式文件用指定方式打开
+设置指定格式文件用指定方式(例如`subl.exe`)打开
 
 ```powershell
 cmd /c assoc .demo=demofile
@@ -114,20 +118,38 @@ Set-ExecutionPolicy bypass
 假设你使用scoop 全局安装了powershell(pwsh),可以执行类似以下的命令类设置ps1文件打开方式
 
 ```powershell
+Set-ExecutionPolicy bypass
 #关联指定格式文件为文件类型
 cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
-#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+#指定某个文件类型的打开方式(指定powershell文件用pwsh.exe来打开)
 # $pwsh7_home="C:\Program Files\powershell\7" #powershell 7
 $pwsh_home="C:\ProgramData\scoop\apps\powershell\current" #scoop 安装的最新版powershell
 cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\pwsh.exe" "%1"
 ```
 
-后者设置使用自带的windows powershell运行
+如果简化成下面的形式,可能无法被系统识别到`pwsh.exe`,环境变量(系统级Path中配置pwsh所在目录或许可以)
 
 ```powershell
+Set-ExecutionPolicy bypass
 #关联指定格式文件为文件类型
 cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
-#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+#指定某个文件类型的打开方式(指定powershell文件用pwsh.exe来打开)
+cmd /c ftype Microsoft.PowerShellScript.1="pwsh.exe" "%1"
+```
+
+
+
+---
+
+
+
+或者设置使用自带的windows powershell运行
+
+```powershell
+Set-ExecutionPolicy bypass
+#关联指定格式文件为文件类型
+cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
+#指定某个文件类型的打开方式(指定powershell文件用pwsh.exe来打开)
 # $pwsh7_home="C:\Program Files\powershell\7" #powershell 7
 $pwsh_home="C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" #scoop 安装的最新版powershell
 cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\powershell.exe" "%1"
@@ -136,9 +158,10 @@ cmd /c ftype Microsoft.PowerShellScript.1="$pwsh_home\powershell.exe" "%1"
 或者很简单点写:
 
 ```powershell
+Set-ExecutionPolicy bypass
 #关联指定格式文件为文件类型
 cmd /c assoc .ps1=Microsoft.PowerShellScript.1 #将.PS1格式的文件设置为标准的Microsoft.PowershellScript.1类型
-#指定某个文件类型的打开方式(指定powershell文件有pwsh.exe来打开)
+#指定某个文件类型的打开方式(指定powershell文件用pwsh.exe来打开)
 # $pwsh7_home="C:\Program Files\powershell\7" #powershell 
 cmd /c ftype Microsoft.PowerShellScript.1="powershell.exe" "%1"
 ```
@@ -148,6 +171,49 @@ cmd /c ftype Microsoft.PowerShellScript.1="powershell.exe" "%1"
 但是系统处于安全考虑,还是会问你是否继续,并且在弹出的对话框中给了一个复选框允许你勾选始终使用此引用打开`.ps1`文件
 
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/c6a1b68b970b4704a48de8e010c33337.png)
+
+
+
+
+
+#### 直接修改注册表的方案
+
+这里使用命令行来设置,powershell中使用`RegistryPath`可以访问到`HKEY_CLASSES_ROOT`下的注册表路径
+
+```powershell
+Set-ExecutionPolicy bypass
+# 注册表路径
+$registryPath = "Registry::HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\Shell\Open\Command"
+$newValue = '"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" "-NoExit" -file "%1"'
+
+# 检查注册表项是否存在
+if (Test-Path $registryPath) {
+    # 备份当前注册表值
+    $currentValue = (Get-ItemProperty -Path $registryPath -Name "(Default)")."(Default)"
+    Write-Host "当前注册表值已备份：$currentValue"
+
+    # 询问用户是否继续操作
+    $confirmation = Read-Host "确定要修改注册表值吗？(Y/N)"
+    if ($confirmation -eq 'Y') {
+        try {
+            # 修改注册表项
+            Set-ItemProperty -Path $registryPath -Name "(Default)" -Value $newValue
+            Write-Host "注册表已成功更新。"
+        } catch {
+            Write-Host "修改注册表时发生错误：$_"
+        }
+    } else {
+        Write-Host "操作已取消。"
+    }
+} else {
+    Write-Host "注册表路径不存在，无法进行修改。"
+}
+
+```
+
+
+
+
 
 ### 将typora设置为Markdown打开方式👺
 

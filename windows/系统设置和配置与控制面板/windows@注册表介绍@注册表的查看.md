@@ -97,46 +97,6 @@
   - 不能再创建或打开下一层的路径称为键值对(或称为**叶子路径**)
   - 否则称为**非叶路径**
 
-#### 使用reg query查看注册表
-
-相当于`ls`和`gp`结合
-
-```powershell
-PS> reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print"
-
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print
-    3DPrintApps    REG_MULTI_SZ    89006A2E.AutodeskTinkercad_tf1gferkr813w!App\0SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App\010281CorgisoftIndustries.PrintersBlockBeta_032b3fvfvhzrc!App\0FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App
-    DoNotInstallCompatibleDriverFromWindowsUpdate    REG_DWORD    0x0
-
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Cluster
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Connections
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackageInstallation
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackagesToAdd
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PrinterMigrationEx
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Printers
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\V4 Connections
-```
-
-又比如说
-
-```cmd
-PS> reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management"
-
-HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Memory Management
-    ClearPageFileAtShutdown    REG_DWORD    0x0
-    DisablePagingExecutive    REG_DWORD    0x0
-    HotPatchTableSize    REG_DWORD    0x1000
-    LargeSystemCache    REG_DWORD    0x0
-	.....
-```
-
-
-
-#### 用regedit编辑器快速跳转到注册表路径
-
-- 使用regedit注册表编辑器,例如,想要快速打开路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们可以复制地址粘贴到regedit编辑器的地址栏中,回车跳转(如果路径存在,则会跳转成功,否则跳转失败)
-- 对于上面的例子,我们也可以用简写为`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`;这里将`computer\`省略掉,还可以将`HKEY_LOCAL_MACHINE`简写为`HKLM`
-
 
 
 
@@ -381,7 +341,48 @@ S-1-5-21-1150093504-2233723087 ProfileImagePath                        : C:\User
   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\S-1-5-21-1150093504-2233723087-916622917-1003
   ```
 
-  
+
+### 使用reg query查看注册表
+
+相当于`ls`和`gp`结合
+
+```powershell
+PS> reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print"
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print
+    3DPrintApps    REG_MULTI_SZ    89006A2E.AutodeskTinkercad_tf1gferkr813w!App\0SiemensPLMSoftware.JT2Go_qtbmxjdagz8xc!App\010281CorgisoftIndustries.PrintersBlockBeta_032b3fvfvhzrc!App\0FuturePlatformsLimited.DKPrintYourOwnT.Rex_n7rr7swxes1n6!App
+    DoNotInstallCompatibleDriverFromWindowsUpdate    REG_DWORD    0x0
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Cluster
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Connections
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackageInstallation
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PackagesToAdd
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\PrinterMigrationEx
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\Printers
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\print\V4 Connections
+```
+
+又比如说
+
+```cmd
+PS> reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management"
+
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Memory Management
+    ClearPageFileAtShutdown    REG_DWORD    0x0
+    DisablePagingExecutive    REG_DWORD    0x0
+    HotPatchTableSize    REG_DWORD    0x1000
+    LargeSystemCache    REG_DWORD    0x0
+	.....
+```
+
+
+
+#### 用regedit编辑器快速跳转到注册表路径
+
+- 使用regedit注册表编辑器,例如,想要快速打开路径`Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`,我们可以复制地址粘贴到regedit编辑器的地址栏中,回车跳转(如果路径存在,则会跳转成功,否则跳转失败)
+- 对于上面的例子,我们也可以用简写为`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print`;这里将`computer\`省略掉,还可以将`HKEY_LOCAL_MACHINE`简写为`HKLM`
+
+
 
 ## powershell查看注册表路径
 

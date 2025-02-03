@@ -24,7 +24,7 @@
 
 ## powershell操作注册表
 
-主要有2个命令:New-ItemProperty,Set-ItemProperty
+主要有2个命令:`New-ItemProperty`,`Set-ItemProperty`
 
 - ```powershell
   # 设置LargeSystemCache的值为1  
