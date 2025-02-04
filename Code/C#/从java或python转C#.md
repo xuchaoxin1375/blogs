@@ -58,32 +58,11 @@ C#（发音为 "C Sharp"）是一种由微软开发的面向对象编程语言�
 
 对感知明显的基础语言语法进行对比
 
-### 字符串对象
 
-- c#中,字符串是值为文本的 [String](https://learn.microsoft.com/zh-cn/dotnet/api/system.string) 类型对象。 文本在内部存储为 [Char](https://learn.microsoft.com/zh-cn/dotnet/api/system.char) 对象的依序只读集合。 在 C# 字符串末尾没有 null 终止字符；因此，一个 C# 字符串可以包含任何数量的嵌入的 null 字符 ('\0')。 字符串的 [Length](https://learn.microsoft.com/zh-cn/dotnet/api/system.string.length) 属性表示其包含的 `Char` 对象数量，而非 Unicode 字符数。 若要访问字符串中的各个 Unicode 码位，请使用 [StringInfo](https://learn.microsoft.com/zh-cn/dotnet/api/system.globalization.stringinfo) 对象。
 
-- 你的描述是正确的！在C#中，`Length`属性表示字符串中包含的`Char`对象的数量，而不是Unicode字符的数量，因为一个Unicode字符有可能由多个`Char`对象表示（特别是对于超出基本多语言平面（BMP）的字符，例如某些表情符号或其他罕见字符）。而`Char`是C#中表示单个字符的类型，每个`Char`占用2个字节（16位），使用UTF-16编码。
+## 程序结构
 
-  StringInfo类
-
-  如果你需要处理包含多个Unicode码点的字符串，尤其是那些由代理对（surrogate pairs）表示的字符，`StringInfo`类提供了更精确的工具来访问字符串中的每个Unicode码位（Code Point）。在C#中，`StringInfo`类可以帮助你处理字符串中的字符，而不受`Char`对象数量的限制。
-
-  例子
-
-  假设有一个包含一个表情符号（如“😊”）的字符串：
-
-  ```csharp
-  using System.Globalization;//提供StringInfo类
-  
-  string str = "abc😊";
-  //获取char数
-  Console.WriteLine(str.Length);//输出5,表示这个字符串占用5个char空间
-  // 获取Unicode字符数
-  
-  StringInfo stringInfo = new StringInfo(str);
-  int textElementCount = stringInfo.LengthInTextElements; // 获取Unicode字符数
-  Console.WriteLine(textElementCount); // 输出 4，表示包含4个Unicode字符
-  ```
+[程序的常规结构 - C# | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/csharp/fundamentals/program-structure/)
 
 ### 顶级语句
 
