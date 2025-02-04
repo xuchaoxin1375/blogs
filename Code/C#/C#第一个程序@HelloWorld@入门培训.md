@@ -382,11 +382,20 @@ Not all language features will be available
 - [使用 Try .NET 生成第一个应用 - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/modules/dotnet-introduction/4-build-your-first-app)
   - 这个网页中介绍了一个简单C#程序是如何被运行起来的
 
-### 基础教程
+### 零基础教程👺
 
-[使用 C# 编写第一个代码（C# 入门，第 1 部分） - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-1/)
+下面的参考链接中的教程面向没有编程经验的用户,对于有其他编程语言的经验的读者来说可能显得啰嗦,在遇到你熟悉的内容时可以快速跳过
 
-[创建并运行简单的 C# 控制台应用程序（C# 入门，第 2 部分） - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-2/)
+不过,其中部分内容可以帮助理论知识不够扎实但有编程经验的读者复习和巩固相关知识,并且有许多和C#特有的信息可以供这类读者学习
+
+[C#培训|集合 | Microsoft Learn](https://learn.microsoft.com/zh-cn/collections/yz26f8y64n7k07)
+
+1. [使用 C# 编写第一个代码（C# 入门，第 1 部分）](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-1/)
+2. [创建并运行简单的 C# 控制台应用程序（C# 入门，第 2 部分）](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-2/)
+3. [向 C# 控制台应用程序添加逻辑（C# 入门，第 3 部分） - Training | Microsoft Learn](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-3/)
+4. [在 C# 控制台应用程序中使用变量数据（C# 入门，第 4 部分）](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-4/)
+5. [在 C# 控制台应用程序中创建方法（C# 入门，第 5 部分）](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-5/)
+6. [调试 C# 控制台应用程序（C# 入门，第 6 部分）](https://learn.microsoft.com/zh-cn/training/paths/get-started-c-sharp-part-6/)
 
 ### 更多官方C#培训资料教程
 

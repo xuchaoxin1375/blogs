@@ -25,3 +25,7 @@
 
 - 这个插件不像一般的vscode插件那样简单,依赖于.Net Sdk而且启动(初次启动)会安装`.Net Interactive`;
 - 除了注意.Net Sdk版本,建议安装完插件后彻底关闭vscode,然后重新打开vscode,否则插件可能不会正常工作
+
+### 功能异常或bug
+
+如果某些时候ployglot notebook中的某些功能不可用(可能依托于.ipynb),比如某个查看变量按钮结果为空白等异常,可以尝试彻底关闭vscode,然后重新启动vscode
