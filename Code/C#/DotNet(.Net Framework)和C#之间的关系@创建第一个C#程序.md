@@ -2,10 +2,6 @@
 
 ## abstract
 
-[.NET 文档 | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/)
-
-## .Net简介
-
 Microsoft .NET Framework（.NET框架）是由微软开发的一种软件开发平台。它主要用于创建和运行Windows应用程序和Web服务。该框架提供了一系列库和工具，可以简化和加速软件开发过程。以下是.NET Framework的一些主要组件和特性：
 
 1. **公共语言运行时（CLR）**：CLR（Common Language Runtime）是.NET Framework的核心组件，负责执行.NET应用程序。它提供了内存管理、异常处理、安全性和线程管理等基本功能。
@@ -23,6 +19,10 @@ Microsoft .NET Framework（.NET框架）是由微软开发的一种软件开发�
 ### 运行时版本| .NET Core和.NET 5/6
 
 值得注意的是，.NET Framework是特定于Windows的平台，而近年来，微软发布了跨平台的.NET Core以及合并后的.NET 5和.NET 6。这些新版本提供了跨平台支持，可以在Windows、Linux和macOS上运行，并且引入了更多现代化的功能和性能改进。
+
+[.NET 文档 | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/)
+
+[什么是.NET Framework? 一个软件开发框架。](https://dotnet.microsoft.com/zh-cn/learn/dotnet/what-is-dotnet-framework)
 
 ## C#和.Net👺
 
