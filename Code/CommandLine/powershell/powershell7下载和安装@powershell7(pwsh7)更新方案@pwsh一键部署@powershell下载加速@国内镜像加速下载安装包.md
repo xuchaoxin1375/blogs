@@ -318,13 +318,18 @@ scoop install powershell
 ### 通过scoop更新pwsh(powershell7)👺
 
 ```powershell
+#不要一口气全部执行以下内容
+
+#先执行
 powershell.exe #进入windows powershell.exe(v5),防止pwsh.exe进程占用
+
+#再执行
 ps pwsh|kill #杀死潜在的pwsh进程
 scoop update powershell -g #用scoop进行更新
 
 ```
 
-
+更新过程中不要打开新的powershell窗口避免失败
 
 ```powershell
 PS > powershell.exe
