@@ -137,6 +137,19 @@ PS C:\Users\cxxu\AppData\Roaming\Typora\conf>
       - And the `-o test1.html` says to put the output in the file `test1.html`. 
       - Note that **we could have omitted** `-f markdown` and `-t html`, since the default is to convert from markdown to HTML, but it doesn’t hurt to include them.
   - [Pandoc - Getting started with pandoc](https://pandoc.org/getting-started.html)(完整的入门流程)
+### 将markdown转换为pdf文件
+
+- typora中可以直接将文件转换为pdf格式,中文博客也是可以的
+
+- 但是直接在命令行中用最简单的转换命令就可能出现错误(失败)
+
+  ```cmd
+  PS> pandoc.exe .\test.md -o test.pdf
+  pdflatex not found. Please select a different --pdf-engine or install pdflate
+  ```
+
+  
+
 ###  配置便携版pandoc(免安装)
 - 不同于msi安装版,zip版中包含exe程序
 - 将其所在目录添加到**环境变量path**中
