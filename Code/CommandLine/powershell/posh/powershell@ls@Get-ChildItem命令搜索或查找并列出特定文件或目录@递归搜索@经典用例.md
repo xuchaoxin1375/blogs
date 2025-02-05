@@ -778,6 +778,8 @@ PS> ls  loc* -Recurse -Directory
 
 考虑到空目录,需要其他参数辅助,比如使用`-filter`指定筛选规则,分担`-path`的模式串,这样才不会遗漏空目录
 
+例如
+
 ```powershell
 #⚡️[cxxu@CXXUREDMIBOOK][C:\repos\blogs][19:09:53][UP:13.85Days]{Git:main}
 PS> ls  -path .\ -Recurse -Filter loc* -Directory|select FullName

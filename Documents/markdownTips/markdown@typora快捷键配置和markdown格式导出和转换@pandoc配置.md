@@ -113,7 +113,13 @@ PS C:\Users\cxxu\AppData\Roaming\Typora\conf>
 - 用pandoc命令行直接md文件转为docx文件
 - `pandoc -s <source.md> -o <output.docx>`
 
-### pandoc结合powershell示例
+### 批量递归转换
+
+#### pandoc结合powershell命令行实现
+
+```powershell
+ls -Recurse -File -Filter *.md|foreach {pandoc.exe  $_ -o ($_.DirectoryName+'\'+$_.BaseName+'.docx') }
+```
 
 - 将当前目录下的所有`.docx`转换为`md`(markdown)
 
@@ -137,7 +143,17 @@ PS C:\Users\cxxu\AppData\Roaming\Typora\conf>
       - And the `-o test1.html` says to put the output in the file `test1.html`. 
       - Note that **we could have omitted** `-f markdown` and `-t html`, since the default is to convert from markdown to HTML, but it doesn’t hurt to include them.
   - [Pandoc - Getting started with pandoc](https://pandoc.org/getting-started.html)(完整的入门流程)
-### 将markdown转换为pdf文件
+
+## 将markdown转换为pdf文件👺
+
+### Typora 转换 Markdown 为 PDF 的机制
+
+1. **基于 HTML 渲染**： Typora 实时将 Markdown 渲染为 HTML 和 CSS，并使用内置的 Web 渲染引擎（通常是 Chromium 内核）进行展示。导出 PDF 时，实际上是将渲染后的 HTML 页面直接“打印”或“转换”为 PDF。
+2. **调用 Chromium 的打印功能**： 当你选择将文件导出为 PDF 时，Typora 的内部会调用类似于浏览器的“打印为 PDF”功能，将已经渲染的页面内容保存为 PDF 文件。这种方法与 Chrome 浏览器的“打印到 PDF”功能类似。
+3. **样式表的作用**： 在导出过程中，Typora 会应用你选择的主题样式（即 CSS 样式表）来控制导出的 PDF 外观。这意味着 PDF 中的字体、段落样式、代码块格式等都来自 Typora 中的主题。
+4. **字体和字符支持**： Typora 使用的是系统字体，确保渲染的内容在 PDF 中能够正确显示。如果文件包含中文或其他特殊字符，Typora 会自动使用支持这些字符的字体来渲染。
+
+### pandoc将markdown文件转为pdf👺
 
 - typora中可以直接将文件转换为pdf格式,中文博客也是可以的
 
@@ -148,7 +164,10 @@ PS C:\Users\cxxu\AppData\Roaming\Typora\conf>
   pdflatex not found. Please select a different --pdf-engine or install pdflate
   ```
 
-  
+- 这意味着,你需要安装额外的Tex引擎来实现
+
+
+
 
 ###  配置便携版pandoc(免安装)
 - 不同于msi安装版,zip版中包含exe程序
