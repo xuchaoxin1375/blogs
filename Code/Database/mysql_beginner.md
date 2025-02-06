@@ -4,49 +4,49 @@
 
 通过使用建站工具箱的数据库功能安装mysql可以灵活地切换版本
 
-以phpStudy为例,这种安装方式定位到工具箱的安装目录
+以**phpStudy**(小皮)为例,这种安装方式定位到工具箱的安装目录
 
 假设你通过phpStudy启动了mysql,然后可以用powershell检查
 
 ```powershell
-PS> ps mysqld |select path,CommandLine|fl
-
-Path        : C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin\mysqld.exe
-CommandLine : C:\exes\phpstudy_pro\COM\..\Extensions\MySQL5.5.29\\bin\mysqld.exe
+ PS> ps mysqld |select path,CommandLine|fl
+ 
+ Path        : C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin\mysqld.exe
+ CommandLine : C:\exes\phpstudy_pro\COM\..\Extensions\MySQL5.5.29\\bin\mysqld.exe
 ```
 
 
 
 ```powershell
-#⚡️[Administrator@CXXUDESK][C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin][10:27:06][UP:5.06Days]
-PS> ls
-
-    Directory: C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
--a---           2025/1/15     8:58         162304 echo.exe
--a---           2025/1/15     8:58        3584512 my_print_defaults.exe
--a---           2025/1/15     8:58        3929600 myisam_ftdump.exe
--a---           2025/1/15     8:58        4056064 myisamchk.exe
--a---           2025/1/15     8:58        3913216 myisamlog.exe
--a---           2025/1/15     8:58        3961856 myisampack.exe
--a---           2025/1/15     8:58       10603520 mysql_embedded.exe
--a---           2025/1/15     8:58        3603456 mysql_plugin.exe
--a---           2025/1/15     8:58        3555840 mysql_tzinfo_to_sql.exe
--a---           2025/1/15     8:58        3683328 mysql_upgrade.exe
--a---           2025/1/15     8:58        4340736 mysql.exe
--a---           2025/1/15     8:58        4235264 mysqladmin.exe
--a---           2025/1/15     8:58        4360192 mysqlbinlog.exe
--a---           2025/1/15     8:58        4229632 mysqlcheck.exe
--a---           2025/1/15     8:58        9723392 mysqld.exe
--a---           2025/1/15     8:58        4305408 mysqldump.exe
--a---           2025/1/15     8:58        4224000 mysqlimport.exe
--a---           2025/1/15     8:58        4222464 mysqlshow.exe
--a---           2025/1/15     8:58        4250624 mysqlslap.exe
--a---           2025/1/15     8:58        3695616 perror.exe
--a---           2025/1/15     8:58        3572224 replace.exe
--a---           2025/1/15     8:58        3582976 resolveip.exe
+ #⚡️[Administrator@CXXUDESK][C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin][10:27:06][UP:5.06Days]
+ PS> ls
+ 
+     Directory: C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin
+ 
+ Mode                 LastWriteTime         Length Name
+ ----                 -------------         ------ ----
+ -a---           2025/1/15     8:58         162304 echo.exe
+ -a---           2025/1/15     8:58        3584512 my_print_defaults.exe
+ -a---           2025/1/15     8:58        3929600 myisam_ftdump.exe
+ -a---           2025/1/15     8:58        4056064 myisamchk.exe
+ -a---           2025/1/15     8:58        3913216 myisamlog.exe
+ -a---           2025/1/15     8:58        3961856 myisampack.exe
+ -a---           2025/1/15     8:58       10603520 mysql_embedded.exe
+ -a---           2025/1/15     8:58        3603456 mysql_plugin.exe
+ -a---           2025/1/15     8:58        3555840 mysql_tzinfo_to_sql.exe
+ -a---           2025/1/15     8:58        3683328 mysql_upgrade.exe
+ -a---           2025/1/15     8:58        4340736 mysql.exe
+ -a---           2025/1/15     8:58        4235264 mysqladmin.exe
+ -a---           2025/1/15     8:58        4360192 mysqlbinlog.exe
+ -a---           2025/1/15     8:58        4229632 mysqlcheck.exe
+ -a---           2025/1/15     8:58        9723392 mysqld.exe
+ -a---           2025/1/15     8:58        4305408 mysqldump.exe
+ -a---           2025/1/15     8:58        4224000 mysqlimport.exe
+ -a---           2025/1/15     8:58        4222464 mysqlshow.exe
+ -a---           2025/1/15     8:58        4250624 mysqlslap.exe
+ -a---           2025/1/15     8:58        3695616 perror.exe
+ -a---           2025/1/15     8:58        3572224 replace.exe
+ -a---           2025/1/15     8:58        3582976 resolveip.exe
 ```
 
 命令行交互主要使用`mysql.exe`,而另一个是用于服务进程的`mysqld.exe`
@@ -68,37 +68,14 @@ Usage: mysql [OPTIONS] [database]
 ## 连接到数据库
 
 - 连接到数据库 root 用户
-  ```bash
-  mysql -h hostName -u root -p
-  ```
-
-  
-  - 该命令要求输入 root 密码
-  - 如果 hostName 是本地主机,可以省略该选项和参数
-  - 如果是远程连接,主要远程主机的安全组和相关管理软件的端口的放行
-
-- 如果没有配置环境变量,那么可以cd到`mysql.exe`所在目录
-
-  ```powershell
-  #⚡️[Administrator@CXXUDESK][C:\exes\phpstudy_pro\Extensions\MySQL5.5.29\bin][10:31:27][UP:5.06Days]
-  PS> .\mysql.exe -h localhost -u root -p
-  Enter password: **********
-  Welcome to the MySQL monitor.  Commands end with ; or \g.
-  Your MySQL connection id is 5049
-  Server version: 5.5.29 MySQL Community Server (GPL)
-  
-  Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
-  
-  Oracle is a registered trademark of Oracle Corporation and/or its
-  affiliates. Other names may be trademarks of their respective
-  owners.
-  
-  Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-  
-  mysql>
-  ```
-
-  
+  - `mysql -h hostName -u root -p`
+    - 该命令要求输入 root 密码
+    
+    - 如果 hostName 是本地主机,可以省略该选项和参数
+    
+    - 如果是远程连接,主要远程主机的安全组和相关管理软件的端口的放行
+    
+      
 
 ## 基本使用逻辑
 
@@ -122,13 +99,14 @@ From
 
 - 不带 `;`即可回车生效的指令:
   - 以下是几条常用的指令
-    ![img](https://img-blog.csdnimg.cn/img_convert/180bb127090abfdfb64ad35b6a309434.png)
+    ![img](https://i-blog.csdnimg.cn/blog_migrate/c45b5c63c74028b0ff7304a50d0f85b3.png)
     例如
+
 
 ### 废弃当前输入
 
-- `\c`作废当前行的输入
-- 遇到没有结尾的字符串,需要补全另一半引号,然后 `\c`废弃;
+* `\c`作废当前行的输入
+* 遇到没有结尾的字符串,需要补全另一半引号,然后 `\c`废弃;
 
 ```js
 mysql> sdjfofjds\c
@@ -136,13 +114,13 @@ mysql>
 
 ```
 
-![](https://img-blog.csdnimg.cn/img_convert/36a3f213c99310f683b96a29b509ce3b.png)
+![](https://i-blog.csdnimg.cn/blog_migrate/922f4f26f047f4bcdfd57ae2863970d8.png)
 
-### 获取服务端帮助 help contents
+### 获取服务端帮助help contents
 
-> - 下表列出了服务端帮助的所有门类,`contents`本身就是一个门类;
-> - 并且,这个门类是用来列出其他门类的
-> -
+> * 下表列出了服务端帮助的所有门类,`contents`本身就是一个门类;
+> * 并且,这个门类是用来列出其他门类的
+> * 
 
 ```sql
 mysql> help contents
@@ -177,16 +155,16 @@ mysql>
 
 `help contents;`
 
-![](https://img-blog.csdnimg.cn/img_convert/6823708ce38a80c21867ac9a375ef9af.png)
+![](https://i-blog.csdnimg.cn/blog_migrate/f55499d4a4641eb9ad6b1372a5083813.png)
 
-###### 获取门类下的所有话题 topics
+###### 获取门类下的所有话题topics
 
-![](https://img-blog.csdnimg.cn/img_convert/c505d981063fd36e35604fb863c0779c.png)
+![](https://i-blog.csdnimg.cn/blog_migrate/ff7d089ed82b6da6ddda79004172f855.png)
 
 取子门类中的具体话题(topic)帮助
-![img](https://img-blog.csdnimg.cn/img_convert/0e58f4c105c3efc9bd91b38bd580ac21.png)
+![img](https://i-blog.csdnimg.cn/blog_migrate/6009802a737f4bb6f44f0362d74eb3c9.png)
 实例
-![img](https://img-blog.csdnimg.cn/img_convert/3030f33aadd98aa3abf2c6a207f75884.png)
+![img](https://i-blog.csdnimg.cn/blog_migrate/4d7d085c20cddb8e11a44a20e94fc690.png)
 
 #### 总的查询流程(小结)(针对 mysql 的基本信息和标准规范)
 
@@ -197,9 +175,12 @@ mysql>
 - > mysql> help contents;
   > 列出所有门类(categories)
   > (对于复杂话题,可能还有子门类)
+  >
 - > mysql> help data types;
-  > 获取门类下的话题 topic(例如我这里查询 datatime 这一数据类型)
+  > 获取门类下的话题topic(例如我这里查询 datatime 这一数据类型)
+  >
 - > mysql> help datetime;
+  >
 
 > 查看具体话题的介绍
 
@@ -213,11 +194,11 @@ mysql>
 
 ### help show
 
-![](https://img-blog.csdnimg.cn/img_convert/302150efa2c751205a9a2c54fdf63eb6.png)
+![](https://i-blog.csdnimg.cn/blog_migrate/1b8764557f9fe137dfb8e87a7a1902e1.png)
 
 ### help use
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/61ade94b7c9a46748b98fd76ad265b42.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_18,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/fc74112934f14427f97cf2ddbe3c3f0f.png)
 
 ## 结束 SQL 语句
 
@@ -235,12 +216,12 @@ mysql>
 - 请注意，SQL 语句不区分大小写，因此 SELECT 与 select 是相同的。
 - 许多 SQL 开发人员喜欢对所有 SQL 关键字使用大写，而对所有列和表名使用小写，这样做使代码更易于阅读和调试。
 
-> 表达式
+>  表达式
 
 ### 字符串比较
 
-> - 字符串比较默认对大小写不敏感
-> - 可以使用 binary 等控制大小写敏感
+> * 字符串比较默认对大小写不敏感
+> * 可以使用binary等控制大小写敏感
 
 ## root 用户和 root 可见的常见数据库
 
@@ -350,17 +331,17 @@ Query OK, 0 rows affected (0.01 sec)
 
 - 注意,后面的 mysql 用户名和该用户的登录主机名都各自用引号引起来,是单独的字符串
 
-#### root 用户检查可被登录的已有 mysql 用户
+#### root用户检查可被登录的已有mysql用户
 
-- 让 root 用户下选中名为 `mysql`的特殊数据库
-- `mysql`这个数据库的 `user`表,可以查询权限
-  - 从下表可见,root 用户被设置为任何主机都有权限访问(在有密码的情况下)
-  - 而 ela 用户也是如此
-    - 同时又 localhost 和 `%`(代表任意值),则又 `%`决定
+* 让root用户下选中名为 `mysql`的特殊数据库
+* `mysql`这个数据库的 `user`表,可以查询权限
+  * 从下表可见,root用户被设置为任何主机都有权限访问(在有密码的情况下)
+  * 而ela用户也是如此
+    * 同时又localhost和 `%`(代表任意值),则又 `%`决定
 
-##### root 权限下可见的 mysql 数据库的 user 表
+##### root权限下可见的mysql数据库的user表
 
-- 部分字段一览表
+* 部分字段一览表
 
 ```sql
 
@@ -404,31 +385,12 @@ mysql> select host,user from user ;
 
 ```
 
-#### 查询数据库上的所有用户(root 下)
-
-```sql
-
-mysql> select distinct  user from mysql.user ;
-+------------------+
-| user             |
-+------------------+
-| ela              |
-| root             |
-| mysql.infoschema |
-| mysql.session    |
-| mysql.sys        |
-+------------------+
-5 rows in set (0.00 sec)
-
-
-```
-
 #### 被授权用户检查自己的可使用数据库
 
 - 在被授权的主机(本例是 localhost)上使用 ela 用户查看
 - 前一次查询时授权前,后一次查询是授权后(后者多了可用数据库 `menagerie`)
   - məˈnædʒəri
-  -
+- 
 
 ```sql
 
@@ -508,9 +470,9 @@ Welcome to the MySQL monitor.  Commands end with ; or \g.
 
 > You can see at any time which database is currently selected using `SELECT DATABASE().`
 
-> 此处的 select 语句用于调用函数 database()并显示返回结果;
+> 此处的select语句用于调用函数database()并显示返回结果;
 >
-> select 作为数据库查询指令
+> select作为数据库查询指令
 >
 > 也作为函数调用指令.
 
@@ -555,8 +517,6 @@ mysql>
 
 #### 检查表的创建/字段情况
 
-> 改写法是`show columns from table`
-
 ```
 mysql> describe pet;
 +---------+-------------+------+-----+---------+-------+
@@ -570,20 +530,6 @@ mysql> describe pet;
 | death   | date        | YES  |     | NULL    |       |
 +---------+-------------+------+-----+---------+-------+
 6 rows in set (0.00 sec)
-
-mysql> show columns from menagerie.pet;
-+---------+-------------+------+-----+---------+-------+
-| Field   | Type        | Null | Key | Default | Extra |
-+---------+-------------+------+-----+---------+-------+
-| name    | varchar(20) | YES  |     | NULL    |       |
-| owner   | varchar(20) | YES  |     | NULL    |       |
-| species | varchar(20) | YES  |     | NULL    |       |
-| sex     | char(1)     | YES  |     | NULL    |       |
-| birth   | date        | YES  |     | NULL    |       |
-| death   | date        | YES  |     | NULL    |       |
-+---------+-------------+------+-----+---------+-------+
-6 rows in set (0.01 sec)
-
 ```
 
 ### 为表导入数据
@@ -882,8 +828,7 @@ mysql> select 5+3/2;
 * In MySQL, 0 or NULL means false and anything else means true. The default truth value from a boolean
   operation is 1.
 * `Not Null`不会限制 `空串和0`的插入;因为
-
-  - ```sql
+  * ```sql
     
     mysql>  SELECT 0 IS NULL, 0 IS NOT NULL, '' IS NULL, '' IS NOT NULL;
     +-----------+---------------+------------+----------------+
@@ -917,8 +862,8 @@ Rows matched: 1  Changed: 1  Warnings: 0
 - `like`,`not like`关键字
   - SQL pattern matching enables you to use
     - `_ `to match any single character and
-    - `% `to match an arbitrary number of characters (including zero characters).
-  - In MySQL, SQL patterns are case-insensitive by default. Some examples are shown here. Do not use `=`or `<>`when you use SQL patterns. Use the `LIKE `or `NOT LIKE` comparison operators instead.
+    - `% `to match an arbitrary  number of characters (including zero characters).
+  - In MySQL, SQL patterns are case-insensitive by default.  Some examples are shown here. Do not use `=`or `<>`when you use SQL patterns. Use the `LIKE `or `NOT LIKE` comparison operators instead.
 
 ```sql
 
@@ -935,9 +880,9 @@ mysql> select * from pet  where name like 'b%';
 
 ### 统计查询结果
 
-> - 统计是有力的工具
-> - 一般是 count()系列函数和 Group by 关键字进行配合使用
->   值得一提的是,如果使用了 count()并且还有其他字段名,应当出现相应的 group by,否则要么出现不可靠的结果,要么直接报错
+> * 统计是有力的工具
+> * 一般是count()系列函数和Group by 关键字进行配合使用
+>   值得一提的是,如果使用了count()并且还有其他字段名,应当出现相应的group by,否则要么出现不可靠的结果,要么直接报错
 
 #### 简单统计
 
@@ -980,7 +925,7 @@ mysql> SELECT species, sex, COUNT(*) FROM pet GROUP BY species, sex;
 
 #### 局部联合统计
 
-- 配合 where,我们可以进一步精确统计
+- 配合where,我们可以进一步精确统计
 
 ```
 SELECT species, sex, COUNT(*) FROM pet
@@ -1007,13 +952,13 @@ SELECT species, sex, COUNT(*) FROM pet
 
 #### 内连接(条件连接)
 
-> 除了 where 可以跟条件意外,多表查询时,可以用 `ON`来连接若干个条件
-> 处理多表查询,from 后面通过[inner] join 连接多个表(可以是别名语句)
+> 除了where可以跟条件意外,多表查询时,可以用 `ON`来连接若干个条件
+> 处理多表查询,from后面通过[inner] join 连接多个表(可以是别名语句)
 
 ```sql
 mysql> SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
        FROM pet AS p1 INNER JOIN pet AS p2
-         ON
+         ON 
          p1.species = p2.species
          AND p1.sex = 'f' AND p1.death IS NULL
          AND p2.sex = 'm' AND p2.death IS NULL;
