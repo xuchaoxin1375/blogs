@@ -79,9 +79,41 @@ Usage: mysql [OPTIONS] [database]
 
 ## 基本使用逻辑
 
+### 查看当前用户可用的数据库👺
+
+命令:`show databases;`
+
+此时不需要选中任何数据库
+
+例如查看当前用户(root)可用(可见)的数据库
+
+```shell
+root@localhost:[(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| aa                 |
+| aatest             |
+| mysql              |
+| performance_schema |
++--------------------+
+5 rows in set (0.00 sec)
+```
+
+### 查看数据库内的表
+
+命令:`SHOW databases;`
+
+需要你执行该命令前已经用use选中要使用数据
+
+### 其他基础命令
+
+
+
 ```sql
 /* 登陆数据库上的某个用户后,可以执行类似于以下的命令 */
-SHOW databases;
+
 USE test_db;
 SHOW tables;
 SHOW COLUMNS FROM products;
@@ -99,8 +131,44 @@ From
 
 - 不带 `;`即可回车生效的指令:
   - 以下是几条常用的指令
-    ![img](https://i-blog.csdnimg.cn/blog_migrate/c45b5c63c74028b0ff7304a50d0f85b3.png)
-    例如
+    
+    ```shell
+    root@localhost:[aatest]> ?
+    
+    For information about MySQL products and services, visit:
+       http://www.mysql.com/
+    For developer information, including the MySQL Reference Manual, visit:
+       http://dev.mysql.com/
+    To buy MySQL Enterprise support, training, or other products, visit:
+       https://shop.mysql.com/
+    
+    List of all MySQL commands:
+    Note that all text commands must be first on line and end with ';'
+    ?         (\?) Synonym for `help'.
+    clear     (\c) Clear the current input statement.
+    connect   (\r) Reconnect to the server. Optional arguments are db and host.
+    delimiter (\d) Set statement delimiter.
+    ego       (\G) Send command to mysql server, display result vertically.
+    exit      (\q) Exit mysql. Same as quit.
+    go        (\g) Send command to mysql server.
+    help      (\h) Display this help.
+    notee     (\t) Don't write into outfile.
+    print     (\p) Print current command.
+    prompt    (\R) Change your mysql prompt.
+    quit      (\q) Quit mysql.
+    rehash    (\#) Rebuild completion hash.
+    source    (\.) Execute an SQL script file. Takes a file name as an argument.
+    status    (\s) Get status information from the server.
+    tee       (\T) Set outfile [to_outfile]. Append everything into given outfile.
+    use       (\u) Use another database. Takes database name as argument.
+    charset   (\C) Switch to another charset. Might be needed for processing binlog with multi-byte charsets.
+    warnings  (\W) Show warnings after every statement.
+    nowarning (\w) Don't show warnings after every statement.
+    
+    For server side help, type 'help contents'
+    ```
+    
+    
 
 
 ### 废弃当前输入
