@@ -139,15 +139,19 @@ Users        C:\Users
 The command completed successfully.
 ```
 
-##### 为不同用户分别指定权限
+##### 为不同用户分别指定权限🎈
 
-
+可以为smb服务器上的不同用于配置不同访问权限
 
 实操示例:为用户`smb`仅分配只读权限,为用户`cxxu`分配完全控制的权限
 
 ```powershell
 PS> net share DemoShareMultipleGrant=C:\share1 /grant:smb,read /grant:cxxu,full
 DemoShareMultipleGrant was shared successfully.
+```
+
+```cmd
+net share df=C:\share\df /grant:reader,read /grant:changer,change
 ```
 
 
@@ -163,6 +167,8 @@ DemoShareMultipleGrant was shared successfully.
 这个模块中命令众多,适合于windows10以及之后的系统使用
 
 后面单独开一节介绍常用的几个命令
+
+
 
 ### 使用shrpubw程序引导创建
 
