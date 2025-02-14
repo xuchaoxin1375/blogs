@@ -98,7 +98,7 @@ net share <ShareName> \\<ComputerName> /delete
     - 被共享的文件夹路径结尾不要有`\`,而且参数是`/`,否则会无法识别(解析错误)
     - 如果无法访问或读取内容,请检查并设置共享文件夹的权限控制,参考文档或者下节中的介绍
 
-#### 三种共享文件夹的访问权限对比
+#### 三种共享文件夹的访问权限对比🎈
 
 权限对比总结
 
@@ -371,7 +371,7 @@ Set-SmbShare -Name "ReportsShare" -ChangeAccess "Everyone"
 Remove-SmbShare -Name "ReportsShare" -Force
 ```
 
-## 管理和监视共享文件夹
+## 管理和监视共享文件夹🎈
 
 - 使用winodws自带的程序`fsmgmt.msc`可以管理和监视本机建立的共享文件夹,以及查看共享文件夹被哪些其他设备和所访问
 - 这个程序有些卡顿,可以考虑用命令行来管理

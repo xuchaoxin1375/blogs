@@ -314,7 +314,7 @@ PS> net use S: \\cxxucolorful\share /user:smb 1 /p:yes
 
 前面我对`\\cxxucolorful\share`用`server`上的用户名`cxxu`及其密码进行了链接
 
-现在又进行了另一个`server`上的用户名`smb`去链接就会遇到多重链接被拒绝
+现在又进行了`server`服务器上的另一个上的用户名`smb`(第二个用户名)去链接就会遇到多重链接被拒绝
 
 
 

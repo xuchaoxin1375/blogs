@@ -98,7 +98,6 @@ Limit membership in, and assign the Full Control permission to, the Administrato
 - [局域网共享一键通 – 杏雨梨云启动维护系统 (xyboot.com)](https://www.xyboot.com/lanshare_onekey_ok/)
 - 这个小软件可以提供了快速和简单的局域网共享文件夹设置(特别是提供了匿名访问的选项和Smb版本的选择)
   - 经过了解,使用匿名时,软件会启用Guest账户以提供匿名登录(作为匿名访客的标志),这可以在设备管理器中找到共享文件夹的会话(session)窗口中查看
-  - 
 
 ## 修改组策略
 
@@ -148,5 +147,4 @@ Microsoft 网络服务器: 对通信进行数字签名(如果服务器允许)
 对于要与 Windows NT 4.0 客户端协商签名的 Windows 2000 服务器，必须在 Windows 2000 服务器上将以下注册表值设置为 1:
 HKLM\System\CurrentControlSet\Services\lanmanserver\parameters\enableW9xsecuritysignature
 有关详细信息，请参考: https://go.microsoft.com/fwlink/?LinkID=787136。
-
 
