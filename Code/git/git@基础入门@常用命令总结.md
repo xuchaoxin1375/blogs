@@ -48,50 +48,91 @@ Git 是一种分布式版本控制系统（*Distributed Version Control System*�
 
 ## Git 基本概念与命令
 
-1. **仓库（Repository）**
-    Git 仓库是存放项目文件及其版本历史的地方。常见操作包括创建本地仓库和克隆远程仓库。
+### **仓库（Repository）**
 
-   - 初始化本地仓库：
+ Git 仓库是存放项目文件及其版本历史的地方。常见操作包括创建本地仓库和克隆远程仓库。
 
-     ```bash
-     git init
-     ```
+- 初始化本地仓库：
 
-     *init：初始化*
+  ```bash
+  git init
+  ```
 
-   - 克隆远程仓库：
+  *init：初始化*
 
-     ```bash
-     git clone https://github.com/username/project.git
-     ```
+- 克隆远程仓库：
 
-     *clone：克隆*
+  ```bash
+  git clone https://github.com/username/project.git
+  ```
 
-2. **跟踪和暂存文件**
+  *clone：克隆*
 
-   - 查看当前状态：
 
-     ```bash
-     git status
-     ```
 
-     *status：状态*
+#### 简易的命令行入门教程:
 
-   - 添加文件到暂存区（*Staging Area*）：
+Git 全局设置:
 
-     ```bash
-     git add filename
-     ```
+```bash
+git config --global user.name "xuchaoxin1375"
+git config --global user.email "838808930@qq.com"
+```
 
-     或添加所有修改的文件：
+创建 git 仓库:
 
-     ```bash
-     git add .
-     ```
+```bash
+mkdir wp-site-build
+cd wp-site-build
+git init -b "main"
+touch README.md
+git add README.md
+git commit -m "first commit"
+git remote add origin https://gitee.com/xuchaoxin1375/demo.git
+git push -u origin "main"
+```
 
-     *add：添加*
+已有仓库?
 
-3. **提交修改**
+```bash
+cd existing_git_repo
+git remote add origin https://gitee.com/xuchaoxin1375/demo.git
+git push -u origin "main"
+```
+
+#### 初始化仓库git branch失效问题
+
+如果用git init初始化某个目录为git仓库后,`git branch`这类命令可能无法正确工作,你需要创建必要内容(比如readme.md文件)并且通过`add`,`commit`命令完成第一次提交后才会变得可用或者具有非空白非错误的交互消息
+
+
+
+### 其他
+
+#### **跟踪和暂存文件**
+
+- 查看当前状态：
+
+  ```bash
+  git status
+  ```
+
+  *status：状态*
+
+- 添加文件到暂存区（*Staging Area*）：
+
+  ```bash
+  git add filename
+  ```
+
+  或添加所有修改的文件：
+
+  ```bash
+  git add .
+  ```
+
+  *add：添加*
+
+1. **提交修改**
 
    - 提交暂存区中的文件到仓库：
 
@@ -101,7 +142,7 @@ Git 是一种分布式版本控制系统（*Distributed Version Control System*�
 
      commit：提交
 
-4. **查看历史记录**
+2. **查看历史记录**
 
    - 查看提交记录：
 
@@ -123,7 +164,7 @@ Git 是一种分布式版本控制系统（*Distributed Version Control System*�
 
      log：日志
 
-5. **分支管理**
+3. **分支管理**
 
    分支（*Branch*）可以让你在不影响主分支（通常是 `master` 或 `main`）的情况下独立开发新功能。
 
@@ -163,7 +204,7 @@ Git 是一种分布式版本控制系统（*Distributed Version Control System*�
 
      *merge：合并*
 
-6. **远程仓库操作**
+4. **远程仓库操作**
 
    与远程仓库（*Remote Repository*）交互时常用的命令有：
 
