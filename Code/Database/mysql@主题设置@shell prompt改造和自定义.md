@@ -6,7 +6,7 @@
 
 ## mysql shell prompt 改造👺
 
-> 首先,我们需要明确一些问题
+首先,我们需要明确一些问题
 
 - 用户和权限相关文档:[MySQL :: MySQL 8.0 Reference Manual :: 6.2 Access Control and Account Management](https://dev.mysql.com/doc/refman/8.0/en/access-control.html)
 - [mysql - Are Users &#39;User&#39;@&#39;%&#39; and &#39;User&#39;@&#39;localhost&#39; not the same? - Stack Overflow](https://stackoverflow.com/questions/11634084/are-users-user-and-userlocalhost-not-the-same)
@@ -77,8 +77,9 @@ codediesel@localhost:[wordpress]>
 shell> mysql --prompt="\u@\h:[\d]>\_" -uUSERNAME -p
 ```
 
-> * 上面的命令行在操作系统地shell(比如powershell)中运行而不是mysql shell中运行.
-> * 注意将上方的 `UserName`修改为您自己的实际用户名
+上面的命令行在操作系统地shell(比如powershell)中运行而不是mysql shell中运行.
+
+注意将上方的 `UserName`修改为您自己的实际用户名
 
 ```shell
 mysql --prompt="\u@\h:[\d]>\_" -uroot -pmypassword
@@ -87,8 +88,6 @@ mysql --prompt="\u@\h:[\d]>\_" -uroot -pmypassword
 
 
 ##### mysql prompt修改效果展示
-
-> 美滋滋
 
 ```shell
 #⚡️[Administrator@CXXUDESK][~\Desktop][22:13:14][UP:4.13Days]

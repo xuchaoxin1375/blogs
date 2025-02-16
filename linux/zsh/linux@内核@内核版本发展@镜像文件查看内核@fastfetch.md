@@ -110,7 +110,7 @@ Linux发行版和Linux内核之间有着密切的关系
        
      
   2. **查看 `/proc/version` 文件**：
-     
+    
      ```bash
      cat /proc/version
      ```
@@ -374,7 +374,9 @@ Linux发行版和Linux内核之间有着密切的关系
     sudo apt install fastfetch
     ```
 
-- ```bash
+  - 运行上述命令行需要一定的时间可能是10秒左右
+
+  ```bash
   cxxu@CxxuColorful:/etc/apt$ fastfetch
                                ....              cxxu@CxxuColorful
                 .',:clooo:  .:looooo:.           -----------------
@@ -405,6 +407,7 @@ Linux发行版和Linux内核之间有着密切的关系
   ```
 
   
+
 
 #### 虚拟机启动镜像体验版查看内核版本
 

@@ -10,11 +10,7 @@
 
 
 
-## 环境准备
-
-国内安装方式
-
-### 换国内源加速
+## 环境准备:换国内源加速
 
 先更换软件镜像源(不同发行版有不同的源,另见它文),然后执行下列任务
 
@@ -130,7 +126,7 @@ sudo apt update
 cd /etc/apt/sources.list.d
 #sudo vim tuna.sources
 # 多行输入
-sudo tee >tuna.sources <<EOF
+sudo tee tuna.sources <<EOF
 
 Types: deb
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
@@ -174,10 +170,12 @@ Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 #结束文档
 EOF
+
 # 最后将原来的`ubuntu.sources`移动到备份目录
 cd /etc/apt/sources.list.d
+
 sudo mkdir /etc/apt/sources.list.d/bak
-mv ubuntu.sources ./bak
+sudo mv ubuntu.sources ./bak
 
 #执行刷新
 sudo apt update

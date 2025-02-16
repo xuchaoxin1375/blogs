@@ -1,5 +1,6 @@
+[toc]
 
-@[toc]
+
 
 ## reference
 ### 个人观点(optional)
@@ -218,5 +219,4 @@ mysql>
 
 宝塔好像创建一个新`数据库`就会默认创建一个`同名用户`😒
 [https://www.joelled.com/webcou/9052.html](https://www.joelled.com/webcou/9052.html)
-
 

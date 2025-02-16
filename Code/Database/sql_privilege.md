@@ -20,7 +20,7 @@ TO account_name;
 
 ### 案例
 
-- 将针对于数据库 menagerie 的所有操作的权限授予任意主机上登录的 ela 用户
+- 将针对于数据库 `menagerie` 的所有操作的权限授予任意主机上登录的 ela 用户
 
 ```sql
    mysql> GRANT ALL ON menagerie.* TO 'ela'@'%';

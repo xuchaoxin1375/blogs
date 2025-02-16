@@ -6,7 +6,7 @@
 
 以下是将 Ubuntu 官方文档中的 OpenSSH Server 部分内容翻译成中文的博客文章：
 
-OpenSSH 服务器 | Ubuntu
+
 
 ## 说明
 
@@ -20,17 +20,35 @@ OpenSSH 可以使用多种认证方法，包括纯密码、公钥和 Kerberos �
 
 ## 安装 OpenSSH
 
-要在您的 Ubuntu 系统上安装 OpenSSH 客户端应用程序，请在终端提示符下使用以下命令：
+包括客户端和服务端
+
+一口气安装
+
+```bash
+sudo apt install openssh-server -y
+sudo apt install openssh-client -y
+
+```
+
+
+
+### 服务端
+
+要安装 OpenSSH **服务器应用程序**及相关支持文件，请在终端提示符下使用以下命令：
+
+```
+sudo apt install openssh-server
+```
+
+### 客户端(一般自带)
+
+要在您的 Ubuntu 系统上安装 OpenSSH **客户端应用程序**，请在终端提示符下使用以下命令：
 
 ```
 sudo apt install openssh-client
 ```
 
-要安装 OpenSSH 服务器应用程序及相关支持文件，请在终端提示符下使用以下命令：
 
-```
-sudo apt install openssh-server
-```
 
 ## 配置 OpenSSH
 
@@ -38,14 +56,18 @@ sudo apt install openssh-server
 
 `sshd` 配置文件中有许多指令，控制通信设置和认证模式等。以下是通过编辑 `/etc/ssh/sshd_config` 文件可以更改的配置指令示例。
 
-> **提示**：
->
-> 在编辑配置文件之前，您应该复制原始的 `/etc/ssh/sshd_config` 文件并保护它不被写入，以便您有原始设置作为参考并在必要时重复使用。您可以使用以下命令来完成此操作：
->
+**提示**：
+
+> 在编辑配置文件之前，您应该复制原始的 `/etc/ssh/sshd_config` 文件并保护它不被写入，以便您有原始设置作为参考并在必要时重复使用。
+
+您可以使用以下命令来完成此操作：
+
 > ```bash
-> sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.original
+>sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.original
 > sudo chmod a-w /etc/ssh/sshd_config.original
-> ```
+>```
+
+
 
 由于失去 SSH 服务器可能意味着失去访问服务器的方式，因此在更改配置并在重启服务器之前，请检查配置：
 
@@ -53,17 +75,21 @@ sudo apt install openssh-server
 sudo sshd -t -f /etc/ssh/sshd_config
 ```
 
-### 示例配置指令
+### 配置指令
 
-让我们来看一个配置指令更改的示例。要使您的 OpenSSH 服务器在登录前显示 `/etc/issue.net` 文件的内容作为预登录横幅，您可以在 `/etc/ssh/sshd_config` 文件中添加或修改以下行：
+#### 预登录横幅
 
-```
+让我们来看一个配置指令更改的示例。要使您的 OpenSSH 服务器在登录前显示 `/etc/issue.net` 文件的内容作为**预登录横幅**，您可以在 `/etc/ssh/sshd_config` 文件中添加或修改以下行：
+
+```bash
 Banner /etc/issue.net
 ```
 
-在对 `/etc/ssh/sshd_config` 文件进行更改后，保存文件。然后，使用以下命令重新启动 `sshd` 服务器应用程序以使更改生效：
+在对 `/etc/ssh/sshd_config` 文件进行更改后，保存文件。
 
-```
+然后，使用以下命令重新启动 `sshd` 服务器应用程序以使更改生效：
+
+```bash
 sudo systemctl restart sshd.service
 ```
 
