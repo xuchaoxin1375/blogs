@@ -560,7 +560,7 @@ sudo systemctl restart mysql
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/6c5616eebbaaf9377cacbd14847f3ab7.png)
 #### 安装命令
 
-首先颜进入到解压目录下的bin目录下执行
+首先进入到解压目录下的bin目录下执行
 (当然,也可以配置环境变量来简化路径输入)
 for cmd:
 `mysqld.exe --initialize-insecure`
@@ -590,6 +590,7 @@ for powershell:
 ###  安装版的mysql服务安装(phpstudy)
 
 >如果使用了phpstudy之类的管理面板中提供的mysql数据库安装,可以通过配置环境变量,采用类似于zip包的方式安装服务(配置过程比较简单仅给出验证配置是否成功的方法)
+
 ###  验证mysql环境变量配置
 
 - `where.exe mysqld`
@@ -601,12 +602,7 @@ D:\phpstudy_pro\Extensions\MySQL8.0.12\bin\mysqld.exe
 ###  powershell下安装服务
 
 ```powershell
-# 以某种方式进入管理员powershell运行模式
-PS C:\Users\cxxu> sudo_pwsh
-loading envs!
-loading aliases!
-loading psReadLines & keyHandler!
-# 安装服务
+# 进入管理员powershell运行模式
 PS C:\Users\cxxu> mysqld.exe --install
 Service successfully installed.
 
