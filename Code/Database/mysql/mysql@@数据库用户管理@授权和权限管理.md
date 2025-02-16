@@ -202,16 +202,16 @@ URL: https://dev.mysql.com/doc/refman/8.0/en/grant.html
 
 ### 创建一个新用户
 
-> 登录root用户进行操作
-> 以下指令可以创建新用户
+登录root用户进行操作
+以下指令可以创建新用户
 
 - `create user `(最为推荐)
-- `grant(在新版的mysql中已经被禁止使用命令创建新用户)`
+- `grant`(在新版的mysql中已经被禁止使用命令创建新用户)
 - `insert`一条记录到user表中
 
 #### 使用create user 创建新用户
 
-> `identified by `用于指定密码
+`identified by `用于指定密码
 
 ```sql
 mysql> create user user_testr identified by "pwdtest" ;
@@ -219,7 +219,7 @@ Query OK, 0 rows affected (0.01 sec)
 
 ```
 
-检查用户表,默认所有主机可以登录到该用户
+检查用户表,默认所有主机可以登录到该用户`select distinct user,host from mysql.user;`
 
 ```sql
 
@@ -243,14 +243,14 @@ mysql> select distinct user,host from mysql.user;
 
 #### 修改密码
 
-> mysql8+中,某些加密方法和语法已被移除(例如password())
-> 例如,我们为用户cxxu,设置密码 `test`
+mysql8+中,某些加密方法和语法已被移除(例如password())
+例如,我们为用户cxxu,设置密码 `test`
 
 ```sql
 set PASSWORD for cxxu='test';
 ```
 
-#### 尝试远程登录该新用户
+#### 尝试远程登录该新用户🎈
 
 ```sql
 PS C:\Users\cxxu> mysql -h 123.56.72.67 -u user_testr -p

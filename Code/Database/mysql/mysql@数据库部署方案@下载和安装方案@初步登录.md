@@ -10,7 +10,7 @@
   - 例如8.0手册:[MySQL 8.0 参考手册_MySQL 8.0 参考手册](https://mysql.net.cn/doc/refman/8.0/en/)
 - [MySQL :: MySQL Documentation](https://dev.mysql.com/doc/)
 
-
+- [MySQL 安装 | 菜鸟教程](https://www.runoob.com/mysql/mysql-install.html)
 
 ### 选择最方便的安装方法
 
@@ -344,33 +344,190 @@ mysql>
 
 ```
 
-### 重置mysql密码
+### 重置mysql密码🎈
 
-1. **重置 root 密码** 如果找不到密码，可以使用 **安全模式** 重置 root 密码：
+不同的linux版本安装的不同方式安装的mysql可能有不同的重置方案
 
-   ```bash
-   sudo systemctl stop mysql
-   sudo mysqld_safe --skip-grant-tables &
-   ```
+先登录进去,然后再修改密码
 
-   然后在另一个终端登录：
+这里讨论两种免密登录方案,最后说明更新密码的语句
 
-   ```bash
-   mysql -u root
-   ```
+[MySQL 重置 root 密码](https://www.runoob.com/note/27730)
 
-   之后执行：
+#### 方案1(修改配置文件)
 
-   ```sql
-   ALTER USER 'root'@'localhost' IDENTIFIED BY '新的密码';
-   FLUSH PRIVILEGES;
-   ```
+在命令行中输入`mysql --help`,可以找到中间有一段说明,比如
 
-   然后重启 MySQL：
+```bash
+Default options are read from the following files in the given order:
+/etc/my.cnf /etc/mysql/my.cnf ~/.my.cnf
+```
 
-   ```bash
-   sudo systemctl restart mysql
-   ```
+或者
+
+```bash
+#( 02/16/25@ 3:10PM )( cxxu@CxxuDesk ):~
+   mysql --help|grep my.cnf
+                      order of preference, my.cnf, $MYSQL_TCP_PORT,
+/etc/my.cnf /etc/mysql/my.cnf ~/.my.cnf
+#( 02/16/25@ 3:12PM )( cxxu@CxxuDesk ):~
+```
+
+##### mysql.cnf和my.cnf
+
+配置文件说明示例(下面的文件是mysql.cnf,而不是my.cnf)
+
+根据`mysql.cnf`的内部自我介绍可知,将其复制到其他位置后修改名字为`my.cnf`,会有不同作用域效果
+
+```bash
+#( 02/16/25@ 3:15PM )( cxxu@CxxuDesk ):~
+   cat /etc/mysql/mysql.cnf
+#
+# The MySQL database server configuration file.
+#
+# You can copy this to one of:
+# - "/etc/mysql/my.cnf" to set global options,
+# - "~/.my.cnf" to set user-specific options.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+#
+# * IMPORTANT: Additional settings that can override those from this file!
+#   The files must end with '.cnf', otherwise they'll be ignored.
+#
+
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+```
+
+一般我们要修改的是`my.cnf`
+
+```bash
+#( 02/16/25@ 3:21PM )( cxxu@CxxuDesk ):~
+   sudo vim /etc/mysql/my.cnf
+```
+
+启动vim或者用别的编辑器修改配置文件
+
+```bash
+# cxxu @ CxxuDesk in ~ [15:25:01]
+$ cat /etc/mysql/my.cnf
+# The MariaDB configuration file
+#
+# The MariaDB/MySQL tools read configuration files in the following order:
+# 0. "/etc/mysql/my.cnf" symlinks to this file, reason why all the rest is read.
+# 1. "/etc/mysql/mariadb.cnf" (this file) to set global defaults,
+# 2. "/etc/mysql/conf.d/*.cnf" to set global options.
+# 3. "/etc/mysql/mariadb.conf.d/*.cnf" to set MariaDB-only options.
+# 4. "~/.my.cnf" to set user-specific options.
+#
+# If the same option is defined multiple times, the last one will apply.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+#
+# If you are new to MariaDB, check out https://mariadb.com/kb/en/basic-mariadb-articles/
+
+#
+# This group is read both by the client and the server
+# use it for options that affect everything
+#
+[client-server]
+# Port or socket location where to connect
+# port = 3306
+socket = /run/mysqld/mysqld.sock
+
+# Import all .cnf files from configuration directory
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mariadb.conf.d/
+[mysqld]
+skip-grant-tables
+
+```
+
+我们看到这个配置文件提到了mariaDB,但是不用担心,这里是我们要配置的地方
+
+配置的位置是`[mysqld]`下面的位置,如果默认文件没有该区域,那么手动创建该区域,然后添加一行`skip-grant-tables`
+
+保存退出并重启mysql
+
+稍等后可以用`mysql -u root -p`登录,提示你输入密码时可以直接回车(随便输也没关系,因为我们设置了跳过鉴权步骤,所有密码都可以被接受)
+
+```bash
+
+#( 02/16/25@ 3:22PM )( cxxu@CxxuDesk ):~
+   sudo service mysql restart
+
+```
+
+```bash
+#( 02/16/25@ 3:22PM )( cxxu@CxxuDesk ):~
+   mysql -uroot -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 7
+Server version: 8.0.41-0ubuntu0.24.04.1 (Ubuntu)
+
+...
+mysql>
+```
+
+
+
+```bash
+# cxxu @ CxxuDesk in ~ [15:29:29]
+$ mysql -u root -p123
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+...
+mysql>
+```
+
+然而这种情况下,更改root密码可能会被阻止,因为使用可`skip-grant-tables`,
+
+```bash
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'mypassword';
+FLUSH PRIVILEGES;
+```
+
+这种语句就会报错,需要使用其他方法
+
+总之如果前面的方案(免重置可用的时候,就避免使用此方案登录)
+
+#### 方案2(安全模式登录)
+
+**重置 root 密码** 如果找不到密码，可以使用 **安全模式** 重置 root 密码：
+
+```bash
+sudo systemctl stop mysql
+sudo mysqld_safe --skip-grant-tables 
+```
+
+然后在另一个终端登录：
+
+```bash
+mysql -u root
+```
+
+#### 更新密码语句🎈
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'mypassword';
+FLUSH PRIVILEGES;
+```
+
+然后重启 MySQL：
+
+```bash
+sudo systemctl restart mysql
+```
 
 这样，你就可以使用新的密码登录 MySQL 了。
 
@@ -401,7 +558,7 @@ mysql>
 根据注释说明,按自己的喜好修改即可
 第一个路径`basedir`设置为压缩包解压后的路径
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/6c5616eebbaaf9377cacbd14847f3ab7.png)
-#### 安装命令:
+#### 安装命令
 
 首先颜进入到解压目录下的bin目录下执行
 (当然,也可以配置环境变量来简化路径输入)

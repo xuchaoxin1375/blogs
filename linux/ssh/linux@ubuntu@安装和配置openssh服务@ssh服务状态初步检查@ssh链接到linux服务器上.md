@@ -4,7 +4,7 @@
 
 - [OpenSSH server - Ubuntu Server documentation](https://documentation.ubuntu.com/server/how-to/security/openssh-server/?_gl=1*1r2haxm*_gcl_au*NTgzMDg5Mjk2LjE3MzA3NzU2MTk.&_ga=2.156610235.1288014176.1730775605-426267714.1730775605)
 
-以下是将 Ubuntu 官方文档中的 OpenSSH Server 部分内容翻译成中文的博客文章：
+以下是将 Ubuntu 官方文档中的 OpenSSH Server 部分内容翻译结合实际操作和输出部分演示
 
 
 
@@ -49,6 +49,8 @@ sudo apt install openssh-client -y
 ```
 
 ### 检查ssh服务(初步)
+
+完整和详细的检查方法另见它文
 
 ```bash
 #( 02/16/25@11:03AM )( cxxu@CxxuDesk ):~

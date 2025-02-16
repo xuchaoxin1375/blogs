@@ -98,150 +98,7 @@ From
   products;
 ```
 
-## 获取 mysql 内部文档帮助
 
-登录到某个用户之后,可以使用内部的帮助文档
-
-### help
-
-- 不带 `;`即可回车生效的指令:
-  - 以下是几条常用的指令
-    
-    ```shell
-    root@localhost:[aatest]> ?
-    
-    For information about MySQL products and services, visit:
-       http://www.mysql.com/
-    For developer information, including the MySQL Reference Manual, visit:
-       http://dev.mysql.com/
-    To buy MySQL Enterprise support, training, or other products, visit:
-       https://shop.mysql.com/
-    
-    List of all MySQL commands:
-    Note that all text commands must be first on line and end with ';'
-    ?         (\?) Synonym for `help'.
-    clear     (\c) Clear the current input statement.
-    connect   (\r) Reconnect to the server. Optional arguments are db and host.
-    delimiter (\d) Set statement delimiter.
-    ego       (\G) Send command to mysql server, display result vertically.
-    exit      (\q) Exit mysql. Same as quit.
-    go        (\g) Send command to mysql server.
-    help      (\h) Display this help.
-    notee     (\t) Don't write into outfile.
-    print     (\p) Print current command.
-    prompt    (\R) Change your mysql prompt.
-    quit      (\q) Quit mysql.
-    rehash    (\#) Rebuild completion hash.
-    source    (\.) Execute an SQL script file. Takes a file name as an argument.
-    status    (\s) Get status information from the server.
-    tee       (\T) Set outfile [to_outfile]. Append everything into given outfile.
-    use       (\u) Use another database. Takes database name as argument.
-    charset   (\C) Switch to another charset. Might be needed for processing binlog with multi-byte charsets.
-    warnings  (\W) Show warnings after every statement.
-    nowarning (\w) Don't show warnings after every statement.
-    
-    For server side help, type 'help contents'
-    ```
-    
-    
-
-
-### 废弃当前输入
-
-* `\c`作废当前行的输入
-* 遇到没有结尾的字符串,需要补全另一半引号,然后 `\c`废弃;
-
-```js
-mysql> sdjfofjds\c
-mysql>
-
-```
-
-![](https://i-blog.csdnimg.cn/blog_migrate/922f4f26f047f4bcdfd57ae2863970d8.png)
-
-### 获取服务端帮助help contents
-
-> * 下表列出了服务端帮助的所有门类,`contents`本身就是一个门类;
-> * 并且,这个门类是用来列出其他门类的
-> * 
-
-```sql
-mysql> help contents
-You asked for help about help category: "Contents"
-For more information, type 'help <item>', where <item> is one of the following
-categories:
-   Account Management
-   Administration
-   Compound Statements
-   Contents
-   Data Definition
-   Data Manipulation
-   Data Types
-   Functions
-   Geographic Features
-   Help Metadata
-   Language Structure
-   Plugins
-   Procedures
-   Storage Engines
-   Table Maintenance
-   Transactions
-   User-Defined Functions
-   Utility
-
-mysql>
-```
-
-#### help 可以查找内些内容?
-
-##### 获取所有(大)门类
-
-`help contents;`
-
-![](https://i-blog.csdnimg.cn/blog_migrate/f55499d4a4641eb9ad6b1372a5083813.png)
-
-###### 获取门类下的所有话题topics
-
-![](https://i-blog.csdnimg.cn/blog_migrate/ff7d089ed82b6da6ddda79004172f855.png)
-
-取子门类中的具体话题(topic)帮助
-![img](https://i-blog.csdnimg.cn/blog_migrate/6009802a737f4bb6f44f0362d74eb3c9.png)
-实例
-![img](https://i-blog.csdnimg.cn/blog_migrate/4d7d085c20cddb8e11a44a20e94fc690.png)
-
-#### 总的查询流程(小结)(针对 mysql 的基本信息和标准规范)
-
-##### 入门阶段
-
-获取所有门类(子门类)
-
-- > mysql> help contents;
-  > 列出所有门类(categories)
-  > (对于复杂话题,可能还有子门类)
-  >
-- > mysql> help data types;
-  > 获取门类下的话题topic(例如我这里查询 datatime 这一数据类型)
-  >
-- > mysql> help datetime;
-  >
-
-> 查看具体话题的介绍
-
-##### 熟练阶段
-
-可以直接查阅第三层的具体词条
-
-##### 通用帮助
-
-使用搜索引擎搜索文档
-
-### help show
-
-![](https://i-blog.csdnimg.cn/blog_migrate/1b8764557f9fe137dfb8e87a7a1902e1.png)
-
-### help use
-
-![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/fc74112934f14427f97cf2ddbe3c3f0f.png)
 
 ## 结束 SQL 语句
 
@@ -259,14 +116,12 @@ mysql>
 - 请注意，SQL 语句不区分大小写，因此 SELECT 与 select 是相同的。
 - 许多 SQL 开发人员喜欢对所有 SQL 关键字使用大写，而对所有列和表名使用小写，这样做使代码更易于阅读和调试。
 
->  表达式
-
 ### 字符串比较
 
-> * 字符串比较默认对大小写不敏感
-> * 可以使用binary等控制大小写敏感
+* 字符串比较默认对大小写不敏感
+* 可以使用binary等控制大小写敏感
 
-## root 用户和 root 可见的常见数据库
+## root 用户和 root 可见的内置数据库
 
 - Use the SHOW statement to find out what databases currently exist on the server:
 
