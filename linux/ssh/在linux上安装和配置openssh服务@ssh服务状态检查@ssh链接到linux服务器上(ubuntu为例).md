@@ -36,19 +36,93 @@ sudo apt install openssh-client -y
 
 要安装 OpenSSH **服务器应用程序**及相关支持文件，请在终端提示符下使用以下命令：
 
-```
-sudo apt install openssh-server
+```bash
+sudo apt install openssh-server -y
 ```
 
 ### 客户端(一般自带)
 
 要在您的 Ubuntu 系统上安装 OpenSSH **客户端应用程序**，请在终端提示符下使用以下命令：
 
+```bash
+sudo apt install openssh-client -y
 ```
-sudo apt install openssh-client
+
+### 检查ssh服务(初步)
+
+```bash
+#( 02/16/25@11:03AM )( cxxu@CxxuDesk ):~
+   sudo systemctl status ssh
+○ ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; disabled; preset: enabled)
+     Active: inactive (dead)
+TriggeredBy: ● ssh.socket
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+```
+
+#### 启动ssh服务
+
+```bash
+#( 02/16/25@11:07AM )( cxxu@CxxuDesk ):~
+   sudo systemctl start ssh
 ```
 
 
+
+```bash
+#( 02/16/25@11:07AM )( cxxu@CxxuDesk ):~
+   sudo systemctl status ssh
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; disabled; preset: enabled)
+     Active: active (running) since Sun 2025-02-16 11:07:53 CST; 5s ago
+TriggeredBy: ● ssh.socket
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+    Process: 46112 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+   Main PID: 46114 (sshd)
+      Tasks: 1 (limit: 19045)
+     Memory: 1.2M ()
+     CGroup: /system.slice/ssh.service
+             └─46114 "sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups"
+
+Feb 16 11:07:53 CxxuDesk systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Feb 16 11:07:53 CxxuDesk sshd[46114]: Server listening on :: port 22.
+Feb 16 11:07:53 CxxuDesk systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+```
+
+或者检查`ssh.service`:命令如下`sudo systemctl status ssh.service`
+
+```bash
+#( 02/16/25@11:08AM )( cxxu@CxxuDesk ):~
+   sudo systemctl status ssh.service
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; disabled; preset: enabled)
+     Active: active (running) since Sun 2025-02-16 11:07:53 CST; 4min 32s ago
+TriggeredBy: ● ssh.socket
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+    Process: 46112 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+   Main PID: 46114 (sshd)
+      Tasks: 1 (limit: 19045)
+     Memory: 1.2M ()
+     CGroup: /system.slice/ssh.service
+             └─46114 "sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups"
+
+Feb 16 11:07:53 CxxuDesk systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Feb 16 11:07:53 CxxuDesk sshd[46114]: Server listening on :: port 22.
+Feb 16 11:07:53 CxxuDesk systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+```
+
+#### 常见报错
+
+部分系统环境(比如windows wsl2 ubuntu)中,`ssh.service`服务相关操作经常会报错如下
+
+```bash
+Failed to ... sshd.service: Unit sshd.service not found.
+```
+
+可以尝试执行` sudo systemctl start ssh`来唤醒服务
 
 ## 配置 OpenSSH
 
@@ -77,7 +151,7 @@ sudo sshd -t -f /etc/ssh/sshd_config
 
 ### 配置指令
 
-#### 预登录横幅
+配置预登录横幅为例
 
 让我们来看一个配置指令更改的示例。要使您的 OpenSSH 服务器在登录前显示 `/etc/issue.net` 文件的内容作为**预登录横幅**，您可以在 `/etc/ssh/sshd_config` 文件中添加或修改以下行：
 
@@ -93,23 +167,29 @@ Banner /etc/issue.net
 sudo systemctl restart sshd.service
 ```
 
-> **警告**：
->
-> 有许多其他 `sshd` 配置指令可供更改，以适应您的服务器应用程序需求。但是，请注意，如果您仅通过 SSH 访问服务器，并且在通过 `/etc/ssh/sshd_config` 文件配置 `sshd` 时犯了错误，您可能会在重启服务器后发现自己被锁定在服务器之外。此外，如果提供了错误的配置指令，`sshd` 服务器可能会拒绝启动，因此在远程服务器上编辑此文件时要格外小心。
+### 警告
+
+有许多其他 `sshd` 配置指令可供更改，以适应您的服务器应用程序需求。但是，请注意，如果您仅通过 SSH 访问服务器，并且在通过 `/etc/ssh/sshd_config` 文件配置 `sshd` 时犯了错误，您可能会在重启服务器后发现自己被锁定在服务器之外。此外，如果提供了错误的配置指令，`sshd` 服务器可能会拒绝启动，因此在远程服务器上编辑此文件时要格外小心。
 
 ## SSH 密钥(免密认证登录ssh)👺
 
-SSH 允许在不需要密码的情况下在两台主机之间进行认证。SSH 密钥认证使用一个**私钥**和一个**公钥**。
+SSH 允许在不需要密码的情况下在两台主机之间进行认证。
+
+SSH 密钥认证使用一个**私钥**和一个**公钥**。
+
+现在ssh客户机上生成密钥对,然后客户机上的公钥发送到ssh服务机上的正确的目录和文件中
+
+### ssh客户机上生成密钥对
 
 要生成密钥，请运行以下命令：
 
-```
+```bash
 ssh-keygen -t rsa
 ```
 
 这将使用**RSA算法**生成密钥。在撰写本文时，生成的密钥将有3072位。您可以通过使用 `-b` 选项来修改位数。例如，要生成4096位的密钥，您可以使用：
 
-```
+```bash
 ssh-keygen -t rsa -b 4096
 ```
 
@@ -119,21 +199,79 @@ ssh-keygen -t rsa -b 4096
 
 默认情况下，公钥保存在文件 `~/.ssh/id_rsa.pub` 中，而 `~/.ssh/id_rsa` 是私钥。
 
-现在将 `id_rsa.pub` 文件复制到远程主机并追加到 `~/.ssh/authorized_keys` 通过运行：
+现在将 `id_rsa.pub` 文件复制到远程主机并**追加**到 `~/.ssh/authorized_keys` 通过运行：
 
-```
+这里最好采用追加的方式(或者说增量覆盖),普通覆盖的方式会导致ssh server无法为多台ssh客户机提供免密认证
+
+如果客户机是linux系统,可以使用`ssh-copy-id`工具实现,其他情况或者通用方法可以通过文本编辑器直接编辑ssh服务器
+
+```bash
 ssh-copy-id username@remotehost
 ```
 
 最后，再次检查 `authorized_keys` 文件的权限——只有经过认证的用户才应该有读写权限。如果权限不正确，则通过以下命令更改它们：
 
-```
+```bash
 chmod 600 .ssh/authorized_keys
 ```
 
 现在您应该能够在不提示输入密码的情况下 SSH 到主机。
 
-## 从公钥服务器导入密钥
+#### 例
+
+以windows上的powershell内完成配置的流程:
+
+准备ssh客户端(windows系统)
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][11:26:17][UP:0.81Days]
+PS> cat C:\Users\Administrator\.ssh\id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC1L8ui4tQpje4DMP9EEh08ccRBFANoQybmVm6J7mDkWeMY3jB9+ihSxFI94H3jhEHSSWPuPB0hbPFxN8HC+1zHEDkg6kkvnv0f5ehct7LRq9CJTK1oUs77L1hVfFChpMKre85jAxs+cmr9kWcOsviyYTAESu1o2fMKLfEdHej/6WLGphNAQngS77b8rTUe5c03PLQj0Sk/qIjRQvWCKuvZ76cN4WrflHSWzb+igYGQk0nyv+mwHnyQHD7AGBb3SlNwueOejE+6EnbvPxbCpTYaW7HIf2XJhpcAX+ida/wJ4TsEoNHsUu3uJfBqVbSts5OuBd7csqMvD9Wnjd37KAW2Rvupxxnf9nROjXmX3voyEDYBMDnwOopxQN5FqbJlcyelSMnyB8RhZr13rhinyQzFnhPsf55WurNrFd3sRghBJpOol1ZX48Oh2HVTd10c3FTyg0g3R3K0YfsLgi4tRXcUoVCknEdDLu/W5gtDc8rDe407kuEFd7LgyUrG8x6YqEM= administrator@CxxuDesk
+
+#⚡️[Administrator@CXXUDESK][~\Desktop][11:26:48][UP:0.81Days]
+PS> cat C:\Users\Administrator\.ssh\id_rsa.pub|scb
+```
+
+查看ssh server的ip地址
+
+```bash
+
+#( 02/16/25@11:21AM )( cxxu@CxxuDesk ):~
+   ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.23.124.43  netmask 255.255.240.0  broadcast 172.23.127.255
+        ...
+```
+
+得出查出ip为`172.23.124.43`
+
+在客户端powershell执行ssh登录(普通带密码登录)
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][11:22:09][UP:0.8Days]
+PS> ssh cxxu@172.23.124.43
+The authenticity of host '172.23.124.43 (172.23.124.43)' can't be established.
+ED25519 key fingerprint is SHA256:NkJtqmSSojqTzRhGIYkqjsi06EvqhRE2RPxIlyGhK44.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '172.23.124.43' (ED25519) to the list of known hosts.
+cxxu@172.23.124.43's password:
+[oh-my-zsh] Random theme 'junkfood' loaded
+
+
+```
+
+编辑授权文件,比如用vim或其他可用编辑器,追加剪切板中的公钥换行,然后保存
+
+```bash
+#( 02/16/25@11:22AM )( cxxu@CxxuDesk ):~
+   vim ~/.ssh/authorized_keys
+#( 02/16/25@11:27AM )( cxxu@CxxuDesk ):~
+```
+
+
+
+### 其他方案:从公钥服务器导入密钥
 
 如今许多用户已经在像 Launchpad 或 GitHub 这样的服务上注册了 SSH 密钥。这些密钥可以使用以下命令导入：
 
