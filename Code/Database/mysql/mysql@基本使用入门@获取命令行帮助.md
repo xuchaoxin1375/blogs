@@ -287,13 +287,8 @@ mysql> select host,user from user ;
 
 - 在被授权的主机(本例是 localhost)上使用 ela 用户查看
 - 前一次查询时授权前,后一次查询是授权后(后者多了可用数据库 `menagerie`)
-  - məˈnædʒəri
-- 
 
 ```sql
-
-
-
 
 mysql> show databases;
 +--------------------+

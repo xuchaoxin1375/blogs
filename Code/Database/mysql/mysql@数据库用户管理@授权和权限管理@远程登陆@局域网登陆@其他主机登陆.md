@@ -211,15 +211,41 @@ URL: https://dev.mysql.com/doc/refman/8.0/en/grant.html
 - `grant`(在新版的mysql中已经被禁止使用命令创建新用户)
 - `insert`一条记录到user表中
 
-#### 使用create user 创建新用户
+### 使用create user 创建新用户
+
+#### 创建默认所有主机可以登陆的用户
 
 `identified by `用于指定密码
+
+```sql
+create user aa identified by "mypassword" ;
+```
 
 ```sql
 mysql> create user user_testr identified by "pwdtest" ;
 Query OK, 0 rows affected (0.01 sec)
 
 ```
+
+### 仅mysql服务器主机可以登陆的用户
+
+新建一个用户本地(localhost)能够登陆的用户,并赋予root权限
+
+```sql
+CREATE USER 'aa'@'localhost' IDENTIFIED BY 'mypassword';
+
+```
+
+### 授予root权限
+
+```sql
+GRANT ALL PRIVILEGES ON *.* TO 'aa'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
+
+
+
+### 检查用户列表
 
 检查用户表,默认所有主机可以登录到该用户`select distinct user,host from mysql.user;`
 
@@ -316,11 +342,70 @@ mysql> select distinct user from mysql.user;
 6 rows in set (0.00 sec)
 ```
 
+
+
+### 检查当前用户身份
+
+```
+mysql> select user();
++--------------+
+| user()       |
++--------------+
+| aa@localhost |
++--------------+
+1 row in set (0.00 sec)
+```
+
+
+
 ### 权限管理
+
+权限管理含义广泛,通常指的是Grant相关语句
+
+### 配置用户能在任何主机上登录🎈
+
+例如我设置root用户可以在任何主机被登录
+
+```bash
+UPDATE mysql.user SET Host='%' WHERE User='root';
+FLUSH PRIVILEGES;
+```
+
+执行结果
+
+```bash
+mysql> UPDATE mysql.user SET Host='%' WHERE User='root';
+ES;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.01 sec)
+```
+
+利用`select user,host from user;`检查
+
+```bash
+
+mysql> select user,host from user;
++------------------+-----------+
+| user             | host      |
++------------------+-----------+
+| aa               | %         |
+| root             | %         |
+| debian-sys-maint | localhost |
+| mysql.infoschema | localhost |
+| mysql.session    | localhost |
+| mysql.sys        | localhost |
++------------------+-----------+
+6 rows in set (0.00 sec)
+```
+
+
 
 #### 授予权限
 
-> root下授予权限
+root下授予权限
 
 - 例如授予pms查询任意表格的权限(select;*.*)
 
@@ -377,9 +462,11 @@ mysql> show grants for pms;
 
 ### 权限检查(继权限授予效果检查)
 
-> * 关于权限检查,我认为没有想象中的那么可靠,如果查询返回结果告诉你有,但实际上相应权限并没有生效,可以尝试重启机器(不仅仅是mysql)
-> * 检查时,如果有同名用户,务必区分host!
-> * 在登录到指用户时,注意查看上下文(current_user()))host是什么:`select current_user();`
+关于权限检查,我认为没有想象中的那么可靠,如果查询返回结果告诉你有,但实际上相应权限并没有生效,可以尝试重启机器(不仅仅是mysql)
+
+检查时,如果有同名用户,务必区分host!
+
+在登录到指用户时,注意查看上下文(current_user()))host是什么:`select current_user();`
 
 - [MySQL :: MySQL 8.0 Reference Manual :: 13.7.7.21 SHOW GRANTS Statement](https://dev.mysql.com/doc/refman/8.0/en/show-grants.html)
 - `? show grants;`

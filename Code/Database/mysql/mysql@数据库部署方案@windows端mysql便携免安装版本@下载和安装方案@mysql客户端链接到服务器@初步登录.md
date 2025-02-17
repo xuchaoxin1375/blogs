@@ -15,16 +15,20 @@
 ### 选择最方便的安装方法
 
 - 通过查阅官方文档发现,linux上安装mysql的版本情况比较复杂,从效率和意义的角度,我们应该选择最通用,成功率最高的安装方法
-- 经验表明,使用官方文档中的安装方法往往不会是最高效和简单的方法,并且结合生产环境的配套软件组件,我比较倾向于使用工具箱面板来管理软件,比如宝塔面板,版本管理和密码管理都比较简单
+- 经验表明,使用官方文档中的安装方法往往不会是最高效和简单的方法,并且结合生产环境的配套软件组件,我比较倾向于使用工具箱面板来管理软件,比如宝塔面板,版本管理和密码管理都比较简单;而且直接卸载mysql的方法又是五花八门,有的卸不干净
+- 目前比较流行的面板
   - [宝塔面板下载，免费全能的服务器运维软件](https://www.bt.cn/new/download.html)
-  - 或者使用小皮工具箱
+  - 或者使用小皮,有小皮客户端和小皮面板两种产品
+    - [小皮 Windows web面板 - 小皮面板(phpstudy)](https://old.xp.cn/windows-panel.html)
+    - [Windows版phpstudy下载 - 小皮面板(phpstudy)](https://old.xp.cn/download.html)
+    - [phpStudy Linux 面板（小皮面板）- 小皮面板(phpstudy)](https://old.xp.cn/linux.html)
 - 除非你仅仅想要练习mysql的使用,那么可以考虑使用其他独立的直接安装的方式来安装
 
 ## 确定安装mysql的位置
 
 安装方式有多种
 
-### 使用第三方工具箱安装
+### 使用第三方工具箱安装🎈
 
 通过使用建站工具箱的数据库功能安装mysql可以灵活地切换版本
 
@@ -74,6 +78,12 @@
 ```
 
 命令行交互主要使用`mysql.exe`,而另一个是用于服务进程的`mysqld.exe`
+
+但是经验表明,小皮也不是那么完美,除了缺少命令行所具有的灵活性外,如果多个版本切换除了bug,会导致所有版本的mysql无法登录(小皮面板内的数据库新建和密码修改功能也都会报错);
+
+将安装于小皮中的mysql配置到环境变量path中时,比如你安装了5.5,5.7,8.0三个版本,那么建议path变量中仅保留一个,其余都添加#注释掉;
+
+如果实在无法联上mysql,这种情况下,可以尝试重启你的计算机重试
 
 ### 官方下载和安装
 
@@ -344,7 +354,21 @@ mysql>
 
 ```
 
+### 查看错误日志
+
+如果安装过程中没有设置密码,mysql会在错误日志中留下痕迹,但不一定指出密码
+
+```bash
+# cxxu @ CxxuDesk in /var/log/mysql [18:46:15]
+$ cat /var/log/mysql/error.log|grep password
+2025-02-15T09:29:54.155768Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+```
+
+
+
 ### 重置mysql密码🎈
+
+[MySQL ：： MySQL 参考手册 ：： B.3.3.2 如何重置 root 密码](https://dev.mysql.com/doc/refman/8.0/en/resetting-permissions.html)
 
 不同的linux版本安装的不同方式安装的mysql可能有不同的重置方案
 
@@ -503,7 +527,9 @@ FLUSH PRIVILEGES;
 
 #### 方案2(安全模式登录)
 
-**重置 root 密码** 如果找不到密码，可以使用 **安全模式** 重置 root 密码：
+部分linux系统,以及部分mysql版本,可以尝试操作(debian类似系统可能不行):
+
+**重置 root 密码** 如果找不到密码，可以使用 **安全模式** 重置 root 密码
 
 ```bash
 sudo systemctl stop mysql
@@ -530,6 +556,172 @@ sudo systemctl restart mysql
 ```
 
 这样，你就可以使用新的密码登录 MySQL 了。
+
+#### 修改密码可能出现的状况
+
+当前数据库情况介绍(mysql8.0.41,在ubuntu24 ltsc系统上)
+
+```bash
+
+mysql> select version();
++-------------------------+
+| version()               |
++-------------------------+
+| 8.0.41-0ubuntu0.24.04.1 |
++-------------------------+
+1 row in set (0.00 sec)
+
+ 
+mysql> select user,host from mysql.user;
++------------------+-----------+
+| user             | host      |
++------------------+-----------+
+| aa               | %         |
+| root             | %         |
+| debian-sys-maint | localhost |
+| mysql.infoschema | localhost |
+| mysql.session    | localhost |
+| mysql.sys        | localhost |
++------------------+-----------+
+6 rows in set (0.00 sec)
+```
+
+并且我将root设置为任何主机都可以登录
+
+```bash
+
+mysql> ALTER USER 'root'@'%' IDENTIFIED BY 'mypassword';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+
+#( 02/16/25@ 7:17PM )( cxxu@CxxuDesk ):~
+   sudo systemctl restart mysql
+```
+
+然而,我采用新密码登陆时提示我无法登录`root@localhost`
+
+
+
+```
+#( 02/16/25@ 7:17PM )( cxxu@CxxuDesk ):~
+   mysql -u root -pmypassword
+mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1698 (28000): Access denied for user 'root'@'localhost'
+```
+
+事实上我在修改root密码的时候,就遇到了
+
+```bash
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'mypassword';
+ERROR 1396 (HY000)...
+```
+
+这是在不是一个容易解决的问题,纯粹是软件设计的不是那么易用,并且在系统多样性的情况下需要有不同的解决方案
+
+有关资料表示需要先将密码置空,然后重设密码
+
+[ Mysql8.0.26 密码修改ERROR 1396 (HY000)_mysql8 忘记密码 ](https://blog.csdn.net/liliYoung_/article/details/120367946)
+
+### 小结
+
+这种使用体验可不是方便的,因此,如果条件允许,我还是选择使用宝塔这类面板来管理数据库
+
+
+
+## 使用 mysql 客户端连接到 MySQL 服务器
+
+这部分内容来自于古方文档,但是排版和可读性是比较差的,并且演示的内容是比较陈旧的(演示用的是5.7,而不是8.0以上的版本),跟随该文档操作可能会遇到错误
+
+总之内容仅供参考
+
+### 客户端
+
+一旦您的 MySQL 服务器启动并运行，您就可以具有 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/mysql.html) 客户端的超级用户。`root`
+
+- 在 Linux 上，在命令行中输入以下命令 终端（对于使用通用二进制文件的安装，您可以 需要先转到 MySQL 安装的基目录）：`bin`
+
+  ```terminal
+  $> mysql -u root -p
+  ```
+
+- 在 Windows 上，依次单击 **Start （开始**）、**All （全部） 程序，** **MySQL，** **MySQL 命令行客户端**（或 **MySQL 8.0 Command Line Client** 的 Client 端）。如果你没有 使用 MySQL 安装程序安装 MySQL，打开命令提示符， 转到 Base 下的文件夹 目录中，并发出以下命令
+
+  ```terminal
+  C:\> mysql -u root -p
+  ```
+
+然后，系统会要求您输入密码，该密码 根据您的方式以不同的方式分配 已安装 MySQL。
+
+### 初始化密码总结
+
+安装和初始化说明上面已经解释了密码， 但这里有一个快速的总结：
+
+- 对于使用 MySQL Yum 存储库的安装，MySQL SUSE 存储库或直接从 Oracle 下载的 RPM 包、 生成的密码位于错误中 日志。例如，使用以下命令查看它：`root`
+
+  ```terminal
+  $> sudo grep 'temporary password' /var/log/mysqld.log
+  ```
+
+- 对于使用 MySQL APT 存储库或 Debian 的安装 直接从 Oracle 下载的软件包，您应该具有已分配密码 ;如果由于某种原因没有执行此作，请参阅 [此处](https://dev.mysql.com/doc/refman/8.0/en/linux-installation-debian.html#linux-installing-debian-password)的“重要”注释或[如何重置 root 密码](https://dev.mysql.com/doc/refman/8.0/en/resetting-permissions.html)。
+
+- 对于在 Linux 上使用的安装，请遵循通用二进制文件 如[初始化数据目录](https://dev.mysql.com/doc/refman/8.0/en/data-directory-initialization.html)中所述，生成的密码会显示在标准的 error 流中：`mysqld --initialize root`
+
+  ```none
+  [Warning] A temporary password is generated for root@localhost:
+  iTag*AfrH5ej
+  ```
+
+  注意
+
+  根据您用于初始化 MySQL 服务器，错误输出可能已定向到 [MySQL 错误日志](https://dev.mysql.com/doc/refman/8.0/en/error-log.html);并检查密码（如果您没有看到 上方消息。错误日志是一个包含 一个扩展，通常位于服务器的数据目录（其位置取决于在服务器的配置上，但可能是 base 目录下的文件夹 或 文件夹）。
+
+  如果您已使用 instead 初始化数据目录，则密码为空。`mysqld --initialize-insecure root`
+
+- 对于使用 MySQL 安装程序和作系统在 Windows 上安装 X 使用安装程序包，您应该自己分配了一个密码。`root`
+
+如果您忘记了密码，您 已选择或无法找到为您生成的临时密码，请参阅[如何重置 Root 密码](https://dev.mysql.com/doc/refman/8.0/en/resetting-permissions.html)。`root``root`
+
+连接到 MySQL 服务器后，将显示一条欢迎消息 显示并显示提示符，该提示符 如下所示：`mysql>`
+
+```bash
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 4
+Server version: 5.7.32 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+
+
+此时，如果您使用在 安装或初始化过程（如果 您使用 MySQL Yum 存储库或使用 RPM 安装了 MySQL packages 或 Oracle 的通用二进制文件），通过键入以下语句来更改密码 在提示符处：
+
+```sql
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+```
+
+在您更改密码之前，您将 无法行使任何超级用户权限，即使 您以 .`root`身份登录
+
+以下是使用 **mysql** 客户端时需要记住的一些有用事项：
+
+- 客户端命令和 SQL 语句中的关键字（例如 [SELECT、](https://dev.mysql.com/doc/refman/8.0/en/select.html)[CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html) 和 [INSERT](https://dev.mysql.com/doc/refman/8.0/en/insert.html)）不区分大小写。
+- 列名区分大小写。表名称为 在大多数类 Unix 平台上区分大小写，但不区分大小写 在 Windows 平台上区分大小写。期间区分大小写 字符串比较取决于您使用的字符排序规则。 一般来说，最好将所有标识符 （数据库名称、表名称、列名称等）和字符串 区分大小写。有关详细信息，请参阅 [Identifier Sensitivity Case Sensitivity](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html) 和 [Case Sensitivity in String Searches 。](https://dev.mysql.com/doc/refman/8.0/en/case-sensitivity.html)
+
+要断开与 MySQL 服务器的连接，请在客户端键入 或：`QUIT`
+
+```sql
+mysql> QUIT
+```
 
 ## windows上的安装
 

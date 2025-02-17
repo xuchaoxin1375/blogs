@@ -277,6 +277,11 @@ $ exit
 ###  GPU 加速支持
 对于需要硬件加速的应用程序，WSL 2 还提供了 GPU 加速支持。特别是对于机器学习和数据科学开发者，这意味着可以在 WSL 中直接使用 NVIDIA CUDA 工具链运行深度学习模型。
 
+## wsl2网络配置🎈
+
+[使用 WSL 访问网络应用程序 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/networking)
+
 ## 小结
+
 - WSL 极大地提升了 Windows 用户的开发体验，使得运行 Linux 命令行工具和环境变得简单且与 Windows 深度集成。
 - 它能在不离开 Windows 桌面的情况下，提供接近原生 Linux 的开发环境，适合跨平台开发、网络运维、学习 Linux 等场景。
