@@ -106,7 +106,7 @@ Python 面向对象编程中的不好的做法包括：
 
   要消除这个警告，可以将属性的定义移到`__init__`方法中。例如：
 
-  ```
+  ```python
   class MyClass:
       def __init__(self):
           self.y_test = None
