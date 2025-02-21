@@ -202,7 +202,7 @@ URL: https://dev.mysql.com/doc/refman/8.0/en/grant.html
 
 - [MySQL :: MySQL 5.6 Reference Manual :: 6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/5.6/en/privileges-provided.html#priv_all)
 
-### 创建一个新用户
+### 创建一个新用户🎈
 
 登录root用户进行操作
 以下指令可以创建新用户
@@ -219,6 +219,7 @@ URL: https://dev.mysql.com/doc/refman/8.0/en/grant.html
 
 ```sql
 create user aa identified by "mypassword" ;
+FLUSH PRIVILEGES;
 ```
 
 ```sql
@@ -236,7 +237,112 @@ CREATE USER 'aa'@'localhost' IDENTIFIED BY 'mypassword';
 
 ```
 
-### 授予root权限
+在MySQL/MariaDB中，`root@localhost` 用户只能从本地连接数据库。如果你希望创建一个 `root@%` 用户（允许从任何IP连接），可以按照以下步骤操作：
+
+## 创建root@%用户和root@localhost共存
+
+### 以 `root@localhost` 登录 MySQL
+
+在终端或命令行执行：
+
+```bash
+mysql -u root -p
+```
+
+输入 `root` 用户的密码进入 MySQL 命令行。
+
+------
+
+### 创建 `root@%` 用户
+
+执行以下 SQL 语句：
+
+```sql
+CREATE USER 'root'@'%' IDENTIFIED BY 'your_password';
+```
+
+其中 `your_password` 请替换为你希望设置的密码。
+
+------
+
+赋予 `root@%` 所有权限
+
+赋予 `root@%` 和 `root@localhost` 相同的权限：
+
+```sql
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+```
+
+刷新权限：
+
+```sql
+FLUSH PRIVILEGES;
+```
+
+------
+
+整合脚本:(记得修改你的密码)
+
+```sql
+CREATE USER 'root'@'%' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
+
+
+
+### 修改 MySQL 配置（如果需要）
+
+默认情况下，MySQL 可能禁止远程访问，需修改 `my.cnf` 或 `mysqld.cnf`（具体路径可能是 `/etc/mysql/my.cnf` 或 `/etc/my.cnf`）。
+ 找到：
+
+```ini
+bind-address = 127.0.0.1
+```
+
+改为：
+
+```ini
+bind-address = 0.0.0.0
+```
+
+然后重启 MySQL：
+
+```bash
+systemctl restart mysql  # 对于 Ubuntu/Debian
+systemctl restart mariadb  # 对于 CentOS/RHEL
+```
+
+------
+
+###  验证远程连接
+
+在另一台机器上尝试连接：
+
+```bash
+mysql -u root -p -h your_server_ip
+```
+
+如果能成功连接，说明 `root@%` 用户已生效。
+
+如果遇到 **"Access denied for user 'root'@'your_ip'"**，请检查：
+
+- 是否已执行 `FLUSH PRIVILEGES;`
+
+- 防火墙是否允许 MySQL 端口（默认 3306）：
+
+  ```bash
+  sudo ufw allow 3306   # Ubuntu
+  sudo firewall-cmd --add-service=mysql --permanent && sudo firewall-cmd --reload  # CentOS
+  ```
+
+- `skip-networking` 是否被启用（应确保它被注释掉）。
+
+这样，你就可以使用 `root@%` 进行远程访问了。
+
+
+
+## 为指定账户授予root权限🎈
 
 ```sql
 GRANT ALL PRIVILEGES ON *.* TO 'aa'@'localhost' WITH GRANT OPTION;
@@ -271,7 +377,7 @@ mysql> select distinct user,host from mysql.user;
 
 #### 修改密码
 
-mysql8+中,某些加密方法和语法已被移除(例如password())
+mysql8+中,某些加密方法和语法已被移除(例如`password()`函数)
 例如,我们为用户cxxu,设置密码 `test`
 
 ```sql
