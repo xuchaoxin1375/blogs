@@ -375,7 +375,7 @@ mysql> select distinct user,host from mysql.user;
 
 ```
 
-#### 修改密码
+### 修改数据库用户密码🎈
 
 mysql8+中,某些加密方法和语法已被移除(例如`password()`函数)
 例如,我们为用户cxxu,设置密码 `test`
@@ -383,6 +383,8 @@ mysql8+中,某些加密方法和语法已被移除(例如`password()`函数)
 ```sql
 set PASSWORD for cxxu='test';
 ```
+
+通常更改会立即生效
 
 #### 尝试远程登录该新用户🎈
 
