@@ -5,19 +5,104 @@
 ## abstract
 
 - 有两大类方法:用vscode安装包重新安装,在双击安装包后勾选上相关选项(添加右键vscode打开菜单)
-- 另一类是你不想重新安装,现在也可以很方便的一键配置
+- 另一类是你不想重新安装,现在也可以很方便的一键配置(还可以完成一定的自定义设置,比如菜单名称)
 
 ## 一键脚本
 
-打开powershell(系统自带的也可以)
+打开powershell(系统自带的也可以)运行下面的一个方案即可
 
-执行
+### 在线下载代码并运行
+
+执行下面的语句,并回车执行
+
+```powershell
+irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex
+
+Set-OpenWithVscode
 
 ```
 
+### 说明
+
+可以指定参数(如果执行效果不达预期,可以查看命令行内置文档)
+
+```powershell
+help Set-OpenWithVscode
 ```
 
-### 源码如下
+例如
+
+```powershell
+PS> help Set-OpenWithVscode
+
+NAME
+    Set-OpenWithVscode
+
+SYNOPSIS
+    设置 VSCode 打开方式为默认打开方式。
+
+
+SYNTAX
+    Set-OpenWithVscode [-Path <Object>] [-MenuName <Object>] [<CommonParameters>]
+
+    Set-OpenWithVscode [-Remove] [<CommonParameters>]
+
+
+DESCRIPTION
+    直接使用powershell的命令不是很方便
+    这里通过创建一个临时的reg文件,然后调用reg import命令导入
+    支持添加右键菜单open with vscode
+    也支持移除open with vscode 菜单
+    你可以根据喜好设置标题,比如open with Vscode 或者其他,open with code之类的名字
+....
+```
+
+完整内容请自行执行查看命令
+
+### 运行示例
+
+```powershell
+PS C:\Users\Administrator\Desktop> irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex
+PS C:\Users\Administrator\Desktop>
+PS C:\Users\Administrator\Desktop> Set-OpenWithVscode
+详细信息: Set [C:\Program Files\Microsoft VS Code\Code.exe] as Vscode Path(default installation path)
+Creating registry entries for VSCode:
+    Windows Registry Editor Version 5.00
+
+       [HKEY_CLASSES_ROOT\*\shell\VSCode]
+       @="Open with VsCode"
+       "Icon"="C:\\Program Files\\Microsoft VS Code\\Code.exe"
+
+       [HKEY_CLASSES_ROOT\*\shell\VSCode\command]
+       @="\"C:\\Program Files\\Microsoft VS Code\\Code.exe\" \"%1\""
+
+       Windows Registry Editor Version 5.00
+
+       [HKEY_CLASSES_ROOT\Directory\shell\VSCode]
+       @="Open with VsCode"
+       "Icon"="C:\\Program Files\\Microsoft VS Code\\Code.exe"
+
+       [HKEY_CLASSES_ROOT\Directory\shell\VSCode\command]
+       @="\"C:\\Program Files\\Microsoft VS Code\\Code.exe\" \"%V\""
+
+       Windows Registry Editor Version 5.00
+
+       [HKEY_CLASSES_ROOT\Directory\Background\shell\VSCode]
+       @="Open with VsCode"
+       "Icon"="C:\\Program Files\\Microsoft VS Code\\Code.exe"
+
+       [HKEY_CLASSES_ROOT\Directory\Background\shell\VSCode\command]
+       @="\"C:\\Program Files\\Microsoft VS Code\\Code.exe\" \"%V\""
+操作成功完成。
+Registry entries for VSCode have been successfully created.
+Completed.Refresh Explorer to see changes.
+```
+
+
+
+### 备用源码
+
+如果在线版本无法执行,可以将以下内容拷贝粘贴到powershell中
 
 ```powershell
 function Set-OpenWithVscode
@@ -184,3 +269,10 @@ function Set-OpenWithVscode
 }
 ```
 
+粘贴回车执行,然后执行
+
+```powershell
+Set-OpenWithVscode
+```
+
+同样可以完成设置
