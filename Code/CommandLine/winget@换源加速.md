@@ -352,7 +352,7 @@ Successfully uninstalled
 
 ### 查看换源结果
 
-```
+```powershell
 PS C:\Users\cxxu\Desktop> winget source list
 Name    Argument                                      Explicit
 --------------------------------------------------------------

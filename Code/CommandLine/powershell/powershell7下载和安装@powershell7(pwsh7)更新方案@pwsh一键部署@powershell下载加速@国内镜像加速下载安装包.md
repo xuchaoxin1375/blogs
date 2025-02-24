@@ -346,7 +346,7 @@ PS C:\Users\cxxu>
 
 ## 其他方案
 
-### powershell安装包程序加速下载(推荐)
+### powershell安装包程序镜像加速下载(推荐)
 
 - 山东大学镜像站[PowerShell_PowerShell (sdu.edu.cn)](https://mirrors.sdu.edu.cn/github-release/1702434474/github-release/PowerShell_PowerShell/)
 
