@@ -158,7 +158,7 @@ zip [-选项] [-b 路径] [-t 月日年] [-n 后缀] [压缩文件  文件列表
 
 下面的用法速查中,同一行的选项是相关的或对应的或语义相反的
 
-```plaintext
+```bash
 $ zip --help
 版权所有 (c) 1990-2008 Info-ZIP - 输入 'zip "-L"' 查看软件许可信息。
 Zip 3.0（2008年7月5日）。使用方法：
@@ -187,16 +187,26 @@ zip [-选项] [-b 路径] [-t 月日年] [-n 后缀] [压缩文件  文件列表
   -h2  显示更多帮助信息
 ```
 
+#### 获取更多帮助
+
+执行`zip -h2`获得更详细的输出
+
+`man zip`输出更是详细,但是终端里面不太方便跳转,建议到浏览器中搜索查看文档
+
+#### 核心语法🎈
+
 对于一个简单的压缩任务(只关心最核心的参数)
 
-命令行语法简化为:`zip [压缩文件  文件列表]`
+命令行语法简化为:`zip [选项] [压缩文件  文件列表]`,常用的选项是`-r`(递归压缩),这是符合windows用户的使用直觉(一般我们都使用`-r`递归压缩)
 
 如果要使用压缩对象白名单或黑名单,可以追加使用` [-xi 列表]`,其中
 
 1. `-x   排除指定文件`
 2. `-i   仅包含指定文件`
 
-### 总结：常用 `zip` 选项对比
+最后再有一个查看压缩包中的内容列表`zip -sf 压缩包文件`
+
+#### 总结：常用 `zip` 选项对比
 
 | 选项        | 作用                           |
 | ----------- | ------------------------------ |
@@ -221,7 +231,7 @@ zip -r9q archive.zip my_folder -x "*.tmp"
 
 这会 **递归压缩** `my_folder/`，**最大压缩**，**静默执行**，并 **排除 `.tmp` 文件**。
 
-#### 常用命令：
+#### 常用命令🎈
 
 ```bash
 # 压缩文件（生成 archive.zip）
@@ -235,6 +245,51 @@ unzip archive.zip
 ```
 
 ------
+
+例:将`/home/cxxu/scripts/pythonScripts/`目录下的所有文件压缩(递归压缩,使用`-r`),并且排除名字形如`rename*.py`的文件
+
+压缩后的文件保存在当前工作目录下
+
+`zip -r ./test.zip /home/cxxu/scripts/pythonScripts/* -x /home/cxxu/scripts/pythonScripts/rename*.py`
+
+```bash
+#( 02/26/25@10:25AM )( cxxu@CxxuDesk ):~
+   zip -r ./test.zip /home/cxxu/scripts/pythonScripts/* -x /home/cxxu/scripts/pythonScripts/rename*.py
+   
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/ (stored 0%)
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/demo.py (deflated 39%)
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/turtle_demo.py (deflated 54%)
+...
+```
+
+保存到其他位置
+
+```bash
+
+#( 02/26/25@10:31AM )( cxxu@CxxuDesk ):~
+   mkdir ~/zipdir
+#( 02/26/25@10:31AM )( cxxu@CxxuDesk ):~
+   zip -r ~/zipdir/test.zip /home/cxxu/scripts/pythonScripts/* -x /home/cxxu/scripts/pythonScripts/rename*.py
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/ (stored 0%)
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/demo.py (deflated 39%)
+  adding: home/cxxu/scripts/pythonScripts/MKTrain/turtle_demo.py (deflated 54%)
+```
+
+
+
+#### 直接列出或查看zip包文件内容
+
+```bash
+Show files:
+  -sf       show files to operate on and exit (-sf- logfile only)
+  -su       as -sf but show escaped UTF-8 Unicode names also if exist
+  -sU       as -sf but show escaped UTF-8 Unicode names instead
+  Any character not in the current locale is escaped as #Uxxxx, where x
+  is hex digit, if 16-bit code is sufficient, or #Lxxxxxx if 24-bits
+  are needed.  If add -UN=e, Zip escapes all non-ASCII characters.
+```
+
+
 
 ### 6. `7z`（高压缩率）
 

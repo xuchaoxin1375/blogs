@@ -130,7 +130,7 @@ password = mypassword
 [client]
 user = root
 password = mypassword
-" > ~/.my.cnf
+"@ > ~/.my.cnf
 ```
 
 
