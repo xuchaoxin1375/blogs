@@ -370,7 +370,7 @@ gid   |stat|avg speed  |path/URI
                                 If SIZE is 15M, since 2*15M > 20MiB, aria2 does
                                 not split file and download it using 1 source.
                                 You can append K or M(1K = 1024, 1M = 1024K).
-  
+    
                                 Possible Values: 1048576-1073741824
                                 Default: 20M
   ```
@@ -439,7 +439,7 @@ aria2c -s 8 --max-connection-per-server=4 http://example.com/file1.zip http://ex
 
 
 
-### 使用示例
+### 使用示例🎈
 
 1. **基础多线程下载**：
 
@@ -464,6 +464,31 @@ aria2c -s 8 --max-connection-per-server=4 http://example.com/file1.zip http://ex
    ```
 
    此命令在多线程下载的基础上，限制下载速度为 500KB/s。
+   
+   ```bash
+   aria2c -x 16 -s 16 -k 1M http://23.239.111.202:13133/down/WqLQXXNQLqpd.sql
+   ```
+   
+   ```bash
+   #⚡️[Administrator@CXXUDESK][~\Desktop][15:16:34][UP:0.24Days]
+   PS> aria2c -x 16 -s 16 -k 1M http://23.239.111.202:13133/down/WqLQXXNQLqpd.sql
+   
+   02/25 15:16:37 [NOTICE] Downloading 1 item(s)
+   
+   02/25 15:16:38 [NOTICE] Allocating disk space. Use --file-allocation=none to disable it. See --file-allocation option in man page for more details.
+   [#e00f5d 267MiB/267MiB(99%) CN:2 DL:6.4MiB]
+   02/25 15:16:52 [NOTICE] Download complete: C:/Users/Administrator/Desktop/tissuschic.sql
+   
+   Download Results:
+   gid   |stat|avg speed  |path/URI
+   ======+====+===========+=======================================================
+   e00f5d|OK  |    18MiB/s|C:/Users/Administrator/Desktop/tissuschic.sql
+   
+   Status Legend:
+   (OK):download completed.
+   ```
+   
+   
 
 ### 监控和管理多线程下载
 
