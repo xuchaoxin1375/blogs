@@ -22,11 +22,21 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
 Default path is the current directory; default expression is -print.
 ```
 
-例如:`find . -maxdepth 1 -name "*.sh"`,语法中`[-H] [-L] [-P] [-Olevel] [-D debugopts] `我们不启用
+不使用参数时,默认查找当前工作目录,递归查找
 
-第一个参数就是路径`path`,`.`表示当前目录
+### 简介
 
-`-maxdepth 1 -name "*.sh"`是对应的`[expression]`
+将语法分为三部分:
+
+1. `[-H] [-L] [-P] [-Olevel] [-D debugopts] `(比较少用)
+2. `[path...]`指定要查找的目录,可以连续指定多个,空格隔开
+3. ` [expression]`指定查找条件表达式,比如指定递归深度,或者要求文件或目录具有特定格式的名字
+
+例如:`find . -maxdepth 1 -name "*.sh"`
+
+1. 回看语法中选项`[-H] [-L] [-P] [-Olevel] [-D debugopts] `例子中没有启用
+2. 例子中第一个参数就是路径`path`,经常是`.`(默认查找路径),它表示当前目录
+3. `-maxdepth 1 -name "*.sh"`是对应的`[expression]`
 
 expression内容较多,后文解释
 
@@ -474,6 +484,8 @@ find /home -perm 644
 ------
 
 ### 7. 按深度查找（`-maxdepth` 和 `-mindepth`）🎈
+
+find默认是无限递归查找目录
 
 - **仅查找当前目录（不递归）：**
 
