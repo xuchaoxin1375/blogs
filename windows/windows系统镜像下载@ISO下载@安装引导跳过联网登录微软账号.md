@@ -31,13 +31,24 @@
 
 填写表单获取评估副本下载(评估版和完整版是有区别的,评估版体积比完整版要小,激活需要征升级到完整版)
 
-- Enterprise LTSC[Windows 11 Enterprise | Microsoft Evaluation Center](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
+1. Enterprise LTSC[Windows 11 Enterprise | Microsoft Evaluation Center](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
   - [Download the ISO – Windows 11 Enterprise LTSC](https://go.microsoft.com/fwlink/p/?linkid=2195682&clcid=0x409&culture=en-us&country=us)
-- IOT Enterprise LTSC[Please select your Windows 11 IoT Enterprise LTSC download](https://www.microsoft.com/en-us/evalcenter/download-windows-11-iot-enterprise-ltsc-eval)
+2. IOT Enterprise LTSC[Please select your Windows 11 IoT Enterprise LTSC download](https://www.microsoft.com/en-us/evalcenter/download-windows-11-iot-enterprise-ltsc-eval)
 
-- [Windows Evaluation Editions | MAS (massgrave.dev)](https://massgrave.dev/evaluation_editions)
+3. [Windows Evaluation Editions | MAS (massgrave.dev)](https://massgrave.dev/evaluation_editions)
 
-- 第三方整理[Download Windows / Office | MAS (massgrave.dev)](https://massgrave.dev/genuine-installation-media)
+4. 第三方整理[Download Windows / Office | MAS (massgrave.dev)](https://massgrave.dev/genuine-installation-media)
+
+
+#### win10 ltsc 2021 原版初版cpu占用高问题
+
+```cmd
+ WSReset.exe -i
+```
+
+执行上述语句尝试在线修复(需要联网)
+
+或者直接到系统更新中更新补丁(速度会慢一些)
 
 ### 预览版/开发版进行下载
 
