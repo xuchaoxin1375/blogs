@@ -137,12 +137,12 @@ $ git config --global credential.helper 'cache --timeout 10000'
 #### 新版CredentialHelperSelector的选择窗口
 
 - windows选择`wincred`
-  如果想要避免重复提示,可以勾选下面的`always from now on`
+  如果想要避免重复提示,可以勾选下面的`always from now on`(不一定管用)
   ![在这里插入图片描述](https://img-blog.csdnimg.cn/7774d68b2a3e4856aee0c1bf8a8b1511.png)
 - 如果找不到上述窗口,可以直接编辑配置文件
 - 或者查阅文档,用命令行配置
 
-##### 比如我设置示例:
+#### 例
 
 - 以gitee为例
 

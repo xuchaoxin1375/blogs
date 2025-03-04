@@ -49,7 +49,7 @@
 
 * [How to Use WINGET on Windows 11 - All Things How](https://allthings.how/how-to-use-winget-on-windows-11/)
 
-## 安装winget
+### 安装winget
 
 - 对于较新版本的windows,自带winget
 
@@ -63,7 +63,7 @@
 
   
 
-## winget不可用异常
+### winget不可用异常
 
 - [The term 'winget' is not recognized as the name of a cmdlet, function, script file, or operable program. (techtutsonline.com)](https://www.techtutsonline.com/the-term-winget-is-not-recognized-as-the-name-of-a-cmdlet-function-script-file-or-operable-program/)
   - 可能是环境变量Path中的`%UserProfile%\AppData\Local\Microsoft\WindowsApps`被误删导致
@@ -164,6 +164,15 @@ The following options are available:
 
 More help can be found at: https://aka.ms/winget-command-install
 ```
+
+### winget 跳过hash校验
+
+```powershell
+sudo winget settings --enable InstallerHashOverride
+sudo winget install wetype --ignore-security-hash
+```
+
+直接使用`--ignore-security-hash`可能无法生效或是非法的,直接报错
 
 ## 常用子命令
 

@@ -122,6 +122,7 @@ SSH 代理可以帮助你管理多个 SSH 私钥，避免每次都需要手动�
 ###  第四步：将 SSH 公钥添加到 GitHub
 
 1. **复制公钥内容**  
+   
    现在你需要将生成的 SSH 公钥复制到剪贴板。执行以下命令：
    
    ```bash
@@ -131,9 +132,9 @@ SSH 代理可以帮助你管理多个 SSH 私钥，避免每次都需要手动�
    ```bash
    cat ~/.ssh/id_rsa.pub
    ```
-
+   
    这会在终端中显示公钥内容，右键点击 Git Bash 窗口，选择 **Mark** 以标记并复制公钥。
-
+   
 2. **登录 GitHub 并添加公钥**  
    - 打开 [GitHub](https://github.com)，登录你的账户。
    - 点击右上角的头像，选择 **Settings**。
@@ -157,7 +158,7 @@ SSH 代理可以帮助你管理多个 SSH 私钥，避免每次都需要手动�
    git remote -v
    ```
 
-   如果显示的 URL 是类似 `https://github.com/username/repo.git` 的 HTTPS 格式，需要修改为 SSH 格式：
+   如果显示的 URL 是类似 `https://github.com/username/repo.git` 的 HTTPS 格式，**需要修改为 SSH 格式**：
 
    ```bash
    git remote set-url origin git@github.com:username/repo.git
