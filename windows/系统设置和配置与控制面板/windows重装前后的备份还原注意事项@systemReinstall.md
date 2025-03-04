@@ -347,13 +347,13 @@ Deploy-EnvsByPwsh -SourceFile $SystemEnv -Scope Machine
 
 
 
-#### 常用软件安装目录
+### 常用软件安装目录🎈
 
-vscode 建议还是分开安装,否则插件可能无法正常验证登录,例如codeium
+#### vscode插件目录复用
 
-但是插件目录或`.vscode`目录可以共用
+vscode 建议还是分开安装,**否则插件可能无法正常验证登录,例如codeium**
 
-
+但是插件目录或`.vscode`目录可以考虑共用(但较新版本可能会出现无法登录同步账号的问题,选择Microsoft/github的列表始终加载不出来)
 
 ```powershell
 
@@ -399,8 +399,9 @@ New-SSHKeyPairs
 ### 基础软件安装
 
 - office
-  - wps
+  - wps office
   - microsoft office(无广告体验好点,但是体积大)
+
 
 ## 次要的系统设置
 
