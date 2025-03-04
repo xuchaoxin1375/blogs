@@ -4,7 +4,13 @@
 
 git@ssh和github@个人访问令牌@将本地仓库推送到github
 
-## ref
+使用 SSH 公钥可以让你在你的电脑和 Gitee 通讯的时候使用安全连接（Git 的 Remote 要使用 SSH 地址）
+
+注意,如果你的仓库使用https链接的remote地址是无法通过ssh key来免密推送或拉去权限仓库
+
+如果你希望对https链接实现免密push/pull，另见他文（通常是利用git的凭据管理器)
+
+### ref
 
 - 有关身份验证的部分
   - [创建存储库 - GitHub 文档](https://docs.github.com/zh/get-started/quickstart/create-a-repo)
@@ -14,7 +20,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 - [通过 SSH 连接到 GitHub - GitHub 文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh)
 
-## 使用ssh进行连接github
+## 使用ssh进行连接远程托管仓库
 
 - 生成 SSH 密钥
 - 其添加到 ssh-agent
@@ -184,7 +190,7 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
   - 在powershell中,可以使用`cat ~/.ssh/id*pub|scb`直接将公钥内容复制到剪切板上
 
-## 访问令牌作为验证密码👺
+## 访问令牌作为验证密码👺🎈
 
 
 
@@ -215,9 +221,12 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
 ### Gitee 设置
 
-- [SSH 公钥设置 | Gitee 产品文档](https://help.gitee.com/base/account/SSH公钥设置/)
+- 生成公钥/私钥对
+  - [SSH 公钥设置 | Gitee 产品文档](https://help.gitee.com/base/account/SSH公钥设置/)
 
-- 直达连接:「[添加公钥](https://gitee.com/profile/sshkeys)」
+- gitee添加公钥
+  - 直达连接:「[添加公钥](https://gitee.com/profile/sshkeys)」
+
 
 ## FAQ
 
