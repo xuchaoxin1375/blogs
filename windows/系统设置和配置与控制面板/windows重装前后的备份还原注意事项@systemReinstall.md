@@ -57,11 +57,63 @@
     - proxy switchomega（推荐）
     - SmartProxy
 
+
+
 ### 系统更新检查@驱动
 
 - 刚安装的系统可能也会检查更新,这些行为不仅会占用带宽,而且会占用cpu资源
 - 更新包括驱动下载(windows现在将驱动下载放到了更新中,因此除了自己到官网下载驱动还可以看看system update)傻等着可能不会自动给你装上
 - 类似于显卡驱动,声卡驱动(以及DTS音效),都可以在windows update更新得到
+
+
+
+### 包管理器🎈
+
+#### 复用已经部署scoop
+
+目前主要是复用scoop安装的软件目录,而scoop本身则在不同系统内再重新安装一遍,避免冲突!
+
+- 如果前面已经部署好了CxxuPsModule,那么直接调用`Deploy-ScoopforCnUser`,并使用合适的参数进行部署scoop
+
+
+##### 复用scoop的软件安装目录
+
+- 如果是是双系统,那么新系统可以通过重定向scoop目录,避免重复安装一遍软件
+
+  ```powershell
+  new-item -ItemType SymbolicLink -Path C:\ProgramData\scoop -Target D:\ProgramData\scoop -Verbose
+  ```
+
+
+##### 使用scoop reset 命令来刷新链接
+
+相关软件命令行启动,以及开始菜单中scoop安装的共用(复用)的软件
+
+```bash
+Scoop reset *
+```
+
+如果这时候powershell7可以用了,那么顺便看看另一个系统是否有相关的`repos`仓库(可以考虑用符号在当前系统盘根目录中创建符号来复用)
+
+将pwsh模块配置到相关环境变量中
+
+
+
+#### winget 源加速
+
+如果另一个系统已经有了,可以复用,比如通过scoop下载安装过了
+
+如果系统自带(或者上述复用方法)获得winget后,可以执行以下内容换源
+
+```powershell
+winget source remove winget  #移除默认源（太慢）
+winget source add winget https://mirrors.ustc.edu.cn/winget-source #添加国内科大源
+#备用 https://cdn.winget.microsoft.com/cache
+winget source list
+
+```
+
+
 
 ### 部署powershell7和CxxuPsModule模块集合
 
@@ -71,35 +123,33 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
 
 但是加速链接用`invoke-webrequest`直接下载可能下不动,需要用浏览器访问一下链接后才能下得动
 
+如果已经提前安装了pwsh,可以使用`Deploy-CxxuPsModules`的`-Mode FromRemoteGit` 选项
+
+```powershell
+#⚡️[Administrator@CXXUDESK][C:\repos\scripts][23:18:29][UP:6.19Days]{Git:main}
+PS> Deploy-CxxuPsModules -Mode FromRemoteGit
+Default        FromPackage    FromRemoteGit
+
+```
+
+
+
 #### 独立安装pwsh7
 
 上述命令不顺利,则尝试独立安装powershell7
 
 [powershell7下载和安装@pwsh一键部署@powershell下载加速@国内镜像加速下载安装包 - xuchaoxin1375 - 博客园 (cnblogs.com)](https://www.cnblogs.com/xuchaoxin1375/p/18505385)
 
-- ```
-  irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-Pwsh7Portable.ps1'|iex
-   
-  ```
+```powershell
+irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-Pwsh7Portable.ps1'|iex
+ 
+```
 
 
-### 包管理器
-
-- 部署scoop
-
-  - 如果前面已经部署好了CxxuPsModule,那么直接调用`Deploy-ScoopforCnUser`,并使用合适的参数进行部署
-
-  - 如果是是双系统,那么新系统可以通过重定向scoop目录,避免重复安装一遍软件
-
-    ```powershell
-    New-Junction C:\ProgramData\scoop D:\ProgramData\scoop
-    ```
-
-    
 
 ## 第二批恢复
 
-### 字体
+### 字体🎈
 
 - 主要安装NerdFont家族中的任意一种字体,推荐LiberationMono
 
@@ -198,7 +248,9 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsMod
 
 
 
-## 同设备双系统链接式恢复
+## 同设备双系统链接式恢复🎈
+
+### 家目录相关链接复用🎈
 
 - 利用符号链接（symbolicLink）或链接点(JunctionLink)重定向用户家目录
   - 优点是方便，缺点是隔离性较差，容易造成相互影响
@@ -255,8 +307,9 @@ $vscode_bin = "$vscode_home\bin"
 $items = @(
     'share',
     'repos',
-    'exes',
-    'Tuba'
+    'exes'
+    #,
+    #'Tuba'
      
 )
 $items | ForEach-Object {
