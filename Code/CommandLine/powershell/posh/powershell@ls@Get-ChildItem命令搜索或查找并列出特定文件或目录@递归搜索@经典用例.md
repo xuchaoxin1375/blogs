@@ -906,6 +906,80 @@ C:\repos\blogs\softwares\locoySpider
 
 - 例如这里我指定了列出当前目录(`C:\repos\blogs`)下及其子目录中距离现在最近的被编辑过的头十个文件
 
+
+### 找出目录A下所有路径中包含字符串B的文件或目录🎈
+
+例如
+
+```powershell
+
+# $wp_sites_dir = 'D:\wordpress\'
+$wp_sites_dir = 'C:\sites\wp_sites\'
+
+$function_file = 'W:\wp_sites\wp_plugins\functions.php'
+
+$pattern = '*wp-content\themes\*'
+
+Get-ChildItem -Path $wp_sites_dir -Recurse -File -Filter functions.php | Where-Object { $_.FullName -like $pattern }
+
+```
+
+类似的
+
+```powershell
+
+# $wp_sites_dir = 'D:\wordpress\'
+$wp_sites_dir = 'C:\sites\wp_sites\'
+
+$dir_sources = @(
+    "W:\wp_sites\wp_plugins\price_pay\hellotopay",
+    "W:\wp_sites\wp_plugins\price_pay\public-payment-for-woo"
+)
+# 可以考虑启用多线程(尤其是pwsh7)
+foreach($dir in $dir_sources)
+{
+    # $dir = $dir_sources[0]
+
+    $dir_name = Split-Path $dir -Leaf
+    
+    # $filter="plugins"
+    $filter = $dir_name
+    $pattern = '*\wp-content\plugins\*'
+
+    Write-Output "Searching for files in $wp_sites_dir (wait for a moment....)"
+
+    # 可以考虑先清空已有目录,然后重新应用复制新的(间接重置同步最新相关目录)
+    $contents = Get-ChildItem -Path $wp_sites_dir -Recurse -Directory -Filter $filter | Where-Object { $_.FullName -like $pattern }
+
+
+    Write-Output $contents
+
+    # 下面这部分可以用shouldprocess来优化提示信息
+    # 正式执行前询问用户是否继续
+    $confirm = Read-Host "Please Check the files listed above to be updated. Confirm to update?(y/n)"
+    # 统一转换为大写
+    $confirm = $confirm.trim().ToUpper()
+    # 用户输入非y/Y时退出(乱输入也是取消执行)
+    if ($confirm -eq 'Y')
+    {
+        # $contents | ForEach-Object { Copy-Item -Path $function_file -Destination $_ -Verbose -Force }
+        
+        foreach($content in $contents)
+        {
+            Remove-Item -Path $content.FullName -Recurse -Force 
+            Copy-Item -Recurse -Path $dir -Destination $content.FullName -Force
+        }
+    }
+}
+
+ 
+
+Pause
+
+```
+
+
+
 ### 找出文件名中包含指定关键字的目录
 
 ```powershell
