@@ -210,13 +210,13 @@
 - 查看本地文档:
   - 在linux(或者windows wsl)下执行 `man scp`获取帮助
 
-### 基本使用方式
+### 基本使用方式🎈
 
 - SCP（Secure Copy）是一种在网络上进行加密文件传输的协议。它基于SSH（Secure Shell）协议，可以在不暴露文件内容的情况下，将文件从一个远程计算机复制到另一个远程计算机或本地计算机。
 
-  使用SCP命令进行文件传输时，需要指定源文件和目标文件的路径，以及源文件所在的远程计算机和目标文件所在的远程计算机或本地计算机。例如：
+  使用SCP命令进行文件传输时，需要指定**源文件和目标文件的路径**，以及**源文件所在的远程计算机**和**目标文件所在的计算机**。例如：
 
-  ```
+  ```bash
   scp user@remote:/path/to/source/file /path/to/target/directory
   ```
 
@@ -224,7 +224,7 @@
 
 - 如果要将本地计算机上的文件复制到远程计算机上，可以使用以下命令：
 
-  ```
+  ```bash
   scp /path/to/local/file user@remote:/path/to/target/directory
   ```
 
