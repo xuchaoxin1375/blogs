@@ -329,7 +329,9 @@ cd -
 
 3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效
 
-   - ```bash
+   - 输入`exit`从zsh退回到bash
+     
+     ```bash
      #zsh
      source ~/.zshrc
      
