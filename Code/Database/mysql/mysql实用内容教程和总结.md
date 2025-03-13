@@ -6,7 +6,7 @@
 
 ------
 
-### 1. `CREATE` 语句分析
+###  `CREATE` 语句分析
 
 #### 创建数据库🎈
 
@@ -40,7 +40,7 @@ CREATE TABLE users (
 
 ------
 
-### 2. `SELECT` 语句分析
+###  `SELECT` 语句分析
 
 #### 基本查询
 
@@ -90,7 +90,7 @@ SELECT * FROM users LIMIT 5 OFFSET 10;
 
 ------
 
-### 3. `INSERT` 语句分析
+###  `INSERT` 语句分析
 
 ```sql
 INSERT INTO users (name, email) 
@@ -104,7 +104,7 @@ VALUES ('Alice', 'alice@example.com');
 
 ------
 
-### 4. `UPDATE` 语句分析
+###  `UPDATE` 语句分析
 
 ```sql
 UPDATE users 
@@ -118,7 +118,7 @@ WHERE id = 1;
 
 ------
 
-### 5. `DELETE` 语句分析
+###  `DELETE` 语句分析
 
 ```sql
 DELETE FROM users WHERE id = 2;
@@ -129,7 +129,7 @@ DELETE FROM users WHERE id = 2;
 
 ------
 
-### 6. `JOIN` 语法分析
+###  `JOIN` 语法分析
 
 #### 内连接（INNER JOIN）
 

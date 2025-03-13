@@ -10,7 +10,7 @@
 CREATE DATABASE 数据库名;
 ```
 
-### 1. **创建数据库（默认字符集）**
+###  **创建数据库（默认字符集）**
 
 ```sql
 CREATE DATABASE mydb;
@@ -20,7 +20,7 @@ CREATE DATABASE mydb;
 
 ------
 
-### 2. **创建数据库并指定字符集（推荐）**🎈
+###  **创建数据库并指定字符集（推荐）**🎈
 
 ```sql
 CREATE DATABASE db_name
@@ -33,7 +33,7 @@ DEFAULT CHARACTER SET utf8mb4
 
 ------
 
-### 3. **创建数据库并检查是否存在**
+###  **创建数据库并检查是否存在**
 
 ```sql
 CREATE DATABASE IF NOT EXISTS mydb;
@@ -43,7 +43,7 @@ CREATE DATABASE IF NOT EXISTS mydb;
 
 ------
 
-### 4. **删除数据库**
+###  **删除数据库**
 
 ```sql
 DROP DATABASE mydb;
@@ -53,7 +53,7 @@ DROP DATABASE mydb;
 
 ------
 
-### 5. **查看所有数据库**
+###  **查看所有数据库**
 
 ```sql
 SHOW DATABASES;
@@ -61,7 +61,7 @@ SHOW DATABASES;
 
 ------
 
-### 6. **切换到某个数据库**
+###  **切换到某个数据库**
 
 ```sql
 USE mydb;
