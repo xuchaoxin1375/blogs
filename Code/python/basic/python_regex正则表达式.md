@@ -2,7 +2,12 @@
 
 
 
-##  references
+##  abstract
+
+这里列出两份很有用的文档
+
+而本文仅介绍其中常用的部分以及给出相应的示例,以及学习过程中的经验心得
+
 ###  标准文档(library)
 
 - [re — Regular expression operations — Python  documentation](https://docs.python.org/3/library/re.html)
@@ -15,13 +20,29 @@
 
 * [Python HOWTOs — Python  documentation](https://docs.python.org/3/howto/index.html)
 
+### 学习工具:辅助GUI程序
+
+建议使用优秀的在线正则工具
+
+1. 如果你有 [`tkinter`](https://docs.python.org/zh-cn/3/library/tkinter.html#module-tkinter)，你可能还想查看 [Tools/demo/redemo.py](https://github.com/python/cpython/tree/3.11/Tools/demo/redemo.py)，这是 Python 发行附带的演示程序。
+
+   -  它允许你输入正则和字符串，并显示RE是匹配还是失败。 
+      - 它像vscode这类编辑器的正则搜索一样
+      - ![在这里插入图片描述](https://img-blog.csdnimg.cn/58df1684726b4dcba4faf410dcffdbec.png)
+      - 这个工具勾选了Highlight all matches后虽然会显示高量显示所有被匹配的子串,但是Groups窗格只会显示被匹配的第一组子串,但是这足够我们分析所写的正则表达式的循环匹配的正确性
+   -  `redemo.py` 在尝试调试复杂的正则时非常有用。
+2. 一些在线网站功能更加强大,而且不需要安装任何东西,例如[regex101: build, test, and debug regex](https://regex101.com/) 如果网络允许,请使用这些在线工具来学习正则表达式
+
 ## 使用python正则表达式
 
 - 往后**正则表达式**被简称为**正则**
 
 ### 编译正则表达式🎈
 
-- 正则表达式被编译成模式对象，模式对象具有各种操作的方法，例如搜索模式匹配或执行字符串替换。:
+- 正则表达式被编译成模式对象，模式对象具有各种操作的方法，调用`re`模块的`compile`方法
+
+  - 例如搜索模式匹配或执行字符串替换。:
+
 
   ```python
   >>> import re
@@ -43,12 +64,66 @@
   - 有些应用程序根本不需要正则，因此不需要通过包含它们来扩展语言规范。
   - 相反，[`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块只是Python附带的C扩展模块，就类似于 [`socket`](https://docs.python.org/zh-cn/3/library/socket.html#module-socket) 或 [`zlib`](https://docs.python.org/zh-cn/3/library/zlib.html#module-zlib) 模块。
 
-### 正则模式对象和方法@正则匹配🎈
+### 模块级函数
+
+你可以但是不必手动显式创建**模式对象**并调用其方法；[`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块还提供了顶级函数 [`match()`](https://docs.python.org/zh-cn/3/library/re.html#re.match)，[`search()`](https://docs.python.org/zh-cn/3/library/re.html#re.search)，[`findall()`](https://docs.python.org/zh-cn/3/library/re.html#re.findall)，[`sub()`](https://docs.python.org/zh-cn/3/library/re.html#re.sub) 等等。 这些函数采用与相应模式方法相同的参数，并**将正则字符串作为第一个参数添加**，并仍然返回 `None` 或 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) 实例。:
+
+ 
+
+```python
+>>> print(re.match(r'From\s+', 'Fromage amk'))
+None
+>>> re.match(r'From\s+', 'From amk Thu May 14 19:12:10 1998')
+<re.Match object; span=(0, 5), match='From '>
+```
+
+**本质上，这些函数只是为你创建一个"模式对象"，并在其上调用适当的方法**。
+
+它们还将编译对象存储在缓存中，因此使用相同的未来调用将不需要一次又一次地解析该模式。
+
+
+
+### 编译标志🎈
+
+编译标志允许你修改正则表达式的工作方式。 标志在 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块中有两个名称，长名称如 [`IGNORECASE`](https://docs.python.org/zh-cn/3/library/re.html#re.IGNORECASE) 和一个简短的单字母形式，例如 [`I`](https://docs.python.org/zh-cn/3/library/re.html#re.I)。 （如果你熟悉 Perl 的模式修饰符，则单字母形式使用和其相同的字母；例如， [`re.VERBOSE`](https://docs.python.org/zh-cn/3/library/re.html#re.VERBOSE) 的缩写形式为 [`re.X`](https://docs.python.org/zh-cn/3/library/re.html#re.X)。）多个标志可以 通过按位或运算来指定它们；例如，`re.I | re.M` 设置 [`I`](https://docs.python.org/zh-cn/3/library/re.html#re.I) 和 [`M`](https://docs.python.org/zh-cn/3/library/re.html#re.M) 标志。
+
+这是一个可用标志表，更详细的说明参考文档(how to)
+
+| 旗标                                                         | 含意                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [`ASCII`](https://docs.python.org/zh-cn/3/library/re.html#re.ASCII), [`A`](https://docs.python.org/zh-cn/3/library/re.html#re.A) | 使几个转义如 `\w`、`\b`、`\s` 和 `\d` 匹配仅与具有相应特征属性的 ASCII 字符匹配。 |
+| [`DOTALL`](https://docs.python.org/zh-cn/3/library/re.html#re.DOTALL), [`S`](https://docs.python.org/zh-cn/3/library/re.html#re.S) | 使 `.` 匹配任何字符，包括换行符。                            |
+| [`IGNORECASE`](https://docs.python.org/zh-cn/3/library/re.html#re.IGNORECASE), [`I`](https://docs.python.org/zh-cn/3/library/re.html#re.I) | 进行大小写不敏感匹配。                                       |
+| [`LOCALE`](https://docs.python.org/zh-cn/3/library/re.html#re.LOCALE), [`L`](https://docs.python.org/zh-cn/3/library/re.html#re.L) | 进行区域设置感知匹配。                                       |
+| [`MULTILINE`](https://docs.python.org/zh-cn/3/library/re.html#re.MULTILINE), [`M`](https://docs.python.org/zh-cn/3/library/re.html#re.M) | 多行匹配，影响 `^` 和 `$`。                                  |
+| [`VERBOSE`](https://docs.python.org/zh-cn/3/library/re.html#re.VERBOSE), [`X`](https://docs.python.org/zh-cn/3/library/re.html#re.X) （为 '扩展'） | 启用详细的正则，可以更清晰，更容易理解。                     |
+
+## 两类使用正则的方式🎈
+
+你是否应该使用模块级函数，还是应该自己获取模式实例并调用其方法？
+
+-  **如果你正在循环中访问正则表达式，预编译它将节省一些函数调用**。 
+
+- **在循环之外，由于有内部缓存，没有太大区别**。
+
+综上,考虑到循环是程序设计中很常见的情况,因此我建议总是自己获取模式实例并调用其方法的方式会是更加通用的选择;
+
+### re模块内容|常用方法
+
+- The module defines several functions, constants, and an exception. Some of the functions are simplified versions of the full featured methods for compiled regular expressions. Most non-trivial applications always use the compiled form.
+- 该模块定义了几个函数、常量和一个异常。
+  - 其中**一些函数**是编译正则表达式的完整功能方法的**简化版本**。
+    - 提供这些简化后的函数是为了**以更简洁的方式处理简单的问题,而不需要编译形式**
+  - 大多数复杂的应用程序始终使用**编译形式**。
+
+## python re正则模式对象和方法@正则匹配🎈
 
 - 一旦你有一个表示编译正则表达式的对象(得到<u>正则模式对象</u>)，你可以用它做什么？
 
-  - 模式对象有几种方法和属性。 这里只介绍最重要的内容；请参阅 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 文档获取完整列表。
+  - 模式对象有几种方法和属性。 
 
+  - 这里只介绍最重要的内容；请参阅 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 文档获取完整列表。
+  
   - | 方法 / 属性  | 目的                                                         |
     | :----------- | :----------------------------------------------------------- |
     | `match()`    | 确定正则是否从字符串的开头匹配。                             |
@@ -61,42 +136,92 @@
   - 如果它们成功， 一个 [匹配对象](https://docs.python.org/zh-cn/3/library/re.html#match-objects) (Match-object)实例将被返回，包含匹配相关的信息：
 
     - <u>起始和终结位置、匹配的子串以及其它。</u>
-
+  
   - 你可以通过交互式实验 [`re`](https://docs.python.org/zh-cn/3/library/re.html#module-re) 模块来了解这一点。
 
+### `re.compile()` 
+
+分析该方法返回的对象类型,更多正则相关的对象信息参考:[re --- 正则表达式操作 — Python 文档](https://docs.python.org/zh-cn/3/library/re.html#regular-expression-objects)
+
+`re.compile(pattern, flags=0)` 方法会返回一个 **已编译的正则表达式对象（re.Pattern 对象）**。这个对象可以用于匹配字符串，而不需要每次都重新解析正则表达式，提高性能。
+
+------
+
+如何检查 `re.compile()` 返回的对象
+
+你可以使用以下方法检查 `re.compile()` 返回的对象类型：
+
+1. **使用 `type()` 查看对象类型**
+
+```python
+import re
+
+pattern = re.compile(r'\d+')
+print(type(pattern))
+```
+
+**输出：**
+
+```python
+
+In [10]: import re
+    ...:
+    ...: pattern = re.compile(r'\d+')
+    ...: print(type(pattern))
+<class 're.Pattern'>
+In [11]: p=re.compile(r'\d+')
+
+In [12]: p.
+            findall()  fullmatch  match      search     subn
+            finditer   groupindex pattern    split
+            flags      groups     scanner    sub
+```
+
+Python 3.7 之前的版本可能会显示：
+
+```python
+<class '_sre.SRE_Pattern'>
+```
 
 
-#### 获取所有匹配字串的索引
 
-- 借助模式对象的`finditer()`方法,再迭代它可以获取索引信息,末尾的例子中使用了`finditer`
+------
 
-## 辅助GUI程序redemo.py👺
+#### `re.Pattern` 对象的常用方法
 
-- 如果你有 [`tkinter`](https://docs.python.org/zh-cn/3/library/tkinter.html#module-tkinter)，你可能还想查看 [Tools/demo/redemo.py](https://github.com/python/cpython/tree/3.11/Tools/demo/redemo.py)，这是 Python 发行附带的演示程序。
+`re.compile()` 返回的对象可以调用多个方法来执行匹配操作：令`pattern=re.compile(regex_stri)`
 
-  -  它允许你输入正则和字符串，并显示RE是匹配还是失败。 
-    - 它像vscode这类编辑器的正则搜索一样
-    - ![在这里插入图片描述](https://img-blog.csdnimg.cn/58df1684726b4dcba4faf410dcffdbec.png)
-    - 这个工具勾选了Highlight all matches后虽然会显示高量显示所有被匹配的子串,但是Groups窗格只会显示被匹配的第一组子串,但是这足够我们分析所写的正则表达式的循环匹配的正确性
-  - `redemo.py` 在尝试调试复杂的正则时非常有用。如果你已经安装python,可以直接通过下面的链接临时体验(使用powershell打开):
-  
-    ```powershell
-    irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Tools/Tools.psm1|iex ; regex_tk_tool
-    ```
-  
-    不过一些在线网站功能更加强大,而且不需要安装任何东西,例如[regex101: build, test, and debug regex](https://regex101.com/)
+| 方法                        | 作用                                               |
+| --------------------------- | -------------------------------------------------- |
+| `pattern.match(string)`     | 从字符串起始位置匹配，返回 `Match` 对象或 `None`   |
+| `pattern.search(string)`    | 在整个字符串中搜索匹配，返回 `Match` 对象或 `None` |
+| `pattern.findall(string)`   | 返回所有匹配项的列表                               |
+| `pattern.finditer(string)`  | 返回所有匹配项的迭代器                             |
+| `pattern.sub(repl, string)` | 用 `repl` 替换匹配项                               |
+| `pattern.split(string)`     | 按照匹配项拆分字符串                               |
 
-## re模块内容@Module Contents[¶](https://docs.python.org/3/library/re.html?highlight=findall#module-contents)
+示例：
 
-- The module defines several functions, constants, and an exception. Some of the functions are simplified versions of the full featured methods for compiled regular expressions. Most non-trivial applications always use the compiled form.
-- 该模块定义了几个函数、常量和一个异常。
-  - 其中**一些函数**是编译正则表达式的完整功能方法的**简化版本**。
-    - 提供这些简化后的函数是为了以更简洁的方式处理简单的问题,而不需要编译形式
-  - 大多数复杂的应用程序始终使用**编译形式**。
+```python
+In [12]: pattern=re.compile(r'\d+')
 
-## `re.[functions]`
+In [13]: text = "There are 123 apples and 456 bananas."
+    ...:
+    ...: # 使用 pattern.search() 查找数字
+    ...: match = pattern.search(text)
+    ...: print(match.group())
+123
 
-- re.**compile**(*pattern*, *flags=0*)
+In [14]: pattern.findall(text)
+Out[14]: ['123', '456']
+
+```
+
+
+
+### `re.[functions]`
+
+1. re.**compile**(*pattern*, *flags=0*)
 
   Compile a regular expression pattern into a [regular expression object](https://docs.python.org/3/library/re.html?highlight=findall#re-objects), which can be used for matching using its [`match()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.match), [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.Pattern.search) and other methods, described below.
 
@@ -106,20 +231,20 @@
     - is equivalent to`result = re.match(pattern, string) `but using [`re.compile()`](https://docs.python.org/3/library/re.html?highlight=findall#re.compile) and saving the resulting regular expression object for **reuse** is more **efficient** when the expression will be used several times in a single program.
     - Note The compiled versions of the most recent patterns passed to [`re.compile()`](https://docs.python.org/3/library/re.html?highlight=findall#re.compile) and the module-level matching functions are cached, so programs that use only a few regular expressions at a time needn’t worry about compiling regular expressions.
 
-- re.**search**(*pattern*, *string*, *flags=0*)
+2. re.**search**(*pattern*, *string*, *flags=0*)
 
   Scan through *string* looking for <u>**the first location** where the regular expression *pattern* produces a match</u>, and return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if no position in the string matches the pattern; note that this is different from finding a zero-length match at some point in the string.
 
-- re.**match**(*pattern*, *string*, *flags=0*)
+3. re.**match**(*pattern*, *string*, *flags=0*)
   - If zero or more characters <u>at the beginning of *string*</u> match the regular expression *pattern*, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.
   - Note that even in [`MULTILINE`](https://docs.python.org/3/library/re.html?highlight=findall#re.MULTILINE) mode, [`re.match()`](https://docs.python.org/3/library/re.html?highlight=findall#re.match) will only match at the beginning of the string and <u>not at the beginning of each line</u>.
   - If you want to locate a match anywhere in *string*, use [`search()`](https://docs.python.org/3/library/re.html?highlight=findall#re.search) instead (see also [search() vs. match()](https://docs.python.org/3/library/re.html?highlight=findall#search-vs-match)).
 
-- re.**fullmatch**(*pattern*, *string*, *flags=0*)
+4. re.**fullmatch**(*pattern*, *string*, *flags=0*)
 
   If <u>the whole *string*</u> matches the regular expression *pattern*, return a corresponding [match object](https://docs.python.org/3/library/re.html?highlight=findall#match-objects). Return `None` if the string does not match the pattern; note that this is different from a zero-length match.
 
-- re.**split**(*pattern*, *string*, *maxsplit=0*, *flags=0*)
+5. re.**split**(*pattern*, *string*, *maxsplit=0*, *flags=0*)
 
   - Split *string* by the occurrences of *pattern*. If capturing **parentheses** are used in *pattern*, then the text of all groups in the pattern are also returned as part of the resulting list. 
   - If *maxsplit* is nonzero, at most *maxsplit* splits occur, and the remainder of the string is returned as the final element of the list.
@@ -205,7 +330,7 @@
 
   
 
-## 模糊重复
+## 正则表达式|模糊重复
 
 ### `*`
 
@@ -576,7 +701,7 @@ Most of the standard escapes supported by Python string literals are also accept
     (29, 31)
     ```
 
-### 分组
+### 分组🎈
 
 - 通常，你需要获取更多信息，而不仅仅是正则是否匹配。
 
@@ -642,12 +767,12 @@ Most of the standard escapes supported by Python string literals are also accept
 
 - [`groups()`](https://docs.python.org/zh-cn/3/library/re.html#re.Match.groups) 方法返回一个元组，其中包含所有**子组**的字符串，即,从`1`(而不是从0)到最后一个子组。:
 
-- ```
+- ```python
   >>> m.groups()
   ('abc', 'b')
   ```
 
-#### 引用组
+#### 引用组🎈
 
 - 模式中的**后向引用**允许你指定还必须在字符串中的当前位置<u>找到先前捕获组的内容</u>。
 
@@ -657,17 +782,15 @@ Most of the standard escapes supported by Python string literals are also accept
 
   - 例如，以下正则检测字符串中的双字。:
 
-  - ```
+  - ```python
     >>> p = re.compile(r'\b(\w+)\s+\1\b')
     >>> p.search('Paris in the the spring').group()
     'the the'
     ```
 
-- 像这样的后向引用通常不仅仅用于搜索字符串 —— 很少有文本格式以这种方式重复数据
+- 像这样的后向引用通常不仅仅用于搜索字符串 —— 很少有文本格式以这种方式重复数据,你很快就会发现它们在执行字符串替换时 *非常* 有用。🎈
 
-- 你很快就会发现它们在执行字符串替换时 *非常* 有用。🎈
-
-### 非捕获和命名组
+### 非捕获和命名组🎈
 
 - 精心设计的正则可以使用许多组，既可以捕获感兴趣的子串，也可以对正则本身进行分组和构建。
 -  在复杂的正则中，很难跟踪**组号**。 
@@ -793,9 +916,9 @@ Most of the standard escapes supported by Python string literals are also accept
 
 - 检索 `m.group('zonem')` 显然要容易得多，而不必记住检索第 9 组。
 
-- 表达式中的后向引用语法，例如 `(...)\1`，指的是组的编号。 当然有一种变体使用组名而不是数字。 这是另一个 Python 扩展: `(?P=name)` 表示在当前点再次匹配名为 *name* 的组的内容。 用于查找双字的正则表达式，`\b(\w+)\s+\1\b` 也可以写为 `\b(?P<word>\w+)\s+(?P=word)\b`:
+- 表达式中的后向引用语法，例如 `(...)\1`，指的是组的编号。 当然有一种变体使用组名而不是数字。 
 
-\>>>
+- 这是另一个 Python 扩展: `(?P=name)` 表示在当前点再次匹配名为 *name* 的组的内容。 用于查找双字的正则表达式，`\b(\w+)\s+\1\b` 也可以写为 `\b(?P<word>\w+)\s+(?P=word)\b`:
 
 ```python
 >>> p = re.compile(r'\b(?P<word>\w+)\s+(?P=word)\b')
@@ -803,7 +926,7 @@ Most of the standard escapes supported by Python string literals are also accept
 'the the'
 ```
 
-## 修改字符串😎
+## 修改字符串🎈
 
 - 正则表达式通常也用于以各种方式**修改字符串**，使用以下模式方法：
 
