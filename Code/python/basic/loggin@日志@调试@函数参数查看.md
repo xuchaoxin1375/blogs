@@ -478,7 +478,7 @@ for name, value in members:
 
   
 
-### 模拟C语言的调试宏@f-string
+### 模拟C语言的调试宏@f-string👺
 
 - [f-string debugging in Python 3.8 (tirkarthi.github.io)](https://tirkarthi.github.io/programming/2019/05/08/f-string-debugging.html)
 
@@ -486,7 +486,7 @@ for name, value in members:
 
   - When the equal sign `'='` is provided, the output will have the expression text, the `'='` and the evaluated value. Spaces after the opening brace `'{'`, within the expression and after the `'='` are all retained in the output. By default, the `'='` causes the [`repr()`](https://docs.python.org/3/library/functions.html#repr) of the expression to be provided, unless there is a format specified. When a format is specified it defaults to the [`str()`](https://docs.python.org/3/library/stdtypes.html#str) of the expression unless a conversion `'!r'` is declared.
 
-- 在K&R的<<The C program language>>中提到过调试宏,可以方便我查看变量的值
+- 在K&R的`<<The C program language>>`中提到过调试宏,可以方便我查看变量的值
 
 - 在python中,可以用f-string的debug语法:
 

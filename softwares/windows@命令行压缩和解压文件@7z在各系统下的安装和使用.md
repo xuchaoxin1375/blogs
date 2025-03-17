@@ -114,9 +114,9 @@
 
 
 
-## 调用7zip
+### 配置命令行调用7zip
 
-### 命令行调用
+#### 命令行调用
 
 - scoop安装的7zip情形为例
 
@@ -158,8 +158,7 @@
       x : eXtract files with full paths
     ```
 
-
-### GUI界面@右键打开
+#### GUI界面@右键打开
 
 - 我们可以找到7zip的GUI程序,简称为`7zipFM`,全称为`7zip File Manager`
 
@@ -219,7 +218,7 @@
 
 
 
-## 解压的更多用法
+## 解压🎈
 
 ### 指定解压目录&密码
 
@@ -299,7 +298,7 @@ d----         6/26/2022   7:53 PM                  t est
 
 ```
 
-##  压缩和打包🎈
+##  压缩和打包🎈🎈
 
 - [a (Add) command - 7-Zip Documentation](https://documentation.help/7-Zip/add1.htm)
   - [-t (Type of archive)](https://documentation.help/7-Zip/type.htm)
@@ -343,6 +342,14 @@ d----         6/26/2022   7:53 PM                  t est
     
 
 ### 压缩成7z文件
+
+
+
+```cmd
+7z a -t7z .\winmm.dll.creack_typora.7z .\winmm.dll
+```
+
+
 
 - ```bash
   #某些目录下执行文件操作需要管理员权限,所以,如果有需要,请通过管理员身份启动shell,然后再启动7z
