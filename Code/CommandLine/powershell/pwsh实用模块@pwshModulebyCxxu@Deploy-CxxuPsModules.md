@@ -2,9 +2,18 @@
 
 
 
-### 详见开源仓库
+## 开源脚本模块项目
 
 [scripts: 实用脚本集合,以powershell模块为主(针对powershell 7开发) 支持一键部署,改善windows下的shell实用体验](https://gitee.com/xuchaoxin1375/scripts)
+
+### 一键部署
+
+```powershell
+irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-CxxuPsModules.ps1'|iex
+
+```
+
+
 
 ### 部署细节
 

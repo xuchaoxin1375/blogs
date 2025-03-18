@@ -288,7 +288,19 @@ Remove-CxxuFile -FilePath "C:\example.txt" -Confirm
 
 这个例子将展示ShouldProcess和ShouldContinue的使用,以及如何实现-Force参数。
 
+关于变量`[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]`,`ConfirmImpact`的预配置可以控制询问时机
+
+不过,如果你认为你的命令大多数情况(正式版)下都可以直接运行无需用户确认,那`ConfirmImpact`可以不设置
+
+而如果是处于开发或测试状态,可以在命令行通过`-Confirm`开关式参数来出发询问
+
+---
+
+
+
 首先,让我们创建一个示例文件夹和文件,再来创建一个名为`Remove-TestFiles`的函数,它将展示ShouldProcess和ShouldContinue的使用,以及-Force参数的实现,**脚本文件**如下
+
+
 
 ```powershell
 # 创建示例文件夹和文件
@@ -334,11 +346,15 @@ function Remove-TestFiles
         # 用户可能会同时使用-Force 或 -Confirm ,这看起来是不合理的参数组合,但是对于命令不了解的用户发生这种事是可能的
         # 实际上使用-confirm:$false 正是Force想要表达的含义,只是为了帮助用户更容易操作,提供了Force选项
         # 在这种情况下,我们可以让-confirm选项占主导(-confirm 选项默认就是-confirm:$true)
+
+		# 根据用户传入的参数检查是否关闭询问(设置询问开关变量$Confirm)
         if ($Force -and -not $Confirm)
         {
             $ConfirmPreference = 'None'
-            # 将消息确认级别设置为关闭,就shouldprocess不会再提示了，而是直接执行操作
+            # 将消息确认级别设置为关闭,shouldprocess不会再提示了，而是直接执行操作
         }
+        # 以下是常规的检查环节(如果$ConfrimPreference没有被上述代码设置为`None`,那么会根据情况向用户发出询问)
+        # 需要被谨慎执行的代码也包裹在这个if中(其中$PSCmdlet.ShouldProcess()的调用询问返回的bool值可以用一个变量保存,缩短if()行)
         if ( $PSCmdlet.ShouldProcess($file.Name, 'Remove file'))
         {
             $continueRemoval = $true
@@ -363,6 +379,7 @@ function Remove-TestFiles
                 Remove-Item -Path $file.FullName -Force # -confirm:$false
                 Write-Output "Removed file: $($file.Name)"
             }
+            
         }
     }
 }
