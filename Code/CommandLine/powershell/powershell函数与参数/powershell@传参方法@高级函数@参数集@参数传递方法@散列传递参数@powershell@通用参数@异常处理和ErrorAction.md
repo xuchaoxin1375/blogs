@@ -61,7 +61,7 @@ demo -UserName <string[]> -Summary [<CommonParameters>]
   11. **使用类的动态 ValidateSet 值**：演示了如何使用类在运行时动态生成`ValidateSet`的值。
 
 
- 
+
 
 ## ParameterSetName参数集@多语法命令
 
@@ -179,23 +179,24 @@ Starting process with ID: 123 and Option: qq
 
 具体的展开介绍另见它文,下面介绍重要的传参方式
 
-## 散列传递参数@散列传递变量
+## 散列传递参数@散列传递变量🎈
 
 [关于散列传递 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-7.4)
 
 在powershell中,对于函数,主要有两大类传参方式,
 
-- 一类是普通传参,即调用某个函数时,指出特定的参数并给出参数;
+- 一类是**普通传参**,即调用某个函数时,指出特定的参数并给出参数;
   - 这种传参方式用的最多,最直观
   - 利用powershell对函数参数的提示特性(比如按下tab键可以提示参数信息),并且很直观
 
-- 一类是散列传参,需要用户对函数的语法或参数有所了解,然后将需要设置的参数组织到一个字典(哈希表)对象中,利用`@`符号将对象散列给函数完成传参
+- 一类是**散列传参**,需要用户对函数的语法或参数有所了解,然后将需要设置的参数组织到一个**字典(哈希表)对象**中,利用`@`符号将对象散列给函数完成传参
   - 这种传参方式需要你知道函数的参数,然后完整地手打出来,不能够像普通传参方式那样有提示和补全可用
-  - 不过这种传参方式也有优点:
+    - 不过通过`gcm cmdlet -syntax`或`help`命令,你可以方便的获取函数有哪些参数,因此也不是很大的问题
+  - 这种传参方式的主要**优点**:
     - 散列传递使命令更短，且更易于阅读。 
-    - 可以在不同的命令调用中重用散列传递值，并使用散列传递将参数值从 `$PSBoundParameters` 自动变量传递到其他脚本和函数。
+    - 可以在不同的命令调用中重用(复用)散列传递值，并使用散列传递将参数值从 `$PSBoundParameters` 自动变量传递到其他脚本和函数。
 
-### 示例:基础
+### 散列传参示例
 
 ```powershell
 function Test-SplattingSwitch {
