@@ -239,7 +239,7 @@ CREATE USER 'aa'@'localhost' IDENTIFIED BY 'mypassword';
 
 在MySQL/MariaDB中，`root@localhost` 用户只能从本地连接数据库。如果你希望创建一个 `root@%` 用户（允许从任何IP连接），可以按照以下步骤操作：
 
-## 创建root@%用户和root@localhost共存
+## 创建root@%用户和root@localhost共存🎈
 
 ### 以 `root@localhost` 登录 MySQL
 
@@ -340,20 +340,9 @@ mysql -u root -p -h your_server_ip
 
 这样，你就可以使用 `root@%` 进行远程访问了。
 
-## 修改数据库用户密码|修改密码🎈
 
-这里不是忘记密码重置,需要你登录然后可以修改密码
 
-mysql8+中,某些加密方法和语法已被移除(例如`password()`函数)
-例如,我们为用户cxxu,设置密码 `test`
-
-```sql
-set PASSWORD for cxxu='test';
-```
-
-通常更改会立即生效
-
-## 为指定账户授予root权限🎈
+## 为指定账户授予root权限|授予最高权限🎈
 
 ```sql
 GRANT ALL PRIVILEGES ON *.* TO 'aa'@'localhost' WITH GRANT OPTION;
@@ -513,7 +502,7 @@ mysql> select user,host from user;
 
 
 
-#### 授予权限
+#### 授予权限🎈
 
 root下授予权限
 

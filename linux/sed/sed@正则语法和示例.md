@@ -6,11 +6,15 @@
 - [BRE|sed, a stream editor (gnu.org)](https://www.gnu.org/software/sed/manual/sed.html#BRE-syntax)
 - [ERE|sed, a stream editor (gnu.org)](https://www.gnu.org/software/sed/manual/sed.html#ERE-syntax)
 
-### Overview of regular expression in `sed`
+## Overview of regular expression in `sed`
 
-- To know how to use `sed`, people should understand regular expressions (*regexp* for short). A regular expression is a pattern that is matched against a subject string from left to right. 
+- To know how to use `sed`, people **should understand** regular expressions (*regexp* for short). 
+- A regular expression is a pattern that is matched against a subject string from left to right. 
 - Most characters are *ordinary*: they stand for themselves in a pattern, and match the corresponding characters. 
-- Regular expressions in `sed` are specified <u>between two slashes`/`</u>.
+
+sed中,正则表达式被`/`符号分隔
+
+Regular expressions in `sed` are specified <u>between two slashes`/`</u>.
 
 - The following command prints lines containing the word ‘hello’:
 
