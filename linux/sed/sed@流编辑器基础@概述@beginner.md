@@ -368,6 +368,8 @@ sed -i 's/hello/world/' file.txt
 
 ### `-e`和`-f`选项
 
+这是指明script或script文件的选项(而不是被处理的文件输入)
+
 ```bash
   -e script, --expression=script
                  add the script to the commands to be executed
