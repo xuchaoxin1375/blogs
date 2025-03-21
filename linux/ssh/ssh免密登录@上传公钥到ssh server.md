@@ -97,8 +97,8 @@
 - 实操(windows主机作为ssh客户端链接到vmware上安装的ubuntu22虚拟机)
 
   - ```bash
-    PS> $server='172.30.160.160' 
-    PS> scp "$home\.ssh\id_*pub"  cxxu@${server}:~/.ssh/authorized_keys
+    $server='172.30.160.160' 
+    scp "$home\.ssh\id_*pub"  cxxu@${server}:~/.ssh/authorized_keys
     cxxu@172.30.160.160's password:
     id_ed25519.pub                                                                                                           100%   99    48.3KB/s   00:00
     
