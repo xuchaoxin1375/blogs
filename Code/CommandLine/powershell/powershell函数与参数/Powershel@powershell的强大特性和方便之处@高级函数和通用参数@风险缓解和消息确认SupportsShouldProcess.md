@@ -166,7 +166,7 @@ UseTransaction
 - PowerShell 绑定具有 `CmdletBinding` 属性的函数的参数时，其方式与绑定已编译 cmdlet 的参数的方式相同。 `$PSCmdlet` 自动变量可用于具有 `CmdletBinding` 属性的函数，但 `$Args` 变量不可用于此类函数。
 - 在具有 `CmdletBinding` 属性的函数中，未知参数和没有匹配位置参数的位置参数会导致参数绑定失败。
 
-## 风险缓解和请求确认(消息确认)
+## 风险缓解和请求确认(消息确认)🎈
 
 SupportsShouldProcess
 
@@ -193,6 +193,83 @@ SupportsShouldProcess
 
 - **`-WhatIf` 参数**：允许用户查看命令将执行的操作，而不实际执行任何更改。适用于测试脚本和命令。
 - **`-Confirm` 参数**：在执行操作前请求用户确认。适用于需要用户明确确认的操作。
+
+### shouldprocess()函数|API文档
+
+- [Cmdlet.ShouldProcess 方法 （System.Management.Automation） |Microsoft 学习](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.shouldprocess?view=powershellsdk-7.4.0)
+
+- 其中最常用的是:
+
+  - [Cmdlet.ShouldProcess 方法 （System.Management.Automation） |Microsoft 学习](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.shouldprocess?view=powershellsdk-7.4.0#system-management-automation-cmdlet-shouldprocess(system-string-system-string))
+
+  - 与用户确认作。进行更改的 Cmdlet （例如，删除文件、停止服务等）应调用 ShouldProcess 为用户提供确认作的机会 实际上应该执行。
+
+    此变体允许调用方为 target 资源和作。
+
+    C++
+
+    ```cpp
+    public:
+     bool ShouldProcess(System::String ^ target, System::String ^ action);
+    ```
+
+如果 ShouldProcess 返回 true，则应执行该作。
+
+如果 ShouldProcess 返回 false，则作不应为 执行，并且 Cmdlet 应移动到下一个目标资源。
+
+#### 异常
+
+[PipelineStoppedException 异常](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pipelinestoppedexception?view=powershellsdk-7.4.0)
+
+管道已终止或已终止 在执行此方法期间。 Cmdlet 通常应只允许 PipelineStoppedException 以渗透到 ProcessRecord 等的调用者。
+
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)
+
+目前不允许，也不允许从这个线程。 ShouldProcess 只能在调用此 Cmdlet 的 实现 ProcessRecord、BeginProcessing 或 EndProcessing， 而且只能从那个线程中。
+
+#### 例子
+
+```powershell
+if (ShouldProcess(filename, "delete"))
+    {
+        // delete the object
+    }
+```
+
+
+
+```C#
+namespace Microsoft.Samples.Cmdlet
+{
+    [Cmdlet(VerbsCommon.Remove,"myobjecttype2")]
+    public class RemoveMyObjectType2 : Cmdlet
+    {
+        [Parameter( Mandatory = true )]
+        public string Filename
+        {
+            get { return filename; }
+            set { filename = value; }
+        }
+        private string filename;
+
+        public override void ProcessRecord()
+        {
+            if (ShouldProcess(filename, "delete"))
+            {
+                // delete the object
+            }
+        }
+    }
+}
+```
+
+#### Note
+
+Cmdlet 应在进行更改之前声明 [Cmdlet（ SupportsShouldProcess = true ）] if-and-only-if 调用 ShouldProcess。
+
+ShouldProcess 只能在调用此 Cmdlet 的 ProcessRecord、BeginProcessing 或 EndProcessing 实现期间调用，并且只能从该线程调用。
+
+ShouldProcess 在确定应返回的内容以及是否应提示用户时，将考虑命令行设置和首选项变量。
 
 ### 使用 `ShouldProcess`
 
