@@ -289,7 +289,9 @@ Show files:
   are needed.  If add -UN=e, Zip escapes all non-ASCII characters.
 ```
 
+#### 使用案例
 
+另见它文
 
 ### 6. `7z`（高压缩率）
 
