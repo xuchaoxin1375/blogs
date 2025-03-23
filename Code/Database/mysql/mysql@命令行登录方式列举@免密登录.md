@@ -339,3 +339,223 @@ mysql -u root
 | `MYSQL_PWD` 环境变量 | Linux/Mac         | **不安全** | 临时使用   |
 
 如果是 **Linux 服务器**，推荐 **`auth_socket`** 方式，如果是 **开发环境**，推荐 **`~/.my.cnf`** 方式。
+
+## 多台mysql 服务器免密登录
+
+在一台 MySQL 客户端上配置两台 MySQL 服务器的免密登录，通常使用 **MySQL 配置文件 (`~/.my.cnf`)** 或 **SSH 密钥登录** 结合 **身份验证插件** 的方式。下面详细介绍不同的方案。
+
+------
+
+### 方案一：使用 `~/.my.cnf` 配置多个 MySQL 服务器的免密登录
+
+MySQL 允许通过 `~/.my.cnf` 配置多个连接信息，从而实现免密登录。
+
+#### **1. 编辑 `~/.my.cnf` 文件**
+
+在 `~/.my.cnf` 文件中，配置不同的服务器连接信息：
+
+```ini
+[client]
+# 默认连接，无需手动指定主机，直接运行 `mysql` 即可
+user=root
+password=your_default_password
+
+# 连接 MySQL 服务器1（例如 `mysql1`）
+[client-mysql1]
+host=192.168.1.100
+user=root
+password=your_password_1
+port=3306
+
+# 连接 MySQL 服务器2（例如 `mysql2`）
+[client-mysql2]
+host=192.168.1.101
+user=root
+password=your_password_2
+port=3306
+
+[client_df_server1]
+host=192.168.1.109
+user=root
+password=your_password_2
+port=3306
+```
+
+#### **2. 修改权限**
+
+为了安全起见，需要限制 `~/.my.cnf` 文件的访问权限：
+
+```bash
+chmod 600 ~/.my.cnf
+```
+
+### 例
+
+```powershell
+mysql --defaults-group-suffix=_df_server1
+```
+
+
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][19:15:53][UP:9.46Days]
+PS> mysql --defaults-group-suffix=_df_server1
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 15914185
+Server version: 5.7.43-log Source distribution
+
+Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
+```
+
+
+
+#### **3. 连接 MySQL 服务器**🎈
+
+
+
+####  **连接 MySQL 服务器**
+
+- 默认连接（使用 `[client]` 配置）
+
+```bash
+mysql
+```
+
+```bash
+#⚡️[Administrator@CXXUDESK][~\Desktop][19:12:02][UP:9.45Days]
+PS> mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 84
+Server version: 5.7.26 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+
+
+- 连接 `mysql1`（使用 `[client-mysql1]` 配置）：
+
+  ```bash
+  
+      mysql --defaults-group-suffix=-mysql1
+  ```
+
+- 连接 `mysql2`（使用 `[client-mysql2]` 配置）：
+
+  ```bash
+  mysql --defaults-group-suffix=-mysql2
+  ```
+
+### 方案二：使用 `mysql_config_editor` 进行安全存储
+
+相比 `~/.my.cnf`，`mysql_config_editor` 具有更高的安全性（不会明文存储密码）。
+
+#### **1. 添加多个 MySQL 服务器的凭据**
+
+```bash
+mysql_config_editor set --login-path=mysql1 --host=192.168.1.100 --user=root --password
+mysql_config_editor set --login-path=mysql2 --host=192.168.1.101 --user=root --password
+```
+
+执行后会提示输入密码，密码会以加密形式存储在 `~/.mylogin.cnf` 文件中。
+
+#### **2. 连接 MySQL 服务器**
+
+```bash
+mysql --login-path=mysql1
+mysql --login-path=mysql2
+```
+
+#### **3. 查看存储的配置信息**
+
+```bash
+mysql_config_editor print --all
+```
+
+#### **4. 删除某个配置**
+
+```bash
+mysql_config_editor remove --login-path=mysql1
+```
+
+------
+
+### 方案三：使用 SSH 免密登录 + `~/.ssh/config`
+
+如果 MySQL 服务器禁止远程连接，你可以通过 SSH 免密登录，然后通过 `mysql` 连接：
+
+#### **1. 配置 SSH 免密登录**
+
+在本地机器执行：
+
+```bash
+ssh-keygen -t rsa -b 4096
+ssh-copy-id root@192.168.1.100
+ssh-copy-id root@192.168.1.101
+```
+
+这样在 `ssh root@192.168.1.100` 时不需要输入密码。
+
+#### **2. 配置 `~/.ssh/config`**
+
+```ini
+Host mysql1
+    HostName 192.168.1.100
+    User root
+    IdentityFile ~/.ssh/id_rsa
+
+Host mysql2
+    HostName 192.168.1.101
+    User root
+    IdentityFile ~/.ssh/id_rsa
+```
+
+#### **3. 通过 SSH 代理登录 MySQL**
+
+```bash
+ssh -L 3307:localhost:3306 mysql1 -N &
+ssh -L 3308:localhost:3306 mysql2 -N &
+mysql -h 127.0.0.1 -P 3307 -u root -p
+mysql -h 127.0.0.1 -P 3308 -u root -p
+```
+
+------
+
+### 方案四：配置 MySQL 服务器使用 `mysql_native_password` 或 `sha256_password`
+
+如果服务器端开启了 `caching_sha2_password`，可能会影响自动登录，你可以在服务器端将 root 账户的认证插件修改为 `mysql_native_password`：
+
+```sql
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'your_password';
+FLUSH PRIVILEGES;
+```
+
+------
+
+## 方案选择总结
+
+| 方案                              | 适用场景                                          | 优势                                | 缺点                         |
+| --------------------------------- | ------------------------------------------------- | ----------------------------------- | ---------------------------- |
+| `~/.my.cnf` 配置多个 MySQL 服务器 | 适用于本地 MySQL 客户端管理多个远程服务器         | 简单易用，可直接 `mysql` 命令登录   | 密码存储为明文，存在安全隐患 |
+| `mysql_config_editor`             | 适用于需要较高安全性的场景                        | 密码加密存储，防止泄露              | 配置命令较多                 |
+| SSH 免密登录                      | 适用于服务器只允许本地 MySQL 访问的情况           | 通过 SSH 端口转发，增强安全性       | 需要 SSH 服务器支持          |
+| `mysql_native_password`           | 适用于 `caching_sha2_password` 影响免密登录的情况 | 兼容性更好，适用于大部分 MySQL 版本 | 需要修改 MySQL 服务器配置    |
+
+如果你的服务器允许远程连接，建议使用 **`mysql_config_editor`** 进行安全存储；如果服务器不允许远程访问，则推荐 **SSH 免密 + 端口转发**。
+
