@@ -57,12 +57,18 @@
     可以配置vscode编辑器本身的快捷键
   - 切换会非vim模式也就一个`i`键即可;
 
-#  markdown 设置和相关插件设置
+# markdown 设置和相关插件设置
 
 ##  开启/关闭自动预览markdown文件
+
 ###  内置预览功能设置
 
+在vscode设置页面的顶部,搜索框中搜索`autoShowPreviewToSide`或者更加准确的`markdown.extension.preview.autoShowPreviewToSide`,可以看到对应的选项
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/a159e7ed7be349ec86cbf87abc1e34bf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_18,color_FFFFFF,t_70,g_se,x_16)
+
+使用`command palette`搜索`autoShowPreviewToSide`也可以找到开关
+
 ###  yarkdown插件的自动预览(打开模式)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/4cdbe726b4f84620b3e39977b043c5eb.png)
 
