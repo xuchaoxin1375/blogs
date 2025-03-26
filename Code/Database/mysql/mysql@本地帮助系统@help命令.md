@@ -1,3 +1,7 @@
+[toc]
+
+
+
 ## references
 
 - [MySQL :: MySQL 8.0 Reference Manual :: 4.5.1.4 mysql Client Server-Side Help](https://dev.mysql.com/doc/refman/8.0/en/mysql-server-side-help.html)
@@ -182,7 +186,7 @@ categories:
   - `? logical operators`
 
     ```sql
-
+    
     mysql> ? logical operators
     You asked for help about help category: "Logical Operators"
     For more information, type 'help `<item>`', where `<item>` is one of the following
@@ -193,7 +197,7 @@ categories:
     ASSIGN-VALUE
     OR
     XOR
-
+    
     ```
     - 可以看到,结果返回了 6 个 topic,我们可以进一步查看具体的 topic,例如 `help OR`;
     - content:
@@ -204,14 +208,14 @@ categories:
       Description:
       Syntax:
       OR, ||
-
+      
       Logical OR. When both operands are non-NULL, the result is 1 if any
       operand is nonzero, and 0 otherwise. With a NULL operand, the result is
       1 if the other operand is nonzero, and NULL otherwise. If both operands
       are NULL, the result is NULL.
-
+      
       URL: https://dev.mysql.com/doc/refman/8.0/en/logical-operators.html
-
+      
       Examples:
       mysql> SELECT 1 OR 1;
       -> 1
