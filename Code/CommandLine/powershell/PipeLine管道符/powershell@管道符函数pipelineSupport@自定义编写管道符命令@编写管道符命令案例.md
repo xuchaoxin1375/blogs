@@ -10,7 +10,41 @@
 
 [接受管道输入 (microsoft.com)](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_parameters?view=powershell-7.4#accepts-pipeline-input)
 
-## 案例
+## 编写支持管道符的函数
+
+在 PowerShell 中，编写支持管道符的函数是一项重要技能。为了更全面地介绍如何编写这样的函数，我们可以参考 PowerShell 的经典管道符函数实现。
+
+例如，`Select-Object`、`Where-Object` 这些内置 cmdlet 都是非常经典的管道符函数实现。
+
+## 关键要点🎈
+
+### 参数声明
+
+分为高级函数参数声明和支持管道符参数属性声明
+
+1. **使用 `CmdletBinding`**：确保函数具备高级功能。
+2. **定义参数**：
+   - 使用 `param` 块定义参数。
+   - 使用 `[Parameter(ValueFromPipeline = $true)]` 属性使参数可以从管道接收输入。
+
+### 代码块块
+
+**使用 `begin`、`process` 和 `end` 块**：
+
+- `begin`：初始化操作。(可选)
+- `process`：处理每个管道输入对象。这是重点🎈
+- `end`：完成操作或清理资源。(可选)
+
+### 其他
+
+1. **处理管道输入**：
+   - 使用 `Write-Output` ,`return`或隐式输出传递结果。
+2. **错误处理**：
+   - 使用 `try/catch` 块进行错误处理，以确保函数的稳健性。
+
+## 基础案例
+
+### 获取类型信息Get-TypeCxxu
 
 编写一个函数,实现一个支持管道符的函数`Get-TypeCxxu`,使得执行`$var|Get-TypeCxxu` 实现类似以下效果 
 
@@ -22,9 +56,18 @@ Name   BaseType      FullName      UnderlyingSystemType
 String System.Object System.String System.String
 ```
 
-### 分析
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][13:59:30][UP:18.24Days]
+PS> "hello,word"|Get-TypeCxxu
 
-要在 PowerShell 中创建一个支持管道符的函数 `Get-TypeCxxu`，并实现类似于 `$var.GetType() | Select Name, FullName, BaseType, UnderlyingSystemType` 的效果，可以按照以下步骤来编写函数：
+Name   FullName      BaseType      UnderlyingSystemType
+----   --------      --------      --------------------
+String System.String System.Object System.String
+```
+
+
+
+### 分析
 
 1. 定义函数 `Get-TypeCxxu`。
 2. 接受来自管道的输入对象。
@@ -59,6 +102,13 @@ function Get-TypeCxxu
     String        System.String                                           System.Object {Name = string}
     
     说明: 输入字符串"Hello World"后,函数返回一个包含对象类型信息的自定义对象,其中包括名称,完整名称,基类以及底层系统类型
+    #⚡️[Administrator@CXXUDESK][~\Desktop][13:59:30][UP:18.24Days]
+    PS> "hello,word"|Get-TypeCxxu
+
+    Name   FullName      BaseType      UnderlyingSystemType
+    ----   --------      --------      --------------------
+    String System.String System.Object System.String
+    
     .NOTES
     #>
     [CmdletBinding()]
@@ -66,7 +116,7 @@ function Get-TypeCxxu
         [Parameter(ValueFromPipeline = $true)]
         $InputObject
     )
-
+#定义process块
     process
     {
         if ($InputObject)
@@ -114,36 +164,15 @@ String System.String System.Object System.String
 
 这个函数 `Get-TypeCxxu` 可以直接从管道接收输入对象，并返回其类型信息的指定属性。这样，你就可以方便地在管道中使用该函数来获取对象的类型信息。
 
-## 编写支持管道符的函数
-
-在 PowerShell 中，编写支持管道符的函数是一项重要技能。为了更全面地介绍如何编写这样的函数，我们可以参考 PowerShell 的经典管道符函数实现。
-
-例如，`Select-Object`、`Where-Object` 这些内置 cmdlet 都是非常经典的管道符函数实现。
-
-### 关键要点
-
-1. **使用 `CmdletBinding`**：确保函数具备高级功能。
-2. **定义参数**：
-   - 使用 `param` 块定义参数。
-   - 使用 `[Parameter(ValueFromPipeline = $true)]` 属性使参数可以从管道接收输入。
-3. **使用 `begin`、`process` 和 `end` 块**：
-   - `begin`：初始化操作。
-   - `process`：处理每个管道输入对象。
-   - `end`：完成操作或清理资源。
-4. **处理管道输入**：
-   - 使用 `Write-Output` 或隐式输出传递结果。
-5. **错误处理**：
-   - 使用 `try/catch` 块进行错误处理，以确保函数的稳健性。
 
 
-
-## 经典的管道符函数实现示例
+## 经典案例
 
 为了展示更经典的管道符函数实现，我们可以创建一个模拟 `Where-Object` 的函数。
 
 该函数将从管道接收对象并根据指定的条件过滤这些对象。
 
-### 示例函数：Where-Custom 简化版where-object
+### 简化版where-object命令Where-Custom 
 
 ```powershell
 function Where-Custom {
@@ -182,7 +211,7 @@ $objects = 1..10
 $objects | Where-Custom -Condition { $_ % 2 -eq 0 }
 ```
 
-### 详细说明
+#### 详细说明
 
 1. **`CmdletBinding`**：启用高级功能。
 2. **`param` 块**：
@@ -195,7 +224,7 @@ $objects | Where-Custom -Condition { $_ % 2 -eq 0 }
    - 如果对象符合条件，则使用 `Write-Output` 输出该对象。
 5. **`end` 块**：在处理完所有管道输入后执行一次，通常用于清理。
 
-### 示例使用
+#### 示例使用
 
 该函数可以用于过滤管道中的对象，例如筛选出所有偶数：
 
@@ -220,7 +249,7 @@ $objects | Where-Custom -Condition { $_ % 2 -eq 0 }
 
 这个例子中，我们将使用 `begin` 块来初始化变量，`process` 块来处理每个输入目录，`end` 块来计算和输出最终结果。
 
-### 示例 Get-LargeFiles统计大文件数量
+### 统计大文件数量Get-LargeFiles
 
 ```powershell
 function Get-LargeFiles {
@@ -275,7 +304,7 @@ $dirs = "C:\Path1", "C:\Path2"
 $dirs | Get-LargeFiles -MinSizeBytes 1048576  # 查找大于 1 MB 的文件 [math]::pow(2,20)=1048576 B=1MB
 ```
 
-### 详细说明
+#### 详细说明
 
 1. **`CmdletBinding`**：启用高级功能，如参数绑定和管道支持。
 2. **`param` 块**：
@@ -288,7 +317,7 @@ $dirs | Get-LargeFiles -MinSizeBytes 1048576  # 查找大于 1 MB 的文件 [mat
    - 更新总大小和文件计数，并输出每个文件的信息。
 5. **`end` 块**：在处理完所有管道输入后执行一次，输出总结信息，包括找到的大文件数量和总大小。
 
-### 示例使用
+#### 示例使用
 
 通过以下代码测试该函数：
 
@@ -301,7 +330,7 @@ $dirs | Get-LargeFiles -MinSizeBytes 1048576  # 查找大于 1 MB 的文件
 
 这种结构使得函数在处理复杂逻辑时更加高效和清晰，特别是在需要初始化资源或在结束时进行总结的情况下。
 
-## 重启软件或进程对应的软件👺
+### 示例:Restart-Process重启软件或进程对应的软件👺
 
 ```powershell
 
@@ -393,9 +422,11 @@ function Restart-Process
 }
 ```
 
-
+对于vscode要慎用
 
 ## 其他案例
+
+### Start-ProgramInSandboxie沙盒模式运行某个软件
 
 sandboxie沙盒:用沙盒模式运行某个软件,软件名支持管道服输入
 
