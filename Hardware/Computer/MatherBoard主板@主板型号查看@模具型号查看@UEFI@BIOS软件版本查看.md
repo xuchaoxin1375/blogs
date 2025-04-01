@@ -9,7 +9,7 @@
 - [How to Check Your Motherboard Model Number on Your Windows PC (howtogeek.com)](https://www.howtogeek.com/208420/how-to-check-your-motherboard-model-number-on-your-windows-pc/)
 - 方法有很多,下面简要列举我实际试验过的方法,网络上有些方法不可靠
 
-### 命令行方法
+### 命令行方法🎈
 
 - 在命令行中输入以下命令,第一条兼容老系统,第二条新系统推荐使用
 
@@ -18,7 +18,7 @@
 
 - 实操
 
-  - ```bash
+  - ```powershell
     PS BAT [10:51:53 PM] [C:\exes]
     [🔋 100%] MEM:40.64% [12.88/31.70] GB |Get-CimInstance -ClassName Win32_baseboard
     
@@ -34,6 +34,28 @@
     Manufacturer  Product  SerialNumber             Version
     COLORFUL      P15 23   NKV250RNDWK000003K01154  Not Applicable
     ```
+  
+  - 也有可能是这样的
+  
+    ```powershell
+    #⚡️[Administrator@CXXUDESK][~\Desktop][11:03:42][UP:18.11Days]
+    PS> Get-CimInstance -ClassName Win32_baseboard
+    
+    Manufacturer : Gigabyte Technology Co., Ltd.
+    Model        :
+    Name         : 基板
+    SerialNumber : Default string
+    SKU          :
+    Product      : H610M H V3 DDR4
+    
+    
+    #⚡️[Administrator@CXXUDESK][~\Desktop][11:03:48][UP:18.11Days]
+    PS> wmic baseboard get product,Manufacturer,version,serialnumber
+    Manufacturer                   Product          SerialNumber    Version
+    Gigabyte Technology Co., Ltd.  H610M H V3 DDR4  Default string  x.x
+    ```
+  
+    
 
 ### GUI方法
 
