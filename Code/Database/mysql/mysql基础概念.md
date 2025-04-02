@@ -261,11 +261,7 @@ GROUP BY domain;
 
 2. **日志分析**：使用`EXPLAIN`分析SQL执行计划。
 
-3. 备份与恢复
 
-   ：
 
-   - 备份：`mysqldump -u root -p my_database > backup.sql`
-   - 恢复：`mysql -u root -p my_database < backup.sql`
 
 这个教程包含了从基础到进阶的常用操作，适合新手入门。如果需要更详细的内容或实战案例，可以深入某个专题展开。

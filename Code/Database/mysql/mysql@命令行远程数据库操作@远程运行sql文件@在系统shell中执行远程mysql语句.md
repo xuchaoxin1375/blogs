@@ -37,9 +37,9 @@ cmd /c ("mysql -uroot -h 23.239.111.202 < " + '"' + "$home/desktop/BatchSiteDBCr
 
 
 
-# 参考资料(未完全验证)
+## 参考资料(未完全验证)
 
-## powershell和mysql运行sql文件
+### powershell和mysql运行sql文件
 
 在 PowerShell 中，`<` 是一个 **重定向操作符**，它通常用于将文件内容作为输入传递给命令，但在 PowerShell 中可能会引发解析错误或无法正确执行 MySQL 命令。
 
