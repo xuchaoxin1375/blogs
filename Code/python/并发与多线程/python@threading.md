@@ -190,7 +190,7 @@ print("所有线程结束")
 
 ---
 
-## 五、线程池（ThreadPool）🎈
+## 五、线程池（`ThreadPool`）🎈
 
 对于需要频繁创建和销毁线程的任务，可以使用线程池来提高效率。Python 提供了 `concurrent.futures` 模块来管理线程池。
 

@@ -48,8 +48,6 @@
 - 无论是单列还是多列,使用`[[]]`得到的数据都是dataframe
 - `[]`取得的数据如果是单列的,那么就是Series类型的
 
-## 
-
 ### Boolean indexing
 
 Using a single column’s values to select data:

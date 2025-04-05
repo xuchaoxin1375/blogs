@@ -361,7 +361,7 @@ PS [C:\Users\cxxu\Desktop]> Write-Output $timeSpanString
 | 时间间隔比较       | `$timeSpan1 -gt $timeSpan2`, `$timeSpan1 -lt $timeSpan2`     |
 | 转换为字符串       | `$timeSpan.ToString()`                                       |
 
-通过这些示例，你可以更好地理解和使用 PowerShell 中的 `TimeSpan` 对象来处理时间间隔。如果有更多具体问题或需要进一步的解释，请随时提问。
+通过这些示例，你可以更好地理解和使用 PowerShell 中的 `TimeSpan` 对象来处理时间间隔。 
 
 ## 用例案例
 
