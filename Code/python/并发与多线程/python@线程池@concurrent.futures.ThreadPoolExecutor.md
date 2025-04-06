@@ -12,7 +12,7 @@ python@线程池
 
 - [concurrent.futures --- 启动并行任务 — Python 文档](https://docs.python.org/zh-cn/3.13/library/concurrent.futures.html)
 
-## 1. 内置模块 `concurrent.futures`
+##  内置模块 `concurrent.futures`
 
 ### Executor 对象
 
@@ -84,7 +84,7 @@ with ThreadPoolExecutor(max_workers=4) as e:
 
 > 在 3.9 版本发生变更: 增加了 cancel_futures。
 
-### 基本用法
+## 基本用法和案例
 
 ```python
 from concurrent.futures import ThreadPoolExecutor
@@ -117,6 +117,37 @@ with ThreadPoolExecutor() as executor:
         print(result)
 ```
 
+### 官方文档ThreadPoolExecutor 例子
+
+```python
+import concurrent.futures
+import urllib.request
+
+URLS = ['http://www.foxnews.com/',
+        'http://www.cnn.com/',
+        'http://europe.wsj.com/',
+        'http://www.bbc.co.uk/',
+        'http://nonexistent-subdomain.python.org/']
+
+# 获取一个页面并报告其 URL 和内容
+def load_url(url, timeout):
+    with urllib.request.urlopen(url, timeout=timeout) as conn:
+        return conn.read()
+
+# 我们可以使用一个 with 语句来确保线程被迅速清理
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    # 开始加载操作并以每个 Future 对象的 URL 对其进行标记
+    future_to_url = {executor.submit(load_url, url, 60): url for url in URLS}
+    for future in concurrent.futures.as_completed(future_to_url):
+        url = future_to_url[future]
+        try:
+            data = future.result()
+        except Exception as exc:
+            print('%r generated an exception: %s' % (url, exc))
+        else:
+            print('%r page is %d bytes' % (url, len(data)))
+```
+
 ### 异常处理
 
 ```python
@@ -134,7 +165,7 @@ with ThreadPoolExecutor() as executor:
             print(f"捕获到异常: {e}")
 ```
 
-## 2. 传统 `threading` 模块实现线程池
+##  传统 `threading` 模块实现线程池
 
 ```python
 import threading
@@ -179,7 +210,7 @@ for i in range(10):
 pool.wait_completion()
 ```
 
-## 3. 实际应用场景
+##  实际应用场景
 
 ### 网页抓取
 
@@ -234,7 +265,7 @@ for result in results:
     print(result)
 ```
 
-## 4. 高级技巧
+##  高级技巧
 
 ### 回调函数
 
@@ -281,7 +312,7 @@ with ThreadPoolExecutor() as executor:
         print(f"最先完成: {future.result()}")
 ```
 
-## 5. 性能调优建议
+##  性能调优建议
 
 1. **合理设置线程数**：
    - I/O密集型：可以设置较多线程（如50-100）
@@ -307,7 +338,7 @@ with ThreadPoolExecutor() as executor:
        print("任务超时")
    ```
 
-## 6. 线程池 vs 进程池
+##  线程池 vs 进程池
 
 | 特性     | 线程池 (ThreadPoolExecutor) | 进程池 (ProcessPoolExecutor) |
 | -------- | --------------------------- | ---------------------------- |
@@ -317,7 +348,7 @@ with ThreadPoolExecutor() as executor:
 | GIL影响  | 受GIL限制                   | 每个进程有自己的GIL          |
 | 创建速度 | 快                          | 慢                           |
 
-## 7. 常见问题解决方案
+##  常见问题解决方案
 
 **问题1：如何获取任务进度？**
 
