@@ -4,9 +4,16 @@
 
 Python 提供了多种方式来实现多线程编程。多线程是一种并发编程技术，允许程序同时执行多个任务。这对于 I/O 密集型任务（如文件读写、网络请求）非常有用
 
-但对于 CPU 密集型任务（如大量计算）,特别是python 3.12以前的版本,，由于 Python 的全局解释器锁（GIL），多线程可能并不是最优选择。
+[threading --- 基于线程的并行 — Python  文档](https://docs.python.org/zh-cn/3.13/library/threading.html#thread-local-data)
 
-以下是关于 Python 多线程的详细教程，包括基础知识、常用库和示例代码。
+在 CPython 中，由于存在 [全局解释器锁](https://docs.python.org/zh-cn/3.13/glossary.html#term-global-interpreter-lock)，同一时刻只有一个线程可以执行 Python 代码（虽然某些性能导向的库可能会去除此限制）。
+
+ 如果你想让你的应用更好地利用多核心计算机的计算资源，推荐你使用(进程模块而非线程模块)
+
+-  [`multiprocessing`](https://docs.python.org/zh-cn/3.13/library/multiprocessing.html#module-multiprocessing) 
+- 或 [`concurrent.futures.ProcessPoolExecutor`](https://docs.python.org/zh-cn/3.13/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor)。
+
+ 但是，如果你想要同时运行多个 I/O 密集型任务，则多线程仍然是一个合适的模型。
 
 ---
 
@@ -89,11 +96,12 @@ print("主线程结束")
 
 ---
 
-## 三、线程同步
+## 三、线程同步🎈
 
 当多个线程访问共享资源时，可能会出现竞争条件（Race Condition）。为了避免这种情况，可以使用线程同步机制。
 
 ### 1. 使用 `Lock` 锁
+
 `Lock` 是一种简单的线程同步工具，用于确保同一时间只有一个线程可以访问共享资源。
 
 ```python

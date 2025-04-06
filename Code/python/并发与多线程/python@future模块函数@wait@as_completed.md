@@ -55,9 +55,104 @@
 
 ## 介绍
 
+### 不使用wait和as_completed
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+# time_comsumption=[6,2,8,4]
+time_comsumption=[3,2,5,3]
+time_comsumption=[3,2,5,4]
+def task(n):
+    start_time=datetime.now()
+    t=time_comsumption[n-1]
+    print(f"Task {n} started [task time:{t}](enter the thread pool at: {start_time.strftime("%H:%M:%S")};{start_time.microsecond})")
+
+    time.sleep(t)
+    end_time=datetime.now()
+    print(f"Task {n} completed (time_comsumption={t};completed at: {end_time.strftime("%H:%M:%S")};{end_time.microsecond})")
+    # return f"Task {n} completed"
+
+with ThreadPoolExecutor(max_workers=3) as executor:
+    futures = [executor.submit(task, i) for i in range(1,5)]
+        
+    # 按任务完成顺序逐一处理结果
+
+    # for future in as_completed(futures,timeout=3.1):
+    #     future.result()
+    print(f"all task sumbitted;at: {datetime.now().strftime('%H:%M:%S')};{datetime.now().microsecond}")
+print(f"all task completed;at: {datetime.now().strftime('%H:%M:%S')};{datetime.now().microsecond}")
+
+```
+
+```bash
+Task 1 started [task time:3](enter the thread pool at: 17:05:09;18507)
+Task 2 started [task time:2](enter the thread pool at: 17:05:09;20507)
+Task 3 started [task time:5](enter the thread pool at: 17:05:09;20507)
+all task sumbitted;at: 17:05:09;20507
+Task 2 completed (time_comsumption=2;completed at: 17:05:11;21413)
+Task 4 started [task time:4](enter the thread pool at: 17:05:11;22411)
+Task 1 completed (time_comsumption=3;completed at: 17:05:12;21512)
+Task 3 completed (time_comsumption=5;completed at: 17:05:14;21340)
+Task 4 completed (time_comsumption=4;completed at: 17:05:15;23013)
+all task completed;at: 17:05:15;23013
+```
+
+在 `ThreadPoolExecutor` 中使用 `as_completed` 循环与否主要有以下几个关键区别：
+
+####  错误处理时机
+
+**包含 `as_completed` 循环**:
+
+- 可以**立即捕获和处理每个任务的异常**
+
+- 如果某个任务失败，可以立即知道并采取相应措施
+
+- 示例：
+
+  ```python
+  for future in as_completed(futures):
+      try:
+          future.result()  # 这里会抛出任务中的异常
+      except Exception as e:
+          print(f"Task failed: {e}")
+  ```
+
+#### **省略 `as_completed` 循环**:
+
+- 异常会被**延迟到线程池退出时**才抛出
+- 所有任务提交后继续执行后续代码，无法立即知道哪些任务失败
+- 使用 `with` 语句退出时，如果有未处理的异常会抛出
+
+####  执行流程控制
+
+#### **包含 `as_completed` 循环**:
+
+- **阻塞**当前线程直到所有任务完成
+- 可以**按完成顺序**处理结果（先完成的任务先处理）
+- 适合需要实时获取任务结果的场景
+
+**省略 `as_completed` 循环**:
+
+- **非阻塞**，提交任务后立即继续执行后续代码
+- 无法立即获取任务结果
+- 适合"**发射后不管**"(fire-and-forget)的场景
+
+####  资源清理
+
+**包含 `as_completed` 循环**:
+
+- 循环会等待所有任务完成，相当于隐式同步点
+- 确保所有任务完成后才继续执行
+
+**省略 `as_completed` 循环**:
+
+- 依赖 `with` 语句的退出来自动等待
+- 如果不在 `with` 块内，可能导致主线程退出而中断未完成的任务
+
 ---
 
-### 1. `concurrent.futures.wait`
+###  `concurrent.futures.wait`
 
 #### 功能
 
@@ -127,7 +222,7 @@ Task 4 completed
 
 ---
 
-### 2. `concurrent.futures.as_completed`
+###  `concurrent.futures.as_completed`
 
 #### 功能
 
@@ -242,7 +337,7 @@ TimeoutError: 3 (of 4) futures unfinished(4个任务中有2个任务因为超时
 
 ---
 
-### 区别与适用场景
+### 区别与适用场景🎈
 
 | 特性         | `wait`                                                     | `as_completed`                                   |
 | ------------ | ---------------------------------------------------------- | ------------------------------------------------ |

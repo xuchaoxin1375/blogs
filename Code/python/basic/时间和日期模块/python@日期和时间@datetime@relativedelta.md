@@ -2,7 +2,9 @@
 
 ## python datetime
 
-- [datetime — Basic date and time types — Python 3.11.2 documentation](https://docs.python.org/3/library/datetime.html)
+- [datetime — Basic date and time types — Python documentation](https://docs.python.org/3/library/datetime.html)
+
+- [datetime --- 基本日期和时间类型 — Python 文档](https://docs.python.org/zh-cn/3.13/library/datetime.html#)
 
 ## relativedelta
 
