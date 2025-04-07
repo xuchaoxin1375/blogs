@@ -129,7 +129,7 @@ finally:
     print("清理资源...")
 ```
 
-## 自定义异常
+## 自定义异常🎈
 可以通过继承 `Exception` 类来自定义异常：
 ```python
 class MyCustomError(Exception):
@@ -158,7 +158,12 @@ except ValueError as e:
 
 ---
 
-## 常见的内置异常
+## 常见的内置异常🎈
+
+python内置的异常类有很多,参考文档:
+
+- [内置异常 — Python 文档](https://docs.python.org/zh-cn/3/library/exceptions.html#concrete-exceptions)
+- 异常层次结构图:[内置异常|exception hierarchy — Python  文档](https://docs.python.org/zh-cn/3/library/exceptions.html#exception-hierarchy)
 
 以下是一些常见的内置异常及其含义：
 
