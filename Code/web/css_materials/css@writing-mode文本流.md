@@ -1,4 +1,4 @@
-@\[toc]
+[toc]
 
 # css\_writing-mode 文本流方向
 
@@ -36,7 +36,9 @@ Mongolian-based writing mode
 
 Han-based writing mode
 
-[![Latin-based writing mode](https://img-blog.csdnimg.cn/img_convert/bffeb5e5dcc711bb73aa71e3c991d0a1.png)](https://www.w3.org/TR/css-writing-modes-3/diagrams/text-flow-vectors-tb.svg)
+​                                                                                                [![Latin-based writing mode](https://img-blog.csdnimg.cn/img_convert/bffeb5e5dcc711bb73aa71e3c991d0a1.png)](https://www.w3.org/TR/css-writing-modes-3/diagrams/text-flow-vectors-tb.svg)
+
+
 
 Latin-based writing mode
 
