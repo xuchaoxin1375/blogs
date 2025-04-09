@@ -7,7 +7,176 @@
 Python提供了多种线程同步机制，主要通过`threading`模块实现。下面我将结合Python代码和典型案例介绍这些同步机制。
 
 - [threading --- 基于线程的并行 — Python 文档](https://docs.python.org/zh-cn/3.13/library/threading.html)
+  - [线程对象](https://docs.python.org/zh-cn/3.13/library/threading.html#:~:text=线程对象)🎈
   - [threading --- 锁对象 — Python  文档](https://docs.python.org/zh-cn/3.13/library/threading.html#lock-objects)
+  
+
+## 线程对象
+
+`Thread` 类代表一个在独立控制线程中运行的活动。 指定活动有两种方式：向构造器传递一个可调用对象，或在子类中重载 `run()` 方法。 其他方法不应在子类中重载（除了构造器）。 换句话说，*只能* 重载这个类的 `__init__()` 和 `run()` 方法。
+
+当线程对象一旦被创建，其活动必须通过调用线程的 `start()` 方法开始。 这会在独立的控制线程中唤起 `run()` 方法。
+
+一旦线程活动开始，该线程会被认为是 '存活的' 。当它的 `run()` 方法终结了（不管是正常的还是抛出未被处理的异常），就不是'存活的'。 `is_alive()` 方法用于检查线程是否存活。
+
+其他线程可以调用一个线程的 `join()` 方法。这会阻塞调用该方法的线程，直到被调用 [`join()`](https://docs.python.org/zh-cn/3.13/library/threading.html#threading.Thread.join) 方法的线程终结。
+
+线程有名字。名字可以传递给构造函数，也可以通过 `name` 属性读取或者修改。
+
+如果 `run()` 方法引发了异常，则会调用 `threading.excepthook()` 来处理它。 在默认情况下，`threading.excepthook()` 会静默地忽略 `SystemExit`。
+
+### 守护线程
+
+Python 中的守护线程（Daemon Thread）
+
+一个线程可以被标记成一个“守护线程”。 这个标识的意义是，当**剩下的线程都是守护线程时，整个 Python 程序将会退出**。
+
+ 初始值继承于创建线程。 这个标识可以通过 `daemon` 特征属性或者 *daemon* 构造器参数来设置。
+
+> 守护线程在程序关闭时会突然关闭。他们的资源（例如已经打开的文档，数据库事务等等）可能没有被正确释放。
+>
+> 如果你想你的线程正常停止，设置他们成为非守护模式并且使用合适的信号机制，例如： [`Event`](https://docs.python.org/zh-cn/3.13/library/threading.html#threading.Event)。
+
+#### 基本概念
+
+- **守护线程**：在**后台运行**的线程，当所有**非守护线程**结束时，守护线程会**自动终止**
+- **非守护线程**（默认）：程序会等待**所有非守护线程**完成才退出
+
+总之,程序是否退出在于非守护进程是否都结束了(守护进程不影响/不决定程序的退出)
+
+非守护线程的如果至少还有一个,程序就不会退出
+
+#### 守护线程的特点
+
+1. **自动终止**：当只剩下守护线程时，Python 程序会直接退出
+2. **不阻止退出**：主线程退出时不会等待守护线程完成
+3. **适合后台任务**：适合运行不重要或无限循环的任务
+
+### 主线程对象
+
+有个 "**主线程**" 对象；这对应Python程序里面初始的控制线程。它**不是一个守护线程**。
+
+### 虚拟线程
+
+创建“虚拟线程对象”是有可能的。 它们是与“**外部线程**”相对应 的线程对象，是在 **threading 模块之外启动的控制线程**，例如直接来自 C 代码。 
+
+虚拟线程对象的功能是**受限**的；它们总是会被**视为处于激活和守护状态**，且无法被 [合并](https://docs.python.org/zh-cn/3.13/library/threading.html#meth-thread-join)。 
+
+它们绝不会被删除，因为**检测外部线程的终结是不可能做到**的。
+
+
+
+## 设置守护线程
+
+可以通过两种方式设置守护线程：
+
+### 1. 创建线程时设置
+
+```python
+import threading
+import time
+
+def daemon_task():
+    while True:
+        print("守护线程运行中...")
+        time.sleep(1)
+
+d = threading.Thread(target=daemon_task, daemon=True)
+d.start()
+```
+
+### 2. 创建后设置（必须在 start() 前）
+
+```python
+t = threading.Thread(target=some_function)
+t.daemon = True  # 必须在 start() 前设置
+t.start()
+```
+
+## 守护线程 vs 非守护线程
+
+```python
+import threading
+import time
+
+def worker(name, is_daemon):
+    print(f"{name} 开始")
+    time.sleep(2)
+    print(f"{name} 结束")
+
+# 创建守护线程
+d = threading.Thread(target=worker, args=("守护线程", True), daemon=True)
+# 创建非守护线程
+nd = threading.Thread(target=worker, args=("非守护线程", False))
+
+d.start()
+nd.start()
+
+print("主线程结束")
+```
+
+输出可能类似于：
+```
+守护线程 开始
+非守护线程 开始
+主线程结束
+非守护线程 结束
+```
+
+注意：守护线程的"结束"消息可能不会显示，因为主线程和非守护线程结束后程序就退出了。
+
+## 实际应用场景
+
+1. **日志记录**：后台记录程序运行日志
+2. **监控**：系统资源监控
+3. **心跳检测**：网络连接的心跳保持
+4. **垃圾回收**：定期清理资源
+
+## 注意事项
+
+1. **资源释放**：守护线程可能被突然终止，不保证 finally 块或资源释放代码能执行
+2. **join() 方法**：如果需要等待守护线程完成，可以使用 join()
+   ```python
+   d.join()  # 主线程会等待守护线程完成
+   ```
+3. **不能创建子线程**：守护线程创建的子线程默认也是守护线程
+4. **文件操作风险**：守护线程中进行文件操作可能导致数据丢失，因为可能被突然终止
+
+## 示例：守护线程实现心跳检测
+
+```python
+import threading
+import time
+
+def heart_beat():
+    while True:
+        print("[心跳检测] 系统运行正常")
+        time.sleep(5)
+
+# 创建并启动守护线程
+heartbeat_thread = threading.Thread(target=heart_beat, daemon=True)
+heartbeat_thread.start()
+
+# 主程序工作
+print("主程序开始工作")
+time.sleep(10)
+print("主程序工作完成")
+# 程序退出时，心跳线程会自动终止
+```
+
+输出：
+```
+主程序开始工作
+[心跳检测] 系统运行正常
+[心跳检测] 系统运行正常
+主程序工作完成
+```
+
+守护线程是 Python 多线程编程中非常有用的工具，合理使用可以简化程序结构，但需要注意其特性以避免潜在问题。
+
+
+
+
 
 ## 1. 互斥锁 (Lock)
 

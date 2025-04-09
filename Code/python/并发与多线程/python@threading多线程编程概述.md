@@ -27,7 +27,7 @@ Python 的 CPython 解释器有一个全局解释器锁（GIL），它确保同�
 
 ---
 
-## 二、使用 `threading` 模块
+## 二、使用 `threading` 模块🎈
 
 Python 提供了内置的 `threading` 模块来支持多线程编程。
 
