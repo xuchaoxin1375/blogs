@@ -108,6 +108,20 @@
 
     - 且`conda list -e`看不到当前已激活的环境`*`
 
+
+
+###  PowerShell 中禁用 Conda 自动激活 Base 环境
+
+Conda 默认会在启动终端时自动激活 `base` 环境，这可能会导致一些不必要的干扰或警告消息。如果希望在 PowerShell 中禁用这种行为，可以通过修改 Conda 配置来实现。
+
+要停止 Conda 在 PowerShell 启动时自动激活 `base` 环境，可以运行以下命令：
+
+```powershell
+conda config --set auto_activate_base false
+```
+
+此命令会更改 Conda 的全局配置文件，使得每次打开新的 PowerShell 终端时不再自动进入 `base` 环境*1*
+
 ## 利用conda向指定环境安装packages
 
 ### conda install
