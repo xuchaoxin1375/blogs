@@ -1,24 +1,8 @@
 [toc]
 
-
+使用命令行的方案检查添加到cloudflare的域名
 
 ```powershell
-#⚡️[Administrator@CXXUDESK][C:\Share\df\wp_sites\wp_migration][16:04:43][UP:6.9Days]
-PS> Get-DomainUserDictFromTable -Table C:\Users\Administrator\Desktop\table.conf |%{$_.domain}|%{flarectl zone info $_}
-Try parse table from file:[C:\Users\Administrator\Desktop\table.conf]
-                 ID                |       ZONE       |     PLAN     | STATUS |          NAME SERVERS          | PAUSED | TYPE
------------------------------------+------------------+--------------+--------+--------------------------------+--------+-------
-  439b89d74f44c24d56c57f572481b6a8 | erntegeraete.com | Free Website | active | aitana.ns.cloudflare.com,      | false  | full
-                                   |                  |              |        | jeremy.ns.cloudflare.com       |        |
-                 ID                |         ZONE         |     PLAN     | STATUS  |          NAME SERVERS          | PAUSED | TYPE
------------------------------------+----------------------+--------------+---------+--------------------------------+--------+-------
-  3a01971a92b2dcaf00fafa39a7c5d9fd | mdecineesthtique.com | Free Website | pending | aitana.ns.cloudflare.com,      | false  | full
-                                   |                      |              |         | jeremy.ns.cloudflare.com       |        |
-                 ID                |        ZONE         |     PLAN     | STATUS |          NAME SERVERS          | PAUSED | TYPE
------------------------------------+---------------------+--------------+--------+--------------------------------+--------+-------
-  d8a5f1302ab35e6e4bc0e014f79e6795 | magasinpourtous.com | Free Website | active | aitana.ns.cloudflare.com,      | false  | full
-                                   |                     |              |        | jeremy.ns.cloudflare.com       |        |
-
 
 
 #⚡️[Administrator@CXXUDESK][C:\Share\df\wp_sites\wp_migration][16:08:03][UP:6.9Days]
@@ -85,7 +69,9 @@ Try parse table from file:[C:\Users\Administrator\Desktop\table.conf]
   c758649e866a4635a27bbb6ba75881f2 | A    | www.magasinpourtous.com | 23.239.111.202 | true    |   1
 ```
 
+### 检查最近添加的域名的信息
 
+包括域名id,激活状态等
 
 ```powershell
 #⚡️[Administrator@CXXUDESK][~\Desktop][20:16:08][UP:0.08Days]
@@ -117,7 +103,7 @@ Try parse table from file:[C:\Users\Administrator\Desktop\table.conf]
                                    |                     |              |        | jeremy.ns.cloudflare.com       |        |
 
 #⚡️[Administrator@CXXUDESK][~\Desktop][20:17:20][UP:0.08Days]
-PS> Get-DomainUserDictFromTable -Table C:\Users\Administrator\Desktop\table.conf |%{$_.domain}|%{flarectl dns list $_}
+PS> Get-DomainUserDictFromTable -Table C:\Users\Administrator\Desktop\table.conf |%{$_.domain}|%{flarectl dns list $_} 
 Try parse table from file:[C:\Users\Administrator\Desktop\table.conf]
                  ID                | TYPE |       NAME        |    CONTENT     | PROXIED | TTL
 -----------------------------------+------+-------------------+----------------+---------+------
