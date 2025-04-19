@@ -35,13 +35,16 @@ with open('example.csv', mode='r', encoding='utf-8') as file:
 ```python
 import csv
 
-# 使用 csv.writer
+# 使用 csv.writer,header不做特殊对待,这种方法比较简洁
 data = [['Name', 'Age'], ['Alice', 30], ['Bob', 25]]
+#先建立普通文件写入流,在传递给csv.writer方法保证为csv文件写入流,最后将每一行(列表)数据写入文件
 with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
     writer = csv.writer(file)
     writer.writerows(data)
 
 # 使用 csv.DictWriter
+# 这种用法分为两部分:header和rows;
+# 仍然是先建立普通写入流,然后传入表头字段列表给csv.DictWriter,分被写入表头和普通数据行
 fieldnames = ['Name', 'Age']
 data = [{'Name': 'Alice', 'Age': 30}, {'Name': 'Bob', 'Age': 25}]
 with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
@@ -50,7 +53,10 @@ with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
     writer.writerows(data)
 ```
 
+小结,两种方法类似,流处理的开头和结尾基本一样,中间过程有所区别,因为第二中方式要处理表头,尤其是writeheader()方法
+
 #### (3) **自定义分隔符或引号**
+
 可以通过 `delimiter` 和 `quotechar` 参数指定分隔符和引用字符。
 
 ```python

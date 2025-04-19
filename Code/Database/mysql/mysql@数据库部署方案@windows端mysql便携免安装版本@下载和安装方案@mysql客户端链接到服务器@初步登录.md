@@ -94,7 +94,10 @@
 官方下载资源
 
 - [MySQL :: MySQL Community Downloads](https://dev.mysql.com/downloads/)
-- windows版本[MySQL :: Download MySQL Installer](https://dev.mysql.com/downloads/installer/)
+- windows版本
+  - 主流版本[MySQL :: Download MySQL Installer](https://dev.mysql.com/downloads/installer/)
+  - 历史版本/老版本[MySQL :: Download MySQL Installer (Archived Versions)](https://downloads.mysql.com/archives/installer/)
+
 
 mysql服务器版本
 
@@ -725,13 +728,16 @@ mysql> QUIT
 
 ## windows上的安装
 
-你仍然可以选择使用软件工具箱或面板来部署mysql
+windows上安装和使用mysql有两大类方案:
 
-以下是我尝试过windows本地使用免安装mysql版本
+- 安装包安装使用
+- 免安装使用
+  - 开发软件工具箱或面板来部署mysql(比如小皮)
+
+  - 官网下载免安装版本,windows本地使用免安装mysql版本
 
 
-
-### 免安装版本
+### 免安装版本🎈
 
 [MySQL :: MySQL 8.0 Reference Manual :: 2.3.4 Installing MySQL on Microsoft Windows Using a noinstall ZIP Archive](https://dev.mysql.com/doc/refman/8.0/en/windows-install-archive.html)
 登录mysql参数介绍:
@@ -772,55 +778,76 @@ for powershell:
 可以去配置环境变量,然后可以在新建的终端中直接以`mysql` 访问程序
 可以查询相关文章
 
-###  安装服务
+### 基本使用
 
-![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/594a00320a8165c8474295d2d99f5a5c.png)
-###  启用服务
-`net start mysql`
-![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/50d4816ba9459684c2a9fe4bbdaf87e3.png)
+####  安装服务(mysqld)
 
-###  安装版的mysql服务安装(phpstudy)
+便携版安装包可以处理官网,还可以从小皮中下载
+
+安装版的mysql服务安装(phpstudy)
 
 >如果使用了phpstudy之类的管理面板中提供的mysql数据库安装,可以通过配置环境变量,采用类似于zip包的方式安装服务(配置过程比较简单仅给出验证配置是否成功的方法)
 
-###  验证mysql环境变量配置
-
-- `where.exe mysqld`
-
-```bash 
-PS C:\Users\cxxu> where.exe mysqld
-D:\phpstudy_pro\Extensions\MySQL8.0.12\bin\mysqld.exe
+```powershell
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL5.7.26\bin][16:44:00][UP:15.93Days]
+PS> .\mysqld.exe --install
+Service successfully installed.
 ```
-###  powershell下安装服务
+
+
+
+####  启用服务
+
+`net start mysql`(兼容cmd/powershell)
 
 ```powershell
-# 进入管理员powershell运行模式
-PS C:\Users\cxxu> mysqld.exe --install
-Service successfully installed.
 
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL5.7.26\bin][17:04:45][UP:15.94Days]
+PS> net start mysql
+MySQL 服务正在启动 .
+MySQL 服务已经启动成功。
+
+```
+
+或者用`start-service`启动(powershell专属)
+
+```powershell
 PS C:\Users\cxxu> Start-Service mysql
 WARNING: Waiting for service 'mysql (MySQL)' to start...
+
+```
+
+#### 检查服务启动成功
+
+```powershell
 # 检查服务启动成功
 PS C:\Users\cxxu> gsv *mysql*
 
 Status   Name               DisplayName
 Running  MySQL              MySQL
-# 登录mysql用户
-PS C:\Users\cxxu> mysqlRootLocal
-mysql: [Warning] Using a password on the command line interface can be insecure.
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 8
-Server version: 8.0.12 MySQL Community Server - GPL
-
-Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
 ```
+
+
+
+###  验证mysql环境变量配置
+
+- `where.exe mysqld`
+
+```powershell
+PS C:\Users\cxxu> where.exe mysqld
+D:\phpstudy_pro\Extensions\MySQL8.0.12\bin\mysqld.exe
+```
+或者
+
+```powershell
+PS> gcm mysqld |select name,Version ,Source
+
+Name       Version  Source
+----       -------  ------
+mysqld.exe 5.7.26.0 C:\phpstudy_pro\Extensions\MySQL5.7.26\bin\mysqld.exe
+```
+
+
 
 ###  使用已安装的服务
 
