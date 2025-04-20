@@ -51,7 +51,7 @@
 
   该提案描述了Python标准库中包含的这个特性。
 
-在 Python 的 `concurrent.futures` 模块中，`wait` 和 `as_completed` 是两个非常有用的函数，用于管理和处理并发任务的结果。它们可以帮助我们更灵活地控制线程池或进程池中的任务执行流程。下面我们将详细介绍这两个函数的用法和特点。
+在 Python 的 `concurrent.futures` 模块中，`wait` 和 `as_completed` 是两个非常有用的函数，用于管理和处理并发任务的结果。它们可以帮助我们更灵活地控制线程池或进程池中的任务执行流程。
 
 ## 介绍
 
@@ -98,6 +98,8 @@ Task 4 completed (time_comsumption=4;completed at: 17:05:15;23013)
 all task completed;at: 17:05:15;23013
 ```
 
+### as_completed的作用🎈
+
 在 `ThreadPoolExecutor` 中使用 `as_completed` 循环与否主要有以下几个关键区别：
 
 ####  错误处理时机
@@ -123,8 +125,6 @@ all task completed;at: 17:05:15;23013
 - 异常会被**延迟到线程池退出时**才抛出
 - 所有任务提交后继续执行后续代码，无法立即知道哪些任务失败
 - 使用 `with` 语句退出时，如果有未处理的异常会抛出
-
-####  执行流程控制
 
 #### **包含 `as_completed` 循环**:
 

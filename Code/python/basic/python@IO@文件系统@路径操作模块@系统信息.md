@@ -1,9 +1,12 @@
 [toc]
 
-- 本章主要讨论python原生读取文件的操作
-- 其他第三方库(比如pandas)封装过的接口有齐自己的读取方式
+## abstract
 
-# python@IO@文件系统@路径操作模块@系统信息
+- python@IO@文件系统@路径操作模块@系统信息
+- 本文主要讨论python原生读取文件的操作
+  - 其他第三方库(比如pandas)封装过的接口有其自己的读取方式
+
+
 
 ## ref
 
@@ -112,7 +115,7 @@
 - [shutil --- 高阶文件操作 — Python 3 文档](https://docs.python.org/zh-cn/3/library/shutil.html#module-shutil)
   - [`shutil`](https://docs.python.org/zh-cn/3/library/shutil.html#module-shutil) 模块提供了一系列对文件和文件集合的高阶操作。 特别是提供了一些支持文件拷贝和删除的函数。 对于单个文件的操作，请参阅 [`os`](https://docs.python.org/zh-cn/3/library/os.html#module-os) 模块。
 
-## pathlib
+## pathlib🎈
 
 - [pathlib — Object-oriented filesystem paths — Python 3 documentation](https://docs.python.org/3/library/pathlib.html)
 - [pathlib --- 面向对象的文件系统路径 — Python 3 文档](https://docs.python.org/zh-cn/3/library/pathlib.html)

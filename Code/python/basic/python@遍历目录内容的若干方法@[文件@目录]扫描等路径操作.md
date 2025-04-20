@@ -1,6 +1,10 @@
 [toc]
 
-# python@遍历目录内容的若干方法@[文件@目录]扫描等路径操作
+## abstract
+
+python@遍历目录内容的若干方法
+
+[文件@目录]扫描等路径操作
 
 ## 目录扫描
 
@@ -209,7 +213,7 @@
 
 - [Path.rglob@pathlib — Object-oriented filesystem paths — Python documentation](https://docs.python.org/3/library/pathlib.html#pathlib.Path.rglob)
 
-## 面向对象的路径操作@[文件@目录]
+## 面向对象的路径操作@[文件@目录]🎈
 
 -  [**PEP 428**](https://peps.python.org/pep-0428/): The pathlib module – object-oriented filesystem paths.
 
