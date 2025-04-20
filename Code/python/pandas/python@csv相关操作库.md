@@ -1,6 +1,8 @@
 [toc]
 
+## abstract
 
+[csv --- CSV 文件读写 — Python  文档](https://docs.python.org/zh-cn/3.13/library/csv.html)~
 
 在 Python 中，处理 CSV 文件主要依赖于内置的 `csv` 模块以及一些第三方库（如 `pandas`）。以下是这些模块的核心用法和功能介绍：
 
@@ -54,6 +56,8 @@ with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
 ```
 
 小结,两种方法类似,流处理的开头和结尾基本一样,中间过程有所区别,因为第二中方式要处理表头,尤其是writeheader()方法
+
+对于第二种方式,fieldnames中定义的表头名字是数据行(data)中各个字典的key-value中key的取值依据,如果某个字典的key在fieldnames中找不到,那么会抛出异常
 
 #### (3) **自定义分隔符或引号**
 
