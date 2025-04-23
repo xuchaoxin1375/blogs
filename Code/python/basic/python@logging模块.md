@@ -85,9 +85,9 @@ logging.critical('严重错误')
 
 ## 2. 日志配置
 
-### 2.1 基本配置
+### 2.1 基本配置|日志格式|文件文件输出
 
-logging模块不宜在同一个上下文下多次更改配置,如果要运行/测试新的logging配置,请另起一个新的python解释器huan'jing
+logging模块不宜在同一个上下文下多次更改配置,如果要运行/测试新的logging配置,请另起一个新的python解释器环境
 
 ```python
 import logging
