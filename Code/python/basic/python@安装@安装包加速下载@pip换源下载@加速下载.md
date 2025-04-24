@@ -590,7 +590,10 @@ Conda的一些核心功能要求直接与调用它的Shell进行交互。`conda 
 ## linux上安装python
 
 - 路线和windows类似
+
 - 但是python官网下载安装的方法没有windows那么统一,而用源码安装的方式比较统一,操作复杂一些
+
+  
 
 
 
