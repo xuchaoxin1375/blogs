@@ -1,6 +1,8 @@
 [toc]
 
-# python@import_package导包@导入其他目录中的模块包.模块PYTHONPATH(os,sys)模块@相对导入和绝对
+## abstract
+
+python@import_package导包@导入其他目录中的模块包.模块PYTHONPATH(os,sys)模块@相对导入和绝对
 
 ## 包和模块
 
@@ -917,21 +919,7 @@ sound/                          Top-level package
   - 第二个问题是在处理包时，import语句可能会存在歧义；在一个包内，不清楚import foo是指包内的模块还是包外的模块。解决方案是默认情况下所有import语句都是绝对的（只在sys.path中搜索），对于访问相对于包的导入，则需要特殊的语法（前导点号）。
 - 因此，PEP 328提出了使用括号和前导点号来解决import语句存在的问题，使得编写长的import语句更加容易，同时也为包内和包外的模块之间的导入关系提供了更加明确的规则。
 
-# PEP
 
-- PEP是Python Enhancement Proposal的缩写，是Python社区用于提出新特性、改进现有特性或解决问题的文档。PEP通常由Python开发者或社区成员编写，并通过邮件列表或GitHub等方式提交至Python社区进行讨论、修改和最终决策。
-
-  PEP的目的是为Python的发展提供方向和指导，让Python社区能够协同工作，共同推动Python的发展。PEP涵盖了很多方面的内容，包括语言特性、标准库、开发工具、工作流程等等。
-
-  一些重要的PEP包括：
-
-  - PEP 8：Python代码风格指南，规范了Python代码的格式、命名和注释等方面，是Python程序员编写高质量代码的重要参考。
-  - PEP 20：Python之禅，包含了Python语言的设计哲学和核心价值观，是Python程序员思考和编码的指南。
-  - PEP 257：Python文档字符串约定，规定了如何编写Python函数、类和模块的文档字符串，使得Python代码更易于理解和维护。
-  - PEP 484：类型提示语法，引入了一种新的语法来指定Python函数和变量的类型信息，提高了Python代码的可读性和可维护性。
-  - PEP 572：表达式中的赋值，引入了一种新的语法来在Python表达式中进行赋值操作，使得Python代码更简洁和易读。
-
-  PEP不仅是Python的发展方向和指导，也是Python社区的文化和传统。通过遵循PEP，Python程序员可以编写高质量的Python代码，同时也可以为Python社区的发展做出贡献。
 
 
 
