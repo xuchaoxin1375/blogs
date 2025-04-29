@@ -27,7 +27,13 @@ echo "CREATE DATABASE `$db`;" | mysql -u root -p
 mysql -u 用户名 -e "SQL 语句;"
 #或
 mysql -u root  -p"Yourpassword" -e  "sql语句;"
-#或
+
+```
+
+需要密码的情况:
+
+```bash
+
 mysql -u root  -e  "SHOW DATABASES;" -p #密码在回车后输入
 ```
 
