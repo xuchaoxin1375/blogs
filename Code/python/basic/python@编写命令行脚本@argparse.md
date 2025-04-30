@@ -2,8 +2,7 @@
 
 ## ref
 
-- [Argparse 教程 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/howto/argparse.html)
-- [argparse --- 命令行选项、参数和子命令解析器 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/library/argparse.html#module-argparse)
+- [argparse 教程 — Python 文档](https://docs.python.org/zh-cn/3/howto/argparse.html)
 
 ## 概要
 
