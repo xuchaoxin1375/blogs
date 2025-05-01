@@ -154,4 +154,145 @@ print(data)
 - **`pandas` 库**：功能强大，适合复杂的数据分析任务。
 - **其他库**：根据具体需求选择合适的工具。
 
-根据实际应用场景选择合适的模块，可以显著提高开发效率和代码质量！
+## 读取指定列
+
+在 Python 中，如果你需要 **读取 CSV 文件中的指定列**，可以使用内置的 `csv` 模块或更强大的第三方库如 `pandas`。下
+
+---
+
+## ✅ 方法一：使用 `csv` 模块（标准库）
+
+适用于小型文件、轻量级处理。
+
+### 📝 示例代码
+
+```python
+import csv
+
+# 打开 CSV 文件
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    
+    # 获取表头（第一行）
+    headers = next(reader)
+    
+    # 假设我们想读取 'Name' 和 'Age' 两列
+    name_index = headers.index('Name')
+    age_index = headers.index('Age')
+
+    for row in reader:
+        print(f"姓名: {row[name_index]}, 年龄: {row[age_index]}")
+```
+
+### 📄 假设你的 `data.csv` 内容如下：
+
+```csv
+Name,Age,Gender,City
+Alice,30,Female,New York
+Bob,25,Male,San Francisco
+Charlie,35,Female,Los Angeles
+```
+
+### 🔍 输出结果：
+
+```
+姓名: Alice, 年龄: 30
+姓名: Bob, 年龄: 25
+姓名: Charlie, 年龄: 35
+```
+
+---
+
+## ✅ 方法二：使用 `pandas`（推荐用于数据分析）
+
+适合大数据量、结构化数据操作。
+
+### 📦 安装 pandas（如果尚未安装）：
+
+```bash
+pip install pandas
+```
+
+### 📝 示例代码
+
+```python
+import pandas as pd
+
+# 读取整个 CSV 文件
+df = pd.read_csv('data.csv')
+
+# 提取指定列
+selected_columns = df[['Name', 'Age']]
+
+# 打印前几行
+print(selected_columns.head())
+```
+
+### 🔍 输出结果（表格形式）：
+
+```
+      Name  Age
+0    Alice   30
+1      Bob   25
+2  Charlie   35
+```
+
+### 🧠 更灵活的方式：只加载你需要的列
+
+```python
+# 只读取指定列，节省内存
+df = pd.read_csv('data.csv', usecols=['Name', 'Age'])
+print(df)
+```
+
+---
+
+## ✅ 方法三：使用 `csv.DictReader`（按列名访问）
+
+适用于你希望以字典形式访问每一行的情况。
+
+### 📝 示例代码
+
+```python
+import csv
+
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        print(f"姓名: {row['Name']}, 年龄: {row['Age']}")
+```
+
+---
+
+## 🧩 小技巧：读取多列 + 多条件过滤
+
+比如你想读取所有年龄大于 30 的人：
+
+```python
+import pandas as pd
+
+df = pd.read_csv('data.csv')
+filtered = df[df['Age'] > 30][['Name', 'Age']]
+print(filtered)
+```
+
+输出：
+
+```
+      Name  Age
+2  Charlie   35
+```
+
+---
+
+## 📌 总结对比
+
+| 方法             | 是否推荐       | 特点                             |
+| ---------------- | -------------- | -------------------------------- |
+| `csv.reader`     | ✅ 简单脚本可用 | 轻量、无依赖、需手动索引列       |
+| `csv.DictReader` | ✅ 易读性强     | 行为字典形式，便于按列名访问     |
+| `pandas`         | ✅ 推荐         | 功能强大、语法简洁、支持复杂操作 |
+
+---
+
