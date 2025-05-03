@@ -1,8 +1,10 @@
 [toc]
 
+## abstract
 
+request库中定义的响应对象文档
 
-[Developer Interface — Requests requests.Responsedocumentation](https://requests.readthedocs.io/en/latest/api/#requests.Response)
+[Developer Interface — Requests requests.Response documentation](https://requests.readthedocs.io/en/latest/api/#requests.Response)
 
 ## 分块读取|流式读取
 
@@ -102,6 +104,6 @@ except requests.exceptions.RequestException as e:
 
 ---
 
-## 🧪 总结一句话：
+## 🧪 总结一
 
 > `response.iter_content()` 是一种高效、稳定、节省内存的方式来下载大型二进制文件（如图片），在你这个多线程图片下载器中非常合适。通过分块读取和写入，既保证了下载速度，又避免了内存溢出风险。

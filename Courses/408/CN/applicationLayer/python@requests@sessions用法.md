@@ -2,7 +2,7 @@
 
 ## abstract
 
-[Developer Interface — Requests 2.32.3 documentation](https://requests.readthedocs.io/en/latest/api/)
+[Developer Interface — Requests documentation](https://requests.readthedocs.io/en/latest/api/)
 
 `requests.Session()` 是 `requests` 库中一个非常强大的功能，它允许你在多个请求之间保持某些参数（如 headers、cookies、连接池等），从而提升性能和代码组织的清晰度。
 
