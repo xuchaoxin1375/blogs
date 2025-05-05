@@ -85,7 +85,7 @@ print(result)  # 输出: 8
 ### 类方法 (`@classmethod`)
 ```python
 class Animal:
-    # 定义类属性(类fang'fa)
+    # 定义类属性(类方法无法访问实例属性)
     species = "Unknown"
 
     @classmethod

@@ -47,8 +47,6 @@ s.cookies.set('sessionid', 'abc123')
 s.get('https://api.example.com/data')
 ```
 
-在你的代码中就是这么做的：
-
 ```python
 self.session.headers.update(self.headers)  # 设置默认 User-Agent
 ```
@@ -129,7 +127,7 @@ verify=self.verify_ssl  # 控制是否验证 SSL 证书
 
 ## ✅ 项目中的最佳实践建议
 
-你已经在很好地使用 `Session`，以下是一些进一步优化建议：
+
 
 ### ✅ 使用 `with` 保证资源释放（推荐）
 
