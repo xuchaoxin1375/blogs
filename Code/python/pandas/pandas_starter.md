@@ -20,9 +20,9 @@
 
   但是，如果我们需要对这个数据集进行更加复杂的操作，比如筛选出某些城市的房价高于平均值的记录，并将它们保存在一个新的数据集中，这时候就需要使用Pandas Series和DataFrame了。
 
-  具体来说，我们可以使用Pandas读取数据集并将其转换为DataFrame对象。然后，我们可以针对其中的每一列数据创建一个Series对象，并通过Series对象进行相应的筛选和操作。例如，我们可以使用DataFrame对象的groupby方法对数据进行分组，然后计算每组数据的平均值，并将结果保存在一个新的DataFrame对象中。这样，我们就可以方便地进行数据探索和分析了。
+- 具体来说，我们可以使用Pandas读取数据集并将其转换为DataFrame对象。然后，我们可以针对其中的每一列数据创建一个Series对象，并通过Series对象进行相应的筛选和操作。例如，我们可以使用DataFrame对象的groupby方法对数据进行分组，然后计算每组数据的平均值，并将结果保存在一个新的DataFrame对象中。这样，我们就可以方便地进行数据探索和分析了。
 
-###  pandas数据结构概念
+###  pandas数据结构概念🎈
 
 - [first article to read](https://pandas.pydata.org/docs/getting_started/intro_tutorials/01_table_oriented.html#min-tut-01-tableoriented)
 
@@ -35,9 +35,6 @@
 - [Getting started(入门)](https://pandas.pydata.org/docs/getting_started/index.html)
 - [User Guide(进一步)](https://pandas.pydata.org/docs/user_guide/10min.html)
 - [api reference(专业需求)](https://pandas.pydata.org/docs/reference/io.html)
-- [搜索引擎](cn.bing.com)
-  - (使用搜索引擎来获取特定问题的解决方案,在入门篇的时候也可以穿插使用来快速解惑
-  - 然而,我还是认为,先将getting started看完,有了基本概念在看各种解决方案才是高效的
 
 ##  DataFrame&Series
 
@@ -161,9 +158,14 @@ Out[44]:
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/5c563e25ab414ae7aeb9624b8f75fcbe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-##  dataFrame操作
+##  dataFrame操作🎈
 
-这里注意双重括号的含义
+- 这里注意**双重括号**的含义
+- loc/iloc的含义
+  - [pandas.DataFrame.loc — pandas  documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.loc.html)
+
+### 列子集选择(选择多列)
+
 在截取dataFrame的多个列子集时,通过一个python list 来指定列
 To select multiple columns, use a list of column names within the selection brackets [].
 
@@ -174,20 +176,44 @@ dataframe[]可以接受series关系表达式(其实该值还是series),pandas提
 - notna()
 - isin()
 
-##  loc与iloc 对dataFrame的筛选
+### 行子集选择(选择多行)
+
+对于pandas.DataFrame而言,列是优先与行的(列是pandas.Series对象)
+
+因此默认情况下,df[[...]]选择的是列
+
+如果要选择多行,则需要加一层`loc`或`iloc`
+
+`df.loc[[...]]`就可以选择多行(`iloc`也类似)
+
+详见下一节
+
+###  行和列子集选择
+
+> loc与iloc 对dataFrame的行与列子集的选择
 
 - 一般地,`loc`依赖于具体的标签名(或者通过传入bool序列来截取dataframe的部分(子集),不依赖于dataFrame的规格(shape)
 - `iloc`不依赖于具体的标签名,但是依赖于dataFrame的规格(维度,从0开始计数)
-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/7ff84b88cb0f4251b081fab77e3459d3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
+  1. When selecting subsets of data, square brackets `[]` are used.
+     选择数据子集时，使用方括号 `[]`。
+  2. Inside these brackets, you can use a single column/row label, a list of column/row labels, a slice of labels, a conditional expression or a colon.
+     在这些括号内，您可以使用单个列/行标签、列/行标签列表、标签切片、条件表达式或冒号。
+  3. Select specific rows and/or columns using `loc` when using the row and column names.
+     在使用行和列名时使用 `loc` 选择特定的行和/或列。
+  4. Select specific rows and/or columns using `iloc` when using the positions in the table.
+     使用表中的位置时，使用 `iloc` 选择特定的行和/或列。
+  5. You can assign new values to a selection based on `loc`/`iloc`.
+     您可以基于 `loc`/`iloc 为`所选内容指定新值。
+
+
+#### 典型用例
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/4685ac0545044a67aea5bca1de612d6d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/57b7ce42d692490f8f97c03138fa8412.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
 
-## loc/iloc获取datafram子集的
-
 > df.loc/df.iloc 是访问df行的有力工具(但不仅限于对行的访问)
 
-- [pandas.DataFrame.loc — pandas 1.4.2 documentation (pydata.org)](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.loc.html)
+- [pandas.DataFrame.loc — pandas documentation (pydata.org)](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.loc.html)
 
 ### 类型为dataframe的子集
 
@@ -221,6 +247,14 @@ dataframe[]可以接受series关系表达式(其实该值还是series),pandas提
 ![image-20220416133009693](https://img-blog.csdnimg.cn/img_convert/2bb1a3327639e6bb9a60580ef160b6be.png)
 
 ![image-20220416133126596](https://img-blog.csdnimg.cn/img_convert/6ccff2d848bd83d66c8bb4782c14b92f.png)
+
+## element-wise
+
+[How to create new columns derived from existing columns 如何创建从现有列派生的新列](https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html#)
+
+### 映射
+
+[pandas.DataFrame.apply - pandas 文档 --- pandas.DataFrame.apply — pandas 2.2.3 documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.apply.html#pandas.DataFrame.apply)
 
 ## 组织python pandas 将NULL 转化为NAN(NULL 消失问题)/排序bool & str 问题
 
