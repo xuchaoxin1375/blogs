@@ -4,8 +4,8 @@
 
 ## mysql数据库克隆|备份与恢复🎈
 
-- 备份：`mysqldump -u root -p my_database > backup.sql`
-- 恢复：`mysql -u root -p my_database < backup.sql`
+- 导出sql文件备份：`mysqldump -u root -p my_database > backup.sql`
+- 导入sql文件：`mysql -u root -p my_database < backup.sql`
 
 这里的`-p`可以直接跟上数据库密码`-p"password"`,或者先放空,回车后填写密码完成操作
 

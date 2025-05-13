@@ -4,7 +4,9 @@
 
 ## abstract
 
-Pandas是Python数据分析的核心库，提供了高效、灵活的数据结构和工具。本教程将重点介绍Pandas最强大、最方便的特色功能。
+Pandas是Python数据分析的核心库，提供了高效、灵活的数据结构和工具。
+
+- [pandas 教程](https://www.huaxiaozhuan.com/工具/pandas/chapters/pandas.html)
 
 ## 1. Pandas核心数据结构
 
