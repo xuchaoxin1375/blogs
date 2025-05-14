@@ -28,7 +28,7 @@ logging.error('这是一个错误信息')
 # ERROR:root:这是一个错误信息
 ```
 
-### 1.2 日志级别
+### 1.2 日志级别🎈
 
 Python logging 有5个标准级别：
 
