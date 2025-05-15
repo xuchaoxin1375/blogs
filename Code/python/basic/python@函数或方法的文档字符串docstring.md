@@ -104,7 +104,7 @@ def multiply(a, b):
 
 特别注意一对`:`符号包裹着`param paramname`,不要有多余`:`对包裹的内容和`:`不要有多余的空格,而`param`,`paramname`之间至少要一个空格隔开
 
-第二个`:`和`comments`要you
+第二个`:`和`comments`要有空格
 
 ## 文档字符串内容建议
 
@@ -173,4 +173,3 @@ def process_items(items: List[Union[int, str]]) -> List[str]:
     return [f"item_{item}" for item in items]
 ```
 
-良好的文档字符串可以提高代码的可读性和可维护性，是专业Python开发的重要实践。

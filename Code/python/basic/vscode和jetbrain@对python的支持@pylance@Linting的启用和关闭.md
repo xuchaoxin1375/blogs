@@ -223,18 +223,6 @@
 
 
 
-### pylance报多余而不该有的错
-
-- 方式1:重载窗口,pylance可以重新扫描新模块
-- 方式2:配置extra路径
-  - `python.analysis.extraPaths`
-    - Used to specify extra search paths for import resolution. This replaces the old `python.autoComplete.extraPaths` setting.
-    - Default value: empty array
-
-
-
-
-
 
 
 
