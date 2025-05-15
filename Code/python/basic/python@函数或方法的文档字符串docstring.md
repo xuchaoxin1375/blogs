@@ -100,6 +100,12 @@ def multiply(a, b):
     return a * b
 ```
 
+注意,这种格式,每一行参数解释严格遵循`:param paramname: comments`
+
+特别注意一对`:`符号包裹着`param paramname`,不要有多余`:`对包裹的内容和`:`不要有多余的空格,而`param`,`paramname`之间至少要一个空格隔开
+
+第二个`:`和`comments`要you
+
 ## 文档字符串内容建议
 
 1. **第一行**：简洁的函数功能描述，以句号结尾

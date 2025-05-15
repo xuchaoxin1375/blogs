@@ -4,7 +4,7 @@
 
 ## python tutorial/python 学习资源来源整理/学习路线
 
-## reference
+
 
 ### 搜索引擎
 
@@ -40,15 +40,17 @@
 
 某些时候可以参考一下,和文档相比,内容定位会没那么灵活
 
-### 官方教程
+## 官方教程🎈
 
 官方资料可能不是最详细的(也未必是通俗易懂的),但不会有第三方资料比它更与时俱进/更权威了
 
-[Python tutorial — Python 3.10.2 教程](https://docs.python.org/zh-cn/3/tutorial/)
+[Python tutorial — Python  教程](https://docs.python.org/zh-cn/3/tutorial/)
 
-[Python HOWTOs — Python 3.10.2 documentation](https://docs.python.org/3/howto/index.html)
+### 其他
 
-[Python 常用指引 — Python 3.10.2 文档](https://docs.python.org/zh-cn/3/howto/index.html)
+[Python HOWTOs — Python  documentation](https://docs.python.org/3/howto/index.html)
+
+[Python 常用指引 — Python  文档](https://docs.python.org/zh-cn/3/howto/index.html)
 
 和 tutorial 相比,howTos 包含更加广泛的主题
 
