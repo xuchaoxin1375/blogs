@@ -75,8 +75,6 @@
 
 从总设置(选项)的常规选项卡里设置弹出位置
 
-![image-20241030101622328](C:\Users\cxxu\AppData\Roaming\Typora\typora-user-images\image-20241030101622328.png)
-
 在剪切板窗口右下角(三个点)进入**快速选项(Quick Optins)**选择**窗口弹出位置(Positioning)**
 
 ![](https://i-blog.csdnimg.cn/blog_migrate/bca864bc9924e666209ff5418c4896d1.png)
