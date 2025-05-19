@@ -265,7 +265,7 @@ CREATE USER 'root'@'%' IDENTIFIED BY 'your_password';
 
 ------
 
-赋予 `root@%` 所有权限
+### 赋予 `root@%` 最高权限|所有权限
 
 赋予 `root@%` 和 `root@localhost` 相同的权限：
 
@@ -288,6 +288,44 @@ CREATE USER 'root'@'%' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
+
+### 新建一个root级别的管理员用户角色
+
+```sql
+CREATE USER 'rootx'@'%' IDENTIFIED BY 'my_password';
+GRANT ALL PRIVILEGES ON *.* TO 'rootx'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
+
+
+
+## 移除指定用户|删除用户的 SQL 语句
+
+移除指定用户前,尤其是root@%这种,建议考虑是否事先新建一个备用的rootx@%,方便远程继续用管理员权限操作其他内容(此时需要用rootx@%身份重新登录)
+
+```sql
+DROP USER 'username'@'host';
+```
+
+- `username`：要删除的用户名。
+- `host`：该用户允许连接的主机名，常见值有：
+  - `'localhost'`：仅限本地访问。
+  - `'%'`：表示可以从任意远程主机连接。
+  - 或者是一个具体的 IP 地址或主机名。
+
+例如:删除允许任何主机尝试以root登录的用户角色
+
+```sql
+DROP USER 'root'@'%';
+```
+
+刷新权限:
+
+```bash
+FLUSH PRIVILEGES;
+```
+
+
 
 
 
