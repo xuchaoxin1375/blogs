@@ -36,6 +36,43 @@ FLUSH PRIVILEGES;
 
 ### 🔍 示例
 
+```bash
+
+MySQL [(none)]>  select distinct user,host from mysql.user;
++---------------+-----------+
+| user          | host      |
++---------------+-----------+
+| cxxu          | %         |
+| root          | %         |
+| rootx         | %         |
+| wordpress     | %         |
+| cxxu          | localhost |
+| mysql.session | localhost |
+| mysql.sys     | localhost |
+| root          | localhost |
++---------------+-----------+
+8 rows in set (0.000 sec)
+
+MySQL [(none)]> DROP USER 'root'@'%';
+Query OK, 0 rows affected (0.003 sec)
+
+MySQL [(none)]>  select distinct user,host from mysql.user;
++---------------+-----------+
+| user          | host      |
++---------------+-----------+
+| cxxu          | %         |
+| rootx         | %         |
+| wordpress     | %         |
+| cxxu          | localhost |
+| mysql.session | localhost |
+| mysql.sys     | localhost |
+| root          | localhost |
++---------------+-----------+
+7 rows in set (0.000 sec)
+```
+
+
+
 ```sql
 DROP USER 'john'@'localhost';
 ```

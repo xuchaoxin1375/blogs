@@ -202,6 +202,33 @@ URL: https://dev.mysql.com/doc/refman/8.0/en/grant.html
 
 - [MySQL :: MySQL 5.6 Reference Manual :: 6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/5.6/en/privileges-provided.html#priv_all)
 
+
+
+### 检查用户列表🎈
+
+检查用户表,默认所有主机可以登录到该用户`select distinct user,host from mysql.user;`
+
+```sql
+mysql> select distinct user,host from mysql.user;
++------------------+-----------+
+| user             | host      |
++------------------+-----------+
+| cxxu             | %         |
+| ela              | %         |
+| root             | %         |
+| user_testr       | %         |
+| ela              | localhost |
+| mysql.infoschema | localhost |
+| mysql.session    | localhost |
+| mysql.sys        | localhost |
++------------------+-----------+
+
+7 rows in set (0.00 sec)
+
+```
+
+
+
 ### 创建一个新用户🎈
 
 登录root用户进行操作
@@ -289,7 +316,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
 
-### 新建一个root级别的管理员用户角色
+### 新建一个root级别的管理员用户角色🎈
+
+修改`rootx`为你想新建的用户名
 
 ```sql
 CREATE USER 'rootx'@'%' IDENTIFIED BY 'my_password';
@@ -299,7 +328,24 @@ FLUSH PRIVILEGES;
 
 
 
-## 移除指定用户|删除用户的 SQL 语句
+### 为指定账户授予root权限|授予最高权限🎈
+
+```sql
+GRANT ALL PRIVILEGES ON *.* TO 'rootx'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
+
+
+
+#### references
+
+- [How to Grant All Privileges on a Database in MySQL | Tutorial by Chartio](https://chartio.com/resources/tutorials/how-to-grant-all-privileges-on-a-database-in-mysql/#:~:text=To%20GRANT%20ALL%20privileges%20to%20a%20user%2C%20allowing,installations%20do%20not%20require%20the%20optional%20PRIVILEGES%20keyword.)
+- [How to Use MySQL GRANT Statement To Grant Privileges to a User (mysqltutorial.org)](https://www.mysqltutorial.org/mysql-grant.aspx#:~:text=Permissible%20privileges%20for%20GRANT%20statement%20%20%20Privilege,%20%20%20%2028%20more%20rows%20)
+- [How To Create a New User and Grant Permissions in MySQL | DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql)
+
+## 移除指定用户|删除用户
+
+详情另见它文,这里指出要点速览
 
 移除指定用户前,尤其是root@%这种,建议考虑是否事先新建一个备用的rootx@%,方便远程继续用管理员权限操作其他内容(此时需要用rootx@%身份重新登录)
 
@@ -378,64 +424,11 @@ mysql -u root -p -h your_server_ip
 
 这样，你就可以使用 `root@%` 进行远程访问了。
 
-
-
-## 为指定账户授予root权限|授予最高权限🎈
-
-```sql
-GRANT ALL PRIVILEGES ON *.* TO 'aa'@'localhost' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-```
+## 其他操作
 
 
 
-### 检查用户列表
-
-检查用户表,默认所有主机可以登录到该用户`select distinct user,host from mysql.user;`
-
-```sql
-
-mysql> select distinct user,host from mysql.user;
-+------------------+-----------+
-| user             | host      |
-+------------------+-----------+
-| cxxu             | %         |
-| ela              | %         |
-| root             | %         |
-| user_testr       | %         |
-| ela              | localhost |
-| mysql.infoschema | localhost |
-| mysql.session    | localhost |
-| mysql.sys        | localhost |
-+------------------+-----------+
-
-7 rows in set (0.00 sec)
-
-```
-
-
-
-#### 尝试远程登录该新用户🎈
-
-```sql
-PS C:\Users\cxxu> mysql -h 123.56.72.67 -u user_testr -p
-Enter password: *******
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 131
-Server version: 8.0.24 Source distribution
-
-Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-mysql>
-```
-
-#### 重名命已有用户
+### 重名命已有用户
 
 ```sql
 mysql> rename user user_testr to user_tester;
@@ -458,7 +451,7 @@ mysql> select distinct user,host from mysql.user;
 
 ```
 
-#### 删除已有用户
+### 删除已有用户
 
 ```sql
 
@@ -580,17 +573,7 @@ mysql> show grants for pms;
 
 ```
 
-### 创建一个和 root 用户一样的完整权限用户(小王用户)
 
-- `GRANT ALL PRIVILEGES ON *.* TO 'sammy'@'localhost' WITH GRANT OPTION;`
-  - 需要注意,带有 `with grant option`是权限完整性的关键
-  - 否则很多权限得不到发
-
-#### references
-
-- [How to Grant All Privileges on a Database in MySQL | Tutorial by Chartio](https://chartio.com/resources/tutorials/how-to-grant-all-privileges-on-a-database-in-mysql/#:~:text=To%20GRANT%20ALL%20privileges%20to%20a%20user%2C%20allowing,installations%20do%20not%20require%20the%20optional%20PRIVILEGES%20keyword.)
-- [How to Use MySQL GRANT Statement To Grant Privileges to a User (mysqltutorial.org)](https://www.mysqltutorial.org/mysql-grant.aspx#:~:text=Permissible%20privileges%20for%20GRANT%20statement%20%20%20Privilege,%20%20%20%2028%20more%20rows%20)
-- [How To Create a New User and Grant Permissions in MySQL | DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql)
 
 ### 授予用户创建数据库的权限
 
