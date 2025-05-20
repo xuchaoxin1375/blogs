@@ -151,14 +151,13 @@
 
 ## sed语句基本组成和概述
 
-### sed script部分|sed基础语法结构
+### sed script|sed基础语法结构
 
 - sed script,是sed包含语句动作的字符串,简称script
   - script和sed的选项共同决定sed行为
   - 正则表达式(模式串匹配逻辑)主要是编写在script字符串中
 
-
-简化的sed语法
+#### 简化的sed语法
 
 - Normally `sed` is invoked like this:
 
@@ -166,7 +165,7 @@
 sed SCRIPT INPUTFILE...
 ```
 
-完整一点的语法:
+#### 完整语法
 
 - The full format for invoking `sed` is:
 
@@ -177,16 +176,23 @@ sed OPTIONS... [SCRIPT] [INPUTFILE...]
 
 选项(options)不是必须的,如果使用选项,可以修改sed的默认行为
 
+#### 示例
+
 - For example, to replace all occurrences of ‘hello’ to ‘world’ in the file input.txt:
 
   ```bash
   sed 's/hello/world/' input.txt > output.txt
   ```
 
-  - 上述示例中sed 语句的script就是字符串` 's/hello/world/'`
+  - 上述示例中sed 语句的script(sed script)就是字符串` 's/hello/world/'`
+    - 这里的script用到的指令是`s///`,其中`s`表示subtitute(替换),例子的作用是输入中的第一次出现`hello`替换为`world`
   - INPUTFILE就是`input.txt`
   - `> output.txt`则是sed语句之外的部分,属于对sed处理的后续处理
-    - 本例在bash中,将sed传输结果重定向输出到output.txt文件中
+  - 本例在bash中,将sed传输结果重定向输出到output.txt文件中,即理解为:`(sed 's/hello/world/' input.txt) > output.txt`
+
+### sed script常用命令总结
+
+另见它文
 
 ### 数据输入(InputFile)
 
@@ -207,7 +213,7 @@ sed OPTIONS... [SCRIPT] [INPUTFILE...]
 
 - 此外,输入文件可以有多个
 
-## sed文本替换🎈
+## sed文本替换(典型用例)🎈
 
 - `sed` writes output to standard output. 
 

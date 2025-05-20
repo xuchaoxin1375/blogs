@@ -35,7 +35,7 @@ sed [options] 'commands' inputfile
 
   
 
-### 常用sed命令
+### 常用sed命令(sed script)
 
 一些常用的 `sed` 命令包括：
 
@@ -45,8 +45,8 @@ sed [options] 'commands' inputfile
 
 - `d`：删除行，匹配到该命令指定的模式时，删除整行。
 - `p`：打印行，可以配合地址或者模式使用，只打印满足条件的行。
-- `a\newline`：追加，在匹配行后追加文本。
-- `i\newline`：插入，在匹配行前插入文本。
+- `a\newline`：追加，在**匹配行后**追加文本。
+- `i\newline`：插入，在**匹配行前**插入文本。
 
 ## 常用形式
 
@@ -128,7 +128,89 @@ sed [options] 'commands' inputfile
     \line2
     ```
 
-### 小结
+---
 
-这只是 `sed` 功能的一小部分，它还有其他丰富的命令和功能，如标签、分支、测试等功能，使得 `sed` 成为一种极其灵活且强大的文本处理工具。
+## 总结表格
+
+### 📌 **sed 常用选项（Options）**
+
+| 选项                        | 描述                                  |
+| --------------------------- | ------------------------------------- |
+| `-n`, `--quiet`, `--silent` | 禁止默认输出，只输出被处理的行        |
+| `-e script`                 | 添加一个编辑脚本（可多个 -e 使用）    |
+| `-f script-file`            | 从文件中读取编辑脚本                  |
+| `-i[SUFFIX]`                | 就地编辑文件（可加备份后缀）          |
+| `-r`, `-E`                  | 启用扩展正则表达式（macOS 上是 `-E`） |
+| `-b`                        | 二进制模式（Windows）                 |
+| `-u`                        | 非缓冲输出（实时输出）                |
+
+---
+
+### 📌 **sed 脚本命令速查表（Script Commands）**
+
+| 命令                          | 示例                       | 功能说明                           |
+| ----------------------------- | -------------------------- | ---------------------------------- |
+| `s/pattern/replacement/flags` | `s/foo/bar/g`              | 替换匹配的内容（`g`=全局替换）     |
+| `d`                           | `/pattern/d`               | 删除匹配的行                       |
+| `p`                           | `/pattern/p`               | 打印匹配的行（常与 `-n` 搭配）     |
+| `i\text`                      | `i\Insert this line`       | 在匹配行**前**插入文本             |
+| `a\text`                      | `a\Append this line`       | 在匹配行**后**追加文本             |
+| `c\text`                      | `c\Replace with this line` | 替换匹配的整行内容                 |
+| `y/old/new/`                  | `y/abc/def/`               | 字符转换（逐字符替换）             |
+| `=`                           | `/pattern/=`               | 打印匹配行的行号                   |
+| `q [exit_code]`               | `3q`                       | 退出 `sed`（可指定退出码）         |
+| `l`                           | `l`                        | 显示当前模式空间内容（含转义字符） |
+| `{...}`                       | `1,5{s/foo/bar/; p}`       | 命令块，组合多个操作               |
+| `w filename`                  | `/pattern/w file.txt`      | 将匹配行写入文件                   |
+| `r filename`                  | `/pattern/r file.txt`      | 读取文件内容插入到匹配行后         |
+
+---
+
+### 📌 **地址范围（Addressing）示例**
+
+| 地址形式           | 示例              | 说明                       |
+| ------------------ | ----------------- | -------------------------- |
+| 单行               | `3s/foo/bar/`     | 第3行执行替换              |
+| 行范围             | `10,20d`          | 删除第10到20行             |
+| 正则匹配           | `/error/d`        | 删除包含 "error" 的行      |
+| 从某行开始直到结尾 | `5,$d`            | 删除第5行到末尾的所有行    |
+| 步长               | `1~2p`（需 `-n`） | 打印奇数行（每两行取一行） |
+
+---
+
+##  **常见用法示例**
+
+```bash
+# 替换所有 foo 为 bar（输出到终端）
+sed 's/foo/bar/g' input.txt
+
+# 替换并就地保存（带备份）
+sed -i.bak 's/foo/bar/g' input.txt
+
+# 删除包含 error 的行
+sed '/error/d' input.txt
+
+# 打印匹配行及其下一行
+sed -n '/pattern/,+1p' input.txt
+
+# 插入一行在匹配行之前
+sed '/target/i\This is a new line' input.txt
+
+# 替换整行内容
+sed '/target/c\New content here' input.txt
+
+# 只打印匹配行
+sed -n '/success/p' input.txt
+
+# 多个命令一起执行
+sed -e 's/foo/bar/' -e '/bar/d' input.txt
+```
+
+---
+
+## 温馨提示：
+
+- `sed` 默认不修改原文件，除非使用 `-i`。
+- 正则表达式中部分特殊字符需要转义 `\`。
+- macOS 和 Linux 的 `sed` 有细微差别（如 `-i ''` vs `-i`）。
 
