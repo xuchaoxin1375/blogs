@@ -11,7 +11,12 @@
 - **直接使用 Linux 命令行工具**：在 WSL 环境中，你可以使用几乎所有常见的 Linux 命令行工具和脚本（如 `grep`、`sed`、`awk`、`ssh` 等），以及不同的包管理工具（如 `apt`、`yum` 等）来管理系统和安装软件包。
 - **多发行版支持**：WSL 支持多个 Linux 发行版（如 Ubuntu、Debian、Fedora、SUSE 等）。可以在 Microsoft Store 中直接安装这些发行版，并在同一台机器上运行多个不同的 Linux 发行版。
 
+### 关于wsl性能以及合理用法指南
+
+- [Set up a WSL development environment | Microsoft Learn](https://learn.microsoft.com/en-us/windows/wsl/setup/environment#file-storage)
+
 ##  与 Windows 命令行和文件系统集成
+
 - **双向文件访问**：可以在 WSL 中访问 Windows 文件系统，例如 `C:\` 目录可以通过 `/mnt/c/` 访问，反之亦然，可以从 Windows 资源管理器中浏览 Linux 文件系统。
 - **跨平台文件操作**：可以使用 `cp`、`mv` 等 Linux 命令在 Linux 和 Windows 文件系统之间移动文件。同时，也可以在 Windows 中使用 `explorer.exe` 打开 WSL 中的当前目录，输入命令：
   ```bash
