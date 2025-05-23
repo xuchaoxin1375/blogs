@@ -200,4 +200,21 @@ EOF
 
 ---
 
-通过以上方法，您可以在 Bash 中灵活地使用 MySQL 执行 SQL 语句，无论是简单的单条查询还是复杂的批量操作，都能轻松实现。
+## bash中创建数据库
+
+这里主要注意数据库名字中带有`.`号的情况
+
+```bash
+#( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
+   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzone.com\` "
+   
+```
+
+恢复/导入数据sql文件可以不用额外转义"`"符号
+
+```bash
+
+#( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
+   mysql -uroot -p1234 zsh_babymarktzone.com < babymarktzone.com.sql  
+```
+
