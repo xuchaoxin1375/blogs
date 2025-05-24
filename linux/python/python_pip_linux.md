@@ -1,6 +1,8 @@
 [toc]
 
-# linux_supplement of man(manpages)/获取linux命令用法示例的若干辅助命令行工具/网站/linux_python/pip检查
+## abstract
+
+linux_supplement of man(manpages)/获取linux命令用法示例的若干辅助命令行工具/网站/linux_python/pip检查
 
 
 
