@@ -1,10 +1,10 @@
 [toc]
 
-# python@模块和脚本@module@script@package_import
+python@模块和脚本@module@script@package_import
 
 ## refs
 
-- [6. Modules — Python 3.11.2 documentation](https://docs.python.org/3/tutorial/modules.html)
+- [6. Modules — Python  documentation](https://docs.python.org/3/tutorial/modules.html)
 
 ### 脚本
 
