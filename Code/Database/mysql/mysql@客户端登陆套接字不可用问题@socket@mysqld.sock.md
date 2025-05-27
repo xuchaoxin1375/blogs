@@ -25,7 +25,17 @@ port		= 3306
 socket		= /tmp/mysql.sock
 ```
 
+### 修复命令
 
+```bash
+mkdir -p /run/mysqld/
+sudo ln -s /tmp/mysql.sock /run/mysqld/mysqld.sock
+
+```
+
+
+
+### 效果
 
 ```bash
 root@wnx0020303:~# sudo ln -s /tmp/mysql.sock /run/mysqld/mysqld.sock
