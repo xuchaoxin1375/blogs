@@ -32,7 +32,7 @@ nano ~/.bashrc
 export PYTHONPATH="/your/custom/path:$PYTHONPATH"
 ```
 
-> 例如:` export PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df:$PYTHONPATH" `
+> 例如:` export PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df:$PYTHONPATH"  `
 
 保存并退出，然后应用更改：
 
@@ -64,6 +64,24 @@ source ~/.zshrc
 
 ---
 
+### 使用重定向的方式添加
+
+例如:
+
+对于bash
+
+```ini
+echo 'export PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df:$PYTHONPATH"' >> ~/.bashrc
+```
+
+对于zsh
+
+```ini
+echo 'export PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df:$PYTHONPATH"' >> ~/.zshrc
+```
+
+
+
 ## ✅ 三、验证是否生效
 
 运行以下命令查看是否设置成功：
@@ -82,6 +100,14 @@ python3 -c "import sys; print(sys.path)"
 
 你会看到 `/your/custom/path` 出现在输出中。
 
+```bash
+#( 05/27/25@ 9:49AM )( root@wnx0020303 ):~
+   python3 -c "import sys; print(sys.path)"
+['', '/repos/scripts/wp/woocommerce/woo_df', '/usr/lib/python312.zip', '/usr/lib/python3.12', '/usr/lib/python3.12/lib-dynload', '/usr/local/lib/python3.12/dist-packages', '/usr/lib/python3/dist-packages']
+```
+
+
+
 ---
 
 ## 🧠 小贴士
@@ -92,7 +118,17 @@ python3 -c "import sys; print(sys.path)"
 export PYTHONPATH="/path1:/path2:$PYTHONPATH"
 ```
 
+## 系统级配置🎈
+
 - 如果你想让所有用户都能使用这个环境变量，可以修改系统级配置文件如 `/etc/profile` 或 `/etc/environment`（需管理员权限）。
+
+- 例如添加一条记录:(多个取值用`:`划分)
+
+  ```ini
+  PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df"
+  ```
+
+  
 
 ---
 
