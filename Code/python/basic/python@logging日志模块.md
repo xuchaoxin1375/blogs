@@ -6,7 +6,12 @@
 
 ## 日志
 
+- howto 系列
+  - [日志指南 — Python  文档](https://docs.python.org/zh-cn/3.13/howto/logging.html)
+  - [日志指南 — Python 文档](https://docs.python.org/zh-cn/3.13/howto/logging.html#logging-advanced-tutorial)
+
 - [日志常用指引 — Python 文档](https://docs.python.org/zh-cn/3/howto/logging.html)
+- [日志专题手册 — Python  文档](https://docs.python.org/zh-cn/3/howto/logging-cookbook.html#logging-cookbook)
 
 Logging 是 Python 标准库中用于记录日志的强大模块。
 
@@ -30,7 +35,7 @@ logging.error('这是一个错误信息')
 
 ### 1.2 日志级别🎈
 
-Python logging 有5个标准级别：
+Python logging 有5个标准级别(数值表示重要/严重程度)：
 
 | 级别     | 数值 | 描述                                   |
 | -------- | ---- | -------------------------------------- |
@@ -103,7 +108,7 @@ logging.basicConfig(
 logging.info('这是一条信息日志')
 ```
 
-### 2.2 日志格式参数
+### 2.2 日志格式参数🎈
 
 常用格式参数：
 
