@@ -7,13 +7,437 @@
 ## 日志
 
 - howto 系列
-  - [日志指南 — Python  文档](https://docs.python.org/zh-cn/3.13/howto/logging.html)
-  - [日志指南 — Python 文档](https://docs.python.org/zh-cn/3.13/howto/logging.html#logging-advanced-tutorial)
 
-- [日志常用指引 — Python 文档](https://docs.python.org/zh-cn/3/howto/logging.html)
-- [日志专题手册 — Python  文档](https://docs.python.org/zh-cn/3/howto/logging-cookbook.html#logging-cookbook)
+  - [日志指南(logging advanced tutorial) — Python 文档](https://docs.python.org/zh-cn/3.13/howto/logging.html#logging-advanced-tutorial)
+  - [日志常用指引(howto/logging) — Python 文档](https://docs.python.org/zh-cn/3/howto/logging.html)
 
-Logging 是 Python 标准库中用于记录日志的强大模块。
+- [日志专题手册(cookbook) — Python  文档](https://docs.python.org/zh-cn/3/howto/logging-cookbook.html#logging-cookbook)
+
+- api参考
+
+  - [logging --- Python 的日志记录工具(library/module-logging) — Python  文档](https://docs.python.org/zh-cn/3.13/library/logging.html#module-logging)
+
+    - Important
+
+      此页面仅包含 API 参考信息。教程信息和更多高级用法的讨论，请参阅
+
+      - [基础教程](https://docs.python.org/zh-cn/3.13/howto/logging.html#logging-basic-tutorial)
+      - [进阶教程](https://docs.python.org/zh-cn/3.13/howto/logging.html#logging-advanced-tutorial)
+      - [日志记录操作手册](https://docs.python.org/zh-cn/3.13/howto/logging-cookbook.html#logging-cookbook)
+
+
+
+
+相比于自己实现一个简易版本的日志系统或模块,使用标准库提供的 logging API 最主要的好处是，所有的 Python 模块都可能参与日志输出，包括你自己的日志消息和第三方模块的日志消息。
+
+## logging模块概述
+
+The basic classes defined by the module, together with their attributes and methods, are listed in the sections below.
+模块定义的基本类及其属性和方法在下面的部分中列出。
+
+日志库采用模块化方法，并提供几类**组件**：记录器、处理器、过滤器和格式器。
+
+1. **Loggers** expose the interface that application code directly uses.
+   记录器公开应用程序代码直接使用的接口。
+2. **Handlers** send the log records (created by loggers) to the appropriate destination.
+   处理程序将日志记录（由记录器创建）发送到适当的目的地。
+3. **Filters** provide a finer grained facility for determining which log records to output.
+   过滤器提供了**更细粒度的功能**来确定要输出哪些日志记录。
+4. **Formatters** specify the layout of log records in the final output.
+   格式化程序指定最终输出中日志记录的布局。
+
+
+
+Log event information is passed between loggers, handlers, filters and formatters in a [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) instance.
+日志事件信息在 [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) 实例中的记录器、处理程序、过滤器和格式化程序之间传递。
+
+Logging is performed by calling methods on instances of the [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) class (hereafter called *loggers*). Each instance has a name, and they are conceptually arranged in a namespace hierarchy using dots (periods) as separators. For example, a logger named ‘scan’ is the parent of loggers ‘scan.text’, ‘scan.html’ and ‘scan.pdf’. Logger names can be anything you want, and indicate the area of an application in which a logged message originates.
+日志记录是通过调用 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 实例上的方法来执行的 类（以下称为*记录器* ）。每个实例都有一个名称，它们在概念上使用点（句点）作为分隔符排列在名称空间层次结构中。
+
+例如，名为“scan”的记录器是记录器“scan. text”、“scan.html”和“scan.pdf”的父记录器。记录器名称可以是您想要的任何名称，并指示记录的消息所源自的应用程序区域。
+
+---
+
+
+
+### 常用的参考
+
+- LogRecord属性[logrecord-attributes@ logging --- Python 的日志记录工具 — Python  文档](https://docs.python.org/zh-cn/3.13/library/logging.html#logrecord-attributes)
+
+## 模块中的类和对象
+
+### 记录器对象
+
+记录器有以下的属性和方法。注意 *永远* 不要直接实例化记录器，应当通过模块级别的函数 `logging.getLogger(name)` 。多次使用相同的名字调用 [`getLogger()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.getLogger) 会一直返回相同的 Logger 对象的引用。
+
+```python
+# logging.py
+...
+def getLogger(name=None):
+    """
+    Return a logger with the specified name, creating it if necessary.
+
+    If no name is specified, return the root logger.
+    """
+    if not name or isinstance(name, str) and name == root.name:
+        return root
+    return Logger.manager.getLogger(name)
+```
+
+logging模块中暴露在最外层的`getLogging()`函数,实际上是对`Logger.manager.getLogger`的简单包装
+
+`name` 一般是以句点分割的层级值，如 `foo.bar.baz` (尽管也可以是简单形式，例如 `foo`)。 层级结构列表中位于下方的日志记录器是列表中较高位置的日志记录器的子级。 例如，假定有一个名叫 `foo` 的日志记录器，则名字为 `foo.bar`, `foo.bar.baz` 和 `foo.bam` 的日志记录器都是 `foo` 的子级。 而且，所有日志记录器都是根日志记录器的子级。 日志记录器名称的层级结构类似于 Python 包的层级结构，如果你使用建议的构造 `logging.getLogger(__name__)` 以每个模块为基础来组织你的日志记录器则将与后者完全一致。 这是因为在一个模块中，`__name__` 是该模块在 Python 包命名空间中的名字。]
+
+```python
+    def getLogger(self, name):
+        """
+        Get a logger with the specified name (channel name), creating it
+        if it doesn't yet exist. This name is a dot-separated hierarchical
+        name, such as "a", "a.b", "a.b.c" or similar.
+
+        If a PlaceHolder existed for the specified name [i.e. the logger
+        didn't exist but a child of it did], replace it with the created
+        logger and fix up the parent/child references which pointed to the
+        placeholder to now point to the logger.
+        """
+        rv = None
+        if not isinstance(name, str):
+            raise TypeError('A logger name must be a string')
+        _acquireLock()
+        try:
+            if name in self.loggerDict:
+                rv = self.loggerDict[name]
+                if isinstance(rv, PlaceHolder):
+                    ph = rv
+                    rv = (self.loggerClass or _loggerClass)(name)
+                    rv.manager = self
+                    self.loggerDict[name] = rv
+                    self._fixupChildren(ph, rv)
+                    self._fixupParents(rv)
+            else:
+                rv = (self.loggerClass or _loggerClass)(name)
+                rv.manager = self
+                self.loggerDict[name] = rv
+                self._fixupParents(rv)
+        finally:
+            _releaseLock()
+        return rv
+```
+
+
+
+| 功能              | 描述                                                   |
+| ----------------- | ------------------------------------------------------ |
+| 获取或创建 logger | 如果已有，直接返回；如果没有，就创建一个新的           |
+| 层级支持          | 使用点号分隔的名称构建树状结构，实现配置继承           |
+| 占位符处理        | 当某个 logger 的子 logger 先于它创建时，为其创建占位符 |
+| 线程安全          | 使用锁机制保护共享数据                                 |
+| 自动修复父子关系  | 创建 logger 后自动修复原先指向占位符的子节点引用       |
+
+### 模块顶层的日志记录函数
+
+| 特性         | `logging.info()`         | `logger.info()`               |
+| ------------ | ------------------------ | ----------------------------- |
+| 使用对象     | 全局的 root logger       | 指定的 logger 实例            |
+| 灵活性       | 差，只能配置 root logger | 好，可单独配置每个模块        |
+| 可控性       | 所有日志都走 root logger | 可控制某个模块的日志级别/输出 |
+| 推荐程度     | 不推荐在模块中使用       | ✅ 强烈推荐在模块中使用        |
+| 日志来源识别 | 无法知道日志来自哪个模块 | 可通过`%(name)s`显示模块名    |
+
+
+
+
+
+## Logging Flow 日志记录流程
+
+The flow of log event information in loggers and handlers is illustrated in the following diagram.
+下图说明了日志记录器和处理程序中的日志事件信息流。
+
+
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/46df554985524a5389afc3da368de17e.png)
+
+
+
+这张流程图(是文档中的一个插图:[logging-flow@日志 HOWTO - Python 文档 --- Logging HOWTO — Python  documentation](https://docs.python.org/3.13/howto/logging.html#logging-flow) )展示了 Python `logging` 模块的核心工作流程，分为两个部分：
+1. **Logger flow 流程**（左侧）：描述了从用户代码调用日志记录器（如 `logger.info()`）到最终处理日志记录的整个过程。
+2. **Handler flow 流程**（右侧）：**描述了日志记录如何被传递给处理器（Handler），以及处理器如何决定是否输出日志**。
+
+Handler flow是Logger flow中的**Pass record to handlers of current logger**这一个**处理**环节的展开描述,采用虚线标记了该流程,是Logger flow的子流程
+
+从流程图中可以看到,将日志输出的动作落在了Handler flow这个流程中
+
+---
+
+### **1. Logger 流程（左侧）**
+
+#### **步骤 1：Logging 调用**
+- 用户在代码中调用日志记录器的方法，例如：
+  ```python
+  logger.info("This is an info message")
+  ```
+- 这里的 `logger` 是一个 `logging.Logger` 实例，`info` 是其方法之一。
+
+#### **步骤 2：检查 Logger 是否启用**
+- 检查当前 Logger 的级别是否允许记录该级别的日志。
+  - 每个 Logger 都有一个 `level` 属性，表示它允许记录的日志级别（如 `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`）。
+  - 如果 Logger 的级别高于当前日志级别，则停止流程。例如：
+    - 如果 Logger 的级别是 `WARNING`，而调用的是 `logger.info()`，则不会记录这条日志。
+
+#### **步骤 3：创建 LogRecord**
+- 如果 Logger 允许记录该级别的日志，则创建一个 `LogRecord` 对象。
+  - `LogRecord` 包含日志的相关信息，如日志级别、消息内容、时间戳、文件名、行号等。
+
+#### **步骤 4：检查 Logger 的过滤器**
+- Logger 可以附加过滤器（Filter），用于进一步筛选日志记录。
+  - 如果过滤器拒绝该记录，则停止流程。
+  - 如果过滤器允许该记录，则继续下一步。
+
+#### **步骤 5：将记录传递给当前 Logger 的 Handler**
+- 将 `LogRecord` 传递给当前 Logger 的**所有 Handler**。
+  - Handler 是负责实际输出日志的对象，例如文件写入、控制台输出等。
+  - 不同的输出路线由不同的handler控制,将构造好的消息日志传送给所有handler检查,各个handler根据自己的判断来决定是否将日志进一步处理或传递到对应的路线
+
+#### **步骤 6：检查是否向上级 Logger 传播**
+
+- 如果当前 Logger 的 `propagate` 属性为 `True`，则将记录传递给上级 Logger。
+  - 如果有父 Logger，则重复上述流程（从步骤 2 开始）。
+  - 如果没有父 Logger，则停止流程。
+  - 情况1最终会变成情况2,从而结束流程
+
+---
+
+### **2. Handler 流程（右侧）**
+
+#### **步骤 1：检查 Handler 是否启用**
+- 检查当前 Handler 的级别是否允许记录该级别的日志。
+  - 每个 Handler 也有一个 `level` 属性，表示它允许记录的日志级别。
+  - 如果 Handler 的级别高于当前日志级别，则停止流程。
+- 如果当前 Logger 没有配置任何 Handler，则使用默认的 `lastResort` Handler。
+  - 默认情况下，`lastResort` Handler 会将日志打印到**标准错误流**（stderr）。
+
+#### **步骤 2：检查 Handler 的过滤器**
+- Handler 可以附加过滤器（Filter），用于进一步筛选日志记录。
+  - 如果过滤器拒绝该记录，则停止流程。
+  - 如果过滤器允许该记录，则继续下一步。
+
+#### **步骤 3：输出日志**
+- 如果 Handler 允许记录该日志，则执行输出操作（`emit`）。
+  - 输出时会根据 Formatter 对日志进行格式化。
+  - 例如，将日志写入文件或打印到控制台。
+
+
+
+---
+
+### 代码例子
+
+以下是一个完整的代码示例，演示了如何使用 Python `logging` 模块，并结合流程图中的逻辑：
+
+```python
+import logging
+
+# 创建一个顶级 Logger
+logger = logging.getLogger("main")
+
+# 配置 Logger 的级别
+logger.setLevel(logging.DEBUG)
+
+# 创建一个 Handler，将日志输出到控制台
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)  # Handler 的级别设置为 INFO
+
+# 创建一个 Formatter，定义日志格式
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# 将 Handler 添加到 Logger
+logger.addHandler(console_handler)
+
+# 创建一个子 Logger
+child_logger = logging.getLogger("main.child")
+child_logger.setLevel(logging.DEBUG)
+
+# 配置子 Logger 的过滤器
+def filter_record(record):
+    return "important" in record.msg  # 只允许包含 "important" 的日志通过
+
+child_logger.addFilter(filter_record)
+
+# 测试日志记录
+logger.debug("This is a debug message from main logger")  # 不会被记录，因为 Handler 级别是 INFO
+logger.info("This is an info message from main logger")   # 会被记录
+
+child_logger.debug("This is a debug message from child logger")  # 不会被记录，因为过滤器拒绝
+child_logger.info("This is an important info message from child logger")  # 会被记录
+```
+
+---
+
+### **运行结果分析**
+
+#### **Logger 流程**
+1. 调用 `logger.debug("This is a debug message from main logger")`：
+   - Logger 的级别是 `DEBUG`，允许记录 `DEBUG` 级别的日志。
+   - 创建 `LogRecord`。
+   - 没有附加过滤器，直接传递给 Handler。
+   - Handler 的级别是 `INFO`，不记录 `DEBUG` 级别的日志，因此停止。
+
+2. 调用 `logger.info("This is an info message from main logger")`：
+   - Logger 的级别是 `DEBUG`，允许记录 `INFO` 级别的日志。
+   - 创建 `LogRecord`。
+   - 没有附加过滤器，直接传递给 Handler。
+   - Handler 的级别是 `INFO`，记录该日志。
+
+#### **Handler 流程**
+1. 处理 `logger.info("This is an info message from main logger")`：
+   - Handler 的级别是 `INFO`，允许记录 `INFO` 级别的日志。
+   - 没有附加过滤器，直接输出日志。
+   - 格式化后输出：
+     ```
+     2023-10-01 12:00:00,000 - main - INFO - This is an info message from main logger
+     ```
+
+2. 调用 `child_logger.debug("This is a debug message from child logger")`：
+   - 子 Logger 的级别是 `DEBUG`，允许记录 `DEBUG` 级别的日志。
+   - 创建 `LogRecord`。
+   - 过滤器拒绝该记录（因为消息中不包含 "important"），因此停止。
+
+3. 调用 `child_logger.info("This is an important info message from child logger")`：
+   - 子 Logger 的级别是 `DEBUG`，允许记录 `INFO` 级别的日志。
+   - 创建 `LogRecord`。
+   - 过滤器允许该记录（因为消息中包含 "important"）。
+   - 传递给 Handler。
+   - Handler 的级别是 `INFO`，记录该日志。
+   - 格式化后输出：
+     ```
+     2023-10-01 12:00:00,001 - main.child - INFO - This is an important info message from child logger
+     ```
+
+---
+
+### **总结**
+- **Logger 流程**：负责判断是否需要记录日志，并将日志传递给 Handler。
+- **Handler 流程**：负责决定是否输出日志，并对日志进行格式化。
+- 通过配置 Logger 和 Handler 的级别、过滤器等，可以灵活控制日志的行为。
+
+  
+
+## Loggers[¶](https://docs.python.org/3.13/howto/logging.html#loggers) 记录器¶
+
+[`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) objects have a threefold job. First, they expose several methods to application code so that applications can log messages at runtime. Second, logger objects determine which log messages to act upon based upon severity (the default filtering facility) or filter objects. Third, logger objects pass along relevant log messages to all interested log handlers.
+[`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 对象有三重任务。
+
+1. 首先，它们向**应用程序**代码公开几个方法，以便应用程序可以在运行时记录消息。
+2. 其次，记录器对象根据**严重性（默认的过滤工具）或过滤器**对象**确定要对哪些日志消息进行操作**。
+3. 第三，记录器对象将沿着相关的日志消息**传递给所有感兴趣的日志处理程序**。
+
+The most widely used methods on logger objects fall into two categories: configuration and message sending.
+日志记录器对象上**最广泛使用的"方法"分为两类：配置和消息发送**。
+
+### 常用的日志配置方法
+
+ 最常用
+
+- [`Logger.setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.setLevel) 指定记录器将处理的最低严重性日志消息，其中 debug 是最低内置严重性级别， critical 是最高内置严重性级别。 例如，如果严重性级别为 INFO ，则记录器将仅处理 INFO 、 WARNING 、 ERROR 和 CRITICAL 消息，并将忽略 DEBUG 消息。
+
+其他:
+
+- [`Logger.addHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addHandler) 和 [`Logger.removeHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.removeHandler) 从记录器对象中添加和删除处理器对象。处理器在以下内容中有更详细的介绍 [处理器](https://docs.python.org/zh-cn/3.13/howto/logging.html#handler-basic) 。
+- [`Logger.addFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addFilter) 和 [`Logger.removeFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.removeFilter) 可以添加或移除记录器对象中的过滤器。 [过滤器对象](https://docs.python.org/zh-cn/3.13/library/logging.html#filter) 包含更多的过滤器细节。
+
+你不需要总是在你创建的每个记录器上都调用这些方法。 
+
+### 常用的消息发送方法
+
+配置记录器对象后，以下方法将创建日志消息：
+
+- [`Logger.debug()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.debug) 、 [`Logger.info()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.info) 、 [`Logger.warning()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.warning) 、 [`Logger.error()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.error) 和 [`Logger.critical()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.critical) 都创建日志记录，包含消息和与其各自方法名称对应的级别。该消息**实际上是一个格式化字符串**，它可能包含标题字符串替换语法 `%s` 、 `%d` 、 `%f` 等等。
+
+  其余参数是与消息中的替换字段对应的对象列表。关于 `**kwargs` ，日志记录方法只关注 `exc_info` 的关键字，并用它来确定是否记录异常信息。
+
+其他
+
+- [`Logger.exception()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.exception) 创建与 [`Logger.error()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.error) 相似的日志信息。 不同之处是， [`Logger.exception()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.exception) 同时还记录当前的堆栈追踪。仅从异常处理程序调用此方法。
+- [`Logger.log()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.log) 将日志级别作为显式参数。对于记录消息而言，这比使用上面列出的日志级别便利方法更加冗长，但这是使用自定义日志级别的方法。
+
+### 日志等级的层级
+
+[`getLogger()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.getLogger) 返回对具有指定名称的记录器实例的引用（如果已提供），或者如果没有则返回 `root` 。名称是以句点分隔的层次结构。多次调用 [`getLogger()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.getLogger) 具有相同的名称将返回对同一记录器对象的引用。在分层列表中较低的记录器是列表中较高的记录器的子项。例如，给定一个名为 `foo` 的记录器，名称为 `foo.bar` 、 `foo.bar.baz` 和 `foo.bam` 的记录器都是 `foo` 子项。
+
+### 日志等级的传播|有效等级
+
+记录器具有 *有效等级*(*effective level*) 的概念。如果未在记录器上显式设置级别，则**使用其父记录器的级别作为其有效级别**。如果父记录器没有明确的级别设置，则检查 *其* 父级。依此类推，搜索所有上级元素，直到找到明确设置的级别。
+
+**根记录器**始终具有明确的级别配置（默认情况下为 `WARNING` ）。
+
+在决定是否处理事件时，**记录器的有效级别用于确定事件是否传递给记录器相关的处理器**。
+
+### 日志处理器handler的配置
+
+子记录器将消息传播(propagate )到**与其父级记录器关联的[处理器(handlers )]**。因此，不必为**应用程序**使用的所有记录器定义和配置**处理器**。
+
+一般为**顶级记录器**配置处理器，再根据需要**创建子记录器**就足够了。（但是，你可以通过将记录器的 *propagate* 属性设置为 `False` 来**关闭传播**。）
+
+
+
+## 处理器
+
+[`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 对象负责将适当的日志消息（基于日志消息的严重性）分派给处理器的指定目标。 [`Logger`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger) 对象可以使用 [`addHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addHandler) 方法向自己添加零个或多个处理器对象。
+
+作为示例场景，应用程序可能希望将**所有日志消息发送到日志文件**，将**错误或更高的所有日志消息发送到标准输出**，以及**将所有关键消息发送至一个邮件地址**。 
+
+此方案需要**三个单独的处理器**，其中每个处理器负责**将特定严重性的消息发送到特定位置**。
+
+标准库包含很多处理器类型（参见 [有用的处理器](https://docs.python.org/zh-cn/3.13/howto/logging.html#useful-handlers) ）；教程主要使用 [`StreamHandler`](https://docs.python.org/zh-cn/3.13/library/logging.handlers.html#logging.StreamHandler) 和 [`FileHandler`](https://docs.python.org/zh-cn/3.13/library/logging.handlers.html#logging.FileHandler) 。
+
+处理器中很少有方法可供应用程序开发人员使用。使用内置处理器对象（即不创建自定义处理器）的应用程序开发人员能用到的仅有以下配置方法：
+
+- [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法，就像在日志记录器对象中一样，指定将被分派到适当目标的最低严重性。 为什么有两个 [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法？ 在日志记录器中设置的级别确定要传递给其处理器的消息的严重性。 每个处理器中设置的级别则确定该处理器将发送哪些消息。
+- [`setFormatter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setFormatter) 选择一个该处理器使用的 Formatter 对象。
+- [`addFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.addFilter) 和 [`removeFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.removeFilter) 分别在处理器上配置和取消配置过滤器对象。
+
+应用程序代码不应直接实例化并使用 [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 的实例。 相反， [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类是一个基类，它定义了所有处理器应该具有的接口，并建立了子类可以使用（或覆盖）的一些默认行为。
+
+## 格式器
+
+格式化器对象配置日志消息的最终顺序、结构和内容。 与 [`logging.Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类不同，应用程序代码可以实例化格式器类，但如果应用程序需要特殊行为，则可能会对格式化器进行子类化定制。构造函数有三个可选参数 —— 消息格式字符串、日期格式字符串和样式指示符。
+
+- logging.Formatter.**__init__**(*fmt=None*, *datefmt=None*, *style='%'*)
+
+  
+
+如果没有消息格式字符串，则默认使用原始消息。如果没有日期格式字符串，则默认日期格式为：
+
+```
+%Y-%m-%d %H:%M:%S
+```
+
+在末尾加上毫秒数。 `style` 是 `'%'`, `'{'` 或 `'{TX-PL-LABEL}#x27;` 之一。 如果未指定其中之一，则将使用 `'%'`。
+
+如果 `style` 为 `'%'`，则消息格式字符串将使用 `%(<dictionary key>)s` 样式的字符串替换；可用的键值记录在 [LogRecord 属性](https://docs.python.org/zh-cn/3.13/library/logging.html#logrecord-attributes) 中。 如果样式为 `'{'`，则将假定消息格式字符串与 [`str.format()`](https://docs.python.org/zh-cn/3.13/library/stdtypes.html#str.format) 兼容（使用关键字参数），而如果样式为 `'{TX-PL-LABEL}#x27;` 则消息格式字符串应当符合 [`string.Template.substitute()`](https://docs.python.org/zh-cn/3.13/library/string.html#string.Template.substitute) 的预期。
+
+*在 3.2 版本发生变更:* 添加 `style` 形参。
+
+以下消息格式字符串将以人类可读的格式记录时间、消息的严重性以及消息的内容，按此顺序:
+
+```
+'%(asctime)s - %(levelname)s - %(message)s'
+```
+
+格式器通过用户可配置的函数将记录的创建时间转换为元组。 默认情况下，使用 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) ；要为特定格式器实例更改此项，请将实例的 `converter` 属性设置为与 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) 或 [`time.gmtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.gmtime) 具有相同签名的函数。 要为所有格式器更改它，例如，如果你希望所有记录时间都以 GMT 显示，请在格式器类中设置 `converter` 属性（对于 GMT 显示，设置为 `time.gmtime` ）。
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 1. 基础日志记录
 
