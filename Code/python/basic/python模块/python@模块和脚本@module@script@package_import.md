@@ -4,20 +4,24 @@ python@模块和脚本@module@script@package_import
 
 ## refs
 
-- [6. Modules — Python  documentation](https://docs.python.org/3/tutorial/modules.html)
+- [ Modules — Python  documentation](https://docs.python.org/3/tutorial/modules.html)
 
 ### 脚本
 
 - 退出 Python 解释器后，再次进入时，之前在 Python 解释器中定义的函数和变量就丢失了。因此，编写较长程序时，建议用文本编辑器代替解释器，执行文件中的输入内容，这就是编写 *脚本* 。
-  - 随着程序越来越长，为了方便维护，最好把脚本拆分成多个文件。编写脚本还一个好处，不同程序调用同一个函数时，不用每次把函数复制到各个程序。
+- 随着程序越来越长，为了方便维护，最好把脚本拆分成多个文件。
+- 编写脚本还一个好处，不同程序调用同一个函数时，不用每次把函数复制到各个程序。
 
 ### 模块
 
-- 为实现这些需求，Python 把各种定义存入一个文件，在脚本或解释器的交互式实例中使用。这个文件就是 *模块* ；
+- 为实现这些需求，Python 把各种**定义**存入一个文件，在脚本或解释器的交互式实例中使用。这个文件就是 *模块* ；
   - 模块中的定义可以 *导入* 到其他模块或 *主* 模块（在顶层和计算器模式下，执行脚本中可访问的变量集）。
   - 模块是包含 Python 定义和语句的文件。其文件名是模块名加后缀名 `.py` 。
 - 在模块内部，通过全局变量 `__name__` 可以获取模块名（即字符串）。
-  - 例如，用文本编辑器在当前目录下创建 `fibo.py` 文件，输入以下内容：
+
+#### 模块案例
+
+- 例如，用文本编辑器在当前目录下创建 `fibo.py` 文件，输入以下内容：
 
 ```python
 # Fibonacci numbers module
@@ -40,7 +44,7 @@ def fib2(n):   # return Fibonacci series up to n
 
 ### 导入模块
 
-- 现在，进入 Python 解释器，用以下命令导入该模块：
+- 进入 Python 解释器，用以下命令导入上述例子模块：
 
 ```python
 >>> import fibo
@@ -57,7 +61,7 @@ def fib2(n):   # return Fibonacci series up to n
 
 ```
 
-#### 访问模块名@`__name__`
+### 访问模块名`__name__`
 
 - 可以访问模块的`__name__`属性获得
 
@@ -132,7 +136,9 @@ def fib2(n):   # return Fibonacci series up to n
 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377
 ```
 
-### 重新导入模块👌交互模式@notebook模式使模块修改生效🎈
+## 重新导入模块@模块重载🎈
+
+交互模式@notebook模式使模块修改生效
 
 - note:为了保证运行效率，每次解释器会话只导入一次模块。如果更改了模块内容，**必须**重启解释器；
 - 仅交互测试一个模块时，也可以使用 [`importlib.reload()`](https://docs.python.org/zh-cn/3/library/importlib.html#importlib.reload)，例如 `import importlib; importlib.reload(modulename)`。
@@ -167,7 +173,7 @@ def fib2(n):   # return Fibonacci series up to n
 
   使用 `importlib.reload()` 函数来重新加载模块：
 
-  ```
+  ```python
   >>> import importlib
   >>> importlib.reload(my_module)
   Module my_module loaded and reloaded
@@ -177,7 +183,7 @@ def fib2(n):   # return Fibonacci series up to n
 
   现在，我们再次导入模块，就可以看到更改生效了。
 
-### 以脚本方式执行模块@`"__main__"`
+### 以脚本方式执行模块`"__main__"`
 
 - 可以用以下方式运行 Python 模块：
 
@@ -243,7 +249,7 @@ def fib2(n):   # return Fibonacci series up to n
   - 即，加载的是该目录里的脚本，而不是标准库的同名模块。 (自定义优先级更高)
   - 除非刻意替换，否则会报错。详见 [标准模块](https://docs.python.org/zh-cn/3/tutorial/modules.html#tut-standardmodules)。
 
-### “已编译的” Python 文件@`__pycache__`目录@`.pyc`文件
+### 已编译的Python 文件`__pycache__`目录和`.pyc`文件
 
 - 为了快速加载模块，Python 把模块的**编译版缓存**在 `__pycache__` 目录中，文件名为 `module.*version*.pyc`，version 对编译文件格式进行编码，一般是 Python 的版本号。
 - 例如，CPython 的 3.3 发行版中，spam.py 的编译版本缓存为 `__pycache__/spam.cpython-33.pyc`。使用这种命名惯例，可以让不同 Python 发行版及不同版本的已编译模块**共存**。
@@ -253,7 +259,29 @@ def fib2(n):   # return Fibonacci series up to n
   - 其一，从命令行直接载入模块，只重新编译，不存储编译结果；
   - 其二，没有源模块，就不会检查缓存。为了支持无源文件（仅编译）发行版本， 编译模块必须在源目录下，并且绝不能有源模块。
 
-#### 给专业人士的一些小建议@编译模块控制
+## 判断当前模块是否作为主程序运行🎈
+
+在 Python 中，每个模块（即 `.py` 文件）都有一个内置变量 `__name__`。这个变量的值取决于你如何使用该模块：
+
+- 如果你是 **直接运行** 这个 Python 文件（比如用命令行执行 `python script.py`），那么 `__name__` 的值就是 `"__main__"`。
+- 如果这个文件是被其他文件 **导入** 使用的（比如通过 `import script`），那么 `__name__` 的值就是模块的名字（例如 `"script"`）。
+
+所以：
+
+```python
+if __name__ == "__main__":
+    # 这里的代码只有在该文件作为主程序运行时才会执行
+    print("This script is being run directly.")
+else:
+    # 当该文件被导入时，会执行这里的代码（如果有的话）
+    print("This script is being imported as a module.")
+```
+
+---
+
+
+
+## 编译模块控制
 
 - 在 Python 命令中使用 [`-O`](https://docs.python.org/zh-cn/3/using/cmdline.html#cmdoption-O) 或 [`-OO`](https://docs.python.org/zh-cn/3/using/cmdline.html#cmdoption-OO) 开关，可以减小编译模块的大小。
   - `-O` 去除断言语句，`-OO` 去除断言语句和 __doc__ 字符串。
@@ -334,7 +362,9 @@ C>
 
 - [包及其导入方式|模块 — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/tutorial/modules.html#packages)
 
-### 包结构样例@sound
+### 包结构样例
+
+假设一个sound处理库(包)
 
 - ```bash
   sound/                          Top-level package
@@ -363,7 +393,7 @@ C>
 
   
 
-### 从包中导入 *@`__all__`
+### 从包中导入 *`__all__`
 
 - 使用 `from sound.effects import *` 时会发生什么？理想情况下，该语句在文件系统查找并导入包的所有子模块。这项操作花费的时间较长，并且导入子模块可能会产生不必要的副作用，这种副作用只有在显式导入子模块时才会发生。
 

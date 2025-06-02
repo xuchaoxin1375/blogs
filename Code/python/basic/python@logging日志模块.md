@@ -160,6 +160,9 @@ The flow of log event information in loggers and handlers is illustrated in the 
 
 
 这张流程图(是文档中的一个插图:[logging-flow@日志 HOWTO - Python 文档 --- Logging HOWTO — Python  documentation](https://docs.python.org/3.13/howto/logging.html#logging-flow) )展示了 Python `logging` 模块的核心工作流程，分为两个部分：
+
+### Logger flow & Handler flow🎈
+
 1. **Logger flow 流程**（左侧）：描述了从用户代码调用日志记录器（如 `logger.info()`）到最终处理日志记录的整个过程。
 2. **Handler flow 流程**（右侧）：**描述了日志记录如何被传递给处理器（Handler），以及处理器如何决定是否输出日志**。
 
@@ -167,9 +170,11 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 从流程图中可以看到,将日志输出的动作落在了Handler flow这个流程中
 
+同时,各个handler控制自己的输出行为,这包括日志格式,从而在代码组织上,需要将日志格式器(Formatter指派给Handler),如有必要,不同的handler可以指派不同的formatter对象作为参数
+
 ---
 
-### **1. Logger 流程（左侧）**
+### 1. Logger 流程（左侧）
 
 #### **步骤 1：Logging 调用**
 - 用户在代码中调用日志记录器的方法，例如：
@@ -179,6 +184,7 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 - 这里的 `logger` 是一个 `logging.Logger` 实例，`info` 是其方法之一。
 
 #### **步骤 2：检查 Logger 是否启用**
+
 - 检查当前 Logger 的级别是否允许记录该级别的日志。
   - 每个 Logger 都有一个 `level` 属性，表示它允许记录的日志级别（如 `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`）。
   - 如果 Logger 的级别高于当前日志级别，则停止流程。例如：
@@ -200,14 +206,14 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 #### **步骤 6：检查是否向上级 Logger 传播**
 
-- 如果当前 Logger 的 `propagate` 属性为 `True`，则将记录传递给上级 Logger。
+- 如果当前 Logger 的 `propagate` 属性为 `True`，则将**记录**传递给上级 Logger。
   - 如果有父 Logger，则重复上述流程（从步骤 2 开始）。
   - 如果没有父 Logger，则停止流程。
   - 情况1最终会变成情况2,从而结束流程
 
 ---
 
-### **2. Handler 流程（右侧）**
+### 2. Handler 流程（右侧）
 
 #### **步骤 1：检查 Handler 是否启用**
 - 检查当前 Handler 的级别是否允许记录该级别的日志。
@@ -323,7 +329,7 @@ child_logger.info("This is an important info message from child logger")  # 会�
 
   
 
-## Loggers[¶](https://docs.python.org/3.13/howto/logging.html#loggers) 记录器¶
+## Loggers 记录器
 
 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) objects have a threefold job. First, they expose several methods to application code so that applications can log messages at runtime. Second, logger objects determine which log messages to act upon based upon severity (the default filtering facility) or filter objects. Third, logger objects pass along relevant log messages to all interested log handlers.
 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 对象有三重任务。
@@ -337,7 +343,14 @@ The most widely used methods on logger objects fall into two categories: configu
 
 ### 常用的日志配置方法
 
- 最常用
+配置日志记录的方法有三类,这里介绍第一类
+
+> [configuring-logging@日志指南 — Python 文档](https://docs.python.org/zh-cn/3.13/howto/logging.html#configuring-logging)
+>
+> 其他两类:创建日志配置文件并使用 fileConfig() 函数读取它。创建配置信息字典并将其传递给 dictConfig() 函数。
+>
+
+ 最常用的方法
 
 - [`Logger.setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.setLevel) 指定记录器将处理的最低严重性日志消息，其中 debug 是最低内置严重性级别， critical 是最高内置严重性级别。 例如，如果严重性级别为 INFO ，则记录器将仅处理 INFO 、 WARNING 、 ERROR 和 CRITICAL 消息，并将忽略 DEBUG 消息。
 
@@ -373,7 +386,7 @@ The most widely used methods on logger objects fall into two categories: configu
 
 在决定是否处理事件时，**记录器的有效级别用于确定事件是否传递给记录器相关的处理器**。
 
-### 日志处理器handler的配置
+### 日志处理器handler的配置🎈
 
 子记录器将消息传播(propagate )到**与其父级记录器关联的[处理器(handlers )]**。因此，不必为**应用程序**使用的所有记录器定义和配置**处理器**。
 
@@ -381,7 +394,7 @@ The most widely used methods on logger objects fall into two categories: configu
 
 
 
-## 处理器
+## Handler处理器
 
 [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 对象负责将适当的日志消息（基于日志消息的严重性）分派给处理器的指定目标。 [`Logger`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger) 对象可以使用 [`addHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addHandler) 方法向自己添加零个或多个处理器对象。
 
@@ -391,17 +404,23 @@ The most widely used methods on logger objects fall into two categories: configu
 
 标准库包含很多处理器类型（参见 [有用的处理器](https://docs.python.org/zh-cn/3.13/howto/logging.html#useful-handlers) ）；教程主要使用 [`StreamHandler`](https://docs.python.org/zh-cn/3.13/library/logging.handlers.html#logging.StreamHandler) 和 [`FileHandler`](https://docs.python.org/zh-cn/3.13/library/logging.handlers.html#logging.FileHandler) 。
 
-处理器中很少有方法可供应用程序开发人员使用。使用内置处理器对象（即不创建自定义处理器）的应用程序开发人员能用到的仅有以下配置方法：
+处理器中很少有方法可供应用程序开发人员使用。
 
-- [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法，就像在日志记录器对象中一样，指定将被分派到适当目标的最低严重性。 为什么有两个 [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法？ 在日志记录器中设置的级别确定要传递给其处理器的消息的严重性。 每个处理器中设置的级别则确定该处理器将发送哪些消息。
+使用内置处理器对象（即不创建自定义处理器）的应用程序开发人员能用到的仅有以下配置方法：
+
+- [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法，就像在日志记录器对象中一样，指定将被**分派到适当目标的最低严重性**。 为什么有两个 [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法？ 
+  - 在**日志记录器**中设置的级别**确定要传递给其处理器的消息的严重性**。
+  - 而每个**处理器**中设置的级别则**确定该处理器将发送哪些消息**。提供更高的灵活性
 - [`setFormatter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setFormatter) 选择一个该处理器使用的 Formatter 对象。
 - [`addFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.addFilter) 和 [`removeFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.removeFilter) 分别在处理器上配置和取消配置过滤器对象。
 
-应用程序代码不应直接实例化并使用 [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 的实例。 相反， [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类是一个基类，它定义了所有处理器应该具有的接口，并建立了子类可以使用（或覆盖）的一些默认行为。
+> 应用程序代码**不应直接实例化**并使用 [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 的实例。 相反， [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类是一个**基类**，它定义了所有处理器应该具有的接口，并建立了子类可以使用（或覆盖）的一些默认行为。
 
-## 格式器
+## Formatter格式器
 
-格式化器对象配置日志消息的最终顺序、结构和内容。 与 [`logging.Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类不同，应用程序代码可以实例化格式器类，但如果应用程序需要特殊行为，则可能会对格式化器进行子类化定制。构造函数有三个可选参数 —— 消息格式字符串、日期格式字符串和样式指示符。
+格式化器对象配置日志消息的**最终顺序、结构和内容**。 与 [`logging.Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类不同，应用程序代码**可以实例化格式器类**，但如果应用程序需要特殊行为，则可能会对格式化器进行**子类化定制**。
+
+构造函数有三个可选参数 —— **消息格式字符串、日期格式字符串和样式指示符**。
 
 - logging.Formatter.**__init__**(*fmt=None*, *datefmt=None*, *style='%'*)
 
@@ -413,11 +432,17 @@ The most widely used methods on logger objects fall into two categories: configu
 %Y-%m-%d %H:%M:%S
 ```
 
-在末尾加上毫秒数。 `style` 是 `'%'`, `'{'` 或 `'{TX-PL-LABEL}#x27;` 之一。 如果未指定其中之一，则将使用 `'%'`。
+在末尾加上毫秒数。
 
-如果 `style` 为 `'%'`，则消息格式字符串将使用 `%(<dictionary key>)s` 样式的字符串替换；可用的键值记录在 [LogRecord 属性](https://docs.python.org/zh-cn/3.13/library/logging.html#logrecord-attributes) 中。 如果样式为 `'{'`，则将假定消息格式字符串与 [`str.format()`](https://docs.python.org/zh-cn/3.13/library/stdtypes.html#str.format) 兼容（使用关键字参数），而如果样式为 `'{TX-PL-LABEL}#x27;` 则消息格式字符串应当符合 [`string.Template.substitute()`](https://docs.python.org/zh-cn/3.13/library/string.html#string.Template.substitute) 的预期。
+ The `style` is one of `'%'`, `'{'`, or `'$'`. If one of these is not specified, then `'%'` will be used.
 
-*在 3.2 版本发生变更:* 添加 `style` 形参。
+>  `style` 是 `'%'`, `'{'` 或 `'$'` 之一。 如果未指定其中之一，则将使用 `'%'`。
+
+1. 如果 `style` 为 `'%'`，则消息格式字符串将使用 `%(<dictionary key>)s` 样式的字符串替换；可用的键值记录在 [LogRecord 属性](https://docs.python.org/zh-cn/3.13/library/logging.html#logrecord-attributes) 中。
+2. 如果样式为 `'{'`，则将假定消息格式字符串与 [`str.format()`](https://docs.python.org/zh-cn/3.13/library/stdtypes.html#str.format) 兼容（使用关键字参数），
+3. 而如果样式为 `'$'` 则消息格式字符串应当符合 [`string.Template.substitute()`](https://docs.python.org/zh-cn/3.13/library/string.html#string.Template.substitute) 的预期。
+
+> *在 3.2 版本发生变更:* 添加 `style` 形参。
 
 以下消息格式字符串将以人类可读的格式记录时间、消息的严重性以及消息的内容，按此顺序:
 
@@ -425,350 +450,166 @@ The most widely used methods on logger objects fall into two categories: configu
 '%(asctime)s - %(levelname)s - %(message)s'
 ```
 
-格式器通过用户可配置的函数将记录的创建时间转换为元组。 默认情况下，使用 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) ；要为特定格式器实例更改此项，请将实例的 `converter` 属性设置为与 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) 或 [`time.gmtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.gmtime) 具有相同签名的函数。 要为所有格式器更改它，例如，如果你希望所有记录时间都以 GMT 显示，请在格式器类中设置 `converter` 属性（对于 GMT 显示，设置为 `time.gmtime` ）。
+格式器通过**用户可配置的函数**将**记录的创建时间转换为元组**。 默认情况下，使用 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) ；
+
+要为特定格式器实例更改此项，请将实例的 `converter` 属性设置为与 [`time.localtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.localtime) 或 [`time.gmtime()`](https://docs.python.org/zh-cn/3.13/library/time.html#time.gmtime) 具有**相同签名的函数**。 
+
+要为所有格式器更改它，例如，如果你希望所有记录时间都以 GMT 显示，请在**格式器类**中设置 `converter` 属性（对于 GMT 显示，设置为 `time.gmtime` ）。
 
 
 
+### Formatter的描述|LogRecord
 
+[logrecord-attributes @logging -用于 Python 的日志记录工具- Python 文档 --- logging — Logging facility for Python — Python documentation](https://docs.python.org/3.13/library/logging.html#logrecord-attributes)
 
+```py
 
+class Formatter(object):
+    """
+    Formatter instances are used to convert a LogRecord to text.
 
+    Formatters need to know how a LogRecord is constructed. They are
+    responsible for converting a LogRecord to (usually) a string which can
+    be interpreted by either a human or an external system. The base Formatter
+    allows a formatting string to be specified. If none is supplied, the
+    style-dependent default value, "%(message)s", "{message}", or
+    "${message}", is used.
 
+    The Formatter can be initialized with a format string which makes use of
+    knowledge of the LogRecord attributes - e.g. the default value mentioned
+    above makes use of the fact that the user's message and arguments are pre-
+    formatted into a LogRecord's message attribute. Currently, the useful
+    attributes in a LogRecord are described by:
 
-
-
-
-
-## 1. 基础日志记录
-
-### 1.1 最简单的日志记录
-
-就像是调用带有预置格式的print()语句
-
-```python
-import logging
-
-# 基本日志记录
-logging.warning('这是一个警告信息')
-logging.error('这是一个错误信息')
-
-# 输出:
-# WARNING:root:这是一个警告信息
-# ERROR:root:这是一个错误信息
+    %(name)s            Name of the logger (logging channel)
+    %(levelno)s         Numeric logging level for the message (DEBUG, INFO,
+                        WARNING, ERROR, CRITICAL)
+    %(levelname)s       Text logging level for the message ("DEBUG", "INFO",
+                        "WARNING", "ERROR", "CRITICAL")
+    %(pathname)s        Full pathname of the source file where the logging
+                        call was issued (if available)
+    %(filename)s        Filename portion of pathname
+    %(module)s          Module (name portion of filename)
+    %(lineno)d          Source line number where the logging call was issued
+                        (if available)
+    %(funcName)s        Function name
+    %(created)f         Time when the LogRecord was created (time.time()
+                        return value)
+    %(asctime)s         Textual time when the LogRecord was created
+    %(msecs)d           Millisecond portion of the creation time
+    %(relativeCreated)d Time in milliseconds when the LogRecord was created,
+                        relative to the time the logging module was loaded
+                        (typically at application startup time)
+    %(thread)d          Thread ID (if available)
+    %(threadName)s      Thread name (if available)
+    %(taskName)s        Task name (if available)
+    %(process)d         Process ID (if available)
+    %(message)s         The result of record.getMessage(), computed just as
+                        the record is emitted
+    """
 ```
 
-### 1.2 日志级别🎈
 
-Python logging 有5个标准级别(数值表示重要/严重程度)：
 
-| 级别     | 数值 | 描述                                   |
-| -------- | ---- | -------------------------------------- |
-| DEBUG    | 10   | 详细信息，通常用于调试                 |
-| INFO     | 20   | 确认事情按预期工作                     |
-| WARNING  | 30   | 表明发生了意外情况，但软件仍在工作     |
-| ERROR    | 40   | 由于更严重的问题，软件无法执行某些功能 |
-| CRITICAL | 50   | 严重错误，程序本身可能无法继续运行     |
+### 配置日志记录
 
-logging模块中的相关源码
+开发者可以通过三种方式配置日志记录：
 
-```python
-#---------------------------------------------------------------------------
-#   Level related stuff
-#---------------------------------------------------------------------------
-#
-# Default levels and level names, these can be replaced with any positive set
-# of values having corresponding names. There is a pseudo-level, NOTSET, which
-# is only really there as a lower limit for user-defined levels. Handlers and
-# loggers are initialized with NOTSET so that they will log all messages, even
-# at user-defined levels.
-#
+1. 使用调用上面列出的配置方法的 Python 代码显式创建记录器、处理器和格式器。
+2. 创建日志配置文件并使用 [`fileConfig()`](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging.config.fileConfig) 函数读取它。
+3. 创建配置信息字典并将其传递给 [`dictConfig()`](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging.config.dictConfig) 函数。
 
-CRITICAL = 50
-FATAL = CRITICAL
-ERROR = 40
-WARNING = 30
-WARN = WARNING
-INFO = 20
-DEBUG = 10
-NOTSET = 0
+有关最后两个选项的参考文档，请参阅 [配置函数](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging-config-api) 。 
+
+以下示例使用 Python 代码配置一个非常简单的记录器、一个控制台处理器和一个简单的格式器:
+
+```mermaid
+classDiagram
+    direction LR
+
+    Logger <|-- Application
+    Logger --> Handler : 多个 handler 可添加
+    Handler --> Formatter : 可选 formatter
+    Handler --> Output : 输出到控制台/文件等
+
+    class Logger {
+        +setLevel(level)
+        +addHandler(handler)
+        +debug(msg)
+        +info(msg)
+        +warning(msg)
+        +error(msg)
+        +critical(msg)
+    }
+
+    class Handler {
+        +setLevel(level)
+        +setFormatter(formatter)
+    }
+
+    class Formatter {
+        +__init__(format_string)
+    }
+
+    class StreamHandler {
+
+        输出到控制台
+    }
+
+    class Application {
+        使用 logger 记录日志
+    }
+
+    Handler <|-- StreamHandler
 ```
 
-默认的级别是 `WARNING`，意味着只会追踪该严重程度及以上的事件，除非 logging 包另有其他配置。
 
-- 其中`DEBUG`是我们调试程序的时候使用,是最详细的信息输出级别
-- 而`CRITICAL`是在有严重错误的时候才显示的信息级别(比如程序崩溃),最简洁的输出模式,甚至ERROR的信息都不会显示
-
-所追踪事件可以以不同形式处理。最简单的方式是输出到**控制台**。另一种常用的方式是写入**磁盘文件**。
 
 ```python
+"""
+simple_logging_module.py
+
+一个简单的 Python 日志记录模块的例子。
+"""
+
 import logging
 
-logging.basicConfig(level=logging.DEBUG)  # 设置日志级别
-
-logging.debug('调试信息')
-logging.info('普通信息')
-logging.warning('警告信息')
-logging.error('错误信息')
-logging.critical('严重错误')
-```
-
-## 2. 日志配置
-
-### 2.1 基本配置|日志格式|文件文件输出
-
-logging模块不宜在同一个上下文下多次更改配置,如果要运行/测试新的logging配置,请另起一个新的python解释器环境
-
-```python
-import logging
-
-logging.basicConfig(
-    filename='log.log',          # 日志文件名
-    filemode='a',               # 写入模式：'a'追加，'w'覆盖
-    level=logging.INFO,         # 记录级别
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-logging.info('这是一条信息日志')
-```
-
-### 2.2 日志格式参数🎈
-
-常用格式参数：
-
-- `%(asctime)s`: 日志创建时间
-- `%(levelname)s`: 日志级别
-- `%(message)s`: 日志消息
-- `%(name)s`: 记录器名称
-- `%(filename)s`: 文件名
-- `%(funcName)s`: 函数名
-- `%(lineno)d`: 行号
-
-## 3. 高级用法
-
-### 3.1 使用记录器(Logger)
-
-```python
-import logging
-
-# 创建记录器
-logger = logging.getLogger('my_app')
+# 创建日志记录器 logger
+logger = logging.getLogger("simple_example")
 logger.setLevel(logging.DEBUG)
 
-# 创建控制台处理器
+# 创建控制台处理器 ch (console_handler)并将等级设为 debug
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
-# 创建文件处理器
-fh = logging.FileHandler('app.log')
-fh.setLevel(logging.ERROR)
+# 创建格式化器 formatter
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-# 创建日志格式
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# 将 formatter 添加到 ch
 ch.setFormatter(formatter)
-fh.setFormatter(formatter)
 
-# 添加处理器到记录器
+# 将 ch 添加到 logger
 logger.addHandler(ch)
-logger.addHandler(fh)
 
-# 使用记录器
-logger.debug('调试信息')
-logger.info('普通信息')
-logger.warning('警告信息')
-logger.error('错误信息')
-logger.critical('严重错误')
+# '应用程序' 代码
+logger.debug("debug message")
+logger.info("info message")
+logger.warning("warn message")
+logger.error("error message")
+logger.critical("critical message")
+
 ```
 
-### 3.2 日志文件轮转
+从命令行运行此模块将生成以下输出：
 
-```python
-from logging.handlers import RotatingFileHandler
-
-logger = logging.getLogger('rotating_log')
-logger.setLevel(logging.INFO)
-
-# 每个日志文件最大1MB，最多保留3个备份
-handler = RotatingFileHandler(
-    'app.log', maxBytes=1024*1024, backupCount=3
-)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-logger.addHandler(handler)
-
-for i in range(10000):
-    logger.info(f'这是第 {i} 条日志')
+```bash
+$ python simple_logging_module.py
+2005-03-19 15:10:26,618 - simple_example - DEBUG - debug message
+2005-03-19 15:10:26,620 - simple_example - INFO - info message
+2005-03-19 15:10:26,695 - simple_example - WARNING - warn message
+2005-03-19 15:10:26,697 - simple_example - ERROR - error message
+2005-03-19 15:10:26,773 - simple_example - CRITICAL - critical message
 ```
 
-### 3.3 定时轮转日志
 
-```python
-from logging.handlers import TimedRotatingFileHandler
-
-logger = logging.getLogger('timed_rotating_log')
-logger.setLevel(logging.INFO)
-
-# 每天午夜轮转日志，保留7天备份
-handler = TimedRotatingFileHandler(
-    'app.log', when='midnight', interval=1, backupCount=7
-)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-logger.addHandler(handler)
-
-logger.info('这条日志会根据时间轮转')
-```
-
-## 4. 最佳实践
-
-### 4.1 在模块中使用日志
-
-```python
-# mymodule.py
-import logging
-
-logger = logging.getLogger(__name__)  # 使用模块名作为记录器名称
-
-def do_something():
-    logger.info('正在做一些事情')
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        logger.error('发生了除以零错误', exc_info=True)
-```
-
-### 4.2 配置日志的推荐方式
-
-```python
-import logging
-import logging.config
-
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-            'level': 'INFO',
-            'stream': 'ext://sys.stdout'
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'formatter': 'standard',
-            'level': 'DEBUG',
-            'filename': 'app_debug.log'
-        },
-    },
-    'loggers': {
-        '': {  # root logger
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'my_app': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-    }
-}
-
-logging.config.dictConfig(LOGGING_CONFIG)
-logger = logging.getLogger('my_app')
-```
-
-### 4.3 在生产环境中的日志建议
-
-1. 使用 JSON 或 YAML 文件配置日志
-2. 为不同环境（开发、测试、生产）设置不同的日志级别
-3. 记录足够的上下文信息
-4. 避免记录敏感信息
-5. 使用结构化日志（如 JSON 格式）便于日志分析
-
-## 5. 常见问题
-
-### 5.1 为什么我的日志没有显示？
-
-- 检查日志级别设置
-- 确保没有禁用日志记录器
-- 检查是否有处理器(handler)添加到记录器
-
-### 5.2 如何捕获异常堆栈？
-
-```python
-try:
-    1 / 0
-except ZeroDivisionError:
-    logging.error("发生了错误", exc_info=True)
-    # 或者简写
-    logging.exception("发生了错误")
-```
-
-### 5.3 如何临时禁用日志？
-
-```python
-logging.disable(logging.CRITICAL)  # 禁用所有低于CRITICAL级别的日志
-# 恢复日志
-logging.disable(logging.NOTSET)
-```
-
-通过本教程，你应该能够掌握 Python logging 模块的基本和高级用法，为你的应用程序添加专业的日志记录功能。
-
-## 案例
-
-- ```python
-  import logging
-  
-  # 配置日志记录器
-  logging.basicConfig(filename='example.log', level=logging.DEBUG,
-                      format='%(asctime)s %(levelname)s: %(message)s')
-  
-  def add(a, b):
-      """
-      Returns the sum of two numbers.
-      """
-      logging.debug("Adding %s and %s", a, b)
-      result = a + b
-      logging.debug("Result: %s", result)
-      return result
-  
-  def multiply(a, b):
-      """
-      Returns the product of two numbers.
-      """
-      logging.debug("Multiplying %s and %s", a, b)
-      result = a * b
-      logging.debug("Result: %s", result)
-      return result
-  
-  # 使用函数记录日志
-  x = 2
-  y = 3
-  logging.info("Starting calculation with %s and %s", x, y)
-  result1 = add(x, y)
-  result2 = multiply(x, y)
-  logging.info("Calculation finished: %s %s", result1, result2)
-  ```
-
-- 在这个例子中，我们首先使用`basicConfig`函数配置了一个日志记录器，将日志记录到文件`example.log`中，设置日志级别为`DEBUG`，并指定了日志记录的格式。
-
-- 然后，定义了两个函数`add`和`multiply`，这些函数在执行时会记录一些调试信息。最后，我们在主程序中调用这些函数，并使用`info`级别记录了一条日志，指示程序已经开始计算。
-
-- 同时，在当前工作目录下也会生成一个名为`example.log`的日志文件，其中包含所有的日志记录：
-
-  ```
-  2023-04-11 11:28:49,675 INFO: Starting calculation with 2 and 3
-  2023-04-11 11:28:49,675 DEBUG: Adding 2 and 3
-  2023-04-11 11:28:49,675 DEBUG: Result: 5
-  2023-04-11 11:28:49,675 DEBUG: Multiplying 2 and 3
-  2023-04-11 11:28:49,675 DEBUG: Result: 6
-  2023-04-11 11:28:49,675 INFO: Calculation finished: 5 6
-  
-  ```
-
-  这个例子演示了如何使用`logging`模块记录日志，以及如何配置日志记录器和指定日志级别。
 
