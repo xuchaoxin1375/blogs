@@ -21,8 +21,11 @@ cd ~/.oh-my-zsh/plugins/incr/
 wget http://mimosa-pudica.net/src/incr-0.2.zsh   
 ```
 ###  启用脚本
+
 `source incr*.zsh`
+
 ##  配置自启
+
 设置自动启动incr动态提示插件:(设置永久有效,当然可以把添加的行注释掉以关闭它)
 编辑.zshrc:
 
@@ -44,13 +47,14 @@ source ~/.zshrc
 
 使配置生效.
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201230074431853.png)
-@[toc]
+
 [reference link1:How Do I Enable Syntax Highlighting in ZSH](https://linuxhint.com/enable-syntax-highlighting-zsh/#:~:text=What%20is%20ZSH-Syntax-Highlighting%3F%20The%20ZSH%20syntax%20highlighting%20feature%E2%80%94similar,is%20to%20ensure%20we%20have%20the%20shell%20installed.)
 [reference link2](https://github.com/zsh-users/zsh-syntax-highlighting) 
+
 <hr>
 > 高亮插件不依赖于oh My zsh
-
 ##  zsh-syntax-highlighting
+
 ### 下载(clone)插件到指定目录
 `git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting

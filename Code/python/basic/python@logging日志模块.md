@@ -1,9 +1,5 @@
 [toc]
 
-
-
-
-
 ## 日志
 
 - howto 系列
@@ -174,37 +170,41 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 ---
 
-### 1. Logger 流程（左侧）
+###  Logger 流程
 
-#### **步骤 1：Logging 调用**
+#### 步骤 1：Logging 调用
+
 - 用户在代码中调用日志记录器的方法，例如：
   ```python
   logger.info("This is an info message")
   ```
 - 这里的 `logger` 是一个 `logging.Logger` 实例，`info` 是其方法之一。
 
-#### **步骤 2：检查 Logger 是否启用**
+#### 步骤 2：检查 Logger 是否启用
 
 - 检查当前 Logger 的级别是否允许记录该级别的日志。
   - 每个 Logger 都有一个 `level` 属性，表示它允许记录的日志级别（如 `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`）。
   - 如果 Logger 的级别高于当前日志级别，则停止流程。例如：
     - 如果 Logger 的级别是 `WARNING`，而调用的是 `logger.info()`，则不会记录这条日志。
 
-#### **步骤 3：创建 LogRecord**
+#### 步骤 3：创建 LogRecord
+
 - 如果 Logger 允许记录该级别的日志，则创建一个 `LogRecord` 对象。
   - `LogRecord` 包含日志的相关信息，如日志级别、消息内容、时间戳、文件名、行号等。
 
-#### **步骤 4：检查 Logger 的过滤器**
+#### 步骤 4：检查 Logger 的过滤器
+
 - Logger 可以附加过滤器（Filter），用于进一步筛选日志记录。
   - 如果过滤器拒绝该记录，则停止流程。
   - 如果过滤器允许该记录，则继续下一步。
 
-#### **步骤 5：将记录传递给当前 Logger 的 Handler**
+#### 步骤 5：将记录传递给当前 Logger 的 Handler
+
 - 将 `LogRecord` 传递给当前 Logger 的**所有 Handler**。
   - Handler 是负责实际输出日志的对象，例如文件写入、控制台输出等。
   - 不同的输出路线由不同的handler控制,将构造好的消息日志传送给所有handler检查,各个handler根据自己的判断来决定是否将日志进一步处理或传递到对应的路线
 
-#### **步骤 6：检查是否向上级 Logger 传播**
+#### 步骤 6：检查是否向上级 Logger 传播
 
 - 如果当前 Logger 的 `propagate` 属性为 `True`，则将**记录**传递给上级 Logger。
   - 如果有父 Logger，则重复上述流程（从步骤 2 开始）。
@@ -213,21 +213,24 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 ---
 
-### 2. Handler 流程（右侧）
+### Handler流程
 
-#### **步骤 1：检查 Handler 是否启用**
+#### 步骤 1：检查 Handler 是否启用
+
 - 检查当前 Handler 的级别是否允许记录该级别的日志。
   - 每个 Handler 也有一个 `level` 属性，表示它允许记录的日志级别。
   - 如果 Handler 的级别高于当前日志级别，则停止流程。
 - 如果当前 Logger 没有配置任何 Handler，则使用默认的 `lastResort` Handler。
   - 默认情况下，`lastResort` Handler 会将日志打印到**标准错误流**（stderr）。
 
-#### **步骤 2：检查 Handler 的过滤器**
+#### 步骤 2：检查 Handler 的过滤器
+
 - Handler 可以附加过滤器（Filter），用于进一步筛选日志记录。
   - 如果过滤器拒绝该记录，则停止流程。
   - 如果过滤器允许该记录，则继续下一步。
 
-#### **步骤 3：输出日志**
+#### 步骤 3：输出日志
+
 - 如果 Handler 允许记录该日志，则执行输出操作（`emit`）。
   - 输出时会根据 Formatter 对日志进行格式化。
   - 例如，将日志写入文件或打印到控制台。
@@ -280,9 +283,10 @@ child_logger.info("This is an important info message from child logger")  # 会�
 
 ---
 
-### **运行结果分析**
+### 运行结果分析
 
-#### **Logger 流程**
+#### Logger 流程
+
 1. 调用 `logger.debug("This is a debug message from main logger")`：
    - Logger 的级别是 `DEBUG`，允许记录 `DEBUG` 级别的日志。
    - 创建 `LogRecord`。
@@ -295,7 +299,8 @@ child_logger.info("This is an important info message from child logger")  # 会�
    - 没有附加过滤器，直接传递给 Handler。
    - Handler 的级别是 `INFO`，记录该日志。
 
-#### **Handler 流程**
+#### Handler 流程
+
 1. 处理 `logger.info("This is an info message from main logger")`：
    - Handler 的级别是 `INFO`，允许记录 `INFO` 级别的日志。
    - 没有附加过滤器，直接输出日志。
@@ -322,12 +327,14 @@ child_logger.info("This is an important info message from child logger")  # 会�
 
 ---
 
-### **总结**
+### 总结
+
 - **Logger 流程**：负责判断是否需要记录日志，并将日志传递给 Handler。
 - **Handler 流程**：负责决定是否输出日志，并对日志进行格式化。
-- 通过配置 Logger 和 Handler 的级别、过滤器等，可以灵活控制日志的行为。
 
-  
+通过配置 Logger 和 Handler 的级别、过滤器等，可以灵活控制日志的行为。
+
+
 
 ## Loggers 记录器
 

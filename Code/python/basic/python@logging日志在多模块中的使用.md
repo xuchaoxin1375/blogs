@@ -1,12 +1,237 @@
- 
+ [toc]
 
-- 多个模块使用 `logging`；
-- 模块之间共享和继承 logger 配置；
-- 使用不同的 handler（控制台、文件）；
-- 设置不同 level；
-- 使用 filter 和 formatter；
-- 展示 propagate 机制；
-- 支持集中配置与模块化使用。
+## abstract
+
+python的logging模块被设计为可多层传递的日志记录的,如果某些模块(或库)中使用了logging模块来生成日志,那么调用这些模块的应用程序(主程序)中通常(默认)情况下会接收到模块中传递来的日志记录
+
+这些日志在模块中可能没有详细或具体的配置,那么调用者如果能够接受到模块传递来的日志记录,则会继承调用程序中的日志配置,比如日志消息的输出格式控制,可由调用者中的日志配置(调用者中的日志记录器成为父级记录器,而被调用模块中的日志记录器为子级)
+
+
+
+```python
+"""测试跨模块调用的日志行为"""
+
+# myapp.py
+import logging
+
+import mylib  # 导入其他使用logging的模块中的函数
+
+logger = logging.getLogger(__name__)
+
+
+def main():
+    """模拟跨模块调用的日志行为函数"""
+    logging.basicConfig(
+        filename="myapp.log",
+        format="%(asctime)s- %(name)s -%(levelname)s:%(message)s",
+        filemode="w",
+        level=logging.INFO,
+    )
+    logger.info("Started")
+    mylib.do_something()
+    logger.info("Finished")
+
+
+if __name__ == "__main__":
+    main()
+    print("日志已记录到 myapp.log")
+
+```
+
+myapp.py中main函数中配置了`logging.basicConfig()`,配置的是根记录器
+
+而`myapp.py`头部的模块级日志记录器也是作为根记录器的子级,在不设置专门的日志配置时,将沿用根记录器的配置
+
+而使用了logging的模块`mylib.py`内容如下
+
+> 这里我们仅在此模块中创建了模块级的logger,但是不做额外的配置,比如日志的输出格式和日志级别
+>
+> 当其他python代码调用此模块,并且调用了和logger相关的代码,比如`do_something()`,则logger.info()消息会传递到父级
+>
+> 本例中消息传递到调用者myapp.py中,消息传递完成后,调用者myapp.py中配置了日志,传递进来的消息也继承此配置使用日志信息
+
+```python
+# mylib.py
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def do_something():
+    """模拟跨模块调用的日志行为函数(被调用函数)"""
+    logger.info("Doing something")
+
+```
+
+说明:在`myapp.py`中配置了日志记录器的基本行为,比如日志输出格式被指定为`%(asctime)s- %(name)s -%(levelname)s:%(message)s`;现在调用mylib中的`do_something`函数,检查日志文件`myapp.log`可以看到,调用模块mylib中的`do_something`函数,其中的日志语句采用的格式将继承调用者的格式
+
+这种继承的方式可以让模块间使用logging模块更加简单,减少不必要的日志组件的配置,比如handler和formatter,继承相同的日志配置,可以让主调代码和模块中的日志输出更整齐
+
+上述代码运行的一个结果
+
+```bash
+2025-06-03 20:07:21,029-__main__ -INFO:Started
+2025-06-03 20:07:21,029-mylib -INFO:Doing something
+2025-06-03 20:07:21,029-__main__ -INFO:Finished
+
+```
+
+## 案例
+
+设myliblog包下有一个`auxiliary.py`模块
+
+```python
+"""
+# auxiliary.py
+This module contains the Auxiliary class and  module function that logs messages."""
+
+import logging
+
+# 创建日志记录器
+# module_logger = logging.getLogger("myliblog.auxiliary")
+module_logger = logging.getLogger(__name__)
+
+
+class Auxiliary:
+    """This is a class that does something."""
+
+    def __init__(self):
+        # self.logger = logging.getLogger("myliblog.auxiliary.Auxiliary")
+        # self.logger = logging.getLogger(__name__+".Auxiliary")
+        self.logger = module_logger.getChild("Auxiliary")
+        self.logger.debug(
+            "Auxiliary instance created with logger: %s", self.logger.name
+        )
+        self.logger.info("creating an instance of Auxiliary")
+
+    def do_something(self):
+        """This method does something and logs the process."""
+        a = 1 + 1
+        self.logger.info("doing something:1+1=%s", a)
+        # self.logger.info("done doing something")
+        self.logger.warning("this is a warning from Auxiliary")
+        self.logger.error("an error demo in Auxiliary")
+
+
+def some_function():
+    """This function does something and logs the process."""
+    module_logger.debug("some_function is running")
+    module_logger.info('received a call to "some_function"')
+    module_logger.warning("this is a warning from some_function")
+    module_logger.error("an error demo in some_function")
+
+```
+
+模块的调用者代码`main_aux.py`
+
+```python
+"""测试跨模块日志"""
+
+import logging
+import myliblog.auxiliary as auxiliary_module
+
+# 创建 本脚本的 日志记录器(分别试验三种方案)
+# 1.取名为严格的模块名,从而作为父级日志记录器接受子模块的日志记录
+# logger = logging.getLogger("myliblog")
+# 2.对于库/模块是合适的,但是主调代码中使用相当于'__main__'的名称的记录器
+# logger=logging.getLogger(__name__)
+# 3.根日志器,接受可能的任何日志记录
+logger = logging.getLogger()
+
+logger.setLevel(logging.DEBUG)
+# 创建可记录调试消息的文件处理器(将文件保存到spam.log中)
+fh = logging.FileHandler("spam.log", mode="w", encoding="utf-8")
+fh.setLevel(logging.DEBUG)
+# 创建具有更高日志层级的控制台处理器🎈
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+
+# 创建格式化器并将其添加到处理器
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# 将处理器添加到日志记录器
+logger.addHandler(fh)
+logger.addHandler(ch)
+
+# 模块中的Auxiliary类的日志记录
+logger.info("creating an instance of auxiliary_module.Auxiliary")
+a = auxiliary_module.Auxiliary()
+logger.info("created an instance of auxiliary_module.Auxiliary")
+
+
+logger.info("calling auxiliary_module.Auxiliary.do_something")
+a.do_something()
+logger.info("finished auxiliary_module.Auxiliary.do_something")
+
+# 模块级的函数的日志记录
+logger.info("calling auxiliary_module.some_function()")
+auxiliary_module.some_function()
+logger.info("done with auxiliary_module.some_function()")
+
+```
+
+运行代码,并查看保存的日志(为了便于阅读,我手动插入几个空白行)
+
+```bash
+2025-06-03 20:59:23,170 - root - INFO - creating an instance of auxiliary_module.Auxiliary
+2025-06-03 20:59:23,170 - myliblog.auxiliary.Auxiliary - DEBUG - Auxiliary instance created with logger: myliblog.auxiliary.Auxiliary
+2025-06-03 20:59:23,170 - myliblog.auxiliary.Auxiliary - INFO - creating an instance of Auxiliary
+2025-06-03 20:59:23,170 - root - INFO - created an instance of auxiliary_module.Auxiliary
+
+
+2025-06-03 20:59:23,170 - root - INFO - calling auxiliary_module.Auxiliary.do_something
+2025-06-03 20:59:23,170 - myliblog.auxiliary.Auxiliary - INFO - doing something:1+1=2
+2025-06-03 20:59:23,170 - myliblog.auxiliary.Auxiliary - WARNING - this is a warning from Auxiliary
+2025-06-03 20:59:23,171 - myliblog.auxiliary.Auxiliary - ERROR - an error demo in Auxiliary
+2025-06-03 20:59:23,171 - root - INFO - finished auxiliary_module.Auxiliary.do_something
+
+
+2025-06-03 20:59:23,171 - root - INFO - calling auxiliary_module.some_function()
+2025-06-03 20:59:23,171 - myliblog.auxiliary - DEBUG - some_function is running
+2025-06-03 20:59:23,171 - myliblog.auxiliary - INFO - received a call to "some_function"
+2025-06-03 20:59:23,171 - myliblog.auxiliary - WARNING - this is a warning from some_function
+2025-06-03 20:59:23,171 - myliblog.auxiliary - ERROR - an error demo in some_function
+2025-06-03 20:59:23,171 - root - INFO - done with auxiliary_module.some_function()
+
+```
+
+此外,如果修改`main_aux.py`中的`logger`初始化代码,使用方案2(`logger=logging.getLogger(__name__)`),那么日志文件中的结果形如
+
+```bash
+2025-06-03 21:12:40,204 - __main__ - INFO - creating an instance of auxiliary_module.Auxiliary
+2025-06-03 21:12:40,204 - __main__ - INFO - created an instance of auxiliary_module.Auxiliary
+2025-06-03 21:12:40,204 - __main__ - INFO - calling auxiliary_module.Auxiliary.do_something
+2025-06-03 21:12:40,204 - __main__ - INFO - finished auxiliary_module.Auxiliary.do_something
+2025-06-03 21:12:40,204 - __main__ - INFO - calling auxiliary_module.some_function()
+2025-06-03 21:12:40,204 - __main__ - INFO - done with auxiliary_module.some_function()
+
+```
+
+可见,模块auxiliary.py中被调用的logging日志相关的语句没有被调用者所利用和输出
+
+而如果将main_aux.py中的`logger`初始化为包名(`myliblog`),则又可以看到`auxiliary.py`中的日志信息又在被调用者的运行中输出
+
+```bash
+2025-06-03 21:16:54,818 - myliblog - INFO - creating an instance of auxiliary_module.Auxiliary
+2025-06-03 21:16:54,818 - myliblog.auxiliary.Auxiliary - DEBUG - Auxiliary instance created with logger: myliblog.auxiliary.Auxiliary
+2025-06-03 21:16:54,818 - myliblog.auxiliary.Auxiliary - INFO - creating an instance of Auxiliary
+2025-06-03 21:16:54,818 - myliblog - INFO - created an instance of auxiliary_module.Auxiliary
+2025-06-03 21:16:54,818 - myliblog - INFO - calling auxiliary_module.Auxiliary.do_something
+2025-06-03 21:16:54,818 - myliblog.auxiliary.Auxiliary - INFO - doing something:1+1=2
+2025-06-03 21:16:54,818 - myliblog.auxiliary.Auxiliary - WARNING - this is a warning from Auxiliary
+2025-06-03 21:16:54,818 - myliblog.auxiliary.Auxiliary - ERROR - an error demo in Auxiliary
+2025-06-03 21:16:54,818 - myliblog - INFO - finished auxiliary_module.Auxiliary.do_something
+2025-06-03 21:16:54,818 - myliblog - INFO - calling auxiliary_module.some_function()
+2025-06-03 21:16:54,819 - myliblog.auxiliary - DEBUG - some_function is running
+2025-06-03 21:16:54,819 - myliblog.auxiliary - INFO - received a call to "some_function"
+2025-06-03 21:16:54,819 - myliblog.auxiliary - WARNING - this is a warning from some_function
+2025-06-03 21:16:54,819 - myliblog.auxiliary - ERROR - an error demo in some_function
+2025-06-03 21:16:54,819 - myliblog - INFO - done with auxiliary_module.some_function()
+
+```
+
+如果将一个程序的名字作为主程序的日志器的名称,这种做法是合适的,相比于使用根记录器,会更加灵活,便于和其他模块配合进一步集成
 
 ---
 
