@@ -21,6 +21,57 @@
 - [bootandy/dust: A more intuitive version of du in rust (github.com)](https://github.com/bootandy/dust)
 - 高性能直观易用的命令行工具,跨平台
 
+Download
+
+- Download Linux/Mac binary from [Releases](https://github.com/bootandy/dust/releases)
+- unzip file: `tar -xvf "_downloaded_file.tar.gz"`
+- move file to executable path: `sudo mv dust /usr/local/bin/`
+
+```bash
+cd ~
+# cxxu @ CxxuDesk in ~ [9:01:15]
+$ wget https://github.com/bootandy/dust/releases/download/v1.2.1/du-dust_1.2.1-1_amd64.deb
+#等待下载完成(很小),如果下不动可以用代理下载或者github加速镜像下载
+
+
+# cxxu @ CxxuDesk in ~ [9:01:39]
+$ uname -m #可选,查看当前系统架构
+x86_64
+
+# cxxu @ CxxuDesk in ~ [9:06:49] C:130
+$ ls *dust*
+du-dust_1.2.1-1_amd64.deb
+
+# cxxu @ CxxuDesk in ~ [9:02:35]
+$ sudo dpkg -i du-dust_1.2.1-1_amd64.deb
+[sudo] password for cxxu:
+Selecting previously unselected package du-dust.
+(Reading database ... 66354 files and directories currently installed.)
+Preparing to unpack du-dust_1.2.1-1_amd64.deb ...
+Unpacking du-dust (1.2.1-1) ...
+Setting up du-dust (1.2.1-1) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+
+# cxxu @ CxxuDesk in ~ [9:03:20]
+```
+
+### 在ubuntu上直接安装dust
+
+dust的安装方式有多种,直接安装可以下载二进制文件,找到对应的软件包下载解压并安装
+
+```
+cd ~
+# 下载链接请到项目的release页面获取最新链接,下面的链接作为例子,下载后保存为dust.deb文件
+wget -O dust.deb https://github.com/bootandy/dust/releases/download/v1.2.1/du-dust_1.2.1-1_amd64.deb
+sudo dpkg -i dust.deb
+rm dust.deb -v #移除安装包
+#简单用例
+dust .
+
+```
+
+
+
 #### gdu
 
 - [dundee/gdu: Fast disk usage analyzer with console interface written in Go (github.com)](https://github.com/dundee/gdu)
