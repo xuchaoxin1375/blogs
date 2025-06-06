@@ -1,6 +1,8 @@
-# <resolution>
+[toc]
 
-参考连接:
+
+
+## abstract
 
 - [像素px、分辨率、ppi、dpi、dp(dip) - 简书 (jianshu.com)](https://www.jianshu.com/p/3b612fb6d685)
 

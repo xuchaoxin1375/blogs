@@ -71,6 +71,10 @@ sudo make altinstall
 
 # 检查版本
 python3.12 --version
+# 安装pip
+curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.12
+python3.12 -m pip --version
+
 ```
 
 ------
