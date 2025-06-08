@@ -6,7 +6,26 @@ shell中使用mysql执行mysql语句
 
 在 Bash 中使用 MySQL 执行 SQL 语句是一种常见的操作，可以通过命令行直接运行 SQL 查询或执行 SQL 文件。
 
-以下是几种不同的方式来实现这一目标：
+## bash中创建数据库🎈
+
+这里主要注意数据库名字中带有`.`号的情况
+
+```bash
+#( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
+   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzone.com\` "
+   
+```
+
+恢复/导入数据sql文件可以不用额外转义"`"符号
+
+```bash
+#( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
+   mysql -uroot -p1234 zsh_babymarktzone.com < babymarktzone.com.sql  
+```
+
+
+
+## 详情
 
 ### 使用echo管道符
 
@@ -199,22 +218,4 @@ EOF
    - 如果数据包含非 ASCII 字符（如中文），确保 MySQL 客户端和服务器的字符集一致。可以通过 `--default-character-set=utf8mb4` 参数指定字符集。
 
 ---
-
-## bash中创建数据库🎈
-
-这里主要注意数据库名字中带有`.`号的情况
-
-```bash
-#( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzone.com\` "
-   
-```
-
-恢复/导入数据sql文件可以不用额外转义"`"符号
-
-```bash
-
-#( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -uroot -p1234 zsh_babymarktzone.com < babymarktzone.com.sql  
-```
 
