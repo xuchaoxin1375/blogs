@@ -1,6 +1,6 @@
 [toc]
 
-
+## abstract
 
 在 Ubuntu 上安装 Python 3.12，推荐使用 **deadsnakes PPA** 或从源码编译安装。
 
