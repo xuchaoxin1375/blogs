@@ -260,6 +260,18 @@ sudo apt install zsh curl git  man wget -y
   - `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
   - `sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"`
 
+### 国外环境直接安装
+
+如果服务器在国外,那么访问github比较快,可以不用更改源
+
+[ohmyzsh/ohmyzsh basic installation](https://github.com/ohmyzsh/ohmyzsh?tab=readme-ov-file#basic-installation)
+
+```
+sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+
+
 ### 国内推荐安装方式一键安装👺
 
 ```bash
@@ -290,10 +302,14 @@ cd -
 
 
 
-## oh-my-zsh 插件
+## oh-my-zsh 插件🎈
 
-- 这里推荐2个插件
-  - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
+
+
+这里推荐2个插件
+
+- [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
+- [zsh-users/zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh.](https://github.com/zsh-users/zsh-syntax-highlighting)
 
 1. 进入**bash**下载插件到对应的目录(`.oh-my-zsh`)
 
@@ -316,6 +332,7 @@ cd -
      /^#*plugins/ a\
      plugins=(\
          git\
+         z\
          zsh-syntax-highlighting\
          zsh-autosuggestions\
          # 注意,sed命令的后续不能换行\
@@ -370,3 +387,8 @@ cd -
   
   
 
+## 配置fzf
+
+- 安装fzf(建议用brew来安装,版本比较新,apt安装的版本比较老)
+- 绑定shell:
+  - 

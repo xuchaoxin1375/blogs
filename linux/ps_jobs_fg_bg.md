@@ -1,7 +1,10 @@
  
 
-@[toc]
-# linux_任务/进程管理/进程查看/服务查看ps/进程前后台切换(jobs/bg/fg/ps)
+[toc]
+
+
+
+linux_任务/进程管理/进程查看/服务查看ps/进程前后台切换(jobs/bg/fg/ps)
 
 ## reference
 
@@ -34,7 +37,7 @@
 >   280:       k spec Specify sorting order.  Sorting syntax is [+|-]key[,[+|-]key[,...]].  Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section.  The "+" is optional since
 >   312:              Specify sorting order.  Sorting syntax is [+|-]key[,[+|-]key[,...]].  Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section.  The "+" is optional since
 >   449:STANDARD FORMAT SPECIFIERS
->      
+>         
 >   ```
 >
 > - 大致在第449行;使用`449G`指令可以快速跳转
