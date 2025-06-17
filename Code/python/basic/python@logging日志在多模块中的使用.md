@@ -76,9 +76,9 @@ def do_something():
 
 ```
 
-## 案例
+## 案例1(main_aux.py)
 
-设myliblog包下有一个`auxiliary.py`模块
+设`myliblog`包下有一个`auxiliary.py`模块
 
 ```python
 """
@@ -208,7 +208,11 @@ logger.info("done with auxiliary_module.some_function()")
 
 ```
 
-可见,模块auxiliary.py中被调用的logging日志相关的语句没有被调用者所利用和输出
+### logger对象的名字层级关系的体现
+
+
+
+模块auxiliary.py中被调用的logging日志相关的语句没有被调用者所利用和输出
 
 而如果将main_aux.py中的`logger`初始化为包名(`myliblog`),则又可以看到`auxiliary.py`中的日志信息又在被调用者的运行中输出
 
@@ -234,6 +238,164 @@ logger.info("done with auxiliary_module.some_function()")
 如果将一个程序的名字作为主程序的日志器的名称,这种做法是合适的,相比于使用根记录器,会更加灵活,便于和其他模块配合进一步集成
 
 ---
+
+## 案例2(main_cu.py)
+
+```python
+"""多模块日志示例"""
+
+import logging
+
+# 测试日志行为的模块myliblog
+from myliblog import auxiliary, core, utils
+
+LOG_FILE = "main_cu.log"
+# 配置pythonpath环境变量(将myliblog目录添加到PYTHONPATH环境变量中)后可以直接导入模块
+# import auxiliary
+# import core
+# import utils
+
+
+def setup_logging(level=logging.DEBUG):
+    """设置日志级别"""
+
+    # 创建不同名称的日志记录器查看效果上差异
+
+    # 1.普通的日志记录器名:myapp
+    # lgr = logging.getLogger("myapp")
+    # 或
+    lgr = logging.getLogger(__name__)
+
+    # 2.引用自模块myliblog的日志记录器名:myliblog
+    # lgr = logging.getLogger("myliblog")
+
+    # 3.根日志记录器名:root
+    lgr = logging.getLogger()
+
+    # 设置日志级别
+    lgr.setLevel(logging.DEBUG)
+
+    # 创建两个 handler：控制台 + 文件
+    # 控制台的日志级别为 INFO
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level=level)
+
+    # 文件的日志级别为 DEBUG
+    file_handler = logging.FileHandler(LOG_FILE, mode="w", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+
+    # 定义格式器
+    formatter = logging.Formatter(
+        fmt="%(asctime)s - %(name)s -[main_cu fmt:%(funcName)s - %(lineno)d]- %(levelname)s - %(message)s"
+    )
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    # 添加 handler 到根 logger
+    lgr.addHandler(console_handler)
+    lgr.addHandler(file_handler)
+
+    # 可选：关闭 propagate，防止重复输出
+    lgr.propagate = False
+    return lgr
+
+
+if __name__ == "__main__":
+    logger = setup_logging()
+
+    # 获取子模块的 logger
+    logger_core = logging.getLogger("myliblog.core")
+    logger_utils = logging.getLogger("myliblog.utils")
+    logger_auxiliary = logging.getLogger("myliblog.auxiliary")
+
+    # 获取被调用模块的logger对象后,可以通过该对象设置模块代码中的日志行为,比如级别
+    logger_core.setLevel(logging.ERROR)  # 设置 core 模块的日志级别为 ERROR
+    logger_utils.setLevel(logging.INFO)
+    logger_auxiliary.setLevel(logging.WARNING)
+
+    logger.debug("This is a debug message!")
+    logger.info("This is an info message!")
+
+    logger.info("(1) Running Module core")
+    core.do_core()  # 输出 ERROR 日志
+    logger.info("(2) Running Module utils")
+    utils.helper()  # 输出 Info 日志
+    logger.info("(3) Running Module auxiliary")
+    auxiliary.some_function()  # 输出 Warning 日志
+
+```
+
+为`main_cu.py`中的logger取名为`myapp`
+
+```bash
+PS>  python main_cu.py
+myliblog package initialized
+2025-06-14 21:06:01,042 - myapp -[main_cu fmt:<module> - 69]- DEBUG - This is a debug message!
+2025-06-14 21:06:01,042 - myapp -[main_cu fmt:<module> - 70]- INFO - This is an info message!
+2025-06-14 21:06:01,042 - myapp -[main_cu fmt:<module> - 72]- INFO - (1) Running Module core
+2025-06-14 21:06:01,043 - ERROR - [core fmt:myliblog.core -do_core - 27] - An error demo in core module    
+2025-06-14 21:06:01,043 - myapp -[main_cu fmt:<module> - 74]- INFO - (2) Running Module utils
+2025-06-14 21:06:01,043 - INFO - [utils fmt:myliblog.utils -helper - 16] - Some useful info from utils     
+2025-06-14 21:06:01,043 - WARNING - [utils fmt:myliblog.utils -helper - 17] - This is a warning from utils 
+2025-06-14 21:06:01,043 - ERROR - [utils fmt:myliblog.utils -helper - 18] - An error demo occurred in utils
+2025-06-14 21:06:01,043 - myapp -[main_cu fmt:<module> - 76]- INFO - (3) Running Module auxiliary
+```
+
+为`main_cu.py`中的logger取名为`myliblog`
+
+```powershell
+
+#⚡️[Administrator@CXXUDESK][C:\repos\scripts\wp\woocommerce\woo_df\archives\ipynbs\logging][21:06:09][UP:27.37Days]
+PS>  python main_cu.py
+myliblog package initialized
+2025-06-14 21:06:09,218 - myliblog -[main_cu fmt:<module> - 69]- DEBUG - This is a debug message!        
+2025-06-14 21:06:09,219 - myliblog -[main_cu fmt:<module> - 70]- INFO - This is an info message!
+2025-06-14 21:06:09,219 - myliblog -[main_cu fmt:<module> - 72]- INFO - (1) Running Module core
+2025-06-14 21:06:09,219 - ERROR - [core fmt:myliblog.core -do_core - 27] - An error demo in core module  
+2025-06-14 21:06:09,219 - myliblog.core -[main_cu fmt:do_core - 27]- ERROR - An error demo in core module
+2025-06-14 21:06:09,219 - myliblog -[main_cu fmt:<module> - 74]- INFO - (2) Running Module utils
+2025-06-14 21:06:09,219 - INFO - [utils fmt:myliblog.utils -helper - 16] - Some useful info from utils   
+2025-06-14 21:06:09,219 - myliblog.utils -[main_cu fmt:helper - 16]- INFO - Some useful info from utils  
+2025-06-14 21:06:09,219 - WARNING - [utils fmt:myliblog.utils -helper - 17] - This is a warning from utils
+2025-06-14 21:06:09,219 - myliblog.utils -[main_cu fmt:helper - 17]- WARNING - This is a warning from utils
+2025-06-14 21:06:09,220 - ERROR - [utils fmt:myliblog.utils -helper - 18] - An error demo occurred in utils
+2025-06-14 21:06:09,220 - myliblog.utils -[main_cu fmt:helper - 18]- ERROR - An error demo occurred in utils
+2025-06-14 21:06:09,220 - myliblog -[main_cu fmt:<module> - 76]- INFO - (3) Running Module auxiliary
+2025-06-14 21:06:09,220 - myliblog.auxiliary -[main_cu fmt:some_function - 33]- DEBUG - some_function is running
+2025-06-14 21:06:09,220 - myliblog.auxiliary -[main_cu fmt:some_function - 34]- INFO - received a call to "some_function"
+2025-06-14 21:06:09,220 - myliblog.auxiliary -[main_cu fmt:some_function - 35]- WARNING - this is a warning from some_function
+2025-06-14 21:06:09,220 - myliblog.auxiliary -[main_cu fmt:some_function - 36]- ERROR - an error demo in some_function
+```
+
+为`main_cu.py`中的logger取名为`root`(默认名字)
+
+```bash
+PS>  python main_cu.py
+myliblog package initialized
+2025-06-14 21:09:14,134 - root -[main_cu fmt:<module> - 72]- DEBUG - This is a debug message!
+2025-06-14 21:09:14,134 - root -[main_cu fmt:<module> - 73]- INFO - This is an info message!
+2025-06-14 21:09:14,134 - root -[main_cu fmt:<module> - 75]- INFO - (1) Running Module core
+2025-06-14 21:09:14,135 - ERROR - [core fmt:myliblog.core -do_core - 27] - An error demo in core module  
+2025-06-14 21:09:14,135 - myliblog.core -[main_cu fmt:do_core - 27]- ERROR - An error demo in core module
+2025-06-14 21:09:14,135 - root -[main_cu fmt:<module> - 77]- INFO - (2) Running Module utils
+2025-06-14 21:09:14,135 - INFO - [utils fmt:myliblog.utils -helper - 16] - Some useful info from utils   
+2025-06-14 21:09:14,135 - myliblog.utils -[main_cu fmt:helper - 16]- INFO - Some useful info from utils  
+2025-06-14 21:09:14,135 - WARNING - [utils fmt:myliblog.utils -helper - 17] - This is a warning from utils
+2025-06-14 21:09:14,135 - myliblog.utils -[main_cu fmt:helper - 17]- WARNING - This is a warning from utils
+2025-06-14 21:09:14,135 - ERROR - [utils fmt:myliblog.utils -helper - 18] - An error demo occurred in utils
+2025-06-14 21:09:14,135 - myliblog.utils -[main_cu fmt:helper - 18]- ERROR - An error demo occurred in utils
+2025-06-14 21:09:14,135 - root -[main_cu fmt:<module> - 79]- INFO - (3) Running Module auxiliary
+2025-06-14 21:09:14,136 - myliblog.auxiliary -[main_cu fmt:some_function - 33]- DEBUG - some_function is running
+2025-06-14 21:09:14,136 - myliblog.auxiliary -[main_cu fmt:some_function - 34]- INFO - received a call to "some_function"
+2025-06-14 21:09:14,136 - myliblog.auxiliary -[main_cu fmt:some_function - 35]- WARNING - this is a warning from some_function
+2025-06-14 21:09:14,136 - myliblog.auxiliary -[main_cu fmt:some_function - 36]- ERROR - an error demo in some_function
+```
+
+## 小结
+
+如果当前脚本(模块调用者,比如`main_cu.py`,`main_aux.py`)中的logger名字是被调用模块(比如`myliblog`库下的`myliblog.core,utils,auxiliary`)的父级(或者更高级,比如顶级)则当前模块可以接收到这些外部模块的日志,从而对这些日志进行处理,但是否输出这些外部模块的日志,取决于当前调用者的代码如何控制
+
+外部模块的默认行为可以在调用者代码中更改,但是如果当前调用者的logger名字和被调用模块没有层级关系,则意味着被调用模块的日志无法传递到当前调用者的程序中,也无法有效地进一步处理
 
 ## 🧩 场景描述
 

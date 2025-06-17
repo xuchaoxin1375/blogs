@@ -2,6 +2,8 @@
 
 ##  迭代器
 
+[生成器 — Python  文档](https://docs.python.org/zh-cn/3/tutorial/classes.html#generators)
+
 - Python中的迭代器（Iterator）是一种访问元素集合的方式，它提供了一种按需计算的方式，即在需要的时候才会返回一个元素。
 - 使用迭代器可以避免一次性加载整个集合到内存中，从而节省内存空间。
 - 在Python中，迭代器必须实现`__iter__`和`__next__`方法。
