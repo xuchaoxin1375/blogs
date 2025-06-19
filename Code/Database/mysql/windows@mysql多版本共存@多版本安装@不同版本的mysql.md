@@ -49,7 +49,7 @@ server-id=1
 mysqld --install MySQL57 --defaults-file="C:\MySQL\mysql-5.7\my.ini"
 ```
 
-又比如
+又比如mysql55
 
 ```powershell
 mysqld --install MySQL55 --defaults-file="C:\phpstudy_pro\Extensions\MySQL5.5.29\my.ini"
