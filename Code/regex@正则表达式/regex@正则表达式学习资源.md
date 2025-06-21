@@ -10,6 +10,7 @@
 ## 正则在线工具
 
 - [regex101: build, test, and debug regex](https://regex101.com/)
+  - 设置里可以选择中文([regex101: Settings](https://regex101.com/settings/general))
 
 - [RegExr: 学习、构建 和 测试 正则表达式 Test RegEx](https://regexr-cn.com/)
 

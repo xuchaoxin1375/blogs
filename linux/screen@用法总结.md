@@ -173,3 +173,11 @@ screen -d -r work || screen -S work
 > **`screen` 是 Linux 用户必备的终端工具之一，它让你可以“永不掉线”地运行和管理多个终端任务，尤其适合远程服务器操作和长时间运行的任务。**
 
  
+
+## 案例
+
+```bash
+#ssh root@host "screen -dmS zw bash -c 'bash /www/wwwroot/deploy_wp_full.sh --user-dir zw; exec bash'"
+ssh root@host "screen -dmS zsh bash -c '/www/wwwroot/deploy_wp_full.sh --user-dir zsh; exec bash'"
+```
+
