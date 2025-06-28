@@ -1,12 +1,32 @@
 [toc]
 
-# 现代操作系统上创建各类链接的方法汇总
+# abstract
 
+现代操作系统(windows,linux)上创建各类链接的方法汇总
 
+## 使用场景举例
 
-## windows: cmd下的`mklink`创建链接
+| 场景               | 描述                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| 快速访问深层目录   | 创建软链接简化路径，如 `/www/woo_df → /repos/scripts/wp/woocommerce/woo_df` |
+| 共享脚本或配置文件 | 在多个位置创建软链接指向同一个源文件                         |
+| Web 服务器部署     | 将网站根目录下的路径链接到实际项目目录                       |
+| 节约存储空间       | 让不同项目引用同一个库文件而不复制                           |
 
+---
 
+基本链接类型和特点
+
+| 类型      | 名称                               | 特点                                               |
+| --------- | ---------------------------------- | -------------------------------------------------- |
+| 默认      | 硬链接（Hard Link）                | 直接指向文件的 inode，不能跨文件系统、不能链接目录 |
+| `-s` 参数 | 软链接 / 符号链接（Symbolic Link） | 类似快捷方式，可跨文件系统，可链接目录             |
+
+# windows
+
+## cmd mklink 创建链接
+
+cmd下的`mklink`创建链接
 
 - [mklink | Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mklink)
 
@@ -34,7 +54,6 @@
           Target  Specifies the path (relative or absolute) that the new link
                   refers to.
   ```
-
 
 ### 示例
 
@@ -123,51 +142,87 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
 
 
 
-##   linux shell 创建硬链接
+#   linux
+
+## ln 命令创建硬链接
 
 - [ln(1) - Linux manual page (man7.org)](https://www.man7.org/linux/man-pages/man1/ln.1.html)
 
-- - 
-
 - ```bash
-  NAME
-         ln - make links between files
+     ln --help
+  Usage: ln [OPTION]... [-T] TARGET LINK_NAME
+    or:  ln [OPTION]... TARGET
+    or:  ln [OPTION]... TARGET... DIRECTORY
+    or:  ln [OPTION]... -t DIRECTORY TARGET...
+  In the 1st form, create a link to TARGET with the name LINK_NAME.
+  In the 2nd form, create a link to TARGET in the current directory.
+  In the 3rd and 4th forms, create links to each TARGET in DIRECTORY.
+  Create hard links by default, symbolic links with --symbolic.
+  By default, each destination (name of new link) should not already exist.
+  When creating hard links, each TARGET must exist.  Symbolic links
+  can hold arbitrary text; if later resolved, a relative link is
+  interpreted in relation to its parent directory.
   
-  SYNOPSIS
-         ln [OPTION]... [-T] TARGET LINK_NAME
-         ln [OPTION]... TARGET
-         ln [OPTION]... TARGET... DIRECTORY
-         ln [OPTION]... -t DIRECTORY TARGET...
+  Mandatory arguments to long options are mandatory for short options too.
+        --backup[=CONTROL]      make a backup of each existing destination file
+    -b                          like --backup but does not accept an argument
+    -d, -F, --directory         allow the superuser to attempt to hard link
+                                  directories (note: will probably fail due to
+                                  system restrictions, even for the superuser)
+    -f, --force                 remove existing destination files
+    -i, --interactive           prompt whether to remove destinations
+    -L, --logical               dereference TARGETs that are symbolic links
+    -n, --no-dereference        treat LINK_NAME as a normal file if
+                                  it is a symbolic link to a directory
+    -P, --physical              make hard links directly to symbolic links
+    -r, --relative              create symbolic links relative to link location
+    -s, --symbolic              make symbolic links instead of hard links
+    -S, --suffix=SUFFIX         override the usual backup suffix
+    -t, --target-directory=DIRECTORY  specify the DIRECTORY in which to create
+                                  the links
+    -T, --no-target-directory   treat LINK_NAME as a normal file always
+    -v, --verbose               print name of each linked file
+        --help     display this help and exit
+        --version  output version information and exit
   
-  DESCRIPTION
-         In  the  1st  form,  create a link to TARGET with the name LINK_NAME.  In the 2nd
-         form, create a link to TARGET in the current  directory.   In  the  3rd  and  4th
-         forms,  create  links to each TARGET in DIRECTORY.  Create hard links by default,
-         symbolic links with --symbolic.  By default, each destination (name of new  link)
-         should  not  already  exist.   When  creating hard links, each TARGET must exist.
-         Symbolic links can hold arbitrary text; if later resolved, a relative link is in‐
-         terpreted in relation to its parent directory.
+  The backup suffix is '~', unless set with --suffix or SIMPLE_BACKUP_SUFFIX.
+  The version control method may be selected via the --backup option or through
+  the VERSION_CONTROL environment variable.  Here are the values:
   
-         Mandatory arguments to long options are mandatory for short options too.
+    none, off       never make backups (even if --backup is given)
+    numbered, t     make numbered backups
+    existing, nil   numbered if numbered backups exist, simple otherwise
+    simple, never   always make simple backups
   
-         --backup[=CONTROL]
-                make a backup of each existing destination file
+  Using -s ignores -L and -P.  Otherwise, the last option specified controls
+  behavior when a TARGET is a symbolic link, defaulting to -P.
   
-         -b     like --backup but does not accept an argument
-  
-         -d, -F, --directory
-                allow the superuser to attempt to hard link directories (note: will proba‐
-                bly fail due to system restrictions, even for the superuser)
-  
-         -f, --force
-                remove existing destination files
-        ....
-  
+  GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+  Full documentation <https://www.gnu.org/software/coreutils/ln>
+  or available locally via: info '(coreutils) ln invocation'
   ```
-
+  
   
 
 `ln` 命令用于在文件之间创建链接。链接可以是硬链接（hard link）或者符号链接（symbolic link）。以下是`ln`命令的基本用法及其各个选项的详细说明。
+
+
+
+🧠 小贴士
+
+- 使用绝对路径创建软链接更稳定（避免相对路径带来的问题）。
+
+- 创建前确保目标路径不存在，否则 `ln` 会报错。
+
+- 如果你想强制覆盖已有的链接，可以加 `-f` 参数：
+
+  ```bash
+  ln -sf source target
+  ```
+
+---
+
+
 
 ### NAME
 `ln` - 在文件之间创建链接
@@ -178,30 +233,49 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
 3. `ln [OPTION]... TARGET... DIRECTORY`
 4. `ln [OPTION]... -t DIRECTORY TARGET...`
 
-### 详细说明
+> 其中,`[OPTION]`表示ln命令的选项,而后面紧跟着的`...`表示选项可以有多个
 
-1. `ln [OPTION]... [-T] TARGET LINK_NAME`
+而第一种用法中的`[OPTION]... [-T]`末尾提示了`[-T]`,表明这种选项组合有特殊性
+
+>   -T, --no-target-directory   treat LINK_NAME as a normal file always
+
+
+
+### ln的四种语法详细说明
+
+1.  `ln [OPTION]... [-T] TARGET LINK_NAME`
 
 这个用法是创建一个名为`LINK_NAME`的链接，指向`TARGET`文件或目录。
-- `TARGET`：目标文件或目录。
-- `LINK_NAME`：链接名称。
+
+- `[OPTION]...`：表示你可以加多个选项，比如 `-s` 表示软链接。
+- `[-T]`：是一个可选参数，用于控制是否将链接视为目录（不常使用）。
+- `TARGET`：你要链接的目标路径。
+- `LINK_NAME`：你想创建的链接名字。
 
 示例：
+
 ```bash
 ln -s /path/to/file /path/to/symlink
 ```
 在这个示例中，`-s`选项表示创建一个符号链接（symbolic link），`/path/to/file`是目标文件，`/path/to/symlink`是链接名称。
 
+
+
 2. `ln [OPTION]... TARGET`
 
-这个用法是创建一个指向`TARGET`的硬链接。默认情况下，链接名称与`TARGET`相同，但创建在当前目录中。
+这个其实和上一条是**同一种情况** ，只是省略了 `LINK_NAME`，这时系统会默认在当前目录下创建一个与目标同名的链接。
+
+默认情况下，链接名称与`TARGET`相同，但创建在当前目录中。(这种用法也不多见,并不是典型用法)
+
+> ⚠️ 这种方式只能在你当前目录下创建链接，且不能用于多个文件。 
+
 - `TARGET`：目标文件。
 
 示例：
 ```bash
-ln file1
+ln p1
 ```
-在当前目录中创建一个名为`file1`的硬链接，指向`file1`文件。
+在当前目录中创建一个名为`p1`的硬链接，指向`p1`文件。
 
 3. `ln [OPTION]... TARGET... DIRECTORY`
 
@@ -211,9 +285,9 @@ ln file1
 
 示例：
 ```bash
-ln file1 file2 /path/to/directory
+ln p1 p2 /path/to/directory
 ```
-在`/path/to/directory`目录中创建两个硬链接，分别指向`file1`和`file2`。
+在`/path/to/directory`目录中创建两个硬链接，分别指向`p1`和`p2`。
 
 4. `ln [OPTION]... -t DIRECTORY TARGET...`
 
@@ -223,9 +297,9 @@ ln file1 file2 /path/to/directory
 
 示例：
 ```bash
-ln -t /path/to/directory file1 file2
+ln -t /path/to/directory p1 p2
 ```
-在`/path/to/directory`目录中创建两个硬链接，分别指向`file1`和`file2`。
+在`/path/to/directory`目录中创建两个硬链接，分别指向`p1`和`p2`。
 
 ### 常用选项
 - `-s, --symbolic`：创建符号链接而不是硬链接。
@@ -234,233 +308,97 @@ ln -t /path/to/directory file1 file2
 - `-T, --no-target-directory`：将链接视为文件而不是目录。
 - `-t DIRECTORY, --target-directory=DIRECTORY`：将链接创建在指定的目录中。
 
-### 示例
-1. 创建硬链接：
-```bash
-ln file1 file2
-```
-创建一个名为`file2`的硬链接，指向`file1`。
+### ln示例🎈
 
-2. 创建符号链接：
-```bash
-ln -s file1 symlink
-```
-创建一个名为`symlink`的符号链接，指向`file1`。
+#### 创建硬链接：
 
-3. 在指定目录中创建链接：
 ```bash
-ln file1 file2 /path/to/directory
+ln p1 p2
 ```
-在`/path/to/directory`目录中创建两个硬链接，分别指向`file1`和`file2`。
+创建一个名为`p2`的硬链接，指向`p1`。
 
-4. 强制覆盖已经存在的链接：
+或者说为`p1`创建一个位于`p2`路径下的符号(别名),这样如果的好处是:
+
+- `p1`特别长,输入不方便,就可以利用`p2`来代替
+- 又比如`p1`是个定期更新的配置文件或目录路径,而某个应用需要读取固定位置下的配置文件,就可以这样创建`p2`符号路径(指向`p1`)
+
+
+
+#### 创建符号链接：
+
 ```bash
-ln -sf file1 existing_symlink
+ln -s p1 symlink
 ```
-创建一个名为`existing_symlink`的符号链接，指向`file1`，并覆盖已有的`existing_symlink`。
+创建一个名为`symlink`的符号链接，指向`p1`。
+
+#### 在指定目录中创建链接：
+
+```bash
+ln p1 p2 /path/to/directory
+```
+在`/path/to/directory`目录中创建两个硬链接，分别指向`p1`和`p2`。
+
+#### 强制覆盖已经存在的链接：
+
+```bash
+ln -sf p1 existing_symlink
+```
+创建一个名为`existing_symlink`的符号链接，指向`p1`，并覆盖已有的`existing_symlink`。
 
 以上是`ln`命令的基本用法及常用选项的详细介绍。如果需要更多帮助，可以使用`man ln`命令查看手册页。
 
+#### 综合
 
-
-##  检查与辨识符号链接🎈
-
-- [shell script - Determining if a file is a hard link or symbolic link? - Unix &amp; Linux Stack Exchange](https://unix.stackexchange.com/questions/167610/determining-if-a-file-is-a-hard-link-or-symbolic-link)
-
-主要是针对SymbolicLink的检查,而windows上还可以检查junction类型的链接
-
-而HardLink由于其特点而不像其他类型链接那样容易检查,但是可以计数一个文件具有多少个Hardlink
-
-### linux下检查
-
-####  ls -l 命令
-
-该选项可以检查某个目录下的`symbolic link`
-链接会以箭头指示
+为当前目录下的`installer.sh`,`uninstaller.sh`在目标目录`/www/shs`下创建强制性(如果存在同名文件则覆盖)两个同名的符号链接
 
 ```bash
-# cxxu @ cxxuAli in /usr/bin [15:34:47] C:130
-$ ls -1l python*
-...
-lrwxrwxrwx 1 root root      16 Oct 25  2018 python3-config -> python3.6-config
-lrwxrwxrwx 1 root root      10 Feb  8 14:51 python3m -> python3.6m
-lrwxrwxrwx 1 root root      17 Oct 25  2018 python3m-config -> python3.6m-config
+ln -sf installer.sh uninstaller.sh /www/shs
 ```
 
-####  file 命令
-
-- 该命令可能需要手动安装
-- 可以识别出`symbolic link`以及链接的target.
-
-```bash
-# cxxu @ cxxuAli in /usr/bin [15:37:52]
-$ file python3
-python3: symbolic link to python3.6
+等价于
 
 ```
-
-### windows下检查
-
-
-
-#### cmd下dir命令查看
-
-- 两种方式执行`dir`
-
-  - 在cmd下直接执行`dir`
-    - 对于powershell用户,可以在powershell中输入`cmd`即可切换到cmd,然后执行`dir`
-
-  - 在powershell下直接执行`cmd /c dir`
-
-  ```bash
-  PS C:\Users\cxxu\AppData\Local> cmd /c dir
-   Volume in drive C is win11
-   Volume Serial Number is EC48-2060
-  
-   Directory of C:\Users\cxxu\AppData\Local
-  
-  2023/05/24  15:12    <DIR>          .
-  2023/03/05  13:59    <DIR>          0install.net
-  ...
-  2023/05/24  15:12    <JUNCTION>     Android [\??\D:\Android]
-  ...
-  2023/04/07  18:15    <DIR>          cache
-  2023/01/20  11:35    <DIR>          calibre-cache
-  ..
-  2023/05/24  20:37    <SYMLINKD>     android_test [D:\android]
-  ...
-  ```
-
-  - 可以看到,`junction`类型和`symbol`的类型链接被显示出来.
-
-
-####  powershell来查看符号连接的类型与其target👺
-
-- `ls | Format-Table name,LinkType,Target`,其中`Format-Table`可以简写为`ft`
-
-- ```bash
-  PS C:\Users\cxxu> ls |where {$_.LinkType}|ft name,LinkType,LinkTarget,Mode
-  
-  Name         LinkType     LinkTarget
-  ----         --------     ----------
-  android_test SymbolicLink D:\android
-  downloads    Junction     D:\usersByCxxu\DownloadsAll\
-  ser          Junction     D:\repos\ccser\emotion-recognition-using-speech
-  ```
-
-  
-
-- 过滤掉(不显示)非链接类型
-
-  - `Get-ChildItem | Sort-Object -Property target -Descending | Select-Object name, linktype, target|where {$_.Target }`
-
-  - ```bash
-    PS C:\Users\cxxu> Get-ChildItem | Sort-Object -Property target -Descending | Select-Object name, linktype, target|where {$_.Target }
-    
-    Name         LinkType     Target
-    ----         --------     ------
-    downloads    Junction     D:\usersByCxxu\DownloadsAll\
-    ser          Junction     D:\repos\ccser\emotion-recognition-using-speech\
-    android_test SymbolicLink D:\android
-    ```
-
-#### powershell函数
-
-```powershell
-function Get-LinksOfType
-{
-    <# 
-    .SYNOPSIS
-    查看指定类型的链接,以表格的形式输出(包括:name,linktype,linktarget)
-    可用的类型包括:hardlink,symboliclink,junction
-    默认不区分大小写.
-    .EXAMPLE
-    PS☀️[BAT:71%][MEM:36.25% (11.49/31.71)GB][22:20:59]
-    # [cxxu@COLORFULCXXU][~\Desktop]
-    PS> pwsh
-    PowerShell 7.4.2
-    PS C:\Users\cxxu\Desktop> get-LinksOfType -Directory C:\Users\cxxu -LinkType symboliclink
-
-    Name  LinkType     LinkTarget Mode
-    ----  --------     ---------- ----
-    repos SymbolicLink C:\repos   l----
-
-    .EXAMPLE
-    PS C:\Users\cxxu\Desktop> get-LinksOfType -Directory ./ -LinkType symboliclink
-
-    Name             LinkType     LinkTarget     Mode
-    ----             --------     ----------     ----
-    symbolDir        SymbolicLink T:\DirInFat32\ l----
-    TestSymbolicLink SymbolicLink U:\demo.txt    la---
-    
-    .EXAMPLE
-    PS C:\Users\cxxu\Desktop> get-LinksOfType
-
-    Name             LinkType     LinkTarget                             Mode
-    ----             --------     ----------                             ----
-    demoHardlink.txt HardLink                                            la---
-    demoJunctionDir  Junction     C:\Users\cxxu\desktop\testDir\innerDir l----
-    symbolDir        SymbolicLink T:\DirInFat32\                         l----
-    TestSymbolicLink SymbolicLink U:\demo.txt                            la---
-     #>
-    param(
-        [Alias('D')]$Directory = '.',
-        [validateset( 'symboliclink', 'junction', 'hardlink' , 'all')]$LinkType = 'all'
-
-    )
-    $all = Get-ChildItem $Directory | Where-Object { $_.LinkType } | Sort-Object -Property LinkType
-    $Specifiedtype = $all | Where-Object { $_.LinkType -eq $linkType } 
-    $res = ($LinkType -eq 'all') ? $all : $Specifiedtype
-    $res = $res | Format-Table name, LinkType, LinkTarget,Mode
-    return $res
-}
+ln -sf -t /www/shs installer.sh uninstaller.sh 
 ```
 
-###  硬链接计数
 
-在大多数UNIX和Linux文件系统中，每个inode维护了一个链接计数（link count），表示有多少个硬链接指向该inode。这个链接计数反映了通过不同文件名访问相同文件内容的数量。
 
-- 当你创建一个文件时，其inode的链接计数默认为1。
-- 每增加一个硬链接到该文件，inode的链接计数就加1。
-- 当你删除（unlink）一个硬链接（不是通过删除命令rm原文件）时，相应inode的链接计数减1。
-- 只有当inode的链接计数降为0时，文件系统才会真正释放该inode及其所占用的磁盘空间，这意味着文件内容被永久删除。
 
-这种机制确保了文件数据的安全性，即使你误删了一个硬链接，只要还有其他硬链接存在，文件数据就不会丢失。这也是硬链接与软链接（符号链接）的一个重要区别，因为软链接是独立的文件实体，有自己的inode和存储空间，对软链接的删除不会影响原始文件的链接计数。
 
 ##  linux:硬连接和软连接的对比
 
 ```bash
 #创建硬链接会改变文件的引用计数
 #( 05/24/22@ 2:31PM )( cxxu@cxxuAli ):~/testLink
-   ec 'abc'>file1
+   ec 'abc'>p1
 #( 05/24/22@ 2:31PM )( cxxu@cxxuAli ):~/testLink
    ls -li
 total 4
-1835411 -rw-rw-r-- 1 cxxu cxxu 4 May 24 14:31 file1
+1835411 -rw-rw-r-- 1 cxxu cxxu 4 May 24 14:31 p1
 #( 05/24/22@ 2:31PM )( cxxu@cxxuAli ):~/testLink
-   ln file1 file2_hard
+   ln p1 p2_hard
 #( 05/24/22@ 2:32PM )( cxxu@cxxuAli ):~/testLink
    ls -li
 total 8
-1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 file1
-1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 file2_hard
+1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 p1
+1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 p2_hard
 
 #符号链接不会改变引用计数
 #( 05/24/22@ 2:32PM )( cxxu@cxxuAli ):~/testLink
-   ln -s file1 file3_symbolic
+   ln -s p1 file3_symbolic
 #( 05/24/22@ 2:32PM )( cxxu@cxxuAli ):~/testLink
    ls -li
 total 8
-1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 file1
-1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 file2_hard
-1835412 lrwxrwxrwx 1 root root 5 May 24 14:32 file3_symbolic -> file1
+1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 p1
+1835411 -rw-rw-r-- 2 cxxu cxxu 4 May 24 14:31 p2_hard
+1835412 lrwxrwxrwx 1 root root 5 May 24 14:32 file3_symbolic -> p1
 #( 05/24/22@ 2:32PM )( cxxu@cxxuAli ):~/testLink
-   rm file1
+   rm p1
 #( 05/24/22@ 2:32PM )( cxxu@cxxuAli ):~/testLink
    ls -li
 total 4
-1835411 -rw-rw-r-- 1 cxxu cxxu 4 May 24 14:31 file2_hard
-1835412 lrwxrwxrwx 1 root root 5 May 24 14:32 file3_symbolic -> file1
+1835411 -rw-rw-r-- 1 cxxu cxxu 4 May 24 14:31 p2_hard
+1835412 lrwxrwxrwx 1 root root 5 May 24 14:32 file3_symbolic -> p1
 ```
 
 ###  ls -li
@@ -481,8 +419,8 @@ ls - list directory contents
 ### ls -l
 
 ```bash
-ls -l file1 
--rw-rw-r--. 1 lilo lilo 0 Feb 26 07:08 file1
+ls -l p1 
+-rw-rw-r--. 1 lilo lilo 0 Feb 26 07:08 p1
 ```
 
 From the output above we can deduct a following information:
@@ -493,227 +431,7 @@ From the output above we can deduct a following information:
 - lilo: to which group this file belongs to
 - 0: size
 - Feb 26 07:08 modification/creation date and time
-- file1: file/directory name
-
-## powershell/bash命令行中查看目录项目的文件模式👺
-
-### Mode字符串@模式标志字母
-
-- [Get-ChildItem (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/Microsoft.PowerShell.Management/Get-ChildItem?view=powershell-7.4)
-- 默认情况下，`Get-ChildItem` 会列出模式（**属性**）、**LastWriteTime**、文件大小（**长度**），以及项**名称**。 **Mode** 属性中的字母可以解释为：
-  - `l`（链接）
-  - `d`（目录）
-  - `a`（存档）(一般是文件)
-  - `r`（只读）
-  - `h`（隐藏）
-  - `s`（系统）
-
-有关**模式标志**的详细信息，请参阅 [about_Filesystem_Provider](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_filesystem_provider?view=powershell-7.4#attributes-flagsexpression)。
-
-Attributes `<FlagsExpression>`
-
-Gets files and folders with the specified attributes. This parameter supports all attributes and lets you specify complex combinations of attributes.
-
-The **Attributes** parameter was introduced in Windows PowerShell 3.0.
-
-The **Attributes** parameter supports the following attributes:
-
-- **Archive**
-- **Compressed**
-- **Device**
-- **Directory**
-- **Encrypted**
-- **Hidden**
-- **Normal**
-- **NotContentIndexed**
-- **Offline**
-- **ReadOnly**
-- **ReparsePoint**
-- **SparseFile**
-- **System**
-- **Temporary**
-
-For a description of these attributes, see the [FileAttributes](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileattributes) enumeration.
-
-[FileAttributes 枚举 (System.IO) | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/api/system.io.fileattributes?view=net-8.0#--)
-
-在PowerShell中，文件模式（Mode）是指用于描述文件或目录权限和属性的一系列字符。这些模式通常在使用命令如`Get-ChildItem`,  或进行文件操作时遇到。
-
-### 模式标志小结👺
-
-在 PowerShell 中，`Mode` 属性是通过 `Get-Item` 或类似命令获取文件或目录时显示的一个属性，它描述了该文件或目录的访问权限和类型信息。
-
-`Mode` 字符串由五个字符组成，每个字符都有特定的含义：
-
-1. 第一个字符表示文件类型：
-   - `d`: 目录
-   - `l`: 链接类型(如果要进一步是SymbolicLink还是Junction,需要进一步查看linkType)
-     - 如果是`la`---类型的,则是`硬链接`(硬链接的目标是无法通过LinkType来查看的,只能知道它的链接类型是硬链接)
-   - `-`: 普通文件
-2. 接下来的三个字符表示所有者的权限：
-   - `r`: 可读
-   - `w`: 可写
-   - `x`: 可执行
-   - `-`: 对应的权限**未设置**
-3. 第五个,即最后一个字符通常是`-`，在 Windows 中不用于表示额外的权限信息。虽然字符通常是 `-`，有时会是 `s` ,在 Windows 环境中可能表示该目录被设置为系统文件或目录。到底是什么意思,尚不清楚,没有找到对应的文档介绍
-
-### powershell获取DirectoryInfo信息
-
-```powershell
-function Get-PSDirItem
-{
-    <# 
-    .SYNOPSIS
-    获取子目录的Ps路径对象,而不是子目录中的条目
-    #>
-    param (
-        [Alias('D')]$Directory = '.',
-        [Alias('S')]$SubDirectory
-    )
-    
-
-    $p = Join-Path -Path $Directory -ChildPath $SubDirectory
-    # 判错逻辑可以不写,如果有错直接抛出错误即可,告诉用户输入的路径是有误的
-    # $exist = Test-Path $p
-    # $p=$exist ? (Resolve-Path $p) : ''
-    $p = Resolve-Path $p
-    $p = $p.Path.Trim('\') #字符串类型
-    Write-Host $p -ForegroundColor Blue
-    
-    $allItems = Get-ChildItem "$p/.."
-    # Write-Host $allItems
-
-    $res = $allItems | Where-Object { $_.FullName -eq $p }
-    return $res
-    
-}
-```
-
-
-
-### 非普通文件/目录示例
-
-```powershell
-# [cxxu@COLORFULCXXU][~]
-PS> pwd
-
-Path
-----
-C:\Users\cxxu
-
-Mode                LastWriteTime         Length Name
-----                -------------         ------ ----
-...
-d-r--          2024/4/5     11:08                󰛋  Contacts
-dar--         2024/5/29     20:47                󰟀  Desktop
-d-r--         2024/5/17     14:25                  Documents
-da---         2024/5/27     23:50                󰉍  Downloads
-d-r--          2024/4/5     11:08                󰚝  Favorites
-d----         2024/5/20     10:20                  go
-d-r--          2024/4/5     11:08                  Links
-d-r--         2024/4/10     22:04                󰌳  Music
-dar--          2024/4/7     16:00                  OneDrive
-d-r--         2024/5/26     11:02                󰉏  Pictures
-l----         2024/5/28     22:20                  repos 󰁕 C:\repos
-d-r--          2024/4/5     11:08                  Saved Games
-```
-
-权限控制效果:
-
-以上述目录列表中的`Saved Games`为例,它的权限为`d-r--`;也就是说这是一个只可读的目录
-
-如果您对其执行删除,会出现错误
-
-```powershell
-PS C:\Users\cxxu> Get-PSDirItem -SubDirectory '.\Saved Games\' -Directory .
-C:\Users\cxxu\Saved Games
-
-    Directory: C:\Users\cxxu
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-r--            2024/4/5    11:08                Saved Games
-
-PS>remove-item '.\Saved Games\'
-
-Confirm
-The item at C:\Users\cxxu\Saved Games\ has children and the Recurse parameter was not specified. If you continue, all children will be removed with the item. Are you sure you
-want to continue?
-[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): Y
-Remove-Item: You do not have sufficient access rights to perform this operation or the item is hidden, system, or read only.
-Remove-Item: Directory C:\Users\cxxu\Saved Games\ cannot be removed because it is not empty.
-```
-
-#### 其他
-
-```powershell
-PS>get-PSDirItem -SubDirectory  '.\zh-CN\'
-C:\Windows\System32\zh-CN
-
-    Directory: C:\Windows\System32
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d---s           2024/5/15    11:53                zh-CN
-
-```
-
-
-
-### 基础权限标识
-
-1. **d** - 目录。表示该条目是一个目录而非文件。
-2. **-** - 文件。表示该条目是一个普通文件。
-3. **l** (小写的L) - 符号链接。在支持符号链接的系统上，表示该条目是一个链接到另一个文件或目录的符号链接。
-
-### 权限位（Linux风格）👺
-
-在某些上下文中，尤其是当查看与Linux兼容的文件系统（如通过WSL使用）或模拟Linux权限时，你可能会看到类似`rwxr-xr--`这样的权限字符串。
-
-这和windows中的Mode模式标志风格不同
-
-这里的每个部分**代表不同用户/组**的权限：
-
-- `r` (Read) - 读取权限。
-- `w` (Write) - 写入权限。
-- `x` (Execute) - 执行权限。
-- `-` 表示没有相应的权限。
-
-这**三个字符一组**，分别代表：
-- 所有者权限。
-- 所属组权限。
-- 其他人权限。
-
-例如，`rwxr-xr--`,每三个一组分组后为`rwx r-x r--`表示所有者有读、写、执行权限，所属组有读和执行权限，其他人只有读权限。
-
-### Windows特定权限标识
-
-在Windows环境中，文件和目录的权限更为复杂，通常涉及ACL（Access Control List），包括但不限于以下几种权限类型，但这些不直接以字符形式体现在模式中：
-
-- Full Control
-- Modify
-- Read & Execute
-- Read
-- Write
-- Special Permissions
-
-查看这些详细权限通常需要使用`Get-Acl`命令并检查ACL对象的内容。
-
-### 查看文件模式
-
-要在PowerShell中查看文件或目录的详细模式（包括权限），可以使用如下命令：
-
-```powershell
-# 对于文件或目录的简单属性，包括是否为目录
-Get-ChildItem -Path <FilePathOrDirectoryName> | Select-Object Mode
-
-# 对于更详细的访问控制列表信息
-(Get-Acl -Path <FilePathOrDirectoryName>).Access
-```
-
-请注意，上述`Mode`字段显示的信息较为基础，若需查看详细的NTFS权限设置，直接查看ACL信息会更合适。
-
-理解文件模式和权限对于管理文件系统安全至关重要，特别是在执行自动化脚本或进行权限审计时。
+- p1: file/directory name
 
 
 
