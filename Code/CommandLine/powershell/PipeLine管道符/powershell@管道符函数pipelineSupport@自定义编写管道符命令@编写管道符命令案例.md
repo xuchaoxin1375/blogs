@@ -172,7 +172,7 @@ String System.String System.Object System.String
 
 该函数将从管道接收对象并根据指定的条件过滤这些对象。
 
-### 简化版where-object命令Where-Custom 
+### 简化版where-object命令Where-Custom🎈
 
 ```powershell
 function Where-Custom {
@@ -249,7 +249,7 @@ $objects | Where-Custom -Condition { $_ % 2 -eq 0 }
 
 这个例子中，我们将使用 `begin` 块来初始化变量，`process` 块来处理每个输入目录，`end` 块来计算和输出最终结果。
 
-### 统计大文件数量Get-LargeFiles
+### 统计大文件数量Get-LargeFiles🎈
 
 ```powershell
 function Get-LargeFiles {

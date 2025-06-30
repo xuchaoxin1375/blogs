@@ -12,12 +12,12 @@
 
 - 在windows下,您需要注意shell的不同(比如,`conda activate`能否执行成功)
 
-  - 使用专门为powershell配置的命令启动,否则无法生效
-  - 默认的是为cmd的启动命令,这里要找到powershell的版本
+  - 对于powershell(pwsh),要使用专门为powershell配置的命令启动,否则无法生效
+  - conda默认的是为cmd的启动命令,这里要找到powershell的版本
 
 - 从开始菜单中**使用管理方式**启动`Anaconda Powershell Prompt (miniconda3)`
 
-  - 或者在**管理员方式**启动的powershell中执行以下代码启动:
+  - 或者在**管理员方式**启动的**powershell**中执行以下代码启动:
 
   - ```bash
     . (Resolve-Path "$env:appdata\Microsoft\Windows\Start*Menu\Programs\Anaconda3*\*conda*powershell*.lnk")
@@ -120,7 +120,7 @@ Conda 默认会在启动终端时自动激活 `base` 环境，这可能会导致
 conda config --set auto_activate_base false
 ```
 
-此命令会更改 Conda 的全局配置文件，使得每次打开新的 PowerShell 终端时不再自动进入 `base` 环境*1*
+此命令会更改 Conda 的全局配置文件，使得每次打开新的 PowerShell 终端时不再自动进入 `base` 环境1
 
 ## 利用conda向指定环境安装packages
 

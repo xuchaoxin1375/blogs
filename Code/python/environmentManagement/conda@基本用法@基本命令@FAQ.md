@@ -1,304 +1,8 @@
-
-
 [toc]
 
-## abstract
 
-- conda发行版比较
-- python环境管理@conda命令的基本操作@基本使用
-- conda env list环境条目重复列出问题
 
-## ref
 
-- [关于conda环境的配置，看这一篇就够了 - 哔哩哔哩 (bilibili.com)](https://www.bilibili.com/read/cv8956636?from=search)
-- [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
-- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
-
-## conda官网
-
-- [Conda — conda documentation](https://docs.conda.io/en/latest/)
-  - *Package, dependency and environment management for any language—Python, R, Ruby, Lua, Scala, Java, JavaScript, C/ C++, Fortran, and more.*
-  - Conda is an open source package management system and environment management system that runs on Windows, macOS, and Linux. Conda quickly installs, runs and updates packages and their dependencies. 
-  - Conda easily creates, saves, loads and switches between environments on your local computer. 
-  - <u>It was created for Python programs</u>, but **it can package and distribute software for any language**.
-
-## conda分类
-
-- 两种conda发行版本都包含conda的核心功能
-
-### miniconda
-
-- [Miniconda — conda documentation](https://docs.conda.io/en/latest/miniconda.html)
-- 只包含最核心的conda功能组件,体积小
-- 一般来说足够使用了
-- Miniconda is a free minimal installer for conda.
-  -  It is a small, bootstrap version of Anaconda 
-  - that includes only conda, Python, the packages they depend on, 
-  - and a small number of other useful packages, including pip, zlib and a few others. 
-- Use the `conda install` command to install 720+ additional conda packages from the Anaconda repository.
-
-### anaconda
-
-- [Anaconda Documentation — Anaconda documentation](https://docs.anaconda.com/)
-
-- 包含了一系列的数据科学分析的组件,体积大
-
-- Anaconda Distribution
-
-  - Anaconda Distribution is a Python/R data science distribution and a collection of over 7,500+ open-source packages, which includes a package and environment manager. 
-  - Anaconda Distribution is platform-agnostic, so you can use it whether you are on Windows, macOS, or Linux. It’s also is free to install and offers [free community support](https://community.anaconda.cloud/).
-
-  - View the [Anaconda Distribution documentation](https://docs.anaconda.com/anaconda/).
-
-### 文档
-
-#### 官方入门使用教程
-
-- [Getting started with conda — conda 22.11.1 documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/getting-started.html)
-
-##### 更新conda版本
-
-- `conda update conda`
-  - 如果想要查看变化,更新前后分别执行一次`conda -V`
-
-- [Cheat sheet — conda  documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/cheatsheet.html)
-
-## 版本比较
-
-- 在选择合适的 Miniconda 版本时，以下几点可以帮助你做出决定：
-
-  1. **Python 版本**：
-     - `miniconda3-py310`, `miniconda3-py311`, `miniconda3-py37` 等版本的后缀表示 Python 的版本。如果你的项目或库对 Python 版本有特定要求，选择对应的版本非常重要。
-     - `miniconda3`（没有后缀的）通常默认安装最新版本的 Python，适合不特别关心 Python 版本的用户。
-
-  2. **二进制包来源**：
-     - `scoop-cn`, `spc`, `ExtrasCxxu` 是不同的二进制包源。通常情况下，推荐选择你经常使用或信任的源。例如，`scoop-cn` 是 Scoop 管理器的中国镜像版本，它可以在中国地区提供更快的下载速度。
-     - `spc` 可能指代一种特定的发布渠道或特定用途的镜像。
-
-  3. **兼容性和最新特性**：
-     - 如果你希望使用最新的特性或对性能有高要求，建议选择最新的版本，如 `miniconda3` 
-     - 如果你希望保持与旧环境或旧项目的兼容性，可以选择较老的版本，如 `miniconda3-py37`。
-
-  4. **通用 vs. 特定**：
-     - `miniconda3-latest` 通常会自动更新到最新版本，适合希望保持环境自动更新的用户。
-     - 特定版本如 `miniconda3-py38` 则适合需要稳定环境的开发者。
-
-
-## 下载安装conda/miniconda
-
-### 官方网站下载安装
-
-- 下载速度可能比较慢，推荐用镜像或者包管理工具来下载
-
-### Miniconda 镜像
-
-- Miniconda 是一个 Anaconda 的轻量级替代，默认只包含了 python 和 conda，但是可以通过 pip 和 conda 来安装所需要的包。
-
-- Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
-
-### scoop
-
-- 默认的scoop下载器也是比较慢的，但是你可以找到scoop cn这类项目来加速部署scoop
-
-  - [国内用户快速部署Scoop@一键加速安装scoop@Deploy-ScoopForCNUser-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/141385998)
-
-- 然后通过一条命令快速安装miniconda，甚至是其他常见的软件，值得推荐
-
-- 搜索可用版本
-
-  - ```powershell
-    PS> scoop search miniconda
-    Results from local buckets...
-    
-    Name              Version   Source     Binaries
-    ----              -------   ------     --------
-    miniconda3        24.5.0-0  ExtrasCxxu
-    miniconda2        4.8.3     scoop-cn
-    miniconda3-4.12.0 4.12.0    scoop-cn
-    miniconda3-py310  24.5.0-0  scoop-cn
-    miniconda3-py311  24.5.0-0  scoop-cn
-    miniconda3-py37   23.1.0-1  scoop-cn
-    miniconda3-py38   23.11.0-2 scoop-cn
-    miniconda3-py39   24.5.0-0  scoop-cn
-    miniconda3        24.5.0-0  scoop-cn
-    miniconda-cn      23.5.2-0  spc
-    miniconda         24.5.0-0  spc
-    miniconda2        4.8.3     spc
-    miniconda3-4.12.0 4.12.0    spc
-    miniconda3-latest latest    spc
-    miniconda3-py310  24.5.0-0  spc
-    miniconda3-py311  24.5.0-0  spc
-    miniconda3-py37   23.1.0-1  spc
-    miniconda3-py38   23.11.0-2 spc
-    miniconda3-py39   24.5.0-0  spc
-    miniconda3        24.5.0-0  spc
-    ```
-
-    
-
-- 查看指定版本的介绍
-
-  ```powershell
-  PS> scoop info miniconda3
-  
-  Name        : miniconda3
-  Description : A cross-platform, Python-agnostic binary package manager
-  Version     : 24.5.0-0
-  Bucket      : ExtrasCxxu
-  Website     : https://docs.anaconda.com/free/miniconda
-  License     : BSD-3-Clause
-  Updated at  : 2024/6/28 0:31:03
-  Updated by  : github-actions[bot]
-  Installed   : 24.5.0-0
-  Binaries    : python.exe | pythonw.exe | python3.exe
-  Path Added  : <root>\scripts
-                <root>\Library\bin
-  Notes       : From 4.6.0, conda has built the support for Cmd, Powershell or other shells.
-                Use "conda init powershell" or "conda init __your_favorite_shell__"
-  
-                Miniconda3 drops support for 32-bit CPUs from v22.9.0. If you are running a 32-bit system, please install
-                 miniconda3-4.12.0 from the Versions bucket.
-  ```
-
-  
-
-- 选择想要的版本进行安装
-
-  ```cmd
-  #比如我想默认使用当前最新版的python，使用miniconda3
-  scoop install miniconda3
-  #也可以指定source: 
-  scoop install spc/miniconda3
-  ```
-
-### winget 命令行下载
-
-- 如果您的网络不错,可以用winget安装(Winget现在也支持换源了)
-
-- ```bash
-  PS C:\Users\cxxu\AppData\Roaming\Typora\conf> winget search miniconda3
-  名称       ID                  版本        源
-  --------------------------------------------------
-  Miniconda3 Anaconda.Miniconda3 py39_4.10.3 winget
-  ```
-
-  - 如果搜索到的版本符合你的需求(通常是比较新的)
-
-- ```bash
-  PS C:\Users\cxxu\AppData\Roaming\Typora\conf> winget install miniconda3
-  已找到 Miniconda3 [Anaconda.Miniconda3] 版本 py39_4.10.3
-  此应用程序由其所有者授权给你。
-  Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。
-  Downloading https://repo.anaconda.com/miniconda/Miniconda3-py39_4.10.3-Windows-x86_64.exe
-    ██████████████████████████████  58.1 MB / 58.1 MB
-  已成功验证安装程序哈希
-  正在启动程序包安装...
-  已成功安装
-  ```
-
-- 需要注意的是,GUI安装包安装的方式中途可以点击一些安装选项,比如环境变量等
-
-- 命令行则是全部安装默认的方式安装,而且往往不是最新的
-
-- 如果下载很慢的话,还是用镜像来吧
-
-### 环境变量变化
-
-- GUI方式查看比较机械简单
-
-- 命令行方式:(by powershell)
-
-  - 关闭所有终端
-
-  - ```bash
-    PS D:\repos\scripts> envInPath|sls conda
-    
-    C:\Users\cxxu\miniconda3
-    C:\Users\cxxu\miniconda3\Library\mingw-w64\bin
-    C:\Users\cxxu\miniconda3\Library\usr\bin
-    C:\Users\cxxu\miniconda3\Library\bin
-    C:\Users\cxxu\miniconda3\Scripts
-    
-    ```
-
-  - ```powershell
-    function envInPath
-    {
-        <# 
-        .synopsis
-        check if a value is contain in the Path variable value.
-         #>
-        param (
-            $pattern = '*'
-        )
-    
-        Write-Output '😎😎😎within Path:'
-        if ($pattern -eq '*')
-        {
-            $env:path -split ';'
-            return
-        }
-        $env:path -split ';' | Select-String -Pattern $pattern
-    }
-    ```
-
-### 配置软件国内源🎈👺
-
-- 执行以下**powershell**脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
-
-  - ```powershell
-    conda config --set show_channel_urls yes
-    Get-Content $home/.condarc
-    
-    'channels:
-      - defaults
-    show_channel_urls: true
-    default_channels:
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-    custom_channels:
-      conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud'>$home/.condarc
-    
-    Get-Content $home/.condarc
-    conda clean -i
-    
-    
-    ```
-
-  - 如果需要更灵活的配置(不希望覆盖掉已有的配置),可以考虑使用文本编辑器编辑`.condarc`文件
-
-- 执行效果:
-
-- ```powershell
-  PS C:\Users\cxxu>  conda config --set show_channel_urls yes
-  PS C:\Users\cxxu> cat .\.condarc
-  channels:
-    - defaults
-  show_channel_urls: true
-  PS C:\Users\cxxu> "channels:
-  >>   - defaults
-  >> show_channel_urls: true
-  >> default_channels:
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-  >> custom_channels:
-  >>   conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud">$home\.condarc
-  
-  ```
 
 ## 基本命令
 
@@ -378,92 +82,103 @@
 
   
 
-### 创建新环境🎈conda create
+### 创建新环境🎈
 
-- synopsis
+#### synopsis
 
-  - ```
-    (base) PS D:\repos\blogs> conda create -h
-    usage: conda-script.py create [-h] [--clone ENV] (-n ENVIRONMENT | -p PATH) [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority]
-                                  [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [--no-shortcuts] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only]
-                                  [--show-channel-urls] [--file FILE] [--no-default-packages] [--solver {classic} | --experimental-solver {classic}] [--dev]
-                                  [package_spec ...]
-    
-    Create a new conda environment from a list of specified packages. To use the newly-created environment, use 'conda activate envname'. This command requires either the -n NAME or -p PREFIXoption.
-    
-    Options:
-    
-    positional arguments:
-      package_spec          List of packages to install or update in the conda environment.
-    
-    optional arguments:
-      -h, --help            Show this help message and exit.
-      --clone ENV           Create a new environment as a copy of an existing local environment.
-      --file FILE           Read package versions from the given file. Repeated file specifications can be passed (e.g. --file=file1 --file=file2).
-      --dev                 Use `sys.executable -m conda` in wrapper scripts instead of CONDA_EXE. This is mainly for use during tests where we test new conda sources against old Python
-                            versions.
-    ```
+- ```bash
+  (base) PS D:\repos\blogs> conda create -h
+  usage: conda-script.py create [-h] [--clone ENV] (-n ENVIRONMENT | -p PATH) [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority]
+                                [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [--no-shortcuts] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only]
+                                [--show-channel-urls] [--file FILE] [--no-default-packages] [--solver {classic} | --experimental-solver {classic}] [--dev]
+                                [package_spec ...]
+  
+  Create a new conda environment from a list of specified packages. To use the newly-created environment, use 'conda activate envname'. This command requires either the -n NAME or -p PREFIXoption.
+  
+  Options:
+  
+  positional arguments:
+    package_spec          List of packages to install or update in the conda environment.
+  
+  optional arguments:
+    -h, --help            Show this help message and exit.
+    --clone ENV           Create a new environment as a copy of an existing local environment.
+    --file FILE           Read package versions from the given file. Repeated file specifications can be passed (e.g. --file=file1 --file=file2).
+    --dev                 Use `sys.executable -m conda` in wrapper scripts instead of CONDA_EXE. This is mainly for use during tests where we test new conda sources against old Python
+                          versions.
+  ```
 
-    - Create a new conda environment from a list of specified packages. To use the newly-created environment, use 'conda activate envname'. 
+  - Create a new conda environment from a list of specified packages. To use the newly-created environment, use 'conda activate envname'. 
 
-    - This command **requires** either the `-n NAME` or `-p PREFIX` option.🎈
+  - This command **requires** either the `-n NAME` or `-p PREFIX` option.🎈
 
-      - ```
-        Target Environment Specification:
-          -n ENVIRONMENT, --name ENVIRONMENT
-                                Name of environment.
-          -p PATH, --prefix PATH
-                                Full path to environment location (i.e. prefix).
-        
-        ```
+    - ```
+      Target Environment Specification:
+        -n ENVIRONMENT, --name ENVIRONMENT
+                              Name of environment.
+        -p PATH, --prefix PATH
+                              Full path to environment location (i.e. prefix).
+      
+      ```
 
-    
 
-- 创建名为`test`,采用python3.8的python版本
+#### 创建python环境🎈
 
-  - ```bash
-    conda create -n test python=3.8
-    Collecting package metadata (current_repodata.json): done
-    Solving environment: done
-    
-    ## Package Plan ##
-    
-      environment location: C:\Users\cxxu\miniconda3\envs\test
-    
-      added / updated specs:
-        - python=3.8
-    
-    
-    The following packages will be downloaded:
-    
-        package                    |            build
-        ---------------------------|-----------------
-        certifi-2022.12.7          |   py38haa95532_0         148 KB  defaults
-        libffi-3.4.2               |       hd77b12b_6         109 KB  defaults
-        pip-22.3.1                 |   py38haa95532_0         2.7 MB  defaults
-        python-3.8.15              |       h6244533_2        18.9 MB  defaults
-        setuptools-65.5.0          |   py38haa95532_0         1.1 MB  defaults
-        wincertstore-0.2           |   py38haa95532_2          15 KB  defaults
-        ------------------------------------------------------------
-                                               Total:        23.0 MB
-    
-    The following NEW packages will be INSTALLED:
-    
-      ca-certificates    anaconda/pkgs/main/win-64::ca-certificates-2022.10.11-haa95532_0
-      certifi            anaconda/pkgs/main/win-64::certifi-2022.12.7-py38haa95532_0
-    ...untime-14.27.29016-h5e58377_2
-      wheel              anaconda/pkgs/main/noarch::wheel-0.37.1-pyhd3eb1b0_0
-      wincertstore       anaconda/pkgs/main/win-64::wincertstore-0.2-py38haa95532_2
-    
-    
-    Proceed ([y]/n)?
-    ```
+- ```bash
+  #创建名为`test`,采用python3.8的python版本
+  conda create -n test python=3.8
+  #创建名为py313采用python3.13的python版本的环境
+  conda create -n py313 python=3.13
+  ```
+
+  
+
+- ```bash
+  conda create -n test python=3.8
+  Collecting package metadata (current_repodata.json): done
+  Solving environment: done
+  
+  ## Package Plan ##
+  
+    environment location: C:\Users\cxxu\miniconda3\envs\test
+  
+    added / updated specs:
+      - python=3.8
+  
+  
+  The following packages will be downloaded:
+  
+      package                    |            build
+      ---------------------------|-----------------
+      certifi-2022.12.7          |   py38haa95532_0         148 KB  defaults
+      libffi-3.4.2               |       hd77b12b_6         109 KB  defaults
+      pip-22.3.1                 |   py38haa95532_0         2.7 MB  defaults
+      python-3.8.15              |       h6244533_2        18.9 MB  defaults
+      setuptools-65.5.0          |   py38haa95532_0         1.1 MB  defaults
+      wincertstore-0.2           |   py38haa95532_2          15 KB  defaults
+      ------------------------------------------------------------
+                                             Total:        23.0 MB
+  
+  The following NEW packages will be INSTALLED:
+  
+    ca-certificates    anaconda/pkgs/main/win-64::ca-certificates-2022.10.11-haa95532_0
+    certifi            anaconda/pkgs/main/win-64::certifi-2022.12.7-py38haa95532_0
+  ...untime-14.27.29016-h5e58377_2
+    wheel              anaconda/pkgs/main/noarch::wheel-0.37.1-pyhd3eb1b0_0
+    wincertstore       anaconda/pkgs/main/win-64::wincertstore-0.2-py38haa95532_2
+  
+  
+  Proceed ([y]/n)?
+  ```
 
 #### 指定环境的存放目录
 
 - 通常情况下,推荐使用默认目录创建环境
+
   - 这可以省去很多麻烦
+
 - 使用`-p`选项指定
+
   - 注意和`-n`选项不可以共用
 
 - ```py
@@ -485,6 +200,7 @@
   ```
 
 - 如果指定位置不在conda默认目录(比如miniconda3:`$home\miniconda3\envs\`)
+
   - 启动外部位置的环境时,要指定完整目录
     - 这时候用`conda info -e`检查发现,有一个缺少简短名字的环境,需要用完整路径启动
   - 或者配置外部目录的所在位置环境变量,以便conda能够直接找到指定位置环境变量
@@ -492,11 +208,13 @@
 #### conda环境变量
 
 - [virtualenv - how to specify new environment location for conda create - Stack Overflow](https://stackoverflow.com/questions/37926940/how-to-specify-new-environment-location-for-conda-create)
+
 - [Using the .condarc conda configuration file — conda 22.11.1.post17+e3a05b6f5 documentation](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs)
 
   - 注意,这[envs_dirs](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs)和缓存包[pkgs_dirs](https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-package-directories-pkgs-dirs)不同
 
 - 编辑配置文件,设定`envs_dirs`
+
 - ```bash
   envs_dirs:
     - d:\condaPythonEnvs
@@ -702,6 +420,7 @@
 ### 检查新环境
 
 - 例如,我除了自带的base环境,还额外创建了py310这个环境
+
   - `conda info --envs`检查现有环境
 
 - ```bash
@@ -717,7 +436,6 @@
 - ["conda env list" command shows environments in triplicate · Issue #11277 · conda/conda (github.com)](https://github.com/conda/conda/issues/11277)
 
 - ```bash
-  
   PS C:\Users\cxxu\Desktop> conda env -h
   usage: conda-env-script.py [-h] {create,export,list,remove,update,config} ...
   
@@ -810,6 +528,7 @@
 ### 重命名环境
 
 - 假设我想要把`py310`重命名为`pytorch_CCSER`
+
   - `conda rename  -n py310 pytorch_CCSER `
   - 可以通过追加`-d`选项来查看命令的执行细节:(optional)
     - 先克隆就环境,以新名称作为克隆后的环境
@@ -879,8 +598,6 @@
 - [Managing Python — conda 22.11.1.post17+e3a05b6f5 documentation](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-python.html)
 
 - 通常conda可用的python版本会落后最新的python版本0或1个版本
-
-
 
 
 

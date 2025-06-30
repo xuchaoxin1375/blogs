@@ -2,6 +2,12 @@
 
 ## abstract
 
+- [正则表达式 - MDN Web 文档术语表：Web 相关术语的定义 | MDN](https://developer.mozilla.org/zh-CN/docs/Glossary/Regular_expression)
+  - [正则表达式](https://zh.wikipedia.org/wiki/正则表达式)
+  - [互动教程](https://regexone.com/)
+  - [可视化的正则表达式](https://regexper.com/)
+  - [在 JavaScript 中书写正则表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_expressions)
+
 - [正则表达式参考文档 - Regular Expression Syntax Reference](http://www.regexlab.com/zh/regref.htm)
 
 - [正则表达式 – 简介 | 菜鸟教程](https://www.runoob.com/regexp/regexp-intro.html)
