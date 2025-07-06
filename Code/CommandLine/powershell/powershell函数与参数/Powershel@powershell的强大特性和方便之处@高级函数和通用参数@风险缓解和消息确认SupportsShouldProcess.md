@@ -206,8 +206,6 @@ SupportsShouldProcess
 
     此变体允许调用方为 target 资源和作。
 
-    C++
-
     ```cpp
     public:
      bool ShouldProcess(System::String ^ target, System::String ^ action);
@@ -361,15 +359,35 @@ Remove-CxxuFile -FilePath "C:\example.txt" -Confirm
 
 当你定义了一个 `Cmdlet` 或者使用 `[CmdletBinding]` 属性装饰的函数时，你可以设置 `SupportsShouldProcess = $true` 来启用 `ShouldProcess` 支持。这样做的目的是告诉 PowerShell 引擎，这个命令应该遵循 `ShouldProcess` 模式。
 
-## 综合示例👺
+## 实现`-Force`参数
 
-这个例子将展示ShouldProcess和ShouldContinue的使用,以及如何实现-Force参数。
+Force开关的含义和Confirm开关的含义可以说是相反的
+用户可能会同时使用开关`-Force`和开关`-Confirm` ,这看起来是不合理的参数组合,但是对于命令不了解的用户发生这种事是可能的
+实际上使用`-confirm:$false` 正是`Force`想要表达的含义,只是为了帮助用户更容易操作,提供了`Force`选项
+在这种情况下,我们可以让`-confirm`选项占主导(开关`-confirm`使用时,默认就是`-confirm:$true`),当用户使用了`-confirm`选项时,要求函数尽可能小心(总是尽可能向用户询问),即便同时使用了Force选项(此时Force选项失效)
 
-关于变量`[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]`,`ConfirmImpact`的预配置可以控制询问时机
+
+
+```powershell
+# 如果指定了Force且没有指定Confirm,则禁用确认提示(否则Force选项失效),这种写法是标准写法
+if ($Force -and -not $Confirm)
+{
+# 将消息确认级别设置为关闭,即将询问偏好设置为低,让用户不需要再交互确认后续的动作,直接执行
+    $ConfirmPreference = 'None'
+}
+```
+
+
+
+## 综合示例👺🎈
+
+这个例子将展示`ShouldProcess`和`ShouldContinue`的使用,以及如何实现`-Force`参数。
+
+在形如函数的参数声明`[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]`,`ConfirmImpact`的**预配置**可以**控制询问时机**
 
 不过,如果你认为你的命令大多数情况(正式版)下都可以直接运行无需用户确认,那`ConfirmImpact`可以不设置
 
-而如果是处于开发或测试状态,可以在命令行通过`-Confirm`开关式参数来出发询问
+而如果是处于**开发或测试状态**,可以在命令行通过`-Confirm`开关式参数来**出发询问**
 
 ---
 
@@ -402,9 +420,10 @@ function Remove-TestFiles
         [switch]$Force
     )
 
-    # 如果指定了Force且没有指定Confirm,则禁用确认提示
+    # 如果指定了Force且没有指定Confirm,则禁用确认提示,这种写法是标准写法
     if ($Force -and -not $Confirm)
     {
+    # 将询问偏好设置为低,让用户不需要再交互确认后续的动作,直接执行
         $ConfirmPreference = 'None'
     }
 
@@ -419,10 +438,7 @@ function Remove-TestFiles
     foreach ($file in $files)
     {
 
-        # Force开关的含义和Confirm开关的含义可以说是相反的
-        # 用户可能会同时使用-Force 或 -Confirm ,这看起来是不合理的参数组合,但是对于命令不了解的用户发生这种事是可能的
-        # 实际上使用-confirm:$false 正是Force想要表达的含义,只是为了帮助用户更容易操作,提供了Force选项
-        # 在这种情况下,我们可以让-confirm选项占主导(-confirm 选项默认就是-confirm:$true)
+
 
 		# 根据用户传入的参数检查是否关闭询问(设置询问开关变量$Confirm)
         if ($Force -and -not $Confirm)

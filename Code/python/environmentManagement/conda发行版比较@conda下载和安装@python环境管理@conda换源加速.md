@@ -5,8 +5,6 @@
 ## abstract
 
 - conda发行版比较
-- python环境管理@conda命令的基本操作@基本使用
-- conda env list环境条目重复列出问题
 
 ## ref
 
@@ -242,78 +240,24 @@
     }
     ```
 
-## conda配置文件
-
-```bash
-C:\Users\Administrator>conda info
-
-     active environment : base
-    active env location : C:\ProgramData\scoop\apps\miniconda3\current
-            shell level : 1
-       user config file : C:\Users\Administrator\.condarc
- populated config files : C:\ProgramData\scoop\apps\miniconda3\current\.condarc
-                          C:\Users\Administrator\.condarc
-          conda version : 24.11.3
-    conda-build version : not installed
-         python version : 3.12.7.final.0
-                 solver : libmamba (default)
-       virtual packages : __archspec=1=skylake
-                          __conda=24.11.3=0
-                          __win=0=0
-       base environment : C:\ProgramData\scoop\apps\miniconda3\current  (writable)
-      conda av data dir : C:\ProgramData\scoop\apps\miniconda3\current\etc\conda
-  conda av metadata url : None
-           channel URLs : https://repo.anaconda.com/pkgs/main/win-64
-                          https://repo.anaconda.com/pkgs/main/noarch
-                          https://repo.anaconda.com/pkgs/r/win-64
-                          https://repo.anaconda.com/pkgs/r/noarch
-                          https://repo.anaconda.com/pkgs/msys2/win-64
-                          https://repo.anaconda.com/pkgs/msys2/noarch
-          package cache : C:\ProgramData\scoop\apps\miniconda3\current\pkgs
-                          C:\Users\Administrator\.conda\pkgs
-                          C:\Users\Administrator\AppData\Local\conda\conda\pkgs
-       envs directories : C:\ProgramData\scoop\apps\miniconda3\current\envs
-                          C:\Users\Administrator\.conda\envs
-                          C:\Users\Administrator\AppData\Local\conda\conda\envs
-               platform : win-64
-             user-agent : conda/24.11.3 requests/2.32.3 CPython/3.12.7 Windows/10 Windows/10.0.19045 solver/libmamba conda-libmamba-solver/24.9.0 libmambapy/1.5.8 aau/0.4.4 c/rpjy5KJm9cC-yT-3lW51ew s/JpZDwN6oVlGirhvhpU4OKQ e/jdZJaLIFPacCV6cRLTFJ7g
-          administrator : True
-             netrc file : None
-           offline mode : False
-```
 
 
+### 配置conda国内源🎈👺
 
-```cmd
-PS> cmd
-Microsoft Windows [版本 10.0.19045.4474]
-(c) Microsoft Corporation。保留所有权利。
+- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
+  - 最新的配置方法参考上述链接
 
-C:\Users\Administrator>where conda
-C:\ProgramData\scoop\apps\miniconda3\current\Library\bin\conda.bat
-C:\ProgramData\scoop\apps\miniconda3\current\Scripts\conda.exe
-C:\ProgramData\scoop\apps\miniconda3\current\condabin\conda.bat
+- 方便期间,提供以下一键配置的**powershell**脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
 
-C:\Users\Administrator>conda env list
-
-# conda environments:
-#
-                       C:\ProgramData\scoop\apps\miniconda3\24.9.2-0
-base                 * C:\ProgramData\scoop\apps\miniconda3\current
-py313                  C:\ProgramData\scoop\apps\miniconda3\current\envs\py313
-                       c:\ProgramData\scoop\apps\miniconda3\24.9.2-0
-```
-
-
-
-### 配置软件国内源🎈👺
-
-- 执行以下**powershell**脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
+  - 一键配置脚本示例
 
   - ```powershell
+    # 设置 Conda 在安装包或搜索包时显示使用的具体镜像源（channel）URL,如果实现不存在配置文件.condarc,还会创建配置文件.condarc
     conda config --set show_channel_urls yes
-    Get-Content $home/.condarc
     
+    # 查看配置前的内容
+    Get-Content $home/.condarc
+    # 将国内源(比如清华源)写入到配置文件中
     'channels:
       - defaults
     show_channel_urls: true
@@ -330,7 +274,9 @@ py313                  C:\ProgramData\scoop\apps\miniconda3\current\envs\py313
       pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
       simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud'>$home/.condarc
     
+    # 检查写入结果
     Get-Content $home/.condarc
+    # 清理conda缓存
     conda clean -i
     
     

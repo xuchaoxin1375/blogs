@@ -99,7 +99,7 @@ mysql -u root -p -h 192.168.1.100 -P 3307
 
 ###  以指定用户身份登录并绕过密码（通过配置文件）👺
 
-有时你可能希望在命令行中跳过每次输入密码，可以通过在`~/.my.cnf`文件中配置用户名和密码，使得登录时不需要手动输入。
+有时你可能希望在命令行中跳过每次输入密码，可以通过在`~/.my.cnf`(有的地方是`my.ini`)文件中配置用户名和密码，使得登录时不需要手动输入。
 
 在`~/.my.cnf`文件中配置：
 
@@ -227,36 +227,125 @@ mysql -u your_user
 
 ------
 
-###  使用 `~/.my.cnf` 保存凭据（适用于开发环境）
+###  使用 `~/.my.cnf` 保存凭据（适用于开发环境）🎈
 
 在 Linux/Mac 上，可以将 MySQL 登录凭据存储在 `~/.my.cnf` 文件中，避免每次输入密码：
+
+使用 `.my.cnf` 配置文件
+
+这是最常见、最通用的方法。
+
+### 1. 编辑或创建用户目录下的 `.my.cnf` 文件
+
+可以用任何可用的编辑器创建这个文件`~/.my.cnf`,设置使用内容追加重定向来完成简单配置
+
+比如使用命令行编辑器,打开一个文本编辑窗口
+
+```bash
+vim ~/.my.cnf
+```
+
+或
 
 ```bash
 nano ~/.my.cnf
 ```
 
-添加以下内容：
+如果vscode这类编辑器可用将会更加直观
+
+2. 添加如下内容：
 
 ```ini
 [client]
-user=root
-password=your_password
+user = your_username
+password = your_password
+host = localhost
+port=3306
 ```
 
-保存后，赋予文件合适的权限（防止其他用户访问）：
+> 将 `your_username` 和 `your_password` 替换为你的 MySQL 用户名和密码。  
+> 如果你只希望本地登录可以省略 `host` 行。
+>
+> 通常默认端口为3306
+
+3. 设置权限保护该文件（非常重要）🎈
+
+`.my.cnf` 文件中包含明文密码，必须设置权限防止被其他用户读取：
 
 ```bash
 chmod 600 ~/.my.cnf
 ```
 
-这样，你可以直接运行：
+这样只有当前用户可以读写此文件。
+
+实操记录
+
+```bash
+# root @ wnx0020303 in ~ [9:17:46] C:1
+$ vim ~/.my.cnf #自行编辑内容保存后退出
+
+# root @ wnx0020303 in ~ [9:20:15]
+$ mysql #尝试免密直接链接默认用户
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MySQL connection id is 40372088
+Server version: 5.7.43-log Source distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MySQL [(none)]> exit
+Bye
+
+# root @ wnx0020303 in ~ [9:27:25]
+$ chmod 600 ~/.my.cnf
+
+```
+
+
+
+---
+
+### 使用 `mysql_config_editor`（MySQL 5.6+ 支持）
+
+这是一种更安全的方式，它会将登录信息加密存储在 `.mylogin.cnf` 文件中。
+
+1. 使用 mysql_config_editor 设置默认登录凭证：
+
+```bash
+mysql_config_editor set --login-path=local --host=localhost --user=your_username --password
+```
+
+系统会提示你输入密码：
+
+```
+Enter password: *****
+```
+
+2. 登录 MySQL：
+
+```bash
+mysql --login-path=local
+```
+
+或者简写：
 
 ```bash
 mysql
 ```
 
-**优点**：安全性相对较高，适用于开发环境。
- **缺点**：如果 `.my.cnf` 文件泄露，可能会有安全隐患。
+如果你只配置了一个 login-path，也可以省略 `--login-path` 参数。
+
+3. 查看已配置的登录信息（可选）：
+
+```bash
+mysql_config_editor print --login-path=local
+```
+
+🔒 安全性说明：
+
+- `.mylogin.cnf` 是二进制加密文件，不会暴露明文密码。
+- 默认位置是用户的家目录下：`~/.mylogin.cnf`
 
 
 
@@ -334,13 +423,13 @@ mysql -u root
 | 方式                 | 适用环境          | 安全性     | 适用场景   |
 | -------------------- | ----------------- | ---------- | ---------- |
 | `auth_socket` 免密   | Linux             | 安全       | 服务器管理 |
-| 密码设为空           | 任何环境          | **不安全** | 测试环境   |
+| 密码设为空           | 任何环境          | 不安全     | 测试环境   |
 | `~/.my.cnf` 配置文件 | Linux/Mac/Windows | **较安全** | 开发环境   |
 | `MYSQL_PWD` 环境变量 | Linux/Mac         | **不安全** | 临时使用   |
 
 如果是 **Linux 服务器**，推荐 **`auth_socket`** 方式，如果是 **开发环境**，推荐 **`~/.my.cnf`** 方式。
 
-## 多台mysql 服务器免密登录
+## 多台mysql 服务器免密登录🎈
 
 在一台 MySQL 客户端上配置两台 MySQL 服务器的免密登录，通常使用 **MySQL 配置文件 (`~/.my.cnf`)** 或 **SSH 密钥登录** 结合 **身份验证插件** 的方式。下面详细介绍不同的方案。
 
@@ -350,7 +439,7 @@ mysql -u root
 
 MySQL 允许通过 `~/.my.cnf` 配置多个连接信息，从而实现免密登录。
 
-#### **1. 编辑 `~/.my.cnf` 文件**
+####  编辑 `~/.my.cnf` 文件
 
 在 `~/.my.cnf` 文件中，配置不同的服务器连接信息：
 
@@ -371,17 +460,19 @@ port=3306
 [client-mysql2]
 host=192.168.1.101
 user=root
-password=your_password_2
+password="your_password_2"
 port=3306
 
 [client_df_server1]
 host=192.168.1.109
 user=root
-password=your_password_2
+password="your_password_2"
 port=3306
 ```
 
-#### **2. 修改权限**
+> 强烈建议为密码字符串带上双引号,这样当密码中有复杂成分的时候不容易出错🎈
+
+#### 修改权限
 
 为了安全起见，需要限制 `~/.my.cnf` 文件的访问权限：
 
@@ -389,7 +480,7 @@ port=3306
 chmod 600 ~/.my.cnf
 ```
 
-### 例
+例(mysql命令行中引用配置文件中的登录信息,登录指定的服务器)
 
 ```powershell
 mysql --defaults-group-suffix=_df_server1
@@ -415,13 +506,7 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 mysql> show databases;
 ```
 
-
-
-#### **3. 连接 MySQL 服务器**🎈
-
-
-
-####  **连接 MySQL 服务器**
+####  连接 MySQL 服务器
 
 - 默认连接（使用 `[client]` 配置）
 

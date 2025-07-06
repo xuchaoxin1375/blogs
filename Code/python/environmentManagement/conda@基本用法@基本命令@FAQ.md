@@ -331,8 +331,21 @@
   
   ```
 
+### conda config配置文件
 
-### conda env list条目重复问题👌
+详情另见它文
+
+`conda config` 是 Conda 包管理器中的一个命令，用于查看和修改 Conda 的配置设置。它允许用户自定义 Conda 的行为，比如添加镜像源、设置默认环境路径、控制更新策略等。
+
+获取使用说明:
+
+```cmd
+conda config -h
+```
+
+
+
+### conda env list条目重复问题🎈
 
 - 通常情况下,如果`.condarc`配置文件中的环境变量没有显式地将**默认目录**配置进去,那么不会出现条目重复的情况
 
@@ -342,7 +355,7 @@
 
   - ` conda config --show-sources`检查配置文件
 
-    ```
+    ```powershell
     PS C:\Users\cxxu\.conda> conda config --show-sources
     ==> C:\Users\cxxu\.condarc <==
     auto_activate_base: False
