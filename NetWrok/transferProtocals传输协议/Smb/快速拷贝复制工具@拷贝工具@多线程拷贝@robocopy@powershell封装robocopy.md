@@ -158,6 +158,10 @@ PS C:\Users\cxxu> robocopy /?
    robocopy C:\Source D:\Destination /MOVE
    ```
 
+### 特色选项🎈
+
+另见它文(`/Z,/B,/ZB,/J`)
+
 ### 高级用法
 
 #### 多线程复制
