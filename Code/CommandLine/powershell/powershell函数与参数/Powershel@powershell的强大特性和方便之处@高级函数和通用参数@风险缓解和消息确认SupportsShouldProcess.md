@@ -359,7 +359,7 @@ Remove-CxxuFile -FilePath "C:\example.txt" -Confirm
 
 当你定义了一个 `Cmdlet` 或者使用 `[CmdletBinding]` 属性装饰的函数时，你可以设置 `SupportsShouldProcess = $true` 来启用 `ShouldProcess` 支持。这样做的目的是告诉 PowerShell 引擎，这个命令应该遵循 `ShouldProcess` 模式。
 
-## 实现`-Force`参数
+## 实现`-Force`参数🎈
 
 Force开关的含义和Confirm开关的含义可以说是相反的
 用户可能会同时使用开关`-Force`和开关`-Confirm` ,这看起来是不合理的参数组合,但是对于命令不了解的用户发生这种事是可能的
@@ -370,7 +370,7 @@ Force开关的含义和Confirm开关的含义可以说是相反的
 
 ```powershell
 # 如果指定了Force且没有指定Confirm,则禁用确认提示(否则Force选项失效),这种写法是标准写法
-if ($Force -and -not $Confirm)
+if ($Force -and -not $Confirm) #或 if ($Force -and !$Confirm)
 {
 # 将消息确认级别设置为关闭,即将询问偏好设置为低,让用户不需要再交互确认后续的动作,直接执行
     $ConfirmPreference = 'None'
