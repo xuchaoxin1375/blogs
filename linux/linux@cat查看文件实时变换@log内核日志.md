@@ -8,6 +8,15 @@
 
 - `tail -f -n <lineNumbers> <logFile> | nl`
 
+- 例如
+
+  ```bash
+  # root @ wnx0020303 in /srv/uploads/uploader/files [7:24:46]
+  $ tail -f -n 10 ./deploy_wp__20250709_065127.log | nl
+  ```
+
+  
+
 ### 查看某个文件的末尾N行,并带上源文件中的行号
 
 - `nl <logFile> tail -n <lineNumbers>`
