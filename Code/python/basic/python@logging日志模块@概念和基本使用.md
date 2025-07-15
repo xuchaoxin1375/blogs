@@ -164,9 +164,9 @@ The flow of log event information in loggers and handlers is illustrated in the 
 
 Handler flow是Logger flow中的**Pass record to handlers of current logger**这一个**处理**环节的展开描述,采用虚线标记了该流程,是Logger flow的子流程
 
-从流程图中可以看到,将日志输出的动作落在了Handler flow这个流程中
+从流程图中可以看到,将日志输出(Emit)的动作落在了Handler flow这个流程中
 
-同时,各个handler控制自己的输出行为,这包括日志格式,从而在代码组织上,需要将日志格式器(Formatter指派给Handler),如有必要,不同的handler可以指派不同的formatter对象作为参数
+同时,各个handler控制自己路线的日志输出行为,这包括日志格式,从而在代码组织上,需要将日志格式器(Formatter指派给Handler),如有必要,不同的handler可以指派不同的formatter对象作为参数
 
 ---
 
@@ -239,9 +239,15 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 ---
 
-### 代码例子
+## 代码例子🎈
 
 以下是一个完整的代码示例，演示了如何使用 Python `logging` 模块，并结合流程图中的逻辑：
+
+其中涉及到:logger对象,handler对象,formatter对象以及绑定与日志级别配置操作
+
+日志行为配置中最关键的是handler,定义的formatter以及filter都绑定到handler中,分被对应handler的`setFormatter()`和`addFilter()`方法配置或添加
+
+> 当然,也可以对handler设置日志级别(对应`setLevel()`方法)
 
 ```python
 import logging
@@ -255,35 +261,60 @@ logger.setLevel(logging.DEBUG)
 # 创建一个 Handler，将日志输出到控制台
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)  # Handler 的级别设置为 INFO
+file_handler = logging.FileHandler("main_comprehensive_demo.log")  # 创建一个 FileHandler，将日志输出到文件
+file_handler.setLevel(logging.DEBUG)  # Handler 的级别设置为 DEBUG
 
 # 创建一个 Formatter，定义日志格式
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
 
-# 将 Handler 添加到 Logger
+# 将定义好的各个 Handler 添加到 Logger(只有被正确添加到logger对象的handler才会生效)
 logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
-# 创建一个子 Logger
+# 创建一个子 Logger (注意父级logger的名字是"main",其子级的logger名字以main.<subname>的格式构造)
 child_logger = logging.getLogger("main.child")
 child_logger.setLevel(logging.DEBUG)
 
-# 配置子 Logger 的过滤器
+# 配置子 Logger 的过滤器(条件测试函数,返回bool值)
 def filter_record(record):
-    return "important" in record.msg  # 只允许包含 "important" 的日志通过
-
+    # 例如只允许包含 "important" 的日志通过,通过判断logger中的msg属性返回布尔值
+    return "important" in record.msg  
+# 将过滤器添加到logger对象,例如为子级logger配置定义好的过滤器(函数对象)
 child_logger.addFilter(filter_record)
 
-# 测试日志记录
-logger.debug("This is a debug message from main logger")  # 不会被记录，因为 Handler 级别是 INFO
+#======== 测试日志记录 ===========
+logger.debug("This is a debug message from main logger")  # 不会被控制台console_handler记录，因为 console_handler 级别是 INFO;但是因该被file_handler记录,因为file_handler级别是DEBUG
 logger.info("This is an info message from main logger")   # 会被记录
 
-child_logger.debug("This is a debug message from child logger")  # 不会被记录，因为过滤器拒绝
-child_logger.info("This is an important info message from child logger")  # 会被记录
+child_logger.debug("This is a debug message from child logger")  # 不会被记录，因为本例的过滤器filter_record要求日志有'important'才被传递,这里的消息中没有,所以被拒绝
+child_logger.info("This is an important info message from child logger")  # 会被记录,通过过滤器的要求
 ```
 
 ---
 
 ### 运行结果分析
+
+由于配置两个handler(分被输出到控制台和日志文件中),内容分别如下
+
+控制台
+
+```bash
+2025-07-13 18:11:25,231 - main - INFO - This is an info message from main logger
+2025-07-13 18:11:25,235 - main.child - INFO - This is an important info message from child logger
+```
+
+日志文件
+
+```ini
+2025-07-13 18:11:25,231 - main - DEBUG - This is a debug message from main logger
+2025-07-13 18:11:25,231 - main - INFO - This is an info message from main logger
+2025-07-13 18:11:25,235 - main.child - INFO - This is an important info message from child logger
+
+```
+
+
 
 #### Logger 流程
 
@@ -366,7 +397,7 @@ The most widely used methods on logger objects fall into two categories: configu
 - [`Logger.addHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addHandler) 和 [`Logger.removeHandler()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.removeHandler) 从记录器对象中添加和删除处理器对象。处理器在以下内容中有更详细的介绍 [处理器](https://docs.python.org/zh-cn/3.13/howto/logging.html#handler-basic) 。
 - [`Logger.addFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.addFilter) 和 [`Logger.removeFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Logger.removeFilter) 可以添加或移除记录器对象中的过滤器。 [过滤器对象](https://docs.python.org/zh-cn/3.13/library/logging.html#filter) 包含更多的过滤器细节。
 
-你不需要总是在你创建的每个记录器上都调用这些方法。 
+**你不需要总是在你创建的每个记录器上都调用这些方法**。 
 
 ### 常用的消息发送方法
 
@@ -415,9 +446,12 @@ The most widely used methods on logger objects fall into two categories: configu
 
 使用内置处理器对象（即不创建自定义处理器）的应用程序开发人员能用到的仅有以下配置方法：
 
-- [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法，就像在日志记录器对象中一样，指定将被**分派到适当目标的最低严重性**。 为什么有两个 [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法？ 
-  - 在**日志记录器**中设置的级别**确定要传递给其处理器的消息的严重性**。
-  - 而每个**处理器**中设置的级别则**确定该处理器将发送哪些消息**。提供更高的灵活性
+- [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法，就像在日志记录器对象中一样，指定将被**分派到适当目标的最低严重性**。 
+- > logging模块为什么有两个不同级别的 [`setLevel()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setLevel) 方法？ 
+
+  - 在**日志记录器**(logger)中设置的级别**确定要传递给其处理器的消息的严重性**。
+  - 而每个**处理器**(handler)中设置的级别则**确定该处理器将发送哪些消息**。提供更高的灵活性
+
 - [`setFormatter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.setFormatter) 选择一个该处理器使用的 Formatter 对象。
 - [`addFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.addFilter) 和 [`removeFilter()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler.removeFilter) 分别在处理器上配置和取消配置过滤器对象。
 
@@ -465,7 +499,7 @@ The most widely used methods on logger objects fall into two categories: configu
 
 
 
-### Formatter的描述|LogRecord
+### Formatter的描述|LogRecord🎈
 
 [logrecord-attributes @logging -用于 Python 的日志记录工具- Python 文档 --- logging — Logging facility for Python — Python documentation](https://docs.python.org/3.13/library/logging.html#logrecord-attributes)
 
@@ -528,6 +562,8 @@ class Formatter(object):
 
 有关最后两个选项的参考文档，请参阅 [配置函数](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging-config-api) 。 
 
+### 日志示意图🎈
+
 以下示例使用 Python 代码配置一个非常简单的记录器、一个控制台处理器和一个简单的格式器:
 
 ```mermaid
@@ -542,6 +578,7 @@ classDiagram
     class Logger {
         +setLevel(level)
         +addHandler(handler)
+        +addFilter(filter)
         +debug(msg)
         +info(msg)
         +warning(msg)
@@ -552,8 +589,10 @@ classDiagram
     class Handler {
         +setLevel(level)
         +setFormatter(formatter)
+        +addFilter()
+        +removeFilter()
     }
-
+	
     class Formatter {
         +__init__(format_string)
     }
@@ -620,3 +659,32 @@ $ python simple_logging_module.py
 
 
 
+## 命令行中配置程序日志级别
+
+如果你想从命令行设置日志级别，例如：
+
+```bash
+--log=INFO
+```
+
+并且你将 `--log` 命令的参数存进了变量 *loglevel*，你可以用：`getatter()`方法将给定的日志级别字符串转换为`logging`模块中的对应常量
+
+> 注意,"INFO"和logging.INFO是不同的,前者是一个字符串,后者是一个定义在logging中的常量(并且是个整数),应该设置一段转换逻辑
+
+```python
+getattr(logging, loglevel.upper())
+```
+
+获取要通过 `level` 参数传给 [`basicConfig()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.basicConfig) 的值。
+
+可如下对用户输入值进行错误检查(标准写法)：
+
+```python
+# 假定 loglevel 绑定到从命令行参数获取的字符串值。
+# 转换为大写形式以允许用户指定 --log=DEBUG 或 --log=debug
+numeric_level = getattr(logging, loglevel.upper(), None)
+if not isinstance(numeric_level, int):
+    raise ValueError('Invalid log level: %s' % loglevel)
+    
+logging.basicConfig(level=numeric_level, ...)
+```
