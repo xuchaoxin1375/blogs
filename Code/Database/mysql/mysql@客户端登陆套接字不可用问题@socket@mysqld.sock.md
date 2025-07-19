@@ -51,3 +51,15 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 MySQL [(none)]>
 ```
 
+创建数据库
+
+```bash
+mysql -u root -p<your_password> -e "CREATE DATABASE \`zsh_ecotycasaitaliana.com\` "
+```
+
+如果免密登录,`-p`可以取消
+
+```bash
+mysql -u root -e "CREATE DATABASE \`zsh_ecotycasaitaliana.com\` "
+```
+

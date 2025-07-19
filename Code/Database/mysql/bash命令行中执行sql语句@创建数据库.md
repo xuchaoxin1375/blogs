@@ -12,7 +12,7 @@ shell中使用mysql执行mysql语句
 
 ```bash
 #( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzone.com\` "
+   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
    
 ```
 
@@ -20,7 +20,7 @@ shell中使用mysql执行mysql语句
 
 ```bash
 #( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -uroot -p1234 zsh_babymarktzone.com < babymarktzone.com.sql  
+   mysql -uroot -p1234 zsh_babymarktzonetr.com < babymarktzonetr.com.sql  
 ```
 
 
