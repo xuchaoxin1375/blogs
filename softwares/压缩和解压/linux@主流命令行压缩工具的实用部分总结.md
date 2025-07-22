@@ -14,7 +14,7 @@ Linux 上有多个主流的命令行压缩工具，每种工具都有不同的�
 
 ### 1. `tar`（打包工具，常与压缩工具配合使用）🎈
 
-`tar` 本身不压缩文件，而是将多个文件打包成一个 `.tar` 归档文件，然后再使用 `gzip`、`bzip2` 或 `xz` 进行压缩。
+`tar` 本身不压缩文件，而是将多个文件打包成一个 `.tar` 归档文件，然后再使用 `gzip`、`bzip2` ,`lz4`或 `xz` 进行压缩。
 
 ```bash
 Usage: tar [OPTION...] [FILE]...
@@ -34,7 +34,9 @@ tar -cvf archive.tar folder_name/
 tar -xvf archive.tar
 ```
 
-一般来说压缩就是`tar -c[...]f Path`的格式,第一个`c`表示创建归档,最后一个`f`表示指定归档的文件名,最后在跟上一个`Path`
+一般来说**压缩**就是`tar -c[...]f Path`的格式,第一个`c`表示创建归档,最后一个`f`表示指定归档的文件名,最后在跟上一个`Path`
+
+> `tar -c*f path`,如果`*`不写,则仅打包不压缩
 
 ```bash
 
@@ -377,6 +379,190 @@ unzstd file.txt.zst
 
 ------
 
+### 9. `lz4`(极快的压缩和解压)
+
+LZ4 简介
+
+> lz4只压缩文件,如果要压缩文件夹,需要配合其他工具,比如先用tar打包,然后lz4压缩(分为2个步骤)
+
+主要特点
+
+- **极高的速度**：解压速度可达每秒数 GB
+- **合理的压缩率**：通常比 gzip 压缩率低但速度快很多
+- **低内存需求**：压缩和解压都只需要 64KB 内存
+- **可移植性**：纯 C 实现，无外部依赖
+- **多种实现**：有 C、C++、Java、Python 等多种语言实现
+
+常用选项
+
+基本命令格式
+
+```
+lz4 [选项] [输入文件] [输出文件]
+```
+
+```bash
+lz4.exe -h
+*** lz4 v1.10.0 64-bit multithread, by Yann Collet ***
+Usage :
+      lz4.exe [arg] [input] [output]
+
+input   : a filename
+          with no FILE, or when FILE is - or stdin, read standard input
+Arguments :
+ -1     : fast compression (default)
+ -12    : slowest compression level
+ -T#    : use # threads for compression (default:0==auto)
+ -d     : decompression (default for .lz4 extension)
+ -f     : overwrite output without prompting
+ -k     : preserve source files(s)  (default)
+--rm    : remove source file(s) after successful de/compression
+ -h/-H  : display help/long help and exit
+
+Advanced arguments :
+ -V     : display Version number and exit
+ -v     : verbose mode
+ -q     : suppress warnings; specify twice to suppress errors too
+ -c     : force write to standard output, even if it is the console
+ -t     : test compressed file integrity
+ -m     : multiple input files (implies automatic output filenames)
+ -r     : operate recursively on directories (sets also -m)
+ -l     : compress using Legacy format (Linux kernel compression)
+ -z     : force compression
+ -D FILE: use FILE as dictionary (compression & decompression)
+ -B#    : cut file into blocks of size # bytes [32+]
+                     or predefined block size [4-7] (default: 7)
+ -BI    : Block Independence (default)
+ -BD    : Block dependency (improves compression ratio)
+ -BX    : enable block checksum (default:disabled)
+--no-frame-crc : disable stream checksum (default:enabled)
+--content-size : compressed frame includes original size (default:not present)
+--list FILE : lists information about .lz4 files (useful for files compressed with --content-size flag)
+--[no-]sparse  : sparse mode (default:enabled on file, disabled on stdout)
+--favor-decSpeed: compressed files decompress faster, but are less compressed
+--fast[=#]: switch to ultra fast compression level (default: 1)
+--best  : same as -12
+Benchmark arguments :
+ -b#    : benchmark file(s), using # compression level (default : 1)
+ -e#    : test all compression levels from -bX to # (default : 1)
+ -i#    : minimum evaluation time in seconds (default : 3s)
+```
+
+
+
+#### 常用选项
+
+| 选项                   | 描述                                             |
+| ---------------------- | ------------------------------------------------ |
+| `-1` 到 `-9`           | 设置压缩级别（1-最快/最低压缩，9-最慢/最高压缩） |
+| `-d` 或 `--decompress` | 解压缩                                           |
+| `-f` 或 `--force`      | 强制覆盖输出文件而不提示                         |
+| `-k` 或 `--keep`       | 保留输入文件（默认会删除输入文件）               |
+| `--fast`               | 快速模式（牺牲压缩率换取速度）                   |
+| `-B`                   | 设置块大小（如 `-B4` 表示 4KB 块）               |
+| `-c`                   | 输出到标准输出                                   |
+| `-l`                   | 使用 LZ4 帧格式（兼容性更好）                    |
+| `-v`                   | 显示详细信息                                     |
+| `-q`                   | 静默模式                                         |
+| `-h`                   | 显示帮助信息                                     |
+
+#### 使用示例
+
+1. 基本压缩
+
+```bash
+lz4 file.txt file.txt.lz4
+```
+压缩 file.txt 并生成 file.txt.lz4，删除原始文件
+
+2. 保留原始文件的压缩(默认保留,可以-k显式保留)
+
+```bash
+lz4 -k file.txt file.txt.lz4
+```
+
+3. 解压缩
+
+```bash
+lz4 -d file.txt.lz4 file.txt
+```
+
+4. 使用更高压缩级别
+
+```bash
+lz4 -9 file.txt file.txt.lz4
+```
+
+5. 压缩到标准输出
+
+```bash
+lz4 -c file.txt > file.txt.lz4
+```
+
+6. 从标准输入压缩
+
+```bash
+cat file.txt | lz4 - file.txt.lz4
+```
+
+7. 快速模式压缩
+
+```bash
+lz4 --fast file.txt file.txt.lz4
+```
+
+8. 显示压缩信息
+
+```bash
+lz4 -v file.txt
+```
+
+9. 批量压缩当前目录下所有 .txt 文件
+
+```bash
+for f in *.txt; do lz4 "$f" "$f.lz4"; done
+```
+
+10. 使用管道与其他命令结合
+
+```bash
+tar -cf - directory/ | lz4 - directory.tar.lz4
+```
+
+#### 多线程压缩和解压
+
+lz4 **v1.10+**版本提供了原生多线程支持,速度有了巨幅提升
+
+##### 多线程压缩
+
+在命令行中，可以通过以下方式启用多线程压缩：
+
+bash
+
+```bash
+lz4 -T4 file.txt file.txt.lz4  # 使用4个线程进行压缩
+```
+
+`-T`参数指定使用的线程数，通常设置为与CPU核心数相同可获得最佳性能。
+
+##### 多线程解压缩
+
+解压过程同样受益于多线程支持：
+
+bash
+
+```bash
+lz4 -d -T4 file.txt.lz4 file.txt
+```
+
+虽然解压过程的性能提升不如压缩明显，但通过将I/O操作与解压过程重叠，整体性能仍有显著提高1。
+
+性能比较
+
+LZ4 通常在压缩速度上远超其他压缩工具，但压缩率相对较低;
+
+LZ4 特别适合需要快速压缩/解压的场景，如实时数据传输、内存压缩、游戏资源压缩等。
+
 ## 压缩工具对比
 
 | 工具    | 速度           | 压缩率               | 适用场景       |
@@ -389,6 +575,7 @@ unzstd file.txt.zst
 | `7z`    | 中等           | 很高                 | 高压缩率需求   |
 | `rar`   | 中等           | 高                   | Windows 兼容   |
 | `zstd`  | 很快           | 中等                 | 日志压缩       |
+| `lz4`   | 极快           | 极快                 | 中等           |
 
 
 
