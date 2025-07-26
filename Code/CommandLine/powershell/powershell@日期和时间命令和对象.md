@@ -5,6 +5,7 @@
 ## abstract
 
 - [Get-Date (Microsoft.PowerShell.Utility) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4)
+- [自定义日期和时间格式字符串 - .NET | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/custom-date-and-time-format-strings)
 
 PowerShell 中处理日期和时间非常灵活且功能强大。下面是一些常用的日期和时间操作示例，帮助你更好地理解和使用这些功能。
 
@@ -39,8 +40,14 @@ $futureDate = (Get-Date).AddDays(7)
 Write-Output $futureDate
 ```
 
-## 创建自定义日期和时间👺
-可以使用 `Get-Date` 的参数来创建特定的日期和时间。例如：
+## 构造DateTime对象@创建自定义日期和时间👺
+
+### 使用Get-Date清晰地构造详细的日期时间
+
+可以使用 `Get-Date` 的参数来创建特定的日期和时间。这种方式语义清晰,参数虽然啰嗦,但是可读性高
+
+例如：
+
 ```powershell
 # 创建一个自定义日期和时间
 $customDate = Get-Date -Year 2023 -Month 12 -Day 25 -Hour 10 -Minute 30 -Second 0
@@ -198,7 +205,9 @@ if ($date1 -lt $date2) {
 | 提取日期部分         | `$now.Year, $now.Month, $now.Day, $now.Hour, $now.Minute`   |
 | 比较日期和时间       | `$date1 -lt $date2`                                         |
 
-`TimeSpan` 是 .NET 和 PowerShell 中用于表示时间间隔（持续时间）的结构。它可以表示从几毫秒到几天的时间跨度。以下是对 `TimeSpan` 的详细介绍，包括其创建方法、属性和常用操作。
+`TimeSpan` 是 .NET 和 PowerShell 中用于表示时间间隔（持续时间）的结构。它可以表示从几毫秒到几天的时间跨度。
+
+以下是对 `TimeSpan` 的详细介绍，包括其创建方法、属性和常用操作。
 
 ## 时间间隔 TimeSpan 👺
 
@@ -364,6 +373,16 @@ PS [C:\Users\cxxu\Desktop]> Write-Output $timeSpanString
 通过这些示例，你可以更好地理解和使用 PowerShell 中的 `TimeSpan` 对象来处理时间间隔。 
 
 ## 用例案例
+
+### 查看或删除指定日期时间之前的文件
+
+例如,删除2025/07/20 23:22之前修改或创建过的文件
+
+```powershell
+ls|?{$_.LastWriteTime -le (Get-Date -Format '2025/07/20 23:22' )}
+```
+
+确认列出的文件无误后,可以在原命令后追加`|rm`,就是删除文件(夹)的命令
 
 ### 触发器用例:在特定时间打开notepad
 

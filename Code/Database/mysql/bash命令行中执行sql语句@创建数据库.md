@@ -23,6 +23,13 @@ shell中使用mysql执行mysql语句
    mysql -uroot -p1234 zsh_babymarktzonetr.com < babymarktzonetr.com.sql  
 ```
 
+免密模式
+
+```bash
+mysql -uroot   -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
+mysql -uroot   zsh_babymarktzonetr.com < babymarktzonetr.com.sql  
+```
+
 
 
 ## 详情
