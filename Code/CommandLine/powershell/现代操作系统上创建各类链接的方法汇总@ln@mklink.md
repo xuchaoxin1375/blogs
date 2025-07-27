@@ -146,10 +146,20 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
 
 ## ln 命令创建硬链接
 
-- [ln(1) - Linux manual page (man7.org)](https://www.man7.org/linux/man-pages/man1/ln.1.html)
+[ln(1) - Linux manual page (man7.org)](https://www.man7.org/linux/man-pages/man1/ln.1.html)
+
+ln命令十分灵活,可以一次性创建指定的多个文件/目录的链接
+
+在不指定创建的链接名(LINK_NAME)的情况下,链接名和要被创建链接的目标(TARGET)同名
+
+在ln命令中,TARGET不可省略,而链接明LINK_NAME是可以根据需要省略不写
+
+提现在用法上,也是TARGET(位置参数)优先指定,而且可以连续指定多个TARGET(在连续指定多个TARGET的情况下,LINK_NAME是无法指定的(这时ln命令的一个缺点),并且命令行中最后一个位置参数会被解释为这批TARGET的链接会被创建于哪一个目录(DIRECTORY))
+
+不过ln的最后一种用法允许你调整语序,以更清晰的方式批量创建链接(使用`-t`指定这批TARGET的链接要创建在哪个目录下)
 
 - ```bash
-     ln --help
+  ln --help
   Usage: ln [OPTION]... [-T] TARGET LINK_NAME
     or:  ln [OPTION]... TARGET
     or:  ln [OPTION]... TARGET... DIRECTORY
@@ -201,14 +211,10 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
   Full documentation <https://www.gnu.org/software/coreutils/ln>
   or available locally via: info '(coreutils) ln invocation'
   ```
-  
+
   
 
 `ln` 命令用于在文件之间创建链接。链接可以是硬链接（hard link）或者符号链接（symbolic link）。以下是`ln`命令的基本用法及其各个选项的详细说明。
-
-
-
-🧠 小贴士
 
 - 使用绝对路径创建软链接更稳定（避免相对路径带来的问题）。
 
@@ -235,13 +241,13 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
 
 > 其中,`[OPTION]`表示ln命令的选项,而后面紧跟着的`...`表示选项可以有多个
 
-而第一种用法中的`[OPTION]... [-T]`末尾提示了`[-T]`,表明这种选项组合有特殊性
+第一种用法中的`[OPTION]... [-T]`末尾提示了`[-T]`,表明这种选项组合有特殊性
 
 >   -T, --no-target-directory   treat LINK_NAME as a normal file always
 
 
 
-### ln的四种语法详细说明
+## ln的四种语法详细说明
 
 1.  `ln [OPTION]... [-T] TARGET LINK_NAME`
 
@@ -257,15 +263,15 @@ l----         2024/5/28     20:48                  symbolDir 󰁕 T:\DirInFat
 ```bash
 ln -s /path/to/file /path/to/symlink
 ```
-在这个示例中，`-s`选项表示创建一个符号链接（symbolic link），`/path/to/file`是目标文件，`/path/to/symlink`是链接名称。
+在这个示例中，`-s`选项表示创建一个符号链接（symbolic link），`/path/to/file`是链接的目标文件，`/path/to/symlink`是链接名称。
 
 
 
 2. `ln [OPTION]... TARGET`
 
-这个其实和上一条是**同一种情况** ，只是省略了 `LINK_NAME`，这时系统会默认在当前目录下创建一个与目标同名的链接。
+这个其实和上一条是**同一种情况** ，只是省略了 `LINK_NAME`，这时系统会默认在**当前目录**下创建一个**与目标同名的链接**。
 
-默认情况下，链接名称与`TARGET`相同，但创建在当前目录中。(这种用法也不多见,并不是典型用法)
+默认情况下，链接名称与`TARGET`相同，但创建在当前目录中。
 
 > ⚠️ 这种方式只能在你当前目录下创建链接，且不能用于多个文件。 
 
@@ -279,7 +285,7 @@ ln p1
 
 3. `ln [OPTION]... TARGET... DIRECTORY`
 
-这个用法是将一个或多个目标文件`TARGET`链接到指定的目录`DIRECTORY`中。每个链接将保留目标文件的名称。
+这个用法是将一个或多个目标文件`TARGET`链接到指定的目录`DIRECTORY`中。每个链接将**保留目标文件的名称**。
 - `TARGET...`：一个或多个目标文件。
 - `DIRECTORY`：目标目录。
 
