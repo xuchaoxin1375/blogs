@@ -87,12 +87,14 @@
 
 - windows上使用scp命令,一条搞定(powershell下运行scp)
 
+  - 注意下面的命令适用于配置第一个免密登录的密钥,如果要配置第2个以及更多的密钥,不能使用此方案
+
   - ```powershell
     $server='172.30.160.160' #注意引号或单引号,把ip改为自己sshd服务器的ip或者可用的主机名或域名
     scp "$home\.ssh\id_*pub"  cxxu@${server}:~/.ssh/authorized_keys
     ```
 
-  
+  - 初次使用没有配置免密,scp会提示你输入用户名和密码
 
 - 实操(windows主机作为ssh客户端链接到vmware上安装的ubuntu22虚拟机)
 
