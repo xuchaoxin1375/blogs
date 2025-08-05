@@ -27,6 +27,22 @@ Download
 - unzip file: `tar -xvf "_downloaded_file.tar.gz"`
 - move file to executable path: `sudo mv dust /usr/local/bin/`
 
+安装命令行
+
+```bash
+cd ~
+# 下载链接请到项目的release页面获取最新链接,下面的链接作为例子,下载后保存为dust.deb文件
+wget -O dust.deb https://github.com/bootandy/dust/releases/download/v1.2.1/du-dust_1.2.1-1_amd64.deb
+sudo dpkg -i dust.deb
+rm dust.deb -v #移除安装包
+#简单用例
+dust .
+
+
+```
+
+运行示例
+
 ```bash
 cd ~
 # cxxu @ CxxuDesk in ~ [9:01:15]

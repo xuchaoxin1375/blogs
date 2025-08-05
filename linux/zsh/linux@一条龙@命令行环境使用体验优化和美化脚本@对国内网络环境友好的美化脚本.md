@@ -313,7 +313,7 @@ cd -
 - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-users/zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh.](https://github.com/zsh-users/zsh-syntax-highlighting)
 
-1. 进入**bash**下载插件到对应的目录(`.oh-my-zsh`)
+1. 下载插件到对应的目录(`.oh-my-zsh`)
 
    - ```bash
      # 将两个插件下载到指定目录下:(git 已经指定好了目录)

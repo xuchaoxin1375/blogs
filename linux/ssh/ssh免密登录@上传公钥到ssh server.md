@@ -83,11 +83,17 @@
 
   - 如果不存在,可以通过ssh登录到云主机创建该目录后执行下述scp命令
 
+    - ```bash
+      mkdir ~/.ssh
+      ```
+
+      
+
   - 注意公钥上传后名字为 `authorized_keys`
 
 - windows上使用scp命令,一条搞定(powershell下运行scp)
 
-  - 注意下面的命令适用于配置第一个免密登录的密钥,如果要配置第2个以及更多的密钥,不能使用此方案
+  - 注意下面的命令适用于配置第一个免密登录的密钥,如果要配置第2个以及更多的密钥,不能使用此方案(如果需要配置第二个即更多,请参考方案3)
 
   - ```powershell
     $server='172.30.160.160' #注意引号或单引号,把ip改为自己sshd服务器的ip或者可用的主机名或域名
@@ -128,4 +134,15 @@ function upload_pubKey
 
 直接将公钥文件用记事本打开,复制(追加)到云主机的指定目录文件中,可以用vim操作
 `vim ~/.ssh/authorized_keys`
+
+或者使用vscode+remote ssh进行配置文件的编辑
+
+例如配置多个ssh密钥(公钥),一行一个
+
+```bash
+$ cat ~/.ssh/authorized_keys
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICmvKgFPOePRjopUEKKvYhATcEbhwTyT root@wqwerf303
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGTf1IDTShqrk6dEzDEHlJWm+mBUCwH 83as30@qq.com
+
+```
 

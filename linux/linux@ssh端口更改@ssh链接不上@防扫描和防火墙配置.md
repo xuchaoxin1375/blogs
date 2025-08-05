@@ -26,11 +26,7 @@
 
 1. 使用你喜欢的编辑器打开 SSH 的配置文件：
 
-```bash
-sudo nano /etc/ssh/sshd_config
-```
-
-或者使用 `vim`：
+比如使用 `vim`：
 
 ```bash
 sudo vim /etc/ssh/sshd_config
@@ -48,7 +44,7 @@ sudo vim /etc/ssh/sshd_config
 Port 2222
 ```
 
-> ✅ **建议端口范围**：1024 - 65535，避免使用系统端口（0-1023）
+>  **建议端口范围**：1024 - 65535，避免使用系统端口（0-1023）
 
 ---
 
@@ -77,7 +73,7 @@ sudo systemctl restart sshd
 
 ---
 
-## 🔍 确认 SSH 新端口是否生效
+##  确认 SSH 新端口是否生效
 
 你可以使用以下命令查看 SSH 是否在监听新端口：
 
@@ -105,14 +101,14 @@ netstat -tuln | grep 2222
 
 根据需要配置端口,注意允许入站
 
-### ✅ Ubuntu（使用 `ufw`）：
+###  Ubuntu（使用 `ufw`）：
 
 ```bash
 sudo ufw allow 2222/tcp
 sudo ufw reload
 ```
 
-### ✅ CentOS / RHEL（使用 `firewalld`）：
+###  CentOS / RHEL（使用 `firewalld`）：
 
 ```bash
 sudo firewall-cmd --permanent --add-port=2222/tcp
@@ -121,7 +117,7 @@ sudo firewall-cmd --reload
 
 ---
 
-## 🧪 测试新端口连接
+## 测试新端口连接
 
 在另一个终端中测试 SSH 是否可以通过新端口连接：
 
@@ -153,13 +149,13 @@ notepad  $home\.ssh\config
 
 ---
 
-## 📝 可选：关闭旧的 22 端口监听
+## 可选：关闭旧的 22 端口监听
 
 如果你确认新端口已经正常工作，可以注释掉或删除原来的 `Port 22` 行，只保留新端口。这样 SSH 就不会再监听 22 端口了。
 
 ---
 
-## ✅ 示例总结
+##  示例总结
 
 | 步骤         | 操作                                                   |
 | ------------ | ------------------------------------------------------ |
