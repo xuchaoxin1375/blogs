@@ -33,7 +33,7 @@ ln [OPTION]... -t DIRECTORY TARGET...
 
 ---
 
-### ✅ 1. `ln [OPTION]... [-T] TARGET LINK_NAME`
+###  1. `ln [OPTION]... [-T] TARGET LINK_NAME`
 
 这是最常用的一种形式：  
 创建一个链接文件 `LINK_NAME`，指向源文件或目录 `TARGET`。
@@ -50,7 +50,7 @@ ln -s /path/to/target mylink
 
 ---
 
-### ✅ 2. `ln [OPTION]... TARGET`
+###  2. `ln [OPTION]... TARGET`
 
 这个其实和上一条是**同一种情况**，只是省略了 `LINK_NAME`，这时系统会默认在当前目录下创建一个与目标同名的链接。
 
@@ -64,7 +64,7 @@ ln -s /path/to/target
 
 ---
 
-### ✅ 3. `ln [OPTION]... TARGET... DIRECTORY`
+###  3. `ln [OPTION]... TARGET... DIRECTORY`
 
 当你有多个源文件（TARGET），并且想把它们链接到一个**目录**里时，使用这种格式。
 
@@ -80,7 +80,7 @@ ln -s /path/to/file1 /path/to/file2 /target_directory/
 
 ---
 
-### ✅ 4. `ln [OPTION]... -t DIRECTORY TARGET...`
+###  4. `ln [OPTION]... -t DIRECTORY TARGET...`
 
 这是第 3 条的另一种写法，只是为了让命令更清晰：先指定目录，再列文件。
 
@@ -119,7 +119,7 @@ ln -s -t /target_directory/ /path/to/file1 /path/to/file2
 
 ---
 
-## ✅ 举个综合例子：
+##  举个综合例子：
 
 ```bash
 ln -s -t /www/wwwroot/ /repos/scripts/wp/woocommerce/woo_df /repos/scripts/x.sh

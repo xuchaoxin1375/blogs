@@ -101,21 +101,21 @@ sed [options] 'commands' inputfile
     # 输出: line1
     ```
 
-### 插入
+### 插入🎈
 
 - **插入（insertion）**：`i\text`
 
-  - 在匹配行前插入文本：
+  - 在**匹配行前**插入文本：
 
     ```bash
     sed '/^#.*$/i\This is an inserted line.' inputFile.txt
     ```
 
-  - 上述命令会在所有以 `#` 开头的行前插入文本 "This is an inserted line."。
+  - 上述命令会在所有以 `#` 开头的**行前**插入文本 "This is an inserted line."。
 
   - 这里的格式为:`sed '/pattern/i/ContentToInsert' inputFile.txt`   ,也即是说这里的command实际是三段式
 
-### 追加
+### 追加🎈
 
 - **追加（appending）**：`a\text`
 
@@ -208,7 +208,7 @@ sed -e 's/foo/bar/' -e '/bar/d' input.txt
 
 ---
 
-## 温馨提示：
+## Notes
 
 - `sed` 默认不修改原文件，除非使用 `-i`。
 - 正则表达式中部分特殊字符需要转义 `\`。

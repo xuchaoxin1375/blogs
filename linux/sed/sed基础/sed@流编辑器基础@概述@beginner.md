@@ -8,9 +8,11 @@
 
 - [sed, a stream editor (gnu.org)](https://www.gnu.org/software/sed/manual/sed.html)
 
-- 离线文档`man sed`和`info sed`
+- 离线文档`man sed`和`info sed`,以及简短的`sed --help`
 
-  - ```bash
+  - info sed的帮助手册
+    
+    ```bash
     Next: Introduction,  Up: (dir)
     
     GNU 'sed'
@@ -35,7 +37,7 @@
     
     
 
-### 基础文档|常用选项说明🎈
+### 基础文档速查|常用选项说明🎈
 
 - ```bash
   ➜  ~ sed
@@ -87,75 +89,13 @@
 
 
 
-### options🎈
-
-- 上述文档中的选项有两种
-
-  - 短选项`-...`
-  - 长选项`--...`
-  - **同一行**的短选项和长选项效果是一样的,短选项是长选项的简写形式,可能有多个短选项和长选项,它们效果一样
-    - 例如`-s --separate`是一样的
-  - 长选项和段选项各有好处
-    - 简写的短选项比较适合熟练的用户,可以达到提高脚本编写效率和编码简洁的效果
-    - 长选项则比较适合初学者,别写出来的脚本虽然比较长,但是可读性更好,更容易理解脚本的含义
-  - 但是有的选项是没有简写形式,则相应的缺失短选项,只提供长选项,
-    - 例如`--vesion`,没有相应的短选项
-
-- 对于没有参数(形参)的选项,我们可以理解为<u>bool型选项,表示功能开关</u>
-
-  - 例如`-s --separate`
-
-- 有的选项是带有参数的,使用这类选项,需要进一步指定参数,告诉选项作用的对象是谁
-
-  - 例如
-
-    - ```bash
-       -e script, --expression=script
-                       add the script to the commands to be executed
-        -f script-file, --file=script-file
-                       add the contents of script-file to the commands to be executed
-      ```
-
-    - `-e`,`-f`都要求传入参数
-
-    - 并且,对于长选项,还要求使用`=`号来指定的取值,例如:`--expression=script`
-
-    - 短选项指定参数通常是用空格,但是有时候也不用空格,直接将选项的参数(实参)紧跟在选项后面
-
-      - 例如:` -i[SUFFIX], --in-place[=SUFFIX]`
-
-      - 又例如7zip的选项
-
-        - ```bash
-           -o{Directory} : set Output directory
-            -p{Password} : set Password
-          ```
-
-- 参数可选(具有默认行为)的选项
-
-  - 例如
-
-    - ```bash
-       -i[SUFFIX], --in-place[=SUFFIX]
-                       edit files in place (makes backup if SUFFIX supplied)
-      ```
-
-    - 选项的参数使用中括号`[]`包裹,说明是可选的
-
-- 同类型参数重复
-
-  - `[input-file]...`
-  - 中括号表明**参数**`input-file`是可选的
-  - 同时,后面的`...`表示这个类型的参数可以指定多个
-  - 综合来看,就是允许你指定0或者多个文件作为输入数据源
-
-## sed语句基本组成和概述
+## sed语句基本组成和概述🎈
 
 ### sed script|sed基础语法结构
 
 - sed script,是sed包含语句动作的字符串,简称script
-  - script和sed的选项共同决定sed行为
-  - 正则表达式(模式串匹配逻辑)主要是编写在script字符串中
+  - `sed script`和`sed options`共同决定sed行为
+  - 正则表达式(模式串匹配逻辑)主要是编写在`script`字符串中
 
 #### 简化的sed语法
 
@@ -171,12 +111,34 @@ sed SCRIPT INPUTFILE...
 
 
 ```bash
-sed OPTIONS... [SCRIPT] [INPUTFILE...]
+sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 ```
 
-选项(options)不是必须的,如果使用选项,可以修改sed的默认行为
+选项(option,input-file)不是必须的
 
-#### 示例
+如果使用选项,可以修改sed的默认行为
+
+## 语法结构解析
+
+1. **sed**: 命令本身，表示调用流编辑器
+
+2. **[OPTION]...**: 可选的命令行选项，可以有一个或多个
+   - 常用选项包括：
+     - `-e script`: 添加脚本到命令中执行(直接将sed脚本写在命令行中)
+     - `-f script-file`: 添加脚本文件中的内容到命令中执行(脚本比价复杂的情况下,写在脚本文件中可以让命令行更简洁可读)
+     - `-i[SUFFIX]`: 直接修改文件内容（如果提供SUFFIX则创建备份）
+     - `-n`: 禁止自动打印模式空间
+
+3. **{script-only-if-no-other-script}**: 
+   - 如果没有使用 `-e` 或 `-f` 选项指定脚本，则可以直接在这里提供sed脚本
+   - 如果有其他脚本选项，则这部分不能出现
+
+4. **[input-file]...**: 可选的输入文件，可以有一个或多个
+   - 如果不提供，sed将从标准输入读取数据
+
+
+
+### 示例: 替换hello->world
 
 - For example, to replace all occurrences of ‘hello’ to ‘world’ in the file input.txt:
 
@@ -194,13 +156,13 @@ sed OPTIONS... [SCRIPT] [INPUTFILE...]
 
 另见它文
 
-### 数据输入(InputFile)
+### 数据输入(InputFile)🎈
 
 我们可以通过:位置参数,重定向输入,管道符等方法实现数据输入以及输出
 
 - If you do not specify INPUTFILE, or if INPUTFILE is -, `sed` filters the contents of **the standard input**.
 
--  The following commands are equivalent:
+-  The following commands are equivalent:以下4个命令行效果**等价**
 
   ```bash
   sed 's/hello/world/' input.txt > output.txt
@@ -212,6 +174,67 @@ sed OPTIONS... [SCRIPT] [INPUTFILE...]
   - 可以看到,input.txt文件被写在不同的位置,上述方式都是可行的
 
 - 此外,输入文件可以有多个
+
+下面分别解释这四种 `sed` 命令行的用法及其区别：
+
+---
+
+**1. `sed 's/hello/world/' input.txt > output.txt`**
+
+#### **解释**
+
+- `sed` 直接读取 `input.txt` 文件，执行替换操作 `s/hello/world/`（每行第一个 `hello` 替换为 `world`）。
+- 结果被重定向（`>`）到 `output.txt`，**原文件 `input.txt` 不会被修改**。
+
+ 
+
+---
+
+**2. `sed 's/hello/world/' < input.txt > output.txt`**
+
+#### **解释**
+
+- `< input.txt` 表示将文件内容通过 **标准输入（stdin）** 传递给 `sed`。
+- `sed` 处理数据后，结果重定向到 `output.txt`。
+
+ 
+
+---
+
+**3. `cat input.txt | sed 's/hello/world/' - > output.txt`**
+
+#### **解释**
+
+- `cat input.txt` 读取文件内容，并通过管道（`|`）传给 `sed`。
+- `sed` 的 `-` 表示 **从标准输入读取数据**（可省略，见下一条）。
+- 结果写入 `output.txt`。
+
+ 
+
+---
+
+**4. `cat input.txt | sed 's/hello/world/' > output.txt`**
+
+#### **解释**
+
+- `cat input.txt` 读取文件内容，并通过管道传给 `sed`。
+- `sed` 默认会从标准输入读取数据（不需要显式指定 `-`）。
+- 结果写入 `output.txt`。
+
+ 
+
+---
+
+**总结对比**
+
+| 命令                                                  | 数据来源           | 是否推荐   | 效率  | 备注                     |
+| ----------------------------------------------------- | ------------------ | ---------- | ----- | ------------------------ |
+| `sed 's/hello/world/' input.txt > output.txt`         | 直接读取文件       | ✅ **推荐** | ⭐⭐⭐⭐⭐ | 最简洁高效               |
+| `sed 's/hello/world/' < input.txt > output.txt`       | 标准输入（重定向） | ⚠️ 可用     | ⭐⭐⭐⭐  | 与上一种功能相同，但稍慢 |
+| `cat input.txt | sed 's/hello/world/' - > output.txt` | 管道 + `-`         | ❌ 不推荐   | ⭐⭐    | `-` 是冗余的             |
+| `cat input.txt | sed 's/hello/world/' > output.txt`   | 管道               | ❌ 不推荐   | ⭐⭐    | 比直接 `sed` 慢          |
+
+
 
 ## sed文本替换(典型用例)🎈
 
@@ -327,7 +350,7 @@ sed -i 's/hello/world/' file.txt
 
 ### `-n`选项停用默认打印
 
-默认情况下,sed将会输出所有行(除了被删除的行,例如使用d选项删除的部分不会打印出来)
+默认情况下,sed将会输出所有行(除了被删除的行,例如,script中使用d选项删除的部分不会打印出来)
 
 - By default `sed` prints all processed input (except input **that has been modified/deleted** by commands such as `d`). 
 
@@ -338,6 +361,7 @@ sed -i 's/hello/world/' file.txt
                      suppress automatic printing of pattern space
     ```
 
+在 `sed` 命令中，`-n` 是一个非常重要的选项，它用于 **禁止自动打印模式空间（pattern space）**。默认情况下，`sed` 会在处理完每一行后自动打印模式空间的内容，而 `-n` 选项会关闭这一行为，使得只有显式使用 `p`（print）命令时才会输出内容。
 
 ### `p`标记打印/查看指定的行
 
@@ -345,6 +369,8 @@ sed -i 's/hello/world/' file.txt
 
   - 这里的`p`是**sed script**的语法,而不是**sed选项**,如果是选项应该有`-`开头
   - `p`可以作为一个标记(flag),用来指明script字符串中的那些字符是有特定含义
+
+### 示例
 
 #### 查看文件的指定行内容
 
@@ -355,6 +381,36 @@ sed -i 's/hello/world/' file.txt
     ```
 
   - 这个命令中`-n`是选项,`45p`是sed script部分,表示打印第45行(标记p表示打印)
+
+
+#### 查看发生了替换的行
+
+```bash
+$ cat txt                    
+start line
+hello,nihao
+end line
+```
+
+替换nihao为world
+
+默认输出所有
+
+```bash
+$ sed 's/nihao/world/' ./txt 
+start line
+hello,world
+end line
+```
+
+仅输出被替换的行
+
+```bash
+$ sed -n 's/nihao/world/p' ./txt
+hello,world
+```
+
+
 
 
 ### sed将多文件合并视为单个长串
@@ -387,19 +443,113 @@ sed -i 's/hello/world/' file.txt
 
 第一个(非选项)参数被视为sed script
 
-> 所谓的非选项**参数**是没有`-`开头的参数
+> 注意,所谓的非选项**参数**是没有`-`开头的参数(下一节详解)
 
 此外跟在sed script后面的被视为输入的文件(可以指定多个)
 
 - Without `-e` or `-f` options, `sed` uses **the first non-option parameter as the script**, and the following **non-option parameters as input files**. 
 
-如果使用了`-e`或`-f`选项,那么所有非选项参数都被视为输入文件
+如果使用了`-e`或`-f`选项,那么**所有非选项参数都被视为输入文件**
 
 If `-e` or `-f` options are used to **specify a script**, all non-option parameters **are taken as input files**. 
 
 - Options `-e` and `-f` can be combined, and **can appear multiple times** (in which case the final effective script will be **concatenation** of all the individual scripts).
 
 为了提高可读性,使用`-e`或`-f`(或者使用更加可读的长选项:`--expression=`,`--file=`)是更好的做法
+
+
+
+---
+
+## 非选项参数和位置参数
+
+- **非选项参数**：不以 `-` 开头的参数，可能是脚本或文件名。
+- **位置参数**：根据它们在命令中的位置决定其含义（如 `sed` 的脚本必须出现在输入文件之前）。
+
+在 `sed` 的语法中：
+```bash
+sed [OPTIONS] [SCRIPT] [INPUT-FILE...]
+```
+- **`SCRIPT`** 是一个**非选项参数**，但它必须出现在 `INPUT-FILE` 之前（即它是一个**位置参数**）。
+- **`INPUT-FILE`** 也是非选项参数，但它的位置必须在 `SCRIPT` 之后。
+
+---
+
+### 规则总结
+
+1. 如果 `SCRIPT` 直接给出（没有 `-e` 或 `-f`）：
+   - 它必须是第一个非选项参数（即不能放在文件名后面）。
+   - 后续的非选项参数被视为输入文件。
+
+   ✅ 正确：
+   ```bash
+   sed 's/foo/bar/' file.txt
+   ```
+   ❌ 错误：
+   ```bash
+   sed file.txt 's/foo/bar/'  # 错误：SCRIPT 必须在文件之前
+   ```
+
+2. 如果使用 `-e` 或 `-f` 指定脚本：
+   - 所有 `SCRIPT` 必须通过 `-e` 或 `-f` 给出，不能直接提供非选项脚本。
+   - 所有非选项参数都被视为输入文件。
+
+   ✅ 正确：
+   ```bash
+   sed -e 's/foo/bar/' -e 's/baz/qux/' file.txt
+   ```
+   ❌ 错误：
+   ```bash
+   sed -e 's/foo/bar/' 's/baz/qux/' file.txt  # 错误：第二个脚本必须用 -e
+   ```
+
+3. 如果同时使用 `-e` 和直接 `SCRIPT`：
+   - 这是不允许的，`sed` 会报错。
+
+   ❌ 错误：
+   ```bash
+   sed -e 's/foo/bar/' 's/baz/qux/' file.txt  # 错误：混合使用 -e 和非选项脚本
+   ```
+
+---
+
+ 
+
+**✅ 正确用法**
+
+| 情况                    | 命令                                               | 解释                              |
+| ----------------------- | -------------------------------------------------- | --------------------------------- |
+| 直接提供脚本            | `sed 's/foo/bar/' file1.txt file2.txt`             | `'s/foo/bar/'` 是脚本，后面是文件 |
+| 使用 `-e`               | `sed -e 's/foo/bar/' -e 's/hello/world/' file.txt` | 所有脚本通过 `-e` 提供            |
+| 使用 `-f`               | `sed -f script.sed file.txt`                       | 脚本来自文件，后面是输入文件      |
+| 无文件（从 stdin 读取） | `echo "foo" | sed 's/foo/bar/'`                    | 脚本在前，无输入文件              |
+
+**❌ 错误用法**
+
+| 错误命令                                    | 问题                    |
+| ------------------------------------------- | ----------------------- |
+| `sed file.txt 's/foo/bar/'`                 | 脚本必须在输入文件之前  |
+| `sed -e 's/foo/bar/' 's/baz/qux/' file.txt` | 第二个脚本必须用 `-e`   |
+| `sed 's/foo/bar/' -e 's/baz/qux/' file.txt` | 不能混合直接脚本和 `-e` |
+
+---
+
+4. 特殊情况：`--` 分隔选项和非选项参数
+
+如果文件名以 `-` 开头（如 `-myfile.txt`），`sed` 可能误认为它是选项。此时可以用 `--` 表示“选项结束”，后面的都是非选项参数：
+```bash
+sed -- 's/foo/bar/' -myfile.txt  # 正确：`-myfile.txt` 不会被误认为选项
+```
+
+---
+
+**5. 总结**
+
+- **`SCRIPT` 必须出现在 `INPUT-FILE` 之前**（除非用 `-e`/`-f` 显式指定）。
+- **不能混合使用直接脚本和 `-e`/`-f`**。
+- **文件名以 `-` 开头时，用 `--` 避免混淆**。
+
+
 
 ### 例
 
@@ -441,4 +591,52 @@ sed --file=myscript.sed input.txt > output.txt
 - *BSD seds have accepted -E for years as well,
 -  but **scripts** that use `-E` **might not port to other older systems.** 
 - See [Extended regular expressions](https://www.gnu.org/software/sed/manual/sed.html#ERE-syntax).
+
+
+
+## 使用示例🎈
+
+### 示例1：基本替换（不使用其他脚本选项）
+
+```bash
+sed 's/foo/bar/' file.txt
+```
+
+- 解释：在file.txt中将每行第一次出现的"foo"替换为"bar"
+- 注意：这里直接提供了脚本's/foo/bar/'，因为没有使用-e或-f选项
+
+### 示例2：使用-e选项
+
+```bash
+sed -e 's/foo/bar/' -e 's/hello/world/' file.txt
+```
+
+- 解释：执行两个替换操作，先替换foo为bar，再替换hello为world
+- 注意：因为使用了-e选项，所以不能直接在命令后提供脚本
+
+### 示例3：使用-f选项从文件读取脚本
+
+```bash
+echo "s/foo/bar/" > script.sed
+sed -f script.sed file.txt
+```
+
+- 解释：从script.sed文件中读取sed命令并应用于file.txt
+
+### 示例4：直接修改文件
+
+```bash
+sed -i 's/foo/bar/' file.txt
+```
+
+- 解释：直接在file.txt中修改内容，不输出到屏幕
+- 警告：-i选项会直接修改原文件，使用前建议备份
+
+### 示例5：组合使用多个输入文件
+
+```bash
+sed 's/foo/bar/' file1.txt file2.txt
+```
+
+- 解释：对file1.txt和file2.txt都执行相同的替换操作
 
