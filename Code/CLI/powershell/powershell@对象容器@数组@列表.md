@@ -71,7 +71,7 @@ InvalidOperation: Unable to find type [arraylist].
 
 可以通过 PowerShell 5 和更高版本中的 `using namespace` 语句缩短语法。
 
-`using` 语句需是脚本的第一行。
+`using` 语句需是脚本的**第一行**。
 
  通过声明命名空间，PowerShell 允许你**在引用数据类型时不使用命名空间**。
 
@@ -101,5 +101,21 @@ PS> $myList
 2
 3
 10
+```
+
+### 构造可变字符串容器
+
+有两种典型方法
+
+```bash
+$var = [System.Collections.Generic.List[string]]::new()
+$var= [System.Collections.Generic.List[string]]@()
+```
+
+或者使用命名空间
+
+```powershell
+using namespace System.Collections.Generic #如果位于脚本,则放在脚本第一行
+$strList = [List[string]]::new() #注意List[string]不是List<string>
 ```
 
