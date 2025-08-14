@@ -35,7 +35,9 @@ MySQL57 服务无法启动。
 请键入 NET HELPMSG 3534 以获得更多的帮助。
 ```
 
-## 查看日志
+## 查看日志🎈
+
+data路径
 
 ```powershell
 #⚡️[Administrator@PC-20250223BYZI][D:\phpstudy_pro\Extensions\MySQL5.7.26\data][17:39:51][UP:0.04Days]
@@ -97,6 +99,7 @@ MySQL57 服务无法启动。
 ```
 
 #### 含义：
+
 由于上述系统表缺失，MySQL 无法正常启动，但 Windows 服务机制未返回具体错误码。
 
 ---
@@ -115,29 +118,32 @@ MySQL57 服务无法启动。
    ```
 
 2. **删除或重命名旧数据目录**
+   
    - 默认路径：
      ```
      D:\phpstudy_pro\Extensions\MySQL5.7.26\data
      ```
    - 可以将其改名为 `data_old` 或直接删除。
-
+   
 3. **创建新数据目录**
+   
    ```powershell
    mkdir D:\phpstudy_pro\Extensions\MySQL5.7.26\data
    ```
-
+   
 4. **初始化数据库**
+   
    ```powershell
    cd D:\phpstudy_pro\Extensions\MySQL5.7.26\bin
    .\mysqld --initialize --console
    ```
-
+   
    - 这将输出一个临时 root 密码，例如：
      ```
      A temporary password is generated for root@localhost: xxxxxxxxxx
      ```
    - 请务必保存这个密码。
-
+   
 5. **注册服务（如已被移除）**
    ```powershell
    .\mysqld --install mysql57 --defaults-file="..\data\my.ini"
