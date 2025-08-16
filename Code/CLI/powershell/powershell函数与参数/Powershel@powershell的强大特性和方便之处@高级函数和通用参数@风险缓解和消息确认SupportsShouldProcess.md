@@ -116,14 +116,7 @@
     - 此命令会将作者编写的windows上部署许多环境或软件的命令行导入到当前shell环境中,可以快速体验一些命令或模块功能
     - 例如此模块中包含了` Deploy-ScoopForCNUser`命令,可以为国内用户快速部署scoop 加速版
 
-### 本文主题
 
-- 介绍powershell中的通用参数和自动变量的典型应用:shouldprocess消息确认机制
-
-- [关于 ShouldProcess 的各项须知内容 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.4)
-  - 这篇文章很适合学习shouldProcess相关内容,是一片优秀的教全面的关于shouldprocess的教学博客
-
-- 下面的内容作为概念补充和知识扩展
 
 ### 通用参数和自动变量
 
@@ -168,7 +161,11 @@ UseTransaction
 
 ## 风险缓解和请求确认(消息确认)🎈
 
-SupportsShouldProcess
+- 介绍powershell中的通用参数和自动变量的典型应用:shouldprocess消息确认机制
+
+- [关于 ShouldProcess 的各项须知内容 - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.4)
+  - 这篇文章很适合学习shouldProcess相关内容,是一片优秀的教全面的关于shouldprocess的教学博客
+
 
 官方文档[Requesting Confirmation - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/scripting/developer/cmdlet/requesting-confirmation?view=powershell-7.4)这个主题下面包含了几个关于消息确认的介绍文档
 
@@ -370,7 +367,7 @@ Force开关的含义和Confirm开关的含义可以说是相反的
 
 ```powershell
 # 如果指定了Force且没有指定Confirm,则禁用确认提示(否则Force选项失效),这种写法是标准写法
-if ($Force -and -not $Confirm) #或 if ($Force -and !$Confirm)
+if ($Force -and -not $PSBoundParameters.ContainsKey('Confirm')) #或 if ($Force -and !$PSBoundParameters.ContainsKey('Confirm'))
 {
 # 将消息确认级别设置为关闭,即将询问偏好设置为低,让用户不需要再交互确认后续的动作,直接执行
     $ConfirmPreference = 'None'
@@ -421,7 +418,7 @@ function Remove-TestFiles
     )
 
     # 如果指定了Force且没有指定Confirm,则禁用确认提示,这种写法是标准写法
-    if ($Force -and -not $Confirm)
+    if ($Force -and -not $PSBoundParameters.ContainsKey('Confirm'))
     {
     # 将询问偏好设置为低,让用户不需要再交互确认后续的动作,直接执行
         $ConfirmPreference = 'None'
@@ -439,13 +436,6 @@ function Remove-TestFiles
     {
 
 
-
-		# 根据用户传入的参数检查是否关闭询问(设置询问开关变量$Confirm)
-        if ($Force -and -not $Confirm)
-        {
-            $ConfirmPreference = 'None'
-            # 将消息确认级别设置为关闭,shouldprocess不会再提示了，而是直接执行操作
-        }
         # 以下是常规的检查环节(如果$ConfrimPreference没有被上述代码设置为`None`,那么会根据情况向用户发出询问)
         # 需要被谨慎执行的代码也包裹在这个if中(其中$PSCmdlet.ShouldProcess()的调用询问返回的bool值可以用一个变量保存,缩短if()行)
         if ( $PSCmdlet.ShouldProcess($file.Name, 'Remove file'))
