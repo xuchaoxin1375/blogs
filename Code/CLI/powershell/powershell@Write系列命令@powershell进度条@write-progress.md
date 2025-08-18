@@ -104,7 +104,7 @@ Write-Warning          Cmdlet
 
 例如,我要扫描并换一批wordpress网站的插件,假设这些网站存放在`C:\sites\wp_sites\`下
 
-显示进度或输出中间报告的方案有多重,下面给出若干方案的例子
+显示进度或输出中间报告的方案有多种,下面给出若干方案的例子
 
 ```powershell
 
@@ -141,7 +141,7 @@ $plugin_dirs_target = [System.Collections.ArrayList]@()
 
 
 
-#### 方案1
+### 方案1
 
 ```powershell
 
