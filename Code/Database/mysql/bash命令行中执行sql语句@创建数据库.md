@@ -27,7 +27,13 @@ shell中使用mysql执行mysql语句
 
 ```bash
 mysql -uroot   -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
-mysql -uroot   zsh_babymarktzonetr.com < babymarktzonetr.com.sql  
+ 
+```
+
+然后可以执行导入sql文件等操作
+
+```bash
+mysql -uroot   zsh_babymarktzonetr.com < babymarktzonetr.com.sql 
 ```
 
 

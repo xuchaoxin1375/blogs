@@ -229,7 +229,7 @@ mysql> select distinct user,host from mysql.user;
 
 
 
-### 创建一个新用户🎈
+### 创建一个新的普通用户🎈
 
 登录root用户进行操作
 以下指令可以创建新用户
@@ -266,7 +266,7 @@ CREATE USER 'aa'@'localhost' IDENTIFIED BY 'mypassword';
 
 在MySQL/MariaDB中，`root@localhost` 用户只能从本地连接数据库。如果你希望创建一个 `root@%` 用户（允许从任何IP连接），可以按照以下步骤操作：
 
-## 创建root@%用户和root@localhost共存🎈
+### 创建root@%用户和root@localhost共存🎈
 
 ### 以 `root@localhost` 登录 MySQL
 
@@ -326,7 +326,8 @@ GRANT ALL PRIVILEGES ON *.* TO 'rootx'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
 
-
+> !!!请将此代码片段复制到本地私密文本文件中编辑后运行,可作为mysql脚本文件或者直接在mysql shell中粘贴运行
+>
 
 ### 为指定账户授予root权限|授予最高权限🎈
 

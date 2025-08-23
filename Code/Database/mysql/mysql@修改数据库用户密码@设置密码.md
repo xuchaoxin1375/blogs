@@ -137,6 +137,8 @@ FLUSH PRIVILEGES;
 
 #### **方法 1：使用 `ALTER USER`（推荐）**
 
+> 安全起见,将代码复制到外部安全环境编辑sql语句
+
 ```sql
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'new_password';
 ```
