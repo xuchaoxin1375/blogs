@@ -1,5 +1,11 @@
 [toc]
 
+## abstract
+
+alist变迁为openlist,前者不在使用,下面提及alist时大多数情况和openlist相同含义
+
+- [doc.openlist.team](https://doc.openlist.team/)
+
 ## alist官网
 
 ### alist网站风格说明
@@ -216,12 +222,59 @@ INFO[2024-08-30 11:27:54] start HTTP server @ 0.0.0.0:5244
 
 - alist可以不仅可以挂载网盘,还可以挂载本地存储
 
-### 本地存储挂载和分享👺
+### 本地存储挂载和分享
 
-- [本地存储 | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/drivers/local.html)
 - 挂载本地存储可以方便分享文件给其他人,特别是局域网内的人,在Alist管理页面中,创建一个shareUser用户,分发给需要共享的人或者自己使用,类似于windows下的共享文件夹或SMB服务
 - 被共享者(也可以是自己)可以用浏览器也可以用文件资源管理器挂载或着映射成驱动器来访问您共享的文件或者目录,也能够可控制被分享者对相关目录或文件的读写权限)
-- [WebDAV | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html)
+- openlist实现共享聚合存储(或者最简单情况的本地存储共享到网络,局域或公网)所提供的最现代化的方式是通过webdav协议进行网络访问或挂载网络盘的功能)
+- 使用方式详情见后面章节
+
+### WebDav服务的链接和配置🎈🎈
+
+openlist第一方面的功能是聚合存储(把本地/各种网盘(局域网或公网)存储聚合成一个"总存储")
+
+另一方面就是访问这个被聚合后的"总存储",让我们可以向访问一个独立硬盘(或者网络盘)那样访问文件,最现代化的协议是webdav协议,也是openlist支持的功能
+
+不过要正确通过webdav协议访问托管在openlist服务中的文件,需要根据文档注意一些链接参数的细节
+
+> 和其他一些文件传输协议相比,webdav协议给予http协议扩展,为了区分基础的http协议链接访问方式,往往在文件传输客户端中,选择webdav协议时仅仅填写ip或者域名是不够的,还需要指出webdav服务可以通过哪个入口访问;
+
+例如,在openlist提供的webdav访问方式中,就需要基于`http://host:port/`链接基础上添加`dav/`后缀;
+
+下面一openlist的默认行为为例说明
+
+> 在windows资源管理器中通过webdav协议挂载的链接形如(http(s)://host:port/dav)
+>
+> 在winscp这类专门的文件传输客户端中,webdav链接中指定**主机**的时候要指定的内容格式应该为`host/dav/`(或`host:port/dav`),而不是仅仅填写host
+
+[WebDAV - OpenList 文档](https://doc.openlist.team/guide/advanced/webdav)
+
+> 以下是alist版本的文档
+
+[WebDAV | AList文档](https://alistgo.com/zh/guide/webdav.html)
+
+- [WebDAV | 获取已添加网盘的webdav链接配置 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html#webdav-配置)
+- [WebDAV |挂载填写实例](https://alist.nn.ci/zh/guide/webdav.html#可以用来挂载webdav的软件)
+
+### windows系统挂载网络磁盘到资源管理器(模拟本地磁盘分区)
+
+[windows@允许映射挂载http链接@挂载局域网http链接的webdav磁盘-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137939514)
+
+- 这涉及注册表修改
+- 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
+
+详情参考上述链接,这里简单说明通过命令行的方式(powershell)通过webdav协议(可能是http链接)挂载到资源管理器中的某个盘符上
+
+webdav服务有openlist(alist)提供,并且以http链接的方式指定挂载对象
+
+```powershell
+$DriveLetter='H'
+$HostAddress='192.x.x.x' #挂载主机(域名或ip,可以是局域网ip也可以是公网ip,如果是局域网内的域名,需要修改系统hosts映射)
+$Port=5244 #根据实际情况填写,openlist/alist默认端口5244
+net use "$($DriveLetter):" "http://$($HostAddress):$($Port)/dav" /p:yes /savecred 
+```
+
+
 
 ### 挂载式共享方案选择
 
@@ -255,7 +308,7 @@ INFO[2024-08-30 11:27:54] start HTTP server @ 0.0.0.0:5244
 
 - [Profile | AList Manage](http://localhost:5244/@manage)
 
-## 配置文件和alist工作目录👺👺
+## 配置文件和alist工作目录👺
 
 - 在命令行中,运行`alist server`会检查当前**工作目录**(由`pwd`命令返回的目录)是否存在配置文件(用户密码,已挂载过的网盘等)
 - 如果没有,则会在当前工作目录创建`data`目录并初始化创建必要的文件
@@ -347,12 +400,7 @@ INFO[2024-08-30 11:27:54] start HTTP server @ 0.0.0.0:5244
 
   - 抛出了一个`WARN`,可以打开浏览器,刷新`alist`管理网页,检查是否修改成功
 
-### webDav链接和配置👺
 
-[WebDAV | AList文档WebDav (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html#webdav-配置)
-
-- [WebDAV | 获取已添加网盘的webdav链接配置 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html#webdav-配置)
-- [WebDAV |挂载填写实例](https://alist.nn.ci/zh/guide/webdav.html#可以用来挂载webdav的软件)
 
 ### 其他设备无法访问的问题👺
 
@@ -505,11 +553,7 @@ Unregister-ScheduledTask -TaskName startupalist # -Confirm:$false #是否免询�
 
 
 
-## 挂载到资源管理器(模拟本地磁盘分区)👺
 
-- [windows@允许映射挂载http链接@挂载局域网http链接的webdav磁盘-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/137939514)
-  - 这涉及注册表修改
-- 也可以考虑用第三方软件挂载,例如RailDrive,rclone等
 
 ## 用户和权限管理👺
 

@@ -36,7 +36,7 @@
 
    - [WebDAV | AList文档 (nn.ci)](https://alist.nn.ci/zh/guide/webdav.html)
    - 使用记录和配置过程中的常见问题
-     - [alist基本用法@文档阅读@挂载网盘@网盘webdav挂载](http://t.csdnimg.cn/5aFS3)
+     - [openlist/alist基本用法@文档阅读@挂载网盘@网盘webdav挂载](http://t.csdnimg.cn/5aFS3)
 
 2. [CuteHttpFileServer | iscute.cn](http://iscute.cn/chfs)
    - 提供了windos端的命令行程序和图形界面程序,轻量而且易于配置

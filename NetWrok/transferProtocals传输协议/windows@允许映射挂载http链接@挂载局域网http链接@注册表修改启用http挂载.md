@@ -9,12 +9,13 @@
 - 但是对于http协议链接,新系统可能需要修改注册表,使得系统能够挂载http链接
 - 这里给出一个命令行版本,操作更简单
 
-### 挂载共享文件夹
+### 挂载共享文件夹(smb)
 
-- 挂载共享文件夹不需要修改注册表
+- 挂载**共享文件夹**不需要修改注册表
 - 并且有net use 和 powershell Mount-SmbMapping 等方法,详情另见它文
   - [windows@资源管理器中的地址栏@访问共享文件夹的各种方法@管理共享文件夹_windows 路径中的@-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/140139320)
-- 这里主要讨论webdav的挂载,尤其是局域网内http连接的webdav挂载
+
+本文这里主要讨论`webdav`的挂载,尤其是局域网内通过`http`链接的**webdav**挂载
 
 ### 允许http链接映射为磁盘驱动器(命令行方式修改注册表)😊
 
@@ -133,35 +134,34 @@
 
 ## 基本网络盘映射和挂载操作
 
-### 执行映射
+### 命令行执行映射和挂载网络磁盘操作🎈
 
 - 关闭所有powershell(如果有的话),(离开管理员权限命令行窗口)打开另一个**普通**权限的命令行窗口),例如
 
 - 重新打开一个powershell进行驱动器映射(使用net use命令,详情另见它文)
 
-  - powershell
 
-    ```bash
-    $DriveLetter='W'
-    # $HostAddress='127.0.0.1'
-    $HostAddress='192.168.1.178'#局域网内的另一个主机示例
-    $Port=5244
-    net use "$($DriveLetter):" "http://$($HostAddress):$($Port)/dav" /p:yes /savecred 
-    
-    
-    ```
-  
-  - cmd
-  
-    ```bash
-    @echo off
-    set DriveLetter=W
-    set HostAddress=127.0.0.1
-    set Port=5244
-    
-    net use "%DriveLetter%:" "http://%HostAddress%:%Port%/dav" /p:yes /savecred
-    ```
-  
+powershell
+
+```bash
+$DriveLetter='H'
+$HostAddress='192.x.x.x' #挂载主机(域名或ip,可以是局域网ip也可以是公网ip,如果是局域网内的域名,需要修改系统hosts映射)
+$Port=5244 #根据实际情况填写,openlist/alist默认端口5244
+net use "$($DriveLetter):" "http://$($HostAddress):$($Port)/dav" /p:yes /savecred 
+
+
+```
+
+cmd
+
+```bash
+@echo off
+set DriveLetter=W
+set HostAddress=127.0.0.1
+set Port=5244
+
+net use "%DriveLetter%:" "http://%HostAddress%:%Port%/dav" /p:yes /savecred
+```
 
 
 
