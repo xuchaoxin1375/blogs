@@ -32,11 +32,23 @@ Default path is the current directory; default expression is -print.
 2. `[path...]`指定要查找的目录,可以连续指定多个,空格隔开
 3. ` [expression]`指定查找条件表达式,比如指定递归深度,或者要求文件或目录具有特定格式的名字
 
-例如:`find . -maxdepth 1 -name "*.sh"`
+### 简单查找案例🎈
+
+```bash
+find . -maxdepth 1 -name "*.sh"
+```
+
+
 
 1. 回看语法中选项`[-H] [-L] [-P] [-Olevel] [-D debugopts] `例子中没有启用
 2. 例子中第一个参数就是路径`path`,经常是`.`(默认查找路径),它表示当前目录
-3. `-maxdepth 1 -name "*.sh"`是对应的`[expression]`
+3. `-maxdepth 1 -name "*.sh"`是对应的`[expression]`,注意通常用`''`或`""`来包裹`-name`参数防止shell识别错误
+
+另一个搜索并删除文件的例子
+
+```
+fin
+```
 
 expression内容较多,后文解释
 
@@ -71,57 +83,7 @@ expression内容较多,后文解释
 
 - `[expression]`：指定搜索条件，如 `-name`、`-type`、`-size` 等。
 
-### 示例：
 
-- 查找 
-
-  ```
-  /home
-  ```
-
-   目录下所有 
-
-  ```
-  .txt
-  ```
-
-   文件：
-
-  ```bash
-  find /home -name "*.txt"
-  ```
-
-- 查找 
-
-  ```
-  /var/log
-  ```
-
-   目录下的 
-
-  ```
-  .log
-  ```
-
-   文件，并跟随符号链接：
-
-  ```bash
-  find -L /var/log -name "*.log"
-  ```
-
-- 启用调试模式，查看 
-
-  ```
-  find
-  ```
-
-   的目录遍历情况：
-
-  ```bash
-  find /home -D tree
-  ```
-
-这个语法格式展示了 `find` 的核心结构，用户可以根据不同需求组合参数，实现高效文件查找。
 
 ## expressions
 
@@ -350,15 +312,15 @@ find /home \( -name "*.log" -o -name "*.txt" \)
 
 ------
 
-### 3. 按文件类型查找（`-type`）
+### 3. 按文件(目录)类型查找（`-type`）
 
-- **查找所有文件：**
+- **查找文件：**
 
 ```bash
 find /home -type f
 ```
 
-- **查找所有目录：**
+- **查找目录：**
 
 ```bash
 find /home -type d
