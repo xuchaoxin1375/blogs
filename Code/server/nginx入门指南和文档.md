@@ -401,7 +401,7 @@ Nginx 会根据 `Host` 的值来选择匹配的 `server_name` 规则，决定由
 - 某些特殊的自动化脚本
 - 攻击者发送异常请求进行探测
 
-## 配置文件的结构
+## 配置文件的结构🎈
 
 Configuration File’s Structure
 
@@ -827,7 +827,7 @@ If there are several servers that match the IP address and port of the request, 
 
 
 
-## Server names 服务器名称
+## Server names 服务器名称🎈
 
 
 
@@ -835,9 +835,15 @@ If there are several servers that match the IP address and port of the request, 
 
 server_name `server_name` 参数可以是**完整（精确）名称、通配符或正则表达式**。
 
-**通配符**是在开头、结尾或头尾两者都有包含星号 ( `*` ) 的字符串；星号可匹配任意字符序列。
+**通配符**是在开头、结尾或头尾两者都有包含星号 ( `*` ) 的字符串；
+
+星号可匹配任意**字符序列**。
 
 NGINX (Plus) 使用 Perl 语法进行正则表达式；在它们前面加上波浪号 ( `~` )。
+
+---
+
+
 
 此示例演示了精确名称。
 
@@ -850,7 +856,7 @@ server {
 ```
 
 If several names match the `Host` header, NGINX (Plus) selects one by searching for names in the following order and using the first match it finds:
-如果有多个**名称**与 `Host` 标头匹配，NGINX (Plus) 将按以下顺序搜索名称并使用找到的第一个匹配项来选择一个：
+如果有多个**名称**与 `Host` 标头匹配，NGINX (Plus) 将按以下顺序搜索名称并**使用找到的第一个匹配项**来选择一个：
 
 1. Exact name 确切名称
 2. Longest wildcard starting with an asterisk, such as `*.example.org`
@@ -860,10 +866,10 @@ If several names match the `Host` header, NGINX (Plus) selects one by searching 
 4. First matching regular expression (in order of appearance in the configuration file)
    第一个匹配的正则表达式（按配置文件中出现的顺序）
 
-> 简单讲就是:**确切名称>通配名称>正则名称**
+> 简单讲就是:**确切名称>通配名称(前`*`>后`*`)>正则名称**,正则匹配在这server_name里的优先级最低!
 
 If the `Host` header field does not match a server name, NGINX (Plus) routes the request to the default server for the port on which the request arrived. The default server is the first one listed in the **nginx.conf** file, unless you include the `default_server` parameter to the `listen` directive to explicitly designate a server as the default.
-如果 `Host` 头字段**与服务器名称不匹配**，NGINX (Plus) 会将请求路由到请求到达端口对应的默认服务器。默认服务器是 **nginx.conf** 文件中列出的第一个服务器，除非你在 `listen` 指令中添加 `default_server` 参数，明确指定某个服务器为默认服务器。
+如果 `Host` 头字段**与服务器名称不匹配**，NGINX (Plus) 会将请求路由到请求到达端口对应的**默认服务器**。默认服务器是 **nginx.conf** 文件中列出的第一个服务器，除非你在 `listen` 指令中添加 `default_server` 参数，明确指定某个服务器为默认服务器。
 
 ```nginx
 server {
@@ -925,13 +931,15 @@ When searching for a virtual server by name, if name matches more than one of th
 #### Wildcard names 通配符名称
 
 A wildcard name may contain an asterisk only on the name’s start or end, and only on a dot border. The names “`www.*.example.org`” and “`w*.example.org`” are invalid. However, these names can be specified using regular expressions, for example, “`~^www\..+\.example\.org$`” and “`~^w.*\.example\.org$`”. An asterisk can match several name parts. The name “`*.example.org`” matches not only `www.example.org` but `www.sub.example.org` as well.
-由于通配符名称只能在**名称的开头或结尾**以及**点边框处包含星号**。名称“ `www.*.example.org` ”和“ `w*.example.org` ”无效。
+由于**通配符名称**只能在**名称的开头或结尾**以及**点边框处包含星号**。名称“ `www.*.example.org` ”和“ `w*.example.org` ”无效。
 
 但是，可以**使用正则表达式指定这些名称**，例如“ `~^www\..+\.example\.org$` ”和“ `~^w.*\.example\.org$` ”。
 
 > 正则`^www\..+\.example\.org$`表示从开头开始匹配`^`,一直到结尾`$`,匹配满足`www\..+\.example\.org`的服务器名
 
 通配符星号可以匹配多个名称部分。名称“ `*.example.org` ”不仅匹配 `www.example.org` 还有 `www.sub.example.org` 。
+
+##### 特殊通配符名称
 
 A special wildcard name in the form “`.example.org`” can be used to match both the exact name “`example.org`” and the wildcard name “`*.example.org`”.
 形式为“ `.example.org` ” 的**特殊通配符名称**可用于**匹配精确名称**“ `example.org` ”和**通配符名称**“ `*.example.org` ”。
@@ -943,7 +951,7 @@ A special wildcard name in the form “`.example.org`” can be used to match bo
 The regular expressions used by nginx are compatible with those used by the Perl programming language (PCRE). To use a regular expression, the server name must start with the tilde character:
 nginx 使用的正则表达式与 **Perl 编程语言（PCRE）兼容**。要使用正则表达式，服务器名称必须以**波浪号开头**：
 
-> ```
+> ```bash
 > server_name  ~^www\d+\.example\.net$;
 > ```
 
@@ -951,6 +959,8 @@ otherwise it will be treated as an exact name, or if the expression contains an 
 否则它将被视为一个**确切的名称**，或者如果表达式包含 星号，作为通配符名称（并且很可能是无效名称）。 
 
 不要忘记设置“ `^` ”和“ `$` ”锚点。它们**不是语法上的必需，而是逻辑上的必需**。
+
+> 常见的正则表达式名称形如:`~^...$`
 
 另请注意，域名中的**点号应使用反斜杠进行转义**。包含字符“ `{` ”和“ `}` ”的正则表达式应**使用引号引起来**：
 
@@ -964,6 +974,8 @@ otherwise nginx will fail to start and display the error message:
 > ```nginx
 > directive "server_name" is not terminated by ";" in ...
 > ```
+
+##### 命名的正则表达式捕获
 
 A named regular expression capture can be used later as a variable:
 命名的正则表达式**捕获**稍后可以用作**变量**：
@@ -979,13 +991,13 @@ A named regular expression capture can be used later as a variable:
 > ```
 
 The PCRE library supports named captures using the following syntax:
-PCRE 库支持使用以下语法的命名捕获：
+PCRE 库支持使用以下语法的命名捕获：(写在组标记`()`括号对内部的正则片段,它们都使用`?`(或`?P`)字符开头,并以标记对`< >`或`' '`来包裹捕获组的名字)
 
-> | regex        | 兼容说明                                                     |
-> | ------------ | ------------------------------------------------------------ |
-> | `?<*name*>`  | Perl 5.10 compatible syntax, supported since PCRE-7.0 Perl 5.10 兼容语法，自 PCRE-7.0 起受支持 |
-> | `?'*name*'`  | Perl 5.10 compatible syntax, supported since PCRE-7.0 Perl 5.10 兼容语法，自 PCRE-7.0 起受支持 |
-> | `?P<*name*>` | Python compatible syntax, supported since PCRE-4.0 Python 兼容语法，自 PCRE-4.0 起受支持(兼容性最高) |
+> | regex      | 兼容说明                                                     |
+> | ---------- | ------------------------------------------------------------ |
+> | `?<name>`  | Perl 5.10 compatible syntax, supported since PCRE-7.0 Perl 5.10 兼容语法，自 PCRE-7.0 起受支持 |
+> | `?'name'`  | Perl 5.10 compatible syntax, supported since PCRE-7.0 Perl 5.10 兼容语法，自 PCRE-7.0 起受支持 |
+> | `?P<name>` | Python compatible syntax, supported since PCRE-4.0 Python 兼容语法，自 PCRE-4.0 起受支持(兼容性最高) |
 
 If nginx fails to start and displays the error message:
 如果 nginx 启动失败并显示错误信息：
@@ -996,8 +1008,8 @@ If nginx fails to start and displays the error message:
 > pcre_compile() failed: unrecognized character after (?< in ...
 > ```
 
-this means that the **PCRE library** is old and the syntax “`?P<*name*>`” should be tried instead. The captures can also be used in digital form:
-这意味着 PCRE 库已经过时，语法 应该尝试“ `?P< *name* >` ”。
+this means that the **PCRE library** is old and the syntax “`?P<name>`” should be tried instead. The captures can also be used in digital form:
+这意味着 PCRE 库已经过时，语法 应该尝试“ `?P< name >` ”。
 
 捕获结果也可以以**数字形式**使用：
 
@@ -1022,6 +1034,9 @@ There are some server names that are treated specially.
 有一些服务器名称需要特殊处理。
 
 If it is required to process requests without the “Host” header field in a [server](https://nginx.org/en/docs/http/ngx_http_core_module.html#server) block which is not the default, an empty name should be specified:
+
+没有“Host”标头字段的请求通常有默认服务器处理
+
 如果需要在非默认[服务器](https://nginx.org/en/docs/http/ngx_http_core_module.html#server)块中处理没有“Host”标头字段的请求，则应指定一个**空名称**(包含`""`)：
 
 > ```nginx
@@ -1038,7 +1053,7 @@ If no [server_name](https://nginx.org/en/docs/http/ngx_http_core_module.html#ser
 如果没有 [server_name](https://nginx.org/en/docs/http/ngx_http_core_module.html#server_name) 在[服务器](https://nginx.org/en/docs/http/ngx_http_core_module.html#server)块中定义，然后 nginx 使用空名称作为服务器名称。
 
 > nginx versions up to 0.8.48 used the machine’s hostname as the server name in this case.
-> 在这种情况下，nginx 版本高达 0.8.48 使用机器的主机名作为服务器名称。
+> 在这种情况下，nginx 版本达 0.8.48 使用机器的主机名作为服务器名称。
 
 
 
@@ -1079,8 +1094,11 @@ In catch-all server examples the strange name “`_`” can be seen:
 > }
 > ```
 
-There is nothing special about this name, it is just one of a myriad of invalid domain names which never intersect with any real name. Other invalid names like “`--`” and “`!@#`” may equally be used.
-这个名字没有什么特别之处，它只是众多名字中的一个 **无效域名永远不会与任何真实名称相交**。 其他无效名称如“ `--` ”和“ `!@#` ”同样可以使用。
+There is nothing special about this name, it is just one of a myriad of **invalid domain names** which never intersect with any **real name**. Other invalid names like “`--`” and “`!@#`” may equally be used.
+这个名字没有什么特别之处，它只是众多名字中的一个 **无效域名,永远不会与任何真实名称相交**。 其他无效名称如“ `--` ”和“ `!@#` ”同样可以使用。
+
+> - 实际上，这个值并不重要，因为前面已经设置了 `default_server`，所以这个块已经是默认处理未匹配请求的服务器。
+> - 使用 `_` 只是一种常见的写法，表示“不关心具体域名”。
 
 
 
@@ -1381,10 +1399,10 @@ Exact names, wildcard names starting with an asterisk, and wildcard names ending
 精确名称、以星号开头的通配符名称、 并以星号结尾的通配符名称存储 在绑定到监听端口的三个哈希表中。 哈希表的大小在配置阶段进行优化 这样就可以找到 CPU 缓存未命中次数最少的名称。 设置哈希表的详细信息在单独的 [文档 ](https://nginx.org/en/docs/hash.html)。
 
 The exact names hash table is searched first. If a name is not found, the hash table with wildcard names starting with an asterisk is searched. If the name is not found there, the hash table with wildcard names ending with an asterisk is searched.
-首先搜索精确名称哈希表。如果未找到名称，则搜索以星号开头的通配符名称哈希表。如果仍未找到该名称，则搜索以星号结尾的通配符名称哈希表。
+首先搜索**精确名称哈希表**。如果未找到名称，则搜索**以星号开头的通配符名称哈希表**。如果仍未找到该名称，则搜索**以星号结尾的通配符名称哈希表**。
 
 Searching wildcard names hash table is slower than searching exact names hash table because names are searched by domain parts. Note that the special wildcard form “`.example.org`” is stored in a wildcard names hash table and not in an exact names hash table.
-搜索通配符名称哈希表比搜索精确名称哈希表慢，因为**名称是按域部分搜索**的。请注意，特殊通配符形式“ `.example.org` ”存储在通配符名称哈希表中，而不是精确名称哈希表中。
+搜索通配符名称哈希表比搜索精确名称哈希表**慢**，因为**名称是按域部分搜索**的。请注意，特殊通配符形式“ `.example.org` ”存储在**通配符名称哈希表**中，而不是精确名称哈希表中。
 
 Regular expressions are tested sequentially and therefore are the slowest method and are non-scalable.
 **正则表达式是按顺序测试的，因此是最慢的方法并且不可扩展**。
@@ -1451,16 +1469,64 @@ If a server is the only server for a listen port, then nginx will not test serve
 
 但是，有一个例外。如果服务器名称是一个包含捕获项的正则表达式，那么 nginx 必须执行该表达式才能获取捕获项
 
-## Configure Locations  配置位置
+## Configure Locations  配置位置🎈
 
 NGINX (Plus) can send traffic to different proxies or serve different files based on the request URIs. These blocks are defined using the [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) directive placed within a `server` directive.
-NGINX (Plus) 可以根据请求 URI 将流量发送到不同的代理或提供不同的文件。这些块是使用 `server` 指令中的 [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) 指令定义的。
+NGINX (Plus) 可以根据请求 URI **将流量发送到不同的代理或提供不同的文件**。这些块是使用 `server` 指令中的 [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) 指令定义的。
 
 For example, you can define three `location` blocks to instruct the virtual server to send some requests to one proxied server, send other requests to a different proxied server, and serve the rest of the requests by delivering files from the local file system.
 例如，您可以定义三个 `location` 块来指示虚拟服务器将一些请求发送到一个代理服务器，将其他请求发送到不同的代理服务器，并通过从本地文件系统传送文件来满足其余请求。
 
 NGINX (Plus) tests request URIs against the parameters of all `location` directives and applies the directives defined in the matching location. Inside each `location` block, it is usually possible (with a few exceptions) to place even more `location` directives to further refine the processing for specific groups of requests.
-NGINX (Plus) 会根据所有 `location` 指令的参数测试请求 URI，并应用匹配 location 中定义的指令。在每个 `location` 块内，通常可以（少数例外）放置更多 `location` 指令，以进一步优化特定请求组的处理。
+NGINX (Plus) 会根据所有 `location` 指令的参数**测试请求 URI**，并应用匹配 location 中定义的指令。在每个 `location` 块内，通常可以（少数例外）放置更多 `location` 指令，以**进一步优化特定请求组的处理**。
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+
+    # 匹配所有以 /api/ 开头的请求
+    location /api/ {
+        # 在此 location 块中，可以设置通用的 API 处理规则
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://backend_api;
+
+        # 嵌套 location：匹配 /api/v1/users 的请求
+        location ~ ^/api/v1/users(?:/.*)?$ {
+            allow   192.168.1.0/24;
+            deny    all;
+            # 更严格的安全策略，仅允许内网访问用户接口
+        }
+
+        # 嵌套 location：匹配 /api/v1/logs 的请求
+        location = /api/v1/logs {
+            # 精确匹配，仅处理 /api/v1/logs
+            limit_req zone=api_logs burst=5 nodelay;
+            # 限制请求频率，防止日志接口被滥用
+        }
+    }
+
+    # 匹配静态资源
+    location /static/ {
+        root /var/www/html;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+
+        # 嵌套 location：对特定静态文件类型进行额外处理
+        location ~ \.css$ {
+            add_header X-Content-Type-Options nosniff;
+            # 针对 CSS 文件添加安全头
+        }
+    }
+
+    # 根路径匹配
+    location / {
+        root /var/www/html;
+        index index.html;
+    }
+}
+```
 
 **Note:** In this guide, the word *location* refers to a single [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) context.
 **注意：** 在本指南中， *“位置”* 一词指的是单个[位置](https://nginx.org/en/docs/http/ngx_http_core_module.html#location)上下文。
@@ -1486,14 +1552,22 @@ location /some/path/ {
 #### 正则匹配
 
 A regular expression is preceded with the tilde (`~`) for case-sensitive matching, or the tilde-asterisk (`~*`) for case-insensitive matching. The following example matches URIs that include the string **.html** or **.htm** in any position.
-正则表达式前面带有波浪号 ( `~` ) 表示**区分大小写的匹配**，或者前面带有波浪号和星号 ( `~*` ) 表示不区分大小写的匹配。
+正则表达式前面带有波浪号 ( `~` ) 表示**区分大小写的匹配**，或者前面带有波浪号和星号 ( `~*` ) 表示**不区分大小写的匹配**。
 
-以下示例匹配在任意位置包含字符串 **.html** 或 **.htm** 的 URI。
+以下示例匹配**在任意位置包含字符串** **.html** 或 **.htm** 的 URI。
 
-
+区分大小写的例子
 
 ```nginx
 location ~ \.html? {
+    #...
+}
+```
+
+不区分大小写
+
+```nginx
+location ~* \.html? {
     #...
 }
 ```
@@ -1503,23 +1577,25 @@ location ~ \.html? {
 ### Location Priority NGINX 位置优先级
 
 To find the location that best matches a URI, NGINX (Plus) first compares the URI to the locations with a prefix string. It then searches the locations with a regular expression.
-为了找到与 URI 最匹配的位置，NGINX (Plus) 首先将 URI 与带有前缀字符串的位置进行比较。然后使用正则表达式搜索位置。(注意先搜索到的优先级不一定最高)
+为了找到与 URI **最匹配的位置**，NGINX (Plus) 首先将 URI 与**带有前缀字符串的位置**进行比较。然后使用**正则表达式搜索位置**。(注意先搜索到的优先级不一定最高)
 
 Higher priority is given to regular expressions, unless the `^~` modifier is used. Among the prefix strings NGINX (Plus) selects the most specific one (that is, the longest and most complete string). The exact logic for selecting a location to process a request is given below:
-除非使用 `^~` 修饰符(指定显式前缀匹配优先(于正则匹配))，否则**正则表达式的优先级更高**。NGINX (Plus) 会在前缀字符串中选择最具体的一个（即最长且最完整的字符串）。
+除非使用 `^~` 修饰符(显式指定**前缀匹配**优先于正则匹配)，否则**正则表达式的优先级更高**。NGINX (Plus) 会在前缀字符串中选择最具体的一个（即最长且最完整的字符串）。
 
 但是`=`修饰符优先级最高,他是**精准匹配**
 
 > 也就是说,**精准匹配>正则匹配>前缀匹配**
+
+#### 处理逻辑
 
 选择处理请求位置的具体逻辑如下：
 
 1. Test the URI against all prefix strings.
    根据所有前缀字符串测试 URI。
 2. The `=` (equals sign) modifier defines an exact match of the URI and a prefix string. If the exact match is found, the search stops.
-   `=` （等号）修饰符定义 URI 与前缀字符串的**精确匹配**。如果找到精确匹配，则搜索停止。(**优先级最高的修饰符**)
+   `=` （等号）修饰符定义 URI 与前缀字符串的**精确匹配**。如果找到精确匹配，则**搜索停止**。(**优先级最高的修饰符**)
 3. If the `^~` (caret-tilde) modifier prepends the longest matching prefix string, the regular expressions are not checked.
-   如果 `^~` （插入符号波浪号）修饰符位于**最长匹配的前缀字符串前面**，则**不会检查正则表达式**。
+   如果 `^~` （插入符号波浪号）修饰符位于**最长匹配的前缀字符串前面**，则**不会检查正则表达式**。**搜索停止**
 4. Store the longest matching prefix string.
    存储最长匹配的前缀字符串。(候选匹配,它代表前缀匹配中的最优选择,但是还要等待正则匹配中是否有匹配者,如果有仍然要淘汰掉此匹配)
 5. Test the URI against regular expressions.
@@ -1617,7 +1693,7 @@ The `return` directive can be included in both the `location` and `server` conte
 ## Rewrite URIs in Requests 重写请求中的 URI
 
 A request URI can be modified multiple times during request processing through the use of the [rewrite](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite) directive, which has one optional and two required parameters. The first (required) parameter is the regular expression that the request URI must match. The second parameter is the URI to substitute for the matching URI. The optional third parameter is a flag that can halt processing of further `rewrite` directives or send a redirect (code `301` or `302`). For example:
-在请求处理过程中，可以使用 [rewrite](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite) 指令**多次修改请求 URI**。该指令包含**一个可选参数和两个必需参数**。
+在请求处理过程中，可以使用 [rewrite](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite) 指令**多次修改请求 URI**。该指令包含**一个可选参数和两个必需参数**。(2个必须参数在前,可选参数在后)
 
 1. 第一个必需参数是请求 URI 必须匹配的**正则表达式**。
 2. 第二个必须参数是用于**替换被匹配 URI 的 新URI**。(第二个参数可以引用第一个参数(正则参数)匹配中的分组)
@@ -1631,7 +1707,7 @@ location /users/ {
 }
 ```
 
-三个参数依次为:
+本例中三个参数依次为:
 
 - `^/users/(.*)$`
 - `/show?=user=$1`(这里`$1`表示将使用第一个参数中的`(.*)`匹配到的内容做替换)
@@ -1663,18 +1739,21 @@ server {
 
 This example configuration distinguishes between two sets of URIs. URIs such as **/download/some/media/file** are changed to **/download/some/mp3/file.mp3**. 
 
-Because of the `last` flag, the subsequent directives (the second `rewrite` and the `return` directive) are skipped but NGINX (Plus) continues processing the request, which now has a different URI. Similarly, URIs such as **/download/some/audio/file** are replaced with **/download/some/mp3/file.ra**. If a URI doesn’t match either `rewrite` directive, NGINX (Plus) returns the `403` error code to the client.
 此示例配置区分了两组 URI。例如 **，/download/some/media/file** 之类的 URI 被更改为 **/download/some/mp3/file.mp3** 。
+
+Because of the `last` flag, the subsequent directives (the second `rewrite` and the `return` directive) are skipped but NGINX (Plus) continues processing the request, which now has a different URI. Similarly, URIs such as **/download/some/audio/file** are replaced with **/download/some/mp3/file.ra**. If a URI doesn’t match either `rewrite` directive, NGINX (Plus) returns the `403` error code to the client.
 
 > `/download/some`,`file`分别被拼接到/map3/前后,最后追加`.mp3`
 
-由于 `last` 标志，**后续指令**（第二个 `rewrite` 和 `return` 指令）将被跳过，但 NGINX (Plus) 会继续处理请求，**此时请求的 URI 已发生变化**。
+由于 `last` 标志，**后续指令**（第二个 `rewrite` 和 `return` 指令）将被跳过，但 NGINX (Plus) 会继续处理已经发生变化的请求，**此时请求的 URI 已发生变化**。
 
 ---
 
 
 
 同样， **/download/some/audio/file** 之类的 URI 将被替换为 **/download/some/mp3/file.ra** 。如果 URI 与任何 `rewrite` 指令都不匹配，NGINX (Plus) 会向客户端返回 `403` 错误代码。
+
+### 终端rewrite的参数
 
 There are two parameters that interrupt processing of `rewrite` directives:
 有两个参数会中断 `rewrite` 指令的处理：
@@ -1690,6 +1769,8 @@ There are two parameters that interrupt processing of `rewrite` directives:
 
 Sometimes you need to rewrite or change the content in an HTTP response, substituting one string for another. You can use the [sub_filter](https://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter) directive to define the rewrite to apply. The directive supports variables and chains of substitutions, making more complex changes possible.
 有时您需要重写或更改 **HTTP 响应中的内容**，将一个字符串替换为另一个字符串。您可以使用 [sub_filter](https://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter) 指令来定义要应用的重写。**该指令支持变量和替换链，从而可以实现更复杂的更改。**
+
+相比于`rewrite` 修改请求的URI以控制路由或跳转，`sub_filter` 修改响应内容中的字符串以动态替换页面文本。
 
 For example, you can change absolute links that refer to a server other than the proxy:
 例如，您可以更改指向代理以外的服务器的绝对链接：
@@ -1707,6 +1788,8 @@ Another example changes the scheme from `http://` to `https://` and replaces the
 另一个示例将方案从 `http://` 更改为 `https://` ，并将 `localhost` 地址替换为**请求标头字段中的主机名**。
 
 `sub_filter_once`[ 指令](https://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter_once)告诉 NGINX 在一个位置内连续应用 [sub_filter](https://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter) 指令：
+
+> `sub_filter_once off;`表示不止仅一次替换,而是尽可能多替换
 
 
 
