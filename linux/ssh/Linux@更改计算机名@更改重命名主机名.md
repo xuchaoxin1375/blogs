@@ -69,29 +69,13 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 
 3. **系统日志**：系统日志文件会记录主机名以便追踪设备来源。
 
-## 更改主机名的方法
+## 更改主机名的方法🎈
 
 更改主机名的操作主要根据系统类型分为两类：基于 `systemd` 的 Linux 系统和传统的非 `systemd` 系统。
 
-#### 在 systemd 系统中更改主机名
 
-对于大部分现代 Linux 发行版，如 Ubuntu 16.04 及以后、CentOS 7 及以后，`systemd` 已成为默认的初始化系统。
 
-使用 `hostnamectl` 命令更改主机名：
-```bash
-sudo hostnamectl set-hostname 新主机名
-```
-
-#### 在非 systemd 系统中更改主机名
-可以直接编辑 `/etc/hostname` 文件，然后重启系统或重新加载配置。
-
-```bash
-sudo nano /etc/hostname
-```
-
-将文件内容替换为新的主机名，保存后退出。
-
-### 更改主机名时的注意事项
+### 更改主机名时的注意事项🎈
 
 1. **同步更改 `/etc/hosts` 文件**
    无论使用何种方法更改主机名，最好同步更新 `/etc/hosts` 文件，确保新的主机名能正确解析。通常需要更改以下行：
@@ -120,7 +104,8 @@ sudo nano /etc/hostname
 5. **使用规范化名称**
    在大型网络中，主机名通常会遵循特定的命名规则以方便管理，比如包含地理位置、服务器用途或部门信息等。
 
-## 操作
+
+
 
 ### 临时更改主机名
 这种方法不需要重启，但重启后会还原为原来的主机名。
@@ -151,7 +136,9 @@ hostname my-new-host
 ```
 
 ### 永久更改主机名
-永久更改主机名的方式因 Linux 发行版不同而略有差异，以下是几种常见的方式：
+永久更改主机名的方式因 Linux 发行版不同而略有差异
+
+
 
 #### 1. 使用 `hostnamectl` 更改主机名（适用于 systemd 系统）
 
