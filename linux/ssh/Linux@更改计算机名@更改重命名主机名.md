@@ -135,7 +135,8 @@ root@cxxuAli:~#
 hostname my-new-host
 ```
 
-### 永久更改主机名
+### 永久更改主机名🎈
+
 永久更改主机名的方式因 Linux 发行版不同而略有差异
 
 

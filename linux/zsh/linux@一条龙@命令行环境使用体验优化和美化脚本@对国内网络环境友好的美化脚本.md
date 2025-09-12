@@ -348,24 +348,15 @@ cd -
 
 3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效
 
-   - 输入`exit`从zsh退回到bash
-     
-     ```bash
-     #zsh
-     source ~/.zshrc
-     
-     ```
+   ```bash
+   #zsh
+   source ~/.zshrc
+   
+   ```
+
+​	输入`exit`从zsh退回到bash
 
 4.现在到下一节配置oh my zsh主题
-
->
-> 合并版
->
-> - 等候后续改进
->   - 将各个能够单独运行脚本制作成shell文件,打包制作成一个仓库
->   - 用户克隆下来执行安装程序
->
->
 
 
 ## 配置oh my zsh主题

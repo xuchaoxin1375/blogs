@@ -50,30 +50,29 @@
   +----[SHA256]-----+
   ```
 
-  
 
+## linux相同上的方案
 
-## 上传生成的公钥👺
+linux上的方案比较简单,安装ssh-copy-id(通常会自带此工具)
+
+推荐使用`ed25519`方案加密
+
+```bash
+ssh-keygen -t ed25519 -C "your-email"
+ssh-copy-id -i ~/.ssh/id_ed25519.pub "user@host"
+
+```
+
+分别将引号中的字符串替换为自己的值,运行过程中做确认和填写密码即可
+
+## windows系统上传生成的公钥👺
 
 ### 方法1:(ssh-copy-id)
 
-- windows系统默认没有这个`ssh-copy-id`工具
-
-- linux上可以执行以下命令来方便得更改
-
-  ```bash
-  ssh-copy-id username@remotehost
-  ```
-
-  
-
-- windows上可以基于`wsl`来使用这个命令去链接云主机,但是如果本身想要从windows链接到wsl,就不推荐用这个方法(需要安装软件,虽然scoop可以一键安装)
-
-  - wsl子系统具有 `ssh-copy-id `,命令,通过 `/mnt/c/..`访问路径c盘目录
-    - 假设root@...是我的云主机
-    - ![在这里插入图片描述](https://img-blog.csdnimg.cn/710c0514796c4a238c086dfe6fd7ec90.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAeHVjaGFveGluMTM3NQ==,size_20,color_FFFFFF,t_70,g_se,x_16)
-
-- 上传成功后,就可以用ssh直接链接云主机
+- windows系统默认没有这个`ssh-copy-id`工具,但是可以通过git附带的`git-bash`来调用此工具
+- 此外,windows上可以基于`wsl`来使用这个命令去链接云主机,但是如果本身想要从windows链接到wsl,就不推荐用这个方法(需要安装软件,虽然scoop可以一键安装)
+- git-bash和wsl子系统都具有 `ssh-copy-id `,命令,wsl可通过 `/mnt/c/..`访问路径c盘目录,而`git-bash`使用`/c/`访问C盘路径
+- 不出意外的还,上传成功后,就可以用ssh直接链接云主机
 
 ### 方法2:scp 传输
 
