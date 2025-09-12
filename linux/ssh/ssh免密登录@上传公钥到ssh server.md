@@ -14,7 +14,7 @@
 - 私钥:保存在本地
 - 公钥:上传到远程主机
 
-### powershell+ssh-keygen生成
+### powershell上执行ssh-keygen生成
 
 - `ssh-keygen -t rsa`
 - 执行过程中只需要连按3次enter
