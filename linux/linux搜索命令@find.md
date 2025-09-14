@@ -11,6 +11,10 @@
 
 `find` 是 Linux 中强大的文件查找工具，可以基于文件名、类型、大小、时间等多种条件搜索文件，并配合其他命令进行批量处理。
 
+[实用教程find 进阶用法](https://mp.weixin.qq.com/s/4kB-CL7ErMZTCkiUNzmrWA)
+
+现代化版本find竞品fd:[sharkdp/fd: A simple, fast and user-friendly alternative to 'find'](https://github.com/sharkdp/fd)
+
 ------
 
 ## 命令行语法

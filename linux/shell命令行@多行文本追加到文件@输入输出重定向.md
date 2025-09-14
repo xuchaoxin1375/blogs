@@ -5,7 +5,7 @@
 ## abstract
 
 - linux文件输入输出重定向
-- shell命令行或脚本内 写入多行文本到文件中
+- shell命令行或脚本内 写入多行文本到文件中🎈
 - cat,tee 重定向输入
 
 ### references
@@ -58,7 +58,29 @@ $ nl file0                                                           [13:08:56]
 >下面提到的 token 是自定义的结束符(delimiter),一般使用 eof
 ### here doc常见写法👺
 
-1. `file << EOF`
+`Here Document`（简称 **Here Doc**）是 Bash（及其他 Shell）中一种非常实用的**多行输入重定向**机制，用于将一段文本作为命令的输入，而无需创建临时文件。
+
+```bash
+command << DELIMITER
+内容行1
+内容行2
+...
+DELIMITER
+```
+
+1. 中间所有行都会作为 `command` 的标准输入（stdin）,最常见的是`cat`等命令。
+
+2. `<<` 是 Here Document 操作符。
+
+3. `DELIMITER` 是**自定义分隔符**（通常用 `EOF`、`END`、`STOP` 等），内让输入完毕后标记结束就用此分隔符,但必须**单独一行顶格写**,否则不被认为是结束分隔符（除非用 `<<-`）。
+
+   
+
+### 常见形式
+
+多达8中写法(后4中可以不看),这些写法中都能够找到`<< DELIMITER`这个结构部分(`<< EOF`),前置或者后置
+
+1. `> file << EOF`
 2. `file << EOF`
 3. `<< EOF > file`
 4. `<< EOF >> file`
@@ -67,9 +89,27 @@ $ nl file0                                                           [13:08:56]
 7. `cat << EOF > file`
 8. `cat << EOF >> file`
 
-其中cat 可以省略,效果一样,所以我们观察前面4种,而第1,2种一个是覆盖式,一个是追加式,第3,4种类似,一个是覆盖式,另一个是追加式,而同种风格的覆盖式和追加式只是`>`和`>>`的区别,这样我可以从1,2;以及3,4两组分别选择一个代表,比如1,3作为代表进行讨论
+其中`cat` 可以省略,效果一样,所以我们主要**观察前面4种**
 
-其中写法1为`> file << EOF`,我分成两部分看待`[> file] [<< EOF]`,这里用两个中括号来表示这两部分
+> 1. `>file << EOF`
+> 2. `file << EOF`
+> 3. `<< EOF > file`
+> 4. `<< EOF >> file`
+
+这里的重定向到文本分为覆盖是和追加式,主要取决于`file`前的`>`是一个还是两个,`> file`是覆盖式,`>> file`是追加式
+
+第1,2种一个是**覆盖式**,一个是**追加式,**
+
+第3,4种类似,一个是覆盖式,另一个是追加式,
+
+同种风格的覆盖式和追加式只是`>`和`>>`的区别
+
+这样我可以从(1,2);以及(3,4)两组分别选择一个代表,比如1,3作为代表进行讨论
+
+- `file < EOF`
+- `<< EOF > file`
+
+其中写法1为`> file < EOF`,我分成两部分看待`[> file] [< EOF]`,这里用两个中括号来表示这两部分
 
 而写法3也可以划分为`[<< EOF] [> file]`,这两部分和写法1中划分的两部分相同,只不过顺序对调
 
@@ -80,7 +120,7 @@ $ nl file0                                                           [13:08:56]
 ### 案例
 
 ```bash
-#覆盖式写入
+#覆盖式写入(慎用)
 # cxxu @ bfxuxiaoxin in ~ [15:20:07]
 $ > file << eof
 line1
@@ -97,7 +137,7 @@ line2
 
 ```bash
 
-#追加式写入
+#追加式写入(常用添加配置文件,比如~/.bashrc,~/.zshrc)
 # cxxu @ bfxuxiaoxin in ~ [15:21:22]
 $ >> file << eof
 line1
@@ -126,6 +166,8 @@ line2
 line1
 line2
 ```
+
+
 
 ```bash
 # cxxu @ bfxuxiaoxin in ~ [15:32:37]
@@ -228,6 +270,46 @@ $ cat file
 ```
 
 
+
+### 用例
+
+向`~/.zshrc`添加以下别名配置
+
+```bash
+# Alias for brew to run as linuxbrew user
+alias brew='sudo -u linuxbrew brew'
+
+```
+
+
+
+```bash
+#( 09/14/25@11:15AM )( root@s2 ):~
+   >> ~/.zshrc << EOF
+heredoc> # Alias for brew to run as linuxbrew user
+alias brew='sudo -u linuxbrew brew'
+heredoc> EOF
+
+```
+
+检查
+
+```bash
+#( 09/14/25@11:15AM )( root@s2 ):~
+   tail ~/.zshrc
+# - $ZSH_CUSTOM/macos.zsh
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+export PYTHONPATH="/repos/scripts/wp/woocommerce/woo_df:$PYTHONPATH"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Alias for brew to run as linuxbrew user
+alias brew='sudo -u linuxbrew brew'
+```
+
+发现确实添加进去
 
 ### heredoc的特点小结
 

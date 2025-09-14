@@ -2,13 +2,9 @@
 
 ------
 
-### curl 简介
+## curl 简介
 
 官网链接:[curl](https://curl.se/)
-
----
-
-
 
 `curl`（Client URL）是一个功能强大的命令行工具，用于发送 HTTP/HTTPS、FTP 等协议的请求，可以下载文件、与 API 交互、上传数据等。
  Windows 10/11 自带 `curl.exe`，Linux/macOS 也通常预装。
@@ -108,9 +104,9 @@ curl.exe -L -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 
 换行书写提高可读性(但是不同shell中写法略有不同,主要是换行标记)
 
+#### bash
 
-
-bash中(最典型)
+bash中(最典型),其他大多linux shell也支持,换行标记使用`\`
 
 ```bash
 curl -L \
@@ -120,9 +116,9 @@ curl -L \
   -o cq2_12-100-dmz_301.jpg
 ```
 
+#### powershell
 
-
-powershell版本
+powershell中使用curl.exe,换行标记使用(`)号
 
 ```powershell
 curl.exe -L `
@@ -132,9 +128,9 @@ curl.exe -L `
   -o "image.jpg"
 ```
 
+#### cmd
 
-
-cmd中写法略有不同(换行标记不同)
+cmd中写法(换行标记使用`^`)
 
 ```cmd
 curl -L ^
@@ -167,7 +163,7 @@ Get-Content urls.txt | ForEach-Object {
 }
 ```
 
-批量加防 403 头：
+批量加防 (可以简单尝试绕过基于UA防护的403)：
 
 ```powershell
 Get-Content urls.txt | ForEach-Object {
