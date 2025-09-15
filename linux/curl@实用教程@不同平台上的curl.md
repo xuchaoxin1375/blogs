@@ -14,6 +14,44 @@
 - `curl` 在 PowerShell 里是 `Invoke-WebRequest` 的别名，如果要用真正的 curl，请输入 `curl.exe`
 - 参数区分大小写（`-O` ≠ `-o`）
 
+## 获取curl
+
+通常linux系统上的curl功能更比较完整
+
+而windows平台有的版本(尤其是系统自带的)功能可能不完整,主要体现在支持的协议较少,比如
+
+```
+PS> C:\Windows\System32\curl.exe -V
+curl 8.7.1 (Windows) libcurl/8.7.1 Schannel zlib/1.3 WinIDN
+Release-Date: 2024-03-27
+Protocols: dict file ftp ftps http https imap imaps ipfs ipns mqtt pop3 pop3s smb smbs smtp smtps telnet tftp
+Features: alt-svc AsynchDNS HSTS HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM SPNEGO SSL SSPI threadsafe Unicode UnixSockets
+```
+
+> 不支持sftp,scp等协议
+
+较新版本获取完整的协议支持
+
+```bash
+PS> curl.exe -V
+curl 8.16.0 (x86_64-w64-mingw32) libcurl/8.16.0 LibreSSL/4.1.0 zlib/1.3.1.zlib-ng brotli/1.1.0 zstd/1.5.7 WinIDN libpsl/0.21.5 libssh2/1.11.1 nghttp2/1.67.0 ngtcp2/1.15.1 nghttp3/1.11.0
+Release-Date: 2025-09-10
+Protocols: dict file ftp ftps gopher gophers http https imap imaps ipfs ipns ldap ldaps mqtt pop3 pop3s rtsp scp sftp smb smbs smtp smtps telnet tftp ws wss
+Features: alt-svc AsynchDNS brotli CAcert HSTS HTTP2 HTTP3 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM PSL SPNEGO SSL SSLS-EXPORT SSPI threadsafe UnixSockets zstd
+```
+
+
+
+#### 官网获取最新版本
+
+[curl - Download](https://curl.se/download.html)
+
+#### 其他方案
+
+windows:可以使用scoop获取较新版本
+
+linux:可以通过brew(linuxbrew)等工具获取较新版本
+
 ---
 
 ### 在线文档和教程
@@ -144,6 +182,35 @@ curl -L ^
 
 
 ------
+
+## 基本应用
+
+### 文件传输
+
+以sftp协议为例
+
+> ### SFTP / SCP
+>
+> This is similar to FTP, but you can use the `--key` option to specify a private key to use instead of a password. Note that the private key may itself be protected by a password that is unrelated to the login password of the remote system; this password is specified using the `--pass` option. Typically, curl automatically extracts the public key from the private key file, but in cases where curl does not have the proper library support, a matching public key file must be specified using the `--pubkey` option.
+> 这和 FTP 类似，但你可以使用 `--key` 选项来指定一个私钥来代替密码。请注意，私钥本身可能由一个与远程系统登录密码无关的密码保护；这个密码是使用 `--pass` 选项指定的。通常，curl 会自动从私钥文件中提取公钥，但在 curl 没有适当的库支持的情况下，必须使用 `--pubkey` 选项指定匹配的公钥文件。
+
+例如使用curl查看服务器上的某个文件(通常用于文本文件),如果要下载使用`-O,-o`中的一个来保存为文件
+
+```powershell
+curl -u root sftp://"$env:DF_SERVER2":22022/www/wwwroot/functions.php 
+```
+
+执行后这需要输入密码
+
+curl也支持指定ssh私钥文件来代替密码验证
+
+```powershell
+curl -u root: --key C:\Users\Administrator\.ssh\id_ed25519  sftp://"$host":$port/www/wwwroot/functions.php
+```
+
+此外,如果私钥带有额外的密钥保护,则使用`--pass private_key_password`方式来指定私钥的密码
+
+当然,可以指定`-O`保存为文件,或者`-o`指定文件名(路径)保存
 
 ### 批量下载
 
