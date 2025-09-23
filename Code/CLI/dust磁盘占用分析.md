@@ -39,7 +39,7 @@ dust -n 1000 -p /www/wwwroot/
 dust . -n 500 -b -p -e wp-content/uploads
 ```
 
-## 高级用法
+## 高级用法🎈
 
 常用的参数组合:
 
@@ -51,6 +51,7 @@ dust . -n 500 -b -p -e wp-content/uploads
 
 - `-b, --no-percent-bars            No percent bars or percentages will be displayed`
 - `-d, --depth <DEPTH>              Depth to show`
+- `-p, --full-paths                 Subdirectories will not have their path shortened`
 
 ### 深度约束
 
