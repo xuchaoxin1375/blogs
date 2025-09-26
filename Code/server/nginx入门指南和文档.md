@@ -1534,7 +1534,7 @@ server {
 ### location的两种参数类型
 
 There are two types of parameter to the `location` directive: *prefix strings* (pathnames) and regular expressions. For a request URI to match a prefix string, it must start with the prefix string.
-`location` 指令有两种类型的参数： **前缀字符串 （路径名）**和**正则表达式**。请求 URI 要与前缀字符串匹配，必须以该前缀字符串开头。
+`location` 指令有两种类型的参数： **前缀字符串 （路径名）**和**正则表达式**。请求 `URI` 要与前缀字符串匹配，必须以该前缀字符串开头。
 
 #### 前缀匹配
 
@@ -1579,29 +1579,31 @@ location ~* \.html? {
 To find the location that best matches a URI, NGINX (Plus) first compares the URI to the locations with a prefix string. It then searches the locations with a regular expression.
 为了找到与 URI **最匹配的位置**，NGINX (Plus) 首先将 URI 与**带有前缀字符串的位置**进行比较。然后使用**正则表达式搜索位置**。(注意先搜索到的优先级不一定最高)
 
+> `=`,`^~`可以理解为特殊的前缀匹配
+
 Higher priority is given to regular expressions, unless the `^~` modifier is used. Among the prefix strings NGINX (Plus) selects the most specific one (that is, the longest and most complete string). The exact logic for selecting a location to process a request is given below:
 除非使用 `^~` 修饰符(显式指定**前缀匹配**优先于正则匹配)，否则**正则表达式的优先级更高**。NGINX (Plus) 会在前缀字符串中选择最具体的一个（即最长且最完整的字符串）。
 
 但是`=`修饰符优先级最高,他是**精准匹配**
 
-> 也就是说,**精准匹配>正则匹配>前缀匹配**
+> 也就是说,**精准匹配>正则匹配>(普通)前缀匹配**
 
 #### 处理逻辑
 
 选择处理请求位置的具体逻辑如下：
 
 1. Test the URI against all prefix strings.
-   根据所有前缀字符串测试 URI。
+   根据**所有前缀字符串**测试 URI。(先不测试正则匹配)
 2. The `=` (equals sign) modifier defines an exact match of the URI and a prefix string. If the exact match is found, the search stops.
    `=` （等号）修饰符定义 URI 与前缀字符串的**精确匹配**。如果找到精确匹配，则**搜索停止**。(**优先级最高的修饰符**)
 3. If the `^~` (caret-tilde) modifier prepends the longest matching prefix string, the regular expressions are not checked.
-   如果 `^~` （插入符号波浪号）修饰符位于**最长匹配的前缀字符串前面**，则**不会检查正则表达式**。**搜索停止**
+   如果 `^~` （插入符号-波浪号组合符号）修饰符位于**最长匹配的前缀字符串前面**，则**不会检查正则表达式**。**搜索停止**
 4. Store the longest matching prefix string.
    存储最长匹配的前缀字符串。(候选匹配,它代表前缀匹配中的最优选择,但是还要等待正则匹配中是否有匹配者,如果有仍然要淘汰掉此匹配)
 5. Test the URI against regular expressions.
    根据正则表达式测试 URI。(如果存在使用正则匹配的location的话)
 6. Stop processing when the first matching regular expression is found and use the corresponding location.
-   **当找到第一个匹配的正则表达式时停止处理并使用相应的位置**。
+   **当找到第一个匹配的正则表达式时停止处理并使用相应的位置**。(这意味着正则匹配的location块之间的相对顺序是需要考虑的点)
 7. If no regular expression matches, use the location corresponding to the stored prefix string.
    如果没有正则表达式匹配，则使用存储的前缀字符串对应的位置。
 
@@ -1642,6 +1644,53 @@ The [root](https://nginx.org/en/docs/http/ngx_http_core_module.html#root) direct
 
 The [proxy_pass](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass) directive passes the request to the proxied server accessed with the configured URL. The response from the proxied server is then passed back to the client. In the example above, all requests with URIs that do not start with **/images/** are be passed to the proxied server.
 [proxy_pass](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass) 指令将请求传递到通过配置的 URL 访问的代理服务器。代理服务器的响应随后被传回客户端。在上面的示例中，所有 URI 不以 **/images/** 开头的请求都会被传递到代理服务器。
+
+### location和URL的查询参数
+
+nginx 的 `location` 指令**只能匹配 URL 的路径部分**，不能匹配查询参数（query string）。
+
+例如规则(限制购物车请求)
+```nginx
+location ~* "add_to_cart=" {
+    # ...
+}
+```
+
+**无法匹配**到类似 `/?add-to-cart=123` 或 `/product/xxx/?add-to-cart=456` 这样的请求，因为 `add-to-cart=` 是在查询参数中，而不是在路径中。
+
+要匹配查询参数，你需要使用 `$args` 或 `$arg_参数名` 变量配合 `if` 指令：
+
+```nginx
+# 方法1：使用 map 指令（推荐，性能更好）
+map $args $has_add_to_cart {
+#    ~*add[-_]to[-_]cart=  1;
+    ~*add-to-cart=  1;
+    default               0;
+}
+
+server {
+    location / {
+        if ($has_add_to_cart) {
+            limit_req zone=cart_limit burst=2 nodelay;
+        }
+        
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+}
+
+# 方法2：直接使用 if（简单但性能稍差）
+location / {
+    if ($args ~* "add[-_]to[-_]cart=") {
+        limit_req zone=cart_limit burst=2 nodelay;
+    }
+    
+    try_files $uri $uri/ /index.php$is_args$args;
+}
+```
+
+注意：
+- 使用 `~*` 进行不区分大小写的正则匹配
+- `limit_req` 指令不能直接在 `if` 块中使用，需要配合 `map` 或其他方式
 
 
 
