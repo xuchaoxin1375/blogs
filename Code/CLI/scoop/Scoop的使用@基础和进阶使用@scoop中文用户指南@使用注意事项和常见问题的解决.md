@@ -985,6 +985,8 @@ powershell 7.4.5   110372346
 
 - [【好软推荐】Scoop - Windows快速软件安装指南 - 老船长SleepyOcean - 博客园 (cnblogs.com)](https://www.cnblogs.com/sleepyocean/p/17017084.html)
 
+
+
 ## scoop仓库被污染@更新问题👺
 
 - 如果你无意中对scoop目录下的某些git仓库做了修改，那么可能导致更新失败
@@ -1006,9 +1008,17 @@ Scoop 使用 Git 来管理它的自身和软件包的版本。当 Scoop 的本�
 ```powershell
 cd ~\scoop\apps\scoop\current
 git reset --hard
+# git clean -df # 清除未保存的更改
+
+#其他buckets依次修复
+cd $home/scoop/buckets
+ls -Directory |%{cd $_;git reset --hard head}
+
 ```
 
-然后再尝试运行 `scoop update`。
+然后再尝试运行 `scoop update`
+
+
 
 Note:**保存和提交更改**：如果你不想要彻底放弃修改，可以创建分支保存，然后切换会原分支回溯拉取更新
 
@@ -1018,20 +1028,7 @@ Note:**保存和提交更改**：如果你不想要彻底放弃修改，可以�
 
 假设我这里main bucket被污染,执行reset
 
-```powershell
-PS🌙[BAT:74%][MEM:28.34% (8.99/31.71)GB][21:12:54]
-# [cxxu@CXXUCOLORFUL][<W:192.168.1.178>][~\scoop\buckets\main]{Git:master}
-PS> git reset --hard head
-HEAD is now at d6ed68c08 trid: Update to version 2.24-24.08.24
-```
 
-批量修复:
-
-```powershell
-cd $home/scoop/buckets
-ls -Directory |%{cd $_;git reset --hard head}
-
-```
 
 
 

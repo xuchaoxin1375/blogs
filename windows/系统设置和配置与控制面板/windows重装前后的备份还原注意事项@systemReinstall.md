@@ -149,7 +149,7 @@ irm 'https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy-Pwsh7Port
 
 ## 第二批恢复
 
-### 字体🎈
+### 字体🎈👺
 
 - 主要安装NerdFont家族中的任意一种字体,推荐LiberationMono
 
