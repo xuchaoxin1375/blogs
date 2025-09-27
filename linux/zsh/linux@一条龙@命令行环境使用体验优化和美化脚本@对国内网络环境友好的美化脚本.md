@@ -315,11 +315,13 @@ cd -
 
 1. 下载插件到对应的目录(`.oh-my-zsh`)
 
-   - ```bash
-     # 将两个插件下载到指定目录下:(git 已经指定好了目录)
-     git clone https://gitee.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+   - 使用浅克隆加速
      
-     git clone https://gitee.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+     ```bash
+     # 将两个插件下载到指定目录下:(git 已经指定好了目录)
+     git clone --depth 1 https://gitee.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+     
+     git clone --depth 1 https://gitee.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
      
      ```
 
@@ -378,7 +380,28 @@ cd -
   
   ```
   
-  
+
+## 其他
+
+针对ubuntu
+
+### 修改系统时间
+
+修改为北京时间
+
+```bash
+sudo timedatectl set-timezone Asia/Shanghai
+```
+
+
+
+### 主机名
+
+```bash
+sudo hostnamectl set-hostname 新主机名
+```
+
+然后启动一个新shell查看变化
 
 ## 配置fzf
 

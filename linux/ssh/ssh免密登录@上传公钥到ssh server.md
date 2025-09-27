@@ -7,6 +7,22 @@
 * [SSH Login Without a Password - Howchoo](https://howchoo.com/linux/ssh-login-without-password#ssh-to-the-remote-server-and-configure-your-key)
 * [reference :How to SSH login without Password on Windows 10 – CodeFAQ](https://codefaq.org/server/how-to-ssh-login-without-password-on-windows-10/)
 
+## 前提要求
+
+服务器上安装了ssh服务,并且配置了允许(启用)受信任的主机key列表`authorized_keys`
+
+```conf
+AuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2
+```
+
+如果改动了配置,请重启ssh服务
+
+```bash
+sudo systemctl restart ssh
+```
+
+
+
 ## 生成本地ssh-key
 
 命令默认会产生一对验证钥(公钥和私钥)
@@ -51,7 +67,7 @@
   ```
 
 
-## linux相同上的方案
+## linux上的方案
 
 linux上的方案比较简单,安装ssh-copy-id(通常会自带此工具)
 
@@ -129,19 +145,194 @@ function upload_pubKey
 }
 ```
 
-### 方法3:最通用
+### 方法3:最通用(手动编辑配置文件)
 
 直接将公钥文件用记事本打开,复制(追加)到云主机的指定目录文件中,可以用vim操作
 `vim ~/.ssh/authorized_keys`
 
-或者使用vscode+remote ssh进行配置文件的编辑
+或者使用vscode+remote ssh进行配置文件的编辑文件并保存即可
 
-例如配置多个ssh密钥(公钥),一行一个
+## FAQ
+
+一些免密登录不上或者失败的情况和解决方案
+
+### ssh登录详细信息模式
+
+ssh命令追加使用`-v`参数可以查看登录过程中的一些细节,帮助你排查故障
+
+### 检查授权的密钥文件配置(authorized_keys)内容是否正确
+
+例如配置多个ssh密钥(公钥),一行一个,通过`cat`命令查看配置是否正确写入,特别是遇到免密登录失败或不生效的情况,需要检查内容是否正确编辑
+
+> 一般用户如果对vim编辑器编辑不熟练,粘贴文本如果操作不当,会出现没有写入内容或无效编辑的情况,尤其是某些浏览器模拟terminal(比如宝塔终端)这种兼容性较差的操作入口,建议使用鼠标右键粘贴内容的方案,条件允许,可以使用专业的terminal来操作,或者用可视化的方式直接编辑文件更加可靠和直观(文件路径就是当前用户家目录下的`.ssh/authorized_keys`)
 
 ```bash
 $ cat ~/.ssh/authorized_keys
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICmvKgFPOePRjopUEKKvYhATcEbhwTyT root@wqwerf303
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGTf1IDTShqrk6dEzDEHlJWm+mBUCwH 83as30@qq.com
 
+```
+
+### 修改ssh端口防火墙配置
+
+如果修改了ssh登录端口(通常是`/etc/ssh/sshd_config`中修改`Port`),可以提高安全性,但如果防火墙没有放行相应端口,会导致无法连接ssh服务
+
+对于宝塔用户,可以到安全-防火墙-添加放行你指定的新端口,并且酌情关闭22端口
+
+---
+
+
+
+对于普通用户,防火墙/安全组是否放行指定端口? 以22022端口为例
+
+```bash
+# Ubuntu/Debian (ufw)
+sudo ufw status
+
+# CentOS/RHEL (firewalld)
+sudo firewall-cmd --list-ports
+sudo firewall-cmd --query-port=22022/tcp
+
+
+```
+
+```bash
+# 或直接检查 iptables
+sudo iptables -L -n | grep 22022
+```
+
+如果没放行，添加规则：
+
+```bash
+# firewalld 示例
+sudo firewall-cmd --add-port=22022/tcp --permanent
+sudo firewall-cmd --reload
+```
+
+> 🌐 如果是云服务器（阿里云、AWS、腾讯云等），还需检查**安全组规则**是否开放 22022 端口。
+
+
+
+### 查看/重启sshd服务以使配置生效
+
+修改完配置后需要重启ssh服务才会生效
+
+例如ubuntu系统:
+
+```bash
+# 查看服务状态
+sudo systemctl status sshd
+```
+
+重启ssh(d)服务
+
+```bash
+sudo systemctl restart ssh
+```
+
+### 检查ssh服务的配置模式和相关端口监听状态
+
+#### 服务模式
+
+1. **`ssh.service` （传统方式）**
+   - **按需启动（服务端）**：系统启动时，SSH **服务进程（sshd）** 就会在后台持续运行，监听配置的端口（默认22）。
+   - **工作模式**：`sshd` 进程一直存在，等待连接。当有客户端连接时，它会 fork 一个子进程来处理该连接。
+2. **`ssh.socket` （套接字激活）**
+   - **按需启动（客户端触发）**：系统启动时，SSH **服务进程（sshd）并不会启动**。systemd 只会创建一个 **监听套接字（socket）** 来监听端口（默认22）。
+   - **工作模式**：当第一个客户端尝试连接时，systemd 会接收到这个连接请求，然后**立即启动** `ssh.service`。服务启动后，systemd 会将已经建立的连接传递给 `sshd` 进程进行处理。
+
+对于**绝大多数生产环境和服务器**，建议使用默认的 **`ssh.service`**。它的稳定性、即时响应性和管理简单性更为重要。
+
+对于**个人设备、资源极度受限或访问频率极低的环境**，**`ssh.socket`** 是一个很棒的选择，可以优雅地节省系统资源。
+
+
+
+在较新版本的 Ubuntu/Debian（尤其是 Ubuntu 22.04+）中，默认启用了 **`ssh.socket`**，它会：
+
+> - 监听默认的 **22 端口**
+> - 当有连接到来时，才启动 `ssh.service`
+> - **忽略 `/etc/ssh/sshd_config` 中的 `Port` 配置**，因为端口由 `.socket` 单元文件硬编码定义！
+
+检查服务模式
+
+```bash
+systemctl list-unit-files | grep -E 'ssh|sshd'
+```
+
+或者单独检查(下面只有一个是enable)
+
+```bash
+systemctl is-enabled ssh.service
+systemctl is-enabled ssh.socket
+```
+
+
+
+#### 检查监听端口
+
+```bash
+ss -tuln | grep :22
+#或
+netstat -tuln | grep :22
+```
+
+例如
+
+```bash
+root@wnx0021568:~# ss -tuln | grep :22
+tcp   LISTEN 0      128          0.0.0.0:22022      0.0.0.0:*
+tcp   LISTEN 0      128             [::]:22022         [::]:*
+root@wnx0021568:~# netstat -tuln | grep :22
+tcp        0      0 0.0.0.0:22022           0.0.0.0:*               LISTEN
+tcp6       0      0 :::22022                :::*                    LISTEN
+```
+
+### 检查和修改ssh服务模式
+
+对于较新系统(比如ubuntu22+),可以考虑禁用 socket 激活，改用传统 service 方式
+
+修改模式
+
+```bash
+# 1. 停止并禁用 ssh.socket
+sudo systemctl stop ssh.socket
+sudo systemctl disable ssh.socket
+
+# 2. 启用并启动 ssh.service
+sudo systemctl enable ssh.service
+sudo systemctl start ssh.service
+```
+
+
+
+### 检查sshd 配置语法
+
+```bash
+sudo sshd -t
+```
+
+如果没有报错,说明配置无语法错误(但是不会检查逻辑错误,端口被占用等错误是不会被此命令检查出来)
+
+```bash
+sudo sshd -T
+```
+
+检查`sshd_config`中解析结果(但是不一定生效,取决于ssh激活模式)
+
+## 登录日志查看
+
+**主流系统日志路径**
+
+| 系统类型       | 日志文件路径                               |
+| -------------- | ------------------------------------------ |
+| Ubuntu/Debian  | `/var/log/auth.log`                        |
+| CentOS/RHEL 7+ | `/var/log/secure`                          |
+| CentOS/RHEL 6  | `/var/log/secure`                          |
+| openSUSE       | `/var/log/messages` 或 `/var/log/auth.log` |
+
+例如,ubuntu系统，检查最近100行,并且追踪当前的变化
+
+```bash
+tail -f -n 100 /var/log/auth.log
 ```
 
