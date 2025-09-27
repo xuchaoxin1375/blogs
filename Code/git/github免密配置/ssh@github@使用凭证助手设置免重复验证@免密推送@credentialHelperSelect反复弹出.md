@@ -84,7 +84,7 @@ $ git config --global credential.helper 'store --file ~/.my-credentials'
 
 
 
-[toc]
+
 
 > 如何避免每次输入密码
 
@@ -111,65 +111,7 @@ $ git config --global credential.helper 'store --file ~/.my-credentials'
 $ git config --global credential.helper 'cache --timeout 10000'
 ```
 
-##  git 全局配置文件
-
-###  linux😊
-
-- `~/.gitconfig`
-
-- 获取帮助
-
-  - `git config --help`
-
-  - ```
-    --global
-              For writing options: write to global ~/.gitconfig file rather than the repository .git/config, write to $XDG_CONFIG_HOME/git/config file if this file exists and the
-              ~/.gitconfig file doesn’t.
-     
-              For reading options: read only from global ~/.gitconfig and from $XDG_CONFIG_HOME/git/config rather than from all available files.
-     
-              See also the section called “FILES”.
-    ```
-
-
-### windows😊
-
-#### 新版CredentialHelperSelector的选择窗口
-
-- windows选择`wincred`
-  如果想要避免重复提示,可以勾选下面的`always from now on`(不一定管用)
-  ![在这里插入图片描述](https://img-blog.csdnimg.cn/7774d68b2a3e4856aee0c1bf8a8b1511.png)
-- 如果找不到上述窗口,可以直接编辑配置文件
-- 或者查阅文档,用命令行配置
-
-#### 例
-
-- 以gitee为例
-
-- ```bash
-  [user]
-  	email = 83xxx30@qq.com
-  	name = cxxu
-  [credential "helperselector"]
-  	selected =wincred
-  [credential "https://gitee.com"]
-  	provider=generic
-  ```
-
-  
-
-
-##  store mode:
-
--  “store” 模式会将凭证用明文的形式存放在磁盘中，并且永不过期。 这意味着除非你修改了你在 Git 服务器上的密码，否则你永远不需要再次输入你的凭证信息。 
--  这种方式的缺点是你的密码是用明文的方式存放
-   在你的 home 目录下。
-
-```bash
-$ git config --global credential.helper 'store --file ~/.my-credentials'
-```
-
-##  采用非对公钥-私钥验证方法
+##  采用非对称公钥-私钥验证方法
 
 - 参加github文档
 
