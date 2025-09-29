@@ -29,14 +29,14 @@ sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update
 
-# 安装 Python 3.12
-sudo apt install -y python3.12
+# 安装 Python 3.13
+sudo apt install -y python3.13
 
-# 可选：设置 python3 默认版本为 3.12（慎用）
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+# 可选：设置 python3 默认版本为 3.13（慎用）
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
 
 # 检查安装成功
-python3.12 --version
+python3.13 --version
 ```
 
 ------

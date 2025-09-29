@@ -4,33 +4,38 @@
 
 ## ✅ 一、修改 MySQL 配置文件
 
-1. 打开 MySQL 的配置文件：
+### 打开 MySQL 的配置文件：
 
-   - **Ubuntu/Debian**：
-     ```bash
-     sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
-     ```
+- **Ubuntu/Debian**：
+  
+  ```bash
+  sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+  ```
+  
+- **CentOS/RHEL**：
+  ```bash
+  sudo nano /etc/my.cnf
+  ```
 
-   - **CentOS/RHEL**：
-     ```bash
-     sudo nano /etc/my.cnf
-     ```
+### 配置bind-address
 
-2. 找到 `bind-address` 行，默认是绑定本地地址：
+这是可选的,如果配置文件中不存在这一个配置相,可能也可以远程连接
 
-   ```ini
-   bind-address = 127.0.0.1
-   ```
+找到 `bind-address` 行，默认是绑定本地地址：
 
-3. 修改为以下内容以允许所有 IP 连接（或指定特定 IP）：
+```ini
+bind-address = 127.0.0.1
+```
+
+1. 修改为以下内容以允许所有 IP 连接（或指定特定 IP）：
 
    ```ini
    bind-address = 0.0.0.0
    ```
 
-4. 保存并退出。
+2. 保存并退出。
 
-5. 重启 MySQL 服务使配置生效：
+3. 重启 MySQL 服务使配置生效：
 
    ```bash
    sudo systemctl restart mysql

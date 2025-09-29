@@ -266,7 +266,11 @@ CREATE USER 'aa'@'localhost' IDENTIFIED BY 'mypassword';
 
 在MySQL/MariaDB中，`root@localhost` 用户只能从本地连接数据库。如果你希望创建一个 `root@%` 用户（允许从任何IP连接），可以按照以下步骤操作：
 
-### 创建root@%用户和root@localhost共存🎈
+## 创建root@%用户和root@localhost共存🎈
+
+> root@% 用户安全性不是很好,因为root用户名太过于常见,容易被攻击
+>
+> 可以考虑创建一个名字不是root的但是权限和root一样的别名管理员,并且根据需要开放别名管理员远程登录到权限,这样可以让管理员用名更加隐蔽,具体参考后面章节
 
 ### 以 `root@localhost` 登录 MySQL
 
@@ -316,9 +320,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
 
-### 新建一个root级别的管理员用户角色🎈
+## 新建一个root级别的管理员用户角色🎈
 
-修改`rootx`为你想新建的用户名
+创建别名管理员,比如`rootx`,也可以修改为你想新建的用户名,并更具需要可以考虑配置此用户可以远程登录
 
 ```sql
 CREATE USER 'rootx'@'%' IDENTIFIED BY 'my_password';
