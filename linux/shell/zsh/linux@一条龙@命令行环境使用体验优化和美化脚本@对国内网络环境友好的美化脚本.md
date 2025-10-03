@@ -243,14 +243,16 @@ sudo apt install zsh curl git  man wget -y
 
 ### pacman系列
 
-- 可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源
+可以分别检查以下软件包,如果已经安装过的,就从列表中删除,避免重复按装浪费资源
 
-  ```
-  cd ~
-  pacman -S zsh curl git man wget -y
-  ```
+> windows上msys2也使用pacman来管理软件包,pacman可以获取很新的软件包,并且换源简单,而且安装速度很快
 
-  
+```bash
+cd ~
+pacman -S zsh curl git man wget 
+```
+
+
 
 ## Oh my zsh
 
@@ -276,11 +278,24 @@ sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools
 
 ### 国内推荐安装方式一键安装👺
 
+ubuntu/debian
+
+```bash
+sudo apt update
+sudo apt install zsh curl git  man wget -y
+```
+
+archlinux
+
+```bash
+ pacman -S --needed --noconfirm  zsh curl git man wget
+```
+
+
+
 ```bash
 # 工作目录设定为用户家目录
 cd ~
-sudo apt update
-sudo apt install zsh curl git  man wget -y
 wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh
 # 由于国内网络问题,可能需要多尝试几次一下source 命令才可以安装成功.(我将其注释掉,采用换源后再执行clone
 #source install.sh
@@ -348,15 +363,13 @@ cd -
      
      ```
 
-3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效
+3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效(直接输入zsh即可)
 
    ```bash
-   #zsh
+   #zsh(可选)
    source ~/.zshrc
    
    ```
-
-​	输入`exit`从zsh退回到bash
 
 4.现在到下一节配置oh my zsh主题
 

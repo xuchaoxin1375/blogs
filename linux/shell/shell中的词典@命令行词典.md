@@ -1,4 +1,6 @@
-@[toc]
+[toc]
+
+
 
 # shell_命令行查单词/shell英文词典工具包(dict/trans/wd)
 

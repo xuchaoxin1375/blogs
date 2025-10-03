@@ -31,8 +31,6 @@
 
 ## 列出已安装的 Linux 发行版
 
-PowerShell
-
 ```powershell
 wsl --list --verbose
 ```
@@ -51,4 +49,68 @@ PS> wsl --list --verbose
 PS> wsl --list --running
 没有正在运行的分发。
 ```
+
+## wsl 导出备份和导入备份
+
+### 查看当前可用的wsl
+
+```powershell
+PS> wsl -l -v
+  NAME      STATE           VERSION
+* Ubuntu    Running         2
+```
+
+上面的例子说明当前可以备份的wsl系统是`Ubuntu`,如果是其他名字,则完整的拷贝下来
+
+### 备份
+
+可以首先想好要将备份存放到哪个目录,然后创建对应的目录(直接在wsl 中指定保存目录的话,如果中间目录不存在,会执行失败)
+
+```powershell
+PS> mkdir C:/wsl-imgs/
+
+    Directory: C:\
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           2025/10/3    17:43                wsl-imgs
+
+```
+
+或者可以像保存到本地,然后再将文件移动到指定目录中
+
+### 快速导出保存为tar文件
+
+```powershell
+# [cxxu@CXXUFIREBAT][~\Desktop][17:43:51][UP:0.03Days]
+PS> wsl --export Ubuntu C:/wsl-imgs/Ubuntu24.04-20251003.tar
+正在导出，这可能需要几分钟时间。 (1444 MB)
+
+操作成功完成。
+```
+
+如果想要节约空间,也可以先快速导出为tar格式,然后手动压缩成其他格式,甚至在wsl提供的几个基本压缩格式之外的格式,就像压缩一个普通文件一样节约空间,比如使用7z,tar,zstd
+
+例如我使用快速压缩的zstd来节约备份占用的空间(需要zstd命令可用,推荐的zstd参数:`-5 -T0`然后跟上要压缩的tar文件,输出文件可以用`-o`指定,否则输出到当前目录)
+
+```powershell
+zstd -5 -T0 .\Ubuntu24.04-20251003.tar
+.\Ubuntu24.04-20251003.tar : 29.71%   (  1.41 GiB =>    430 MiB, .\Ubuntu24.04-20251003.tar.zst)
+```
+
+这个过程很快,并且压缩效果很不错,但是导入备份的时候,尤其是在另一个设备上导入时,需要手动解压zst格式(较新版本的7z和windows系统都可以解压zstd格式的压缩包)
+
+### 节约空间导出
+
+指定导出格式`--format`为`tar.gz`或者`tar.xz`,直接一步到位,但是速度比较慢
+
+```powershell
+# [cxxu@CXXUFIREBAT][~\Desktop][17:44:07][UP:0.03Days]
+PS> wsl --export Ubuntu C:/wsl-imgs/Ubuntu24.04-20251003.tar.gz --format tar.gz
+正在导出，这可能需要几分钟时间。 (461 MB)
+
+操作成功完成。
+```
+
+
 

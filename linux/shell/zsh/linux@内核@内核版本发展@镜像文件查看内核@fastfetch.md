@@ -88,9 +88,9 @@ Linux发行版和Linux内核之间有着密切的关系
   每个条目还列出了对应内核的“支持持续时间”，表示Canonical为该内核提供Livepatch服务的有效期限，一般为数月至超过一年不等。
 
 
-## 内核版本查看😊
+## 内核版本查看
 
-### linux当前系统内核查看
+### linux当前系统内核查看🎈
 
 - 要查看Linux发行版当前使用的内核版本，可以使用以下几种方法中的任意一种：
 
@@ -100,36 +100,34 @@ Linux发行版和Linux内核之间有着密切的关系
      ```
      这个命令会直接输出当前系统运行的Linux内核版本号。
 
-     - ```bash
-       # cxxu @ ubt22 in ~ [0:26:50]
-       $ uname -r
-       6.5.0-27-generic
-       
-       ```
+     ```bash
+     # cxxu @ ubt22 in ~ [0:26:50]
+     $ uname -r
+     6.5.0-27-generic
      
-       
-     
+     ```
+  
   2. **查看 `/proc/version` 文件**：
-    
+  
      ```bash
      cat /proc/version
      ```
      这个命令会显示包含内核详细版本信息的文本，通常包括内核名称、版本号以及编译时间等相关数据。
-     
+  
      - ```bash
        # cxxu @ ubt22 in ~ [0:25:37]
        $ cat /proc/version
        Linux version 6.5.0-27-generic (buildd@lcy02-amd64-031) (x86_64-linux-gnu-gcc-12 (Ubuntu 12.3.0-1ubuntu1~22.04) 12.3.0, GNU ld (GNU Binutils for Ubuntu) 2.38) #28~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Mar 15 10:51:06 UTC 2
        ```
-     
+  
        
-     
+  
   3. **使用 `lsb_release` 命令（如果已安装）**：
      ```bash
      lsb_release -a
      ```
      这个命令会输出关于系统发行版和其他相关信息的详细列表，其中包括内核版本（并非所有Linux发行版默认都安装了lsb_release工具）。
-
+  
      ```bash
      # cxxu @ ubt22 in ~ [0:28:10]
      $ lsb_release -a
@@ -139,9 +137,20 @@ Linux发行版和Linux内核之间有着密切的关系
      Release:        22.04
      Codename:       jammy
      ```
+  
+     对于wsl默认安装的ubuntu系统,可看到形如以下格式的信息(通常是当时最新的lts版ubuntu)
+  
+     ```bash
+     cxxu@CxxuFirebat:~$ lsb_release -a
+     No LSB modules are available.
+     Distributor ID: Ubuntu
+     Description:    Ubuntu 24.04.3 LTS
+     Release:        24.04
+     Codename:       noble
+     ```
+  
      
-     
-     
+  
   4. **使用 `hostnamectl` 命令（对于支持systemd的系统）**：
      ```bash
      hostnamectl
@@ -161,14 +170,14 @@ Linux发行版和Linux内核之间有着密切的关系
         Hardware Vendor: VMware, Inc.
          Hardware Model: VMware Virtual Platform
        ```
-     
+  
      或者更精确地查看内核版本：
-     
+  
      ```bash
      hostnamectl | grep 'Kernel'
      ```
      hostnamectl命令能显示更多的系统信息，其中也包括内核版本。
-
+  
   
 
 ### 未安装时查看
@@ -414,9 +423,9 @@ Linux发行版和Linux内核之间有着密切的关系
 - 有些linux镜像提供了免安装试用,可以使用虚拟机挂载启动测试版系统来查看系统镜像的内核等信息
 - 使用`uname -a`来查询内核信息
 
-## linux(内核)版本演进😊
+## linux(内核)版本演进
 
-- [Linux kernel version history - Wikipedia😊](https://en.wikipedia.org/wiki/Linux_kernel_version_history)
+- [Linux kernel version history - Wikipedia](https://en.wikipedia.org/wiki/Linux_kernel_version_history)
   - 版本重大更新日志参考该链接
   - 下面内容是一个梗概,
 
@@ -507,7 +516,7 @@ Linux 版本 0.95 是第一个能够运行 X Window 系统的版本。 1994年3�
 - 2015年4月，Torvalds发布了内核版本4.0。截至 2015 年 2 月，Linux 已收到来自 1,200 多家公司的近 12,000 名程序员的贡献，其中包括一些世界上最大的软件和硬件供应商。  Linux 4.1 版本于 2015 年 6 月发布，包含近 14,000 名程序员贡献的超过 1950 万行代码。 
 - 共有 1,991 名开发人员（其中 334 名是首次合作者）向 5.8 版本添加了超过 553,000 行代码，打破了 4.9 版本之前保持的记录。
 
-### 小结😊
+### 小结
 
 - 《Linux内核发布》页面概述了活跃的Linux内核版本类型及其维护流程：
 

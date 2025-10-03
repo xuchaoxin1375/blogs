@@ -146,9 +146,13 @@ sudo apt update
 
 从 Ubuntu 24.04 开始，Ubuntu 的软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/ubuntu.sources`。
 
+##### 常用ubuntu源
+
 - [ubuntu | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)
 - [ubuntu源by阿里](https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11gszrk6)
-- 版本较多,操作类似,可以按阿里源那样一步步做,也可以将上述脚本中的源地址更换位对应版本的ubuntu源即可
+
+版本较多,操作类似,可以按阿里源那样一步步做,也可以将上述脚本中的源地址更换位对应版本的ubuntu源即可
+
 - 这里以清华源的 `21.10`版本为例
 - 其他版本将源地址群换为对应版本
 
@@ -272,7 +276,7 @@ Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 # # Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 ```
 
-##### 一键更换
+##### 一键更换🎈
 
 ```powershell
 cd /etc/apt/sources.list.d

@@ -25,7 +25,11 @@
 - 新版本的`wsl --install `似乎已经能够自动执行环境准备工作,也就是下面提到的功能启用
 - 下面是手动安装的步骤,详情查看上面列出的参考文档
 
-## 传统安装(手动安装)
+## 传统安装(手动安装)🎈
+
+手动安装步骤比一键安装的步骤多一些,但是更灵活,国内环境成功率高,这是本文的重点介绍的方案,如果网络条件允许,那么使用`wsl --install`的方案是最简单的
+
+
 
 ### 功能启用
 
@@ -66,6 +70,42 @@
   - 通用的方法是命令行或run窗口执行`OptionalFeatures.exe`,回车也会打开对应的控制面板
 
 - 勾选对应的功能,确认,等待功能下载或搜索安装完毕
+
+
+### 从wsl发行版包(.wsl)手动安装
+
+手动下载分发版:
+
+你可以绕过 `wsl -l -o`检查可用发行而使用curl或浏览器查看官方json文件中的可用发行版名称
+
+在下载wsl发行版环节,可以直接从官方源下载 `.appx` 或 `.wsl` 文件,可以从microsoft store或者github下载
+
+[旧版 WSL 的手动安装步骤|下载发行版 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/install-manual?source=recommendations#downloading-distributions),例如
+
+- Arch Linux WSL 镜像
+- Ubuntu WSL 镜像
+- 下载后使用 `wsl --import` 手动安装。
+
+例如,安装archilinux
+
+```powershell
+# [cxxu@CXXUFIREBAT][C:\wsl-imgs][21:20:18][UP:0.18Days]
+PS> ls
+
+    Directory: C:\wsl-imgs
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           2025/10/3    21:18      136748824 archlinux-2025.10.01.148042.wsl
+
+
+
+# [cxxu@CXXUFIREBAT][C:\wsl-imgs][21:20:27][UP:0.18Days]
+PS> wsl --import archlinux C:\wsl .\archlinux-2025.10.01.148042.wsl
+操作成功完成。
+```
+
+这会把archlinux安装到`C:\wsl`目录下
 
 ## 相关软件下载安装👺
 
@@ -287,6 +327,19 @@ echo -e "[boot]\nsystemd=true" | sudo tee /etc/wsl.conf > /dev/null && sudo nano
 
 国内使用`wsl --list --online`时可能会遇到
 
+```powershell
+PS> wsl -l -o
+无法解析服务器的名称或地址
+```
+
+```powershell
+PS> wsl --list --online
+无法从“https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json”提取列表分发。无法解析服务器的名称或地址
+错误代码: Wsl/WININET_E_NAME_NOT_RESOLVED
+```
+
+或者:
+
 ```bash
 Failed to fetch the list distribution from 'https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json'. The server name or address could not be resolved
 Error code: Wsl/WININET_E_NAME_NOT_RESOLVED
@@ -301,13 +354,23 @@ Error code: Wsl/WININET_E_NAME_NOT_RESOLVED
 
 相关问题链接:[windows子系统的故障，会有这个报错无法从“https://raw.githubusercontent.com/microsoft/WS - Microsoft Community](https://answers.microsoft.com/zh-hans/windows/forum/all/windows子系统的/bb27a829-ddb9-468b-a796-d3d25e72724a)
 
-结合报错分析,应该是执行此命令时你的网络无法访问`githubusercontent.com`导致的,在浏览器上你可以通过喝多加速镜像来访问这个文件,但是命令行中访问会麻烦一些;
+结合报错分析,应该是执行此命令时你的网络无法访问`githubusercontent.com`导致的,在浏览器上你可以通过加速镜像来访问这个文件,但是命令行中访问会麻烦一些;
+
+```powershell
+curl https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json
+```
 
 最粗暴的方法就是使用代理,而且要配合服务模式启用,并且开启TUN深度代理(应用层代理不行),虽然操作上简单,但是不适合推广
 
-一个相对可行的办法是修改host来访问github内容,或者该DNS(成功率更低了)
+而且即便拥有代理,也需要正确配置才能够解析,例如只配置`https_proxy`和`http_proxy`这类代理环境变量可能是不够的;使用上述两个环境变量代理后,使用curl来访问上述github的json文件或许能成功,但是wsl可能无法直接受两个代理参数的影响,因此可能仍然无法成功请求.此外wsl暂时还不支持指定proxy
 
-下面介绍两种修改host的方法来访问github系列网址
+经验表明,这可能要求你设置代理软件为系统代理,从底层的方式代理流量,然后重新尝试
+
+一个相对可行的办法是修改host来访问github内容,或者改DNS(成功率更低了)
+
+
+
+下面介绍两种修改host的方法来访问github系列网址,但是如果操作不成功,则建议尝试手动分步骤安装,这提供了更好的灵活性和通用性,成功率更高,尤其是国内网络环境,尽管手动操作步骤上会多一些
 
 ### 自动一键化部署和更新加速host👺
 
