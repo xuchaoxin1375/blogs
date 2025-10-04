@@ -317,6 +317,22 @@ cd -
 
 
 
+### 修改默认shell🎈
+
+使用chsh命令来修改默认shell
+
+查看可用shell
+
+```bash
+chsh -l
+```
+
+切换默认shell,例如将当前用户默认shell改为`/usr/bin/zsh`
+
+```bash
+chsh -s /usr/bin/zsh
+```
+
 
 
 ## oh-my-zsh 插件🎈
@@ -393,6 +409,16 @@ cd -
   
   ```
   
+
+## 美化ls的输出
+
+使用lsd等现代化的ls来提高列举体验
+
+```bash
+pacman -S lsd
+```
+
+
 
 ## 其他
 

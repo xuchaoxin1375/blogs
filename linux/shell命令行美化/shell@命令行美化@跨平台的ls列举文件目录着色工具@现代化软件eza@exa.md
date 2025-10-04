@@ -6,29 +6,75 @@
 
   By deliberately making some decisions differently, eza attempts to be a more featureful, more user-friendly version of `ls`.
 
+- **lsd**:This project is a rewrite of GNU `ls` with lots of added features like colors, icons, tree-view, more formatting options etc. The project is heavily inspired by the super [colorls](https://github.com/athityakumar/colorls) project.
+
+`lsd` 和 `eza` 都是现代化的 `ls` 命令替代工具，使用 Rust 编写，支持图标、颜色、树状结构等增强功能。
+
+------
+
+### 功能对比总览
+
+| 特性             | `lsd`                       | `eza`                                                        |
+| ---------------- | --------------------------- | ------------------------------------------------------------ |
+| 图标支持         | ✅ 默认支持 Nerd Fonts       | ✅ 可通过 `--icons=auto` 控制                                 |
+| 树状结构显示     | ✅ `lsd --tree`              | ✅ `eza -T` 或 `eza -R --level N`                             |
+| Git 状态显示     | 有限                        | ✅ `eza -l --git` 显示文件的 Git 状态                         |
+| 输出格式灵活性   | 中等：支持 grid、long、tree | 高：支持 grid、long、tree、absolute path、hyperlink 等       |
+| 文件过滤与排序   | 基础支持                    | 高级支持：按大小、时间、类型、扩展名等排序，支持 `.gitignore` 过滤 |
+| 自定义主题       | 有限选择                    | ✅ 支持颜色主题配置（如 `eza-themes` 项目）                   |
+| 维护活跃度       | ✅ 活跃                      | ✅ 非常活跃（继承自已停更的 `exa` 项目）                      |
+| 安装方式（Arch） | `sudo pacman -S lsd`        | `sudo pacman -S eza`                                         |
+| 适合场景         | 美化输出、图标展示          | 高度可定制、适合脚本和高级终端用户                           |
+
+------
+
+### 选择建议
+
+- **如果你注重视觉美化和图标展示**：`lsd` 更简洁，开箱即用，适合日常替代 `ls`。
+- **如果你需要更强的功能和脚本集成**：`eza` 提供更丰富的参数和过滤选项，适合自动化和高级用户。
+
+------
+
+🛠️ 示例命令对比
+
+```bash
+# lsd 示例
+lsd -l         # 类似 ls -l
+lsd --tree     # 树状结构显示
+
+# eza 示例
+eza -l --git   # 显示 Git 状态
+eza -T         # 树状结构显示
+eza -l --sort=size --reverse  # 按大小倒序排列
+```
+
+------
+
+
+
 ## eza项目地址
 
 - [eza-community/eza: A modern, maintained replacement for ls (github.com)](https://github.com/eza-community/eza)
   - 是exa的后继项目
 
-## 下载和安装
+### 下载和安装
 
 - [eza/INSTALL.md at main · eza-community/eza (github.com)](https://github.com/eza-community/eza/blob/main/INSTALL.md)
 
 ### linux
 
-#### refs
+refs
 
 - [Rust 下载安装加速指南  (zhihu.com)](https://zhuanlan.zhihu.com/p/126201430)
 
 - [linux - How do I fix the Rust error "linker 'cc' not found" for Debian on Windows 10? - Stack Overflow](https://stackoverflow.com/questions/52445961/how-do-i-fix-the-rust-error-linker-cc-not-found-for-debian-on-windows-10)
 
-### Notes
+#### Notes
 
 - linux不同发行版可以有不同的安装方法
 - 其中Cargo是通用的linux安装方式,但是需要提前安装Rust Cargo 环境
 
-### FAQ
+#### FAQ
 
 - 对于deb/ubuntu系的,先预备安装`sudo apt install build-essential`,以免后续编译失败
 
@@ -41,7 +87,7 @@
 
 - 详情查看上述refs中的第一个链接
 
-## windows
+### windows
 
 - 安装比较简单,使用winget,scoop 都可以(可能需要代理)
 
@@ -113,11 +159,11 @@ unzip exa-linux-x86_64-0.8.0.zip
 sudo mv exa-linux-x86_64 /usr/local/bin/exa
 ```
 ###  ls-icons
-- [sebastiencs/ls-icons: ls command with files icons (github.com)](https://github.com/sebastiencs/ls-icons)
+1. [sebastiencs/ls-icons: ls command with files icons (github.com)](https://github.com/sebastiencs/ls-icons)
   - 这个开源工具安装比较麻烦
     - 需要许多依赖
     - 对网络环境要求较高(耗时)
-- [athityakumar/colorls: A Ruby gem that beautifies the terminal's ls command, with color and font-awesome icons. (github.com)](https://github.com/athityakumar/colorls#installation)
+2. [athityakumar/colorls: A Ruby gem that beautifies the terminal's ls command, with color and font-awesome icons. (github.com)](https://github.com/athityakumar/colorls#installation)
   - 老牌项目,需要ruby/字体 等依赖
   - 注意ruby版本
 

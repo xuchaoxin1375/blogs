@@ -165,6 +165,19 @@ chmod g-w file.txt      # 移除组的写权限
 chown user:group file.txt
 ```
 
+ls有更现代化的版本`eza`和`lsd`,通常发行版不会自带这些工具,但是可以手动安装提升使用体验
+
+```bash
+#( 10/03/25@11:33PM )( root@CxxuFirebat ):~
+   eza -l  --header
+Permissions Size User Date Modified Name
+drwxr-xr-x     - root  3 Oct 22:53  archived
+.rw-r--r--   20k root  3 Oct 22:34  gitee_install.sh
+.rw-r--r--   20k root  3 Oct 22:34  install.sh
+```
+
+
+
 ### 2. 进程管理
 
 ```bash
