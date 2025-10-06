@@ -4,8 +4,59 @@
 
 ## abstract
 
+[跨文件系统工作 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/filesystems)
+
 - Windows Subsystem for Linux (WSL) 是微软为 Windows 10 和 Windows 11 提供的一个兼容层，使得用户可以在 Windows 上运行 Linux 环境。
 - WSL 在命令行使用和与 Windows 的融合方面提供了许多实用特点，极大地提升了开发人员和高级用户的生产力。
+
+### 搭配建议
+
+windows上的shell通常不受待见,尤其是cmd功能孱弱,powershell(pwsh)功能相对强大,但是熟练使用并且能编写复杂脚本的人比较少,人们可能更习惯使用*nix系统(用linux作为代表)上的命令行工具来完成任务(包括经常在bash中使用的`ls`命令等,以及开源社区在linux系统上的命令行工具)
+
+如果在windows shell中可以快速调用linux中的命令工具,那么可以一定的方便
+
+幸运的是,现代版本的windows中的wsl提供了这方面的支持,用户可以从windows的shell(cmd或powershell)中通过`wsl`开头直接调用wsl系统中的可执行程序(比如`ls -l`等)
+
+> 这种机制下,可以在wsl中直接通过调用`code .`来将当前wsl环境和工作目录作为linux开发环境
+>
+> 因此不要轻易禁用互操作性(用户可能会遇到命令冲突的情况,尤其是纯净安装的发行版,要调用的命令可能和windows系统上的命令行工具冲突了,比如windows安装了sudo命令,但是wsl中的archlinux是纯净安装的,那么archlinux中使用sudo命令会串到windows系统中的sudo.exe,基本解决方案是archlinux上安装一个sudo盖过windows中的sudo)
+
+而调用wsl这会产生性能开销,因此选择合适的wsl系统是获得流畅使用体验的一个重点,建议选择轻量的发行版,比如archlinux,debian,而ubuntu系统在这方面不是很推荐(虽然受众广,但是比较臃肿,不适合快速调用,不过如果是此混合快速调用场景之外的用途,比如进入wsl内使用,那么可以不用考虑这个启动性能差异,这种情况下启动速度不是重点)
+
+> 从linux中运行windows命令工具也是可以的,只是这种用法相对较少用,比如可以用于将windows命令行工具的输出做清洗或者格式化处理,例如
+>
+> ```bash
+> $ ipconfig.exe | grep IPv4 | cut -d: -f2
+>  192.168.1.180
+>  172.28.240.1
+> ```
+>
+> 
+
+对于快速调用,我主要推荐archlinux,主要原因:
+
+- 国内换源简单,而且安装软件的速度很快,并且软件包多而且新,特别是社区的开源项目编译编译好的二进制包很多都能直接通过`pacman -S`直接安装(例如dust,lsd,eza,fzf),而不像ubuntu这类系统,许多非主流的程序要额外的步骤才能安装上
+- 系统轻量且纯净,启动和调用快速(安装时不会一上来就带了很多内置的软件),debian和kali这些轻量系统也有这个优点
+
+而且快速调用的场景下,不需要太关心稳定性,可以定期做个导出备份,即便arch滚动更新出问题,也可快速恢复
+
+此外,可以启动一个wsl窗口在后台常驻,这样从windows shell中调用wsl速度就很快,但是会占用一个wsl的内存,可以通过配置降低wsl的占用
+
+### 配置wsl资源分配
+
+[WSL 中的高级设置配置 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/wsl-config#wslconfig)
+
+例如配置wsl占用不超过4GB甚至2GB的内存(没有图形界面的linux系统占用资源一般都比较低)
+
+```ini
+[wsl2]
+memory=4GB   # 限制 WSL 2 最多使用 4GB 内存
+processors=2 # 限制 CPU 核心数
+swap=2GB     # 交换空间
+localhostForwarding=true
+```
+
+
 
 ###  无缝运行 Linux 命令行工具
 - **直接使用 Linux 命令行工具**：在 WSL 环境中，你可以使用几乎所有常见的 Linux 命令行工具和脚本（如 `grep`、`sed`、`awk`、`ssh` 等），以及不同的包管理工具（如 `apt`、`yum` 等）来管理系统和安装软件包。

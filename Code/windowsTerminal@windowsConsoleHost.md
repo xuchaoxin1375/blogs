@@ -93,3 +93,11 @@ Add Windows Terminal as a context menu option by running `reg import
 'windows-terminal' suggests installing 'extras/vcredist2022'.
 ```
 
+### 配置右键用windowsTerminal打开目录
+
+假设你使用scoop安装的便携版scoop,安装完毕后会有如下提示
+
+```cmd
+reg import "C:\scoop\apps\windows-terminal\current\install-context.reg"
+```
+

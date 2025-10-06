@@ -60,6 +60,8 @@ sudo useradd -m -s /bin/bash 用户名
 
 创建新用户cxxu,允许其使用sudo(添加到sudo组)
 
+对于debian系列的系统
+
 ```bash
 username='cxxu' 
 sudo useradd -m -s /bin/bash $username # 配置改用户默认使用bash,兼容性最好
@@ -69,7 +71,23 @@ usermod -aG sudo $username
 
 有些工具强调普通用户角色或者非root用户角色来运行,比如brew,wp-cli工具
 
-#### 配置免密sudo
+对于archlinux,纯净安装的版本sudo不可用,需要手动安装并且设置
+
+```bash
+# 1. 安装 sudo
+sudo pacman -S sudo
+
+# 2. 创建 sudo 组
+groupadd sudo
+
+# 3. 将用户加入 sudo 组（替换 $username为具体的名字）
+usermod -aG sudo $username
+
+```
+
+
+
+#### 配置用户免密调用sudo
 
 ##### 命令行自动编辑
 

@@ -137,14 +137,17 @@ tail -10 file.txt       # 查看后10行
 ```bash
 man ls                  # 查看 ls 命令手册
 ls --help              # 快速帮助
-whatis ls              # 简要说明
+whatis ls              # 简要说明\
+apropos               # apropos - search the manual page names and descriptions
 ```
 
 ---
 
-## 第二部分：Shell 进阶操作
+## 第二部分：在shell中调用常用工具
 
 ### 1. 文件权限管理
+
+详情和更多细节另见它文(文件权限标记位)
 
 ```bash
 # 查看权限
@@ -184,7 +187,7 @@ drwxr-xr-x     - root  3 Oct 22:53  archived
 ps                      # 显示当前进程
 ps aux                  # 显示所有进程
 top                     # 动态显示进程
-htop                    # 增强版 top
+htop,btop                    # 增强版 top,其中b
 
 # 任务控制
 sleep 100 &             # 后台运行

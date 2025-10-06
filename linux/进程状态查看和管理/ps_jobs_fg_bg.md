@@ -18,7 +18,7 @@ linux_任务/进程管理/进程查看/服务查看ps/进程前后台切换(jobs
 
 - [Linux Process Management | Five Types of Process in Linux Management (educba.com)](https://www.educba.com/linux-process-management/)
 
-## 进程查看ps
+
 
 > ps 命令用法众多,是一个复杂命令,此处仅涉及基本用法
 >
@@ -27,7 +27,7 @@ linux_任务/进程管理/进程查看/服务查看ps/进程前后台切换(jobs
 >
 > - `man ps`
 
-#### man列出的表格表头解释
+#### PS输出的表格表头
 
 > - `STANDARD FORMAT SPECIFIERS`
 >
@@ -37,7 +37,7 @@ linux_任务/进程管理/进程查看/服务查看ps/进程前后台切换(jobs
 >   280:       k spec Specify sorting order.  Sorting syntax is [+|-]key[,[+|-]key[,...]].  Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section.  The "+" is optional since
 >   312:              Specify sorting order.  Sorting syntax is [+|-]key[,[+|-]key[,...]].  Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section.  The "+" is optional since
 >   449:STANDARD FORMAT SPECIFIERS
->         
+>            
 >   ```
 >
 > - 大致在第449行;使用`449G`指令可以快速跳转

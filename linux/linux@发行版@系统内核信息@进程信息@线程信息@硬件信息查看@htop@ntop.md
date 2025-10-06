@@ -27,6 +27,20 @@ lsb_release (1)      - print distribution-specific information
 ubuntu-distro-info (1) - provides information about Ubuntu's distributions
 ```
 
+对于apropos命令报错的情况
+
+```bash
+apropos: can't set the locale; make sure $LC_* and $LANG are correct
+```
+
+可以尝试修复(进入bash),确保安装了sudo包(对于纯净安装的arch可能没有sudo可用,需要安装sudo)
+
+```bash
+sudo sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && sudo locale-gen && echo 'LANG=en_US.UTF-8' | sudo tee /etc/locale.conf && export LANG=en_US.UTF-8
+```
+
+
+
 ### 内核版本相关命令
 
 ```bash
@@ -43,7 +57,7 @@ uname (2)            - get name and information about current kernel
 
 ### 发行版以及版本号(系统自带工具查看)😊
 
-方法1:为通用方法
+#### 方法1:通用方法(查看特定文件)
 
 - 命令 `cat /etc/issue` 在Linux系统中用于查看系统发行版的基本标识信息。
 
@@ -55,8 +69,9 @@ uname (2)            - get name and information about current kernel
   Ubuntu 22.04.4 LTS \n \l
   ```
 
+### 方法2:lsb_release
 
-方法2:有的发行版可能无法运行
+有的发行版可能无法直接运行,这时候请尝试安装这个工具
 
 - `lsb_release -a`,注意这里是下划线`_`而不是`-`
 
