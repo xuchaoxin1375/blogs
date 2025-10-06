@@ -17,12 +17,18 @@
   - 然而由于网络环境问题,该命令可能会很慢,所以我们可能需要用手动安装(旧版方法)反而会更快安装
     - 国内`wsl --install`命令或者`wsl --update`,`wsl --list --online`的命令执行可能会失败或者很慢
     - 你可以跳转到本文FAQ中查找解决方案,如果里面的方案不行的话才考虑手动安装
-  - 如果下不动,那分步骤手动安装也可以
+- 如果你有合适的代理,那么经过恰当的配置后也有望顺利甚至流畅的安装体验,但是如果代理不可靠,或者安装过程中效果不明显,或者容易报错,则仍然建议尝试手动安装的方案
+- 如果下不动,那分步骤手动安装也可以(本文的重点)
 
 
 ## 环境准备👺
 
-- 新版本的`wsl --install `似乎已经能够自动执行环境准备工作,也就是下面提到的功能启用
+- 较新版本的`wsl --install `似乎已经能够自动执行环境准备工作,也就是下面提到的功能启用
+  - 推荐的windows版本是尽可能新,经验表明,至少要`21H2:10.0.19044.5854`以及之后的系统版本,才能够相对好的兼容新的wsl管理工具和命令行工具(wsl settings,wsl.exe)
+  - 许多老版本的wsl.exe命令行参数不完整,或者更新新版本wsl时会用到报错等问题
+  - 如果要支持新的网络体系(镜像网络),则需要win1122H2之后的版本
+  - 此外,可以检查一下是否启用了网络按流量计费的模式,这可能影响wsl的下载(尤其是一键安装的方案)
+
 - 下面是手动安装的步骤,详情查看上面列出的参考文档
 
 ## 传统安装(手动安装)🎈
@@ -38,7 +44,7 @@
   - hyper-v
   - windows subsystem linux
 
-### 命令行方案
+### 命令行方案(推荐)
 
 - 用**管理员方式**打开powershell/cmd
 
@@ -50,20 +56,20 @@
   
   ```
 
-- 或者用powershell方案
+- 或者用powershell方案(如果跑了上面,下面这段就可以不跑)
 
   ```powershell
   Enable-WindowsOptionalFeature -Online -FeatureName $("Microsoft-Windows-Subsystem-Linux","VirtualMachinePlatform")
   
   ```
 
-  
-
 - 重启计算机:
 
   - 普通按钮重启,或者命令行`shutdown /r -t 0`重启(注意保存其他打开的资料再重启)
 
-### 图形界面方案配置
+### 图形界面方案配置(备用方案)
+
+命令行方案优先考虑,如果已经执行,跳过此步骤
 
 - 打开windows功能可控制面板
   - 对于win10后的系统,可以用windows+s,搜索"启用或关闭windows功能",简单搜**功能**也可以
@@ -210,7 +216,7 @@ PS> wsl --import archlinux C:\wsl .\archlinux-2025.10.01.148042.wsl
 
 - 如果`wsl --update`很慢,仍然可以考虑到上述提供的github链接,配合镜像加速下载新版本,也就是相当于重新安装wsl新版[Wsl|Releases · microsoft/WSL](https://github.com/microsoft/WSL/releases)
 
-## 卸载或移除wsl发行版
+## 卸载或移除wsl发行版👺
 
 - 移除wsl框架`wsl --uninstall`(一定要小心慎用此命令,它移除的不是发行版,而是wsl这个管家)
 - 移除指定发行版`wsl --unregister`
@@ -281,7 +287,7 @@ cpu和内存等资源现在可以在wsl图形界面配置程序中进行,还包�
 
 可以通过在 `wsl.conf` 文件中启用 systemd 来使 systemd 功能在 WSL 环境中启动。你可以直接用以下步骤在 Bash 命令行中一步完成设置：
 
-#### 一步到位的 Bash 命令
+**一步到位的 Bash 命令**
 
 ```bash
 echo -e "[boot]\nsystemd=true" | sudo tee /etc/wsl.conf > /dev/null && sudo nano /etc/wsl.conf && wsl.exe --shutdown
