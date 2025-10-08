@@ -2,6 +2,10 @@
 
 `ps`（process status）是 **Linux/Unix 系统中用于查看进程信息** 的最基本命令之一，它能展示当前系统中正在运行的进程、它们的状态、资源占用、所属用户、父进程关系等。
 
+### 在线指南
+
+- [ps(1) - Linux manual page](https://www.man7.org/linux/man-pages/man1/ps.1.html)
+
 ------
 
 ### ps 的核心概念
@@ -65,18 +69,52 @@ Basic options:
 For more details see ps(1).
 ```
 
+这几个选项的详细说明版本(man ps查看)
+
+```bash
+
+SIMPLE PROCESS SELECTION
+       a      Lift  the BSD-style "only yourself" restriction, which is imposed upon the set of all processes when some BSD-style (without "-") options are used or when the ps
+              personality setting is BSD-like.  The set of processes selected in this manner is in addition to the set of processes selected  by  other  means.   An  alternate
+              description is that this option causes ps to list all processes with a terminal (tty), or to list all processes when used together with the x option.
+
+       -A     Select all processes.  Identical to -e.
+
+       -a     Select all processes except both session leaders (see getsid(2)) and processes not associated with a terminal.
+
+       -d     Select all processes except session leaders.
+
+       --deselect
+              Select all processes except those that fulfill the specified conditions (negates the selection).  Identical to -N.
+
+       -e     Select all processes.  Identical to -A.
+
+       g      Really  all,  even session leaders.  This flag is obsolete and may be discontinued in a future release.  It is normally implied by the a flag, and is only useful
+              when operating in the sunos4 personality.
+
+       -N     Select all processes except those that fulfill the specified conditions (negates the selection).  Identical to --deselect.
+
+       T      Select all processes associated with this terminal.  Identical to the t option without any argument.
+
+       r      Restrict the selection to only running processes.
+
+       x      Lift the BSD-style "must have a tty" restriction, which is imposed upon the set of all processes when some BSD-style (without "-") options are used or  when  the
+              ps  personality  setting is BSD-like.  The set of processes selected in this manner is in addition to the set of processes selected by other means.  An alternate
+              description is that this option causes ps to list all processes owned by you (same EUID as ps), or to list all processes when used together with the a option.
+```
 
 
-| 选项              | 含义简述                                | 是否含无TTY进程 | 是否含Session Leader | 典型用途                       |
-| ----------------- | --------------------------------------- | --------------- | -------------------- | ------------------------------ |
-| `-A`, `-e`        | 显示所有进程（All processes）           | ✅ 是            | ✅ 是                 | 查看整个系统的所有进程（常用） |
-| `-a`              | 有TTY的所有进程，排除**Session Leader** | ❌ 否            | ❌ 否                 | 查看用户前台任务               |
-| `a`               | 有TTY的所有进程，包括其他用户           | ❌ 否            | ✅ 是                 | 查看所有用户的终端进程         |
-| `-d`              | 所有非Session Leader进程                | ✅ 是            | ❌ 否                 | 查看除登录shell外的系统进程    |
-| `-N`/`--deselect` | 反选，不显示匹配条件的进程              | ⚙️ 取决于条件    | ⚙️ 取决于条件         | 排除特定进程（如排除bash）     |
-| `r`               | 仅显示“运行中”的进程                    | ✅ 是            | ✅ 是                 | 监控当前活动任务               |
-| `T`               | 当前终端（TTY）上的所有进程             | ❌ 否            | ✅ 是                 | 仅看当前shell的任务            |
-| `x`               | 无TTY的进程（后台/守护）                | ✅ 是            | ✅ 是                 | 查看后台daemon或systemd任务    |
+
+| 选项              | 含义简述                                                     | 是否含无TTY进程 | 是否含Session Leader | 典型用途                       |
+| ----------------- | ------------------------------------------------------------ | --------------- | -------------------- | ------------------------------ |
+| `-A`, `-e`        | 显示所有进程（All processes）                                | ✅ 是            | ✅ 是                 | 查看整个系统的所有进程（常用） |
+| `-a`              | 有TTY的所有进程，并且排除**Session Leader**                  | ❌ 否            | ❌ 否                 | 查看用户前台任务               |
+| `a`               | 有TTY的所有进程，包括其他用户(取消了BSD风格中仅自己进程的限制),Session Leader进程会被列出 | ❌ 否            | ✅ 是                 | 查看所有用户的终端进程         |
+| `-d`              | 所有非Session Leader进程                                     | ✅ 是            | ❌ 否                 | 查看除登录shell外的系统进程    |
+| `-N`/`--deselect` | 反选，不显示匹配条件的进程                                   | ⚙️ 取决于条件    | ⚙️ 取决于条件         | 排除特定进程（如排除bash）     |
+| `r`               | 仅显示“运行中”的进程                                         | ✅ 是            | ✅ 是                 | 监控当前活动任务               |
+| `T`               | 当前终端（TTY）上的所有进程                                  | ❌ 否            | ✅ 是                 | 仅看当前shell的任务            |
+| `x`               | 无TTY的进程（后台/守护）                                     | ✅ 是            | ✅ 是                 | 查看后台daemon或systemd任务    |
 
 > **Session leader**（会话领导进程）通常是 shell 或 login 程序。
 >  排除它们意味着只看用户直接运行的命令。
@@ -85,18 +123,18 @@ For more details see ps(1).
 
 ### 常见用法与参数详解
 
-| 命令               | 作用                        | 说明                                                |
-| ------------------ | --------------------------- | --------------------------------------------------- |
-| `ps`               | 显示当前终端下的进程        | 只列出和当前 shell 相关的进程                       |
-| `ps -e` 或 `ps -A` | 显示系统中所有进程          | （e = every）                                       |
-| `ps -f`            | 显示完整格式（full format） | 包含 PPID、启动时间、命令等                         |
-| `ps -ef`           | 显示所有进程详细信息        | Linux 常用组合                                      |
-| `ps aux`           | BSD 风格，显示所有进程信息  | 与 `-ef` 类似                                       |
-| `ps -u <user>`     | 查看指定用户的进程          | 如 `ps -u root`                                     |
-| `ps -p <pid>`      | 查看特定进程                | 如 `ps -p 1`                                        |
-| `ps -o`            | 自定义输出格式              | 例：`ps -eo pid,ppid,cmd,%mem,%cpu`                 |
-| `ps --forest`      | 树状显示进程层级            | 方便查看父子进程关系                                |
-| `ps --sort`        | 按字段排序                  | 如 `ps -eo pid,cmd,%mem --sort=-%mem`（按内存降序） |
+| 命令               | 作用                        | 说明                                                         |
+| ------------------ | --------------------------- | ------------------------------------------------------------ |
+| `ps`               | 显示当前终端下的进程        | 只列出和当前 shell 相关的进程                                |
+| `ps -e` 或 `ps -A` | 显示系统中所有进程          | （e = every）                                                |
+| `ps -f`            | 显示完整格式（full format） | 包含 PPID、启动时间、命令等,但是实际上,这个`-f`选项并不会显示`STAT`进程状态列,使用BSD风格的选项时会影响这个列的显示, |
+| `ps -ef`           | 显示所有进程详细信息        | Linux 常用组合                                               |
+| `ps aux`           | BSD 风格，显示所有进程信息  | 与 `-ef` 类似,但是在`STAT`列上有区别,`f`选项没有此列         |
+| `ps -u <user>`     | 查看指定用户的进程          | 如 `ps -u root`                                              |
+| `ps -p <pid>`      | 查看特定进程                | 如 `ps -p 1`                                                 |
+| `ps -o`            | 自定义输出格式              | 例：`ps -eo pid,ppid,cmd,%mem,%cpu`                          |
+| `ps --forest`      | 树状显示进程层级            | 方便查看父子进程关系                                         |
+| `ps --sort`        | 按字段排序                  | 如 `ps -eo pid,cmd,%mem --sort=-%mem`（按内存降序）          |
 
 ------
 
@@ -157,34 +195,120 @@ $ ps -A
   10029 pts/2    00:00:00 ps
 ```
 
-#### 一号进程
+#### 一号PID进程
 
 | PID  | CMD     | 说明                                                         |
 | ---- | ------- | ------------------------------------------------------------ |
 | 1    | systemd | Linux 用户空间的**初始化进程**（init system）。它是所有进程的“祖先”。 |
 
+### 全部进程和多用户进程查看
+
+为了便于区分,本节总是使用`ps`的`-f`选项查看进程更为详细的信息
+
+```bash
+#( 10/07/25@ 9:21PM )( cxxu@CxxuFirebat ):~
+   ps -f -a
+UID          PID    PPID  C STIME TTY          TIME CMD
+cxxu         579     176  0 21:33 pts/0    00:00:00 ps -f -a
+```
+
+下面的例子中,将选项`-a`替换为`a`,输出的内容多了不少,不仅把当前用户cxxu的进程列出,还把root用户的进程也列出了
+
+尽管如此,仍然可以看到所有被列出的进程都是有明确TTY值的,并且显然一些低位id进程(没有tty值)没有被列出,如果要连同这些特殊进程一起列出,则需要`-e`或者`-A`
+
+可以发现,即便是cxxu用户的进程,`a`选项列出的比`-a`要多,因为Session Leader进程也会被列出,比如`zsh`
+
+```bash
+#( 10/07/25@ 9:33PM )( cxxu@CxxuFirebat ):~
+   ps -f a
+UID          PID    PPID  C STIME TTY      STAT   TIME CMD
+root         167       1  0 21:18 hvc0     Ss+    0:00 /sbin/agetty --noreset --nocle
+root         168       1  0 21:18 tty1     Ss+    0:00 /sbin/agetty --noreset --nocle
+cxxu         176     175  0 21:18 pts/0    Ss     0:00 -zsh
+cxxu         195     177  0 21:18 pts/1    Ss+    0:00 -zsh
+root         344     343  0 21:20 pts/2    Ss+    0:00 -zsh
+root         369     345  0 21:20 pts/3    Ss+    0:00 -zsh
+cxxu         600     176  0 21:33 pts/0    R+     0:00 ps -f a
+```
+
+关于`STAT`列,下一节说明
+
 ### 输出字段说明
 
 常见的输出列（columns）解释如下：
 
-| 列名    | 含义                                                     |
-| ------- | -------------------------------------------------------- |
-| PID     | 进程 ID（Process ID）                                    |
-| PPID    | 父进程 ID（Parent Process ID）                           |
-| USER    | 进程所有者                                               |
-| %CPU    | 占用 CPU 百分比                                          |
-| %MEM    | 占用内存百分比                                           |
-| VSZ     | 虚拟内存大小（**V**irtual Memory **S**i**z**e，单位 KB） |
-| RSS     | 实际占用物理内存（Resident Set Size）                    |
-| TTY     | 关联的终端（Terminal）                                   |
-| STAT    | 进程状态（State）                                        |
-| START   | 启动时间                                                 |
-| TIME    | 累积 CPU 时间                                            |
-| COMMAND | 启动进程的命令及参数                                     |
+| 列名     | 含义                                                     |
+| -------- | -------------------------------------------------------- |
+| PID      | 进程 ID（Process ID）                                    |
+| PPID     | 父进程 ID（Parent Process ID）                           |
+| USER     | 进程所有者                                               |
+| %CPU     | 占用 CPU 百分比                                          |
+| %MEM     | 占用内存百分比                                           |
+| VSZ      | 虚拟内存大小（**V**irtual Memory **S**i**z**e，单位 KB） |
+| RSS      | 实际占用物理内存（Resident Set Size）                    |
+| TTY      | 关联的终端（Terminal）                                   |
+| **STAT** | 进程状态（State）                                        |
+| START    | 启动时间                                                 |
+| TIME     | 累积 CPU 时间                                            |
+| COMMAND  | 启动进程的命令及参数                                     |
 
 ------
 
+这其中比较复杂的列是`STAT`,进程的状态标记含义需要了解
+
 ### STAT（进程状态）常见取值
+
+```bash
+PROCESS STATE CODES
+       Here are the different values that the s, stat and state output specifiers (header "STAT" or "S") will display to describe the state of a process:
+
+               D    uninterruptible sleep (usually I/O)
+               I    idle kernel thread
+               R    running or runnable (on run queue)
+               S    interruptible sleep (waiting for an event to complete)
+               T    stopped by job control signal
+               t    stopped by debugger during the tracing
+               W    paging (not valid since Linux 2.6)
+               X    dead (should never be seen)
+               Z    defunct  (“zombie”)  process, terminated but not reaped by
+                    its parent
+
+       For BSD formats and when the stat keyword is used, additional characters may be displayed:
+
+               <    high-priority (not nice to other users)
+               N    low-priority (nice to other users)
+               L    has pages locked into memory  (for  real-time  and  custom
+                    I/O)
+               s    is a session leader
+               l    is  multi-threaded (using CLONE_THREAD, like NPTL pthreads
+                    do)
+               +    is in the foreground process group
+```
+
+| Code | description                                                  | 描述                                     |
+| ---- | ------------------------------------------------------------ | ---------------------------------------- |
+| D    | uninterruptible sleep (usually I/O)                          | 不可中断睡眠（通常处于 I/O 操作中）      |
+| I    | idle kernel thread                                           | 空闲的内核线程                           |
+| R    | running or runnable (on run queue)                           | 正在运行或可运行（位于运行队列中）       |
+| S    | interruptible sleep (waiting for an event to complete)       | 可中断睡眠（正在等待某个事件完成）       |
+| T    | stopped by job control signal                                | 被作业控制信号停止（例如 Ctrl+Z）        |
+| t    | stopped by debugger during the tracing                       | 在调试跟踪（tracing）过程中被调试器停止  |
+| W    | paging (not valid since Linux 2.6)                           | 正在换页（自 Linux 2.6 起已无效）        |
+| X    | dead (should never be seen)                                  | 已终止（“死亡”状态，正常情况下不应看到） |
+| Z    | defunct (“zombie”) process, terminated but not reaped by its parent | 僵尸进程（已终止但尚未被父进程回收）     |
+
+| 附加标记 | description                                                  | 描述                                                         |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <        | high-priority (not nice to other users)                      | 高优先级（对其他用户不“友好”，即 not nice）                  |
+| N        | low-priority (nice to other users)                           | 低优先级（对其他用户“友好”，即 nice 值较高）                 |
+| L        | has pages locked into memory (for real-time and custom I/O)  | 有内存页被锁定在内存中（用于实时应用或自定义 I/O）           |
+| s        | is a session leader                                          | 是会话首进程（session leader）                               |
+| l        | is multi-threaded (using CLONE_THREAD, like NPTL pthreads do) | 是多线程进程（使用了 `CLONE_THREAD`，例如 NPTL 的 pthreads） |
+| +        | is in the foreground process group                           | 属于前台进程组                                               |
+
+> ℹ️ 注：`STAT` 字段通常由多个字符组合而成，例如 `Ss+` 表示：可中断睡眠（S）、会话首进程（s）、前台进程组（+）。
+
+#### 状态字母
 
 | 状态字母 | 含义                  | 说明                     |
 | -------- | --------------------- | ------------------------ |
@@ -195,7 +319,7 @@ $ ps -A
 | T        | Stopped               | 暂停（被信号或调试）     |
 | X        | Dead                  | 已终止（很少见）         |
 
-附加标志（第二位）：
+#### 附加标志
 
 | 标志 | 含义                           |
 | ---- | ------------------------------ |
@@ -205,6 +329,23 @@ $ ps -A
 | `+`  | 属于前台进程组                 |
 
 ------
+
+```
+Ss+
+```
+
+- `S` = 可中断睡眠（Sleeping）
+- `s` = 会话 leader（session leader）
+- `+` = 前台进程组（在当前终端前台运行）
+
+```
+R+
+```
+
+- `R` = 正在运行或可运行（Running）
+- `+` = 前台进程组（你的 `ps -f a` 命令本身）
+
+详细状态码含义可通过 `man ps` 查看 "PROCESS STATE CODES" 部分。 
 
 ### 常见实用示例
 
