@@ -33,6 +33,98 @@ ps [options]
 
 ------
 
+不同类型的选项可以自由混合使用，但可能会出现冲突。
+ 由于 `ps` 命令兼容多种标准和不同实现版本（implementations），其中有一些选项是同义的（synonymous options），它们在功能上是完全相同的。
+
+经验上看,由于BSD风格的ps用选项简洁,而且内容详细,用的最多
+
+**解释：**
+ `ps` 命令（process status，进程状态查看工具）在不同 UNIX 系统（如 BSD、System V、GNU）中有不同的选项格式，比如：
+
+- BSD 风格：不带 `-`，如 `ps aux`
+- System V 风格：带 `-`，如 `ps -ef`
+
+这些风格可以混合使用，但有时会导致输出或选项逻辑冲突。某些选项是“别名”（synonymous），意思是不同写法但效果相同。
+
+默认情况下，`ps` 会选择与当前用户具有相同有效用户 ID（effective user ID，euid=EUID），并且与执行命令的终端相同的所有进程。
+ 默认显示的字段包括：
+
+- 进程 ID（pid=PID）
+- 进程所属终端（tname=TTY）
+- 累计 CPU 时间（time=TIME），格式为 `[DD-]hh:mm:ss`
+- 可执行文件名（ucmd=CMD）
+   输出默认不排序。
+
+**解释：**
+ 也就是说，直接执行 `ps`（不带参数）时，只会显示当前终端下、当前用户启动的进程，比如：
+
+```
+$ ps
+  PID TTY          TIME CMD
+ 4321 pts/0    00:00:00 bash
+ 4355 pts/0    00:00:01 ps
+```
+
+此时不显示其他终端或其他用户的进程。
+
+使用 BSD 风格的选项时，**默认输出会增加进程状态（stat=STAT）列**，并显示命令的完整参数（args=COMMAND），而不是仅显示**可执行文件名**。
+ 你可以通过**环境变量** `PS_FORMAT` 来覆盖这种默认格式。
+ 此外，使用 BSD 风格的选项还会**改变进程的选择范围**：它会包含属于**当前用户、但运行在其他终端（TTY）上的进程**。
+ 换句话说，这种选择等价于：**显示当前用户的所有进程**，排除那些属于其他用户或不在终端上的进程。
+ 在后文描述某些选项为“相同”（identical）时，不考虑这些行为差异，因此例如 `-M` 会被视为与 `Z` 等价。
+
+**解释：**
+ 当使用 BSD 风格的 `ps`（例如 `ps aux`）时，会：
+
+- 显示更多列（包括 STAT、COMMAND）
+- 显示所有你自己的进程（而不是仅当前终端）
+
+例如：
+
+```
+$ ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+alice     1203  0.0  0.1  11240  3040 pts/0    Ss   09:23   0:00 bash
+alice     1345  0.0  0.0  10620  2200 pts/1    S+   09:24   0:00 vim
+```
+
+而默认 `ps`（System V 风格）只显示当前终端。
+
+除非后文另有说明，进程选择选项（process selection options）是“可累加”的（additive）。
+ 默认的进程选择会被丢弃(用户自定义了进程选择查看参数,覆盖默认参数)，然后将满足条件的进程加入到要显示的进程集合中。
+ 因此，如果一个进程符合任意给定的选择条件，它就会被显示出来。
+
+**解释：**
+ 这段说明了“进程选择逻辑”。
+ 例如：
+
+```
+ps -u alice -p 1234
+```
+
+表示选择属于用户 `alice` 的所有进程，加上进程号为 1234 的进程。
+ 这两个条件是“并集关系”（additive），不是互斥的。
+
+**process selection options（进程选择选项）**
+ 指的是用来指定“要显示哪些进程”的选项，比如：
+
+- `-u <user>`：按用户名筛选；
+- `-p <pid>`：按进程号筛选；
+- `-t <tty>`：按终端筛选；
+- `-C <command>`：按命令名筛选。
+
+**additive（可累加的）**
+ 表示多个条件之间是“并集关系”（logical OR），即： 只要某个进程符合其中**任意一个**条件，就会显示出来。 并不是“交集”或“覆盖”的关系。
+
+**default selection discarded（默认选择被丢弃）**
+ 表示一旦你使用了这些选择选项（如 `-u`、`-p` 等），
+ `ps` 不再只显示当前用户、当前终端的默认进程集合，而是以这些选项为准。
+
+### 不建议混用场景
+
+不建议使用诸如 `ps -aux` 之类的命令选项，因为这会混淆两种不同的标准。
+根据 POSIX 和Unix 标准，上述命令要求显示所有进程带有 TTY（通常是用户正在运行的命令）以及所有名为 x 的用户拥有的进程。如果该用户不存在，那么 ps 会假定您真正想要的是“ps aux”。
+
 ### ps基本帮助和语法
 
 ```bash
@@ -103,25 +195,25 @@ SIMPLE PROCESS SELECTION
               description is that this option causes ps to list all processes owned by you (same EUID as ps), or to list all processes when used together with the a option.
 ```
 
+### 简单的进程选择选项
 
-
-| 选项              | 含义简述                                                     | 是否含无TTY进程 | 是否含Session Leader | 典型用途                       |
-| ----------------- | ------------------------------------------------------------ | --------------- | -------------------- | ------------------------------ |
-| `-A`, `-e`        | 显示所有进程（All processes）                                | ✅ 是            | ✅ 是                 | 查看整个系统的所有进程（常用） |
-| `-a`              | 有TTY的所有进程，并且排除**Session Leader**                  | ❌ 否            | ❌ 否                 | 查看用户前台任务               |
-| `a`               | 有TTY的所有进程，包括其他用户(取消了BSD风格中仅自己进程的限制),Session Leader进程会被列出 | ❌ 否            | ✅ 是                 | 查看所有用户的终端进程         |
-| `-d`              | 所有非Session Leader进程                                     | ✅ 是            | ❌ 否                 | 查看除登录shell外的系统进程    |
-| `-N`/`--deselect` | 反选，不显示匹配条件的进程                                   | ⚙️ 取决于条件    | ⚙️ 取决于条件         | 排除特定进程（如排除bash）     |
-| `r`               | 仅显示“运行中”的进程                                         | ✅ 是            | ✅ 是                 | 监控当前活动任务               |
-| `T`               | 当前终端（TTY）上的所有进程                                  | ❌ 否            | ✅ 是                 | 仅看当前shell的任务            |
-| `x`               | 无TTY的进程（后台/守护）                                     | ✅ 是            | ✅ 是                 | 查看后台daemon或systemd任务    |
+| 选项              | 含义简述                                                     | 是否含无TTY进程 | 是否含Session Leader | 典型用途                        |
+| ----------------- | ------------------------------------------------------------ | --------------- | -------------------- | ------------------------------- |
+| `-A`, `-e`        | 显示所有进程（All processes）                                | ✅ 是            | ✅ 是                 | 查看整个系统的所有进程（常用）  |
+| `-a`              | 有TTY的所有进程，并且排除**Session Leader**                  | ❌ 否            | ❌ 否                 | 查看用户前台任务                |
+| `a`               | 有TTY的所有进程，包括其他用户(取消了BSD风格中仅自己进程的限制),Session Leader进程会被列出 | ❌ 否            | ✅ 是                 | 查看所有用户的终端进程          |
+| `-d`              | 所有非Session Leader进程(比`-a`选项看到的更多一些,包括了系统进程) | ✅ 是            | ❌ 否                 | 查看除登录shell外的**系统进程** |
+| `-N`/`--deselect` | **反选**，不显示匹配条件的进程                               | ⚙️ 取决于条件    | ⚙️ 取决于条件         | 排除特定进程（如排除bash）      |
+| `r`               | 仅显示“运行中”的进程(适合用来分析和排查资源占用高的进程)     | ✅ 是            | ✅ 是                 | 监控当前活动任务                |
+| `T`               | 当前终端（TTY）上的所有进程                                  | ❌ 否            | ✅ 是                 | 仅看当前shell的任务             |
+| `x`               | 选择无TTY的进程（后台/守护）                                 | ✅ 是            | ✅ 是                 | 查看后台daemon或systemd任务     |
 
 > **Session leader**（会话领导进程）通常是 shell 或 login 程序。
 >  排除它们意味着只看用户直接运行的命令。
 
 
 
-### 常见用法与参数详解
+## 常见用法与参数详解🎈
 
 | 命令               | 作用                        | 说明                                                         |
 | ------------------ | --------------------------- | ------------------------------------------------------------ |
@@ -129,7 +221,7 @@ SIMPLE PROCESS SELECTION
 | `ps -e` 或 `ps -A` | 显示系统中所有进程          | （e = every）                                                |
 | `ps -f`            | 显示完整格式（full format） | 包含 PPID、启动时间、命令等,但是实际上,这个`-f`选项并不会显示`STAT`进程状态列,使用BSD风格的选项时会影响这个列的显示, |
 | `ps -ef`           | 显示所有进程详细信息        | Linux 常用组合                                               |
-| `ps aux`           | BSD 风格，显示所有进程信息  | 与 `-ef` 类似,但是在`STAT`列上有区别,`f`选项没有此列         |
+| `ps aux`           | BSD 风格，显示所有进程信息  | 与 `-ef` 类似,但是在`STAT`列上有区别,`f`选项没有此列; <br />其中的`a`,`x`,两个选项合用时,相当于`-e`(显示所有进程)<br />其中的选项`u`影响输出的格式和内容:使用用户导向格式（user-oriented format） |
 | `ps -u <user>`     | 查看指定用户的进程          | 如 `ps -u root`                                              |
 | `ps -p <pid>`      | 查看特定进程                | 如 `ps -p 1`                                                 |
 | `ps -o`            | 自定义输出格式              | 例：`ps -eo pid,ppid,cmd,%mem,%cpu`                          |
@@ -137,6 +229,59 @@ SIMPLE PROCESS SELECTION
 | `ps --sort`        | 按字段排序                  | 如 `ps -eo pid,cmd,%mem --sort=-%mem`（按内存降序）          |
 
 ------
+
+### 通过参数列表选择进程的选项
+
+PROCESS SELECTION BY LIST
+
+这些选项（These options）接受一个参数(列表)，该参数的形式可以是**以空格分隔**或**以逗号分隔**的列表（blank-separated or comma-separated list）。
+ 它们可以被多次使用。例如：
+
+```bash
+ps -p "1 2" -p 3,4
+```
+
+这会选中进程 ID 为 1、2、3、4 的进程。
+
+接下来是不同数字写法的含义：
+
+- `123`：等价于 `--pid 123`，即按**进程 ID（PID）**选择进程。
+- `+123`：等价于 `--sid 123`，即按**会话 ID（SID, session ID）**选择进程。
+- `-123`：表示按**进程组 ID（PGID, process group ID）**选择进程。
+
+| 选项                  | 含义 / 功能说明                                              | 显示字段（等价于 `-o` 格式）                                 | 备注说明                                                     |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **-c**                | 与 `-l` 一起使用时显示不同的调度器信息（scheduler info）。   | `cls, pri`                                                   | “cls”=**调度类别**(class)，“pri”=**优先级**（priority）。    |
+| **--context**         | 显示 SELinux 的安全上下文（security context）。              | `pid, context, cmd`                                          | 仅在启用 SELinux 时有用。                                    |
+| **-f**                | 显示“完整格式（full-format）”的进程列表。打印命令参数（args）。与 `-L` 一起用时会增加线程列。 | `uid, pid, ppid, c, stime, tty, time, cmd`                   | 常用的详细格式；显示父进程、CPU使用等。                      |
+| **-F**                | “扩展完整格式（extra full format）”，隐含 `-f`，显示更多列。(但仍然不是全部,仍然只是其中的一小部分,更多字段需要配合自定义字段来显示) | `uid, pid, ppid, c, sz, rss, psr, stime, tty, time, cmd`     | 包含内存信息（SZ、RSS）与CPU号（PSR）。                      |
+| **--format <format>** | 用户自定义输出格式。这不是一个开关,而是需要指定参数的选项,`--format`与 `-o`、`o` 相同。 | -                                                            | 与 `-o` 等价，可自定义输出列。                               |
+| **j**                 | BSD 风格“作业控制（job control）”格式。                      | `ppid, pid, pgid, sid, tty, tpgid, stat, uid, time, cmd`     | BSD 专用输出格式。                                           |
+| **-j**                | Unix 风格“作业格式”。                                        | `pid, pgid, sid, tty, time, ucmd`                            | 类似于 `j`，但字段略不同。                                   |
+| **l**                 | BSD 长格式（long format）。                                  | `f, uid, pid, ppid, pri, ni, vsz, rss, wchan, stat, tty, time, cmd` | BSD 风格的详细输出。                                         |
+| **-l**                | Unix 长格式。通常配合 `-y` 使用。                            | `f, uid, pid, ppid, c, pri, ni, addr, sz, wchan, tty, time, ucmd` | System V 风格的长列表。                                      |
+| **-M**                | 添加 SELinux 安全数据列。与 `Z` 相同。                       | `context, pid, tty, time, ucmd`                              | SELinux 环境下有效。                                         |
+| **O format**          | BSD 的 `O` 选项：可表示输出格式或排序。启发式判断用途。      | 等价于 `-O format`                                           | 若要确定行为，请使用 `--sort` 或 `-O`。                      |
+| **-O format**         | 类似 `-o`，但预设一些常见列。                                | `pid, format, state, tname, time, command`                   | 预加载基本字段后再加自定义列。                               |
+| **o format**          | 自定义输出格式。与 `-o`、`--format` 相同。                   | 用户指定                                                     | BSD 风格语法，等价于 `-o`。                                  |
+| **-o format**         | 用户自定义输出格式。可以指定多个列并重命名标题。             | 用户指定                                                     | 支持空格或逗号分隔，可用多次 `-o`。如：`ps -o pid,ruser=RealUser -o comm=Command`。 |
+| **-P**                | 增加显示 “psr”（CPU核心号）。                                | `pid, psr, s, tty, time, ucmd`                               | 查看进程所在 CPU 核。                                        |
+| **s**                 | 显示信号相关格式（signal format）。                          | `uid, pid, pending, blocked, ignored, caught, stat, tty, bsdtime, cmd` | 显示信号屏蔽和捕获信息。                                     |
+| **u**                 | 用户导向格式（user-oriented format）。                       | `user, pid, pcpu, pmem, vsz, rss, tty, stat, start_time, bsdtime, args` | 常用格式，显示CPU/MEM使用。即 `ps u`。                       |
+| **v**                 | 虚拟内存格式（virtual memory format）。                      | `pid, tty, stat, bsdtime, majflt, trs, drs, rss, pmem, args` | 关注内存与缺页信息。                                         |
+| **X**                 | 寄存器格式（register format）。                              | `pid, stackp, esp, eip, tmout, alarm, stat, tty, bsdtime, args` | 显示低层CPU寄存器信息。                                      |
+| **-y**                | 不显示 flags，用 RSS 替换 addr。仅用于 `-l`。                | -                                                            | 优化长格式输出，使 RSS 更直观。                              |
+| **Z**                 | 添加 SELinux 安全上下文列。与 `-M` 相同。                    | `context, pid, tty, time, ucmd`                              | 与 `-M` 完全等价。                                           |
+
+### 相关术语
+
+| 英文术语                | 中文解释  | 说明                                     |
+| ----------------------- | --------- | ---------------------------------------- |
+| PID (Process ID)        | 进程 ID   | 唯一标识进程                             |
+| PGID (Process Group ID) | 进程组 ID | 用于分组控制（如信号）                   |
+| SID (Session ID)        | 会话 ID   | 一组进程组的集合                         |
+| argument list           | 参数列表  | 可以用空格或逗号分隔                     |
+| personality             | 行为模式  | `ps` 模拟 BSD 或 System V 风格的运行方式 |
 
 ### 示例
 
@@ -233,24 +378,26 @@ cxxu         600     176  0 21:33 pts/0    R+     0:00 ps -f a
 
 关于`STAT`列,下一节说明
 
-### 输出字段说明
+## 输出字段说明🎈
 
-常见的输出列（columns）解释如下：
+查看man手册中的 **STANDARD FORMAT SPECIFIERS** 获取完整说明,这是一个很长的列表,其中常用的(预设为`-f,-F`只是一小部分)
 
-| 列名     | 含义                                                     |
-| -------- | -------------------------------------------------------- |
-| PID      | 进程 ID（Process ID）                                    |
-| PPID     | 父进程 ID（Parent Process ID）                           |
-| USER     | 进程所有者                                               |
-| %CPU     | 占用 CPU 百分比                                          |
-| %MEM     | 占用内存百分比                                           |
-| VSZ      | 虚拟内存大小（**V**irtual Memory **S**i**z**e，单位 KB） |
-| RSS      | 实际占用物理内存（Resident Set Size）                    |
-| TTY      | 关联的终端（Terminal）                                   |
-| **STAT** | 进程状态（State）                                        |
-| START    | 启动时间                                                 |
-| TIME     | 累积 CPU 时间                                            |
-| COMMAND  | 启动进程的命令及参数                                     |
+常见的输出列（columns）解释如下：(使用`-F`查看SZ,RSS等字段,占用百分比需要使用`-o`选项来指定)
+
+| 列名         | 含义                                                     |
+| ------------ | -------------------------------------------------------- |
+| PID          | 进程 ID（Process ID）                                    |
+| PPID         | 父进程 ID（Parent Process ID）                           |
+| USER         | 进程所有者                                               |
+| %CPU         | 占用 CPU 百分比                                          |
+| %MEM         | 占用内存百分比                                           |
+| VSZ(SZ)      | 虚拟内存大小（**V**irtual Memory **S**i**z**e，单位 KB） |
+| RSS          | 实际占用物理内存（Resident Set Size）                    |
+| TTY          | 关联的终端（Terminal）                                   |
+| **STAT**     | 进程状态（State）                                        |
+| START        | 启动时间                                                 |
+| TIME         | 累积 CPU 时间                                            |
+| COMMAND(CMD) | 启动进程的命令及参数                                     |
 
 ------
 
@@ -308,48 +455,78 @@ PROCESS STATE CODES
 
 > ℹ️ 注：`STAT` 字段通常由多个字符组合而成，例如 `Ss+` 表示：可中断睡眠（S）、会话首进程（s）、前台进程组（+）。
 
-#### 状态字母
+### 内存占用相关字段
 
-| 状态字母 | 含义                  | 说明                     |
-| -------- | --------------------- | ------------------------ |
-| R        | Running               | 运行中或可运行（就绪）   |
-| S        | Sleeping              | 休眠中（可被唤醒）       |
-| D        | Uninterruptible Sleep | 不可中断（等待 I/O）     |
-| Z        | Zombie                | 僵尸进程（父进程未回收） |
-| T        | Stopped               | 暂停（被信号或调试）     |
-| X        | Dead                  | 已终止（很少见）         |
+| 字段名         | 含义（中文）                                          | 英文解释             | 单位 | 说明与使用示例                                               |
+| -------------- | ----------------------------------------------------- | -------------------- | ---- | ------------------------------------------------------------ |
+| **RSS**        | 常驻内存集（Resident Set Size）                       | Resident Set Size    | KB   | 实际驻留在物理内存（RAM）中的内存页大小。可理解为“**真正使用的物理内存**”。示例：`ps -o pid,comm,rss` |
+| **VSZ**        | 虚拟内存大小（Virtual Memory Size）                   | Virtual Memory Size  | KB   | 进程可访问的虚拟地址空间总量，包括已映射但未实际用的页。示例：`ps -o pid,comm,vsz` |
+| **%MEM**(PMEM) | 内存占用百分比(PMEM与 `%MEM` 等价的别名,P表示percent) | Percent Memory Usage | %    | 占系统物理内存（RAM）总量的百分比，计算公式为：`RSS / 总物理内存 × 100`。示例：`ps -eo pid,comm,%mem` |
 
-#### 附加标志
+| 指标                       | 含义关系                              | 对比说明                           |
+| -------------------------- | ------------------------------------- | ---------------------------------- |
+| **VSZ ≥ RSS**              | 虚拟内存总是大于等于物理常驻内存。    | VSZ 包含映射文件、共享库、未用页。 |
+| **RSS = 实际占用物理内存** | RSS 更能代表真实“内存使用”。          | 若想估算系统总内存负载，应看 RSS。 |
+| **%MEM = RSS / 总RAM**     | 表示进程在系统RAM中占比。             | 实时监控中最常用指标。             |
+| **TRS + DRS ≤ RSS**        | RSS 包含代码段 + 数据段 + 堆 + 栈等。 | 用于分析程序结构内存分布。         |
 
-| 标志 | 含义                           |
-| ---- | ------------------------------ |
-| `<`  | 高优先级（higher priority）    |
-| `N`  | 低优先级（nice）               |
-| `L`  | 页面锁定（real memory locked） |
-| `+`  | 属于前台进程组                 |
+### 适合分析活跃进程和资源占用的ps输出格式🎈
 
-------
-
-```
-Ss+
+```bash
+ps -eo user,pid,%cpu,%mem,rss,vsz,nlwp,stat,start_time,comm --sort=-%cpu
 ```
 
-- `S` = 可中断睡眠（Sleeping）
-- `s` = 会话 leader（session leader）
-- `+` = 前台进程组（在当前终端前台运行）
+与widnows任务管理器中的相关概念对比
 
+| 字段         | 对应 Windows 概念        | 说明                            |
+| ------------ | ------------------------ | ------------------------------- |
+| `%CPU`       | “CPU 使用率”             | 短时间平均 CPU 占用率（非累积） |
+| `%MEM`       | “内存占比”               | 当前占系统 RAM 百分比           |
+| `RSS`        | “工作集 (Working Set)”   | 实际驻留物理内存                |
+| `VSZ`        | “提交大小 (Commit Size)” | 虚拟内存空间大小                |
+| `NLWP`       | “线程数”                 | Lightweight Processes 数量      |
+| `STAT`       | “状态”                   | 运行/睡眠/僵尸等状态代码        |
+| `TIME`       | “CPU 时间”               | 累积 CPU 使用时间               |
+| `START_TIME` | “启动时间”               | 进程启动时刻                    |
+
+可以配合管道符+`head`命令仅列出最活跃或者最占用内存的若干项进程,方便定位问题
+
+为上述输出格式做可读性改进(让内存占用人类友好的方式显示):
+
+```bash
+# 进程监控函数
+psmon() {
+    local sort_field="${1:--%cpu}"
+    local lines="${2:-20}"
+    
+    ps -eo user,pid,%cpu,%mem,rss,vsz,nlwp,stat,start_time,cmd --sort="$sort_field" | head -n "$lines" | awk '
+    NR==1 {
+        printf "%-12s %-8s %-6s %-6s %-12s %-12s %-6s %-8s %-10s %-s\n",
+               $1,$2,$3,$4,"RSS(MB)","VSZ(MB)",$7,$8,$9,"CMD";
+        next
+    }
+    {
+        rss_mb=$5/1024; vsz_mb=$6/1024;
+        cmd=$10; for(i=11;i<=NF;i++) cmd=cmd" "$i;
+        if(length(cmd)>50) cmd=substr(cmd,1,47)"...";
+        printf "%-12s %-8s %-6.1f %-6.1f %-12.1f %-12.1f %-6s %-8s %-10s %-s\n",
+               $1,$2,$3,$4,rss_mb,vsz_mb,$7,$8,$9,cmd
+    }'
+}
+
+# 为常用情况创建别名
+alias pscpu='psmon -%cpu'
+alias psmem='psmon -%mem'
+alias pstop='psmon -%cpu 10'  # 只显示前10个
 ```
-R+
-```
 
-- `R` = 正在运行或可运行（Running）
-- `+` = 前台进程组（你的 `ps -f a` 命令本身）
 
-详细状态码含义可通过 `man ps` 查看 "PROCESS STATE CODES" 部分。 
 
-### 常见实用示例
+## 其他示例🎈
 
-#### 查看所有进程（系统级）
+包裹配合其他工具执行更加复杂的任务
+
+### 查看所有进程（系统级）
 
 ```bash
 ps -ef
@@ -371,7 +548,7 @@ user 1234  1220  1 08:05 pts/0    00:00:00 python3 script.py
 
 ------
 
-#### 查看某个程序（用 grep 过滤）
+### 查看某个程序（用 grep 过滤）
 
 ```bash
 ps -ef | grep python
@@ -384,6 +561,8 @@ ps aux | grep nginx
 ```
 
 常用于查找程序是否在运行。
+
+### 其他
 
 ------
 

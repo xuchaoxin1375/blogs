@@ -263,7 +263,7 @@ ln命令十分灵活,可以一次性创建指定的多个文件/目录的链接
 ```bash
 ln -s /path/to/file /path/to/symlink
 ```
-在这个示例中，`-s`选项表示创建一个符号链接（symbolic link），`/path/to/file`是链接的目标文件，`/path/to/symlink`是链接名称。
+在这个示例中，`-s`选项表示创建一个符号链接（symbolic link），`/path/to/file`是链接的目标文件，`/path/to/symlink`是链接名称(链接的路径)。
 
 
 
@@ -313,6 +313,98 @@ ln -t /path/to/directory p1 p2
 - `-n, --no-dereference`：在目标是符号链接时，不要跟随目标。
 - `-T, --no-target-directory`：将链接视为文件而不是目录。
 - `-t DIRECTORY, --target-directory=DIRECTORY`：将链接创建在指定的目录中。
+
+### ln注意事项
+
+对于`ln [option] p q`的用法:
+
+- 如果q是一个包含1至多级目录的路径,比如q为`/www/`时,如果`/www/`不存在,就会报错,需要你手动创建
+
+```bash
+# root @ CxxuFirebat in ~ [16:35:06]
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/ -v
+ln: failed to create symbolic link '/www/': No such file or directory
+
+# root @ CxxuFirebat in ~ [16:35:24] C:1
+$ mkdir /www
+
+# root @ CxxuFirebat in ~ [16:35:30]
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/ -v
+'/www/sh' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
+
+
+```
+
+```bash
+$ ls /www/f -l
+-rw-r--r-- 1 root root 0 Oct  8 16:56 /www/f
+
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/f -v
+ln: failed to create symbolic link '/www/f': File exists
+```
+
+借助`-v`选项可以看到,需要被创建符号的目标(TARGET)路径`/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh`的最后一节名字为`sh`,那么最终命令`ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/ `会在目录`/www/`下创建一个名为`sh`的符号(完整路径为`/www/sh`);
+
+这实际上对应的是`ln`命令的第3中用法而不是第1种用法
+
+实际上第1种用法和第3种用法有点容易混淆,尤其命令格式`ln [option] p q`中`q`是不是一个已经存在的目录会影响最终的效果
+
+为了便于讨论,这里展开为`ln [option] /path/1/p /path/2/q`
+
+1. 如果目录/path/2/不存在就会报错
+2. 如果路径/path/2/q是已经存在,且是个目录,则该命令会创建/path/2/q/p
+   - 这种情况下如果q是一个已存在的文件,则会报错
+3. 如果路径/path/2/q不存在但是/path/2/目录存在,则该命令创建/path/2/q
+   - 这种情况下,命令执行的ln的第1种用法;
+   - 且如果p是一个目录(文件夹),且同样的命令执行2遍,会创建出`/path/2/q/p`,如果再执行第3次,则会报错(已存在),但是可以使用`-f`来覆盖旧的同名符号或文件
+   - 事实上,执行2次之后,会得到一个特殊的目录结构,下面的例子说明这一点;我们应该避免创建出这种结构,这会创建出一个cd不到头的路径,让一些遍历目录的程序执行不到头或者发生错误
+
+接下来的例子中,`.../sh`是一个目录,对其执行若干符号链接创建语句
+
+```bash
+# root @ CxxuFirebat in ~ [16:35:32] 这里使用了ln的第1种语法(/www/实现存在,但是/www/y尚不存在)
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/y -v
+'/www/y' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
+
+# root @ CxxuFirebat in ~ [16:36:23] 这里对应于ln的第1种语法(和上一个例子相同)
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/x -v
+'/www/x' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
+
+# root @ CxxuFirebat in ~ [16:37:05] 这里对应于ln的第3种语法(/www/x/此时已经存在,)
+$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/x -v
+'/www/x/sh' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
+```
+
+现在来看这种重复执行同一个语句后产生的特殊目录结构
+
+```bash
+# root @ CxxuFirebat in /www/x [17:13:33]
+$ cd sh
+
+# root @ CxxuFirebat in /www/x/sh [17:13:37]
+$ ls -l sh
+lrwxrwxrwx 1 cxxu cxxu 45 Oct  8 17:10 sh -> /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh
+
+# root @ CxxuFirebat in /www/x/sh [17:13:41]
+$ cd sh
+
+# root @ CxxuFirebat in /www/x/sh/sh [17:13:46]
+$ ls -l sh
+lrwxrwxrwx 1 cxxu cxxu 45 Oct  8 17:10 sh -> /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh
+
+# root @ CxxuFirebat in /www/x/sh/sh [17:13:54]
+$ cd sh
+
+# root @ CxxuFirebat in /www/x/sh/sh/sh [17:13:56]
+$ ls -l sh
+lrwxrwxrwx 1 cxxu cxxu 45 Oct  8 17:10 sh -> /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh
+
+# root @ CxxuFirebat in /www/x/sh/sh/sh [17:13:58]
+$ pwd
+/www/x/sh/sh/sh
+```
+
+
 
 ### ln示例🎈
 
