@@ -151,7 +151,7 @@
 ## 🧰 附加亮点（进阶但实用）
 
 - **并发请求**（需配合 `xargs` 或 `parallel`）
-- **代理支持**（`-x http://proxy:port`）
+- **代理支持**（`-x http://proxy:port`）`-x,--proxy`同含义
 - **限速**（`--limit-rate 100K`）
 - **Cookie 处理**（`-b`, `-c`）
 - **REST API 测试神器**（配合 JSON 工具如 `jq`）
