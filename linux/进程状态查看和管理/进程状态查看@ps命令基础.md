@@ -470,7 +470,11 @@ PROCESS STATE CODES
 | **%MEM = RSS / 总RAM**     | 表示进程在系统RAM中占比。             | 实时监控中最常用指标。             |
 | **TRS + DRS ≤ RSS**        | RSS 包含代码段 + 数据段 + 堆 + 栈等。 | 用于分析程序结构内存分布。         |
 
-### 适合分析活跃进程和资源占用的ps输出格式🎈
+## 适合分析活跃进程和资源占用的ps命令模板👺
+
+输出格式(对比windows),下面的命令模板中前面几列是基础信息,而最后的`--sort`可以选择按照cpu或者memory的占用进行逆序排序,这方便我们分析最占用资源的进程
+
+> --sort最常用的参数是`-%cpu`,`-%mem`分别用来分析最占用cpu和nei'cun
 
 ```bash
 ps -eo user,pid,%cpu,%mem,rss,vsz,nlwp,stat,start_time,comm --sort=-%cpu
