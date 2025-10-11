@@ -30,28 +30,24 @@ sudo systemctl restart ssh
 - 私钥:保存在本地
 - 公钥:上传到远程主机
 
-## ssh-keygen生成
+## 基本操作🎈
+
+### ssh-keygen生成密钥对
 
 常见的有传统的rsa密钥,和更现代的ed25519密钥
 
 ```bash
 ssh-keygen -t ed25519 -C "your-email"
-ssh-copy-id -i ~/.ssh/id_ed25519.pub "user@host"
 
 ```
-
-
 
 > 现在不推荐使用rsa方案,使用效率更高的ed25519更好
 
 如果坚持使用rsa方案,则修改t参数的取值,`ssh-keygen -t rsa`
 
 - 执行过程中只需要连按3次enter
-- (如果设置了其他东西,结果可能会出乎意料)
 
-
-
-### 生成过程 Note
+生成过程 Note
 
 - powershell 可能会在执行过程中卡住,从新开一个powershell会话重试即可
 
@@ -82,11 +78,28 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub "user@host"
   ```
 
 
+
+### ssh-copy-id推送公钥
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub "user@host"
+```
+
+ssh-copy-id 详细用法参考man手册或另见它文
+
+
+
 ## linux上的方案
 
 linux上的方案比较简单,安装ssh-copy-id(通常会自带此工具)
 
-分别将引号中的字符串替换为自己的值,运行过程中做确认和填写密码即可
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub "user@host"
+```
+
+分别将引号中的字符串替换为自己的值,运行过程中做确认和**填写密码**即可(密码是服务端user用户的密码)
+
+
 
 ## windows系统上传生成的公钥👺
 
