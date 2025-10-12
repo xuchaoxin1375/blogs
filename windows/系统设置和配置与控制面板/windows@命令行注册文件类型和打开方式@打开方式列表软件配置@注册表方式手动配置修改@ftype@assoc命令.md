@@ -7,19 +7,35 @@
     - 从一个特定文件开始,右键选择打开方式,找到对应的程序后打开,一般可以设置为始终用此方式打开(可以是一次性,也可以是默认始终)
     - 从系统设置中根据后缀名批量设置,或者将一个程序设置为其支持打开的所有格式文件的默认打开程序(默认方式设置)
   - 命令行设置
-    - 使用cmd中的`assoc,ftype`命令配置,适合脚本化和自动化部署配置(默认方式设置,或者添加到打开方式列表中)
+    - 使用cmd中的`assoc,ftype`命令配置,适合脚本化和自动化部署配置(将指定软件添加到打开方式列表中)
     - 修改注册表(相对繁琐,也比较危险)
+- 默认方式设置
+  - 使用系统GUI设置比较容易,但是不方便自动化
+  - 对于命令行或脚本编程方案,默认方式设置比较复杂一些,需要用通用的操作注册表命令行或专门的系统api操作,无法直接用assoc,ftype设置
+  - 详情另见它文
+
 
 ### 相关文档
 
-- [在 Windows 中更改默认应用 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中更改默认应用-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
-- [Change default apps in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/change-default-apps-in-windows-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
+- 相关命令行文档
+  - [assoc | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/assoc)
+  - [ftype | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows-server/administration/windows-commands/ftype)
 
-- 其他
-  - [Changing Default File Associations in Windows 10 and 11 | Windows OS Hub (woshub.com)](https://woshub.com/managing-default-file-associations-in-windows-10/#:~:text=You can automatically assign a specific app with the file)
+- 图形界面操作:
+  - [在 Windows 中更改默认应用 - Microsoft 支持](https://support.microsoft.com/zh-cn/windows/在-windows-中更改默认应用-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
+  - [Change default apps in Windows - Microsoft Support](https://support.microsoft.com/en-us/windows/change-default-apps-in-windows-e5d82cad-17d1-c53b-3505-f10a32e1894d#:~:text=In the Settings app on your Windows device, select Apps)
+
+- 相关编程文档
   - [默认程序 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/default-programs)
     - windows上很多软件都支持设定自己为某些软件的默认打开方式,尤其是解压缩软件最为典型
     - 这个文档介绍了相关的api
+  - [应用程序注册 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/app-registration)
+  - [文件类型 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/fa-file-types)
+  - [文件关联的工作原理 - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/fa-how-work)
+  - [编程标识符(ProgId) - Win32 apps | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/win32/shell/fa-progids)
+- 其他
+  - [Changing Default File Associations in Windows 10 and 11 | Windows OS Hub (woshub.com)](https://woshub.com/managing-default-file-associations-in-windows-10/#:~:text=You can automatically assign a specific app with the file)
+
 
 ### 本文重点
 
@@ -267,7 +283,7 @@ if (Test-Path $registryPath) {
 
 ## 相关命令
 
-###  cmd下的`ftype` 和 `assoc` 命令
+这里讨论一下cmd下的`ftype` 和 `assoc` 命令
 
 在 Windows 中注册文件扩展名与可执行程序的关联相关命令`ftype`,`assoc`命令(这两个命令必须在cmd下运行,或者使用`cmd /c`这种方式运行,powershell目前没有对应于此功能的cmdlet)
 
@@ -380,7 +396,7 @@ ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
    ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
    ```
 
-#### 4. PowerShell 的替代方案
+#### 4. PowerShell 中执行assoc和ftype的方案
 
 PowerShell 本身没有直接的命令(诸如`assoc,ftype`来设置文件关联，但是你可以使用 PowerShell 调用 CMD 命令来完成相同的任务：(即使用`cmd /c`开头执行相关命令)
 
@@ -391,7 +407,245 @@ cmd /c ftype MYTXTFILE="C:\Program Files\MyEditor\myeditor.exe" "%1"
 
 此外，PowerShell 提供了 `New-ItemProperty` 和 `Set-ItemProperty` cmdlet 可以通过操作注册表来实现文件关联，但这需要更深入的 Windows 注册表知识。
 
-### 总结
+## ftype命令详解
+
+```cmd
+显示或修改用在文件扩展名关联中的文件类型
+
+FTYPE [fileType[=[openCommandString]]]
+
+  fileType  指定要检查或改变的文件类型
+  openCommandString 指定调用这类文件时要使用的开放式命令。
+
+键入 FTYPE 而不带参数来显示当前有定义的开放式命令字符串的文件类型。
+FTYPE 仅用一个文件类型启用时，它显示那个文件类型目前的开放式命令字符串。
+
+如果不为开放式命令字符串指定，FTYPE 命令将删除那个文件类型的开放式命令字符串。
+在一个开放式命令字符串之内，命令字符串 %0 或 %1 被通过关联调用的文件名所代替。
+%* 得到所有的参数，%2 得到第一个参数，%3 得到第二个，等等。
+%~n 得到其余所有以 nth 参数打头的参数；n 可以是从 2 到 9 的数字。
+例如:
+
+    ASSOC .pl=PerlScript
+    FTYPE PerlScript=perl.exe %1 %*
+
+基础用法:
+允许你启用以下 Perl 脚本:
+
+    script.pl 1 2 3
+
+
+此外:
+如果不想键入扩展名，则键入以下字符串:
+
+    set PATHEXT=.pl;%PATHEXT%
+
+被启动的脚本如下:
+
+    script 1 2 3
+
+```
+
+其中`%0,%1`的含义相同,但是后者用的多
+
+经过配置,` script.pl 1 2 3`命令会被系统理解(扩展为完整命令)为`perl.exe script.pl 1 2 3`,其中`perl.exe`是可执行文件,后面的内容都是`perl.exe`的运行参数,而对于perl语言编写的脚本文件`script.pl`,其调用参数为`1 2 3`
+
+> 其中`%1`对应于`script.pl`是`perl.exe`的第一个参数,而`%2`对应于脚本文件`script.pl`的第一个参数,这是这个`.pl`脚本用户关心的第一个参数
+
+在更加简单的情况下,`script.pl`可以不需要参数,这时变成最简单的打开文件或运行无参数脚本行为`perl.exe script.pl`
+
+从而,通过注册扩展名`.pl`为perl文件类型名`PerlScript`,即`ASSOC .pl=PerlScript`,示例中的` FTYPE PerlScript=perl.exe %1 %*`命令就使得系统解释`script.pl 1 2 3`为`perl.exe script.pl 1 2 3`
+
+对于`script.pl`不需要参数时,`FTYPE PerlScript=perl.exe %1 `即可
+
+相比于运行`script.pl`文件,可以理解为双击`script.pl`打开时系统会如何处理(执行`perl.exe script.pl`)
+
+设置,可以通过设置`set PATHEXT=.pl;%PATHEXT%`(修改环境变量PATHEXT,把`.pl`省略后缀运行的文件的扩展名类型列表中,set仅当前shell会话有效,使用`setx`才能持久生效)
+
+为了更清晰地理解其用途和用法，下面是对该命令的整理与解释：
+
+---
+
+### **FTYPE 命令说明**
+
+`FTYPE` 用于**查看或修改文件类型（File Type）与其关联的打开命令**。它通常与 `ASSOC` 命令配合使用：
+
+- `ASSOC`：将**文件扩展名**（如 `.txt`）关联到一个**文件类型名称**（如 `txtfile`）。
+- `FTYPE`：为该**文件类型名称**指定实际执行的**命令行**（即如何打开这类文件）。
+
+---
+
+### **语法**
+
+```cmd
+FTYPE [fileType[=[openCommandString]]]
+```
+
+- **不带参数**：列出所有已定义的文件类型及其对应的打开命令。
+  ```cmd
+  FTYPE
+  ```
+
+- **仅指定 fileType**：显示该文件类型的当前打开命令。
+  ```cmd
+  FTYPE PerlScript
+  ```
+
+- **指定 fileType 和 openCommandString**：设置该文件类型的打开命令。
+  ```cmd
+  FTYPE PerlScript=perl.exe %1 %*
+  ```
+
+- **指定 fileType 但省略 openCommandString（即等号后为空）**：**删除**该文件类型的打开命令。
+  ```cmd
+  FTYPE PerlScript=
+  ```
+
+---
+
+### **命令中的参数替换**
+
+在 `openCommandString` 中，可以使用以下变量：
+
+| 变量            | 含义                                                         |
+| --------------- | ------------------------------------------------------------ |
+| `%0` 或 `%1`    | 被调用的文件的完整路径（通常用 `%1`）                        |
+| `%*`            | 所有传递给该文件的命令行参数                                 |
+| `%2`, `%3`, ... | 第1个、第2个……额外参数（注意：`%1` 是文件本身，所以参数从 `%2` 开始） |
+| `%~n`           | 从第 n 个参数开始的所有剩余参数（n 为 2–9）                  |
+
+> 💡 示例：  
+> 若运行 `script.pl arg1 arg2`，则：
+> - `%1` → `script.pl`
+> - `%2` → `arg1`
+> - `%3` → `arg2`
+> - `%*` → `arg1 arg2`
+
+---
+
+### **完整使用示例**
+
+由于`assoc,ftype`有cmd提供,可以进入cmd进行操作
+
+或者`powershell`中操作但是需要添加前置串`cmd /c`,以及注意相关参数中在powershell中是否会被特殊解释
+
+#### perl脚本
+
+1. **关联扩展名到文件类型**：
+   ```cmd
+   ASSOC .pl=PerlScript
+   ```
+
+2. **为文件类型指定执行命令**：
+   ```cmd
+   FTYPE PerlScript=perl.exe "%1" %*
+   ```
+   > 建议用引号包围 `%1`，防止路径含空格出错。
+
+3. **（可选）让系统识别 `.pl` 为可执行脚本（无需输入扩展名）**：
+   ```cmd
+   set PATHEXT=.pl;%PATHEXT%
+   ```
+
+4. **现在可以直接运行**：
+   ```cmd
+   script 1 2 3    ← 等价于perl.exe script.pl 1 2 3
+   ```
+
+---
+
+#### python脚本
+
+和perl脚本的运行方式几乎一致
+
+```cmd
+C:\Users\Administrator\Desktop>assoc .py=PythonFile
+.py=PythonFile
+
+C:\Users\Administrator\Desktop>ftype PythonFile="C:\exes\py.exe" "%1" "%*"
+PythonFile="C:\exes\py.exe" "%1" "%*"
+
+C:\Users\Administrator\Desktop>ftype PythonFile="C:\scoop\apps\miniconda3\current\python.exe" "%1" "%*"
+PythonFile="C:\scoop\apps\miniconda3\current\python.exe" "%1" "%*"
+```
+
+但是,如此配置后,双击`.py`文件通常会弹出一个命令行窗口运行脚本,这正常,但是如果在命令行中情况会有些不同,主要体现在`python.exe demo.py`通常不会启动一个新命令行窗口,而
+
+- 在`powershell`中使用`./demo.py`这种写法省略`python.exe`的写法会弹出新窗口
+
+- 类似的,在cmd中使用`demo.py`不会弹出新窗口(注意和powershell不同,cmd中使用相对路径时不需要(也不可以)用`./`前导)
+
+#### markdown文件
+
+```cmd
+C:\Users\Administrator\Desktop>assoc .md
+.md=MarkdownFile
+
+C:\Users\Administrator\Desktop>assoc .md=MarkdownFile
+.md=MarkdownFile
+
+C:\Users\Administrator\Desktop>ftype MarkdownFile="C:\exes\Typora\Typora.exe" "%1"
+MarkdownFile="C:\exes\Typora\Typora.exe" "%1"
+```
+
+
+
+### **注意事项**
+
+- 修改 `FTYPE` 和 `ASSOC` 通常需要**管理员权限**（尤其在较新版本的 Windows 中）。
+- 这些设置存储在注册表中：  
+  `HKEY_CLASSES_ROOT\<FileType>`
+- 错误的命令可能导致文件无法正常打开，请谨慎操作。
+- 对于同一个文件扩展名,例如`.py`,如果有多个程序注册了打开方式,新添加的打开方式可能不会成为默认打开方式,可以从打开方式中选取默认打开方式,例如vscode注册`.py`文件(通过`VSCode.py`注册,而不是`.py`)
+
+  ```cmd
+  VSCode.py="C:\Program Files\Microsoft VS Code\Code.exe" "%1"
+  ```
+
+  不过这种用法比较特殊,应该不是通过assoc设置的,而是通过修改注册表实现的,assoc命令仅列出`.`开头的扩展名及其关联文件类型名,对于非`.`开头的情况不会列出
+
+  ```cmd
+  C:\scoop\apps\typora\current>assoc Vscode.cpp
+  Vscode.cpp=C++ 源文件
+  
+  C:\scoop\apps\typora\current>assoc Vscode.py
+  Vscode.py=Python 源文件
+  
+  C:\scoop\apps\typora\current>assoc .py
+  .py=PythonFile
+  ```
+
+  查看相关注册表
+
+  ```powershell
+   Get-ChildItem -Path "Registry::HKEY_CLASSES_ROOT" |?{$_.Name -like '*py'}
+  
+      Hive: HKEY_CLASSES_ROOT
+  
+  Name                           Property
+  ----                           --------
+  .py                            (default) : PythonFile
+  VSCode.py                      (default)      : Python 源文件
+                                 AppUserModelID : Microsoft.VisualStudioCode
+  ```
+
+  可以看到,`.py`(`PythonFile`)是我们用`assoc`命令创建的,而另一个`VSCode.py`则是vscode创建的
+
+---
+
+### **恢复默认设置（示例）**
+
+若想恢复 `.txt` 文件的默认行为：
+```cmd
+ASSOC .txt=txtfile
+FTYPE txtfile=%SystemRoot%\system32\NOTEPAD.EXE %1
+```
+
+---
+
+
+
+## 总结
 
 使用 `assoc` 和 `ftype` 命令，您可以轻松地在 Windows 操作系统中管理文件类型与程序之间的关联.
 

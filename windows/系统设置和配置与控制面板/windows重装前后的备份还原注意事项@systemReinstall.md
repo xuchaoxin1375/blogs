@@ -69,7 +69,9 @@
 
 ### 包管理器🎈
 
-#### 复用已经部署scoop
+#### scoop
+
+如果是双系统或者保留文件更新,可优先考虑复用之前已经安装过的scoop
 
 目前主要是复用scoop安装的软件目录,而scoop本身则在不同系统内再重新安装一遍,避免冲突!
 
@@ -99,7 +101,9 @@ Scoop reset *
 
 
 
-#### winget 源加速
+#### winget 
+
+##### 源加速
 
 如果另一个系统已经有了,可以复用,比如通过scoop下载安装过了
 
@@ -113,7 +117,41 @@ winget source list
 
 ```
 
+### 命令行快速安装基础软件🎈
 
+#### winget
+
+```cmd
+winget install Microsoft.VisualStudioCode --scope machine
+# 输入法
+winget install wetype -i
+# qq
+winget install tencent.qq.nt
+# 远程控制
+winget install NetEase.UURemote
+winget install 向日葵远程控制
+# 次要
+winget install --id=Alibaba.aDrive -e
+winget install Alibaba.QuarkCloudDrive --scope machine
+```
+
+> 办公软件(wps,office)请用其他方案,尤其是wps,虽然可以安装,但是广告或者不纯净,不推荐使用
+
+#### scoop
+
+可以安装众多软件,尤其适合开发者,考虑将scoop安装目录整个打包(如果是保留文件安装,甚至只需要配置一下环境变量即可)
+
+默认安装在用户家目录,不过安装在一个公共目录比如`C:/scoop`下会简化共享,特别是双系统或多用户
+
+除了scoop自身的环境变量,还考虑到有些通过scoop按照的程序会向`Path`变量添加目录,比如`conda`,不过这些可以在配置好`scoop`的Path后通过`scoop reset *`来修复这些路径
+
+一些可选的指示当前scoop安装目录的环境变量
+
+```powershell
+$env:scoop="C:\scoop"
+```
+
+这种情况下,向Path添加`C:\scoop\shims`,然后开启一个新的powershell窗口就可以调用scoop了
 
 ### 部署powershell7和CxxuPsModule模块集合
 
