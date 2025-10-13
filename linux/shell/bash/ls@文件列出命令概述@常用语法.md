@@ -71,14 +71,16 @@ If you use a non-POSIX locale (e.g., by setting `LC_ALL` to ‘en_US’), then `
 - `-m`：用逗号分隔列出文件。
 
 ### 2. **时间与排序**
-- `-t`：按**修改时间**（mtime）排序，最新在前。
-- `-S`：按**文件大小**排序，从大到小。
+- `-t`：按**修改时间**（mtime,modify time）排序，最新在前。
+- `-S`：按**文件大小**(Size)排序，从大到小。
 - `-r`：**反转排序顺序**。
 - `-U`：**不排序**，按目录中原始顺序列出。
 - `-v`：对文件名中的**版本号进行自然排序**（如 file2.txt 在 file10.txt 之前）。
 - `-X`：按**扩展名**排序。
-- `-c`：使用 **ctime**（状态更改时间）进行排序或显示。
-- `-u`：使用 **atime**（访问时间）进行排序或显示。
+- `-c`：使用 **ctime**（状态更改时间change of status time,time of last change of file status information）进行排序或显示。
+  - `-c`是一个在 `ls` 命令中**不太常用但有特定用途**的选项
+
+- `-u`：使用 **atime**（访问时间access time）进行排序或显示。
 - `--time=<WORD>`：可指定**显示/排序**的**时间类型**（WORD的可能取值`mtime`、`atime`、`ctime`、`birth`）。
 
 ### 3. **文件类型与标识**

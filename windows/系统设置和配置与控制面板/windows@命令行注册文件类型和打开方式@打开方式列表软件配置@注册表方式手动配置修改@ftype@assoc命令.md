@@ -577,9 +577,15 @@ PythonFile="C:\scoop\apps\miniconda3\current\python.exe" "%1" "%*"
 
 #### markdown文件
 
+```powershell
+cmd /c assoc .md=MarkdownFile
+cmd /c "ftype MarkdownFile=`"C:\exes\Typora\Typora.exe`" `"%1`""
+
+```
+
+如果之前使用系统UI选择过.md文件的默认打开方式,这里的命令行可能无法为.md设置文件关联到新的程序
+
 ```cmd
-C:\Users\Administrator\Desktop>assoc .md
-.md=MarkdownFile
 
 C:\Users\Administrator\Desktop>assoc .md=MarkdownFile
 .md=MarkdownFile
