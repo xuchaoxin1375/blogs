@@ -91,7 +91,7 @@ If you use a non-POSIX locale (e.g., by setting `LC_ALL` to ‘en_US’), then `
   - `|`：FIFO  
   - `=`：套接字
   - 如果没有可见表示符,则为普通文件
-- `-p`：仅对目录添加 `/`。
+- `-p`：仅对目录类型添加类型标识符(即除了在目录末尾添加 `/`,其他类型的文件不添加任何类型标识符)。
 - `--indicator-style=STYLE`：控制标识符风格（`none`、`slash`、`file-type`、`classify`）。
 
 ```bash
@@ -131,11 +131,33 @@ run.sh*
 - `-H`：仅对命令行中指定的符号链接进行解引用。
 - 默认情况下，`ls` 显示符号链接本身的信息。
 
-### 5. **大小与单位**
+### 5. **大小与单位**👺
 - `-h` / `--human-readable`：配合 `-l` 或 `-s`，以易读单位显示大小（如 `1K`、`234M`）。
+  - `-h` **必须与 `-l`、`-s` 或 `-o` 等显示文件大小的选项一起使用**，否则无效。
+    - 单独 `ls -h` 不会显示大小，因此 `-h` 不起作用。
+  - 它会将字节（bytes）自动转换为更易读的单位：(这些单位是自动决策(根据不同文件的大小自动分配,用户无法指定统一的显示单位,即便更换基数也是自动分配)
+    - **K** = 千字节（1024 字节）($2^{10}$)
+    - **M** = 兆字节（1024² 字节）($2^{20}$)
+    - **G** = 吉字节（1024³ 字节）($2^{30}$)
+    - **T** = 太字节（1024⁴ 字节）
+    - 以此类推（P、E 等）
+
 - `--si`：使用 1000 为基数（而非 1024）。
 - `-s`：显示文件占用的**磁盘块数**。
 - `--block-size=SIZE`：自定义块大小单位（如 `--block-size=M`）。
+
+```bash
+#( 10/14/25@11:07PM )( root@CxxuColorfulWin10 ):~
+   ls -sh
+total 28K
+   0 'abc def'  4.0K  archived  4.0K  f   20K  install.sh     0  zstdL
+#( 10/14/25@11:09PM )( root@CxxuColorfulWin10 ):~
+   ls -s
+total 28
+ 0 'abc def'   4  archived   4  f  20  install.sh   0  zstdL
+```
+
+
 
 ### 6. **所有权与权限**
 - `-n`：以**数字形式**显示 UID 和 GID（而非用户名/组名）。
@@ -152,6 +174,29 @@ run.sh*
 - `--hyperlink[=WHEN]`：在支持的终端中为文件名添加**超链接**。
 - `--zero`：以 **NUL 字符**（而非换行）结束每行，便于脚本处理。
 
+```bash
+# root @ CxxuColorfulWin10 in ~ [23:44:35]
+$ ls -1R
+.:
+'abc def'
+archived
+f
+install.sh
+zstdL
+
+./archived:
+mydir
+mylink
+mypipe
+mysock
+normal.txt
+run.sh
+
+./archived/mydir:
+```
+
+
+
 ### 8. **过滤与忽略**
 - `-I PATTERN` / `--ignore=PATTERN`：忽略匹配 shell 通配符的文件。
 - `--hide=PATTERN`：类似 `-I`，但可被 `-a` 或 `-A` 覆盖。
@@ -159,7 +204,39 @@ run.sh*
 
 ### 9. **国际化与格式**
 - `--time-style=STYLE`：自定义时间显示格式（如 `iso`、`full-iso` 或 `+FORMAT` 类似 `date` 命令）。
+
+  ```bahs
+  $ ls -l --time-style=iso
+  full-iso  iso       locale    long-iso
+  ```
+
+  各种时间风格,详情查看补充说明一节
 - `--quoting-style=WORD`：控制文件名引号风格（如 `shell`、`c`、`literal` 等）。
+
+```bash
+#( 10/14/25@11:04PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=c
+c             clocale       escape        literal       locale        shell         shell-always
+```
+
+```bash
+
+#( 10/14/25@11:04PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=literal
+abc def  archived  f  install.sh  zstdL
+#( 10/14/25@11:04PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=shell
+'abc def'   archived   f   install.sh   zstdL
+#( 10/14/25@11:04PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=c
+"abc def"  "archived"  "f"  "install.sh"  "zstdL"
+#( 10/14/25@11:04PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=escape
+abc\ def  archived  f  install.sh  zstdL
+#( 10/14/25@11:05PM )( root@CxxuColorfulWin10 ):~
+   ls --quoting-style=locale
+‘abc def’  ‘archived’  ‘f’  ‘install.sh’  ‘zstdL’
+```
 
 
 
@@ -184,6 +261,134 @@ ls -d */             # 仅列出当前目录下的子目录
 ```
 
 ---
+
+## 仅列出文件或目录
+
+是的，`ls` **本身不能直接只列出目录**（没有内置的“仅目录”选项），但可以通过**组合其他选项或配合 shell 通配符/命令**来实现。
+
+- 最好的方案是使用find命令而不是ls
+
+- ls没有直接提供这方面的选项,但是也可以通过组合合适的选项和参数实现,尤其是配合grep和文件模式标记位
+
+---
+
+### 方法一：使用 `ls -d */`（最简单常用）
+
+```bash
+ls -d */
+```
+
+- `*/`：匹配所有目录（shell 通配符，`/` 表示目录）
+- `-d`：不展开目录内容，只列出目录本身
+
+#### 示例：
+```bash
+$ ls -d */
+Documents/  Downloads/  Music/  Pictures/  Videos/
+```
+
+> 优点：简单、高效、无需额外工具  
+> ⚠️ 注意：不会显示隐藏目录（如 `.git`）
+
+---
+
+### 方法二：显示包括隐藏目录
+
+```bash
+ls -d .*/ */
+```
+
+或更简洁（避免重复）：
+```bash
+ls -d .*/ */ 2>/dev/null
+```
+
+> `2>/dev/null` 用于屏蔽可能的“无匹配”错误（如没有隐藏目录时）
+
+#### 示例输出：
+```text
+./    ../    .git/    .config/    Documents/    Downloads/
+```
+
+> 💡 如果想去掉 `./` 和 `../`，可以用：
+> ```bash
+> ls -d .[^.]* */ 2>/dev/null
+> ```
+
+---
+
+### 方法三：使用 `find` 命令（更强大）
+
+```bash
+find . -maxdepth 1 -type d
+```
+
+- `-maxdepth 1`：只列出当前目录下的内容（不递归）
+- `-type d`：只匹配目录
+
+#### 示例：
+```bash
+$ find . -maxdepth 1 -type d
+.
+./Documents
+./Downloads
+./.git
+```
+
+> 优点：包含隐藏目录，可灵活控制深度  
+> 🔄 可排序：`find . -maxdepth 1 -type d | sort`
+
+---
+
+### 方法四：使用 `ls` + `grep`（不推荐，但可行）
+
+```bash
+ls -la | grep '^d'
+```
+
+- `ls -la`：列出所有文件（含隐藏），长格式
+- `grep '^d'`：筛选以 `d` 开头的行（`d` 表示目录）
+
+#### 示例：
+```text
+drwxr-xr-x  5 user user 4096 Jun 10 10:00 Documents
+drwxr-xr-x  3 user user 4096 Jun 11 14:20 .git
+```
+
+> ⚠️ 缺点：
+> - 效率低（先列出所有再过滤）
+> - 如果文件名含换行符会出错（罕见但存在）
+> - 不如 `ls -d */` 简洁
+
+---
+
+### 📌 总结：推荐用法
+
+| 需求                         | 推荐命令                     |
+| ---------------------------- | ---------------------------- |
+| **仅列出非隐藏目录**         | `ls -d */`                   |
+| **列出所有目录（含隐藏）**   | `ls -d .*/ */ 2>/dev/null`   |
+| **需要完整路径或脚本中使用** | `find . -maxdepth 1 -type d` |
+
+---
+
+### 💡 小技巧：创建别名
+
+将常用命令设为别名，例如：
+
+```bash
+# 仅目录（不含隐藏）
+alias lsd='ls -d */'
+
+# 所有目录（含隐藏）
+alias lsda='ls -d .*/ */ 2>/dev/null'
+```
+
+加入 `~/.bashrc` 或 `~/.zshrc` 后，直接输入 `lsd` 即可！
+
+---
+
+**结论**：虽然 `ls` 没有原生“仅目录”选项，但通过 `ls -d */` 是最简单高效的方式。
 
 ##  补充说明
 
@@ -211,7 +416,7 @@ ls -d */             # 仅列出当前目录下的子目录
     - `MiB` 等价于 `M`（即 1024² 字节）
     - 以此类推。
 
-> ✅ 总结：`K`/`KiB` = 1024；`KB` = 1000。
+> 总结：`K`/`KiB` = 1024；`KB` = 1000。
 
 ---
 
