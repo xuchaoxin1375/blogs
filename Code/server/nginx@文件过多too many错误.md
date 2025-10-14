@@ -76,22 +76,15 @@ nginx -t
 
 2. 添加以下行（假设 Nginx 以 `www-data` 或 `nginx` 用户运行，根据实际情况调整）：
    ```conf
+   * soft nofile 65536
+   * hard nofile 65536
+   root soft nofile 65536
+   root hard nofile 65536
    nginx soft nofile 65536
    nginx hard nofile 65536
    ```
    
-    或者如果是 www-data 用户：
    
-   ```conf
-   www-data soft nofile 65536
-   www-data hard nofile 65536
-   ```
-   
-   如果你不确定 Nginx 用户，可以查看：
-   
-   ```bash
-   ps aux | grep nginx
-   ```
    
 3. 同时确保 PAM 启用了 limits（大多数现代系统默认启用）。
 
