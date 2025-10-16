@@ -2,17 +2,115 @@
 
 ## abstract
 
-shell中使用mysql执行mysql语句
+shell中使用mysql执行mysql语句@bash命令行中执行sql语句@创建数据库
 
 在 Bash 中使用 MySQL 执行 SQL 语句是一种常见的操作，可以通过命令行直接运行 SQL 查询或执行 SQL 文件。
 
-## bash中创建数据库🎈
+## mysql数据库克隆|备份与恢复🎈
+
+在shell中(比如bash)中执行
+
+- 导出sql文件备份：`mysqldump -u root -p my_database > backup.sql` 
+- 导入sql文件：`mysql -u root -p my_database < backup.sql`
+
+这里的`-p`可以直接跟上数据库密码`-p"password"`,或者先放空,回车后填写密码完成操作
+
+```bash
+root@wnx0006088:~# mysqldump -u root -p wp_voiceforscopes.com > out.sql
+Enter password:
+root@wnx0006088:~# ls -l out.sql
+# 创建新的数据库用于导入
+root@wnx0006088:~# mysql -uroot -e "create database test_cli" -p
+Enter password:
+# 开始导入之前备份的文件
+root@wnx0006088:~# mysql -u root -p wp_form2fb.voiceforscopes.com < out.sql
+Enter password:
+```
+
+### 导出的sql文件预设了数据库名字
+
+导出sql时是否使用了`--database`,效果会有所不同
+
+
+
+```sql
+-- MySQL dump 10.13  Distrib 5.7.26, for Win64 (x86_64)
+--
+-- Host: localhost    Database: zsh_vivirbajoestrellas.com
+-- ------------------------------------------------------
+-- Server version	5.7.26
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `vivirbajoestrellas.com`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `vivirbajoestrellas.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+
+USE `vivirbajoestrellas.com`;
+
+--
+-- Table structure for table `wp_actionscheduler_actions`
+--
+```
+
+可以看到
+
+```sql
+--
+-- Current Database: `vivirbajoestrellas.com`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `vivirbajoestrellas.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+
+USE `vivirbajoestrellas.com`;
+
+```
+
+而常规情况下导出的sql头部
+
+```sql
+-- MySQL dump 10.13  Distrib 5.7.26, for Win64 (x86_64)
+--
+-- Host: localhost    Database: 1.es
+-- ------------------------------------------------------
+-- Server version	5.7.26
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `wp_actionscheduler_actions`
+--
+```
+
+
+
+### bash中创建mysql数据库🎈
 
 这里主要注意数据库名字中带有`.`号的情况
 
 ```bash
 #( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
+   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktu.com\` "
    
 ```
 
@@ -20,14 +118,14 @@ shell中使用mysql执行mysql语句
 
 ```bash
 #( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -uroot -p1234 zsh_babymarktzonetr.com < babymarktzonetr.com.sql  
+   mysql -uroot -p1234 zsh_babymarktu.com < babymarktzonetr.com.sql  
 ```
 
 
 
 ```bash
 mysql -u root  -e "CREATE DATABASE testdb" -p密码
-mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
+mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktu.com\` "
 ```
 
 
@@ -35,14 +133,14 @@ mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
 ### 免密模式(一口气)
 
 ```bash
-mysql -uroot   -e "CREATE DATABASE \`zsh_babymarktzonetr.com\` "
+mysql -uroot   -e "CREATE DATABASE \`zsh_babymarktu.com\` "
  
 ```
 
 然后可以执行导入sql文件等操作
 
 ```bash
-mysql -uroot   zsh_babymarktzonetr.com < babymarktzonetr.com.sql 
+mysql -uroot   zsh_babymarktu.com < babymarktzonetr.com.sql 
 ```
 
 
@@ -74,7 +172,6 @@ mysql -u root  -p"Yourpassword" -e  "sql语句;"
 需要密码的情况:
 
 ```bash
-
 mysql -u root  -e  "SHOW DATABASES;" -p #密码在回车后输入
 ```
 
@@ -89,6 +186,7 @@ mysql -u root -p -e "SHOW DATABASES;"
 - `-e "SQL 语句"`：指定要执行的 SQL 语句。
 
 **运行效果：**
+
 1. 系统会提示您输入密码。
 2. 执行完成后，结果会直接输出到终端。
 
@@ -103,6 +201,7 @@ mysql -u 用户名 -p -e "SQL 语句1; SQL 语句2; SQL 语句3;"
 ```
 
 **示例：**
+
 ```bash
 mysql -u root -p -e "USE mydatabase; SHOW TABLES; SELECT COUNT(*) FROM users;"
 ```
@@ -119,6 +218,7 @@ mysql -u 用户名 -p 数据库名 < 文件路径
 
 **示例：**
 假设有一个名为 `script.sql` 的文件，内容如下：
+
 ```sql
 CREATE TABLE IF NOT EXISTS test_table (id INT, name VARCHAR(50));
 INSERT INTO test_table (id, name) VALUES (1, 'Alice'), (2, 'Bob');
@@ -126,6 +226,7 @@ SELECT * FROM test_table;
 ```
 
 执行该文件的命令为：
+
 ```bash
 mysql -u root -p mydatabase < script.sql
 ```
@@ -144,6 +245,7 @@ mysql -u 用户名 -p -e "SQL 语句" > 输出文件路径
 ```
 
 **示例：**
+
 ```bash
 mysql -u root -p -e "SELECT * FROM users;" > users_output.txt
 ```
@@ -161,6 +263,7 @@ mysql -u 用户名 -p
 ```
 
 进入交互式模式后，您可以逐条输入 SQL 语句并查看结果。例如：
+
 ```sql
 USE mydatabase;
 SHOW TABLES;
@@ -180,6 +283,7 @@ mysql -u 用户名 -p -h 主机地址 -P 端口号 -e "SQL 语句"
 ```
 
 **示例：**
+
 ```bash
 mysql -u root -p -h 192.168.1.100 -P 3307 -e "SHOW DATABASES;"
 ```
@@ -214,21 +318,29 @@ EOF
 ### **注意事项：**
 
 1. **安全性：**
+
    - 在脚本中直接写入密码（如 `-p$DB_PASS`）可能存在安全风险，建议使用 MySQL 配置文件（`.my.cnf`）来存储凭据。
+
    - 示例 `.my.cnf` 文件内容：
+
      ```ini
      [client]
      user=root
      password=your_password
      ```
+
      放置在用户主目录下（`~/.my.cnf`），并设置权限为仅用户可读：
+
      ```bash
      chmod 600 ~/.my.cnf
      ```
 
 2. **错误处理：**
+
    - 如果 SQL 执行失败，可以通过检查 `$?` 获取上一个命令的退出状态码。
+
    - 示例：
+
      ```bash
      mysql -u root -p -e "INVALID SQL;"
      if [ $? -ne 0 ]; then
@@ -237,6 +349,7 @@ EOF
      ```
 
 3. **字符编码：**
+
    - 如果数据包含非 ASCII 字符（如中文），确保 MySQL 客户端和服务器的字符集一致。可以通过 `--default-character-set=utf8mb4` 参数指定字符集。
 
 ---
