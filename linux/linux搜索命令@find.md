@@ -28,6 +28,8 @@ Default path is the current directory; default expression is -print.
 
 不使用参数时,默认查找当前工作目录,递归查找
 
+注意,path(路径参数是位置参数,不需要也没有前导的选项来引出path参数),并且根据语法标记`[path...]`可知,find命令允许不传入path或者传入多个path
+
 ### 简介
 
 将语法分为三部分:
@@ -44,7 +46,7 @@ find . -maxdepth 1 -name "*.sh"
 
 
 
-1. 回看语法中选项`[-H] [-L] [-P] [-Olevel] [-D debugopts] `例子中没有启用
+1. 回看语法中选项`[-H] [-L] [-P] [-Olevel] [-D debugopts] `,上述例子中没有启用
 2. 例子中第一个参数就是路径`path`,经常是`.`(默认查找路径),它表示当前目录
 3. `-maxdepth 1 -name "*.sh"`是对应的`[expression]`,注意通常用`''`或`""`来包裹`-name`参数防止shell识别错误
 
