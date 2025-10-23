@@ -143,7 +143,7 @@ FLUSH PRIVILEGES;
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'new_password';
 ```
 
-或
+或(推荐8.0以后版本使用`caching_sha2_password`,如果条件允许的话)
 
 ```sql
 ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'new_password';
