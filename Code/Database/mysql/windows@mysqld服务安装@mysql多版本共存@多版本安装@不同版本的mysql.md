@@ -1,6 +1,6 @@
 [toc]
 
-
+## abtract
 
 在 Windows 中安装多个不同版本的 MySQL（例如同时安装 5.7 和 8.0），是完全可行的，但需要注意一些配置和环境管理问题，否则会引起冲突或数据损坏。
 
@@ -78,15 +78,13 @@ log-error="mysql80.err"
 server-id=2
 ```
 
-#### 安装服务：
+### 安装服务
+
+> 重点是指定mysql的配置文件(my.ini)
 
 ```bash
 mysqld --install MySQL80 --defaults-file="C:\MySQL\mysql-8.0\my.ini"
 ```
-
-
-
-
 
 #### 初始化
 
@@ -120,7 +118,7 @@ mysqld --initialize --console --defaults-file="C:\phpstudy_pro\Extensions\MySQL5
 
 正常情况下,没有返回信息
 
-#### 3. 启动服务
+#### 启动服务
 
 ```bash
 net start MySQL57
@@ -241,15 +239,94 @@ mysql -u root -p -P3306
 | 登录报错                                | 密码认证方式不同（8.0 默认是 caching_sha2） | 指定 `mysql_native_password` 插件 |
 | 启动时报错 `The service already exists` | 服务名重复                                  | 修改安装命令中的服务名            |
 
-------
+### 第三方安装mysql的服务管理方式
 
-### 总结建议
+如果使用小皮安装mysql,那么通常的做法是使用小皮工具箱的UI来控制服务的运行和重启,但是有时处于某种自动化操作,我们不想通过GUI操作mysql服务
 
-- 使用 ZIP 版安装更灵活。
-- 配置文件、端口、服务名必须区分。
-- 管理上建议使用脚本或 GUI 工具分版本管理。
-- 不推荐在生产环境使用多个版本共存，适合测试或兼容性检查。
+首先大致了解一下小皮工具箱是如何控制mysql服务
 
-------
+```powershell
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL8.0.12\bin][11:58:19] PS >
+ ps *mysql*|select path,CommandLine
 
-如你需要我写一个完整的 **双版本安装与配置脚本**，可以继续说，我可以直接生成批处理 `.bat` 或 PowerShell 脚本给你用。是否需要？
+Path                                                  CommandLine
+----                                                  -----------
+C:\phpstudy_pro\Extensions\MySQL8.0.12\bin\mysqld.exe C:\phpstudy_pro\COM\..\Extensions\MySQL8.0.12\\bin\mysqld.exe
+C:\phpstudy_pro\Extensions\MySQL8.0.12\bin\mysqld.exe C:\phpstudy_pro\COM\..\Extensions\MySQL8.0.12\\bin\mysqld.exe
+
+```
+
+如此看来,小皮并没有将其安装的mysql注册为服务,因为启动mysql的命令行说明了这一点
+
+此外,通过查询`mysql`相关服务名,也是空的
+
+```powershell
+ gsv *mysql*
+```
+
+但是如果你尝试kill相关进程,小皮工具箱刚好将mysql启动,处于运行状态会发现小皮会试图马上复活(自动重启)mysqld,除非你退出小皮工具箱
+
+> 这种情况下(小皮控制mysql服务的运行),即便你正确注册了mysqld为服务,也难以启动成功
+
+```
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL8.0.12\bin][11:57:38] PS >
+ ps *mysql*
+
+ NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+ ------    -----      -----     ------      --  -- -----------
+     27   438.86     369.70       1.77   42408   1 mysqld
+      9     6.25      10.86       0.02   42628   1 mysqld
+
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL8.0.12\bin][11:57:42] PS >
+ ps *mysql*|kill -Force -Verbose
+VERBOSE: Performing the operation "Stop-Process" on target "mysqld (42408)".
+VERBOSE: Performing the operation "Stop-Process" on target "mysqld (42628)".
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL8.0.12\bin][11:57:49] PS >
+ ps *mysql*
+
+ NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+ ------    -----      -----     ------      --  -- -----------
+      9     6.23      10.86       0.02   25536   1 mysqld
+     27   438.82     370.36       1.95   34928   1 mysqld
+
+```
+
+```powershell
+#⚡️[Administrator@CXXUDESK][C:\phpstudy_pro\Extensions\MySQL8.0.12\bin][11:58:14] PS >
+ gsv MySQL80
+
+Status   Name               DisplayName
+------   ----               -----------
+Stopped  MySQL80            MySQL80
+#⚡️[Administrator@CXXUDESK][~\Desktop][11:44:00] PS >
+ Start-Service MySQL80
+Start-Service: Failed to start service 'MySQL80 (MySQL80)'.
+```
+
+只有退出小皮工具箱,或者工具箱中mysql不是运行状态,然后检查mysqld进程是否存在,如果存在,则尝试杀死,然后再用注册好的mysql服务(比如上例中的`MySQL80`服务)
+
+启动成功后重新检查运行状态和进程状态
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][11:44:07] PS >
+ gsv *mysql*
+
+Status   Name               DisplayName
+------   ----               -----------
+Running  MySQL80            MySQL80
+```
+
+可以看到状态变成`Running`
+
+并且,由于是以系统服务的方式启动的,`commandLine`一般是空的,可以使用命令`ps *mysql*|select *`查看更多相关进程
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][12:14:44] PS >
+ ps *mysql*|select name,CommandLine
+
+Name   CommandLine
+----   -----------
+mysqld
+mysqld
+```
+

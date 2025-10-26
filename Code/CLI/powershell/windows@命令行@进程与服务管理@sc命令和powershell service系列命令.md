@@ -19,6 +19,7 @@
 ### 获取软件版本
 
 - 根据进程名称获取软件版本:`ps -FileVersionInfo  -Name *edge* `
+
 ### 按名称分组统计进程
 
 - `ps |group ProcessName |sort Name`
@@ -55,6 +56,7 @@
 
 
 ----- ----                      -----
+
 ```powershell
 PS C:\Users\cxxu> ps *wechat*|group ProcessName |ft -wrap
 
@@ -185,8 +187,6 @@ PS C:\Users\cxxu> stop -Name IDMan
 - ntop(for windows)
 - htop (for linux)
 
-
-
 # 服务管理
 
 ## windows命令行服务设置
@@ -312,7 +312,9 @@ Running  WSearch            Windows Search
     PS C:\Users\cxxu\Desktop> Set-Service -StartupType Disabled -Name WSearch -Verbose
     VERBOSE: Performing the operation "Set-Service" on target "Windows Search (WSearch)".
     ```
+
   - 通过观察`service.msc`,执行上述命令后,刷新`service.msc`(按下`F5`)可以看到启动类型变为`Disabled`
+
   - 但是该条语句不会立即停止`Wsearch`服务
 
 - 我们可以尝试再次运用`spsv`来停止服务,随即再检查运行状态
@@ -349,7 +351,7 @@ Running  WSearch            Windows Search
 
   
 
-## SC 系列命令
+## SC 系列命令@服务控制命令
 
 - 命令行中执行`sc`而不追加任何参数来获取内建的用法帮助
 
@@ -381,6 +383,7 @@ USAGE:
 
 
 ### `sc` 命令的基本语法如下：
+
 ```sh
 sc <server> [command] [service name] <option1> <option2>...
 ```
@@ -411,43 +414,49 @@ sc <server> [command] [service name] <option1> <option2>...
 6. **删除服务**：
    - `sc delete <service_name>`：删除一个服务。
 
-### 示例：
+#### 基本用例
 
 - 列出所有服务的状态：
+
   ```sh
   sc query
   ```
 
 - 启动名为 "Spooler" 的服务：
+
   ```sh
   sc start Spooler
   ```
 
 - 查询名为 "Spooler" 的服务的状态：
+
   ```sh
   sc query Spooler
   ```
 
 - 创建一个新服务：
+
   ```sh
   sc create MyService binPath= "C:\Program Files\MyApp\MyService.exe"
   ```
 
 - 配置 "MyService" 服务以自动启动：
+
   ```sh
   sc config MyService start= auto
   ```
 
 - 删除 "MyService" 服务：
+
   ```sh
   sc delete MyService
   ```
 
 使用 `sc` 命令时，请确保有足够的权限，并且提供的路径和名称准确无误。
 
-#### 演示
+#### 实操
 
-```bash
+```cmd
 #查询服务运行状态
 PS C:\Users\cxxu\Desktop> sc query Sysmain
 
@@ -481,6 +490,8 @@ SERVICE_NAME: sysmain
         CHECKPOINT         : 0x0
         WAIT_HINT          : 0x0
 ```
+
+
 
 #### net  stop 和 sc stop对比
 
@@ -525,6 +536,7 @@ SERVICE_NAME: sysmain
   1. 打开命令提示符：按下 `Win + R` 键打开“运行”窗口，输入 `cmd` 并按下回车键。
 
   2. 输入以下命令来查询特定服务的状态，这里以“WebClient”服务为例：
+
      ```cmd
      sc query WebClient
      ```
@@ -532,4 +544,61 @@ SERVICE_NAME: sysmain
   按下回车后，命令行将会显示该服务的状态信息，包括服务名称、状态（如RUNNING、STOPPED等）、PID、服务类型以及其他相关信息。
 
   请确保你拥有足够的权限来执行这个操作，有时候可能需要以管理员身份运行命令提示符。如果需要查看所有服务的状态，只需输入 `sc query` 即可。
+
+## 对比powershell命令和sc命令
+
+powershell提供的service系列命令更现代化,更完整和可读性更强的信息,sc则兼容更老的系统
+
+如果条件允许,使用powershell执行相关任务更受推荐
+
+以查询某个服务为例,`get-service`(缩写为`gsv`)支持模糊查找(支持通配符),而且可利用`select *`获取更多信息
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\Desktop][10:55:08] PS >
+ gsv Spool*
+
+Status   Name               DisplayName
+------   ----               -----------
+Running  Spooler            Print Spooler
+
+#⚡️[Administrator@CXXUDESK][~\Desktop][10:55:16] PS >
+ gsv Spooler|select *
+
+UserName            : LocalSystem
+Description         : 该服务在后台执行打印作业并处理与打印机的交互。如果关闭该服务，则无法进行打印或查看打印机。
+DelayedAutoStart    : False
+BinaryPathName      : C:\WINDOWS\System32\spoolsv.exe
+StartupType         : Automatic
+Name                : Spooler
+RequiredServices    : {RPCSS, http}
+CanPauseAndContinue : False
+CanShutdown         : False
+CanStop             : True
+DisplayName         : Print Spooler
+DependentServices   : {}
+MachineName         : .
+ServiceName         : Spooler
+ServicesDependedOn  : {RPCSS, http}
+StartType           : Automatic
+ServiceHandle       : Microsoft.Win32.SafeHandles.SafeServiceHandle
+Status              : Running
+ServiceType         : Win32OwnProcess, InteractiveProcess
+Site                :
+Container           :
+```
+
+而`sc query`效果如下
+
+```cmd
+ sc query Spooler
+
+SERVICE_NAME: Spooler
+        TYPE               : 110  WIN32_OWN_PROCESS  (interactive)
+        STATE              : 4  RUNNING
+                                (STOPPABLE, NOT_PAUSABLE, IGNORES_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+```
 
