@@ -431,6 +431,22 @@ mysql -u root -p -h your_server_ip
 
 ## 其他操作
 
+### 修改mysql用户密码
+
+详情另见它文,主要使用`alter user`指令选择合适的加密插件进行密码设置.
+
+对于mysql8+,推荐
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'new_password';
+```
+
+如果是5.7或更老的,可以用:
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'new_password';
+```
+
 
 
 ### 重名命已有用户
