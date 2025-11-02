@@ -1,7 +1,5 @@
 [toc]
 
-
-
 ## reference
 
 - [How to Set Environment Variables in Linux {Step-by-Step Guide} (phoenixnap.com)](https://phoenixnap.com/kb/linux-set-environment-variable)
@@ -123,6 +121,7 @@ permanent!@cxxu
 **Note:** Take a look at our in-depth guide on how to use the [Linux set command](https://phoenixnap.com/kb/linux-set) to learn more about it.
 
 ## Set an Environment Variable in Linux
+
 ### set a shell variable
 
 - The simplest way to set a variable using the command line is to type its name followed by a value:
@@ -191,10 +190,9 @@ test env
   ```bash
   sudo vim ~/.bashrc
   ```
-  
+
   - Write a line for each variable you wish to add using the following syntax:
-  
-  
+
   ```bash
   export [VARIABLE_NAME]=[variable_value]
   ```
@@ -213,10 +211,9 @@ test env
   ```bash
   sudo vim /etc/profile.d/[filename].sh
   ```
-- The syntax to add variables to the file is the same as with **`.bashrc`** 
-	- Save and exit the file. The changes are applied at the next logging in.
+- The syntax to add variables to the file is the same as with **`.bashrc`**
 
-
+  - Save and exit the file. The changes are applied at the next logging in.
 
 ## How to Unset an Environment Variable
 
@@ -234,18 +231,21 @@ test env
 ## 修改已有的永久环境变量
 
 - [How to Add a Directory to Your $PATH in Linux (howtogeek.com)](https://www.howtogeek.com/658904/how-to-add-a-directory-to-your-path-in-linux/#:~:text=You%20can%20use%20the%20export%20command%20to%20add,sure%20it%20searches%20your%20directory%20first%2C%20before%20%2Fusr%2Flocal%2Fbin.)
-###  注意事项
--  linux中区分大小写,所以PATH不同于path
-- 与windows不同,linux采用 `:`分隔环境变量的不同取值
 
+### 注意事项
+
+- linux中区分大小写,所以PATH不同于path
+- 与windows不同,linux采用 `:`分隔环境变量的不同取值
 - 根据默认的/etc/profile 的脚本来看,到底是配置在/etc/profile的内容先执行还是/etc/profile.d/*.sh先执行,这取决于您将profile中的内容写在遍历代码前还是后
 - 您可以使用 `unset [variable_name]`来抹去已有的变量值,然后赋值以新的值
-###  配置PATH变量
+
+### 配置PATH变量
+
 - 如果仅仅是简单的追加某个变量的取值段,譬如给PATH添加一个新的取值
   - 可以在/etc/profile..中配置
     - `export PATH=newValueToAdd:$PATH`
-    	- 	注意大小要求
-    	- 变量取值中带有空格时,需要使用`" "`来包裹
+      - 注意大小要求
+      - 变量取值中带有空格时,需要使用`" "`来包裹
     - 或者 ` export PATH="$PATH:/NEW_PATH"`
       - 给其他任意变量添加多个取值都是一样的方法,例如:
       - ```
@@ -256,16 +256,18 @@ test env
         # 开始添加
         # cxxu_kali @ cxxuWin11 in ~ [19:54:07] C:130
         $ export test_env_permanent=/test:$test_env_permanent
-        
+
         # cxxu_kali @ cxxuWin11 in ~ [19:54:24]
         $ echo $test_env_permanent
         /test:permanent!@cxxu
         # 可见,头部添加了一个值/test
         ```
-  
-##  应用环境变量
-###  利用已有的环境变量创建新的环境变量
->引用环境变量的方式和普通变量的方式类似(主要的不同在于生命周期和作用域)
+
+## 应用环境变量
+
+### 利用已有的环境变量创建新的环境变量
+
+> 引用环境变量的方式和普通变量的方式类似(主要的不同在于生命周期和作用域)
 
 ```bash
 # 查看已经有的变量
@@ -283,8 +285,11 @@ $ cd $script
 $ pwd
 /mnt/d/repos/scripts
 ```
-###  字符串内引用环境变量
+
+### 字符串内引用环境变量
+
 例如`echo`,`cd` 之类的命令都可以将含有环境变量的引用解析环境变量的值
+
 ```bash
 #  echo
 # cxxu_kali @ cxxuWin11 in /mnt/d/repos [9:48:24]
@@ -305,13 +310,14 @@ $ cd "$script"
 $
 ```
 
+### 配置环境变量时可能遇到的问题
 
-###  配置环境变量时可能遇到的问题
->- 注意别名环境变量名不是随便取的,要避免某些特殊值,比如在我的环境下,aliases这个词不可以直接作为左值:出现异常:
->	` attempt to set associative array to scalar`
->- 如果发生环境变量之间的相互引用,需要将被引用的写在前面
->	- linux 似乎允许多重嵌套引用,windows做类似事情的时候就容易解析不全,层数受限 
->	例如
+> - 注意别名环境变量名不是随便取的,要避免某些特殊值,比如在我的环境下,aliases这个词不可以直接作为左值:出现异常:
+>   ` attempt to set associative array to scalar`
+> - 如果发生环境变量之间的相互引用,需要将被引用的写在前面
+>   - linux 似乎允许多重嵌套引用,windows做类似事情的时候就容易解析不全,层数受限
+>     例如
+
 ```bash
 export d="/mnt/d"
 export c="/mnt/c"
@@ -322,13 +328,17 @@ export aliasesConfig="$scripts/linuxShellScripts/.aliases.sh"
 export aliases_jumper="$linuxShellScripts/.aliases_jumper.sh"
 
 ```
+
 ## 变量名和变量类型的赋值要求
 
 ### references
 
 - [bash - .zshrc inconsistent type for assignment? - Stack Overflow](https://stackoverflow.com/questions/45254941/zshrc-inconsistent-type-for-assignment)
+
 > 注意,指派新的环境变量注意别名环境变量名不是随便取的,要避免某些特殊值,比如aliases这个词不可以直接作为左值: attempt to set associative array to scalar
+
 - path与PATH
+
 ```bash
 #( 04/12/22@10:59AM )( cxxu@cxxuAli ):~/linuxShellScripts
    set |egrep -i "^path"
@@ -336,7 +346,9 @@ PATH=/usr/node/node-v16.14.2-linux-x64/bin/:/home/cxxu/.cargo/bin:/usr/local/sbi
 
 path=( /usr/node/node-v16.14.2-linux-x64/bin/ /home/cxxu/.cargo/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/games /usr/local/games /snap/bin )
 ```
+
 - 又比如变量名`aliases`
+
 ```bash
 #( 04/12/22@10:59AM )( cxxu@cxxuAli ):~/linuxShellScripts
    echo $aliases

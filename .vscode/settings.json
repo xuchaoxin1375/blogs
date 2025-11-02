@@ -53,5 +53,6 @@
             "scheme": "file",
             "pattern": "d:\\repos\\ELA\\docs\\ppt.md"
         }
-    ]
+    ],
+    "workbench.editor.enablePreviewFromCodeNavigation": true
 }
