@@ -65,16 +65,21 @@ nginx -t
 
 ---
 
-#### 方法 B：修改系统级 limits.conf
+#### 方法 B：修改系统级 limits.conf🎈
 
-（适用于非 systemd 或传统 init）
+适用于非 systemd 或传统 init,systemd的系统经过试验应该也可以,如果不行请使用其他方案
 
 1. 编辑 `/etc/security/limits.conf`：
    ```bash
    sudo vi /etc/security/limits.conf
    ```
 
+   如果你习惯其他编辑器也可以,比如nano,vim,msedit或者vscode远程编辑
+
+   如果用宝塔面板这类工具也可以在浏览器中编辑
+
 2. 添加以下行（假设 Nginx 以 `www-data` 或 `nginx` 用户运行，根据实际情况调整）：
+
    ```conf
    * soft nofile 65536
    * hard nofile 65536
@@ -83,10 +88,10 @@ nginx -t
    nginx soft nofile 65536
    nginx hard nofile 65536
    ```
-   
-   
-   
-3. 同时确保 PAM 启用了 limits（大多数现代系统默认启用）。
+
+   > 同时确保 PAM 启用了 limits（大多数现代系统默认启用）。
+
+关闭当前终端链接,然后新开终端链接刷新环境(否则上述修改可能无效!)
 
 ---
 
@@ -134,7 +139,10 @@ events {
 nginx -t
 
 # 如果成功，重启 Nginx
+## 方案1:
 systemctl restart nginx
+## 方案2:
+pkill -9 nginx;nginx
 ```
 
 ---

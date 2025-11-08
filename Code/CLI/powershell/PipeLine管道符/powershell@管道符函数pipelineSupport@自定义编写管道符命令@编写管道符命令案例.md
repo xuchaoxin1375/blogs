@@ -494,7 +494,10 @@ function Get-PathStyle
 }
 ```
 
+**begin/process/end 块使用不当**：
 
+- `begin` 块中的代码在处理管道输入时只会执行一次，而不是对每个输入项执行
+- `Path` 参数在 `begin` 块中就被处理了，这会导致管道输入处理不正确
 
 ## 其他案例
 
