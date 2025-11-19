@@ -15,17 +15,33 @@ shell中使用mysql执行mysql语句@bash命令行中执行sql语句@创建数�
 
 这里的`-p`可以直接跟上数据库密码`-p"password"`,或者先放空,回车后填写密码完成操作
 
+### 导出数据库备份文件.sql
+
 ```bash
-root@wnx0006088:~# mysqldump -u root -p wp_voiceforscopes.com > out.sql
+root@wnx0006088:~# mysqldump -u root -p test_db > out.sql
 Enter password:
 root@wnx0006088:~# ls -l out.sql
+
+
+```
+
+### 创建新的数据库(空)用于导入
+
+```bash
 # 创建新的数据库用于导入
-root@wnx0006088:~# mysql -uroot -e "create database test_cli" -p
-Enter password:
-# 开始导入之前备份的文件
-root@wnx0006088:~# mysql -u root -p wp_form2fb.voiceforscopes.com < out.sql
+root@wnx0006088:~# mysql -uroot -e "create database test_db" -p
 Enter password:
 ```
+
+### 导入备份文件到指定数据库中
+
+```bash
+# 开始导入之前备份的文件
+root@wnx0006088:~# mysql -u root -p test_db < out.sql
+Enter password:
+```
+
+
 
 ### 导出的sql文件预设了数据库名字
 
@@ -36,7 +52,7 @@ Enter password:
 ```sql
 -- MySQL dump 10.13  Distrib 5.7.26, for Win64 (x86_64)
 --
--- Host: localhost    Database: zsh_vivirbajoestrellas.com
+-- Host: localhost    Database: demo.com
 -- ------------------------------------------------------
 -- Server version	5.7.26
 
@@ -52,12 +68,12 @@ Enter password:
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `vivirbajoestrellas.com`
+-- Current Database: `demo.com`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `vivirbajoestrellas.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `demo.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
-USE `vivirbajoestrellas.com`;
+USE `demo.com`;
 
 --
 -- Table structure for table `wp_actionscheduler_actions`
@@ -68,12 +84,12 @@ USE `vivirbajoestrellas.com`;
 
 ```sql
 --
--- Current Database: `vivirbajoestrellas.com`
+-- Current Database: `demo.com`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `vivirbajoestrellas.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `demo.com` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
-USE `vivirbajoestrellas.com`;
+USE `demo.com`;
 
 ```
 
@@ -104,28 +120,52 @@ USE `vivirbajoestrellas.com`;
 
 
 
-### bash中创建mysql数据库🎈
+## bash中创建mysql数据库模板🎈
 
-这里主要注意数据库名字中带有`.`号的情况
+这里主要注意数据库名字中带有`.`号的情况,在bash中创建数据库时,推荐使用**(&#92;&#96;)**包裹数据库名
+
+这里假设密码是1234,则使用`-p1234`使用密码验证
+
+如果配置了免密,可以取消掉`-p`
 
 ```bash
-#( 05/22/25@ 2:29PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktu.com\` "
+mysql -u root -p1234 -e "CREATE DATABASE \`demo.com\` "
    
 ```
 
 恢复/导入数据sql文件可以不用额外转义"`"符号
 
 ```bash
-#( 05/22/25@ 2:30PM )( root@wnx0020303 ):/srv/uploads/uploader/files/zsh
-   mysql -uroot -p1234 zsh_babymarktu.com < babymarktzonetr.com.sql  
+mysql -uroot -p1234 demo.com < demo.com.sql  
 ```
 
+---
 
+### 命令模板小结:
+
+注意将`demo.com`替换为数据库名真实值
+
+如果不免密
 
 ```bash
-mysql -u root  -e "CREATE DATABASE testdb" -p密码
-mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktu.com\` "
+mysql -u root -p1234 -e "CREATE DATABASE \`demo.com\` "
+mysql -uroot -p1234 demo.com < demo.com.sql  
+```
+
+如果免密
+
+```
+mysql -u root -e "CREATE DATABASE \`demo.com\` "
+mysql -uroot  demo.com < demo.com.sql  
+```
+
+补充:
+
+其中`-p`参数位置可以前置也可以后置
+
+```bash
+mysql -u root  -e "CREATE DATABASE testdb" -p1234
+mysql -u root -p1234 -e "CREATE DATABASE \`demo.com\` "
 ```
 
 
@@ -133,14 +173,14 @@ mysql -u root -p1234 -e "CREATE DATABASE \`zsh_babymarktu.com\` "
 ### 免密模式(一口气)
 
 ```bash
-mysql -uroot   -e "CREATE DATABASE \`zsh_babymarktu.com\` "
+mysql -uroot   -e "CREATE DATABASE \`demo.com\` "
  
 ```
 
 然后可以执行导入sql文件等操作
 
 ```bash
-mysql -uroot   zsh_babymarktu.com < babymarktzonetr.com.sql 
+mysql -uroot   demo.com < demo.com.sql 
 ```
 
 

@@ -8,11 +8,11 @@
 
 ```powershell
 
-PS> write-host cmd /c "mysql -uroot -h 23.239.111.202 < `"$home/desktop/BatchSiteDBCreate-zw.sql`" "
+PS> write-host cmd /c "mysql -uroot -h 23.110.230.202 < `"$home/desktop/BatchSiteDBCreate-zw.sql`" "
 
-cmd /c mysql -uroot -h 23.239.111.202 < "C:\Users\Administrator/desktop/BatchSiteDBCreate-zw.sql"
+cmd /c mysql -uroot -h 23.110.230.202 < "C:\Users\Administrator/desktop/BatchSiteDBCreate-zw.sql"
 
-PS> cmd /c "mysql -uroot -h 23.239.111.202 < `"$home/desktop/BatchSiteDBCreate-zw.sql`" "
+PS> cmd /c "mysql -uroot -h 23.110.230.202 < `"$home/desktop/BatchSiteDBCreate-zw.sql`" "
 
 PS>
 ```
@@ -28,11 +28,11 @@ PS>
 还可以稍微借助`()`运算包裹内部的字符串链接运算,稍微简化一下语句结构,分为前后两部分
 
 ```powershell
- cmd /c ("mysql -uroot -h 23.239.111.202 < " + " `"$home/desktop/BatchSiteDBCreate-zw.sql`" ")
+ cmd /c ("mysql -uroot -h 23.110.230.202 < " + " `"$home/desktop/BatchSiteDBCreate-zw.sql`" ")
 ```
 
 ```powershell
-cmd /c ("mysql -uroot -h 23.239.111.202 < " + '"' + "$home/desktop/BatchSiteDBCreate-zw.sql" + '"')
+cmd /c ("mysql -uroot -h 23.110.230.202 < " + '"' + "$home/desktop/BatchSiteDBCreate-zw.sql" + '"')
 ```
 
 

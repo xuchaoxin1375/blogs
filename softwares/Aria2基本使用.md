@@ -466,12 +466,12 @@ aria2c -s 8 --max-connection-per-server=4 http://example.com/file1.zip http://ex
    此命令在多线程下载的基础上，限制下载速度为 500KB/s。
    
    ```bash
-   aria2c -x 16 -s 16 -k 1M http://23.239.111.202:13133/down/WqLQXXNQLqpd.sql
+   aria2c -x 16 -s 16 -k 1M http://23.110.230.202:13133/down/WqLQXXNQLqpd.sql
    ```
    
    ```bash
    #⚡️[Administrator@CXXUDESK][~\Desktop][15:16:34][UP:0.24Days]
-   PS> aria2c -x 16 -s 16 -k 1M http://23.239.111.202:13133/down/WqLQXXNQLqpd.sql
+   PS> aria2c -x 16 -s 16 -k 1M http://23.110.230.202:13133/down/WqLQXXNQLqpd.sql
    
    02/25 15:16:37 [NOTICE] Downloading 1 item(s)
    
