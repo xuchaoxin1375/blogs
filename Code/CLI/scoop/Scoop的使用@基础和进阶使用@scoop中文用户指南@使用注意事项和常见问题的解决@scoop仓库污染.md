@@ -987,11 +987,15 @@ powershell 7.4.5   110372346
 
 
 
-## scoop仓库被污染@更新问题👺
+## scoop仓库被污染@更新问题@修复scoop更新git unstash问题👺
 
 - 如果你无意中对scoop目录下的某些git仓库做了修改，那么可能导致更新失败
 - 当你在 PowerShell 中运行 `scoop update` 命令时，出现了以下警告：`WARN  Uncommitted changes detected. Update aborted.` 这是 Scoop 检测到 Scoop 本身的 Git 仓库中有未提交的更改，从而阻止更新操作。
 
+```powershell
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+```
 
 ### 原因分析
 
@@ -1012,6 +1016,17 @@ git reset --hard
 
 #其他buckets依次修复
 cd $home/scoop/buckets
+ls -Directory |%{cd $_;git reset --hard head}
+
+```
+如果是自定安装路径:
+```
+cd $env:scoop\scoop\current
+git reset --hard
+# git clean -df # 清除未保存的更改
+
+#其他buckets依次修复
+cd $env:scoop/buckets
 ls -Directory |%{cd $_;git reset --hard head}
 
 ```
