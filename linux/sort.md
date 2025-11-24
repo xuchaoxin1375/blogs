@@ -1,4 +1,4 @@
-@[toc]
+[toc]
 ## references
 
 - [Linux sort Command | Guide to How does Linux Sort Command Works (educba.com)](https://www.educba.com/linux-sort-command/)
@@ -11,8 +11,10 @@
   - 按列排序,
   - 倒序排序
   - 输出排序结果到文件
+  
 - sort排序不会直接影响源文件
-- 
+
+  
 
 ## Introduction to Linux sort Command
 
