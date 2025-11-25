@@ -351,6 +351,17 @@ ln -t /path/to/directory p1 p2
 - `-T, --no-target-directory`：将链接视为文件而不是目录。
 - `-t DIRECTORY, --target-directory=DIRECTORY`：将链接创建在指定的目录中。
 
+### 符号链接有效性
+
+如果某个符号链接的TARGET不存在(比如被移除,或者创建符号链接之时就没存在过),使用`file`命令查看会提示`broken`字样,
+
+```bash
+$ file filter.d.repos
+filter.d.repos: broken symbolic link to /www/sh/fail2ban/filter.d/
+```
+
+或者使用`ll`查看指定符号链接,箭头颜色会和正常符号链接不同
+
 ### ln注意事项
 
 对于`ln [option] p q`的用法:
