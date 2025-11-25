@@ -13,7 +13,9 @@ alias: shell built-in command
 
 用法手册:由于alias是各个shell内建的命令,不同shell提供的alias或者类似的命令可能有些差别,文档手册的查看方式也有所不同,例如bash和zsh的alias就存在不同,包括帮助的查看和可用的选项
 
-### bash
+## bash
+
+### 创建别名
 
 bash中内置的alias功能比较简单,仅有一个可选参数`-p`
 
@@ -58,9 +60,88 @@ alias pstop='psm -%cpu 10'
 
 要可移植地列出所有别名，建议使用 `alias -p`。 
 
-### zsh
+### 移除别名
 
-[zsh: 17 Shell Builtin Commands](https://zsh.sourceforge.io/Doc/Release/Shell-Builtin-Commands.html#index-alias)
+```bash
+unalias: unalias [-a] name [name ...]
+    Remove each NAME from the list of defined aliases.
+
+    Options:
+      -a        remove all alias definitions
+
+    Return success unless a NAME is not an existing alias.
+```
+
+
+
+### 别名相关命令速查表
+
+以下是 Bash 别名（alias）相关命令的总结表，方便快速查阅和使用：
+
+| **用途**             | **命令 / 语法**        | **说明**                                      |
+| -------------------- | ---------------------- | --------------------------------------------- |
+| **定义临时别名**     | `alias name='command'` | 在当前 shell 会话中定义别名，重启终端后失效。 |
+| **查看所有别名**     | `alias`                | 列出当前会话中所有已定义的别名。              |
+| **查看特定别名**     | `alias name`           | 显示名为 `name` 的别名定义。                  |
+| **取消别名**         | `unalias name`         | 删除名为 `name` 的别名。                      |
+| **批量取消所有别名** | `unalias -a`           | 删除当前会话中所有别名。                      |
+
+
+
+| **用途**             | **命令 / 语法**                                              | **说明**                                                     |
+| -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **使别名永久生效**   | 将 `alias name='command'` 添加到 `~/.bashrc` 或 `~/.bash_aliases` | 修改配置文件后需运行 `source ~/.bashrc` 使其立即生效。       |
+| **启用别名扩展**     | （默认启用）                                                 | 在交互式 Bash 中默认启用别名；在脚本中默认**不启用**。       |
+| **在脚本中使用别名** | `shopt -s expand_aliases`<br>`alias ...`                     | 在脚本开头启用别名扩展（不推荐，建议用函数替代）。           |
+| **别名中使用参数**   | **不支持**                                                   | 别名本身不支持参数；若需参数功能，请使用**函数**替代。       |
+| **查看别名是否生效** | `type name`                                                  | 显示 `name` 是别名、函数、内置命令还是外部命令。             |
+| **避免别名干扰**     | `\command` 或 `'command'` 或 `command`（带路径）             | 临时绕过别名，直接调用原始命令。例如：`\ls`、`'ls'`、`/bin/ls`。 |
+
+---
+
+### 示例：
+
+```bash
+# 定义别名
+alias ll='ls -l'
+alias gs='git status'
+
+# 查看别名
+alias ll        # 输出：alias ll='ls -l'
+
+# 删除别名
+unalias ll
+
+# 永久保存（加入 ~/.bashrc）
+echo "alias ll='ls -l'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+### 注意事项：
+
+- 别名仅在**当前 shell 会话**中有效（除非写入配置文件）。
+- **别名不能嵌套参数**，例如 `alias mke='mkdir $1 && cd $1'` 无效（应使用函数）。
+- 推荐将别名集中管理在 `~/.bash_aliases` 文件中，并在 `~/.bashrc` 中通过以下方式加载：
+
+  ```bash
+  if [ -f ~/.bash_aliases ]; then
+      source ~/.bash_aliases
+  fi
+  ```
+
+---
+
+
+
+## zsh
+
+[zsh:  Shell Builtin Commands](https://zsh.sourceforge.io/Doc/Release/Shell-Builtin-Commands.html#index-alias)
+
+Zsh 将所有内建命令的文档统一放在 `zshbuiltins` 手册中：在命令`man zshbuiltins`的输出中可以找到
+
+### 设置别名
 
 ```zsh
   alias [ {+|-}gmrsL ] [ name[=value] ... ]
@@ -101,7 +182,21 @@ alias pstop='psm -%cpu 10'
               For more on aliases, include common problems, see the section ALIASING in zshmisc(1).
 ```
 
-#### 基本语法
+
+
+### zsh别名类型
+
+Zsh 扩展了传统别名，支持：
+
+| 别名类型                      | 定义方式             | 效果                                 |
+| ----------------------------- | -------------------- | ------------------------------------ |
+| **普通别名（regular alias）** | `alias ll='ls -l'`   | 类似 Bash，命令开头替换              |
+| **全局别名（global alias）**  | `alias -g L='|less'` | 任意位置展开别名                     |
+| **后缀别名（suffix alias）**  | `alias -s txt=less`  | 文件名以`.txt`结尾时自动用`less`打开 |
+
+正因为有这三种类型，`alias`,`unalias` 在 Zsh 中需要额外选项来区分创建或删除哪一类。 
+
+### zsh alias基本语法
 
 ```zsh
   alias [ {+|-}gmrsL ] [ name[=value] ... ]
@@ -111,7 +206,7 @@ alias pstop='psm -%cpu 10'
 
 对于每个具有对应值的名称 ，定义一个具有该值的别名。 值末尾的空格会导致检查下一个单词是否具有别名扩展。
 
-#### 全局别名
+### 全局别名
 
 如果存在 `-g` 标志，则定义一个**全局别名**；即使全局别名不出现在命令位置，也会进行扩展。
 
@@ -135,7 +230,7 @@ alias -g L='| less'
     -f   Search Perl built-in functions
 ```
 
-#### 后缀别名
+### 后缀别名
 
 如果存在 `-s` 标志，则定义一个**后缀别名**：如果**命令行上的命令词**采用“ `text.name` ”的形式，其中 `text` 可以是**任何非空字符串**，它会被替换为文本“ `value text.name` ”。
 
@@ -174,3 +269,45 @@ alias -s ps='gv --'
 如果存在 `-L` 标志，则以适合放入启动脚本的方式打印每个别名。如果给定一个未定义别名的名称 （没有值 ），则退出状态为非零值。
 
 有关别名的更多信息，包括常见问题，请参阅 [别名 ](https://zsh.sourceforge.io/Doc/Release/Shell-Grammar.html#Aliasing)。
+
+### 取消别名|移除别名
+
+```zsh
+   unalias [ -ams ] name ...
+          Removes  aliases.   This command works the same as unhash -a, except that the -a option removes all
+          regular or global aliases, or with -s all suffix aliases: in this case no name  arguments  may  ap‐
+          pear.   The  options -m (remove by pattern) and -s without -a (remove listed suffix aliases) behave
+          as for unhash -a.  Note that the meaning of -a is different between unalias and unhash.
+```
+
+`unalias [ -ams ] name ...`
+
+> 移除别名。此命令与 unhash -a 的功能相同，区别在于 **-a 选项会移除所有常规或全局别名**(不包括后缀别名)，或者使用 **-s 选项移除所有后缀别名**：在这种情况下，可能不会出现 name 参数。
+>
+> 选项 -m（按模式移除）和 -s（移除列出的后缀别名）的行为与 unhash -a 相同。
+
+请注意，unalias 和 unhash 中 -a 的含义不同。
+
+> 和bash中的unalias不同的是,zsh中的alias支持更细分类的别名移除
+
+`unalias` 命令支持三个选项：`-a`、`-m`、`-s`，后面可跟一个或多个别名名称。
+
+1. **`unalias` 与 `unhash -a` 类似**：
+   Zsh 中 `unhash` 用于删除哈希表中的命令路径，而 `unalias` 专用于别名，但某些行为相似。
+2. **`-a` 的作用**：
+   - **默认**：`unalias -a` 删除 **所有普通别名 + 全局别名**（regular + global）。
+   - **配合 `-s`**：`unalias -a -s` 删除 **所有后缀别名（suffix aliases）**。
+3. **重要限制**：
+   当使用 `-a`（无论是否带 `-s`）时，**不能指定具体别名**！
+
+### Zsh 的 `unalias` 用法速查表
+
+| 命令                    | 作用                                      |
+| ----------------------- | ----------------------------------------- |
+| `unalias name`          | 删除名为 `name` 的**普通或全局别名**      |
+| `unalias -s name`       | 删除名为 `name` 的**后缀别名**            |
+| `unalias -a`            | 删除**所有普通 + 全局别名**（不能跟名字） |
+| `unalias -a -s`         | 删除**所有后缀别名**（不能跟名字）        |
+| `unalias -m 'pattern*'` | 按通配符模式删除普通/全局别名             |
+| `unalias -m -s '*.log'` | 按模式删除后缀别名（需同时用 `-m -s`）    |
+

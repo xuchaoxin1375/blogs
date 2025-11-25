@@ -245,7 +245,44 @@ ln命令十分灵活,可以一次性创建指定的多个文件/目录的链接
 
 >   -T, --no-target-directory   treat LINK_NAME as a normal file always
 
+## 理解TARGET
 
+这里要说明**符号链接的位置**和**符号链接所指的目标位置(TARGET)**
+
+为了便于理解和说明,借助一个真实例子:在目录`/etc/fail2ban`有一个符号链接`filter.d.repos`,相关信息如下
+
+```bash
+# root @ s1 in /etc/fail2ban [16:48:37]
+$ file filter.d.repos
+filter.d.repos: broken symbolic link to /www/sh/fail2ban/filter.d/
+```
+
+file命令输出内容表示符号链接`filter.d.repos`link to(指向的目标)为`/www/sh/fail2ban/filter.d/`
+
+```bash
+# root @ s1 in /etc/fail2ban [16:48:51]
+$ ll /etc/fail2ban/filter.d.repos
+lrwxrwxrwx 1 root root 26 Nov 25 16:45 /etc/fail2ban/filter.d.repos -> /www/sh/fail2ban/filter.d/
+```
+
+类似的,在`/etc/fail2ban`用`ls -l`(`ll`)查看得到输出含义类似,`/etc/fail2ban/filter.d.repos -> /www/sh/fail2ban/filter.d/`这里的箭头指向就是`ln`命令语法中的目标(`TARGET`)占位符的角色
+
+> symbol->target
+
+在这个例子中,符号链接`filter.d.repos`的位置是`/etc/fail2ban/filter.d.repos`,这个值可以通过`ls`命令查看
+
+```bash
+$ ls /etc/fail2ban/filter.d.repos -F
+/etc/fail2ban/filter.d.repos@
+```
+
+`-F`是的链接类型的名字带上后缀`@`标识出来
+
+而符号链接`filter.d.repos`所指向的目标(TARGET)为`/www/sh/fail2ban/filter.d/`
+
+在`ln`命令的一般用法中,可以理解为:
+
+> 为TARGET创建对应的符号链接,`ln symbol_target symbol_position`
 
 ## ln的四种语法详细说明
 
@@ -279,25 +316,25 @@ ln -s /path/to/file /path/to/symlink
 
 示例：
 ```bash
-ln p1
+ln /path/to/p1
 ```
 在当前目录中创建一个名为`p1`的硬链接，指向`p1`文件。
 
 3. `ln [OPTION]... TARGET... DIRECTORY`
 
-这个用法是将一个或多个目标文件`TARGET`链接到指定的目录`DIRECTORY`中。每个链接将**保留目标文件的名称**。
+这个用法是将一个或多个目标文件`TARGET`链接到指定的目录`DIRECTORY`中。符号链接的名字和TARGET相同.
 - `TARGET...`：一个或多个目标文件。
-- `DIRECTORY`：目标目录。
+- `DIRECTORY`：存放符号链接的目录。
 
 示例：
 ```bash
-ln p1 p2 /path/to/directory
+ln /path/to/p1 /path/to/p2 /path/to/directory
 ```
-在`/path/to/directory`目录中创建两个硬链接，分别指向`p1`和`p2`。
+在`/path/to/directory`目录中创建两个硬链接(`p1,p2`)，分别指向`p1`和`p2`。
 
 4. `ln [OPTION]... -t DIRECTORY TARGET...`
 
-这个用法与上一个用法类似，但在选项中显式指定目标目录`DIRECTORY`。
+这个用法与上一个用法类似，但在选项中显式指定目标目录`DIRECTORY`。符号链接的名字和TARGET相同,每个符号链接将**保留目标文件的名称**。
 - `DIRECTORY`：目标目录。
 - `TARGET...`：一个或多个目标文件。
 
