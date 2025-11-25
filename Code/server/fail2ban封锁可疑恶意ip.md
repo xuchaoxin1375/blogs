@@ -579,6 +579,56 @@ iptables = iptables <lockingopt>
 
 
 
+## 测试filter规则
+
+使用`fail2ban`配套的规则检查工具
+
+命令用法和帮助
+
+- `fail2ban-regex [OPTIONS] <LOG> <REGEX> [IGNOREREGEX]`
+
+```bash
+   fail2ban-regex -h                                                                                              Usage: /usr/bin/fail2ban-regex [OPTIONS] <LOG> <REGEX> [IGNOREREGEX]
+   ...
+```
+
+简单用例:
+
+```bash
+ fail2ban-regex ./demolog.log '^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml|/product/) .*$'
+```
+
+如果能够对日志文件中的内容匹配成功,则会返回详细信息报告
+
+```bash
+#( 11/25/25@10:07PM )( root@s1 ):/www/server/panel/vhost/nginx
+   fail2ban-regex ./demolog.log '^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml|/product/) .*$'
+
+Running tests
+=============
+
+Use   failregex line : ^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|...
+Use      single line : ./demolog.log
+
+
+Results
+=======
+
+Failregex: 0 total
+
+Ignoreregex: 0 total
+
+Date template hits:
+
+Lines: 1 lines, 0 ignored, 0 matched, 1 missed
+[processed in 0.03 sec]
+
+|- Missed line(s):
+|  ./demolog.log
+```
+
+
+
 ## 案例: ftpd的jail节点案例
 
 ```ini
