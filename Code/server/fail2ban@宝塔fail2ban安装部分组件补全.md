@@ -48,3 +48,6 @@ lrwxrwxrwx 1 root root 43 Nov 20 15:05 /usr/bin/fail2ban-server -> /www/server/p
 lrwxrwxrwx 1 root root 46 Nov 25 20:15 /usr/bin/fail2ban-testcases -> /www/server/panel/pyenv/bin/fail2ban-testcas
 ```
 
+## 验证生效
+
+重新启动一个shell窗口(或者更新shell环境),然后尝试在shell中输入`fail2ban-regex -h`看是否有正确的用法帮助响应

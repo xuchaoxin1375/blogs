@@ -353,15 +353,30 @@ f2b的四种配置文件具有相同的基本语法
 
 对于可以接受多个值的 name 项，请用空格分隔值，或者将值放在单独的行中，并在第二个值之前的行首缩进一个空格。
 
-#### include
+#### includes|配置文件引入和包含🎈
 
-配置文件可以包含其他配置文件（定义公共变量），这通常用于过滤器(filter)和操作(action)。此类包含关系在名为 [INCLUDES] 的部分中定义：(可以指定解析顺序)
+配置文件可以包含其他配置文件（定义公共变量），**这通常用于过滤器(filter)和操作(action)**。此类包含关系在名为 `[INCLUDES]` 的部分中定义：(可以指定解析顺序)
 
 before
 表示指定的文件将在当前文件之前解析。
 
 after
 表示指定的文件将在当前文件之后解析。
+
+> 与action引用不同,这里插入需要指定文件名及其扩展名
+
+例如:
+
+```ini
+[INCLUDES]
+
+before = paths-common.conf
+
+after  = paths-overrides.local
+
+```
+
+
 
 #### 变量插值（interpolation）🎈
 
@@ -579,7 +594,7 @@ iptables = iptables <lockingopt>
 
 
 
-## 测试filter规则
+## fail2ban-regex 测试filter规则🎈
 
 使用`fail2ban`配套的规则检查工具
 
@@ -599,6 +614,8 @@ iptables = iptables <lockingopt>
 ```
 
 如果能够对日志文件中的内容匹配成功,则会返回详细信息报告
+
+### 简单用例
 
 ```bash
 #( 11/25/25@10:07PM )( root@s1 ):/www/server/panel/vhost/nginx
@@ -627,37 +644,141 @@ Lines: 1 lines, 0 ignored, 0 matched, 1 missed
 |  ./demolog.log
 ```
 
+也可以通过文件提供过滤规则,下面给出一个更加复杂的针对性的测试
 
+首先准备demo.log内容,摘自nginx日志
 
-## 案例: ftpd的jail节点案例
-
-```ini
-#ftpd-START
-[ftpd]
-enabled = true
-filter = pure-ftpd
-port = 21
-maxretry = 5
-findtime = 300
-bantime = 86400 #24小时
-action = %(action_mwl)s #字符串插值引用action.d/下的组合操作规则
-logpath = /var/log/syslog
-#ftpd-END
-
-
+```nginx
+66.249.69.161 - - [26/Nov/2025:08:25:32 +0800] "GET /product/meditub-53-fiberglass-whirlpool-walk-in-tub-for-alcove-installations-with-left-drain-drain-assembly-overflow-and-7-extension-panel-white-126334/ HTTP/1.1" 404 548 "-" "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.122 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+4.233.91.203 - - [26/Nov/2025:08:25:41 +0800] "GET /postnews.php HTTP/1.1" 404 31 "www.google.com" "Mozlila/5.0 (Linux; Android 7.0; SM-G892A Bulid/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/60.0.3112.107 Moblie Safari/537.36"
+68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product/test-404/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 404 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product/test-499/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 499 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+17.246.23.124 - - [26/Nov/2025:08:20:29 +0800] "GET /sitemap_more.xml HTTP/1.1" 404 146 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product_404/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 404 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product_499/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 499 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+66.249.81.129 - - [26/Nov/2025:06:13:14 +0800] "GET /wp-content/uploads/2025/SK0041026-IT20250915-083215-0-1757896339-img_340_057676.webp HTTP/1.1" 404 138 "-" "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)"
 ```
 
-关于`action`的取值
+再看看针对404请求的封禁过滤器规则文件
 
-封禁动作：
-•`m`= 使用 iptables 封 IP
-•`w`= 发送邮件通知（需配置 mail）
-•`l`= 记录日志（包含日志上下文）
-这是 Fail2ban 内置的复合动作模板
+```bash
+# /etc/fail2ban/filter.d/nginx-warn.conf
+[Definition]
+
+# failregex: 匹配包含 404 的 Nginx 日志行，并提取 IP
+# 可以借助fail2ban-regex 命令来测试正则表达式是否正确
+
+# 下面的正则是一个比较通用示例，可能需要根据你的日志格式调整
+# 默认的combined 日志格式参考如下
+# 74.125.151.39 - - [23/Nov/2025:21:55:29 +0800] "GET /favicon.ico HTTP/1.1" 404 138 "https://www.domain.com/product/2306/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.122 Safari/537.36"
+
+failregex = ^<HOST> - .* ".*" 404 .*$
+
+# 忽略某些正则 (可选)，比如静态资源文件，图片,css,sitemap以及产品链接 则不封禁
+# ignoreregex = ^<HOST> - .* (?:GET|POST) .*\.(css|png|jpg|jpeg|gif|ico) .*$
+# ignoreregex = ^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml) .*$
+# 如果检测到访问产品页面的404也忽略封禁(但是酌情使用,如果此路径规律被滥用,则启用上面的规则,严格程度依次递增,最严格情况下就是取消ignoreregex这个键值对的设立)
+ignoreregex = ^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml|/product/.*) .*$
+```
+
+利用`fail2ban-regex`(方便起见,我设置别名`alias fbregex=fail2ban-regex`)针对日志文件demo.log测试过滤器规则
+
+```bash
+$ fbregex demo.log /etc/fail2ban/filter.d/nginx-warn.conf
+
+Running tests
+=============
+
+Use      filter file : nginx-warn, basedir: /etc/fail2ban
+Use         log file : demo.log
+Use         encoding : UTF-8
+
+
+Results
+=======
+
+Failregex: 3 total
+|-  #) [# of hits] regular expression
+|   1) [3] ^<HOST> - .* ".*" 404 .*$
+`-
+
+Ignoreregex: 3 total
+|-  #) [# of hits] regular expression
+|   1) [3] ^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml|/product/.*) .*$
+`-
+
+Date template hits:
+|- [# of hits] date format
+|  [8] Day(?P<_sep>[-/])MON(?P=_sep)ExYear[ :]?24hour:Minute:Second(?:\.Microseconds)?(?: Zone offset)?
+`-
+
+Lines: 8 lines, 3 ignored, 3 matched, 2 missed
+[processed in 0.04 sec]
+
+|- Ignored line(s):
+|  66.249.69.161 - - [26/Nov/2025:08:25:32 +0800] "GET /product/meditub-53-fiberglass-whirlpool-walk-in-tub-for-alcove-installations-with-left-drain-drain-assembly-overflow-and-7-extension-panel-white-126334/ HTTP/1.1" 404 548 "-" "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.122 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+|  68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product/test-404/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 404 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+|  17.246.23.124 - - [26/Nov/2025:08:20:29 +0800] "GET /sitemap_more.xml HTTP/1.1" 404 146 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+`-
+|- Missed line(s):
+|  68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product/test-499/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 499 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+|  68.221.75.31 - - [26/Nov/2025:08:26:03 +0800] "GET /product_499/activilong-acticurl-curl-activator-gel-101400/ HTTP/1.1" 499 0 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+`-
+```
+
+如果过滤器没有语法上的错误(但要注意逻辑错误,比如缩写的正则能否符合预期效果,这是测试的重点),那么输出内容详细总结了过滤器的工作结果
+
+其中的
+
+```bash
+# root @ s2 in /etc/fail2ban [9:07:15]
+$ fbregex demo.log /etc/fail2ban/filter.d/nginx-warn.conf
+
+Running tests
+=============
+
+Use      filter file : nginx-warn, basedir: /etc/fail2ban
+Use         log file : demo.log
+Use         encoding : UTF-8
+
+
+Results
+=======
+
+Failregex: 3 total
+|-  #) [# of hits] regular expression
+|   1) [3] ^<HOST> - .* ".*" 404 .*$
+`-
+
+Ignoreregex: 3 total
+|-  #) [# of hits] regular expression
+|   1) [3] ^<HOST> - .*(?:GET|POST) .*(([.](css|png|jpg|jpeg|gif|ico))|/sitemap_.*xml|/product/).*
+`-
+
+Date template hits:
+|- [# of hits] date format
+|  [8] Day(?P<_sep>[-/])MON(?P=_sep)ExYear[ :]?24hour:Minute:Second(?:\.Microseconds)?(?: Zone offset)?
+`-
+
+Lines: 8 lines, 3 ignored, 3 matched, 2 missed
+[processed in 0.04 sec]
+```
+
+表明,此次测试读取了demo.log文件中8行内容,其中有3行被`failregex`命中并且没有被忽略,而有3行被`failregex`命中但是被`ignoreregex`所忽略
+
+```bash
+Lines: 8 lines, 3 ignored, 3 matched, 2 missed
+```
+
+这里做最后的数量统计,顺便指出了没有被`failregex`匹配到的行有2行(`missed`)
+
+
 
 ## 封禁效果排查
 
 虽然f2b的配置文件和规则细节不少,但是常见的标准需求需要改动或编写的f2b配置文件是很少的,一次性配置成功的概率很高
+
+### 预排查
 
 排查故障主要分为以下几个方面:
 
@@ -720,6 +841,19 @@ $ cat /var/log/fail2ban.log|grep already|tail
 **⚠️ 验证：** 在完成 Nginx 配置更改后，重启 Nginx 并查看日志文件，确保日志中的客户端 IP 字段现在显示的是您自己的 IP 地址，而不是 CDN 节点的 IP。
 
 为了保险起见，**您应该将所有 CDN 节点的 IP 地址段添加到 Fail2ban 的白名单 (`ignoreip`) 中。**
+
+### 手动封禁和解封指定ip测试方案
+
+这部分讨论封禁实测,即尝试真实触发ip封禁(通常需要你有这个被测试ip的使用权,方便验证),然后用被封禁ip再次访问,看看会不会被禁止
+
+这部分又分为两类:
+
+- 使用`fail2ban-client`命令行手动直接封禁指定ip,然后验证封禁效果,最后同样可以使用此命令行工具解开封禁
+- 通过登录到指定ip主机或者使用代理的方式使用指定ip,利用此ip刻意发送请求相关导致失败的请求(fail to ban),看看打到封禁条件后能否触发封禁,以及如果封禁后能否接着请求
+
+如果您的网站对接了cdn(比如使用了cloudflare,还可以登录对应的账号,然后点击一个可用合适的域名,查看"安全性"模块下的安全规则,看看是否有fail2ban中设置的jail名称以及触发封禁的ip)
+
+此外,如果服务器对接用到了多个cloudflare账号,需要仔细找到对应的账号再查看,关于如何在同一个服务器上对接多个cloudflare的fail2ban规则(主要是action定义和jail中对相应action的引用,详情另见它文)
 
 ## 案例: 封禁大量可疑404请求的 IP（Nginx 日志）
 
@@ -868,7 +1002,7 @@ sudo fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-404.c
 
 ------
 
-## 四、小贴士与注意事项
+## 小贴士与注意事项
 
 - **不要修改默认的 `jail.conf`**：如上所说，应创建 `jail.local` 或 `.local` 文件，这样更安全，且避免升级覆盖。 ([ArchWiki](https://wiki.archlinux.org.cn/title/Fail2ban?utm_source=chatgpt.com))
 - **避免误封**：根据你的真实流量情况调整 `maxretry`、`findtime`、`bantime`。过于严苛可能封禁正常用户 (false positives)。

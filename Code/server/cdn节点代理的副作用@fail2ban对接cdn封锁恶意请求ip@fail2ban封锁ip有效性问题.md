@@ -81,4 +81,10 @@ $$
   - **手动封禁：** 直接在 CDN 控制台的 IP 阻止列表中添加恶意 IP。
   - **自动封禁：** 许多 CDN 平台提供自动化的 **Web 应用防火墙 (WAF)** 或 **Bot 管理** 服务，它们可以根据访问频率、请求特征、地理位置等，在 CDN 边缘自动阻止恶意流量，根本不让流量到达您的源站。
 
-**结论：** 当使用 CDN 时，IP 级别的封禁工作应该交给 **CDN 平台** 来完成，因为它才是流量的第一个接触点。
+## fail2ban对接cloudflare管理ip封锁行为
+
+本节讨论如何在同一个服务器上对接1个或多个cloudflare的fail2ban规则(主要是action定义和jail中对相应action的引用
+
+重点是在`action.d`目录中创建和编辑合适的配置文件,不过大多数需求这个配置文件内容比较简单,并且如果是需要对接多个cloudflare账号,且需求类似,只需要复制对应数量的配置文件,然后做更改(主要是不同cloudflare账号的key和email信息)
+
+其次是在定义jail的文件中(根据用户的实际情况,可能放在`/etc/fail2ban/jail.local`或者`/etc/fail2ban/jail.d/your_jail.local`)这里后缀推荐是`.local`便于和fail2ban自带模板配置文件冲突或者混淆,也不容易被更新覆盖
