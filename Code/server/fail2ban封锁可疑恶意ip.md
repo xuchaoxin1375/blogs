@@ -1011,3 +1011,12 @@ sudo fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-404.c
 - **权限**：Fail2ban 需要读取日志文件 (logpath) 的权限，并且执行封禁动作 (如 iptables) 需要 root 权限。
 - **监控和报警**：你可以配置 action，使封禁时发送邮件 (或使用其他通知方式)，及时知道哪些 IP 被封了。
 
+## 进阶和最佳实践
+
+### 关于精确性和误报
+
+如果某个 IP 地址有 `Found` ”但没有“已 `Ban` 消息，解决方法可能是增加 `findtime` 或减少 `maxretry` 。
+
+但请注意， `findtime` 越长、最大 `maxretry` 越短，误报（错误封禁合法用户）的概率可能越高；
+
+### 
