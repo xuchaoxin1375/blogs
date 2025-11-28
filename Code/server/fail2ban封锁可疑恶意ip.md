@@ -254,7 +254,7 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 
 
 
-### 🚀 **总结与区别**
+### 🚀 总结与区别
 
 
 
@@ -946,6 +946,13 @@ fail2ban-client -vvd
 
 - 如果你的fail2ban已经封禁的大量ip,尤其是和cdn对接过,那么直接`fail2ban-client restart`可能会花费较长时间将已经被封禁的相关ip重新检查和封禁
 - 可以使用`fail2ban-client restart --unban`解除已经封禁的ip不再重新检查封禁
+- 此外，如果启用的jail节点数量超过1个,尤其是较多时,可以考虑针对性重载配置或重新启动指定的jail,而不是全部jail或真个fail2ban服务重启,例如下面的的例子仅重载名为`nginx-warn-imgs`这个jail
+
+  ```bash
+  fail2ban reload nginx-warn-imgs
+  ```
+
+  
 
 ### fail2ban 服务reload或restart时间长
 
