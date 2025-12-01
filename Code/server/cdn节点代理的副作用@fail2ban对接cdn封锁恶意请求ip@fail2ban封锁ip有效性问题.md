@@ -2,17 +2,7 @@
 
 
 
-这是一个非常好的问题，涉及到 **IP 封禁作用点** 和 **CDN 工作原理**。
-
-答案是：**会的，通过 `iptables` 在服务器上设置的 IP 封禁，在网站使用 CDN 代理的情况下，\**通常会\**失去效果，或者说效果被大大削弱。**
-
-以下是详细的解释和原因：
-
-------
-
-
-
-## `iptables` 封禁失效的原因
+## 使用cdn代理后`iptables` 封禁ip失效的原因
 
 
 
@@ -85,6 +75,23 @@ $$
 
 本节讨论如何在同一个服务器上对接1个或多个cloudflare的fail2ban规则(主要是action定义和jail中对相应action的引用
 
-重点是在`action.d`目录中创建和编辑合适的配置文件,不过大多数需求这个配置文件内容比较简单,并且如果是需要对接多个cloudflare账号,且需求类似,只需要复制对应数量的配置文件,然后做更改(主要是不同cloudflare账号的key和email信息)
+重点是在`action.d`目录中创建和编辑合适的配置文件,不过大多数需求这个配置文件内容比较简单,并且如果是需要对接多个cloudflare账号,且需求类似,只需要复制对应数量的配置文件(但是注意不要复制完整的cloudflare.conf,而是包含关键信息(比如cf密钥和邮箱)的`.local`文件),然后做更改(主要是不同cloudflare账号的key和email信息)
+
+这些`.local`可用通过`[INCLUDES]`引用`cloudflare.conf`
+
+```ini
+# cloudflare-i.conf
+# 引用 fail2ban自带action模板中的cloudflare.conf 文件,并填写你的 Cloudflare API Key 和 Email
+[INCLUDES]
+before = cloudflare.conf
+
+[Init]
+
+# 不要有多余的引号,这反而会影响配置的解析(填写的时候注意顺序,key和email不要反了)
+cftoken = YOUR_CF_API_KEY
+
+cfuser = YOUR_CF_EMAIL
+
+```
 
 其次是在定义jail的文件中(根据用户的实际情况,可能放在`/etc/fail2ban/jail.local`或者`/etc/fail2ban/jail.d/your_jail.local`)这里后缀推荐是`.local`便于和fail2ban自带模板配置文件冲突或者混淆,也不容易被更新覆盖

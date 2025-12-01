@@ -1,7 +1,5 @@
 [toc]
 
-
-
 ## abstract
 
 项目主页:[GitHub - fail2ban/fail2ban: Daemon to ban hosts that cause multiple authentication errors](https://github.com/fail2ban/fail2ban)
@@ -13,9 +11,20 @@ archwiki:[Fail2ban - ArchWiki - Arch Linux 百科](https://wiki.archlinux.org.cn
 - jail.conf(5):[jail.conf(5) — Arch 手册页 --- jail.conf(5) — Arch manual pages](https://man.archlinux.org/man/jail.conf.5#CONFIGURATION_FILES_FORMAT)
 - fail2bain-regex(1):[fail2ban-regex(1) — fail2ban — Debian testing — Debian Manpages](https://manpages.debian.org/testing/fail2ban/fail2ban-regex.1.en.html)
 
-## 测试工具
+了解完fail2ban的基本工作原理和方式后,可以阅读如何配置以及最佳实践:
+
+- [工作原理 How fail2ban works · fail2ban/fail2ban Wiki](https://github.com/fail2ban/fail2ban/wiki/How-fail2ban-works)
+- [正确的fail2ban配置 基础配置 ·fail2ban/fail2ban 维基](https://github.com/fail2ban/fail2ban/wiki/Proper-fail2ban-configuration)
+- [最佳实践 · fail2ban/fail2ban Wiki --- Best practice · fail2ban/fail2ban Wiki](https://github.com/fail2ban/fail2ban/wiki/Best-practice)
+
+虽然f2b的配置文件和规则细节不少,但是常见的标准需求需要改动或编写的f2b配置文件是很少的,一次性配置成功的概率很高
+
+## 相关工具
 
 - itdog:[网站测速_网站速度诊断_HTTP速度测速_WEB速度测试_CDN测速_API测速_多线路速度测试_多地区速度测试](https://www.itdog.cn/http/)
+
+- [iP地址查询--手机号码查询归属地 | 邮政编码查询 | iP地址归属地查询 | 身份证号码验证在线查询网](https://www.ip138.com/)
+- [本机iP 我的iP地址查询 公网iP地址查询 iP测漏](https://ipcelou.com/)
 
 ## 安装
 
@@ -41,13 +50,13 @@ archwiki:[Fail2ban - ArchWiki - Arch Linux 百科](https://wiki.archlinux.org.cn
 
 另外,可选择手动安装方案,详见官方文档
 
-### 创建别名
+### 创建别名fbc
 
-由于fail2ban(后面简称为f2b)提供的相关命令名字比较长,例如`fail2ban-client`,为了执行方便,可以参考配置如下别名
+由于fail2ban(后面简称为f2b或fb)提供的相关命令名字比较长,例如`fail2ban-client`,为了执行方便,可以参考配置如下别名
 
 ```bash
-alias f2bc='fail2ban-client'
-alias f2bcs='fail2ban-client status'
+alias fbc='fail2ban-client'
+alias fbcs='fail2ban-client status'
 ```
 
 如果要持久化,请写入到对应shell的`rc`配置中
@@ -111,7 +120,7 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 ## 基本概念
 
 1. **什么是 Fail2ban**
-    Fail2ban 是一个开源的 入侵预防 (intrusion prevention) 框架，用 Python 编写，可以在 Linux/类 Unix 系统上运行。它通过监控日志文件 (log files) 来检测可疑活动（如暴力破解、重复错误请求等），然后执行某些动作 (actions)，比如封禁 IP。 
+   Fail2ban 是一个开源的 入侵预防 (intrusion prevention) 框架，用 Python 编写，可以在 Linux/类 Unix 系统上运行。它通过监控日志文件 (log files) 来检测可疑活动（如暴力破解、重复错误请求等），然后执行某些动作 (actions)，比如封禁 IP。 
 
 2. **核心思想**
 
@@ -120,19 +129,19 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
    3. 然后 Fail2ban 执行一个或多个 动作 (**action**)，**最常见**的是通过防火墙 (iptables、nftables 等) 封禁该 IP 一段时间 (**bantime**)。 
 
 3. **Jail (监狱)**
-    在 Fail2ban 中，**jail** 是一个非常重要的概念，它表示一个 “**监控单元 (unit)**” — 也就是一种策略 (policy)，由三部分组成：
+   在 Fail2ban 中，**jail** 是一个非常重要的概念，它表示一个 “**监控单元 (unit)**” — 也就是一种策略 (policy)，由三部分组成：
 
    一个名称 (jail name)、一个 filter (过滤规则)、一个 action (动作)，还有其他配置如日志路径、重试次数等。 
 
 4. **Filter(过滤器)**
-    Filter 是一组**正则表达式** (regular expressions, regex)，用于**在日志中匹配可疑条目**。Fail2ban 会将日志中的每一行与 filter 中定义的 `failregex` (失败正则) 对比，还可以定义 `ignoreregex` 来忽略某些日志。
+   Filter 是一组**正则表达式** (regular expressions, regex)，用于**在日志中匹配可疑条目**。Fail2ban 会将日志中的每一行与 filter 中定义的 `failregex` (失败正则) 对比，还可以定义 `ignoreregex` 来忽略某些日志。
 
    > 所谓"失败正则(failregex)"中的"失败"是指可疑的恶意请求或验证失败的行为,即failregex是用于匹配**失败尝试**的正则表达式 。
 
 5. **Action (动作)**
-    当某个 IP 被判定为“违反规则”时，Fail2ban 会执行一个 action，例如发邮件 (notification)、写日志、通过防火墙 (`iptables`, `nftables`) 来封禁 IP。不同的 action 可以组合使用。  
+   当某个 IP 被判定为“违反规则”时，Fail2ban 会执行一个 action，例如发邮件 (notification)、写日志、通过防火墙 (`iptables`, `nftables`) 来封禁 IP。不同的 action 可以组合使用。  
 
-### **主要参数**
+### 主要参数
 
 - `bantime`：封禁 (ban) 的时间长度。可以使用秒 (s)、分钟 (m)、天 (d) 等单位。  
 - `findtime`：时间窗口，在这个时间范围内如果失败次数超过 `maxretry` 就会触发封禁。 
@@ -143,9 +152,9 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 ### 配套常用工具
 
 1. **fail2ban-client**
-    这是 Fail2ban 提供的命令行工具 (client)，用于管理和查看 Fail2ban 服务。可以查看状态 (status)、列出已封禁 IP、解封 (unban) IP、重新加载配置等。 
+   这是 Fail2ban 提供的命令行工具 (client)，用于管理和查看 Fail2ban 服务。可以查看状态 (status)、列出已封禁 IP、解封 (unban) IP、重新加载配置等。 
 2. **fail2ban-regex**
-    这是一个非常有用的工具，用来测试一个 filter (正则) 在给定日志文件上的匹配效果。你可以通过 `fail2ban-regex <日志路径> <filter 文件>` 来验证你的规则是否能正确地识别可疑条目。 
+   这是一个非常有用的工具，用来测试一个 filter (正则) 在给定日志文件上的匹配效果。你可以通过 `fail2ban-regex <日志路径> <filter 文件>` 来验证你的规则是否能正确地识别可疑条目。 
 
 ### jail配置文件分布
 
@@ -160,19 +169,19 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 下面是 Fail2ban 的基本工作流程 (workflow)，帮助你理解它是如何从日志到封禁 IP 的：
 
 1. **启动服务**
-    系统中启动 `fail2ban` 守护进程 (daemon)，持续运行。
+   系统中启动 `fail2ban` 守护进程 (daemon)，持续运行。
 2. **加载配置**
-    Fail2ban 读取其配置文件 (jail.conf、jail.local 及其他 `.local/.conf`) 来确定哪些 jail 启用，以及每个 jail 的行为 (filter, action, logpath, bantime 等)。
+   Fail2ban 读取其配置文件 (jail.conf、jail.local 及其他 `.local/.conf`) 来确定哪些 jail 启用，以及每个 jail 的行为 (filter, action, logpath, bantime 等)。
 3. **监控日志**
-    对于每一个启用 (enabled) 的 jail，Fail2ban 会监控其 `logpath` 指定的日志文件。使用 `backend` 参数确定监控方式 (例如 `auto`、轮询 (polling) 等)。
+   对于每一个启用 (enabled) 的 jail，Fail2ban 会监控其 `logpath` 指定的日志文件。使用 `backend` 参数确定监控方式 (例如 `auto`、轮询 (polling) 等)。
 4. **匹配规则**
-    每当日志文件有新的条目 (new lines)，Fail2ban 会将这些条目跟相应 jail 的 filter (`failregex` 和 `ignoreregex`) 进行正则匹配。
+   每当日志文件有新的条目 (new lines)，Fail2ban 会将这些条目跟相应 jail 的 filter (`failregex` 和 `ignoreregex`) 进行正则匹配。
 5. **计数失败**
-    如果一个 IP 地址在 `findtime` 时间窗口内，通过 filter 匹配到失败条目的次数超过 `maxretry`，Fail2ban 就认为这个 IP 是可疑的。
+   如果一个 IP 地址在 `findtime` 时间窗口内，通过 filter 匹配到失败条目的次数超过 `maxretry`，Fail2ban 就认为这个 IP 是可疑的。
 6. **执行封禁动作**
-    当条件满足时，Fail2ban 执行该 jail 定义的 action，如通过防火墙 (iptables, nftables) 封禁该 IP，或者发送通知邮件。
+   当条件满足时，Fail2ban 执行该 jail 定义的 action，如通过防火墙 (iptables, nftables) 封禁该 IP，或者发送通知邮件。
 7. **解封 (可选)**
-    一旦 `bantime` 到期，这个 IP 会被自动解封 (unban)。也可以手工通过 `fail2ban-client` 解封。
+   一旦 `bantime` 到期，这个 IP 会被自动解封 (unban)。也可以手工通过 `fail2ban-client` 解封。
 8. **管理操作**
    - `fail2ban-client status <jail>`：查看某个 jail 的状态 (失败次数、封禁 IP 等)  
    - `fail2ban-client banned`：列出所有已经被封禁的 IP。  
@@ -211,13 +220,13 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 
 而重载一般不清空计数器也不解封(但是可以配合相关选项`--restart`,`--unban`)
 
-### **`restart` (重启服务器)**
+### `restart` (重启服务器)
 
 - **`restart`**: **重启**整个 **Fail2ban 服务器**。这意味着 Fail2ban 服务将完全停止然后重新启动，所有配置和状态（包括当前的封禁列表）都会被重置并从头开始加载。
 
 
 
-### **`restart <JAIL>` (重启/重载特定监狱)**
+### `restart <JAIL>` (重启/重载特定监狱)
 
 - **`restart [--unban] [--if-exists] <JAIL>`**:
   - 这是一个用于重启指定 **监狱 (Jail)** 的命令。
@@ -230,7 +239,7 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 
 
 
-### **`reload` (重载配置 - 不重启服务器)**
+### `reload` (重载配置 - 不重启服务器)
 
 
 
@@ -254,7 +263,7 @@ Fail2Ban 可以降低错误身份验证尝试的次数，**但无法消除弱身
 
 
 
-### 🚀 总结与区别
+### 总结与区别
 
 
 
@@ -284,7 +293,9 @@ Fail2ban 有四种配置文件类型：
 
   Fail2Ban global configuration (such as logging) 
 
-  Fail2Ban 全局配置（例如日志记录）
+  Fail2Ban 全局配置（例如日志记录的保存位置,默认位置一般是`/var/log/fail2ban.log`）
+
+  这个配置文件一般不需要改动,在我们使用fail2ban过程中不是关键点
 
 - [*filter.d/\*.conf*](https://manpages.debian.org/experimental/fail2ban/jail.conf.5.en.html#filter.d/*.conf)
 
@@ -380,10 +391,117 @@ after  = paths-overrides.local
 
 #### 变量插值（interpolation）🎈
 
+- Using Python "**string interpolation**" mechanisms, other definitions are allowed and can later be used within other definitions as `%(name)s`.
+- Fail2ban has **more advanced syntax** (similar **python extended interpolation**). This extended interpolation is using **`%(section/parameter)s`** to denote a value from a foreign section.
+- Besides cross section interpolation the value of parameter in `[DEFAULT]` section can be retrieved with **`%(default/parameter)s`**.
+- Fail2ban supports also another feature named **`%(known/parameter)s`** (means last known option with name **parameter**). This interpolation makes possible to extend a **stock** filter or jail regexp in .local file (opposite to simply set failregex/ignoreregex that overwrites it), 
+
 - 支持 Python 风格字符串插值(string interpolation)：`%(name)s`。 使用 Python 的“字符串插值”机制，允许其他定义，并且以后可以在其他定义中使用 `%(name)s`。
+
+  > 在python的logging模块的日志格式中,也有类似的用法
+
 - 支持跨节引用：`%(section/parameter)s`。  
-- `%(known/parameter)s`：引用 “已知的、最后一次定义”的值，这个机制让你在 `.local` 文件里扩展已有设置，而不是完全覆盖。 
+
+- 特殊的跨节点引用:`%(known/parameter)s`：引用 “已知的、最后一次定义”的值(known表示的节点)，这个机制让你在 `.local` 文件里扩展已有设置，而不是完全覆盖。 
+
 - 对于 filter 或 action 的 “init” 参数（初始设置），也可以使用 `<known/parameter>` 语法进行扩展。 
+
+例如
+
+```ini
+baduseragents = IE|wget|%(my-settings/baduseragents)s
+# 引用最后的已知的名为failregex的定义
+failregex = %(known/failregex)s
+# 引用上面定义过的baduseragents
+useragent=%(baduseragents)s 
+```
+
+又比如:定义在`jail.conf`中的若干片段
+
+```ini
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 5
+
+# "maxmatches" is the number of matches stored in ticket (resolvable via tag <matches> in actions).
+maxmatches = %(maxretry)s
+```
+
+
+
+```ini
+fail2ban_agent = Fail2Ban/%(fail2ban_version)s
+# E-mail action. Since 0.8.1 Fail2Ban uses sendmail MTA for the  mailing. Change mta configuration parameter to mail if you want to revert to conventional 'mail'.
+mta = sendmail
+```
+
+```ini
+# The simplest action to take: ban only
+action_ = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+```
+
+
+
+```bash
+#
+# Action shortcuts. To be used to define action parameter
+
+# Default banning action (e.g. iptables, iptables-new,
+# iptables-multiport, shorewall, etc) It is used to define
+# action_* variables. Can be overridden globally or per
+# section within jail.local file
+#banaction = iptables-multiport
+#banaction_allports = iptables-allports
+
+# The simplest action to take: ban only
+action_ = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+
+# ban & send an e-mail with whois report to the destemail.
+action_mw = %(action_)s
+            %(mta)s-whois[sender="%(sender)s", dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"]
+
+# ban & send an e-mail with whois report and relevant log lines
+# to the destemail.
+action_mwl = %(action_)s
+             %(mta)s-whois-lines[sender="%(sender)s", dest="%(destemail)s", logpath="%(logpath)s", chain="%(chain)s"]
+...
+```
+
+上面这一节的例子中,分被定义了`action_`,`action_mw`,`action_mwl`,这些动作是常用的动作,他们共同点都是包含了最基础的封禁操作`banaction`,但是额外操作则不同,对于`action_mw`,处了封禁之外,还要发送邮件提醒(使用插值的方式引用了定义于前面的`mta`选项,从而`action_mw`和`action_mwl`两个动作发送邮件的默认偏好都受`mta`取值的影响)
+
+> 假设前面定义过`mta = sendmail`,那么这里的片段`%(mta)s-whois`会被展开解释为`sendmail-whois`,而这个文件就对应于`action.d`目录中fail2ban预定义的action文件`sendmail-whois.conf`
+>
+> 为了发送邮件,需要指定合适的参数,比如发件人,收件人等参数,这里使用了`[name=value,name2=value,name3="values,values",...]`的方式指定了参数)
+>
+> 如果为了兼容老版本fail2ban,只需要更改`mta`取值为`mail`,这样相关的默认值会因为引用此新变量值而一起变换
+
+并且可以发现,后一个的定义引用了前一个的定义,通过`%(name)s`的这个方式
+
+> 在`jail.conf`这个文件中定义的`banaction = iptables-multiport`被注释掉
+
+使用这种插值引用的效果有利有弊,好处就是便于维护,更改默认行为只要修改个别取值即可(前提是看得懂这种模板插值展开后的实际值)
+
+缺点就是初学者看到此类配置不是很直观,不过理解插值并不复杂,因此可以接受.
+
+再回到例子中,具体的一行
+
+```bash
+action_ = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+```
+
+在这个配置片段中，`%(action_)s` 会被替换为如下内容：
+
+这段配置意味着：
+
+1. **`%(banaction)s`** 代表一个名为 `banaction` 的变量值（可以是在配置文件中其他地方定义的某个动作，如 `iptables-multiport`）。
+2. **`%(port)s`、`%(protocol)s` 和 `%(chain)s`** 是模板变量，用来替换成实际的端口、协议和链名称。
+
+所以，在实际执行时，`%(action_)s` 会被展开成类似这样的具体规则：
+
+```bash
+iptables-multiport[port="80", protocol="tcp", chain="INPUT"]
+```
+
+这个规则指定了某个操作动作（例如，使用 `iptables` 来封锁某个 IP 地址，限制其对特定端口的访问）。
 
 #### 注释
 
@@ -411,9 +529,79 @@ bantime = 30m                             ; 封禁时间(m分钟)
 
 ### fail2ban中预设的.conf
 
-fail2ban安装完自带一些实用的filter和action,分别存放在`filter.d`和`action.d`
+#### fail2ban.conf
+
+fail2ban 服务本身的几个路径参数（在 `fail2ban.conf` 或 includes 中指定）：
+
+> Fail2ban 的主配置文件 `fail2ban.conf` 会通过 **include（包含）机制** 加载额外的配置文件。
+> 这些“include 进来的文件”就被称为 **includes**（包括的文件、被包含的配置项）。
+
+```ini
+logtarget = /var/log/fail2ban.log
+socket =    /var/run/fail2ban/fail2ban.sock
+pidfile =   /var/run/fail2ban/fail2ban.pid
+dbfile =    /var/run/fail2ban/fail2ban.sqlite3
+```
+
+其他 jail 参数（ `jail.conf` 或 includes）如 `backend` （例如，使用 systemd journals 需要 `systemd` 后端）、 `action` 或 `banaction` （例如，如果您的系统不支持 `iptables` ，则无法使用它）、 `logpath` 等。
+
+您还可以控制或配置其他可选配置参数，例如 `ignoreip` 等。
+
+### filter.d和action.d
+
+fail2ban安装完自带一些实用的filter和action模板配置,分别存放在`filter.d`和`action.d`
 
 进入到`/etc/fail2ban/filter.d`目录,里面存在许多常用规则,针对不同服务的`.conf`文件,可以拿来改造或参考配置的写法
+
+大多数情况下只需要引用合适的某个模板文件:
+
+- 通过创建对应的`.local`文件,引用`.local`文件名(不包含扩展名`.local`)
+- 通过指定参数的方式使用配置
+
+```ini
+action = iptables-multiport[name=nginx-404, port="http,https"] 
+```
+
+### jail.d
+
+这个目录fail2ban可能不自带任何内容,默认是空的,用户可以在这里创建包含jail节点的一个或多个文件
+
+和filter.d和action.d中的文件不同的是,jail.d中的配置文件可以相对随意,通常不存在被引用关系
+
+下面演示两种使用引用配置文件的例子(以action为例,filter类似),并且定义为默认配置节点`[DEFAULT]`
+
+```ini
+[DEFAULT]
+# 默认action定义(后面定义的各个jail节点如果不写action属性,就自定引用此处的定义)
+# 可以一行一个action,但是action = 后面不能直接换行,至少要有一个action
+
+# 方案1:分别在action.d定义好各个action配置文件(此方案比较适合于代码更新管理,比如密钥信息写入到专门文件中,更新脚本可以简单且灵活跳过)
+action = cloudflare1 
+         cloudflare2
+         
+# 方案2:直接提供基于某个定义号的action配置文件的所需的参数(此方案适合简单配置,临时试验集中编辑)
+# 注意,这里参数指定=号两边不要有多余空格!这会影响混合解析;
+# 不过这里的引号通常可以省略,这里actname参数可以用来区分同相似的action定义,便于区分和识别
+
+# action = cloudflare[cftoken="YOUR_KEY1",cfuser="YOUR_CF_EMAIL1",actname="cf_action_name1"]
+#          cloudflare[cftoken=YOUR_KEY2,cfuser=YOUR_CF_EMAIL2,actname="cf_action_name2"]
+```
+
+jail节点示例(action在上述节点配置了默认行为,如果不覆盖新值,就会引用默认值)
+
+```ini
+# 明显的恶意请求
+[nginx-warn-444]
+enabled = true
+filter = nginx-warn-444                     
+# action = 
+logpath = /www/wwwlogs/warn.log    
+maxretry = 1                             
+findtime = 60                            
+bantime = 1h      
+```
+
+
 
 ------
 
@@ -439,29 +627,29 @@ failregex是用于**匹配失败尝试的正则表达式** 。
 <F-*>...</F-*> - 捕获命名组的自由正则表达式 存储在票据中，可在操作中使用。
 ```
 
-## 配置jail
+
+
+## 封禁规则:配置jail🎈
 
 通常在jail.local文件中配置自定义监狱,每个监狱一个小节
 
 jail.local中每个小节都可以引用或覆盖一些定义在jail.conf
 
-### jail.conf文件
+### jail.conf模板文件
 
-好的，我可以为您解释 **Fail2ban** 中 `jail.conf` 文件的作用以及它通常定义的内容。
-
-🔒 Fail2ban 的 `jail.conf` 文件
+[jail.conf(5) — fail2ban — Debian experimental — Debian Manpages](https://manpages.debian.org/experimental/fail2ban/jail.conf.5.en.html#JAIL_CONFIGURATION_FILE(S)_(jail.conf))
 
 `jail.conf` 是 Fail2ban **最主要的配置文件之一**，用于定义 Fail2ban 的核心功能，即 **Jail (监狱)**。
-
-📄 文件作用
 
 `jail.conf` 文件定义了 **Jail (监狱)**，它负责将 **过滤器 (filter)** 和 **动作 (action)** 关联起来，从而实现针对特定服务日志的监控和响应。
 
 简而言之，它的作用就是：**告诉 Fail2ban 应该监控哪些服务的日志，以及在发现恶意行为时应该采取什么行动。**
 
+### [jail] 配置jail节点
 
+fail2ban自带的jail.conf不要直接改动,而应该在合适的位置新建`.local`文件(名字不做特殊要求,推荐位置是`/etc/fail2ban/jail.d`,后缀名推荐为`.local`以清楚表明配置文件是自定义的而不是自带模板,在这个目录下的配置文件(`.local`,`.conf`)文件中定义的节点被解释为jail节点)
 
-📝 `jail.conf` 中定义的主要内容
+当然,也可以创建`/etc/fail2ban/jail.local`文件夹,并定义你所需要的jail节点
 
 一个 Jail 的定义通常包含以下几个关键部分：
 
@@ -480,47 +668,28 @@ jail.local中每个小节都可以引用或覆盖一些定义在jail.conf
 | **`logpath`**        | **日志文件路径。** 此 Jail 监控的日志文件位置。              | `/var/log/auth.log` 或 `/var/log/apache2/error.log` |
 | **`filter`**         | **使用的过滤器名称。** 引用 `filter.d/` 目录中定义的规则。   | `sshd` (对应 `filter.d/sshd.conf`)                  |
 
-> **💡 最佳实践:**
->
+**💡 最佳实践:**
+
 > - 为了避免在 Fail2ban 升级时覆盖您的自定义设置，**强烈建议** 不要直接修改 `jail.conf`。
-> - 正确的做法是创建一个名为 **`jail.local`** 的文件，并仅在此文件中定义您的自定义配置和启用的 Jail，这会覆盖 `jail.conf` 中的同名设置。
+> - 正确的做法是创建一个名为 **`jail.local`** 的文件(或者在目录`/etc/fail2ban/jail.d`下做更加复杂的定义,比如多个定义jail的配置文件)，并仅在此类文件中定义您的自定义配置和启用的 Jail，这会覆盖 `jail.conf` 中的同名设置。
 
 ------
 
 
 
-Action shortcuts
+### ignoreip|ip白名单|忽略对指定ip的封禁
 
-```bash
-#
-# Action shortcuts. To be used to define action parameter
+fail2ban支持配置白名单,或者称为**要被忽略封禁的ip** (ignoreip)
 
-# Default banning action (e.g. iptables, iptables-new,
-# iptables-multiport, shorewall, etc) It is used to define
-# action_* variables. Can be overridden globally or per
-# section within jail.local file
-#banaction = iptables-multiport
-#banaction_allports = iptables-allports
+list of IPs not to ban. They can include a DNS resp. CIDR mask too. The option affects additionally to **ignoreself** (if true) and don't need to contain own DNS resp. IPs of the running host.
 
-# The simplest action to take: ban only
-action_ = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+不封禁的 IP 地址列表(即便出发了某个jail封禁规则)。
 
-# ban & send an e-mail with whois report to the destemail.
-action_mw = %(action_)s
-            %(mta)s-whois[sender="%(sender)s", dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"]
+列表中可以包含 **DNS 服务器地址**或 **CIDR 掩码**。此选项会同时影响 **ignoreself** （如果为 true），并且不需要包含运行主机自身的 DNS 服务器地址或 IP 地址。
 
-# ban & send an e-mail with whois report and relevant log lines
-# to the destemail.
-action_mwl = %(action_)s
-             %(mta)s-whois-lines[sender="%(sender)s", dest="%(destemail)s", logpath="%(logpath)s", chain="%(chain)s"]
-...
-```
+### action
 
-
-
-### jail配置中对action配置的引用
-
-
+jail配置中对action配置的引用
 
 action(s) from `/etc/fail2ban/action.d/` without the `.conf`/`.local` extension. 
 
@@ -538,7 +707,6 @@ Values can also be quoted (required when value includes a ","). More that one ac
 例如,fail2ban中自带的一个基础的action配置为`iptables.conf`,里面有一个部分是`[Init]`,这里定义的字段有详细的注释说明,包括取值类型和默认值
 
 ```ini
-
 [Init]
 
 # Option:  chain
@@ -592,7 +760,101 @@ iptables = iptables <lockingopt>
 
 ```
 
+### banaction
 
+- banning action (default `iptables-multiport`) typically specified in the `[DEFAULT]` section for **all jails**.
+- This parameter will be used by **the standard substitution of action** and can be **redefined** central in the `[DEFAULT]` section inside *`jail.local`* (to apply it to all jails at once) or separately in **each jail**, where this substitution will be used.
+
+### action和banaction
+
+在 `fail2ban` 配置中，`banaction` 和 `action` 都与封锁（ban）动作的执行方式相关，但是它们的作用和使用场景有些不同。
+
+fail2ban在根据封禁作用广泛一点说,不仅仅用来封禁ip,在检测对象和检测到可疑恶意行为后的操作都是可以灵活可配置的,只不过最常用的操作是封禁,而且封禁的最常见对象是ip
+
+而单是封ip这个任务就有不同的实现方式或策略
+
+此外 ,检测到某个恶意ip后可以执行的操作可以简单(比如仅仅封禁ip)可以复杂(封禁ip并且发送邮件甚至执行一段python代码)
+
+如此看来,如果把操作(action)简单理解为封禁就过于片面和不准确,因此有必要区分action和action中的一个操作banaction
+
+由于封禁操作是最常用的操作,fail2ban专门定义一个配置项`banaction`来定义封禁策略
+
+而在更高层面,action可以包含banaction之外的其他动作
+
+1. **`banaction`**
+
+`banaction` 是 `fail2ban` 中一个较为基础的配置项，用于定义当某个规则触发时，**如何封锁（ban）一个 IP 地址或主机**。它通常是封锁行为的核心定义，指定了使用的工具或命令（如 `iptables`、`firewalld` 等）。
+
+示例配置：
+
+```bash
+banaction = iptables-multiport
+```
+
+- **作用：** 该配置指示 `fail2ban` 使用 `iptables-multiport` 来封锁符合条件的 IP 地址。
+- **基本功能：** `banaction` 只指定封锁的行为，而不涉及通知、报告等额外操作。
+
+`banaction` 可以指向不同的封锁策略，通常包括以下几种：
+
+- `iptables`：最常见的封锁工具，利用 `iptables` 来封锁 IP。
+- `iptables-multiport`：允许对多个端口进行封锁。
+- `firewalld`：对于使用 `firewalld` 防火墙的系统，可以使用这个 `banaction`。
+- `hostsdeny`：基于 `hosts.deny` 文件来封锁 IP。
+
+2. **`action`**
+
+`action` 是更为综合的配置项，它不仅包含封锁（ban）动作，还可以包含其他操作，比如发送电子邮件通知、生成日志报告、WHOIS 查询等。换句话说，`action` 是一个更复杂的动作，包含了封锁及**附加的通知和报告功能**。
+
+示例配置：
+
+```bash
+action = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+```
+
+- **作用：** `action` 定义了封锁的具体动作，通常在 `%(banaction)s` 的基础上扩展，指定了封锁的额外参数和信息。
+- **基本功能：** `action` 可以包括 `banaction` 和其他与封锁相关的操作，如发送电子邮件、生成报告、执行自定义脚本等。
+
+主要区别
+
+| 特性           | `banaction`                                         | `action`                                                     |
+| -------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+| **定义的内容** | 封锁操作的核心工具（如 `iptables`, `firewalld` 等） | 更全面的封锁行为，包含封锁动作和其他附加操作（如发送邮件、报告等） |
+| **功能**       | 仅定义如何封锁 IP 地址（例如：使用 `iptables`）     | 包含封锁和附加操作，可以是通知、报告、脚本等                 |
+| **配置示例**   | `banaction = iptables-multiport`                    | `action = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]` |
+| **附加功能**   | 没有附加的通知或日志功能                            | 可以包括邮件通知、WHOIS 查询、生成日志等额外操作             |
+| **用法场景**   | 当只需要执行封锁操作时使用                          | 当需要封锁并执行额外动作（如通知、日志记录等）时使用         |
+
+实际用法示例
+
+假设我们在 `jail.local` 配置文件中配置了一个 `action`，它包含了封锁和通知功能。假设有如下配置：
+
+```bash
+banaction = iptables-multiport
+mta = sendmail
+sender = fail2ban@example.com
+destemail = admin@example.com
+
+action = %(banaction)s[port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+         %(mta)s-whois[sender="%(sender)s", dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"]
+```
+
+解析：
+
+1. **`banaction`**：使用 `iptables-multiport` 来封锁特定的 IP。
+2. **`action`**：不仅执行封锁操作（由 `%(banaction)s` 实现），还附加了一个邮件通知功能，使用 `sendmail` 发送 WHOIS 信息和相关的日志报告。
+
+这种配置方式使得 `fail2ban` 在封锁操作的同时，能够发送邮件通知管理员有关封锁的详细信息，增强了 `fail2ban` 的管理功能。
+
+总结
+
+- **`banaction`** 只是一个封锁动作，指定如何通过防火墙等工具来封锁 IP 地址。
+- **`action`** 则是一个更加灵活和复杂的配置项，通常基于 `banaction` 来执行封锁，并可以附加通知、报告等额外操作。
+
+如果你只需要封锁 IP 地址，配置 `banaction` 即可；如果你还需要在封锁的同时进行通知、报告等操作，就需要使用 `action`。
+
+### sendmail发送邮件
+
+fail2ban默认调用sendmail发送邮件,sendmail工具需要额外安装和配置,另见它文
 
 ## fail2ban-regex 测试filter规则🎈
 
@@ -776,7 +1038,36 @@ Lines: 8 lines, 3 ignored, 3 matched, 2 missed
 
 ## 封禁效果排查和调试
 
-虽然f2b的配置文件和规则细节不少,但是常见的标准需求需要改动或编写的f2b配置文件是很少的,一次性配置成功的概率很高
+如果 jail 的 fail2ban 日志中有 `Ban` 消息，但封禁似乎不起作用，因此入侵者能够继续攻击。
+通常情况下，你还会在 fail2ban 日志中看到太多类似 `[jail] 192.0.2.25 already banned` 的通知（封禁发生后几分钟也会出现）。
+
+使用了cdn代理网站,会影响首要怀疑的故障因素
+
+### 未使用cdn情况下的故障排查
+
+这可能有很多原因：
+
+- 没有设置封禁操作（通常由参数 `banaction` 设置），或者该操作不适合封禁此工单：例如，无法封禁此 IP 地址族（例如不支持 IPv6），或者尝试使用基于 IP 的操作封禁非基于 IP 的工单（例如用户或会话 ID）等。
+  或者执行封禁操作时出现错误 - 首先检查封禁后和 fail2ban 开始时 fail2ban 日志中的错误。
+  此外，还要确保该操作在相关的 net-filter 子系统中创建预期的表、链和规则，例如，如果使用了某些 iptables 操作，可以通过检查 iptables 条目（使用 `iptables -nL` ）来验证，其中应该找到 fail2ban jail 名称（以 `f2b-` 为前缀）作为链以及与 IP 地址对应的规则。
+- 基于防火墙或网络过滤器的操作完全不起作用，或者仅对某些情况不起作用：
+  - 基于端口的操作获取了错误的端口，例如，服务 `sshd` 监听端口 2222，但在 jail 环境中， `port` 仍然设置为默认值 22。
+    （解决方法是为该 jail 指定 `port = 2222` ，或者切换到所有端口的禁止操作，例如 `banaction = iptables-allports` ）。
+  - 多端口操作并不能覆盖服务监听的所有端口，例如， `nginx` 服务监听端口 80 和 443，但不知何故也监听 8080，但在 jail 环境中， `port` 仍然设置为默认值 80 和 443。
+    （解决方案是将此 jail 的端口扩展为 `port = 80,443,8080` ，或者切换到所有端口的禁止操作，例如 `banaction = iptables-allports` ）。
+  - 你的操作只禁止了 TCP 协议，但故障是由 UDP 连接引起的（传入的 UDP 数据包绕过了 TCP 流量的网络过滤规则）；
+  - 防火墙或网络过滤器执行该操作时不起作用（例如，该操作使用了系统不支持的内核模块，或者容器或虚拟环境中不支持某些功能或未正确配置某些功能）；
+  - 防火墙或网络过滤子系统存在一些配置，导致 fail2ban 无法正确执行，例如忽略已建立的连接，因此入侵者能够通过已建立的 keep-alive 套接字继续工作，除非连接超时（或服务器/客户端关闭连接）（解决方法是移除此类已建立连接的白名单防火墙规则，或者扩展操作，使用类似 `tcpkill` 、 `killcx` 、 `ss` 等命令丢弃或拒绝入侵者已建立的活动连接）；
+  - 还有一些其他的防火墙/网络过滤器，甚至一些优先级高于 fail2ban 的白名单规则，允许被禁止的连接或将它们转发到某个地方（例如 docker 容器），然后再让 fail2ban 规则生效；
+    （检查最低级别网络过滤子系统的所有本地表和链，例如 `iptables -Ln` 、 `nft list` 等，并解决可能的冲突，例如删除允许被禁止连接的规则，或将它们重新排序到 fail2ban 表或链之下，或者切换到使用更适合您系统的网络过滤的其他禁止操作）；
+- 封禁操作本身没有问题，但是网络过滤器的链或表中某些地方缺少规则：
+  - 某些服务或工具可能会意外删除 fail2ban 表或刷新其链（例如，使用 `iptables-restore` 未使用 `-n` 或 `--noflush` 参数）等；
+  - 您的网络过滤器子系统不具备多进程安全性，例如，如果两个进程（即 fail2ban 和某些服务）同时更改某些表，则 fail2ban 的修改会丢失（后修改生效）；
+- fail2ban 日志中在入侵者被封禁后立即或短时间内出现 `Unban` 消息（因此解封过早）：
+  - 要么你的 `bantime` 太短（增加这个值）；
+  - 或者 fail2ban 或被监控的服务受到时区问题的影响（这些日志中的时间不同）；
+
+
 
 ### 预排查
 
@@ -914,11 +1205,9 @@ fail2ban-client -vvd
 
 此外,如果服务器对接用到了多个cloudflare账号,需要仔细找到对应的账号再查看,关于如何在同一个服务器上对接多个cloudflare的fail2ban规则(主要是action定义和jail中对相应action的引用,详情另见它文)
 
-### 快速封禁和解封ip| 查询已经被封禁的ip
+## 快速封禁和解封ip| 查询已经被封禁的ip
 
-#### 快速解封ip
-
-尝试从所有jail中解封ip(可以指定解封全部或者特定ip)
+尝试从所有jail中查询或者解封ip(可以指定解封全部或者特定ip)
 
 ```bash
   unban --all                              unbans all IP addresses (in all
@@ -931,6 +1220,8 @@ fail2ban-client -vvd
                                              given IP(s) are banned
 ```
 
+
+
 ### 查找指定ip被封情况
 
 ```bash
@@ -940,12 +1231,67 @@ fail2ban-client -vvd
                                              given IP(s) are banned
 ```
 
+```bash
+#( 11/29/25@ 7:20PM )( root@s1 ):~
+   fbc banned 148.135.115.106
+[['nginx-warn-444']]
+```
+
+### 解封指定ip
+
+从任何可能的jail中查找指定被封ip并解封
+
+```bash
+#( 11/29/25@ 7:38PM )( root@s1 ):~
+   fbc unban 148.135.115.106
+1
+```
+
+### 仅从指定jail封禁或尝试解封ip
+
+例如上面的例子中,ip地址`148.135.115.106`被名为`nginx-warn-444`封禁,则可以仅对此jail封禁或解封指定ip
+
+```bash
+#( 11/29/25@ 8:46PM )( root@s1 ):~
+   fbc set nginx-warn-444 banip 148.135.115.106
+1
+
+```
+
+解封
+
+```bash
+#( 11/29/25@ 8:47PM )( root@s1 ):~
+   fbc set nginx-warn-444 unbanip 148.135.115.106
+1
+```
+
+
+
+### 操作示例
+
+这里我预先创建别名`alias fbc='fail2ban-client'`
+
+```bash
+#( 11/29/25@ 7:20PM )( root@s1 ):~
+   fbc banned 148.135.115.106
+[['nginx-warn-444']]
+#( 11/29/25@ 7:38PM )( root@s1 ):~
+   fbc unban 148.135.115.106
+1
+#( 11/29/25@ 7:38PM )( root@s1 ):~
+   fbc banned 148.135.115.106
+[[]]
+```
+
 
 
 ## 快速重启fail2ban服务
 
 - 如果你的fail2ban已经封禁的大量ip,尤其是和cdn对接过,那么直接`fail2ban-client restart`可能会花费较长时间将已经被封禁的相关ip重新检查和封禁
+
 - 可以使用`fail2ban-client restart --unban`解除已经封禁的ip不再重新检查封禁
+
 - 此外，如果启用的jail节点数量超过1个,尤其是较多时,可以考虑针对性重载配置或重新启动指定的jail,而不是全部jail或真个fail2ban服务重启,例如下面的的例子仅重载名为`nginx-warn-imgs`这个jail
 
   ```bash
@@ -984,6 +1330,17 @@ sudo pkill -9 fail2ban-server
 ```
 
 可以尝试使用`system restart fail2ban`刷新状态
+
+## 注意事项
+
+- **不要修改默认的 `jail.conf`**：如上所说，应创建 `jail.local` 或 `.local` 文件，这样更安全，且避免升级覆盖。 ([ArchWiki](https://wiki.archlinux.org.cn/title/Fail2ban?utm_source=chatgpt.com))
+  - 此外,不建议直接复制已有的模板配置文件(`.conf`)为同名但是后缀为`.local`的文件,而应该创建一个空文件(`.local`,然后像此空文件添加配置项,通常只需要添加少量的配置就能满足大多数需求,整个复制`.conf`内容到`.local`中会有大量冗余,不利于配置的清晰和易维护性),直接拷贝.conf文件甚至可能会导致fail2ban无法工作
+  - `.local`可以自动从对应的`.conf`继承默认配置,此外也有`[INCLUDE]`来引入名字迥异的配置文件
+- **避免误封**：根据你的真实流量情况调整 `maxretry`、`findtime`、`bantime`。过于严苛可能封禁正常用户 (false positives)。
+- **酌情排除静态资源**：通过 `ignoreregex` 排除图片、CSS、JS、图标等请求，可以减少误触发,但是如果你的网站有大量图片,且如果要阻碍爬虫爬取你的网站图片,可以考虑设置专门的jail封禁可疑的过分请求图片的ip
+- **日志消息控制和日志轮转 (logrotate)**：如果你的 Nginx 日志有轮转 (logrotate)，要确保 Fail2ban 能正确跟踪新的日志文件。通常 `backend = auto` 能帮助处理，但在某些环境下需要特别配置。避免不必要的日志进入日志文件有利于保证fail2ban的工作性能,比如跳过成功请求的消息进入fail2ban所要观测的日志文件.如果相应的应用程序可以直接将故障按应用程序/服务提取到单独的日志文件或日志中（例如，在 nginx 中，通过为 40x|50x 错误代码设置额外的位置，并在该位置设置自己的额外访问日志）
+- **权限**：Fail2ban 需要读取日志文件 (logpath) 的权限，并且执行封禁动作 (如 iptables) 需要 root 权限。
+- **监控和报警**：你可以配置 action，使封禁时发送邮件 (或使用其他通知方式)，及时知道哪些 IP 被封了。
 
 ## 案例: 封禁大量可疑404请求的 IP（Nginx 日志）
 
@@ -1132,22 +1489,47 @@ sudo fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-404.c
 
 ------
 
-## 小贴士与注意事项
-
-- **不要修改默认的 `jail.conf`**：如上所说，应创建 `jail.local` 或 `.local` 文件，这样更安全，且避免升级覆盖。 ([ArchWiki](https://wiki.archlinux.org.cn/title/Fail2ban?utm_source=chatgpt.com))
-- **避免误封**：根据你的真实流量情况调整 `maxretry`、`findtime`、`bantime`。过于严苛可能封禁正常用户 (false positives)。
-- **排除静态资源**：通过 `ignoreregex` 排除图片、CSS、JS、图标等请求，可以减少误触发。
-- **日志轮转 (logrotate)**：如果你的 Nginx 日志有轮转 (logrotate)，要确保 Fail2ban 能正确跟踪新的日志文件。通常 `backend = auto` 能帮助处理，但在某些环境下需要特别配置。
-- **权限**：Fail2ban 需要读取日志文件 (logpath) 的权限，并且执行封禁动作 (如 iptables) 需要 root 权限。
-- **监控和报警**：你可以配置 action，使封禁时发送邮件 (或使用其他通知方式)，及时知道哪些 IP 被封了。
 
 
 
-## 进阶和最佳实践
+
+## 进阶
+
+fail2ban有不少细节以及灵活的进阶功能可用,这里仅提及最常用的要点
+
+其他内容包括:
+
+- 日期模式的匹配
+- ip地址的匹配
+- 更多fail2ban自带模板配置文件的使用
+- ...
 
 ### 关于精确性和误报
 
 如果某个 IP 地址有 `Found` ”但没有“已 `Ban` 消息，解决方法可能是增加 `findtime` 或减少 `maxretry` 。
 
-但请注意， `findtime` 越长、最大 `maxretry` 越短，误报（错误封禁合法用户）的概率可能越高；
+**但请注意**， `findtime` 越长、最大 `maxretry` 越小，误报（错误封禁合法用户）的概率可能越高；
 
+### 对接cdn对ip封禁的延迟问题
+
+如果使用对接了cdn(比如使用了cloudflare)在cdn层面封禁指定ip,那么由于需要发起网络请求调用api,这个过程需要若干秒,而在此设置生效之前,要被封禁的ip请求密集的话,可能会在此延迟内收到新的请求,查看fail2ban的日志可以发现类似于下面的提示
+
+```ini
+2025-11-29 18:52:49,175 fail2ban.actions        [770796]: NOTICE  [nginx-warn-444] 69.49.112.68 already banned
+```
+
+但是注意,这个类型的提示也可能是cdn的对接本来就没有成功
+
+那么可靠的检验方法是登录您的cdn账号,查看方式又有多种
+
+- 查看审计日志或者点击合适的已托管的域名中安全性设置->安全规则(查看全部),然后尝试搜索被封禁的ip(比如上述例子中的`69.49.112.68`)
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/5fb145684a6647eeb2323c1ada90693c.png)
+
+通过点击某个可用或合适的已托管域名->安全性(Security)->分析(Analystics)->事件(event)
+
+> 注意筛选器的使用,筛选出来的采样日志条目的时间,应该存在某条和你要观测的封禁行为时间应当接近
+>
+> 也可以查看日志详情,并配合服务器上的访问日志对比具体请求
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/458309a886d545ee9ab90fefe8f1a1e4.png)
