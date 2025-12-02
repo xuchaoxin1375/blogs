@@ -121,7 +121,7 @@ nginx: configuration file C:\phpstudy_pro\extensions\Nginx1.25.2\conf\nginx.conf
 - Windows 版 Nginx **不支持在编译后修改默认 prefix**（除非你重新编译源码）；
 - 显式指定 `-p` 是最可靠、可移植的方式。
 
-#### 推荐操作：
+
 
 假设你的 Nginx 在 `D:\tools\nginx`，那么：
 
@@ -173,3 +173,30 @@ C:\nginx\nginx.exe -p C:\nginx %*
 | 让 Nginx 总是以某个目录为 prefix | ✅ 可行                 | **始终使用 `-p C:\your\path`** |
 | 简化命令输入                     | ✅ 可行                 | 用 `.bat` 脚本封装             |
 
+## 故障排查
+
+### 关于配置
+
+通常我使用`-t`选项的配置文件是否没有语法错误
+
+而使用`-T`选项会导出所有nginx的配置,可以帮助我们检查某个vhost的配置是否被意外改动或者删除
+
+例如我在某个时候进行了磁盘清理,后来重启了nginx,虽然nginx成功启动,但是本地站却访问不了
+
+```powershell
+
+ curl http://localhost/index.html
+curl: (7) Failed to connect to localhost port 80 after 2218 ms: Could not connect to server
+```
+
+推测是nginx没有监听任何80端口
+
+这可能是本地站的vhost中的配置被删除导致的,如果使用`-T`就可以发现问题
+
+### 关于网站请求环节
+
+如果发现nginx监听端口没有问题,那么访问网站异常就应该考虑排查错误日志
+
+日志路径通常配置在`nginx.conf`中的`access_log`,`error_log`
+
+当然不同vhost中的配置可以自定义其他日志输出

@@ -349,7 +349,7 @@ ln [OPTION]... [-T] TARGET LINK_NAME
 - **结果**：它会创建一个名为 `TARGET` 的链接，指向 `SOURCE`。
 - **用途**：主要用于防止在脚本或自动化流程中，因为目标路径意外变成一个目录而导致链接被创建在错误的子路径下。
 
-### 案例
+
 
 首先在家目录创建一个`dir`目录,确保此目录存在
 
@@ -381,13 +381,35 @@ ln: failed to create symbolic link '/home/cxxu/dir': File exists
 
 如果`~/dir`事先存在,且是个目录,则会有关键性的不同
 
+观察`ln`用法手册中的第1种和第3种用法(也可以分被称为用法1和用法3)
 
+```bash
+Usage: ln [OPTION]... [-T] TARGET LINK_NAME
+  or:  ln [OPTION]... TARGET
+  or:  ln [OPTION]... TARGET... DIRECTORY
+  or:  ln [OPTION]... -t DIRECTORY TARGET...
+```
 
+事实上,第三种用法的`DIRECTORY`位置上和第一种的`LINK_NAME`相对应
 
+> 特别是第一种用法不使用`-T`的情况下且第三种用法的`TARGET`只有1个的情况下,即
+>
+> ```bash
+> ln [OPTION]... TARGET LINK_NAME
+> ln [OPTION]... TARGET DIRECTORY
+> ```
 
-对于`ln [option] p q`的用法:
+`DIRECTORY`和`LINK_NAME`的一个重要不同在于,前者这里指的是一个已经存在的路径并且是一个目录,而后者是一个尚不存在路径.
 
-- 如果q是一个包含1至多级目录的路径,比如q为`/www/`时,如果`/www/`不存在,就会报错,需要你手动创建
+### 末尾的斜杠
+
+由于表现形式上的一致相似性,我们把这一对用法的格式抽象为`ln [option] p q`的用法:
+
+这里再讨论一下`q`当做目录时末尾带不带`/`的差别,当路径或名称`q`是`/`结尾时,`ln`命令会当做用法3来执行,也就是说`/`是显式强调使用用法3(但是`q`目录尚不存在时这会报错)
+
+> 假设我们运行`ln`命令前不知道或者无法确定`q`的存在性
+
+如果q是一个包含1至多级目录的路径,比如q为`/www/`时,如果`/www/`不存在,就会报错,需要你手动创建
 
 ```bash
 # root @ CxxuFirebat in ~ [16:35:06]
@@ -404,38 +426,36 @@ $ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/ -v
 
 ```
 
-```bash
-$ ls /www/f -l
--rw-r--r-- 1 root root 0 Oct  8 16:56 /www/f
-
-$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/f -v
-ln: failed to create symbolic link '/www/f': File exists
-```
-
 借助`-v`选项可以看到,需要被创建符号的目标(TARGET)路径`/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh`的最后一节名字为`sh`,那么最终命令`ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/ `会在目录`/www/`下创建一个名为`sh`的符号(完整路径为`/www/sh`);
 
-这实际上对应的是`ln`命令的第3中用法而不是第1种用法
+如果去掉末尾的`/`,且`/www`尚不存在,则会创建符号`/www`,其指向TRAGET`/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh`
 
-实际上第1种用法和第3种用法有点容易混淆,尤其命令格式`ln [option] p q`中`q`是不是一个已经存在的目录会影响最终的效果
+### 用法1和用法3小结
+
+第1种用法和第3种用法有点容易混淆,尤其命令格式`ln [option] p q`中`q`是不是一个已经存会影响最终的效果
 
 为了便于讨论,这里展开为`ln [option] /path/1/p /path/2/q`
 
-1. 如果目录/path/2/不存在就会报错
-2. 如果路径/path/2/q是已经存在,且是个目录,则该命令会创建/path/2/q/p
-   - 这种情况下如果q是一个已存在的文件,则会报错
-3. 如果路径/path/2/q不存在但是/path/2/目录存在,则该命令创建/path/2/q
-   - 这种情况下,命令执行的ln的第1种用法;
-   - 且如果p是一个目录(文件夹),且同样的命令执行2遍,会创建出`/path/2/q/p`,如果再执行第3次,则会报错(已存在),但是可以使用`-f`来覆盖旧的同名符号或文件
-   - 事实上,执行2次之后,会得到一个特殊的目录结构,下面的例子说明这一点;我们应该避免创建出这种结构,这会创建出一个cd不到头的路径,让一些遍历目录的程序执行不到头或者发生错误
+- 如果目录`/path/2/`不存在就会报错
 
-接下来的例子中,`.../sh`是一个目录,对其执行若干符号链接创建语句
+  1. 如果路径`/path/2/q`是已经存在,分情况:
+
+     - `/path/2/q`是个目录,则该命令会创建`/path/2/q/p`,对应与用法3.(1-1)
+     - `/path/2/q`是一个已存在的文件,则会报错(1-2)
+
+  2. 如果路径`/path/2/q`不存在但是`/path/2/`目录存在,则该命令创建`/path/2/q`,这种情况下,对应于用法1;
+
+     - 且如果p是一个目录(文件夹),且第一次执行`ln /path/1/p /path/2/q`创建`/path/2/q`(用法1),同样的命令执行第2遍,变成用法3,会创建出`/path/2/q/p`,如果再执行第3次,则会报错(已存在),但是可以使用`-f`来覆盖旧的同名符号或文件
+
+       执行完2次后看似到此为止了,但事实上,执行2次之后,会得到一个特殊的目录结构,下面的例子说明这一点;我们应该避免创建出这种结构,这会创建出一个cd不到头的路径,让一些遍历目录的程序执行不到头或者发生错误;
+
+       避免此类问题的2个方案:而使用`-T`选项可以避免此类错误,这会将用法强制解释为用法1;或者借助shell的路径存在判断,做具体情况的针对性处理,比如`q`已经存在的情况下先删除,然后再执行`ln`创建
+
+
+接下来的例子中,展示符号链接的闭环和无限自我嵌套,其中`.../sh`是一个目录,对其执行若干符号链接创建语句
 
 ```bash
-# root @ CxxuFirebat in ~ [16:35:32] 这里使用了ln的第1种语法(/www/实现存在,但是/www/y尚不存在)
-$ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/y -v
-'/www/y' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
-
-# root @ CxxuFirebat in ~ [16:36:23] 这里对应于ln的第1种语法(和上一个例子相同)
+# root @ CxxuFirebat in ~ [16:36:23] 这里对应于ln的第1种语法,/www/目录事先存在而/www/x事先不存在
 $ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/x -v
 '/www/x' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
 
@@ -444,7 +464,13 @@ $ ln -s /mnt/c/repos/scripts/wp/woocommerce/woo_df/sh /www/x -v
 '/www/x/sh' -> '/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh'
 ```
 
-现在来看这种重复执行同一个语句后产生的特殊目录结构
+抽象的说,设`m`,`n`都是指向目录`x`的符号链接,且如果`m`是`n`的父目录,则造成路径嵌套
+
+> `n`被创建在`m`中,而`m`指向目录`x`,从而`n`(同名目录)也被创建到`x`目录中,这就得到路径`m/x/n`
+>
+> 而`n`也指向`x`,根据前面的信息可知`x`中包含`n`,从而得到路径`m/x/n/n`,以此类推,`m/x/n/n/.../n`也存在
+
+回到上面的例子,`m=/www/x`,`n=/www/x/sh`,且`m`是`n`的父目录,`m,n`都指向同一个目录`x=/mnt/c/repos/scripts/wp/woocommerce/woo_df/sh`
 
 ```bash
 # root @ CxxuFirebat in /www/x [17:13:33]
@@ -471,6 +497,7 @@ lrwxrwxrwx 1 cxxu cxxu 45 Oct  8 17:10 sh -> /mnt/c/repos/scripts/wp/woocommerce
 # root @ CxxuFirebat in /www/x/sh/sh/sh [17:13:58]
 $ pwd
 /www/x/sh/sh/sh
+...
 ```
 
 

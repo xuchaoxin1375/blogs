@@ -1,6 +1,19 @@
 [toc]
 
+## abstract
 
+- [Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html)
+- [Bash - Arch Linux 中文维基](https://wiki.archlinuxcn.org/wiki/Bash)
+  - [BashGuide - Greg's Wiki](https://mywiki.wooledge.org/BashGuide)
+  - [BashSheet - Greg's Wiki](https://mywiki.wooledge.org/BashSheet)
+
+## 相关项目
+
+一些有助于提高bash使用体验的项目
+
+[Bash-it/bash-it: A community Bash framework.](https://github.com/Bash-it/bash-it)
+
+[scop/bash-completion: Programmable completion functions for bash](https://github.com/scop/bash-completion)
 
 ## 第一部分：Shell 简介
 
@@ -8,7 +21,52 @@
 
 **Bourne Again Shell（Bash）简介**
 
-Bourne Again Shell，简称 **Bash**，是 Unix 和类 Unix 操作系统（如 Linux、macOS）中最广泛使用的命令行解释器（shell）之一。它由 **Brian Fox** 于 1989 年为 GNU 项目开发，作为 **Bourne Shell（sh）** 的自由软件替代品，同时兼容并扩展了其功能。
+Bourne Again Shell，简称 **Bash**，它基于 *Bourne* Shell，并且与其大部分功能兼容。bash是 Unix 和类 Unix 操作系统（如 Linux、macOS）中最广泛使用的命令行解释器（shell）之一。它由 **Brian Fox** 于 1989 年为 GNU 项目开发，作为 **Bourne Shell（sh）** 的自由软件替代品，同时兼容并扩展了其功能。
+
+> Shell 是命令解释器。它们是一种应用程序，使用户能够以交互方式向操作系统发出命令，或快速执行批量命令。它们并非程序执行的必要条件；它们仅仅是系统函数调用和用户之间的一个中间层。
+>
+> 你可以把 shell 想象成你与系统对话的一种方式。系统的大部分工作并不需要它，但它却是你与系统功能之间绝佳的接口。它允许你进行基本的数学运算、运行基本的测试以及执行应用程序。更重要的是，它允许你将这些操作组合起来，并将应用程序彼此连接，从而执行复杂且自动化的任务。
+>
+> BASH **不是**你的操作系统，也不是你的窗口管理器，更不是你的终端（尽管它通常运行在终端*内部* ）。它不控制你的鼠标或键盘，也不配置你的系统、激活屏幕保护程序或在你双击文件时打开它们。它通常不参与从窗口管理器或桌面环境启动应用程序。重要的是要理解，BASH 只是一个接口，供你执行语句（使用 BASH 语法），无论是在交互式 BASH 提示符下还是通过 BASH 脚本。
+
+### bash的使用方式
+
+大多数用户想到 BASH 时，都会想到提示符和命令行。这就是 BASH 的*交互模式* 。BASH 也可以在*非交互模式*下运行，例如执行脚本。我们可以使用脚本来自动化某些逻辑。脚本本质上是一系列命令（就像你在命令行中输入的命令一样），但存储在一个文件中。当脚本执行时，所有这些命令（通常）会按顺序依次执行。
+
+我们将从*交互式 shell* 的基础知识开始。一旦你熟悉了这些基础知识，你就可以将它们组合成脚本。
+
+### 提示符
+
+```
+cxxu@s0:~$
+root@s1:~#
+```
+
+行首的 `$` 代表提示符。通常，shell 提示符以 `$` 、 `%` 或 `#` 结尾。
+
+如果以 `$` 结尾，则表示该 shell 与 Bourne shell 兼容（例如 POSIX shell、Korn shell 或 Bash）。
+
+如果以 `%` 结尾，则表示该 shell 是 *C shell* （csh 或 tcsh,zsh等）
+
+如果以 `#` 结尾，则表示该 shell 以系统超级用户帐户 ( `root` ) 运行，此时您需要格外小心。
+
+如果是其他符号结尾,则一般还自定义过的非默认样式
+
+实际的 BASH 提示符很可能比 `$` 长得多。提示符通常是高度个性化的。
+
+### 帮助命令: `man` 和 `apropos` 命令
+
+`man` 命令代表“manual”（手册），它可以打开各种主题的文档（即所谓的“man 页面”）。使用方法是在 BASH 提示符下运行命令 `man [topic]` ，其中 `[topic]` 是您要阅读的“页面”的名称。请注意，许多“页面”的长度远超一页纸；尽管如此，其名称仍然保留。
+
+> 对于新手而言,使用在线版本(通过浏览器浏览man手册)可能会更加友好,还可以调用浏览器或插件的翻译功能,以及大纲和快速跳转,在阅读体验上更好
+
+通常系统上的每个命令（**应用程序**）都可能有一个 man 页面。此外，还有其他内容也有相应的页面，例如**系统调用**或特定的**配置文件**。
+
+如果您要查找有关 BASH 内置命令（BASH 本身提供的命令，**而非外部应用程序提供的命令**）的信息，则应查阅 `man bash` 。
+
+Bash 还提供了一个 `help` 命令，其中包含其内置命令的简要摘要(其他shell,比如zsh不提供help,但是有其他类似的命令`man zshbuiltins`)
+
+### 掌握命令行
 
 掌握linux命令行,包括两个基本方面:
 
