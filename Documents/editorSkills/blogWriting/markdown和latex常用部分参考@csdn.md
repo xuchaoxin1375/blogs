@@ -4,12 +4,10 @@
 
 # ref
 
-### markdown和latex常用部分参考
+## markdown和latex常用部分参考
 
 - [Markdown and LaTeX introduction (ashki23.github.io)](https://ashki23.github.io/markdown-latex.html#latex)
 - [Markdown Guide](https://www.markdownguide.org/getting-started/)
-  
-- [Overview](https://www.markdownguide.org/cheat-sheet/#overview)
 
 ### typora文档
 

@@ -8,14 +8,19 @@
 
 - [How do you write derivatives in LaTeX? (physicsread.com)](https://www.physicsread.com/latex-derivatives/)
 
-## 手写识别latex符号🎈
+## 手写符号识别
+
+### Unicode符号
+
+- [Detexify LaTeX handwritten symbol recognition](https://detexify.kirelabs.org/classify.html)
+
+### latex符号
 
 - 手写识别符号
   - [Detexify LaTeX handwritten symbol recognition (kirelabs.org)](http://detexify.kirelabs.org/classify.html)
 - 关键字搜索符号(对于点组成的符号,推荐使用关键词搜索)
   - [Detexify LaTeX symbol table (kirelabs.org)](http://detexify.kirelabs.org/symbols.html)
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/7921921ad8594f5fb3a78e4e552d19f8.png)
-
 - 字体
   - 例如搜索`F`的不同字体
   - ![在这里插入图片描述](https://img-blog.csdnimg.cn/4fb625a7da8c414d9142d0d7aeff6909.png)

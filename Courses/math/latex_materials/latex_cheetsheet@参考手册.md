@@ -10,15 +10,17 @@
 
 ###  chatsheets(latex&katex)
 
-- [🎈🎈🎈十分推荐!Support Table · KaTeX](https://katex.org/docs/support_table.html)
+- 十分推荐[Support Table · KaTeX](https://katex.org/docs/support_table.html)
 - [简略在线版:List of LaTeX mathematical symbols - OeisWiki](https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols)
+
+- wiki:[LaTeX/Mathematics - Wikibooks, open books for an open world](https://en.wikibooks.org/wiki/LaTeX/Mathematics)
 
 #### 可下载版
 
 - 下载到本地,查看更方便(书签/标注)
 
 - 符号(symbols)
-  - 本科阶段:[(基础版) LATEX Math for Undergrads - CTAN http://tug.ctan.org › info › undergradmath](http://tug.ctan.org/info/undergradmath/undergradmath.pdf)
+  - [(基础版) LATEX Math for Undergrads - CTAN http://tug.ctan.org › info › undergradmath](http://tug.ctan.org/info/undergradmath/undergradmath.pdf)
   - [(简略版)LATEX Mathematical Symbols - Rice University](https://www.caam.rice.edu/~heinken/latex/symbols.pdf)
 - 教程:
   - [LaTeX2ε for authors - LaTeX - A document … (latex-project.org)](https://www.latex-project.org/help/documentation/usrguide.pdf)
