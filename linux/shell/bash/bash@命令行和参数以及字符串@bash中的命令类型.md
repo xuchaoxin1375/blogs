@@ -349,6 +349,32 @@ Bash 内置了一些基本命令，例如： `cd` （更改目录）、 `echo` �
 
 例如， `[` 是 Bash 内置命令，而 `[[` 是 Bash 关键字；它们都用于[测试各种条件 ](https://mywiki.wooledge.org/BashGuide/TestsAndConditionals)。
 
+#### type命令
+
+使用`type`命令(shell的内置命令)来查询单词是否在shell环境中已经定义过或者存在某个可以被扫描到的命令
+
+如果有,`type`会提示其类型(比如被查询的单词(或字符))是内置命令还是关键字又或是其他类型的东西
+
+```bash
+$ type [
+[ is a shell builtin
+$ type [[
+[[ is a shell keyword
+
+# 查看type命令本身的基本类型信息
+type type
+type is a shell builtin
+```
+
+如果被查询到单词在当前环境未定义,`type`则提示`not found`
+
+```bash
+type what
+bash: type: what: not found
+```
+
+
+
 这里我们尝试使用它们按字典顺序比较单词“a”和“b”：
 
 
@@ -364,6 +390,36 @@ $ [[ a < b ]]
 第一个例子会返回错误，因为 Bash 像往常一样将 符号`<` 视为[文件重定向运算符 ](https://mywiki.wooledge.org/BashGuide/InputAndOutput#File_Redirection)，并尝试将不存在的文件 `b` 重定向到命令 `[ a ]` 
 
 第二个例子之所以能成功，是因为 Bash 使用不同的规则解析 `[[` 和 `]]` 之间的单词，这些规则不使用 `<` 进行重定向。
+
+#### help命令
+
+bash中,通过`help`可以查看对应关键字(bash语法),例如`help [[`查看`[[`关键字用法
+
+```bash
+$ help [[
+[[ ... ]]: [[ expression ]]
+    Execute conditional command.
+
+    Returns a status of 0 or 1 depending on the evaluation of the conditional
+    expression EXPRESSION.  Expressions are composed of the same primaries used
+    by the `test' builtin, and may be combined using the following operators:
+
+      ( EXPRESSION )    Returns the value of EXPRESSION
+      ! EXPRESSION              True if EXPRESSION is false; else false
+      EXPR1 && EXPR2    True if both EXPR1 and EXPR2 are true; else false
+      EXPR1 || EXPR2    True if either EXPR1 or EXPR2 is true; else false
+
+    When the `==' and `!=' operators are used, the string to the right of
+    the operator is used as a pattern and pattern matching is performed.
+    When the `=~' operator is used, the string to the right of the operator
+    is matched as a regular expression.
+
+    The && and || operators do not evaluate EXPR2 if EXPR1 is sufficient to
+    determine the expression's value.
+
+    Exit Status:
+    0 or 1 depending on value of EXPRESSION.
+```
 
 
 
