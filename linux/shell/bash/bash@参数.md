@@ -26,7 +26,7 @@ bash语言作为典型的shell语言,编写的代码一般是一行行命令构�
 
 还需要明白一点,被定义好的变量或参数不能脱离命令而存在,bash遇到一个命令行(单行或多行),总是要试图找到一个命令,然后运行它,即便只是打印某个变量值,也得调用某个命令(通常是`echo`命令)
 
-不过更加现代的脚本语言更加智能,它在常见场景下会推测用户的意图,比如powershell,而脚本语言(python等)的交互模式也一般也支持意图推测
+不过更加现代的脚本语言更加智能,它在常见场景下会推测用户的意图,比如`powershell`,而脚本语言(`python`等)的交互模式也一般也支持意图推测
 
 > ```powershell
 > #⚡️[Administrator@CXXUDESK][~\Desktop][9:24:10] PS >
@@ -73,6 +73,24 @@ bash和python类似是弱类型的,仍然有细节上的不同,无论是变量�
 > 在大多数高级编程语言中,定义变量和引用变量都不需要`$`来引出,好处是不用少打1个字符,也不会因为忘记添加`$`而导致变量引用失败
 
 此命令将数据 `vardata` 赋值给名为 `varname` 的变量。
+
+### 连续定义变量
+
+同一行内可以定义多个变量,两个定义变量的语句可以用空格分隔(这种情况下,需要注意各个变量取值,使用引号包裹比较保险)
+
+```bash
+myname='Greg Wooledge' yourname='Someone Else'
+```
+
+```bash
+# root@CxxuColorfulWin10 21:24:43> <.../cxxu/Desktop>
+$ myname='Greg Wooledge' yourname='Someone Else'
+# root@CxxuColorfulWin10 21:24:45> <.../cxxu/Desktop>
+$ echo "$myname;$yourname"
+Greg Wooledge;Someone Else
+```
+
+虽然可以定义在同一行,但是通常不推荐这么做,代码可读性不好
 
 ### 本文代码片段阅读声明
 
