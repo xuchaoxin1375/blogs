@@ -870,9 +870,9 @@ $ for i in {10..1}
 
 你必须学会选择最合适的切入点。通常，需要考虑的**主要因素是最终代码的简洁性和灵活性**。
 
-### for循环的工作特点
+### `for`循环的工作特点
 
-让我们仔细看看上述的最后一个例子，因为虽然它看起来比两个 `for` 更简单，但如果你不确切地知道它是如何工作的，它往往会更棘手。
+让我们仔细看看上述的最后一个例子的变体(利用for循环删除当前目录的mp3文件(文件名带有空格))
 
 正如我之前提到的： `for` 遍历单词列表，并将每个单词逐一放入循环索引变量中，然后使用该变量遍历循环体。
 
@@ -884,13 +884,58 @@ $ for i in {10..1}
 for i in 10 9 8 7 6 5 4 3 2 1
 do echo "$i empty cans of beer."
 done
+# 输出
+10 empty cans of beer.
+...
+2 empty cans of beer.
+1 empty cans of beer.
+```
+
+又比如
+
+```bash
+$ for fruit in apple banana
+do echo "$fruit"
+done
+#输出
+apple
+banana
+```
+
+Bash 会提取 `in` 到行尾之间的字符，并将它们拆分成单词。拆分**依据是空格和制表符**，就像参数拆分一样。
+
+```bash
+for fruit in "apple 1" "banana 2"
+do echo "$fruit"
+done
+# 输出
+apple 1
+banana 2
+```
+
+```bash
+for fruit in apple 1 banana 2
+do echo "$fruit"
+done
+# 输出
+apple
+1
+banana
+2
 ```
 
 
 
-Bash 会提取 `in` 到行尾之间的字符，并将它们拆分成单词。拆分**依据是空格和制表符**，就像参数拆分一样。
+```bash
+for fruit in "apple 1" "banana   2"
+do echo $fruit #不使用引号保护"$fruit"会导致操作参数扩展的典型问题
+done
+# 输出
+apple 1
+banana 2 #空格丢失,"banana   2"不被视为整体
+```
 
-但是，如果**其中有任何未加引号的替换字符**，它们也会被拆分成单词（使用 [IFS](https://mywiki.wooledge.org/IFS) ）。
+上述示例表明如果**其中有任何未加引号的替换字符**，它们也会被拆分成单词（使用 [IFS](https://mywiki.wooledge.org/IFS) ）。
 
 所有这些拆分后的单词都会成为**迭代元素**。
 
@@ -901,7 +946,8 @@ Bash 会提取 `in` 到行尾之间的字符，并将它们拆分成单词。拆
 ```bash
 $ ls
 The best song in the world.mp3
-$ for file in $(ls *.mp3)
+# 表达式$(ls *.mp3)表示执行括号内的ls命令并替换为执行结果.
+$ for file in $(ls *.mp3) 
 > do rm "$file"
 > done
 rm: cannot remove `The': No such file or directory
@@ -916,11 +962,14 @@ rm: cannot remove `world.mp3': No such file or directory
 
 你应该已经知道在 `rm` 语句中要给 `$file` 加引号；但这里到底出了什么问题？
 
-Bash 会展开命令替换（ `$(ls *.mp3)` ），将其替换为输出， *然后*对其进行单词分割（因为它没有加引号）。实际上，Bash 执行了 `for file in The best song in the world.mp3` 。 *砰！你就完蛋了* 。
+Bash 会展开命令替换（ `$(ls *.mp3)` ），将其替换为输出， *然后*对其进行单词分割（因为它没有加引号）。
 
-你想引用这首歌？那我们再加一首歌：
+实际上，Bash 执行了 `for file in The best song in the world.mp3` 。 
 
+你想使用引号包裹`$(ls *.mp3)`?,那我们再加一首歌(`The worst song in the world.mp3`)：
 
+> 这使得其替换结果为一个整体字符串,空格都被保留并且不以空格做分割!`The best song in the world.mp3  The worst song in the world.mp3`
+>
 
 ```bash
 $ ls
@@ -931,15 +980,17 @@ $ for file in "$(ls *.mp3)"
 rm: cannot remove `The best song in the world.mp3  The worst song in the world.mp3': No such file or directory
 ```
 
+**引号确实可以保护文件名中的空格**；但它们的作用远不止于此。引号会保护 `ls` 输出中的**所有空格** ,阻止shell分割字符串中的空格,导致
 
+Bash 无法知道 `ls` 输出的哪些部分代表文件名；
 
-引号确实可以保护文件名中的空格；但它们的作用远不止于此。引号会保护 `ls` 输出中的**所有空格** 。Bash 无法知道 `ls` 输出的哪些部分代表文件名；它又不是通灵者。 `ls` 的输出是一个简单的字符串，Bash 也将其视为字符串。 `for` 将整个带引号的输出放入 `i` 中，并用它运行 `rm` 命令。 *该死，又失败了* 。
+`ls` 的输出是一个简单的字符串，Bash 也将其视为字符串。
 
-那么我们该怎么办？正如之前提到的，球状物是你的最佳选择：
+### 遍历文件的优先方案(通配符)
 
+那么我们该怎么办？正如之前提到的，通配模式是你的最佳选择：
 
-
-```
+```bash
 $ for file in *.mp3
 > do rm "$file"
 > done
@@ -949,20 +1000,26 @@ $ for file in *.mp3
 
 这次，Bash **知道**它处理的是文件名，也**知道**文件名是什么，因此可以很好地将它们拆分。展开通配符的结果是： `for file in "The best song in the world.mp3" "The worst song in the world.mp3"` 。问题解决！
 
-现在我们来看 `while` 循环。 `while` 循环非常有趣，因为它能够执行命令直到发生某些特定事件为止。以下是一些 `while` 循环的常见用法示例：
+### `while`循环典型用途
 
+现在我们来看 `while` 循环。 `while` 循环非常有趣，因为它能够执行命令直到发生某些特定事件为止。
 
+以下是一些 `while` 循环的常见用法示例：
+
+以下脚本模拟一个“糖果机”，用可爱的低价（20 分钱）分发糖果.
 
 ```bash
-$ # The sweet machine; hand out sweets for a cute price.
-$ while read -p $'The sweet machine.\nInsert 20c and enter your name: ' name
-> do echo "The machine spits out three lollipops at $name."
-> done
+ # The sweet machine; hand out sweets for a cute price.
+ while read -p $'The sweet machine.\nInsert 20c and enter your name: ' name
+ do echo "The machine spits out three lollipops at $name."
+ done
 ```
 
+交互式循环,等待用户输入名字并打印对应内容.
 
 
 
+定时任务示例
 
 ```bash
 $ # Check your email every five minutes.
@@ -971,49 +1028,58 @@ $ while sleep 300
 > done
 ```
 
+如下 Bash 脚本的用途是：**持续监测某台主机（`$host`）是否恢复在线，一旦恢复就发出提示（包括响铃）**。常用于网络故障恢复、服务器重启后可用性检测等场景。
 
+> 注意到这里while 的测试表达式使用了逻辑非,`ping -c 1 -W 1 "$host"`的执行状态会被`!`取反
+>
+> 如此,当ping没有执行成功,就会不断重复尝试执行,`while !`通常和`until`等价,用户检测故障恢复和碰撞发生
+
+```bash
+ # Wait for a host to come back online.
+ host=...
+ while ! ping -c 1 -W 1 "$host"
+ do echo "$host is still unavailable."
+ sleep 1
+ done; 
+echo -e "$host is available again.\a"
+```
+
+### until
+
+`until` 循环几乎从未被使用过，原因很简单，因为它与 `while !` 循环几乎完全相同。
+
+我们可以用 `until` 循环重写上一个例子：
 
 
 
 ```bash
-$ # Wait for a host to come back online.
-$ while ! ping -c 1 -W 1 "$host"
-> do echo "$host is still unavailable."
-> done; echo -e "$host is available again.\a"
+ # Wait for a host to come back online.
+ until ping -c 1 -W 1 "$host"
+ do echo "$host is still unavailable."
+ done; echo -e "$host is available again.\a"
 ```
-
-
-
-`until` 循环几乎从未被使用过，原因很简单，因为它与 `while !` 循环几乎完全相同。我们可以用 `until` 循环重写上一个例子：
-
-
-
-```
-$ # Wait for a host to come back online.
-$ until ping -c 1 -W 1 "$host"
-> do echo "$host is still unavailable."
-> done; echo -e "$host is available again.\a"
-```
-
-
 
 实际上，大多数人都会直接使用 `while !` 代替。
 
-最后，您可以使用内置函数 `continue` 直接跳到循环的下一次迭代，而无需执行循环体的其余部分；使用内置函数 `break` 跳出循环，继续执行循环后的脚本。这在 `for` 和 `while` 循环中均适用。
+### continue和break
 
+```bash
+$ help continue
+continue: continue [n]
+    Resume for, while, or until loops.
 
+    Resumes the next iteration of the enclosing FOR, WHILE or UNTIL loop.
+    If N is specified, resumes the Nth enclosing loop.
 
-------
+    Exit Status:
+    The exit status is 0 unless N is not greater than or equal to 1.
+```
 
+最后，您可以使用**内置函数** `continue` 直接跳到循环的下一次迭代，而无需执行循环体的其余部分；
 
+使用内置函数 `break` 跳出循环，继续执行循环后的脚本。这在 `for` 和 `while` 循环中均适用。并且和大多数编程语言中的等位概念类似
 
 - **手册内容：[ 循环结构](http://www.gnu.org/software/bash/manual/bashref.html#Looping-Constructs)**
-
-
-
-------
-
-
 
 - **常见问题解答中：**
 - **[如何对所有扩展名为 .gz 的文件运行命令？](https://mywiki.wooledge.org/BashFAQ/015)**
@@ -1027,9 +1093,10 @@ $ until ping -c 1 -W 1 "$host"
 
 ------
 
+### 循环小结
 
+*循环* ：循环是一种代码结构，其设计目的是重复执行循环内的代码，直到满足某个特定条件为止。此时，循环停止，并执行循环外的代码。
 
-- *循环* ：循环是一种代码结构，其设计目的是重复执行循环内的代码，直到满足某个特定条件为止。此时，循环停止，并执行循环外的代码。
 - *for（关键字）* ： `for` 循环是一种循环，它将一个变量依次设置为一系列值，并重复执行，直到列表耗尽。
 - *while（关键字）* ： `while` 循环是一种循环，只要某个命令（在每次迭代之前运行）成功执行，它就会继续运行其代码。
 - *until（关键字）* ： `until` 循环是一种循环，只要某个命令（在每次迭代之前运行）执行失败，它就会继续运行其代码。
@@ -1042,13 +1109,13 @@ $ until ping -c 1 -W 1 "$host"
 
 
 
-## 大小写和选择
+## 情况选择Choices (case and select)
 
 
 
 有时，您需要根据变量的内容构建应用程序逻辑。这可以通过根据对 glob 模式的测试结果，执行 `if` 语句的不同分支来实现：
 
-
+> `shopt -s extglob`启用扩展通配模式,以支持`$LANG = @(C|POSIX) `这种写法
 
 ```bash
 shopt -s extglob
@@ -1072,9 +1139,38 @@ else
 fi
 ```
 
+### `case`
 
+> 在shell中,使用case是很常见的,尤其是脚本的命令行选项方面的实现
 
-但所有这些比较都有些多余。Bash 提供了一个名为 `case` 的关键字，正是为了应对这种情况。 `case` 语句基本上列举了几个可能的 *Glob 模式* ，并将你的参数内容与这些模式进行比较：
+在上述`if`的版本中,所有这些比较都有些多余。(反复编写`[[ $LANG = ... ]];`,可以被简化)
+
+Bash 提供了一个名为 `case` 的关键字(语法)，正是为了应对这种情况。 
+
+> case语法在bash中属于相对复杂的一个了,用到了`|`,``)``,`;;`三种符号
+
+```bash
+$ help case
+case: case WORD in [PATTERN [| PATTERN]...) COMMANDS ;;]... esac
+    Execute commands based on pattern matching.
+
+    Selectively execute COMMANDS based upon WORD matching PATTERN.  The
+    `|' is used to separate multiple patterns.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
+
+```
+case WORD in
+	PATTERN1|PATTERN2|...|PATTERNn) COMMANDS ;;
+	...
+esac
+```
+
+其中`|PATTERN2|...|PATTERNn`是可选的
+
+`case` 语句基本上列举了几个可能的 *Glob 模式* ，并将你的参数内容与这些模式进行比较：
 
 
 
@@ -1093,49 +1189,129 @@ esac
 
 
 
-`case` 语句中的每个选项都包含一个模式（或一个用 `|` 分隔的模式列表）、一个右括号、一段代码块（如果字符串匹配到其中一个模式，则执行该代码块）以及两个分号（用于表示代码块的结束，因为代码块可能需要写在多行上）。可以在模式的左侧添加一个左括号。在 bash、zsh 和 ksh 中，使用 `;&` 而不是 `;;` 可以让你在 `case` 匹配中继续执行。 `case` 会在匹配成功后停止继续匹配模式。因此，我们可以在最后使用 `*` 模式来匹配其他选项未捕获到的任何情况。
+`case` 语句中的每个选项都包含一个**模式（或一个用 `|` 分隔的模式列表）**、**一个右括号(`)`)**、**一段代码块**（如果字符串匹配到其中一个模式，则执行该代码块）以及**两个分号**（用于表示**代码块的结束**，因为代码块可能需要写在多行上）。
 
-当找到匹配的模式，并在代码块后使用 `;&` 运算符时，无论下一个选项的模式是否匹配，都会执行下一个选项对应的代码块（如果有）。要“跳过”多个连续的模式，请对除最后一个模式外的所有模式使用 `;&` 运算符。
+可以在模式的左侧添加一个**左括号**。
 
-当找到匹配模式并在代码块后使用 `;;&` 运算符时，将执行下*一个匹配*模式（如果有）的代码块，而不是执行*下一个*选择的代码块。
+ `case` 会在匹配**成功后停止继续匹配模式**。因此，我们可以在最后使用 `*` 模式来匹配其他选项未捕获到的任何情况。
 
-另一种可选结构是 `select` 结构。这条语句看起来像一个循环，它是一种方便语句，用于生成用户可选择的菜单。
+#### `;&`和`;;`
 
-用户会看到一系列选项，并被要求输入一个数字来表示他的选择。然后， `select` 代码块中的代码会被执行，并将一个变量设置为用户所做的选择。如果用户的选择无效，则该变量会被清空。
+在 bash、zsh 和 ksh 中，使用 `;&` 而不是 `;;` 可以让你在 `case` 匹配中继续执行。
+
+当(初次)找到匹配的模式，并在代码块后使用 `;&` 运算符时，**无论下一个选项的模式是否匹配，都会执行下一个选项对应的代码块（如果有）**。要“跳过”多个连续的模式，请对除最后一个模式外的所有模式使用 `;&` 运算符。
+
+介于`;;`和`;&`之间的情况是使用`;;&`,当找到匹配模式并在代码块后使用 `;;&` 运算符时，将执行下*一个匹配*模式（如果有）的代码块，而不是不判断匹配性就执行*下一个*选择的代码块。
+
+### `select`
+
+另一种可选结构是 `select` 结构。这条语句看起来像一个循环，它是一种方便语句，用于**生成用户可选择的菜单**。(脚本交互)
+
+用户会看到一系列选项，并被要求输入一个数字来表示他的选择。然后， `select` 代码块中的代码会被执行，并将一个变量设置为用户所做的选择(设置`NAME`变量,变量名自定义,比如`choice`)。
+
+> 使用`select`可以省略`read -p`语句的编写.
+
+如果用户的选择无效，则该变量会被清空。
+
+```bash
+select NAME [in WORDS ... ;] do COMMANDS; done
+```
 
 
 
 ```bash
-$ echo "Which of these does not belong in the group?"; \
-> select choice in Apples Pears Crisps Lemons Kiwis; do
-> if [[ $choice = Crisps ]]
-> then echo "Correct!  Crisps are not fruit."; break; fi
-> echo "Errr... no.  Try again."
-> done
+$ help select
+select: select NAME [in WORDS ... ;] do COMMANDS; done
+    Select words from a list and execute commands.
+
+    The WORDS are expanded, generating a list of words.  The
+    set of expanded words is printed on the standard error, each
+    preceded by a number.  
+    
+    If `in WORDS' is not present, `in "$@"' is assumed.      
+    The PS3 prompt is then displayed and a line read from the standard input. 
+    
+    If the line consists of the number corresponding to one of the displayed words, then NAME is set to that word.  
+    If the line is empty, WORDS and the prompt are redisplayed.  
+    If EOF is read, the command completes. 
+    
+    Any other value read causes NAME to be set to null.  The line read is saved
+    in the variable REPLY.  COMMANDS are executed after each selection
+    until a break command is executed.
+
+    Exit Status:
+    Returns the status of the last command executed.
 ```
 
 
+
+```bash
+ echo "Which of these does not belong in the group?"; \
+ # select 语句(将用户选择的结果存储到指定的choice变量中)
+ select choice in Apples Pears Crisps Lemons Kiwis; do
+     if [[ $choice = Crisps ]]
+    	 then echo "Correct!  Crisps are not fruit.";
+         break; 
+     fi
+     echo "Errr... no.  Try again."
+ done
+```
+
+```bash
+Which of these does not belong in the group?
+1) Apples
+2) Pears
+3) Crisps
+4) Lemons
+5) Kiwis
+#? 1
+Errr... no.  Try again.
+#? 3
+Correct!  Crisps are not fruit.
+```
 
 只要 `break` 语句未执行，菜单就会重新出现。在本例中，只有当用户做出正确选择时， `break` 语句才会执行。
 
-我们还可以使用 `PS3` 变量来定义用户需要回复的提示信息。我们可以选择不显示问题，而是将问题本身设置为提示信息：
+我们还可以使用 `PS3` 变量来**定义用户需要回复的提示信息**。我们可以选择不显示问题，而是**将问题本身设置为提示信息**：
 
+### PS3变量
 
+在 Bash 脚本中，`PS3` 是一个特殊的变量，用于 **`select` 命令**的提示符（Prompt String 3）。正如`select`的帮助文档提到的
 
+当你使用 `select` 语句创建一个交互式菜单时，Bash 会显示一个**选项列表**，并在底部显示一个提示符，等待用户输入选项编号。这个提示符的内容就是由 `PS3` 变量控制的。
+
+默认情况下，`PS3` 的值是：`#?`
+
+```bash
+ PS3="Which of these does not belong in the group (#)? "; \
+ 
+ select choice in Apples Pears Crisps Lemons Kiwis; do
+  	 # read -p "PS3" choice
+     if [[ $choice = Crisps ]]
+         then echo "Correct!  Crisps are not fruit."; 
+         break; 
+     fi
+	 echo "Errr... no.  Try again."
+ done
 ```
-$ PS3="Which of these does not belong in the group (#)? "; \
-> select choice in Apples Pears Crisps Lemons Kiwis; do
-> if [[ $choice = Crisps ]]
-> then echo "Correct!  Crisps are not fruit."; break; fi
-> echo "Errr... no.  Try again."
-> done
+
+```bash
+1) Apples
+2) Pears
+3) Crisps
+4) Lemons
+5) Kiwis
+Which of these does not belong in the group (#)? 1
+Errr... no.  Try again.
+Which of these does not belong in the group (#)? 3
+Correct!  Crisps are not fruit.
 ```
 
-
+## 条件结构嵌套
 
 所有这些条件结构（ `if` 、 `for` 、 `while` 和 `case` ）都可以*嵌套* 。这意味着你可以在一个 `for` 循环中嵌套一个 `while` 循环，或者任何其他组合，嵌套的深度可以根据解决问题的需要而定。
 
-
+案例如下:
 
 ```bash
 # A simple menu:
@@ -1152,17 +1328,22 @@ while true; do
     esac
 done
 
-# Alternative: use a variable to terminate the loop instead of an
-# explicit break command.
+```
 
+
+
+```bash
+
+# Alternative: use a variable to terminate the loop instead of an explicit break command.
+#定义标记变量quit为空串,当quit在循环中被设置为非空串时,结束循环
 quit=
 while test -z "$quit"; do
     echo "...."
     read -p "-> " response
     case $response in
-        ...
+        1) echo 'Hello there!' ;;
         2) echo 'See you later!'; quit=y ;;
-        ...
+        *) echo 'What was that?' ;;
     esac
 done
 ```
@@ -1175,33 +1356,15 @@ done
 
 
 
-- **良好做法：
-  使用 SELECT 语句可以轻松创建简单的菜单，但灵活性有限。如果需要更复杂的菜单，建议使用 while 循环、echo 或 printf 命令以及 read 命令来编写自定义菜单。**
+### 良好做法：
 
+使用 SELECT 语句可以轻松创建简单的菜单，但灵活性有限。
 
-
-------
-
-
+**如果需要更复杂的菜单，建议使用 while 循环、echo 或 printf 命令以及 read 命令来编写自定义菜单。**
 
 - **手册内容：[ 条件结构](http://www.gnu.org/software/bash/manual/bashref.html#Conditional-Constructs)**
 
-
-
-------
-
-
-
 - **常见问题解答中：**
-- **[我想检查 [[ $var == foo 或 $var == bar 或 $var = more ... 而不重复 $var n 次。](https://mywiki.wooledge.org/BashFAQ/066)**
+- **[我想检查  `$var == foo 或 $var == bar 或 $var = more ... 而不重复 $var n 次。`](https://mywiki.wooledge.org/BashFAQ/066)**
 - **[如何轻松地处理脚本的命令行参数（选项）？](https://mywiki.wooledge.org/BashFAQ/035)**
-
-
-
-------
-
-
-
-- *case（关键字）* ： `case` 语句根据几个给定的模式（选择）评估参数的值。
-- *select (keyword)* ： `select` 语句为用户提供多个选项，并执行一段代码块，用户的选择将作为参数传递。菜单会重复显示，直到执行 `break` 命令为止。
 
