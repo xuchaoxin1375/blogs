@@ -346,7 +346,9 @@ It was true.
 
 
 
-这里展示了一个 *if 语句*的基本框架。我们首先调用 `if` 并执行命令 `true` 。 `true` 是一个内置命令，**它总是成功执行**。
+这里展示了一个 *if 语句*的基本框架。我们首先调用 `if` 并执行命令 `true` 。 `true` 是一个内置命令，它总是返回成功。
+
+类似的,还有`false`命令,它和`true`相反,总是返回失败
 
 > ```bash
 > $ type true
@@ -433,12 +435,29 @@ a is not the same as b.
 上面的例子中,`[`命令的参数为 `a` 、 `=` 、 `b` 和 `]` ,其中作为结尾的`]`是命令结束的标记.
 
 > 这里强调`[`的这些参数是为了提醒初学者,这些参数必须用空格分开不能连在一起,尤其是`a = b`容易被写成`a=b`
+>
+> 即便表达式`a=b`不会引起`[,[[`报错,但是含义和`a = b`完全不同.
+>
+> `[ a<b ]`不会报错,但是`[ a>b ]`在文件b存在时会报错:
+>
+> ```bash
+> # cxxu@CxxuDesk 10:23:59> <~/sh>
+> $ [ a>b ];echo $?
+> 0
+> # 文件b被创建
+> # cxxu@CxxuDesk 10:24:02> <~/sh>
+> $ [ a>b ];echo $?
+> bash: b: cannot overwrite existing file
+> 1
+> ```
+>
+> 
 
  `[` 使用这些参数来确定需要检查的内容。在本例中，它检查字符串 `a` （第一个参数）是否等于字符串 `b` （第三个参数）（第二个参数），如果相等，则成功退出。但是，由于字符串“a”不等于字符串“b”， `[` 将无法成功退出（其退出代码为 1）。 `if` 发现 `[` 终止失败，并执行 `else` 代码块中的代码。
 
 ---
 
-最后一个参数“`]`”对 `[` 的测试表达式逻辑没有意义，但它是必需的。看看省略它会发生什么。
+最后一个参数“`]`”对 `[` 的测试表达式逻辑没有意义，但它是必需的。
 
 以下是使用 `[` 时一个常见的陷阱示例(典型的由于字符串带空格而没有使用引号包裹变量引用导致的错误)：
 
@@ -534,11 +553,11 @@ $ if [[ $name = "George" ]]
 
 
 
-注意，在 bash 中，“<”和“>”具有特殊含义(**重定向运算符**,大多数shell语言都是如此,而像数学或非其高级编程语言中的**比较运算符**。
+注意，在 bash 中，“<”和“>”具有特殊含义(根据不同语境,用来重定向或对字符串做比较,但是一定不要用来比较数值,大多数shell语言都是如此,而像数学或非其高级编程语言中的**比较运算符**。
 
-> 注意,虽然`<`和`>`既不是命令也不是关键字,但是和数学上的常见含义有显著不同,要十分小心使用他们
+> 注意,虽然`<`和`>`既不是命令也不是关键字,但是和数学上的常见含义有显著不同,要十分小心使用他们,在`test`或`[`命令中,`<,>`用来比较字符串
 >
-> 如果要比较数值大小,使用`-`字符开头的一组shell的比较运算符,比如`-lt`(小于,less than)
+> 如果要**比较数值**大小,使用`-`字符开头的一组shell的比较运算符,比如`-lt`(小于,less than)
 
 小测验：预测执行 `[ apple < banana ]` 会发生什么。
 
@@ -558,13 +577,33 @@ $ if [[ $name = "George" ]]
 >
 > 输入重定向 `< banana` 对 `test` 命令**没有影响**，因为 `test` 根本不读取标准输入。它只处理命令行参数。
 
+### `\<`和`\>`
+
+在bash中,`<`,`>`在不同位置有不同的解释,比如`[ a < b ]`和`[[ a < b ]]`就不同
+
+> `[[`是符合命令,作为关键字存在,bash会为其引入特殊的解析上下文,`<`不被解释为重定向
+>
+> 而`[`是简单命令,bash不会为其做特殊解释,`<`优先被解释为重定向而不是解释为字符`'<'`,如果要标识`'<'`字符本身,就需要转移字符`<`
+
 小测验：假设该命令的原始目的是确定“apple”是否在“banana”之前，你会如何修改该命令以达到预期效果？
 
 答案：使用反斜杠转义“<”，例如： `[ apple \< banana ]` ，或者使用 `[[` 代替 `[` 。
 
-请注意，比较运算符 `=` 、 `!=` 、 `>` 和 `<` 将它们的参数视为字符串。
+```bash
+$ [ a \< b ] && echo true
+true
+$ [ a \> b ] || echo false
+false
 
-要将操作数视为数字，您需要使用**另一组运算符**： `-eq` 、 `-ne` （不等于）、 `-lt` （小于）、 `-gt` 、 `-le` （小于或等于）或 `-ge` 。
+$ [[ a < b ]] && echo true
+true
+$ [[ a > b ]] || echo false
+false
+```
+
+请注意，**比较运算符** `=` 、 `!=` 、 `>` 和 `<` 将它们的参数视为**字符串**。
+
+要将操作数视为数字，您需要使用**另一组数值运算符**： `-eq` 、 `-ne` （不等于）、 `-lt` （小于）、 `-gt` 、 `-le` （小于或等于）或 `-ge` 。
 
 小测验：请举例说明 `<` 和 `-lt` 之间的区别。
 
@@ -576,7 +615,9 @@ $ if [[ $name = "George" ]]
 
 这些测试表达式不能脱离测试命令(`test`或`[[`单独使用
 
-####  `[` ,`test` 和 `[[` 都支持的测试：
+####  通用部分:`[` ,`test` 和 `[[` 都支持的测试：
+
+##### 判断文件的单目运算符
 
 1. **-e FILE** ：如果文件存在则为真(exist)。
 2. **-f FILE** ：如果文件是普通文件(file)，则为 True。
@@ -590,17 +631,35 @@ $ if [[ $name = "George" ]]
 10. **-x FILE** ：如果该文件对您可执行(execute)，则为 True。
 11. **-O 文件** ：如果该文件实际上归您所有(own)，则为 True。
 12. **-G 文件** ：如果该文件实际上归您的组所有(group)，则为 True。
-13. **FILE -nt FILE** ：如果第一个文件比第二个文件新(new than)，则返回 True。
-14. **FILE -ot FILE** ：如果第一个文件比第二个文件旧(old than)，则为 True。
-15. **-z STRING** ：如果字符串为空（长度为零zero），则返回 True。
-16. **-n STRING** ：如果字符串不为空（长度不为零non-zero），则返回 True。
-17. 字符串运算符：
+13. **-z STRING** ：如果字符串为空（长度为零zero），则返回 True。
+14. **-n STRING** ：如果字符串不为空（长度不为零non-zero），则返回 True。
+##### 判断文件的双目运算符
+
+1. **FILE1 -nt FILE2** ：如果第一个文件比第二个文件新(new than)，则返回 True。
+2. **FILE1 -ot FILE2** ：如果第一个文件比第二个文件旧(old than)，则为 True。
+
+##### 逻辑运算符
+
+- **!EXPR** ：反转(not)表达式的结果（逻辑非）。
+
+##### 字符串运算符：
+
    - **STRING = STRING** ：如果第一个字符串与第二个字符串相同，则为真。
    - **STRING != STRING** : 如果第一个字符串与第二个字符串不相同，则返回 True。
    - **字符串 < 字符串** ：如果第一个字符串在第二个字符串之前排序，则为 True。
    - **字符串 > 字符串** ：如果第一个字符串排在第二个字符串之后，则为 True。
-18. **!EXPR** ：反转表达式的结果（逻辑非）。
-19. 数值运算符：
+
+##### 数值运算符：
+
+bash中的数值运算符仅判断整数!如果要比较数值,更推荐使用**算数表达式**`((...))`,另见它文
+
+```bash
+$ [ 1.1 -lt 2.5 ] && echo true
+bash: [: 2.5: integer expected
+```
+
+
+
    - **INT -eq INT** ：如果两个整数相同，则返回 True。
    - **INT -ne INT** ：如果整数不相同，则返回 True。
    - **INT -lt INT** ：如果第一个整数小于第二个整数，则返回 True。
@@ -617,9 +676,11 @@ $ if [[ $name = "George" ]]
 - **EXPR && EXPR** ：类似于 `test` 的“-a”运算符，但如果第一个表达式已经为假，则不会计算第二个表达式。
 - **EXPR || EXPR** ：类似于 `test` 的 '-o' 运算符，但如果第一个表达式已经为真，则不会计算第二个表达式。
 
-- 仅适用于 `[` （和 `test` ）的测试：
-  - **EXPR -a EXPR** ：如果两个表达式都为真（逻辑与），则为真。
-  - **EXPR -o EXPR** ：如果其中一个表达式为真，则为真（逻辑或）。
+
+#### 仅 `[` （和 `test` ）的测试：
+
+- **EXPR -a EXPR** ：如果两个表达式都为真（逻辑与(and)），则为真。
+- **EXPR -o EXPR** ：如果其中一个表达式为真，则为真（逻辑或(or)）。
 
 #### 例子
 
@@ -656,7 +717,7 @@ fi
 
 - **常见问题解答：**
 - **[如何对表达式进行分组，例如（A AND B）OR C？](https://mywiki.wooledge.org/BashFAQ/017)**
-- **[旧测试命令（[ 和 [[））和新测试命令有什么区别？](https://mywiki.wooledge.org/BashFAQ/031)**
+- What is the difference between test, [ and `[[` ? [BashFAQ/031 - Greg's Wiki](https://mywiki.wooledge.org/BashFAQ/031)
 - **[如何判断一个变量是否包含子字符串？](https://mywiki.wooledge.org/BashFAQ/041)**
 - **[如何判断一个变量是否包含有效数字？](https://mywiki.wooledge.org/BashFAQ/054)**
 
@@ -668,7 +729,7 @@ fi
 
 现在你已经学会了如何在脚本中做出一些基本决策。然而，这对于我们可能需要编写脚本的所有任务来说还不够。有时我们需要**重复执行某些操作**。为此，我们需要使用*循环* 。循环有两种基本类型（以及一些变体），使用正确的循环类型有助于保持脚本的可读性和可维护性。
 
-循环的两种基本类型分别称为 `while` 和 `for` 。
+循环的两种基本类型分别称为 `while` 和 `for` ,都是bash关键字
 
 `while` 循环有一个变体称为 `until` ，它只是**简单地反转了检查顺序**；
 
@@ -676,20 +737,102 @@ fi
 
 以下是总结：
 
-1. **`while` \*命令\*** ：只要命令执行成功（退出代码为 0），就重复执行。
-2. **`until` \*命令\*** ：只要命令执行不成功（退出代码不为 0），就重复执行。
-3. **`for` \*变量\* `in` \*单词\*** ：对每个单词重复循环(遍历)，**依次将*变量*设置为每个单词**。
-4. **`for ((` \*表达式\* `;` \*表达式\* `;` \*表达式\* `))`** ：首先计算第一个算术表达式；只要第二个算术表达式成功，就重复循环；并在**每次循环结束时计算第三个算术表达式**。
+1. **`while` *命令*** ：只要命令执行成功（退出代码为 0），就重复执行。
+2. **`until` *命令*** ：只要命令执行不成功（退出代码不为 0），就重复执行。
+3. **`for` *变量* `in` *单词*** ：对每个单词重复循环(遍历)，**依次将*变量*设置为每个单词**。
+4.  `for (( exp1; exp2; exp3 )); do COMMANDS; done` ：首先计算第一个算术表达式；只要第二个算术表达式成功，就重复循环；并在**每次循环结束时计算第三个算术表达式**。
 
-每个循环语句都以关键字 `do` 开头，然后是循环*体*中的一个或多个命令，最后是关键字 `done` 。 
+### 关键字语法说明
+
+#### `while`
+
+```bash
+$ help while
+while: 
+while COMMANDS; do COMMANDS-2; done
+    Execute commands as long as a test succeeds.
+
+    Expand and execute COMMANDS-2 as long as the final command in COMMANDS has
+    an exit status of zero.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
+
+
+
+#### `until`
+
+```bash
+$ help until
+until: 
+until COMMANDS; do COMMANDS-2; done
+    Execute commands as long as a test does not succeed.
+
+    Expand and execute COMMANDS-2 as long as the final command in COMMANDS has
+    an exit status which is not zero.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
+
+#### `for`
+
+```bash
+$ help for
+for: 
+for NAME [in WORDS ... ] ; do COMMANDS; done
+    Execute commands for each member in a list.
+
+    The `for' loop executes a sequence of commands for each member in a
+    list of items.  If `in WORDS ...;' is not present, then `in "$@"' is
+    assumed.  For each element in WORDS, NAME is set to that element, and
+    the COMMANDS are executed.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
+
+
+
+#### `for ((`
+
+```bash
+$ help 'for (('
+for ((: 
+for (( exp1; exp2; exp3 )); do COMMANDS; done
+    Arithmetic for loop.
+
+    Equivalent to
+        (( EXP1 ))
+        while (( EXP2 )); do
+                COMMANDS
+                (( EXP3 ))
+        done
+    EXP1, EXP2, and EXP3 are arithmetic expressions.  If any expression is
+    omitted, it behaves as if it evaluates to 1.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
+
+### bash的循环语法共同点
+
+共同点主要在于循环体的定义
+
+每个循环语句都以:
+
+> 关键字+表达式+ `do` 开头，然后是循环*体*中的一个或多个命令，最后是关键字 `done` 。 
 
 `do` 和 `done` 类似于我们之前看到的 `if` 语句中的 `then` 和 `fi` （以及可能的 `elif` 和/或 `else` ）。它们的作用是告诉我们**循环体的起始和结束位置**。
 
 实际上，循环用于不同类型的任务。 `for` 循环（第一种形式）适用于我们有一个元素列表，并且希望按顺序遍历该列表的情况。 `while` 循环适用于我们**不确定需要重复执行多少次**，只是希望它一直运行直到找到所需元素的情况。
 
+### 循环用例
+
 以下是一些示例，用于说明循环之间的异同。（请记住：在大多数操作系统中，按 **Ctrl-C** 可以终止终端上正在运行的程序。）
 
-
+定义1个死循环
 
 ```bash
 $ while true
@@ -699,20 +842,16 @@ $ while true
 
 
 
+每秒打印一次状态
 
-
+```bash
+while ! ping -c 1 -W 1 1.1.1.1; do
+ echo "still waiting for 1.1.1.1"
+ sleep 1
+ done
 ```
-$ while ! ping -c 1 -W 1 1.1.1.1; do
-> echo "still waiting for 1.1.1.1"
-> sleep 1
-> done
-```
 
-
-
-
-
-```
+```bash
 $ (( i=10 )); while (( i > 0 ))
 > do echo "$i empty cans of beer."
 > (( i-- ))
@@ -727,29 +866,39 @@ $ for i in {10..1}
 
 
 
-最后三个循环使用不同的语法实现了完全相同的结果。在你的 shell 脚本编写经验中，你会多次遇到这种情况。几乎总会有多种方法可以解决问题。很快，对你技能的考验将不再是解决问题本身，而是如何以*最佳方式*解决问题。你必须学会选择最合适的切入点。通常，需要考虑的主要因素是最终代码的简洁性和灵活性。我个人最喜欢最后一个示例。在那个示例中，我使用了*大括号扩展*来生成单词；但还有其他方法。
+最后三个循环**使用不同的语法实现了完全相同的结果**。在你的 shell 脚本编写经验中，你会多次遇到这种情况。几乎总会有多种方法可以解决问题。很快，对你技能的考验将不再是解决问题本身，而是如何以*最佳方式*解决问题。
 
-让我们仔细看看最后一个例子，因为虽然它看起来比两个 `for` 更简单，但如果你不确切地知道它是如何工作的，它往往会更棘手。
+你必须学会选择最合适的切入点。通常，需要考虑的**主要因素是最终代码的简洁性和灵活性**。
 
-正如我之前提到的： `for` 遍历单词列表，并将每个单词逐一放入循环索引变量中，然后使用该变量遍历循环体。难点在于 Bash 如何确定哪些单词是循环体。让我通过展开之前示例中的大括号来解释一下：
+### for循环的工作特点
+
+让我们仔细看看上述的最后一个例子，因为虽然它看起来比两个 `for` 更简单，但如果你不确切地知道它是如何工作的，它往往会更棘手。
+
+正如我之前提到的： `for` 遍历单词列表，并将每个单词逐一放入循环索引变量中，然后使用该变量遍历循环体。
+
+难点在于 **Bash 如何确定哪些单词是循环体**。让我通过**展开之前示例中的大括号**来解释一下：
 
 
 
+```bash
+for i in 10 9 8 7 6 5 4 3 2 1
+do echo "$i empty cans of beer."
+done
 ```
-$ for i in 10 9 8 7 6 5 4 3 2 1
-> do echo "$i empty cans of beer."
-> done
-```
 
 
 
-Bash 会提取 `in` 到行尾之间的字符，并将它们拆分成单词。拆分依据是空格和制表符，就像参数拆分一样。但是，如果其中有任何未加引号的替换字符，它们也会被拆分成单词（使用 [IFS](https://mywiki.wooledge.org/IFS) ）。所有这些拆分后的单词都会成为迭代元素。
+Bash 会提取 `in` 到行尾之间的字符，并将它们拆分成单词。拆分**依据是空格和制表符**，就像参数拆分一样。
+
+但是，如果**其中有任何未加引号的替换字符**，它们也会被拆分成单词（使用 [IFS](https://mywiki.wooledge.org/IFS) ）。
+
+所有这些拆分后的单词都会成为**迭代元素**。
 
 **因此，务必小心，不要犯以下错误：**
 
 
 
-```
+```bash
 $ ls
 The best song in the world.mp3
 $ for file in $(ls *.mp3)
@@ -765,13 +914,15 @@ rm: cannot remove `world.mp3': No such file or directory
 
 
 
-你应该已经知道在 `rm` 语句中要给 `$file` 加引号；但这里到底出了什么问题？Bash 会展开命令替换（ `$(ls *.mp3)` ），将其替换为输出， *然后*对其进行单词分割（因为它没有加引号）。实际上，Bash 执行了 `for file in The best song in the world.mp3` 。 *砰！你就完蛋了* 。
+你应该已经知道在 `rm` 语句中要给 `$file` 加引号；但这里到底出了什么问题？
+
+Bash 会展开命令替换（ `$(ls *.mp3)` ），将其替换为输出， *然后*对其进行单词分割（因为它没有加引号）。实际上，Bash 执行了 `for file in The best song in the world.mp3` 。 *砰！你就完蛋了* 。
 
 你想引用这首歌？那我们再加一首歌：
 
 
 
-```
+```bash
 $ ls
 The best song in the world.mp3  The worst song in the world.mp3
 $ for file in "$(ls *.mp3)"
@@ -802,7 +953,7 @@ $ for file in *.mp3
 
 
 
-```
+```bash
 $ # The sweet machine; hand out sweets for a cute price.
 $ while read -p $'The sweet machine.\nInsert 20c and enter your name: ' name
 > do echo "The machine spits out three lollipops at $name."
@@ -813,7 +964,7 @@ $ while read -p $'The sweet machine.\nInsert 20c and enter your name: ' name
 
 
 
-```
+```bash
 $ # Check your email every five minutes.
 $ while sleep 300
 > do kmail --check
@@ -824,7 +975,7 @@ $ while sleep 300
 
 
 
-```
+```bash
 $ # Wait for a host to come back online.
 $ while ! ping -c 1 -W 1 "$host"
 > do echo "$host is still unavailable."
@@ -868,7 +1019,7 @@ $ until ping -c 1 -W 1 "$host"
 - **[如何对所有扩展名为 .gz 的文件运行命令？](https://mywiki.wooledge.org/BashFAQ/015)**
 - **[如何在循环中使用带前导零的数字，例如 01、02？](https://mywiki.wooledge.org/BashFAQ/018)**
 - **[如何查找和处理文件名中包含换行符、空格或两者兼有的情况？](https://mywiki.wooledge.org/BashFAQ/020)**
-- **[如何将所有 \*.foo 文件重命名为 \*.bar，或者将空格转换为下划线，或者将大写文件名转换为小写？](https://mywiki.wooledge.org/BashFAQ/030)**
+- **[如何将所有 *.foo 文件重命名为 *.bar，或者将空格转换为下划线，或者将大写文件名转换为小写？](https://mywiki.wooledge.org/BashFAQ/030)**
 - **[我可以在 Bash 中实现旋转动画吗？](https://mywiki.wooledge.org/BashFAQ/034)**
 - **[我想检查一个单词是否在列表中（或者一个元素是否是集合的成员）。](https://mywiki.wooledge.org/BashFAQ/046)**
 
@@ -891,7 +1042,7 @@ $ until ping -c 1 -W 1 "$host"
 
 
 
-## 选择（大小写和选择）
+## 大小写和选择
 
 
 
@@ -899,26 +1050,26 @@ $ until ping -c 1 -W 1 "$host"
 
 
 
-```en
-   1 shopt -s extglob
-   2 
-   3 if [[ $LANG = en* ]]; then
-   4     echo 'Hello!'
-   5 elif [[ $LANG = fr* ]]; then
-   6     echo 'Salut!'
-   7 elif [[ $LANG = de* ]]; then
-   8     echo 'Guten Tag!'
-   9 elif [[ $LANG = nl* ]]; then
-  10     echo 'Hallo!'
-  11 elif [[ $LANG = it* ]]; then
-  12     echo 'Ciao!'
-  13 elif [[ $LANG = es* ]]; then
-  14     echo 'Hola!'
-  15 elif [[ $LANG = @(C|POSIX) ]]; then
-  16     echo 'hello world'
-  17 else
-  18     echo 'I do not speak your language.'
-  19 fi
+```bash
+shopt -s extglob
+
+if [[ $LANG = en* ]]; then
+    echo 'Hello!'
+elif [[ $LANG = fr* ]]; then
+    echo 'Salut!'
+elif [[ $LANG = de* ]]; then
+    echo 'Guten Tag!'
+elif [[ $LANG = nl* ]]; then
+    echo 'Hallo!'
+elif [[ $LANG = it* ]]; then
+    echo 'Ciao!'
+elif [[ $LANG = es* ]]; then
+    echo 'Hola!'
+elif [[ $LANG = @(C|POSIX) ]]; then
+    echo 'hello world'
+else
+    echo 'I do not speak your language.'
+fi
 ```
 
 
@@ -927,17 +1078,17 @@ $ until ping -c 1 -W 1 "$host"
 
 
 
-```en
-   1 case $LANG in
-   2     en*) echo 'Hello!' ;;
-   3     fr*) echo 'Salut!' ;;
-   4     de*) echo 'Guten Tag!' ;;
-   5     nl*) echo 'Hallo!' ;;
-   6     it*) echo 'Ciao!' ;;
-   7     es*) echo 'Hola!' ;;
-   8     C|POSIX) echo 'hello world' ;;
-   9     *)   echo 'I do not speak your language.' ;;
-  10 esac
+```bash
+case $LANG in
+    en*) echo 'Hello!' ;;
+    fr*) echo 'Salut!' ;;
+    de*) echo 'Guten Tag!' ;;
+    nl*) echo 'Hallo!' ;;
+    it*) echo 'Ciao!' ;;
+    es*) echo 'Hola!' ;;
+    C|POSIX) echo 'hello world' ;;
+    *)   echo 'I do not speak your language.' ;;
+esac
 ```
 
 
@@ -954,7 +1105,7 @@ $ until ping -c 1 -W 1 "$host"
 
 
 
-```
+```bash
 $ echo "Which of these does not belong in the group?"; \
 > select choice in Apples Pears Crisps Lemons Kiwis; do
 > if [[ $choice = Crisps ]]
@@ -986,34 +1137,34 @@ $ PS3="Which of these does not belong in the group (#)? "; \
 
 
 
-```en
-   1 # A simple menu:
-   2 while true; do
-   3     echo "Welcome to the Menu"
-   4     echo "  1. Say hello"
-   5     echo "  2. Say good-bye"
-   6 
-   7     read -p "-> " response
-   8     case $response in
-   9         1) echo 'Hello there!' ;;
-  10         2) echo 'See you later!'; break ;;
-  11         *) echo 'What was that?' ;;
-  12     esac
-  13 done
-  14 
-  15 # Alternative: use a variable to terminate the loop instead of an
-  16 # explicit break command.
-  17 
-  18 quit=
-  19 while test -z "$quit"; do
-  20     echo "...."
-  21     read -p "-> " response
-  22     case $response in
-  23         ...
-  24         2) echo 'See you later!'; quit=y ;;
-  25         ...
-  26     esac
-  27 done
+```bash
+# A simple menu:
+while true; do
+    echo "Welcome to the Menu"
+    echo "  1. Say hello"
+    echo "  2. Say good-bye"
+
+    read -p "-> " response
+    case $response in
+        1) echo 'Hello there!' ;;
+        2) echo 'See you later!'; break ;;
+        *) echo 'What was that?' ;;
+    esac
+done
+
+# Alternative: use a variable to terminate the loop instead of an
+# explicit break command.
+
+quit=
+while test -z "$quit"; do
+    echo "...."
+    read -p "-> " response
+    case $response in
+        ...
+        2) echo 'See you later!'; quit=y ;;
+        ...
+    esac
+done
 ```
 
 

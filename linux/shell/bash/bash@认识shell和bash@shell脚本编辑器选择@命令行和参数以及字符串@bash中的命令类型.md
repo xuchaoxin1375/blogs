@@ -501,19 +501,33 @@ Bash 可以执行的最后一种命令是*可执行文件* 。（可执行文件
 
   有关此技术的更详细解释以及它与普通的 `#!/bin/bash` 的区别，请参阅 [StackOverflow 上的这个问题 ](https://stackoverflow.com/questions/16365130/what-is-the-difference-between-usr-bin-env-bash-and-usr-bin-bash/16365367#16365367)。
 
-### 细节问题
+### 脚本文件
 
  **`sh` 不是 `bash`** ！Bash 本身是一个“sh 兼容”的 shell（这意味着它可以运行大多数 'sh' 脚本，并且语法基本相同），**但反过来却不成立**；Bash 的某些特性在 `sh` 中会失效或导致意外行为。
 
 如果要区分两者,请不要给脚本添加 `.sh` 扩展名。这样做没有任何意义，而且会完全误导人（因为它是 `bash` 脚本，而不是 `sh` 脚本）。
 
- 使用 Windows 编写脚本完全没问题。但是，请避免使用记事本 。“Microsoft 记事本”只能创建 DOS 风格的换行符文件。DOS 风格的换行符由两个字符组成： 回车符 （ASCII 码 CR；0xD）和换行符 （ASCII 码 LF；0xA）。
+### 编辑器
 
-Bash 只识别换行符。因此，如果您不知道回车符的存在 ， 它会导致意想不到的错误（出现非常奇怪的错误信息）。
+ 虽然bash脚本主要在linux系统上运行,但是bash也有其他系统上的移植版本,比如windows上可以用git-bash,或者其他诸如`mysys2`或更加强大的模拟环境,对于`wsl2`甚至拥有完整的linux内核,还能够直接访问windows文件系统上的文件.
+
+使用 Windows 编写bash脚本是常见的,但是，请避免使用记事本 。
+
+> 推荐使用现代化的代码编辑器,可以提高bash的编写效率,例如vscode,在编写bash或其他要在linux环境运行的脚本,可以设置默认的EOF(end of line)为`\n`(LF风格)而不是windows系统默认`\r\n`(CRLF风格)
+>
+> 事实上,windows系统通常读取`LF`风格的文件没有问题,所有不用担心windows上的文本或代码文件因为LF设置导致问题
+>
+> 反之,linux系统上读取CRLF风格的文件容易引发意外,脚本文件一定要确保使用LF风格(linux平台上默认使用LF风格,通常不需要关注)尤其关注其他平台上创建的脚本文件
+>
+> 不过如果是普通文本文件(比如日志文件,或者csv文件,CRLF可能没那么严重,但是要注意文本读取这种文件时要小心`\r`带来的意外,这可能要求你编写额外的代码来处理)
+
+“Microsoft 记事本”只能创建 DOS 风格的换行符文件。DOS 风格的换行符由两个字符组成： 回车符 （ASCII 码 CR；0xD）和换行符 （ASCII 码 LF；0xA）。
+
+Bash 只识别**换行符**。因此，如果您不知道**回车符**的存在 ， 它会导致意想不到的错误（出现非常奇怪的错误信息）。
 
 如果可能，请使用功能更强大的编辑器，例如 [Vim](http://www.vim.org/) 、 [Emacs](http://www.gnu.org/software/emacs/) 、kate、GEdit 等。
 
-如果使用windows上使用vscode编辑bash脚本,注意切换换行符为`LF`而不是默认的`CRLF`
+如果使用windows上使用vscode编辑bash脚本,注意切换换行符为`LF`而不是默认的`CRLF`,并且推荐将eof默认值更改为`\n`
 
 如果无法使用，则需要**在运行脚本之前删除回车符**。 
 
