@@ -139,23 +139,34 @@ echo "Today is $(date)"   # 正常执行命令替换
 
 下面把 Bash 中 `$` 的主要用途整理成表格说明（中文解释 + 关键英文术语），并配示例。
 
-| 用途                           | 语法                   | 含义（中文 + 英文）                                          | 示例                                |
-| ------------------------------ | ---------------------- | ------------------------------------------------------------ | ----------------------------------- |
-| 变量展开 variable expansion    | `$var` 或者 `${var}`   | 取变量内容,后一种配合`{}`的写法更加安全,其他shell语言有类似机制,比如powershell | `name="Tom"; echo $name`            |
-| 命令替换 command substitution  | `$(cmd)`               | **执行括号中的命令**并用其输出替换(`$()`和`${}`扩展类似,不过后者是参数/变量展开,前者是命令运行后的结果替换) | `files=$(ls)`                       |
-| 算术扩展 arithmetic expansion  | `$((expr))`            | 执行整数运算                                                 | `echo $((3+5))`                     |
-| 位置参数 positional parameters | `$1` `$2` …            | 获取脚本传入的参数                                           | `echo $1`                           |
-| 参数数量 number of args        | `$#`                   | 参数的个数                                                   | `echo $#`                           |
-| 所有参数 all args              | `$@` / `$*`            | `$@` 保留独立参数；`$*` 合并为字符串                         | `for x in "$@"; do echo "$x"; done` |
-| 上一个命令状态 exit status     | `$?`                   | 获取上一条命令的退出码                                       | `ls; echo $?`                       |
-| 当前进程 PID process ID        | `$$`                   | 当前脚本 PID                                                 | `echo $$`                           |
-| 最近后台进程 PID               | `$!`                   | 最近启动的后台任务 PID                                       | `cmd &; echo $!`                    |
-| 参数展开（子串） substring     | `${var:offset:length}` | 取变量的部分内容                                             | `${str:0:3}`                        |
-| 参数展开（替换） replace       | `${var/pat/repl}`      | 变量中替换内容                                               | `${str/world/bash}`                 |
-| 默认值 default value           | `${var:-value}`        | 未设置变量时给默认值                                         | `${name:-unknown}`                  |
-| 数组元素 array element         | `${arr[i]}`            | 取数组元素                                                   | `arr=(a b c); echo ${arr[1]}`       |
-| 数组长度 array length          | `${#arr[@]}`           | 数组大小                                                     | `${#arr[@]}`                        |
-| 间接引用 indirect expansion    | `${!prefix*}`          | 展开以 prefix 开头的变量名                                   | `echo ${!A*}`                       |
+
+
+| **用途**                 | **语法**                               | **含义（中文 + 英文）**                                      | **示例**                                   |
+| ------------------------ | -------------------------------------- | ------------------------------------------------------------ | ------------------------------------------ |
+| **变量展开**             | `$var` 或者 `${var}`                   | **取变量内容 (Variable Expansion)**。后一种 `{} `的写法更安全，用于界定变量名。 | `name="Tom"; echo $name`                   |
+| **命令替换**             | `$(cmd)`                               | **执行命令并替换 (Command Substitution)**。执行括号中的命令并用其**标准输出**替换自身。`$()` 是现代推荐用法。 | `files=$(ls)`                              |
+| **算术扩展**             | `$((expr))`                            | **执行整数运算 (Arithmetic Expansion)**。在双括号内执行 C 语言风格的整数运算。 | `echo $((3 + 5))`                          |
+| **位置参数**             | `$1 $2 $3 …`                           | **获取脚本传入的参数 (Positional Parameters)**。脚本执行时传入的第 N 个参数。 | `echo "第一个参数是: $1"`                  |
+| **脚本名称**             | `$0`                                   | **获取脚本文件本身的名称 (Script Name)**。                   | `echo "脚本名: $0"`                        |
+| **参数数量**             | `$#`                                   | **参数的个数 (Number of Arguments)**。脚本或函数的总参数数量。 | `echo "参数总数: $#"`                      |
+| **所有参数**             | `$@` / `$*`                            | **所有参数 (All Arguments)**。`"$@"` 保留独立参数（**推荐**）；`"$*"` 将所有参数合并为一个字符串。 | `for x in "$@"; do echo "$x"; done`        |
+| **上一个命令状态**       | `$?`                                   | **获取上一条命令的退出码 (Exit Status)**。`0` 表示成功，非零表示失败。 | `ls; echo "状态: $?"`                      |
+| **当前进程 PID**         | `$$`                                   | **当前脚本或 Shell 的进程 ID (Process ID)**。                | `echo "当前 PID: $$"`                      |
+| **最近后台进程 PID**     | `$!`                                   | **最近启动的后台任务 PID (Last Background PID)**。           | `cmd &; echo "后台 PID: $!"`               |
+| **参数展开（子串）**     | `${var:offset:length}`                 | **取变量的部分内容 (Substring Extraction)**。从 `offset` 偏移量开始，提取 `length` 长度的子串。 | `str="hello"; echo ${str:0:3}`             |
+| **参数展开（删除前缀）** | `${var#pat}` / `${var##pat}`           | **最短/最长前缀删除 (Prefix Removal)**。删除变量内容中匹配模式 `pat` 的**最短 (`#`) / 最长 (`##`)** 前缀。 | `file="a/b/c.txt"; echo ${file##*/}`       |
+| **参数展开（删除后缀）** | `${var%pat}` / `${var%%pat}`           | **最短/最长后缀删除 (Suffix Removal)**。删除变量内容中匹配模式 `pat` 的**最短 (`%`) / 最长 (`%%`)** 后缀。 | `file="c.txt"; echo ${file%.*}`            |
+| **参数展开（替换）**     | `${var/pat/repl}` / `${var//pat/repl}` | **替换内容 (String Replacement)**。替换变量中**第一次匹配**到的 `pat`，使用 `//` 替换**所有匹配**。 | `str="w world"; echo ${str/w/h}`           |
+| **默认值**               | `${var:-value}`                        | **未设置时使用默认值 (Default Value if Unset)**。如果变量未设置或为空，则使用 `value`，但不改变变量本身。 | `echo ${name:-unknown}`                    |
+| **赋值默认值**           | `${var:=value}`                        | **未设置时赋值默认值 (Assign Default Value if Unset)**。如果变量未设置或为空，**使用** `value` 并**将该值赋给**变量。 | `echo ${name:=unknown}`                    |
+| **数组元素**             | `${arr[i]}`                            | **取数组指定元素 (Array Element)**。获取索引 `i` 处的元素。  | `arr=(a b c); echo ${arr[1]}`              |
+| **数组所有键/索引**      | `${!arr[@]}`                           | **取数组所有索引/键 (Array Keys/Indices)**。                 | `declare -A map; echo ${!map[@]}`          |
+| **数组所有元素**         | `${arr[@]}` / `${arr[*]}`              | **取数组所有元素 (All Array Elements)**。与 `$@`/`$*` 行为类似。 | `for x in "${arr[@]}"; do echo "$x"; done` |
+| **数组长度**             | `${#arr[@]}`                           | **数组大小/元素数量 (Array Length)**。                       | `echo ${#arr[@]}`                          |
+| **间接引用**             | `${!prefix*}` / `${!prefix@}`          | **展开以 `prefix` 开头的变量名 (Indirect Expansion of Names)**。列出所有以指定前缀开头的变量名称。 | `declare A_FILE B_VAR; echo ${!A*}`        |
+| **变量的长度**           | `${#var}`                              | **取变量值的长度 (Length of Variable Value)**。变量中字符的数量。 | `str="Bash"; echo ${#str}`                 |
+| **类型转换**             | `${var^}` / `${var^^}`                 | **首字母/全部转大写 (Case Conversion)**。`^` 仅转首字母；`^^` 转全部。 | `str="test"; echo ${str^}`                 |
+| **类型转换**             | `${var,}` / `${var,,}`                 | **首字母/全部转小写 (Case Conversion)**。`,` 仅转首字母；`,,` 转全部。 | `str="TEST"; echo ${str,}`                 |
 
 ### 算数表达式`$(())`
 

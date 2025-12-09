@@ -238,25 +238,14 @@ Bash 字符串**不能包含空字节**，这是因为 **C 语言的特性**：�
   [如何查找和处理文件名中包含换行符、空格或两者兼有的情况？](https://mywiki.wooledge.org/BashFAQ/020)
   [我在循环中设置了变量。为什么循环结束后它们会突然消失？或者，为什么我无法通过管道读取数据？](https://mywiki.wooledge.org/BashFAQ/024)**
 
+## declare命令
 
+declare是一个**内置命令**,用于**设置或查看变量值和属性的命令**,在学习字符串类型之外的类型的变量的使用前,先认识此命令
 
-##  使用数组
+- `declare [-aAfFgiIlnrtux] [name[=value] ...]`
+- `declare -p [-aAfFilnrtux] [name ...]`
 
-
-
-一旦我们有了一个数组，就可以用它做很多事情。
-
-
-
-###  扩展元素
-
-
-
-首先，我们可以打印出内容，看看里面有什么：
-
-### declare命令
-
-declare是一个内置命令,用于**设置或查看变量值和属性的命令**
+> 声明变量并赋予属性,如果没有指定`name`,那么会尝试查看所有变量的属性和值
 
 ```bash
 $ type declare
@@ -305,20 +294,202 @@ declare: declare [-aAfFgiIlnrtux] [name[=value] ...] or declare -p [-aAfFilnrtux
 
 
 
+### 关键参数（属性标志）
+
+`declare` 命令通过不同的选项（标志）来给变量赋予特殊的行为或属性。下面是一些最常用的标志及其作用：
+
+| **标志** | **完整形式 (Attribute)** | **作用**                                                  | **示例**                         |
+| -------- | ------------------------ | --------------------------------------------------------- | -------------------------------- |
+| **`-a`** | Index Array              | 将变量声明为**索引数组**。                                | `declare -a files`               |
+| **`-A`** | Associative Array        | 将变量声明为**关联数组**（或称哈希表、字典）。            | `declare -A config`              |
+| **`-i`** | Integer                  | 将变量声明为**整数**。赋值时将自动进行算术运算。          | `declare -i count=1+2`           |
+| **`-r`** | Read-Only                | 将变量设为**只读**。一旦设置，不能修改或取消设置。        | `declare -r PI=3.14`             |
+| **`-x`** | Export                   | 将变量**导出**到子 Shell 环境中（相当于 `export` 命令）。 | `declare -x PATH`                |
+| **`-f`** | Function                 | 仅显示/操作**函数**定义和属性，而不是变量。               | `declare -f my_func`             |
+| **`-g`** | Global                   | 在函数内部声明时，强制变量作用域为**全局**。              | (在函数内) `declare -g GREETING` |
+| **`-u`** | Uppercase                | 将变量值转换为**大写**。                                  | `declare -u name="alice"`        |
+| **`-l`** | Lowercase                | 将变量值转换为**小写**。                                  | `declare -l name="BOB"`          |
+
+例如
+
 ```bash
-$ declare -p myfiles
-declare -a myfiles='([0]="/home/wooledg/.bashrc" [1]="billing codes.xlsx" [2]="hello.c")'
+$ declare -u name="alice"
+$ echo $name
+ALICE
+
+
+$ declare -l name="BOB"
+$ echo $name
+bob
+
+$ declare -i count=1+2
+$ echo $count
+3
+```
+
+```bash
+$ declare -r CONSTANT="Locked"
+CONSTANT="New Value"  # Bash会报错: readonly variable
+bash: CONSTANT: readonly variable
+```
+
+```bash
+$ declare -A users
+users["id"]="U123"
+echo ${users["id"]} # 输出: U123
+
+U123
+```
+
+这里使用变量扩展语法`${A["key"]}`访问关联数组users的`id`属性值
+
+### 查看变量
+
+利用`declare`查看任何类型变量,包括数组类型的变量
+
+`declare`命令的选项颇多,这里介绍其常用的部分
+
+
+
+#### 查看变量及其属性
+
+如果您**不指定 `name`**，`declare` 会列出当前 Shell 中所有**已设置**的变量及其值和属性。
+
+
+
+```bash
+declare
+# 或
+declare -p
+```
+
+- **`declare`**：通常会以简单的 `name=value` 格式列出所有变量。
+- **`declare -p`**： 这是最推荐的查看方式。它以**可重用**的格式显示变量的属性和值，能够准确地展示变量的类型（例如 `-i`, `-a`, `-A` 等）。
+
+#### 查看全部变量
+
+普通模式
+
+```bash
+root@s1:~# declare
+BASH=/usr/bin/bash
+BASHOPTS=checkwinsize:cmdhist:complete_fullquote:expand_aliases:extquote:force_fignore:globasciiranges:histappend:hostcomplete:interactive_comments:progcomp:promptvars:sourcepath
+BASH_ALIASES=()
+BASH_ARGC=([0]="0")
+BASH_ARGV=()
+BASH_CMDS=()
+BASH_LINENO=()
+...
+```
+
+`-p`模式(可重用模式),连同属性都显示出来
+
+```bash
+root@s1:~# declare -p
+declare -- BASH="/usr/bin/bash"
+declare -r BASHOPTS="checkwinsize:cmdhist:complete_fullquote:expand_aliases:extquote:force_fignore:globasciiranges:histappend:hostcomplete:interactive_comments:progcomp:promptvars:sourcepath"
+declare -i BASHPID
+declare -A BASH_ALIASES=()
+declare -a BASH_ARGC=([0]="0")
+declare -a BASH_ARGV=()
+declare -- BASH_ARGV0
+declare -A BASH_CMDS=()
+declare -- BASH_COMMAND
+declare -a BASH_LINENO=()
+```
+
+#### 查看特定变量
+
+使用 `-p` 选项后跟**一个或多个变量名**，可以清晰地看到这些变量是如何被定义的。
+
+##### 查看单个
+
+```bash
+declare -p PATH
+# 输出类似： declare -x PATH="/usr/local/bin:..."
+```
+
+例如
+
+```bash
+declare -x PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/root/.fzf/bin"
+```
+
+这表明 `PATH` 变量被设置了 `-x`（export）属性，使其能被子进程继承。
+
+又比如
+
+```bash
+$ declare -p SHELL
+declare -x SHELL="/usr/bin/zsh"
+```
+
+但是`declare name`这种用法(没有使用`-p`,同时`name`非空),就不会打印任何东西(无效语法)
+
+##### 查看多个
+
+同时查看`BASH`,`SHELL`变量的声明
+
+```bash
+$ declare -p BASH SHELL
+declare -- BASH="/usr/sbin/bash"
+declare -x SHELL="/usr/bin/zsh"
 ```
 
 
 
-`declare -p` 命令会打印**一个或多个变量的内容**。此外，它还会显示 Bash 认为的**变量*类型*** ，而且所有这些操作都可以用代码实现，您可以复制粘贴到脚本中。
+### 定义变量
 
-在本例中， `-a` 表示这是一个数组。数组包含三个元素，索引分别为 0、1 和 2，我们可以查看每个元素的内容。
+使用`declare`定义一个普通变量(不使用任何参数)
+
+```bash
+# cxxu@CxxuDesk 19:51:21> <~>
+$ declare demovar=v1
+# cxxu@CxxuDesk 19:54:33> <~>
+$ declare -p demovar
+declare -- demovar="v1"
+```
+
+通过`declare -p`查看我们定义的`demovar`变量,发现输出为`declare --`开头,`declare` 命令后跟的 `--` 是一个**标准惯例**，表示**选项列表的结束**。它在这里没有任何实际的属性设置作用，仅是格式的一部分。
+
+
+
+### 定义数组变量
+
+使用`declare -a name=...`定义一个数组(索引数组)
+
+```bash
+declare -a myfiles=([0]="/home/wooledg/.bashrc" [1]="billing codes.xlsx" [2]="hello.c")
+# 或为()外包裹引号'',效果一样
+declare -a myfiles='([0]="/home/wooledg/.bashrc" [1]="billing codes.xlsx" [2]="hello.c")'
+```
+
+在本例中， `-a` 表示这是一个数组。
+
+数组包含三个元素，索引分别为 0、1 和 2，我们可以查看每个元素的内容。
+
+查看定义好的数组变量`myfiles`,`declare -p` 命令可以实现
+
+```bash
+$ declare -p myfiles
+declare -a myfiles=([0]="/home/wooledg/.bashrc" [1]="billing codes.xlsx" [2]="hello.c")
+```
+
+
+
+> **`-p` (Print)**: 这个选项告诉 `declare` 以**可重用**的格式显示变量的属性和值，即如果把输出结果复制到另一个 Shell 中，它也能重新创建这个变量。
+
+此外，它还会显示 Bash 认为的**变量*类型*** ，而且所有这些操作都可以用代码实现，您可以复制粘贴到脚本中。
+
+
+
+##  使用数组
+
+一旦我们有了一个数组，就可以用它做很多事情。
+
+### prinf 打印数组(隐式循环)
 
 如果我们想要一种不那么技术性的方法，我们也可以使用 `printf` 来打印数组：
-
-
 
 ```bash
 $ printf '%s\n' "${myfiles[@]}"
@@ -327,56 +498,78 @@ billing codes.xlsx
 hello.c
 ```
 
+这段代码会**按索引顺序打印数组中的每个元素**，每个元素后都添加一个**换行符**。
 
+请注意，如果数组元素本身*包含*换行符，我们就**无法确定每个元素的起始位置和结束位置，甚至无法统计元素的数量**。
 
-这段代码会按索引顺序打印数组中的每个元素，每个元素后都添加一个换行符。请注意，如果数组元素本身*包含*换行符，我们就无法确定每个元素的起始位置和结束位置，甚至无法统计元素的数量。因此，尽可能长时间地将数据安全地保存在数组中至关重要。一旦打印出来，就无法撤销了。
+因此，**尽可能长时间地将数据安全地保存在数组中至关重要。** 我们难以根据一个数组的打印输出结果还原原来数组中各个元素是怎么样的,除非事先明确没有元素包含换行符.
 
-语法 `"${myfiles[@]}"` 至关重要。它的作用与位置参数的 `"$@"` 类似：它会展开成一个单词列表，数组中的每个元素都作为*一个*单词，无论其内容是什么。即使数组元素中包含空格、制表符、换行符、引号或其他任何字符，它仍然会作为一个单词传递给我们正在运行的命令。
+### 数组变量扩展语法`${rray[@]}`
 
-`printf` 命令会隐式地遍历其所有参数。但如果我们想自己编写循环语句呢？在这种情况下，我们可以使用 [for 循环](https://mywiki.wooledge.org/BashGuide/TestsAndConditionals#Conditional_Loops)来遍历元素：
+语法 `"${myfiles[@]}"` 至关重要。
 
+> 保险起见,使用`${rray[@]}`包裹引号后的表达式更加常见
 
+它的作用与位置参数的 `"$@"` 类似：它会展开成一个**单词列表**，**数组中的每个元素都作为*一个*单词，无论其内容是什么**。
 
-```
+即使**数组**元素中包含**空格、制表符、换行符、引号或其他任何字符**，它仍然会作为一个单词传递给我们正在运行的命令。
+
+`printf` 命令会**隐式地遍历其所有参数**。但如果我们想自己编写循环语句呢？
+
+在这种情况下，我们可以使用 [for 循环](https://mywiki.wooledge.org/BashGuide/TestsAndConditionals#Conditional_Loops)来遍历元素：
+
+### for循环遍历数组元素
+
+```bash
 $ for file in "${myfiles[@]}"; do
->     cp "$file" /backups/
-> done
+     cp "$file" /backups/
+ done
 ```
 
-
-
-这里我们再次使用**带引号的**形式： `"${myfiles[@]}"` 。Bash 会将此语法替换为数组中每个元素的正确引号——类似于位置参数（传递给当前脚本或函数的参数）的展开方式。
+这里我们再次使用**带引号的**形式： `"${myfiles[@]}"` 。Bash 会将此语法替换为**数组中每个元素的正确引号**——类似于位置参数（传递给当前脚本或函数的参数）的展开方式(`$@`)。
 
 以下两个例子具有相同的效果：
 
 
 
+```bash
+names=("Bob" "Peter" "$USER" "Big  Bad   John")
+for name in "${names[@]}"; do echo "$name"; done
 ```
-$ names=("Bob" "Peter" "$USER" "Big Bad John")
-$ for name in "${names[@]}"; do echo "$name"; done
-```
 
-
-
-
-
-```
+```bash
 $ for name in "Bob" "Peter" "$USER" "Big Bad John"; do echo "$name"; done
 ```
 
 
 
-第一个例子创建了一个名为 `names` 的数组，并填充了一些元素。然后，数组被展开成这些元素，供 `for` 循环使用。在第二个例子中，我们跳过了数组，直接将元素列表传递给了 `for` 。
+第一个例子创建了一个名为 `names` 的数组，并填充了一些元素。然后，数组被展开成这些元素，供 `for` 循环使用。
 
-请务必正确**引用** `${arrayname[@]}` 展开式。否则，使用数组的所有好处都将丧失：参数不加引号就等于告诉 Bash 可以随意拆分参数，导致一切再次出错。
+在第二个例子中，我们跳过了数组，直接将**元素列表**传递给了 `for` 。
 
-上面的例子在 `for` 循环语句中展开了数组。但你可以在任何需要将数组元素作为参数的地方展开数组；例如，在 `cp` 命令中：
+请务必正确**引用** `${arrayname[@]}` 展开式。否则，使用数组的所有好处都将丧失：**参数不加引号就等于告诉 Bash 可以随意拆分参数，导致一切再次出错。**
 
+如果去掉`${names[@]}`包裹的引号有什么差别?
 
+> Only brace expansion, word splitting, and filename expansion can increase the number of words of the expansion; other expansions expand a single word to a single word. The only exceptions to this are the expansions of `"$@"` and `$*` (see Special Parameters), and `"${name[@]}"` and `${name[*]}` (see Arrays).
+> 仅支持花括号扩展、单词分割和文件名扩展 **可以增加扩展的单词数**；其他扩展 将单个单词扩展为单个单词。 
+>
+> 唯一的例外是扩展 `"$@"` 和 `$*` （参见特殊参数 ），以及 `"${ name [@]}"` 和 `${ name [*]}` （参见数组 ）。
 
+> 将names数组中的元素带上空格
+
+```bash
+names=("Bob" "Peter" "$USER" "Big  Bad     John")
+for name in ${names[@]}; do echo "$name"; done
 ```
-$ myfiles=(db.sql home.tbz2 etc.tbz2)
-$ cp "${myfiles[@]}" /backups/
+
+上面的例子在 `for` 循环语句中展开了数组。但你可以**在任何需要将"数组元素"作为参数的地方**展开数组；例如，在 `cp` 命令中：
+
+
+
+```bash
+ myfiles=(db.sql home.tbz2 etc.tbz2)
+ cp "${myfiles[@]}" /backups/
 ```
 
 
@@ -385,7 +578,7 @@ $ cp "${myfiles[@]}" /backups/
 
 
 
-```
+```bash
 $ cp "db.sql" "home.tbz2" "etc.tbz2" /backups/
 ```
 
@@ -393,11 +586,15 @@ $ cp "db.sql" "home.tbz2" "etc.tbz2" /backups/
 
 然后 `cp` 会将文件复制到您的 `/backups/` 目录。
 
-当然， `for` 循环提供了最大的灵活性，但 `printf` 及其对参数的隐式循环可以涵盖许多更简单的情况。它甚至可以生成以 NUL 分隔的流，非常适合后续检索：
+### 隐式循环的更多用法
+
+当然， `for` 循环提供了最大的灵活性，但 `printf` 及其对参数的**隐式循环可以涵盖许多更简单的情况**。
+
+它甚至可以生成**以 NUL 分隔的流**，非常适合后续检索：
 
 
 
-```
+```bash
 $ printf "%s\0" "${myarray[@]}" > myfile
 ```
 
