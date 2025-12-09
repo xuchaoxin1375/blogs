@@ -276,6 +276,30 @@ f     f
 f f
 ```
 
+## 特殊字符表示
+
+```bash
+# 单引号（'...'） 是 强引用（strong quoting）禁用所有转义,单引号内的 所有字符都会被原样保留，不会进行任何转义处理，\n、\t、$、* 等都只是普通字符
+# cxxu@CxxuDesk 10:01:13> <.../woo_df/sh>
+$ echo 'a\n\n\tb'
+a\n\n\tb
+
+# 双引号（"..."） 是 弱引用（weak quoting）它允许变量展开（如 "$HOME"）和命令替换（如 "$(date)"），但不会解释 \n、\t 等转义序列（除非配合 -e 选项的 echo，但标准 echo 默认不处理）。
+# cxxu@CxxuDesk 10:01:27> <.../woo_df/sh>
+$ echo "a\n\n\tb"
+a\n\n\tb
+$ echo -e "a\n\n\tb"
+a
+
+        b
+# $'...' 是 ANSI-C Quoting（Bash 特有语法）。 Bash 会在解析阶段将其中的 \n、\t、\r、\x1b 等 转换成对应的控制字符：
+# cxxu@CxxuDesk 10:01:05> <.../woo_df/sh>
+$ echo $'a\n\n\tb'
+a
+
+        b
+```
+
 
 
 ## 命令类型

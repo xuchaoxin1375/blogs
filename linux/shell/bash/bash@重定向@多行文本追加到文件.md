@@ -35,6 +35,8 @@ Following is a complete list of commands which you can use for redirection −
   * **1** is standard output (STDOUT),
   * **2** is standard error output (STDERR).
 
+
+
 ## 单行内容写入到文件
 
 基础操作
@@ -47,7 +49,7 @@ $ nl file0                                                           [13:08:56]
 
 当然,后面介绍的多行输入也都能够单行输入的需求(多行内容重定向的方法都适用于单行重定向)
 
-## 重定向多行文本输入(文本块)👺🎈
+## 创建多行文本
 
 在 Linux 中，有多种方法可以创建多行文本文件。根据不同的需求，可以选择适合的命令：
 
@@ -55,8 +57,11 @@ $ nl file0                                                           [13:08:56]
 - 如果要进行交互式编辑，可以使用文本编辑器 `nano` 或 `vi`。
 - 对于批量生成和更复杂的文本操作，`sed`、`awk` 和 `here document` 提供了更多的灵活性和控制。
 
->下面提到的 token 是自定义的结束符(delimiter),一般使用 eof
-### here doc常见写法👺
+本文主要讨论here  doc重定向到文本文件的方法
+
+下面提到的 token 是自定义的结束符(delimiter),一般使用 eof
+
+### here doc常见写法
 
 `Here Document`（简称 **Here Doc**）是 Bash（及其他 Shell）中一种非常实用的**多行输入重定向**机制，用于将一段文本作为命令的输入，而无需创建临时文件。
 
@@ -76,9 +81,19 @@ DELIMITER
 
    
 
-### 常见形式
+## here doc重定向内容到文件
 
-多达8中写法(后4中可以不看),这些写法中都能够找到`<< DELIMITER`这个结构部分(`<< EOF`),前置或者后置
+heredoc多达8种写法(后4种可以不看),这些写法中都能够找到`<< DELIMITER`这个结构,最常见的`DELIMITER`是`EOF`,前置或者后置
+
+```bash
+command << DELIMITER
+内容行1
+内容行2
+...
+DELIMITER
+```
+
+
 
 1. `> file << EOF`
 2. `file << EOF`
