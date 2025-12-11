@@ -50,3 +50,22 @@ _omb_util_add_prompt_command _omb_theme_PROMPT_COMMAND
 
 ```
 
+### 部署
+
+```bash
+#定义 oh my bash 主题的路径变量
+omb_themes=~/.oh-my-bash/themes
+omb_copied_duru=/www/sh/omb-copied-duru.sh
+#部署文件
+mkdir -p $omb_cduru_theme
+ln -s $omb_cduru $omb_cduru_theme/cduru.theme.sh -fv
+```
+
+覆盖bashrc(谨慎)
+
+如果不执行覆盖,则考虑使用`sed`或者手动编辑`~/.bashrc`
+
+```bash
+sed -Ei 's/^\s*(OSH_THEME=)"([^"]*)"/\1"duru"/' ~/.bashrc 
+```
+
