@@ -18,11 +18,13 @@
     fi
 ```
 
+### 手动补全辅助组件
 
+即创建两个符号链接
 
 ```bash
-ln -s /www/server/panel/pyenv/bin/fail2ban-regex /usr/bin/fail2ban-regex
-ln -s /www/server/panel/pyenv/bin/fail2ban-testcases /usr/bin/fail2ban-testcases
+ln -s /www/server/panel/pyenv/bin/fail2ban-regex /usr/bin/fail2ban-regex -v
+ln -s /www/server/panel/pyenv/bin/fail2ban-testcases /usr/bin/fail2ban-testcases -v
 ```
 
 ### 相关目录

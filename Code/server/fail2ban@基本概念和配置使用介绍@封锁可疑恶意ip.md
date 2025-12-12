@@ -1342,6 +1342,16 @@ sudo pkill -9 fail2ban-server
 - **权限**：Fail2ban 需要读取日志文件 (logpath) 的权限，并且执行封禁动作 (如 iptables) 需要 root 权限。
 - **监控和报警**：你可以配置 action，使封禁时发送邮件 (或使用其他通知方式)，及时知道哪些 IP 被封了。
 
+### 正确解封ip或停用服务
+
+通常,我们不应该通过停用fail2ban来解封ip,强行停止fail2ban并不会释放被禁ip,尽可能使用fail2ban提供的命令行工具解禁ip.
+
+并且,如果你打算停用fail2ban甚至移除此工具,通常建议用fail2ban-client解封所有ip,否则停止fail2ban后,fail2ban记录的被封禁的ip列表会变得不可靠,尤其是对接了cloudflare的情况下,ip的封禁和解封指令都是经由fail2ban请求api进行的,如果没有解封ip就停止fail2ban服务,自动解封ip就无法实现(cloudflare并不会在给定时间解封指定ip)
+
+即便你后续重新启用fail2ban服务,由于被封禁ip列表可能和cloudflare的封禁列表对不上,就会导致解封全部ip的命令不可靠(部分甚至所有ip不能顺利解封)
+
+
+
 ## 案例: 封禁大量可疑404请求的 IP（Nginx 日志）
 
 下面我们做一个完整示例：监控 Nginx 的 access 日志，当同一个 IP 连续请求导致 404 (Not Found) 错误时，每分钟封禁这个 IP。
