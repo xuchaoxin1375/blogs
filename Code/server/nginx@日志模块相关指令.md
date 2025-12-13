@@ -298,7 +298,7 @@ log_format combined '$remote_addr - $remote_user [$time_local] '
 
 
 
-### 🧩 字段详解（按顺序）
+###  字段详解（按顺序）
 
 
 
@@ -318,7 +318,7 @@ log_format combined '$remote_addr - $remote_user [$time_local] '
 
 
 
-### 💡 默认格式的优势和局限性
+###  默认格式的优势和局限性
 
 
 
@@ -354,3 +354,53 @@ log_format extended '$http_x_forwarded_for $remote_addr - $remote_user [$time_lo
 - **`10.0.0.1`**: 代理服务器或负载均衡器的 IP（`$remote_addr`）。
 - **`0.354`**: 整个请求耗时 354 毫秒（`$request_time`）。
 - **`0.340`**: 后端服务器响应耗时 340 毫秒（`$upstream_response_time`）。
+
+## 日志格式问题排查
+
+### 格式不符合预期
+
+我们以`access_log`为例
+
+nginx允许用户为其不同网站指定不同的日志格式,也允许用户为同一个网站在不同条件指定不同的日志输出格式和文件位置(例如我希望将请求日志中状态码为404,403,499的日志输出到一个专门的位置,供后续分析或其他用途)
+
+在同一个网站的nginx配置中,可以多出出现`access_log`指令,以最简单的情况(默认日志)为例,在`server{}`上下文中,如果出现了2次,例如,我的网站(域名)为`domain.com`,其配置文件(vhost下的网站专属配置)名假设为`domain.com.conf`
+
+```nginx
+server
+{
+    listen 80;
+    server_name domain.com www.domain.com *.domain.com;
+	...
+    
+    #CUSTOM-CONFIG-START
+    include /www/server/nginx/conf/com.conf;
+    #CUSTOM-CONFIG-END
+
+    ...
+    access_log  /www/wwwlogs/domain.com.log ;
+    ...
+```
+
+其中`include`引入了公共配置`com.conf`,其中指定了一个默认日志输出
+
+```nginx
+access_log /www/wwwlogs/$server_name.log main_format;
+```
+
+> 这里用到了变量`$server_name`,在这个例子中,会被替换为`domain.com`,最终此指令等价于
+>
+> ```nginx
+> access_log /www/wwwlogs/domain.com.log main_format;
+> ```
+>
+> 
+
+而`domain.com.conf`本身在末尾包含了自己的日志指令
+
+```nginx
+access_log  /www/wwwlogs/domain.com.log ;
+```
+
+这种情况下`domain.con.conf`的`server`上下文中存在两个相似但是不同的`access_log`指令,并且前一条指令指定了自定义日志格式`main_format`,这和后一条指令冲突,并且最终会以最后一条指令(默认格式)为准.
+
+总之,日志指令允许存在的位置比较灵活,且可能持出现同一个上下文中冲突(覆盖)的日志指令,尤其是通过`include`间接引入的日志指令,可能会被覆盖而失效,这不会报错,但是结果可能不符合预期
