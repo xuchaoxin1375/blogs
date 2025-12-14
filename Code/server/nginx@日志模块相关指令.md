@@ -355,7 +355,7 @@ log_format extended '$http_x_forwarded_for $remote_addr - $remote_user [$time_lo
 - **`0.354`**: 整个请求耗时 354 毫秒（`$request_time`）。
 - **`0.340`**: 后端服务器响应耗时 340 毫秒（`$upstream_response_time`）。
 
-## 日志格式问题排查
+## 日志问题排查
 
 ### 格式不符合预期
 
@@ -404,3 +404,36 @@ access_log  /www/wwwlogs/domain.com.log ;
 这种情况下`domain.con.conf`的`server`上下文中存在两个相似但是不同的`access_log`指令,并且前一条指令指定了自定义日志格式`main_format`,这和后一条指令冲突,并且最终会以最后一条指令(默认格式)为准.
 
 总之,日志指令允许存在的位置比较灵活,且可能持出现同一个上下文中冲突(覆盖)的日志指令,尤其是通过`include`间接引入的日志指令,可能会被覆盖而失效,这不会报错,但是结果可能不符合预期
+
+### 日志无法写入到日志文件或日志文件无法创建
+
+有两种情况:
+
+- 网站数量过多,导致`too many open files`,需要调整最大可打开文件数量(`ulimit -n 65535`),或者持久化修改,另见它文
+
+- 权限错误,通过观察无法写入日志的网站对应日志文件是否创建,以及访问记录能否添加到日志文件,或者观察`.error.log`错误日志文件
+
+  ```bash
+  2025/12/14 09:37:08 [crit] 843779#0: *1004391 open() "/www/wwwlogs/domain.com.log" failed (13: Permission denied) while logging request, client: 66.249.69.3, server: domain.com, request: "GET /shop/ HTTP/1.1", upstream: "fastcgi://unix:/tmp/php-cgi-74.sock", host: "www.domain.com"
+  2025/12/14 10:03:23 [crit] 843779#0: *1034366 open() "/www/wwwlogs/domain.com.log" failed (13: Permission denied) while logging request, client: 43.173.1.57, server: domain.com, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/tmp/php-cgi-74.sock", host: "www.domain.com", referrer: "http://www.domain.com"
+  ```
+
+  或者尝试列出日志目录中想要观察相关日志文件(如果存在的话)
+
+  ```bash
+  ...
+  -rw-r--r-- 1 www  www  2.2K Dec 14 10:25 domain1.com.log
+  -rw-r--r-- 1 root root 7.2K Dec 14 10:25 domain2.com.log
+  -rw-r--r-- 1 www  www   22K Dec 14 10:28 domain3.com.log
+  ...
+  ```
+
+  根据文件文件权限标记位,domain2.com.log仅root用户可以写,其他用户仅可读
+
+  这可能是用户手动干预文件,不过想要恢复也不难,使用`chmod`或`chown`批量更改权限即可,例如这个例子中,希望用户`www`可以访问(可写),可以批量修改用户所有者即可
+
+  ```bash
+  chown www:www *log
+  ```
+
+  
