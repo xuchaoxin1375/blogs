@@ -18,6 +18,12 @@
 
 [Wait-Job (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/wait-job?view=powershell-7.5)
 
+#### 其他
+
+- windows powershell 7开始支持的foreach -parallel并行(虽然文档提示为powershell 5.1)
+  -  [关于 Foreach-Parallel - PowerShell | Microsoft Learn --- about_Foreach-Parallel - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/psworkflow/about/about_foreach-parallel?view=powershell-5.1)
+  - [ForEach-Object (Microsoft.PowerShell.Core) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/foreach-object?view=powershell-7.5)
+
 ### 背景知识
 
 提供有关 PowerShell 后台作业如何在后台运行命令或表达式而不与当前会话交互的信息。
@@ -27,7 +33,7 @@
 PowerShell 通过作业同时运行命令和脚本。 PowerShell 提供了**三种类型的作业来支持并发**。
 
 - `BackgroundJob` - 命令和脚本在**本地计算机上的单独进程**中运行。(最典型的类型,特点在于**隔离性**强)
-- `PSTaskJob` 或 `ThreadJob` - 命令和脚本在本地计算机上**同一进程中的单独线程**中运行。 这是轻量高效版本的后台任务方案,但缺点是可靠性不足
+- `PSTaskJob` 或 `ThreadJob` - 命令和脚本在本地计算机上**同一进程中的单独线程**中运行。 这是轻量高效版本的后台任务方案,但缺点是可靠性不足.
   - 有关详细信息，请参阅 [about_Thread_Jobs](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_thread_jobs?view=powershell-7.5)。
 - `RemoteJob` - 命令和脚本在远程会话上运行。 
   - 有关信息，请参阅 [about_Remote_Jobs](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_remote_jobs?view=powershell-7.5)。
@@ -98,8 +104,8 @@ function push1by1
     }
     for ($i = 0; $i -lt $Count; $i++)
     {
-        Start-Sleep 1
         Write-Output ($i + 1)
+        Start-Sleep 1
         # return $i
     }
 }
@@ -143,7 +149,6 @@ function push1by1
     }
     for ($i = 0; $i -lt $Count; $i++)
     {
-        Start-Sleep 1
         $c = $i + 1
         if($ShowProgress)
         {
@@ -158,6 +163,8 @@ function push1by1
             $res="[$JobMark]: $res"
         }
         Write-Output $res
+
+		Start-Sleep 1
         # return $i
     }
 }
@@ -209,7 +216,7 @@ Id    Name   PSJobTypeName   State       HasMoreData     Location      Command
 
 在后台以 PowerShell 作业的形式运行前面的管道。此运算符类似于 Unix 控制运算符 `&` ，它会在子 shell 中以作业的形式**异步运行前面`&`前的命令**。
 
-此操作符的功能与 `Start-Job` 操作基本相同。但是存在一些差异
+此操作符的功能与 `Start-Job` 操作基本相同。但是存在一些差异,例如`sajb`可以指定更多运行参数(比如指定作业名字),而`&`方便连写多个后台任务
 
 默认情况下，**后台操作符**会在启动并行任务的调用者的当前工作目录中启动作业。
 
@@ -895,6 +902,8 @@ False
 
 从command列可以看出,后台作业运行的命令确实为是ScriptBlock中定义的那样,然而,这个例子中`$n`并没有被扩展为取值`15`,
 
+### 使用$using语法(范围修饰符)
+
 一个简单的解决方案是使用`$using:var`来在ScriptBlock中引用外部定义的变量`var`
 
 ```powershell
@@ -918,6 +927,162 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 ...
 ```
 
-这次得到了正确的结果,但是这并不完美
+这次得到了正确的结果,但是这并不完美.
 
 不过,外部定义的函数或命令,在ScriptBlock中可以直接调用,正如前面演示的那样
+
+### 使用 ArgumentList 参数指定数组
+
+此示例使用 **ArgumentList** 参数来指定**参数数组**。 该数组是进程名称的**逗号分隔列表**。
+
+
+
+```powershell
+Start-Job -ScriptBlock { Get-Process -Name $args } -ArgumentList p*, explorer
+```
+
+Output
+
+```powershell
+
+Id     Name            PSJobTypeName   State         HasMoreData     Location             Command
+--     ----            -------------   -----         -----------     --------             -------
+13     Job13           BackgroundJob   Running       True            localhost             Get-Process -Name $args
+```
+
+`Start-Job` cmdlet 使用 **ScriptBlock** 参数来运行命令。 `Get-Process` 使用 **Name** 参数指定自动变量 `$args`。 **ArgumentList** 参数将进程名称数组传递给 `$args`。 进程名称或模式(`p*`,`explorer`) 是在本地计算机上运行的进程。
+
+又比如,powershell 将如下命令行作为后台作业运行:
+
+```powershell
+
+Push-ByScp -Server $HostName -Path $FromTable -Destination $RemoteSiteTable
+```
+
+首先，请确保您的变量 `$HostName`、`$FromTable` 和 `$RemoteSiteTable` 已经在当前会话中设置了正确的值。
+
+当您在脚本块中使用这些变量时，需要使用 **`$using:` 作用域修饰符** 来告诉后台作业使用父作用域（即当前会话）中的变量值。
+
+```powershell
+# 假设这些变量已在当前会话中定义
+$HostName = "example.com"
+$FromTable = "/local/path/data.txt"
+$RemoteSiteTable = "/remote/path/data.txt"
+
+# 定义要在后台运行的脚本块
+$ScriptBlock = {
+	#脚本块中定义参数(这里定义3个位置参数)
+    param(
+        [string]$Server,
+        [string]$Path,
+        [string]$Destination
+    )
+
+    Push-ByScp -Server $Server -Path $Path -Destination $Destination
+}
+```
+
+> 尽管在 `Start-Job` 中也可以直接使用 `$using:` 访问变量，但最佳实践是通过 `param()` 和 `ArgumentList` 显式传递参数，这使代码更清晰，更易于调试。
+
+```powershell
+# 启动后台作业，并传递参数(ArgumentList参数)
+$Job = Start-Job -ScriptBlock $ScriptBlock -ArgumentList $HostName, $FromTable, $RemoteSiteTable -Name "ScpPushJob"
+
+Write-Host "后台作业 $($Job.Name) 已启动，ID: $($Job.Id)"
+```
+
+## foreach-object -parallel
+
+**并行运行的脚本块**。 从 PowerShell 7.0 开始，可以使用第三个参数集并行运行每个脚本块。
+
+ **ThrottleLimit** 参数限制一次运行的并行脚本数。 
+
+与之前一样，使用 `$_` 变量来表示脚本块中的当前输入对象。 使用 `Using:` **范围修饰符**将变量引用传递给正在运行的脚本。
+
+> `-Parallel`参数通常在foreach-object 在管道符后使用`...|foreach-object -parallel {...}`
+
+> 在 PowerShell 7 中，为**每个循环迭代创建新的运行空间，以确保最大隔离**。 与创建新运行空间相比，如果所做的工作很小，或者执行大量迭代执行大量工作，则这可以是较大的性能和资源命中率。
+
+> 从 PowerShell 7.1 起，默认情况下会**重复使用运行空间池中的运行空间**。 **ThrottleLimit** 参数设置运行空间池大小。 默认的运行空间池大小为 5。 仍然可以使用 **`UseNewRunspace`** 开关为每个迭代创建新的运行空间。
+
+默认情况下，并行脚本块使用启动并行任务的调用方当前工作目录。
+
+**资源消耗：** 创建和管理运行空间本身需要时间和内存。如果任务非常简单且执行时间极短，串行循环可能更快。
+
+**变量隔离：** 每个并行 Runspace 都是隔离的。它们**不能直接共享或修改"主脚本"会话中的变量**，除非使用 `$using:` 关键字进行**只读**的传递。(如果要修改或写主脚本会话中的变量,需要别的并发方案)
+
+**输出顺序：** 并行输出的顺序是不可预测的。如果需要顺序输出，您可能需要将结果收集到一个变量中，然后手动排序。
+
+### 简单用例
+
+此示例运行一个脚本块，该脚本块计算字符串并休眠一秒。
+
+```powershell
+$Message = "Output:"
+
+1..8 | ForEach-Object -Parallel {
+    "$Using:Message $_"
+    Start-Sleep 1
+} -ThrottleLimit 4
+```
+
+**ThrottleLimit** 参数值设置为 4，以便以四批方式处理输入。 范围 `Using:` 修饰符用于将 `$Message` 变量传递到每个并行脚本块。
+
+
+
+### 以作业的形式并行运行
+
+此示例创建一个作业，该作业一次以两个并行方式运行脚本块。
+
+> 并行虽然可以提高效率,但是如果任务多或者单个任务复杂,则仍会显著阻塞当前会话,借助后台作业的机制,将并行任务推到后台作为作业(As Job)可以避免阻塞
+>
+> 反之,将任务推入后台运行虽然不会阻塞当前会话,但是任务进入后台并不会因此而更高效,就需要并行提速.
+>
+> 总之后台运行和并行是独立的.
+>
+> 不过,如果启动多个后台作业,那么这些作业之间可能构成并行运行的关系.不过对于单个作业的并行运行,需要另外的支持,比如foreach -parallel
+
+使用`foreach-object`的`-AsJob`参数将此循环移动到后台运行(作为作业(As Job)),并立即返回**作业对象**
+
+这种方式创建到作业类型是`PSTaskJob`,而不是普通的`BackgroundJob`或`ThreadJob`
+
+```powershell
+PS> $job = 1..10 | ForEach-Object -Parallel {
+    "Output: $_"
+    Start-Sleep 1
+} -ThrottleLimit 2 -AsJob
+
+PS> $job
+
+Id     Name            PSJobTypeName   State         HasMoreData     Location      Command
+--     ----            -------------   -----         -----------     --------      -------
+23     Job23           PSTaskJob       Running       True            PowerShell    …
+
+ $job.ChildJobs|ft -Wrap
+
+Id     Name            PSJobTypeName   State         HasMoreData     Location             Command
+--     ----            -------------   -----         -----------     --------             -------
+22     Job22           PSTaskChildJob  Completed     True            PowerShell
+                                                                                              "Output: $_"
+                                                                                              Start-Sleep 1
+
+23     Job23           PSTaskChildJob  Completed     True            PowerShell
+                                                                                              "Output: $_"
+...
+```
+
+**ThrottleLimit** 参数限制一次运行的并行脚本块数。 **AsJob** 参数会导致 `ForEach-Object` cmdlet 返回**作业对象**，而不是将输出流式传输到控制台。 
+
+该 `$job` 变量接收收集输出数据和监视运行状态的作业对象。 该 `$job.ChildJobs` 属性包含运行并行脚本块的子作业。
+
+```powershell
+ $job.ChildJobs|select -First 1|select Id,Name,Command|fl
+
+Id      : 22
+Name    : Job22
+Command :
+              "Output: $_"
+              Start-Sleep 1
+
+```
+

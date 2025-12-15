@@ -1350,7 +1350,21 @@ sudo pkill -9 fail2ban-server
 
 即便你后续重新启用fail2ban服务,由于被封禁ip列表可能和cloudflare的封禁列表对不上,就会导致解封全部ip的命令不可靠(部分甚至所有ip不能顺利解封)
 
+### 谨慎切换action
 
+在切换action之前,建议暂停所有jail,并解封所有ip
+
+因为解封动作的发出依赖于fail2ban中配置的action,如果action行为被更改,之前老action的封禁方式用新的action解封可能是无效的
+
+例如,在cloudflare.conf中,默认的banaction是封锁ip(block),而某天我希望尝试质询(challenge)而不是封锁
+
+如果不实现解封所有ip,就直接重启fail2ban更改了jail中的action,后续这些由老action执行的ip封锁将无法被解封.
+
+您可以使用`fail2ban-client`来手动封禁,解封某个ip,来测试效果;
+
+对于cloudflare这个例子,如果已经来不及了,则需要你登录cf手动解封各个ip,或者使用api批量解封
+
+当然,也可以手动将需要被解封到ip封禁(这会刷新cf上对此ip的封禁策略为新制定的版本,然后解封即可)
 
 ## 案例: 封禁大量可疑404请求的 IP（Nginx 日志）
 
