@@ -615,6 +615,129 @@ false
 
 这些测试表达式不能脱离测试命令(`test`或`[[`单独使用
 
+#### 内置test帮助
+
+`test`命令和`[ command ]`的功能基本一致,支持的表达式也一样,不过和`[[`有所区别
+
+> `help test`打印输出比`help [`要详细,类似的,如果要获取`[[`的帮助,使用`help [[`,`[`(`test`)的帮助可以视为`[[`帮助的一部分
+
+```bash
+# cxxu@CxxuDesk 09:44:03> </etc/fail2ban>
+$ help test
+test: test [expr]
+    Evaluate conditional expression.
+
+    Exits with a status of 0 (true) or 1 (false) depending on
+    the evaluation of EXPR.  Expressions may be unary or binary.  Unary
+    expressions are often used to examine the status of a file.  There
+    are string operators and numeric comparison operators as well.
+
+    The behavior of test depends on the number of arguments.  Read the
+    bash manual page for the complete specification.
+
+    File operators:
+
+      -a FILE        True if file exists.
+      -b FILE        True if file is block special.
+      -c FILE        True if file is character special.
+      -d FILE        True if file is a directory.
+      -e FILE        True if file exists.
+      -f FILE        True if file exists and is a regular file.
+      -g FILE        True if file is set-group-id.
+      -h FILE        True if file is a symbolic link.
+      -L FILE        True if file is a symbolic link.
+      -k FILE        True if file has its `sticky' bit set.
+      -p FILE        True if file is a named pipe.
+      -r FILE        True if file is readable by you.
+      -s FILE        True if file exists and is not empty.
+      -S FILE        True if file is a socket.
+      -t FD          True if FD is opened on a terminal.
+      -u FILE        True if the file is set-user-id.
+      -w FILE        True if the file is writable by you.
+      -x FILE        True if the file is executable by you.
+      -O FILE        True if the file is effectively owned by you.
+      -G FILE        True if the file is effectively owned by your group.
+      -N FILE        True if the file has been modified since it was last read.
+
+      FILE1 -nt FILE2  True if file1 is newer than file2 (according to
+                       modification date).
+
+      FILE1 -ot FILE2  True if file1 is older than file2.
+
+      FILE1 -ef FILE2  True if file1 is a hard link to file2.
+
+    String operators:
+
+      -z STRING      True if string is empty.
+
+      -n STRING
+         STRING      True if string is not empty.
+
+      STRING1 = STRING2
+                     True if the strings are equal.
+      STRING1 != STRING2
+                     True if the strings are not equal.
+      STRING1 < STRING2
+                     True if STRING1 sorts before STRING2 lexicographically.
+      STRING1 > STRING2
+                     True if STRING1 sorts after STRING2 lexicographically.
+
+    Other operators:
+
+      -o OPTION      True if the shell option OPTION is enabled.
+      -v VAR         True if the shell variable VAR is set.
+      -R VAR         True if the shell variable VAR is set and is a name
+                     reference.
+      ! EXPR         True if expr is false.
+      EXPR1 -a EXPR2 True if both expr1 AND expr2 are true.
+      EXPR1 -o EXPR2 True if either expr1 OR expr2 is true.
+
+      arg1 OP arg2   Arithmetic tests.  OP is one of -eq, -ne,
+                     -lt, -le, -gt, or -ge.
+
+    Arithmetic binary operators return true if ARG1 is equal, not-equal,
+    less-than, less-than-or-equal, greater-than, or greater-than-or-equal
+    than ARG2.
+
+    Exit Status:
+    Returns success if EXPR evaluates to true; fails if EXPR evaluates to
+    false or an invalid argument is given.
+```
+
+
+
+> 对于zsh用户,可以在`[[ -`按下`tab`获取补全选项
+
+```zsh
+   [[ -
+-b      -- block special file
+-c      -- character special file
+-d      -- directory
+-e  -a  -- existing file
+-f      -- regular file
+-g      -- setgid bit
+-G      -- group-owned file
+-k      -- sticky bit
+-L  -h  -- symbolic link
+-n      -- non-empty string
+-N      -- unread file
+-o      -- option
+-O      -- own file
+-p      -- named pipe
+-r      -- readable file
+-s      -- non-empty file
+-S      -- socket
+-t      -- terminal file descriptor
+-u      -- setuid bit
+-v      -- set variable
+-w      -- writable file
+-x      -- executable file
+-z      -- empty string
+-
+```
+
+
+
 ####  通用部分:`[` ,`test` 和 `[[` 都支持的测试：
 
 ##### 判断文件的单目运算符
@@ -622,7 +745,7 @@ false
 1. **-e FILE** ：如果文件存在则为真(exist)。
 2. **-f FILE** ：如果文件是普通文件(file)，则为 True。
 3. **-d FILE** ：如果 file 是目录(directory)，则为 True。
-4. **-h FILE** ：如果文件是符号链接(symbolic link)，则为 True。
+4. **-h FILE**或**-L FILE** ：如果文件是符号链接(symbolic link)，则为 True。(-h和-L作用相同)
 5. **-p PIPE** ：如果管道(pipe)存在则为真。
 6. **-r FILE** ：如果文件对您可读(read)，则为 True。
 7. **-s FILE** ：如果文件存在且不为空(empty)，则为 True。
@@ -649,7 +772,7 @@ false
    - **字符串 < 字符串** ：如果第一个字符串在第二个字符串之前排序，则为 True。
    - **字符串 > 字符串** ：如果第一个字符串排在第二个字符串之后，则为 True。
 
-##### 数值运算符：
+##### 数值运算符：🎈
 
 bash中的数值运算符仅判断整数!如果要比较数值,更推荐使用**算数表达式**`((...))`,另见它文
 
@@ -1364,7 +1487,9 @@ done
 
 - **手册内容：[ 条件结构](http://www.gnu.org/software/bash/manual/bashref.html#Conditional-Constructs)**
 
-- **常见问题解答中：**
+
+**常见问题解答中：**
+
 - **[我想检查  `$var == foo 或 $var == bar 或 $var = more ... 而不重复 $var n 次。`](https://mywiki.wooledge.org/BashFAQ/066)**
 - **[如何轻松地处理脚本的命令行参数（选项）？](https://mywiki.wooledge.org/BashFAQ/035)**
 
