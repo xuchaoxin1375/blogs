@@ -56,10 +56,17 @@ $ files=(~/*.jpg); cp "${files[@]}" /backups/
 
 **创建数组或向数组填充数据**的方法有很多种。没有唯一正确的方法：你需要使用的方法取决于你的**数据来源和数据类型**。
 
+### 字面量法创建数组
+
 创建包含数据的简单数组的最简单方法是使用 `=()` 语法：
 
 > 这种方法有些地方称为字面量法
 >
+> 并且注意,构造包含多个元素的数组,元素之间的分隔符选择是关键的,尤其不要和其他编程语言混淆
+>
+> 标准写法是`arr=("e1" "e2" ... "en")`,可以构造一个包含n个元素的数组,并赋值给`arr`变量
+>
+> 一个典型的错误写法是`arr=("e1","e2",...,"en")`,这确实创建了一个数组,但是`,`并不是合法的数组元素分割符号,shell会解释这个表达式为1个仅包含一个元素的数组,这个唯一的数组元素是字符串`e1,e2,...,en`,也就是引号被丢弃后剩下的字符构成的字符串
 
 ```bash
 $ names=("Bob" "Peter" "$USER" "Big Bad John")
@@ -68,6 +75,8 @@ $ names=("Bob" "Peter" "$USER" "Big Bad John")
 
 
 这种语法非常适合创建**包含静态数据或已知字符串参数集**的数组，但它在**添加大量数组元素方面灵活性很差**。
+
+
 
 ### 索引和稀疏数组
 
@@ -142,7 +151,7 @@ $ files=(*)      # Good!
 
 因此，要将这个长字符串解析成数组，我们需要**告诉 Bash 每个元素的结束位置**。（注意，这是一个不好的例子(对`find`的输出用换行符分割的例子)，因为文件名可能**包含**换行符，所以**用换行符分隔它们是不安全的**！但请参见下文。）
 
-### IFS变量
+### IFS变量🎈
 
 `IFS`是Bourne shell变量,表示用于分隔字段的字符列表；
 
@@ -158,6 +167,25 @@ $' \t\n'
 > `$'...'` 语法让你可以安全、清晰地在脚本中使用不可见字符
 
 这表示 IFS = 空格 + 制表符 + 换行符
+
+```bash
+# root@CxxuColorfulWin10 01:41:13> <.../cxxu/Desktop>
+$ echo $' \t\n'
+
+
+# root@CxxuColorfulWin10 01:44:59> <.../cxxu/Desktop>
+$ echo $'[ \t\n]'
+[
+]
+# root@CxxuColorfulWin10 01:45:04> <.../cxxu/Desktop>
+$ echo $'[ \t|\n]'
+[       |
+]
+# 或者使用echo -e
+$ echo -e $'[ \t|\n]'
+[       |
+]
+```
 
 总之,`IFS` 的作用就是将字符串拆分：
 
@@ -502,13 +530,15 @@ hello.c
 
 请注意，如果数组元素本身*包含*换行符，我们就**无法确定每个元素的起始位置和结束位置，甚至无法统计元素的数量**。
 
-因此，**尽可能长时间地将数据安全地保存在数组中至关重要。** 我们难以根据一个数组的打印输出结果还原原来数组中各个元素是怎么样的,除非事先明确没有元素包含换行符.
+因此，**尽可能长时间地将数据安全地保存在数组中至关重要。** 我们难以根据一个数组的打印输出结果准确还原原来数组中各个元素是怎么样的,除非事先明确没有元素包含换行符.
 
-### 数组变量扩展语法`${rray[@]}`
+### 数组变量扩展语法`${array[@]}`
 
 语法 `"${myfiles[@]}"` 至关重要。
 
-> 保险起见,使用`${rray[@]}`包裹引号后的表达式更加常见,具体效果上的差异,另见其他章节
+> 绝大多数情况下,不要直接使用不带引号包裹的`${array[@]}`
+>
+> 包裹引号后的表达式更加常见,具体效果上的差异,另见其他章节(具有功能上的不同,并且不带引号包裹是危险的,尤其是在删除文件的情况下)
 
 它的作用与位置参数的 `"$@"` 类似：它会展开成一个**单词列表**，**数组中的每个元素都作为*一个*单词，无论其内容是什么**。
 
@@ -547,23 +577,57 @@ $ for name in "Bob" "Peter" "$USER" "Big Bad John"; do echo "$name"; done
 
 在第二个例子中，我们跳过了数组，直接将**元素列表**传递给了 `for` 。
 
-请务必正确**引用** `${arrayname[@]}` 展开式。否则，使用数组的所有好处都将丧失：**参数不加引号就等于告诉 Bash 可以随意拆分参数，导致一切再次出错。**
+#### 数组扩展引号的使用
+
+请务必正确**引用** `${arrayname[@]}` 展开式。否则，使用数组的所有好处都将丧失：**参数不加引号就等于告诉 Bash 可以随意拆分参数，导致一切再次出错**
 
 如果去掉`${names[@]}`包裹的引号有什么差别?
 
 > Only brace expansion, word splitting, and filename expansion can increase the number of words of the expansion; other expansions expand a single word to a single word. The only exceptions to this are the expansions of `"$@"` and `$*` (see Special Parameters), and `"${name[@]}"` and `${name[*]}` (see Arrays).
-> 仅支持花括号扩展、单词分割和文件名扩展 **可以增加扩展的单词数**；其他扩展 将单个单词扩展为单个单词。 
+> 仅花括号扩展、单词分割和文件名扩展 **可以增加扩展的单词数**；其他扩展 将单个单词扩展为单个单词。 
 >
 > 唯一的例外是扩展 `"$@"` 和 `$*` （参见特殊参数 ），以及 `"${ name [@]}"` 和 `${ name [*]}` （参见数组 ）。
 
-> 将names数组中的元素带上空格
+
+
+将names数组中的元素带上空格(带有1个或多个空格的字符串:`"Big  Bad     John"`)
 
 ```bash
 names=("Bob" "Peter" "$USER" "Big  Bad     John")
 for name in ${names[@]}; do echo "$name"; done
+
+# output (可以看到,虽然$name使用了引号包裹,但是${name[@]}没有使用引号包裹,最终最后一个带有空格的字符串被分词了 )
+Bob
+Peter
+root
+Big
+Bad
+John
+# 实际上数组names仅包4个元素,但是上述写法却因为shell的分词机制,打印了6个元素
+$ echo ${#names[@]}
+4
+# 使用引号包裹${names[@]},就可以获得正确的结果
+
+$ for name in "${names[@]}"; do echo "$name"; done
+Bob
+Peter
+root
+Big  Bad     John
+# root@CxxuColorfulWin10 01:40:35> <.../cxxu/Desktop>
+$
+# 另外,如果把包裹$name的双引号去掉,并不会导致遍历数组打印的元素数量发生变化,但是会导致echo的参数发生变化(打印数组的最后一个带多个连续空格的字符串时,空格会被压缩,此时echo的参数是三个单词,而不是一个完整的长字符串)
+$ for name in "${names[@]}"; do echo $name; done
+Bob
+Peter
+root
+Big Bad John
+# root@CxxuColorfulWin10 01:41:13> <.../cxxu/Desktop>
+$
 ```
 
-上面的例子在 `for` 循环语句中展开了数组。但你可以**在任何需要将"数组元素"作为参数的地方**展开数组；例如，在 `cp` 命令中：
+上面的例子在 `for` 循环语句中**展开数组**。
+
+但你可以**在"任何"需要将"数组元素"作为参数的地方**展开数组；例如，在 `cp` 命令中：
 
 
 
@@ -585,6 +649,114 @@ $ cp "db.sql" "home.tbz2" "etc.tbz2" /backups/
 
 
 然后 `cp` 会将文件复制到您的 `/backups/` 目录。
+
+[ShellCheck：SC2068 – 双引号数组扩展以避免重新分割元素。 --- ShellCheck: SC2068 – Double quote array expansions to avoid re-splitting elements.](https://www.shellcheck.net/wiki/SC2068)
+
+Double quotes around `$@` (and similarly, `${array[@]}`) prevents globbing and word splitting of individual elements, while still expanding to multiple separate arguments.
+`$@`周围的双引号（类似地， `${array[@]}` ) 防止单个元素的**通配**和**分词**，同时仍扩展到多个单独的参数。
+
+对于通配上的区别:
+
+Let's say you have four arguments: `baz`, `foo bar`, `*` and `/*/*/*/*`
+假设您有四个参数： `baz` 、 `foo bar` 、 `*`和`/*/*/*/*`
+
+`"$@"` will expand into exactly that: `baz`, `foo bar`, `*` and `/*/*/*/*`
+`"$@"`将扩展为： `baz` ， `foo bar` 、 `*`和`/*/*/*/*`
+
+`$@` will expand into multiple other arguments: `baz`, `foo`, `bar`, `file.txt`, `otherfile.jpg`, and (eventually) a list of most files on the system
+`$@`将扩展为多个其他参数： `baz` 、 `foo` 、 `bar` 、 `file.txt` 、 `otherfile.jpg`和（最终）系统上大多数文件的列表
+
+Since the latter is rarely expected or desired, ShellCheck warns about it.
+由于后者很少被预期或需要，因此 ShellCheck 会对此发出警告。
+
+类似的,对于`${array[@]}`:
+
+```bash
+# root@CxxuColorfulWin10 01:08:51> <~>
+$ ls
+archived  dir1  dir3  install.sh  zstdL
+
+# root@CxxuColorfulWin10 01:10:56> <~>
+$ files=("baz", "foo bar", "*" )
+
+# 不使用引号包裹,导致数组中的*被解释为通配模式,匹配所有当前目录下的文件/目录
+# root@CxxuColorfulWin10 01:11:53> <~>
+$ echo ${files[@]}
+baz, foo bar, archived dir1 dir3 install.sh zstdL
+
+# 使用引号包裹数组扩展表达式,阻止shell将数组元素解释为通配模式
+# root@CxxuColorfulWin10 01:11:56> <~>
+$ echo "${files[@]}"
+baz, foo bar, *
+
+```
+
+最后,注意数组内元素之间的分割符号
+
+下面的例子看上去没有使用双引号展开数组,也没有引起通配模式的效果
+
+```bash
+# root@CxxuColorfulWin10 01:14:15> <~>
+$ files=("dir1","*") #注意逗号不是合法的数组元素分隔符,即便是逗号追加空格`, `也不是,这会使得元素多出来一个d
+# root@CxxuColorfulWin10 01:15:24> <~>
+$ echo ${files[@]}
+dir1,*
+```
+
+我们将`("dir1","*")`中的逗号`,`替换为一个空格,变成`("dir1" "*")`,才能让bash将其解释为具有两个元素的数组
+
+```bash
+# root@CxxuColorfulWin10 01:21:42> <~>
+$ files=("dirx","*")
+# root@CxxuColorfulWin10 01:21:48> <~>
+$ echo ${#files[@]}
+1
+
+# root@CxxuColorfulWin10 01:21:50> <~>
+$ files=("dirx" "*")
+# root@CxxuColorfulWin10 01:22:37> <~>
+$ echo ${#files[@]}
+2
+```
+
+
+
+```bash
+# root@CxxuColorfulWin10 01:17:19> <~>
+$ files=("dirx", "*")
+# root@CxxuColorfulWin10 01:17:24> <~>
+$ echo ${files[@]}
+dirx, archived dir1 dir3 install.sh zstdL
+```
+
+
+
+对于分词上的区别,例如
+
+```bash
+#! /bin/bash
+myfiles=("n1","n 2","m n  3")
+
+#错误写法"
+# Double quote array expansions to avoid re-splitting elements.
+echo ${myfiles[@]} #缺少引号包裹的数组扩展表达式是危险的,对于数组中包含空格的字符串元素,在数组变量展开时发生重分割引发错误
+
+#正确写法:
+echo "${myfiles[@]}" #坚持使用引号包裹数组扩展表达式,确保不会因为空格导致错误(即便数组中的字符串都不包含空格,也应该坚持使用引号包裹)
+```
+
+观察两种展开写法的输出上的不同,可以发现第二种写法中,`m n  3`中,`n`和`3`两个字符间的2个空格可以正确保留不会被分词,而第一种写法导致两个空格被缩减为1个空格
+
+```bash
+root@CxxuColorfulWin10 00:48:26> <.../woo_df/sh>
+$ echo ${myfiles[@]}
+n1,n 2,m n 3
+# root@CxxuColorfulWin10 00:48:31> <.../woo_df/sh>
+$ echo "${myfiles[@]}"
+n1,n 2,m n  3
+```
+
+
 
 ### 隐式循环的更多用法
 
@@ -631,7 +803,7 @@ Today's contestants are: Bob Peter lhunath Big Bad John
 
 
 
-```
+```bash
 $ names=("Bob" "Peter" "$USER" "Big Bad John")
 $ ( IFS=,; echo "Today's contestants are: ${names[*]}" )
 Today's contestants are: Bob,Peter,lhunath,Big Bad John
