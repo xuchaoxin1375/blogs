@@ -697,7 +697,7 @@ baz, foo bar, *
 
 ```bash
 # root@CxxuColorfulWin10 01:14:15> <~>
-$ files=("dir1","*") #注意逗号不是合法的数组元素分隔符,即便是逗号追加空格`, `也不是,这会使得元素多出来一个d
+$ files=("dir1","*") #注意逗号不是合法的数组元素分隔符,即便是逗号追加空格`, `也不是,这会使得元素多出来一个逗号
 # root@CxxuColorfulWin10 01:15:24> <~>
 $ echo ${files[@]}
 dir1,*
