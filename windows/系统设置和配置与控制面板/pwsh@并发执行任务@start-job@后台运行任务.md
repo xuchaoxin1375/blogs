@@ -879,7 +879,25 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 [t3]Output 10
 ```
 
-## 后台作业的参数和变量传递
+### 使用 InputObject 创建作业
+
+脚本块使用 `$input` 变量从 **InputObject** 参数接收输入。 
+
+```powershell
+$j = Start-ThreadJob -InputObject (Get-Process pwsh) -ScriptBlock { $input | Out-String }
+$j | Wait-Job | Receive-Job
+```
+
+也可以通过通过管道传递对象到 `Start-ThreadJob`来完成此操作(隐式指定`InputObject`参数。
+
+```powershell
+$j = Get-Process pwsh | Start-ThreadJob -ScriptBlock { $input | Out-String }
+$j | Wait-Job | Receive-Job
+```
+
+
+
+## 后台作业进程或线程的参数和变量传递
 
 当前环境存在的变量无法像常规方式那样直接在后台作业的脚本块(ScriptBlock)中访问
 
@@ -941,7 +959,7 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 Start-Job -ScriptBlock { Get-Process -Name $args } -ArgumentList p*, explorer
 ```
 
-Output
+
 
 ```powershell
 
@@ -990,6 +1008,121 @@ $Job = Start-Job -ScriptBlock $ScriptBlock -ArgumentList $HostName, $FromTable, 
 
 Write-Host "后台作业 $($Job.Name) 已启动，ID: $($Job.Id)"
 ```
+
+### 通过环境变量传递简单数据
+
+考虑到后台作业进程或线程作业接受无法直接访问外部定义的普通变量,我们可以考虑定义环境变量(作用域广,能够被后台作业访问),尤其是一些简单值,比如字符串等,且在各个作业中仅只读的情况,例如cloudflare账号的api key(token)和账号邮箱信息,通过环境变量的设置,后台作业可以调用`flarectl`来操作
+
+```powershell
+$env:CF_API_EMAIL
+$env:CF_API_KEY
+```
+
+
+
+### 典型线程池用法
+
+```powershell
+$baseUri = 'https://github.com/PowerShell/PowerShell/releases/download'
+$files = @(
+    @{
+        Uri = "$baseUri/v7.3.0-preview.5/PowerShell-7.3.0-preview.5-win-x64.msi"
+        OutFile = 'PowerShell-7.3.0-preview.5-win-x64.msi'
+    },
+    @{
+        Uri = "$baseUri/v7.3.0-preview.5/PowerShell-7.3.0-preview.5-win-x64.zip"
+        OutFile = 'PowerShell-7.3.0-preview.5-win-x64.zip'
+    },
+    @{
+        Uri = "$baseUri/v7.2.5/PowerShell-7.2.5-win-x64.msi"
+        OutFile = 'PowerShell-7.2.5-win-x64.msi'
+    },
+    @{
+        Uri = "$baseUri/v7.2.5/PowerShell-7.2.5-win-x64.zip"
+        OutFile = 'PowerShell-7.2.5-win-x64.zip'
+    }
+)
+
+$jobs = @()
+
+foreach ($file in $files) {
+    $jobs += Start-ThreadJob -Name $file.OutFile -ScriptBlock {
+        $params = $Using:file
+        Invoke-WebRequest @params
+    }
+}
+
+Write-Host "Downloads started..."
+Wait-Job -Job $jobs
+
+foreach ($job in $jobs) {
+    Receive-Job -Job $job
+}
+```
+
+作为对比,给出python版本代码
+
+```python
+import os
+import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# 基础 URL（注意末尾的空格被移除了）
+base_uri = 'https://github.com/PowerShell/PowerShell/releases/download'
+
+# 定义要下载的文件列表
+files = [
+    {
+        "uri": f"{base_uri}/v7.3.0-preview.5/PowerShell-7.3.0-preview.5-win-x64.msi",
+        "outfile": "PowerShell-7.3.0-preview.5-win-x64.msi"
+    },
+    {
+        "uri": f"{base_uri}/v7.3.0-preview.5/PowerShell-7.3.0-preview.5-win-x64.zip",
+        "outfile": "PowerShell-7.3.0-preview.5-win-x64.zip"
+    },
+    {
+        "uri": f"{base_uri}/v7.2.5/PowerShell-7.2.5-win-x64.msi",
+        "outfile": "PowerShell-7.2.5-win-x64.msi"
+    },
+    {
+        "uri": f"{base_uri}/v7.2.5/PowerShell-7.2.5-win-x64.zip",
+        "outfile": "PowerShell-7.2.5-win-x64.zip"
+    }
+]
+
+def download_file(file_info):
+    """下载单个文件"""
+    uri = file_info["uri"]
+    outfile = file_info["outfile"]
+    print(f"开始下载: {outfile}")
+    try:
+        response = requests.get(uri, stream=True)
+        response.raise_for_status()
+        with open(outfile, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print(f"下载完成: {outfile}")
+    except Exception as e:
+        print(f"下载失败: {outfile} - {e}")
+
+if __name__ == "__main__":
+    print("Downloads started...")
+
+    # 使用线程池并行下载
+    with ThreadPoolExecutor(max_workers=len(files)) as executor:
+        futures = [executor.submit(download_file, file) for file in files]
+
+        # 等待所有任务完成（可选：处理异常或结果）
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"任务出错: {e}")
+
+    print("所有下载任务已完成。")
+```
+
+
 
 ## foreach-object -parallel
 
