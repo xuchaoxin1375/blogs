@@ -23,8 +23,9 @@
 
 
 
-
 相比于自己实现一个简易版本的日志系统或模块,使用标准库提供的 logging API 最主要的好处是，所有的 Python 模块都可能参与日志输出，包括你自己的日志消息和第三方模块的日志消息。
+
+对于有此模块使用经验但是有段时间没有接触的,可以跳转到[**代码例子**]和[**日志示意图**]章节快速回顾用法,对于多个模块之间的名称空间层次结构,另见它文
 
 ## logging模块概述
 
@@ -42,15 +43,25 @@ The basic classes defined by the module, together with their attributes and meth
 4. **Formatters** specify the layout of log records in the final output.
    格式化程序指定最终输出中日志记录的布局。
 
+### 恰当的使用日志模块
 
+恰当的使用日志模块,通常包括两方面
+
+- 根据需要构造恰当的logger对象(根据需要可能要定义多个对象),具体来说(例如一个图片下载脚本)
+  - 比如,要将核心日志输出到控制台,而详细信息输出到日志文件中保存,需要定义合适的Handlers,在定义handler时,可以考虑并设置日志的记录格式,要包含哪些字段,比如记录时间,消息内容,日志来自哪个模块或函数,需要定义合适的Formatters
+  - 控制日志输出的详细程度一般通过设置logger对象到级别(setlevel)实现的
+  - 细粒度的日志输出可控制可以使用Filters
+- 在合适的地方调用合适的logger的方法(比如debug,info,warning,error,...)
 
 Log event information is passed between loggers, handlers, filters and formatters in a [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) instance.
 日志事件信息在 [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) 实例中的记录器、处理程序、过滤器和格式化程序之间传递。
 
 Logging is performed by calling methods on instances of the [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) class (hereafter called *loggers*). Each instance has a name, and they are conceptually arranged in a namespace hierarchy using dots (periods) as separators. For example, a logger named ‘scan’ is the parent of loggers ‘scan.text’, ‘scan.html’ and ‘scan.pdf’. Logger names can be anything you want, and indicate the area of an application in which a logged message originates.
-日志记录是通过调用 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 实例上的方法来执行的 类（以下称为*记录器* ）。每个实例都有一个名称，它们在概念上使用点（句点）作为分隔符排列在名称空间层次结构中。
+日志记录是通过调用 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 实例上的方法来执行的 类（以下称为***记录器*** ）。每个实例都有一个名称，它们在概念上使用点（句点）作为**分隔符**排列在**名称空间层次结构**中。
 
-例如，名为“scan”的记录器是记录器“scan. text”、“scan.html”和“scan.pdf”的父记录器。记录器名称可以是您想要的任何名称，并指示记录的消息所源自的应用程序区域。
+例如，名为“scan”的记录器(**logger**)是记录器“scan. text”、“scan.html”和“scan.pdf”的**父记录器**。
+
+记录器名称可以是您想要的任何名称，并**指示记录的消息所源自的应用程序区域**(模块)。
 
 ---
 
@@ -62,12 +73,14 @@ Logging is performed by calling methods on instances of the [`Logger`](https://d
 
 ## 模块中的类和对象
 
-### 记录器对象
+### 记录器对象和名称空间层次结构
 
-记录器有以下的属性和方法。注意 *永远* 不要直接实例化记录器，应当通过模块级别的函数 `logging.getLogger(name)` 。多次使用相同的名字调用 [`getLogger()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.getLogger) 会一直返回相同的 Logger 对象的引用。
+记录器有以下的属性和方法。注意 *永远* **不要直接实例化记录器**，应当通过**模块级别的函数** `logging.getLogger(name)` 。
+
+> 多次使用相同的名字调用 [`getLogger()`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.getLogger) 会一直**返回相同的 Logger 对象的引用**。
 
 ```python
-# logging.py
+# logging.py 源码片段
 ...
 def getLogger(name=None):
     """
@@ -82,7 +95,19 @@ def getLogger(name=None):
 
 logging模块中暴露在最外层的`getLogging()`函数,实际上是对`Logger.manager.getLogger`的简单包装
 
-`name` 一般是以句点分割的层级值，如 `foo.bar.baz` (尽管也可以是简单形式，例如 `foo`)。 层级结构列表中位于下方的日志记录器是列表中较高位置的日志记录器的子级。 例如，假定有一个名叫 `foo` 的日志记录器，则名字为 `foo.bar`, `foo.bar.baz` 和 `foo.bam` 的日志记录器都是 `foo` 的子级。 而且，所有日志记录器都是根日志记录器的子级。 日志记录器名称的层级结构类似于 Python 包的层级结构，如果你使用建议的构造 `logging.getLogger(__name__)` 以每个模块为基础来组织你的日志记录器则将与后者完全一致。 这是因为在一个模块中，`__name__` 是该模块在 Python 包命名空间中的名字。]
+`name` 一般是以**句点分割的层级值**，如 `foo.bar.baz` (尽管也可以是简单形式，例如 `foo`)。 
+
+层级结构列表中位于下方(靠右)的日志记录器是列表中较高位置(靠左)的日志记录器的**子级**。 例如，假定有一个名叫 `foo` 的日志记录器，则名字为 `foo.bar`, `foo.bar.baz` 和 `foo.bam` 的日志记录器都是 `foo` 的子级。 
+
+#### 日志记录器名称和模块名
+
+而且，**所有日志记录器都是根日志记录器的子级**。
+
+**日志记录器名称**的层级结构类似于 Python **包的层级结构**，如果你使用建议的构造 `logging.getLogger(__name__)` 以每个模块为基础来组织你的日志记录器则将与后者完全一致。
+
+ 这是因为在一个模块中，`__name__` 是该模块在 Python **包命名空间中的名字**。]
+
+下面附上日志模块中`getLogger`函数的源码片段
 
 ```python
     def getLogger(self, name):
@@ -149,22 +174,26 @@ logging模块中暴露在最外层的`getLogging()`函数,实际上是对`Logger
 The flow of log event information in loggers and handlers is illustrated in the following diagram.
 下图说明了日志记录器和处理程序中的日志事件信息流。
 
+> 初学者可以先跳过图片,查看说明后回头来看
+
 
 
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/46df554985524a5389afc3da368de17e.png)
 
 
 
-这张流程图(是文档中的一个插图:[logging-flow@日志 HOWTO - Python 文档 --- Logging HOWTO — Python  documentation](https://docs.python.org/3.13/howto/logging.html#logging-flow) )展示了 Python `logging` 模块的核心工作流程，分为两个部分：
+这张流程图(是文档中的一个插图:[logging-flow@日志 HOWTO - Python 文档 --- Logging HOWTO — Python  documentation](https://docs.python.org/3.13/howto/logging.html#logging-flow) )
+
+展示了 Python `logging` 模块的核心工作流程，分为两个部分：
 
 ### Logger flow & Handler flow🎈
 
 1. **Logger flow 流程**（左侧）：描述了从用户代码调用日志记录器（如 `logger.info()`）到最终处理日志记录的整个过程。
 2. **Handler flow 流程**（右侧）：**描述了日志记录如何被传递给处理器（Handler），以及处理器如何决定是否输出日志**。
 
-Handler flow是Logger flow中的**Pass record to handlers of current logger**这一个**处理**环节的展开描述,采用虚线标记了该流程,是Logger flow的子流程
+两个flow的关系:Handler flow是Logger flow中的**Pass record to handlers of current logger**这一个**处理**环节的展开描述,采用虚线标记了该流程,是Logger flow的子流程
 
-从流程图中可以看到,将日志输出(Emit)的动作落在了Handler flow这个流程中
+从流程图中可以看到,将日志输出(Emit)的动作落在了Handler flow这个流程中(控制日志输出到控制台,文件,等)
 
 同时,各个handler控制自己路线的日志输出行为,这包括日志格式,从而在代码组织上,需要将日志格式器(Formatter指派给Handler),如有必要,不同的handler可以指派不同的formatter对象作为参数
 
@@ -183,33 +212,35 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 #### 步骤 2：检查 Logger 是否启用
 
 - 检查当前 Logger 的级别是否允许记录该级别的日志。
-  - 每个 Logger 都有一个 `level` 属性，表示它允许记录的日志级别（如 `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`）。
-  - 如果 Logger 的级别高于当前日志级别，则停止流程。例如：
-    - 如果 Logger 的级别是 `WARNING`，而调用的是 `logger.info()`，则不会记录这条日志。
+  - 每个 Logger 都有一个 `level` 属性，表示它允许记录的日志级别(最低日志级别)（如 `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`）。
+  - 如果 Logger 的级别高于**当前日志级别**(logger对象上调用的日志记录级别)，则停止流程。例如：
+    - 如果 Logger 的级别是 `WARNING`，而调用的是 `logger.info()`，则不会记录这条日志。这允许我们通过调整Logger的级别(`setLevel`)来控制哪些日志调用不执行(不输出日志),而哪些需要执行并输出日志
+    - 这就比print这种打印语句输出信息的方式要灵活,能够在不需要(或仅改动某个参数),就可以控制日志的输出详细程度,且不需要显式设置判断语句.
+    - 甚至可以设置filter(filter通常是一个函数,比如判断日志中是否包含特定单词的函数)让日志输出得到更灵活的控制(尽管设置Logger的级别已经能够大多数日志输出控制的需要了)
 
-#### 步骤 3：创建 LogRecord
+#### 步骤 3：创建 LogRecord对象
 
-- 如果 Logger 允许记录该级别的日志，则创建一个 `LogRecord` 对象。
+- 如果 Logger 允许记录该级别的日志，则创建一个 `LogRecord` 对象(日志记录条目对象,对日志信息的打包),这个类型的对象由日志模块管理,而不需要用户干预。
   - `LogRecord` 包含日志的相关信息，如日志级别、消息内容、时间戳、文件名、行号等。
 
-#### 步骤 4：检查 Logger 的过滤器
+#### 步骤 4：检查 Logger 的过滤器(filters)
 
-- Logger 可以附加过滤器（Filter），用于进一步筛选日志记录。
+- Logger 可以附加过滤器（Filter），用于**进一步筛选日志记录**。
   - 如果过滤器拒绝该记录，则停止流程。
   - 如果过滤器允许该记录，则继续下一步。
 
 #### 步骤 5：将记录传递给当前 Logger 的 Handler
 
-- 将 `LogRecord` 传递给当前 Logger 的**所有 Handler**。
-  - Handler 是负责实际输出日志的对象，例如文件写入、控制台输出等。
-  - 不同的输出路线由不同的handler控制,将构造好的消息日志传送给所有handler检查,各个handler根据自己的判断来决定是否将日志进一步处理或传递到对应的路线
+- 将创建 `LogRecord` 传递给当前 Logger 的**所有 Handler**。
+  - Handler 是负责实际输出日志的对象，例如将日志对象捕获的日志写入文件、控制台输出等。
+  - 不同的日志输出路线由不同的handler控制,日志记录器将构造好的消息日志传送给所有handler检查,各个handler根据自己的判断来决定是否将日志进一步处理或传递到对应的路线
 
 #### 步骤 6：检查是否向上级 Logger 传播
 
-- 如果当前 Logger 的 `propagate` 属性为 `True`，则将**记录**传递给上级 Logger。
+- 如果当前 Logger 的 `propagate` 属性为 `True`，则将**记录**传递给上级 Logger。这对于复杂功能模块(尤其是带有层级的模块)比较重要
   - 如果有父 Logger，则重复上述流程（从步骤 2 开始）。
   - 如果没有父 Logger，则停止流程。
-  - 情况1最终会变成情况2,从而结束流程
+- 情况1最终会变成情况2,从而结束流程
 
 ---
 
@@ -241,13 +272,17 @@ Handler flow是Logger flow中的**Pass record to handlers of current logger**这
 
 ## 代码例子🎈
 
-以下是一个完整的代码示例，演示了如何使用 Python `logging` 模块，并结合流程图中的逻辑：
+以下是一个相对完整的代码示例，演示了如何使用 Python `logging` 模块，并结合流程图中的逻辑：
 
-其中涉及到:logger对象,handler对象,formatter对象以及绑定与日志级别配置操作
+其中涉及到:logger对象,handler对象,formatter对象,filter对象(可调用的函数对象)以及绑定与日志级别配置操作
 
-日志行为配置中最关键的是handler,定义的formatter以及filter都绑定到handler中,分被对应handler的`setFormatter()`和`addFilter()`方法配置或添加
+> 本例中除了主日志记录器(main)这里还包含了一个能够反应名称空间层次结构的子记录器(main.child),其父记录器是名为main的记录器;父子记录器的关系由子记录器的名称体现的,`main.child`中的`main.`指示了这一点,这个设计符合直觉,但是也意味着,要创建一对具有父子关系的日志记录器,子记录器的名字不能随便取(开头必须是父记录器名+'.'),只有根记录器是例外
 
-> 当然,也可以对handler设置日志级别(对应`setLevel()`方法)
+日志行为配置中最关键的是handler,定义的formatter绑定到handler中,对应handler的`setFormatter()`
+
+定义的filter绑定到了日志记录器对象,使用于`addFilter()`方法配置或添加
+
+不仅仅logger可以设置日志级别,也可以对handler设置日志级别(对应`setLevel()`方法)
 
 ```python
 import logging
@@ -258,20 +293,25 @@ logger = logging.getLogger("main")
 # 配置 Logger 的级别
 logger.setLevel(logging.DEBUG)
 
-# 创建一个 Handler，将日志输出到控制台
+# 创建 Handler(这里创建两个独立的handler)
+# console handler 将日志输出到控制台
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)  # Handler 的级别设置为 INFO
+# file handler 用户将日志输出到文件中
 file_handler = logging.FileHandler("main_comprehensive_demo.log")  # 创建一个 FileHandler，将日志输出到文件
 file_handler.setLevel(logging.DEBUG)  # Handler 的级别设置为 DEBUG
 
 # 创建一个 Formatter，定义日志格式
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# 为两个handler指定formatter(也可以创建不同的formatter,不同handler可以绑定不同formatter.)
 console_handler.setFormatter(formatter)
 file_handler.setFormatter(formatter)
 
-# 将定义好的各个 Handler 添加到 Logger(只有被正确添加到logger对象的handler才会生效)
+# 将定义好的各个 Handler 添加到 Logger(handler不能单独使用,只有被正确添加到logger对象的handler才会生效)
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+# ============================
 
 # 创建一个子 Logger (注意父级logger的名字是"main",其子级的logger名字以main.<subname>的格式构造)
 child_logger = logging.getLogger("main.child")
@@ -285,8 +325,8 @@ def filter_record(record):
 child_logger.addFilter(filter_record)
 
 #======== 测试日志记录 ===========
-logger.debug("This is a debug message from main logger")  # 不会被控制台console_handler记录，因为 console_handler 级别是 INFO;但是因该被file_handler记录,因为file_handler级别是DEBUG
-logger.info("This is an info message from main logger")   # 会被记录
+logger.debug("This is a debug message from main logger")  # 此debug级别的日志不会被控制台console_handler记录，因为 console_handler 级别是 INFO;但是会被file_handler记录,因为file_handler级别是DEBUG
+logger.info("This is an info message from main logger")   # 会被记录,console_hander,file_handler都输出此日志
 
 child_logger.debug("This is a debug message from child logger")  # 不会被记录，因为本例的过滤器filter_record要求日志有'important'才被传递,这里的消息中没有,所以被拒绝
 child_logger.info("This is an important info message from child logger")  # 会被记录,通过过滤器的要求
@@ -499,7 +539,7 @@ The most widely used methods on logger objects fall into two categories: configu
 
 
 
-### Formatter的描述|LogRecord🎈
+### Formatter的描述|日志格式化器可用预定义变量参考|LogRecord🎈
 
 [logrecord-attributes @logging -用于 Python 的日志记录工具- Python 文档 --- logging — Logging facility for Python — Python documentation](https://docs.python.org/3.13/library/logging.html#logrecord-attributes)
 

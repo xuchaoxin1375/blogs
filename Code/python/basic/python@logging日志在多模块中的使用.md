@@ -2,9 +2,13 @@
 
 ## abstract
 
-python的logging模块被设计为可多层传递的日志记录的,如果某些模块(或库)中使用了logging模块来生成日志,那么调用这些模块的应用程序(主程序)中通常(默认)情况下会接收到模块中传递来的日志记录
+python的logging模块被设计为可**多层传递的日志记录**的
 
-这些日志在模块中可能没有详细或具体的配置,那么调用者如果能够接受到模块传递来的日志记录,则会继承调用程序中的日志配置,比如日志消息的输出格式控制,可由调用者中的日志配置(调用者中的日志记录器成为父级记录器,而被调用模块中的日志记录器为子级)
+如果python程序调用的某些模块(或库)中使用了logging模块来生成日志,那么此python应用程序(主程序)中通常(默认)情况下会接收到模块中传递来的日志记录
+
+这些日志在模块中可能没有详细或具体的配置,那么调用者如果能够接受到模块传递来的日志记录,则会继承调用程序中的日志配置
+
+比如日志消息的**输出格式**控制,可由调用者中的日志配置(调用者中的日志记录器是**父记录器**,而被调用模块中的日志记录器为**子记录器**)
 
 
 
@@ -38,17 +42,17 @@ if __name__ == "__main__":
 
 ```
 
-myapp.py中main函数中配置了`logging.basicConfig()`,配置的是根记录器
+`myapp.py`中main函数中配置了`logging.basicConfig()`,配置的是**根记录器**
 
-而`myapp.py`头部的模块级日志记录器也是作为根记录器的子级,在不设置专门的日志配置时,将沿用根记录器的配置
+而`myapp.py`头部的模块级日志记录器也是作为根记录器的子级,在不设置专门的日志配置时,将**沿用根记录器的配置**
 
 而使用了logging的模块`mylib.py`内容如下
 
 > 这里我们仅在此模块中创建了模块级的logger,但是不做额外的配置,比如日志的输出格式和日志级别
 >
-> 当其他python代码调用此模块,并且调用了和logger相关的代码,比如`do_something()`,则logger.info()消息会传递到父级
+> 当其他python代码调用此模块,并且调用了和logger相关的代码,比如`do_something()`,则`logger.info()`消息会传递到父日志记录器
 >
-> 本例中消息传递到调用者myapp.py中,消息传递完成后,调用者myapp.py中配置了日志,传递进来的消息也继承此配置使用日志信息
+> 本例中消息传递到调用者`myapp.py`中,消息传递完成后,调用者`myapp.py`中配置了日志,传递进来的消息也继承此配置使用日志信息
 
 ```python
 # mylib.py
@@ -63,7 +67,7 @@ def do_something():
 
 ```
 
-说明:在`myapp.py`中配置了日志记录器的基本行为,比如日志输出格式被指定为`%(asctime)s- %(name)s -%(levelname)s:%(message)s`;现在调用mylib中的`do_something`函数,检查日志文件`myapp.log`可以看到,调用模块mylib中的`do_something`函数,其中的日志语句采用的格式将继承调用者的格式
+说明:在`myapp.py`中配置了日志记录器的基本行为,比如日志输出格式被指定为`%(asctime)s- %(name)s -%(levelname)s:%(message)s`;现在调用mylib中的`do_something`函数,检查日志文件`myapp.log`可以看到,调用模块`mylib`中的`do_something`函数,其中的日志语句采用的格式将继承调用者的格式
 
 这种继承的方式可以让模块间使用logging模块更加简单,减少不必要的日志组件的配置,比如handler和formatter,继承相同的日志配置,可以让主调代码和模块中的日志输出更整齐
 
@@ -79,6 +83,8 @@ def do_something():
 ## 案例1(main_aux.py)
 
 设`myliblog`包下有一个`auxiliary.py`模块
+
+其中定义了一个`Auxiliary`类,并且定义了一个logger属性,其调用模块`auxiliary`的日志记录器(`module_logger`)的`getChild()`方法,并取名'Auxiliary',其继承模块名称空间(名字'`myliblog.auxiliary`'),拼接名字得到此属性的日志记录器(`module_logger`)名为`myliblog.auxiliary.Auxiliary`
 
 ```python
 """
@@ -125,7 +131,10 @@ def some_function():
 模块的调用者代码`main_aux.py`
 
 ```python
-"""测试跨模块日志"""
+"""
+main_aux.py
+测试跨模块日志
+"""
 
 import logging
 import myliblog.auxiliary as auxiliary_module
@@ -196,6 +205,8 @@ logger.info("done with auxiliary_module.some_function()")
 
 ```
 
+### logger对象的名字层级关系的体现
+
 此外,如果修改`main_aux.py`中的`logger`初始化代码,使用方案2(`logger=logging.getLogger(__name__)`),那么日志文件中的结果形如
 
 ```bash
@@ -208,11 +219,7 @@ logger.info("done with auxiliary_module.some_function()")
 
 ```
 
-### logger对象的名字层级关系的体现
-
-
-
-模块auxiliary.py中被调用的logging日志相关的语句没有被调用者所利用和输出
+模块auxiliary.py中被调用的logging日志相关的语句没有被调用者所利用和输出.
 
 而如果将main_aux.py中的`logger`初始化为包名(`myliblog`),则又可以看到`auxiliary.py`中的日志信息又在被调用者的运行中输出
 
