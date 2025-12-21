@@ -56,6 +56,10 @@ The basic classes defined by the module, together with their attributes and meth
 Log event information is passed between loggers, handlers, filters and formatters in a [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) instance.
 日志事件信息在 [`LogRecord`](https://docs.python.org/3.13/library/logging.html#logging.LogRecord) 实例中的记录器、处理程序、过滤器和格式化程序之间传递。
 
+> [`LogRecord`](https://docs.python.org/zh-cn/3.14/library/logging.html#logging.LogRecord) 实例是每当有日志被记录时由 [`Logger`](https://docs.python.org/zh-cn/3.14/library/logging.html#logging.Logger) **自动创建**的，并且可通过 [`makeLogRecord()`](https://docs.python.org/zh-cn/3.14/library/logging.html#logging.makeLogRecord) 手动创建（例如根据从网络接收的已封存事件创建）。
+>
+> LogRecord包含与被**记录的事件相关的所有信息**。
+
 Logging is performed by calling methods on instances of the [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) class (hereafter called *loggers*). Each instance has a name, and they are conceptually arranged in a namespace hierarchy using dots (periods) as separators. For example, a logger named ‘scan’ is the parent of loggers ‘scan.text’, ‘scan.html’ and ‘scan.pdf’. Logger names can be anything you want, and indicate the area of an application in which a logged message originates.
 日志记录是通过调用 [`Logger`](https://docs.python.org/3.13/library/logging.html#logging.Logger) 实例上的方法来执行的 类（以下称为***记录器*** ）。每个实例都有一个名称，它们在概念上使用点（句点）作为**分隔符**排列在**名称空间层次结构**中。
 
@@ -150,7 +154,7 @@ logging模块中暴露在最外层的`getLogging()`函数,实际上是对`Logger
 | 功能              | 描述                                                   |
 | ----------------- | ------------------------------------------------------ |
 | 获取或创建 logger | 如果已有，直接返回；如果没有，就创建一个新的           |
-| 层级支持          | 使用点号分隔的名称构建树状结构，实现配置继承           |
+| 层级支持          | 使用**点号分隔的名称**构建树状结构，实现**配置继承**   |
 | 占位符处理        | 当某个 logger 的子 logger 先于它创建时，为其创建占位符 |
 | 线程安全          | 使用锁机制保护共享数据                                 |
 | 自动修复父子关系  | 创建 logger 后自动修复原先指向占位符的子节点引用       |
@@ -458,11 +462,29 @@ The most widely used methods on logger objects fall into two categories: configu
 
 ### 日志等级的传播|有效等级
 
-记录器具有 *有效等级*(*effective level*) 的概念。如果未在记录器上显式设置级别，则**使用其父记录器的级别作为其有效级别**。如果父记录器没有明确的级别设置，则检查 *其* 父级。依此类推，搜索所有上级元素，直到找到明确设置的级别。
+记录器具有 *有效等级*(*effective level*) 的概念。如果未在记录器上显式设置级别，则**使用其父记录器的级别作为其有效级别**。
+
+如果父记录器没有明确的级别设置，则检查 *其* 父级。依此类推，搜索所有上级元素，直到找到明确设置的级别。
 
 **根记录器**始终具有明确的级别配置（默认情况下为 `WARNING` ）。
 
 在决定是否处理事件时，**记录器的有效级别用于确定事件是否传递给记录器相关的处理器**。
+
+#### propagate
+
+**logger.propagate**
+
+- 如果这个属性为真，记录到这个记录器的**事件**除了会发送到**此记录器的所有处理程序**外，还会**传递给更高级别（祖先）记录器的处理器**，此外任何关联到这个记录器的处理器。
+  - 消息会直接传递给祖先记录器的处理器 —— 不考虑祖先记录器的级别和过滤器。
+- 如果这个属性值为假，记录消息将不会传递给当前记录器的祖先记录器的处理器。
+- 举例说明：如果名为 `A.B.C` 的记录器的传播属性(propagate)求值为真，则任何通过调用诸如 `logging.getLogger('A.B.C').error(...)` 之类的方法记录到 `A.B.C` 的事件，在第一次被传递到 `A.B.C` 上附加的处理器后，将[取决于传递该记录器的级别和过滤器设置]依次传递给附加到名为 `A.B`，`A` 的记录器和根记录器的**所有处理器**。如果 `A.B.C`、`A.B`、`A` 组成的链中，任一记录器的 `propagate` 属性设置为假，那么**这将是最后一个其处理器会收到事件的记录器，此后传播在该点停止**。
+- 构造器将这个属性初始化为 `True`。
+
+备注 如果你将一个处理器附加到一个记录器 *和* 其一个或多个祖先记录器，它可能**发出多次相同的记录**。
+
+通常，您不需要将一个处理器附加到一个以上的记录器上 —— 如果您将它附加到记录器层次结构中**最高的适当记录器**上，则它(比如根记录器)将看到所有后代记录器记录的所有事件，**前提是它们的传播设置保留为 `True`**。
+
+一种常见的方案是**仅将处理器附加到根记录器，通过传播来处理其余部分**。
 
 ### 日志处理器handler的配置🎈
 
@@ -470,7 +492,13 @@ The most widely used methods on logger objects fall into two categories: configu
 
 一般为**顶级记录器**配置处理器，再根据需要**创建子记录器**就足够了。（但是，你可以通过将记录器的 *propagate* 属性设置为 `False` 来**关闭传播**。）
 
+### 管理logger上的handler
 
+- **handlers**
+
+  直接连接到此记录器的处理程序列表实例。备注 该属性应被视为只读 ；
+
+  通常通过 [`addHandler()`](https://docs.python.org/zh-cn/3.14/library/logging.html#logging.Logger.addHandler) 和 [`removeHandler()`](https://docs.python.org/zh-cn/3.14/library/logging.html#logging.Logger.removeHandler) 方法进行更改，**它们使用锁来确保线程安全的操作**。
 
 ## Handler处理器
 
@@ -497,9 +525,50 @@ The most widely used methods on logger objects fall into two categories: configu
 
 > 应用程序代码**不应直接实例化**并使用 [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 的实例。 相反， [`Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类是一个**基类**，它定义了所有处理器应该具有的接口，并建立了子类可以使用（或覆盖）的一些默认行为。
 
+### 添加重复的handler是无效的
+
+为了避免重复输出完全一模一样的日志消息,logging模块阻止用户重复添加handler,这是合理的.
+
+logging模块中添加handler的相关的源码如下
+
+```python
+    def addHandler(self, hdlr):
+        """
+        Add the specified handler to this logger.
+        """
+        with _lock:
+            if not (hdlr in self.handlers):
+                self.handlers.append(hdlr)
+```
+
+这表明,重复添加同一个handler的操作只有第一次添加有效
+
+```python
+import logging
+import sys
+
+logger = logging.getLogger("test_identity")
+logger.setLevel(logging.INFO)
+
+# 创建一个 handler 实例
+console_handler = logging.StreamHandler(sys.stdout)
+
+# 尝试重复添加同一个实例
+logger.addHandler(console_handler)
+logger.addHandler(console_handler)
+
+print(f"当前日志处理器列表: {logger.handlers}")
+logger.info("这是一条测试日志")
+
+```
+
+
+
 ## Formatter格式器
 
-格式化器对象配置日志消息的**最终顺序、结构和内容**。 与 [`logging.Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类不同，应用程序代码**可以实例化格式器类**，但如果应用程序需要特殊行为，则可能会对格式化器进行**子类化定制**。
+格式化器对象配置日志消息的**最终顺序、结构和内容**。
+
+ 与 [`logging.Handler`](https://docs.python.org/zh-cn/3.13/library/logging.html#logging.Handler) 类不同，应用程序代码**可以实例化格式器类**，但如果应用程序需要特殊行为，则可能会对格式化器进行**子类化定制**。
 
 构造函数有三个可选参数 —— **消息格式字符串、日期格式字符串和样式指示符**。
 
@@ -507,13 +576,13 @@ The most widely used methods on logger objects fall into two categories: configu
 
   
 
-如果没有消息格式字符串，则默认使用原始消息。如果没有日期格式字符串，则默认日期格式为：
+如果没有消息格式字符串，则默认使用**原始消息**。如果没有日期格式字符串，则**默认日期格式**为：
 
 ```
 %Y-%m-%d %H:%M:%S
 ```
 
-在末尾加上毫秒数。
+并且会在末尾加上**毫秒数**。
 
  The `style` is one of `'%'`, `'{'`, or `'$'`. If one of these is not specified, then `'%'` will be used.
 
@@ -601,6 +670,56 @@ class Formatter(object):
 3. 创建配置信息字典并将其传递给 [`dictConfig()`](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging.config.dictConfig) 函数。
 
 有关最后两个选项的参考文档，请参阅 [配置函数](https://docs.python.org/zh-cn/3.13/library/logging.config.html#logging-config-api) 。 
+
+### 记录变量数据
+
+要记录变量数据，请使用**格式字符串**作为**事件描述消息**，并附加**传入变量数据作为参数**。 例如:
+
+```python
+import logging
+logging.warning('%s before you %s', 'Look', 'leap!')
+```
+
+将显示：
+
+```
+WARNING:root:Look before you leap!
+```
+
+如你所见，将**可变数据合并到事件描述消息中使用旧的 `%-s`形式的字符串格式化**。 这是为了**向后兼容**：logging 包的出现时间早于较新的格式化选项例如 [`str.format()`](https://docs.python.org/zh-cn/3.14/library/stdtypes.html#str.format) 和 [`string.Template`](https://docs.python.org/zh-cn/3.14/library/string.html#string.Template)。 (有些代码检查器会警告`%-s`方法之外的方式传递日志消息)
+
+> ```
+> Use lazy % formatting in logging functions
+> ```
+>
+> [日志记录-fstring-插值 / W1203 - Pylint 文档 ](https://pylint.readthedocs.io/en/latest/user_guide/messages/warning/logging-fstring-interpolation.html)
+>
+> 当日志语句具有“logging”调用形式时使用。`logging.<logging method>(f"...")"`.
+>
+> 请改用其他字符串格式化方式。您可以使用 % 格式化，但**将插值操作留给日志记录函数**，方法是将参数作为实参传递。
+>
+> 如果禁用了 logging-format-interpolation，则可以使用 str.format。
+>
+> 如果禁用了 logging-not-lazy，则可以使用 % 格式化。
+>
+> ```python
+> #Problematic code:  问题代码：
+> 
+> import logging
+> import sys
+> 
+> logging.error(f"Python version: {sys.version}")  # [logging-fstring-interpolation]
+> #Correct code:  正确代码：
+> 
+> import logging
+> import sys
+> 
+> logging.error("Python version: %s", sys.version)
+> ```
+>
+> 
+
+> 尽管这些较新格式化选项 *是* 受支持的，但探索它们超出了本教程的范围：有关详细信息，请参阅 [生效于整个应用程序的格式化样式](https://docs.python.org/zh-cn/3.14/howto/logging-cookbook.html#formatting-styles)。
 
 ### 日志示意图🎈
 
@@ -728,3 +847,4 @@ if not isinstance(numeric_level, int):
     
 logging.basicConfig(level=numeric_level, ...)
 ```
+
