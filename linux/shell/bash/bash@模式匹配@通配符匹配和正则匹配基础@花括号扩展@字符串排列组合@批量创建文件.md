@@ -382,6 +382,8 @@ $ if [[ $LANG =~ $langRegex ]]
 
 以下是它**花括号扩展**的工作原理：(其中`{}`及其**内部**是关键,外部的字符是可选的!)
 
+### 基本形式
+
 一般的,花括号扩展表达式形如:
 
 ```bash
@@ -401,9 +403,55 @@ exp1-e2-exp2
 exp1-en-exp2
 ```
 
-特别的,花括号扩展支持常见的区间序列扩展,形如`{<start>..<end>}`,其中`<start>,<end>`分别替换为数字,也可以是字母(但是两者通常要么都是数字(整数集$\set{Z}$,可以是负整数,0,正整数),要么都是字母(a-z,A-Z)
+#### 区间序列扩展
+
+特别的,花括号扩展**支持常见的区间序列扩展**,形如`{<start>..<end>}`,其中`<start>,<end>`分别替换为数字,也可以是字母(但是两者通常要么都是数字(整数集$\set{Z}$,可以是负整数,0,正整数),要么都是字母(a-z,A-Z)
+
+此外支持设置序列步长,`{<start>..<end>..<step>}`,得到序列:
+
+```bash
+start+step start+2*step start+3*step ... start+n*step
+```
+
+序列的最后一个是不超过`end`的尽可能大的值
 
 对于字母的情况,如果大小写字母混用,展开效果需要视情况而定.
+
+```bash
+$ echo {a..d}
+a b c d
+```
+
+#### 固定宽度序列
+
+对于整数,可以设置前置0填充补齐位数,比如生成001,002,...010
+
+```bash
+$ echo {001..010}
+001 002 003 004 005 006 007 008 009 010
+
+$ echo {003..6}
+003 004 005 006
+
+$ echo {1..004}
+001 002 003 004
+
+$ echo {01..004}
+001 002 003 004
+```
+
+生成的序列单词宽度由第一个或者最后一个标记确定,如果宽度不一致,则以较长的为准
+
+除了使用花括号扩展生成简单序列,还可以使用`seq`命令更灵活控制序列的生成,不过`seq`不是bash内置的功能,是外部程序.
+
+##### 设置序列步长
+
+```bash
+$ echo {1..10..2}
+1 3 5 7 9
+```
+
+
 
 ### 概念辨析
 
@@ -600,3 +648,238 @@ Character UnicodeCode UTF8Encoding AsciiCode
 例如，**花括号扩展允许倒数**，如 `{5..1}` 甚至 `{b..Y}` 所示，普通的通配符扩展 `[5-1]` 不会被 shell 扩展(无效通配符,)。
 
  `[b-Y]` 是否会扩展取决于您的[区域设置 ](https://mywiki.wooledge.org/locale)。
+
+### seq命令创建序列
+
+`seq` 命令和 Bash 的**花括号扩展（brace expansion）**都可以用来生成数字序列，但它们在工作方式、灵活性和适用场景上有明显区别。
+
+```bash
+NAME
+       seq - print a sequence of numbers
+
+SYNOPSIS
+       seq [OPTION]... LAST
+       seq [OPTION]... FIRST LAST
+       seq [OPTION]... FIRST INCREMENT LAST
+
+DESCRIPTION
+       Print numbers from FIRST to LAST, in steps of INCREMENT.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -f, --format=FORMAT
+              use printf style floating-point FORMAT
+
+       -s, --separator=STRING
+              use STRING to separate numbers (default: \n)
+
+       -w, --equal-width
+              equalize width by padding with leading zeroes
+```
+
+
+
+---
+
+1. **基本功能**
+
+✅ 花括号扩展（`{1..10}`）
+
+- 是 **Bash 内置功能**，在命令解析阶段就展开。
+- 语法：`{start..end[..incr]}`
+- 示例：
+  ```bash
+  echo {1..5}        # 输出: 1 2 3 4 5
+  echo {01..05}      # 输出: 01 02 03 04 05（保持格式）
+  echo {1..10..2}    # 输出: 1 3 5 7 9（步长为2，Bash 4.0+）
+  ```
+
+✅ `seq` 命令
+
+- 是一个 **外部命令**（通常来自 `coreutils` 包）。
+- 语法：`seq [起始] [步长] 结束`
+- 示例：
+  ```bash
+  seq 1 5            # 输出: 1 到 5，每行一个
+  seq -s ' ' 1 5     # 输出: 1 2 3 4 5（用空格连接）
+  seq -f "file%03g.txt" 1 5  # 格式化输出
+  ```
+
+---
+
+```bash
+$ seq 1 5
+1
+2
+3
+4
+5
+
+$ seq -s ';'  1 5
+1;2;3;4;5
+
+$ seq -f "file%03g.txt" 1 5
+file001.txt
+file002.txt
+file003.txt
+file004.txt
+file005.txt
+```
+
+
+
+2. **是否支持变量？**
+
+| 特性         | 花括号扩展                       | `seq`  |
+| ------------ | -------------------------------- | ------ |
+| **支持变量** | ❌ 不支持（在展开时变量还未求值） | ✅ 支持 |
+
+示例：
+
+```bash
+n=5
+echo {1..$n}       # ❌ 不工作！输出字面 "{1..5}"（不展开）
+seq 1 $n           # ✅ 正确输出 1 到 5
+```
+
+> 💡 如果你必须用变量 + 花括号风格，可以改用 `eval`（但需谨慎）：
+> ```bash
+> n=5
+> eval echo {1..$n}
+> ```
+> 不过 `eval` 有安全风险，一般推荐用 `seq`。
+
+---
+
+3. **格式化能力**
+
+| 特性                             | 花括号扩展          | `seq`                      |
+| -------------------------------- | ------------------- | -------------------------- |
+| **前导零（如 001）**             | ✅ 支持 `{001..005}` | ✅ 支持 `seq -f "%03g" 1 5` |
+| **自定义格式（如 file001.txt）** | ❌ 不能直接嵌入文本  | ✅ 可用 `-f` 参数           |
+
+```bash
+# seq 生成带前缀的文件名
+seq -f "data_%04g.log" 1 3
+# 输出：
+# data_0001.log
+# data_0002.log
+# data_0003.log
+```
+
+花括号也能做到类似效果（但无法配合变量）：
+```bash
+touch file{001..003}.txt   # 可以，但数字必须写死
+```
+
+---
+
+4. **性能与可移植性**
+
+| 方面           | 花括号扩展                   | `seq`                                      |
+| -------------- | ---------------------------- | ------------------------------------------ |
+| **速度**       | 更快（shell 内置）           | 稍慢（需调用外部程序）                     |
+| **可移植性**   | 仅限 Bash / Zsh 等现代 shell | 几乎所有 POSIX 系统都有（但非 POSIX 标准） |
+| **POSIX 兼容** | ❌ 否                         | ❌ `seq` 也不是 POSIX 标准（但广泛存在）    |
+
+> 📝 在严格 POSIX 脚本（如 `#!/bin/sh`）中，两者都**不被保证可用**。此时常用 `while` 循环替代。
+
+---
+
+5. **典型使用场景对比**
+
+| 场景                                   | 推荐方式                       |
+| -------------------------------------- | ------------------------------ |
+| 写死的简单数字序列（如 `{1..10}`）     | ✅ 花括号扩展（简洁）           |
+| 使用变量控制数量（如 `N=100`）         | ✅ `seq`                        |
+| 需要复杂格式（如带前缀、后缀、零填充） | ✅ `seq -f`                     |
+| 脚本可移植性要求高                     | ⚠️ 用 `while` 循环更安全        |
+| 性能敏感（大量小文件）                 | ✅ 花括号（避免 fork 外部进程） |
+
+---
+
+补充：高效创建空文件的建议
+
+如果你要创建大量空文件（比如 1000 个），推荐结合 `seq` 和 `xargs` 提高效率：
+
+```bash
+N=1000
+seq -f "file%04g.txt" 1 $N | xargs touch
+```
+
+这比逐个 `touch` 快得多（减少系统调用次数）。
+
+希望这能帮你清晰理解两者的区别和适用场景！
+
+## 批量创建文件
+
+创建连续编号的空文件
+
+借助花括号扩展,配合touch,此法最为简洁
+
+```bash
+$ touch file{001..003}.txt
+```
+
+上述语句相当于
+
+```bash
+$ touch file001.txt file002.txt file003.txt
+```
+
+借助for循环也可以,且适用性更强,不过对于不带空格文件名的情况比较重,循环适合创建带有空格名字的文件或目录
+
+```bash
+
+$ for i in {1..5}; do touch "f$i.txt"; done
+
+$ ls f*.txt
+f1.txt  f2.txt  f3.txt  f4.txt  f5.txt
+```
+
+或者借助while循环
+
+```bash
+$ while [[ $i -lt 5 ]];do touch "fw$i.txt"; i=$((i+1)) ;done
+```
+
+或者借助seq生成序列
+
+```bash
+$ for f in $(seq 1 5); do touch "fs$f.txt" ;done
+```
+
+或者设计好`seq`的序列生成,也可以用`touch`直接生成对应文件
+
+```bash
+$ touch $(seq -f "file%04g.txt" 7 10)
+```
+
+对于带有空格的名字,需要考虑空格分割的问题,使用变量暂存,然后使用双引号引用避免空格分隔
+
+```bash
+# root@CxxuColorfulWin10 21:52:29> <~>
+$ names=$(seq -f "file    %04g.txt" 7 10)
+# root@CxxuColorfulWin10 21:54:14> <~>
+$ echo "${names[@]}"
+file    0007.txt
+file    0008.txt
+file    0009.txt
+file    0010.txt
+# 取消双引号,则被分割
+$ echo ${names[@]}
+file 0007.txt file 0008.txt file 0009.txt file 0010.txt
+```
+
+且注意如下命令创建的是一个包含换行的文件(而不是多个文件)
+
+```bash
+touch "${names[@]}"
+```
+
+可以考虑`xargs -d`
+
+```bash
+seq -f "file    %04g.txt" 7 10 | xargs -d '\n' touch
+```
+

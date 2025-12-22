@@ -187,9 +187,9 @@ $ echo -e $'[ \t|\n]'
 ]
 ```
 
-总之,`IFS` 的作用就是将字符串拆分：
+### IFS用例
 
-
+`IFS` 的作用就是将字符串拆分：
 
 ```bash
 $ IFS=. read -ra ip_elements <<< "127.0.0.1"
@@ -205,7 +205,7 @@ $ IFS=. read -ra ip_elements <<< "127.0.0.1"
 
 那么，有没有办法将外部程序（例如 `find` ）中的**元素列表导入到 Bash 数组**中呢？一般来说，答案是肯定的，前提是存在一种可靠的方法来分隔这些元素。
 
-#### 空字节和数据流
+#### 空字节和数据流🎈
 
 就文件名而言，解决这个问题的方法是使用**空字节**（`NUL` 字节）。
 
@@ -629,24 +629,16 @@ $
 
 但你可以**在"任何"需要将"数组元素"作为参数的地方**展开数组；例如，在 `cp` 命令中：
 
-
-
 ```bash
  myfiles=(db.sql home.tbz2 etc.tbz2)
  cp "${myfiles[@]}" /backups/
 ```
 
-
-
 这条命令会运行 `cp` ，并将 `"${myfiles[@]}"` 部分替换为 `myfiles` 数组中的每个文件名（用引号正确括起来）。展开后，Bash 实际上会运行以下命令：
-
-
 
 ```bash
 $ cp "db.sql" "home.tbz2" "etc.tbz2" /backups/
 ```
-
-
 
 然后 `cp` 会将文件复制到您的 `/backups/` 目录。
 
@@ -691,7 +683,7 @@ baz, foo bar, *
 
 ```
 
-最后,注意数组内元素之间的分割符号
+最后,注意数组内元素之间的分割符号是空格,而不是逗号(虽然大多数编程语言中数组内的元素是用逗号分隔的,但是很多shell语言是用空格分隔的,不过powershell比较现代化,使用逗号作为数组的分隔符号)
 
 下面的例子看上去没有使用双引号展开数组,也没有引起通配模式的效果
 
@@ -760,42 +752,119 @@ n1,n 2,m n  3
 
 ### 隐式循环的更多用法
 
-当然， `for` 循环提供了最大的灵活性，但 `printf` 及其对参数的**隐式循环可以涵盖许多更简单的情况**。
+ `for` 循环提供了最大的灵活性，但 `printf` 及其对参数的**隐式循环可以涵盖许多更常见的简单用法**。
 
-它甚至可以生成**以 NUL 分隔的流**，非常适合后续检索：
+它甚至可以生成**以 NUL 分隔的流**，非常适合后续检索
+
+> 因为 NUL 是**唯一不能出现在文件名中的字符**（在 Unix/Linux 系统中），所以：
+>
+> - 用 `\0` 分隔可以 **100% 安全地表示任意文件名列表**；
+> - 后续工具如 `xargs -0`、`read -r -d ''`、`mapfile -d ''` 都能可靠地解析这种格式
+
+```bash
+# 扫描当前目录在的f开头的.txt文件,将这些文件名作为为数组的元素
+$ myarray=(f*.txt)
+$ declare -p myarray
+declare -a myarray=([0]="f1.txt" [1]="f2.txt" [2]="f3.txt" [3]="f4.txt" [4]="f5.txt" [5]="file    0007.txt" [6]="file    0008.txt" [7]="file    0009.txt" [8]="file    0010.txt")
+
+```
 
 
 
 ```bash
 $ printf "%s\0" "${myarray[@]}" > myfile
+# 使用cat 看不到`\0`,看似所有文件名被拼接在一起,可以借助其他程序查看
+$ cat myfile
+f1.txtf2.txtf3.txtf4.txtf5.txtfile    0007.txtfile    0008.txtfile    0009.txtfile    0010
+```
+
+现在从文件`myfile`中解析各个文件名
+
+```bash
+# 从myfile中读取并解析数据到新数组newarray
+$ readarray -d '' newarray < myfile
+declare -p newarray
+declare -a newarray=([0]="f1.txt" [1]="f2.txt" [2]="f3.txt" [3]="f4.txt" [4]="f5.txt" [5]="file    0007.txt" [6]="file    0008.txt" [7]="file    0009.txt" [8]="file    0010.txt")
+```
+
+又以`xargs`为例
+
+```bash
+$ xargs -0 -I {} echo "Processing: {}" < myfile
+Processing: f1.txt
+Processing: f2.txt
+Processing: f3.txt
+Processing: f4.txt
+Processing: f5.txt
+Processing: file    0007.txt
+Processing: file    0008.txt
+Processing: file    0009.txt
+Processing: file    0010.txt
 ```
 
 
+
+通过外部程序`od`查看(`-c`),可以看到`\0`空字节
+
+> od - dump files in octal and other formats
+
+```bash
+$ od -c myfile
+0000000   f   1   .   t   x   t  \0   f   2   .   t   x   t  \0   f   3
+0000020   .   t   x   t  \0   f   4   .   t   x   t  \0   f   5   .   t
+0000040   x   t  \0   f   i   l   e                   0   0   0   7   .
+0000060   t   x   t  \0   f   i   l   e                   0   0   0   8
+0000100   .   t   x   t  \0   f   i   l   e                   0   0   0
+0000120   9   .   t   x   t  \0   f   i   l   e                   0   0
+0000140   1   0   .   t   x   t  \0
+0000147
+```
+
+或使用外部程序`xxd`查看(系统可能不自带,可以通过包管理器安装)
+
+>  xxd - make a hex dump or do the reverse.
+
+```bash
+$ xxd myfile
+00000000: 6631 2e74 7874 0066 322e 7478 7400 6633  f1.txt.f2.txt.f3
+00000010: 2e74 7874 0066 342e 7478 7400 6635 2e74  .txt.f4.txt.f5.t
+00000020: 7874 0066 696c 6520 2020 2030 3030 372e  xt.file    0007.
+00000030: 7478 7400 6669 6c65 2020 2020 3030 3038  txt.file    0008
+00000040: 2e74 7874 0066 696c 6520 2020 2030 3030  .txt.file    000
+00000050: 392e 7478 7400 6669 6c65 2020 2020 3030  9.txt.file    00
+00000060: 3130 2e74 7874 00                        10.txt.
+```
 
 您还可以通过引用元素编号（称为**索引** ）来**展开(访问取值)单个数组元素**。请记住，默认情况下，数组***从零开始索引*** ，这意味着它们的**第一个元素**的索引**为零** ：
 
 ```bash
-$ echo "The first name is: ${names[0]}"
-$ echo "The second name is: ${names[1]}"
+$ echo "The first name is: ${myarray[0]}"
+The first name is: f1.txt
+$ echo "The second name is: ${myarray[1]}"
+The second name is: f2.txt
 ```
 
 
 
-（你可以创建一个不包含元素 0 的数组。记住我们之前讲过的*稀疏数组* ——索引序列中可能存在“空隙”，这不仅适用于数组的开头，也适用于中间部分。作为程序员，你有责任了解哪些数组可能是稀疏的，哪些不是。）
+（你可以创建一个不包含元素 0 的数组。记住我们之前讲过的***稀疏数组*** ——索引序列中可能存在“空隙”，这不仅适用于数组的开头，也适用于中间部分。
 
-还有第二种展开所有数组元素的形式，即 `"${arrayname[*]}"` 。这种形式**仅**用于将数组转换为包含所有元素的单个字符串。其主要目的是将数组输出给读者：
+作为程序员，你有责任了解哪些数组可能是稀疏的，哪些不是。
+
+#### 展开数组元素的形式2`${array[*]}`
+
+还有第二种展开所有数组元素的形式，即 `"${arrayname[*]}"` 。这种形式**仅**用于将数组转换为包含所有元素的**单个字符串**。其主要目的是**将数组输出给读者**：
 
 
 
-```
-$ names=("Bob" "Peter" "$USER" "Big Bad John")
+```bash
+$ names=("Bob" "Peter" "$USER" "Big Bad    John")
 $ echo "Today's contestants are: ${names[*]}"
 Today's contestants are: Bob Peter lhunath Big Bad John
 ```
 
 
 
-请注意，在生成的字符串中，根本无法分辨名称的起始位置和结束位置！这就是为什么我们要尽可能地将所有内容分开的原因。
+请注意，在生成的字符串中，**根本无法分辨名称的起始位置和结束位置**！这就是为什么我们要尽可能地将所有内容分开的原因。
 
 记住，所有内容都要用**引号括起来** ！如果不给 `${arrayname[*]}` 加引号，Bash 的[单词分割功能](https://mywiki.wooledge.org/WordSplitting)会再次将其分割成碎片。
 
@@ -819,13 +888,71 @@ Today's contestants are: Bob,Peter,lhunath,Big Bad John
 
 
 
-```
+```bash
 $ array=(a b c)
 $ echo ${#array[@]}
 3
 ```
 
+### 对比两种展开方式
 
+假设数组包含带空格的文件名：
+
+```bash
+arr=("file one.txt" "file two.txt" "normal.txt")
+```
+
+#### 1. 使用 `"${arr[@]}"`（推荐用于遍历或传递参数）
+
+```bash
+for f in "${arr[@]}"; do
+  echo "File: [$f]"
+done
+```
+
+> 这相当于
+>
+> ```bash
+> for f in "file one.txt" "file two.txt" "normal.txt"; do
+>   echo "File: [$f]"
+> done
+> ```
+>
+> 
+
+输出：
+
+```
+File: [file one.txt]
+File: [file two.txt]
+File: [normal.txt]
+```
+
+ **正确保留了每个元素**。
+
+#### 2. 使用 `"${arr[*]}"`
+
+```bash
+for f in "${arr[*]}"; do
+  echo "File: [$f]"
+done
+```
+
+相当于
+
+```bash
+for f in "file one.txt file two.txt normal.txt"; do
+  echo "File: [$f]"
+done
+```
+
+输出：
+
+```
+File: [file one.txt file two.txt normal.txt]
+```
+
+ **整个数组变成一个字符串**，循环只执行一次。
 
 
 
