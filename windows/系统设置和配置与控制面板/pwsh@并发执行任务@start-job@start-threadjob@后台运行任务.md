@@ -1044,7 +1044,7 @@ $files = @(
 )
 
 $jobs = @()
-
+# 遍历文件名,创建并添加对应的任务(线程作业)到$jobs数值,便于后续操作(等待结果)
 foreach ($file in $files) {
     $jobs += Start-ThreadJob -Name $file.OutFile -ScriptBlock {
         $params = $Using:file
@@ -1054,7 +1054,9 @@ foreach ($file in $files) {
 
 Write-Host "Downloads started..."
 Wait-Job -Job $jobs
-
+# 收集所有线程池(作业池)中的任务结果(可以使用-wait)
+# $jobs|Receive-Job
+#或
 foreach ($job in $jobs) {
     Receive-Job -Job $job
 }

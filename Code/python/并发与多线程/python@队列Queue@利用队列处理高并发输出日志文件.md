@@ -1,20 +1,20 @@
 [toc]
 
-## Queue
-
-[queue --- 同步队列类 — Python  文档](https://docs.python.org/zh-cn/3/library/queue.html)
 
 
 
-# Python队列(Queue)使用教程
+
+## Python队列(Queue)
 
 队列(Queue)是Python中实现线程间安全通信的重要数据结构，特别是在多线程编程中。本教程将详细介绍Python标准库中的`queue`模块。
+
+[queue --- 同步队列类 — Python  文档](https://docs.python.org/zh-cn/3/library/queue.html)
 
 ## 一、队列的基本概念
 
 队列是一种先进先出(FIFO)的数据结构，主要特点：
 - 线程安全：多个线程可以安全地访问同一个队列
-- 阻塞操作：当队列为空时获取操作会阻塞，当队列满时放入操作会阻塞
+- 阻塞操作：当队列为空时获取操作(get)会阻塞，当队列满时放入操作(put)会阻塞
 - 任务协调：常用于生产者-消费者模式
 
 ## 二、队列的基本操作
@@ -47,9 +47,7 @@ Queue提供了两个方法，用于支持跟踪排队的任务是否**被守护�
 
 - Queue.**task_done**()
 
-  表示前面排队的任务已经被完成。**被队列的消费者线程使用**。每个 [`get()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.get) 被用于获取一个任务， 后续调用 [`task_done()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.task_done) 告诉队列，该任务的处理已经完成。
-
-  如果 [`join()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.join) 当前正在阻塞，在**所有条目都被处理后**，将**解除阻塞**(意味着每个 [`put()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.put) 进队列的**条目**的 [`task_done()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.task_done) 都被收到)。
+  表示前面排队的**任务已经被完成**。**被队列的消费者线程使用**。每个 [`get()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.get) 被用于**获取一个任务**， 后续调用 [`task_done()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.task_done) **告诉队列，该任务的处理已经完成**。
 
   > 3.13版本中`shutdown(immediate=True)` 将**为队列中每个剩余的项**调用 [`task_done()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.task_done)。如果被调用的次数多于放入队列中的项目数量，将引发 [`ValueError`](https://docs.python.org/zh-cn/3/library/exceptions.html#ValueError) 异常 。
 
@@ -63,38 +61,52 @@ Queue提供了两个方法，用于支持跟踪排队的任务是否**被守护�
 
   当未完成计数降为零时，[`join()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.join) 将解除阻塞。
 
+如果 [`join()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.join)调用 当前正在阻塞，在**所有条目都被处理后**，将**解除阻塞**(意味着每个 [`put()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.put) 进队列的**条目**的 [`task_done()`](https://docs.python.org/zh-cn/3/library/queue.html#queue.Queue.task_done) 都被收到)。
+
 ## 三、队列类型
 
-### 1. FIFO队列 (Queue)
+### 1. FIFO队列 (Queue-普通队列)
+
+first in first out
 
 ```python
+import queue
+from queue import Queue
 q = queue.Queue()
 q.put(1)
 q.put(2)
 print(q.get())  # 输出: 1 (最先放入的最先取出)
+print(q.get())  # 输出: 2 (其次放入的其次取出)
 ```
 
-由于Queue的阻塞特性,在上述例子中,第二次调用`q.get()`后将会阻塞当前线程!
+由于Queue的阻塞特性,在上述例子中,第3次调用`q.get()`后将会阻塞当前**线程**! 因为队列中没有可用元素
 
 在只有单线程的情况下,将无法执行后续代码!
 
 ### 2. LIFO队列 (LifoQueue - 栈结构)
+
+queue模块中的栈实现,last in first out.
 
 ```python
 q = queue.LifoQueue()
 q.put(1)
 q.put(2)
 print(q.get())  # 输出: 2 (最后放入的最先取出)
+print(q.get()) #输出1
 ```
 
+类似的，继续调用`q.get()`会导致当前线程阻塞
+
 ### 3. 优先级队列 (PriorityQueue)
+
+灵活性更高的队列实现,可根据优先级控制出入队列的顺序
 
 ```python
 q = queue.PriorityQueue()
 q.put((3, '低优先级'))
 q.put((1, '高优先级'))
 q.put((2, '中优先级'))
-print(q.get()[1])  # 输出: '高优先级'
+print(q.get())  # 输出: (1, '高优先级')
 ```
 
 ## 四、队列的阻塞行为
@@ -102,31 +114,39 @@ print(q.get()[1])  # 输出: '高优先级'
 ### 1. 基本阻塞
 
 ```python
+import threading
 import queue
 import time
 
 q = queue.Queue(2)  # 最大容量2
 
-# 生产者线程
+# 定义生产者,time.sleep模拟每0.1秒生产1个任务,并生产共计5个任务后不再生产
 def producer():
+    print("开始生产,共计5个")
     for i in range(5):
         print(f'放入 {i}')
         q.put(i)
         time.sleep(0.1)
+    print("停止生产")
 
-# 消费者线程
+# 定义消费者,利用time.sleep模拟取出队列中的任务处理耗时,当任务处理完毕后执行task_done()
 def consumer():
+    print("开始消费,直到队列为空结束")
     while True:
         item = q.get()
         print(f'取出 {item}')
-        time.sleep(0.3)
+        time.sleep(0.3) # 模拟任务处理
         q.task_done()  # 标记任务完成
+        if q.empty():
+            break
+    print("全部任务取出并结束")
 
-# 启动线程
+# 启动线程(作为守护线程在后台运行)
 threading.Thread(target=producer, daemon=True).start()
 threading.Thread(target=consumer, daemon=True).start()
 
 q.join()  # 等待所有任务完成
+print("所有线程(生产者和消费者)结束")
 ```
 
 ### 2. 非阻塞操作

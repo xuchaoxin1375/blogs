@@ -323,7 +323,7 @@ child_logger.setLevel(logging.DEBUG)
 
 # 配置子 Logger 的过滤器(条件测试函数,返回bool值)
 def filter_record(record):
-    # 例如只允许包含 "important" 的日志通过,通过判断logger中的msg属性返回布尔值
+    # 例如只允许包含 "important" 的日志通过,通过判断logger中的msg属性返回布尔值(也可能是根据record的name属性来过滤,即)
     return "important" in record.msg  
 # 将过滤器添加到logger对象,例如为子级logger配置定义好的过滤器(函数对象)
 child_logger.addFilter(filter_record)
