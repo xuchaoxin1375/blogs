@@ -902,7 +902,9 @@ $ echo ${#array[@]}
 arr=("file one.txt" "file two.txt" "normal.txt")
 ```
 
-#### 1. 使用 `"${arr[@]}"`（推荐用于遍历或传递参数）
+#### 1. 使用 `"${arr[@]}"`
+
+推荐用于遍历或传递参数
 
 ```bash
 for f in "${arr[@]}"; do
@@ -956,19 +958,19 @@ File: [file one.txt file two.txt normal.txt]
 
 
 
-###  扩展指数
+###  扩展索引和`${!arrayname[@]}`
 
 
 
-有时，解决问题不仅仅需要按顺序展开数组的值。您可能需要同时引用多个元素，或者同时引用多个数组中的相同索引。在这种情况下，最好展开数组索引，而不是数组值。
+有时，解决问题不仅仅需要按顺序展开数组的值。您可能需要**同时引用多个元素**，或者同时引用**多个数组中的相同索引**。在这种情况下，最好**展开数组索引，而不是数组值**。
 
-假设我们有两个数组： `first` 和 `last` 。它们分别存储一个人员列表中的姓名（名和姓）。显然，我们需要确保每个人的姓名（名和姓）正确匹配。我们通过仔细控制索引来实现这一点。
+假设我们有两个数组： `first` 和 `last` 。它们分别存储一个人员列表中的姓与名（名和姓,first name,last name）。显然，我们需要确保每个人的姓名（名和姓）正确匹配。我们通过仔细控制索引来实现这一点。
 
 
 
-```
-$ first=(Jessica Sue Peter)
-$ last=(Jones Storm Parker)
+```bash
+first=(Jessica Sue Peter)
+last=(Jones Storm Parker)
 ```
 
 
@@ -977,14 +979,14 @@ $ last=(Jones Storm Parker)
 
 
 
-```
+```bash
 $ echo "${first[1]} ${last[1]}"
 Sue Storm
 ```
 
 
 
-如果我们想遍历所有名字，就不能只遍历 `"${first[@]}"` 或 `"${last[@]}"` 。那样的话，我们就没有*另一个*数组的索引，也就无法将它们匹配起来。相反，我们会遍历其中一个数组（任意选择）的索引，然后将两个数组中相同的索引结合起来使用：
+如果我们想遍历所有名字，就不能只遍历 `"${first[@]}"` 或 `"${last[@]}"` 。那样的话，我们就没有*另一个*数组的索引，也就无法将它们匹配起来。相反，我们会**遍历其中一个数组（任意选择）的索引，然后将两个数组中相同的索引结合起来使用**：
 
 
 
@@ -999,17 +1001,53 @@ Peter Parker
 
 
 
-因此，我们有了一个新的语法： `"${!arrayname[@]}"` 展开为数组*索引*的列表，按顺序排列。
+因此，我们有了一个新的语法： `"${!arrayname[@]}"` 展开为**数组*索引*的列表**，按顺序排列。
 
-另一个值得一提的特性是，数组索引周围的 `[...]` 实际上创建了一个算术上下文。你可以在这里进行数学运算，而无需将其包裹在 `$((...))` 中。假设我们要一次处理数组中的两个元素，并且假设我们知道这个数组不可能是*稀疏的* 。那么：
+> ```bash
+> $ echo "${!first[@]}"
+> 0 1 2
+> ```
+>
+> 对于索引数组,序列`"${!arrayname[@]}"`类似于python中的`range(len(array))`产生的序列,但是,bash数组很灵活,支持稀疏数组,这可能导致数组的索引不是无空连续顺序的,此外,该语法还适用于关联数组
+>
+> ```bash
+> $ declare -p nums
+> declare -a nums=([0]="zero" [1]="one" [2]="two" [3]="three" [4]="four")
+> # cxxu@CxxuDesk 11:49:14> <~/sh>
+> $ unset 'nums[3]'
+> # cxxu@CxxuDesk 11:50:09> <~/sh>
+> $ echo "${!nums[@]}"
+> 0 1 2 4 #索引3没有,因为被unset了
+> ```
+>
+> ```bash
+> declare -A aa
+> aa=(['k1']='v1' ['k2']='v2')
+> echo "${!aa[@]}"
+> # output
+> k1 k2
+> ```
+>
+> 
 
+另一个值得一提的特性是，**数组索引**表达式`@{array[...]}`中的 `[...]` 实际上创建了一个**算术上下文**。你可以在这里进行**数学运算**，而无需将其包裹在 `$((...))` 中。
 
+假设我们要一次处理数组中的**两个元素**，并且假设我们知道这个数组不可能是*稀疏的* 。那么：
+
+> 使用`for ((`关键字编写循环,每次索引增加2(因为每次循环会用掉2个数字,否则会重叠)
+>
 
 ```bash
-$ a=(a b c q w x y z)
-$ for ((i=0; i<${#a[@]}; i+=2)); do
-> echo "${a[i]} and ${a[i+1]}"
-> done
+a=(a b c q w x y z)
+for ((i=0; i<${#a[@]}; i+=2)); do
+ echo "${a[i]} and ${a[i+1]}"
+done
+ 
+# output
+a and b
+c and q
+w and x
+y and z
 ```
 
 
@@ -1022,103 +1060,351 @@ $ for ((i=0; i<${#a[@]}; i+=2)); do
 
 
 
-我们之前已经提到过稀疏数组，所以这里就简单介绍一下。大多数数组的索引只有 0、1、2、3 等等。但数组中也可能存在“空位”。这可以通过两种方式实现：一是直接将元素赋值给一个远超数组当前末尾的索引，二是直接从现有数组中*删除*一个元素。
+大多数数组的索引只有 0、1、2、3 等等。但数组中也可能存在“空位”。
+
+可以通过两种方式得到稀疏数组：一是**直接将元素赋值给一个远超数组当前末尾的索引**，二是直接**从现有数组中*删除*一个元素**。
+
+> 使用`unset`命令删除数组的元素(保险的写法是`unset 'target'`,这里使用单引号包裹)
+>
+> unset可以删除shell 变量和函数值和属性。
+>
+> 如果不使用`unset`的选项,则执行尝试:先视为变量进行删除,如果失败则尝试视为函数进行删除
 
 
 
 ```bash
-$ nums=(zero one two three four)
-$ nums[70]="seventy"
-$ unset 'nums[3]'
-$ declare -p nums
+$ help unset
+unset: unset [-f] [-v] [-n] [name ...]
+    Unset values and attributes of shell variables and functions.
+
+    For each NAME, remove the corresponding variable or function.
+
+    Options:
+      -f        treat each NAME as a shell function
+      -v        treat each NAME as a shell variable
+      -n        treat each NAME as a name reference and unset the variable itself
+                rather than the variable it references
+
+    Without options, unset first tries to unset a variable, and if that fails,
+    tries to unset a function.
+```
+
+
+
+```bash
+nums=(zero one two three four)
+nums[70]="seventy"
+unset 'nums[3]'
+declare -p nums
 declare -a nums='([0]="zero" [1]="one" [2]="two" [4]="four" [70]="seventy")'
 ```
 
 
 
-请注意，我们在 `unset` 命令中对 `'nums[3]'` 使用了引号。这是因为*未加引号的* `nums[3]` 可能被 Bash 解释为文件名通配符。如果它恰好匹配到当前目录中的某个文件，那么 `nums[3]` 就会变成 `nums3` ，导致我们取消设置错误的变量。这可就糟了！
+请注意，我们在 `unset` 命令中对 `'nums[3]'` 使用了引号,并且是单引号。这是因为*未加引号的* `nums[3]` 可能被 Bash 解释为**文件名通配符**。如果它恰好匹配到当前目录中的某个文件，那么 `nums[3]` 就会变成 `nums3` ，导致我们取消设置错误的变量。这可就糟了！
 
-如果您遵循我们目前为止概述的做法，稀疏数组应该不会给您带来任何特殊问题。
+### 数组使用注意事项
+
+如果您遵循我们目前为止概述的做法，**稀疏数组**应该不会给您带来任何特殊问题。
+
+但是由于稀疏数组的存在,有些在其他编程语言中看似合理的假设在bash数组中却要很可能不成立,下面关于数组索引的假设要避免
 
 - 不要假设你的索引是顺序的。
-- 如果索引值很重要，那就始终遍历索引，而不是对它们进行假设。
-- 如果改为遍历这些值，则不要假设当前位于哪个索引位置。
-- 尤其要注意的是，不要以为你当前处于循环的第一次迭代，就一定位于索引 0 处！
+- 如果索引值很重要，那就始终遍历索引，而不是对它们进行假设,使用`${!arary[@]}`获取数组的索引,包括稀疏数组。
+- 如果改为遍历这些值，则**不要假设当前位于哪个索引位置**。
+- 尤其要注意的是，**不要以为你当前处于循环的第一次迭代，就一定位于索引 0 处**(尤其是稀疏数组的情况)！
 
-使用 `"${arrayname[@]}"` 扩展稀疏数组的值时，你会得到一个没有空隙的列表。但你无法得知这些值来自哪种类型的数组。如果你想*重新索引*数组以移除所有空隙，这会很有用：
+
+
+###  关联数组(字典|映射型数组)
+
+> [关联数组](https://en.wikipedia.org/wiki/Associative_array)是一个无序的键值对集合。可以通过提供对应的键来检索值。由于大多数 shell 只支持字符串数据类型，因此关联数组将字符串映射到字符串，这与索引数组将整数映射到字符串不同。
+>
+> 关联数组在 AWK,PHP 中被称为“associative arrays”，在 Perl 中被称为“hashes”，在 Tcl 中被称为“arrays”，在 Python 和 C# 中被称为“dictionaries”，在 Java 中被称为“Map”，在 C++11 STL 中被称为 `std::unordered_map` 。
+
+对于普通数组,只能使用数字（更准确地说，**是非负整数**）作为**数组的键**。
+
+这意味着你无法将一个字符串“映射”或“转换”到另一个字符串。很多人都忽略了这一点。
+
+> 为了解决这个问题，人们开始滥用[变量间接寻址 ](https://mywiki.wooledge.org/BashFAQ/006)。
+>
+> 自 Bash 4 发布以来，现在您可以使用功能齐全的**关联数组**,再也没有理由使用**间接寻址**（或者**更糟糕的是** ，使用 `eval` ）来实现此目的了。
+
+要创建关联数组，需要将其**声明为关联数组**（使用 `declare -A` ）。**这是必要的**，否则 bash 无法识别您要创建的**数组类型**。
+
+> 例如`aa[key]=value`,bash会自动识别并创建一个名为`aa`的索引数组.
+>
+> ```bash
+> # cxxu@CxxuDesk 17:00:28> <~/sh>
+> $ ac[k1]='v1'
+> # cxxu@CxxuDesk 17:16:27> <~/sh>
+> $ declare -p ac
+> declare -a ac=([0]="v1")
+> ```
+>
+> 此外,直接使用`aa=([key]=value)`而没有事先使用`declare -A aa`那么创建的是索引数组.`key`会变成索引(非负整数)
+>
+> ```bash
+> $ ad=([k1]='v1')
+> # cxxu@CxxuDesk 17:18:41> <~/sh>
+> $ declare -p ad
+> declare -a ad=([0]="v1")
+> ```
+>
+> 
+
+以下是创建关联数组的方法：
 
 
 
 ```bash
-$ array=("${array[@]}")      # This re-creates the indices.
+declare -A fullNames
+fullNames=( ["lhunath"]="Maarten Billemont" ["greycat"]="Greg Wooledge" )
+user='lhunath'
+echo "Current user is: $user.  Full name: ${fullNames[$user]}."
+# output
+Current user is: lhunath.  Full name: Maarten Billemont.
 ```
 
 
 
+我们可以像打印普通数组一样打印关联数组的内容：
+
+
+
+```bash
+$ declare -A dict
+$ dict[astro]="Foo Bar"
+$ declare -p dict
+declare -A dict='([astro]="Foo Bar")'
+```
+
+关联数组的索引(键)的遍历:使用与**索引数组**相同的语法，您可以遍历关联数组的键（索引）：
+
+
+
+```bash
+for user in "${!fullNames[@]}"
+do echo "User: $user, full name: ${fullNames[$user]}."; done
+User: lhunath, full name: Maarten Billemont.
+User: greycat, full name: Greg Wooledge.
+```
+
+### 关联数组的无序性
+
+这里需要记住两点：首先，使用 `"${!array[@]}"` 语法从关联数组中**返回的键的顺序是不可预测**的；它不一定是你分配元素的顺序，也不一定是任何排序后的顺序。
+
+同样，如果你使用 `"${array[@]}"` 展开元素，你得到的元素顺序也是不可预测的。关联数组*并不*适合存储需要按特定顺序处理的列表。
+
+其次，如果您将**参数**用作**关联数组的键**，则不能省略 `$` 。
+
+对于标准索引数组,使用参数做为索引允许你省略`$`号，因为 `[...]` 部分用于算术运算。
+
+> 在算术运算中， *Name* 不可能是有效的数字，因此 BASH 会将其**视为参数**，并假定您要使用其内容。
+
+> 也就是说,bash会适当推断用户的意图
+
+让我们用例子来说明：
+
+
+
+```bash
+$ indexedArray=( "one" "two" )
+$ declare -A associativeArray=( ["foo"]="bar" ["alpha"]="omega" )
+$ index=0 key="foo"
+$ echo "${indexedArray[$index]}"
+one
+$ echo "${indexedArray[index]}"
+one
+$ echo "${indexedArray[index + 1]}"
+two
+$ echo "${associativeArray[$key]}"
+bar
+$ echo "${associativeArray[key]}"
+
+$ echo "${associativeArray[key + 1]}"
+```
+
+
+
+如您所见， `$index` 和 `index` **在索引数组中都能正常工作**，它们的值都为 `0` 。
+
+您甚至可以对其进行运算，将其增加到 `1` ，从而得到第二个值。
+
+但是，但上述自动推断**这不适用于关联数组**，因为 *Name* **也可能是有效的关联数组键**。
+
+我们需要使用 `$key` ；其他值都会失效。
+
+
+
+### 移除数组空隙|数组非稀疏化操作|重新编制数组索引
+
+使用 `"${arrayname[@]}"` 扩展稀疏数组的值时，你会得到一个**没有空隙的列表**。但你无法得知这些值来自哪种类型的数组。如果你想*重新索引*数组以移除所有空隙，这会很有用：
+
+> 将`=()`语法包裹在原稀疏数组的扩展表达式`"${array[@]}"`上即可(注意,为了保护数组中包含空白字符的元素,需要保留`""`)
+>
+> 即`newarray=("${array[@]}")`
+
+```bash
+# 准备一个稀疏数组
+declare -a nums=([0]="zero" [1]="one" [2]="two" [4]="four" [70]="seventy last number")
+# 移除空隙
+newnums=("${nums[@]}")
+# 重新查看
+declare -p newnums
+#output (可以看到,数组的空隙被压缩了)
+declare -a newnums=([0]="zero" [1]="one" [2]="two" [3]="four" [4]="seventy last number")
+
+```
+
 ### 良好做法
 
 始终正确引用数组展开式，就像引用普通参数展开式一样。
-使用 `"${myarray[@]}"` 展开数组中的所有元素，只有当想要将数组中的所有元素合并成一个字符串时才使用 `"${myarray[\*]}"` 。
+使用 `"${myarray[@]}"` 展开数组中的所有元素(展开后各个元素保持独立)，只有当想要将数组中的所有元素合并成一个字符串时才使用 `"${myarray[*]}"` 。
+
+> **永远优先使用 `"${myarray[@]}"`**：这能确保即使数组元素里有空格、换行符，它们也能被正确处理而不被切分。
+>
+> **除非**：你确实需要将整个数组合并成一个**由特定分隔符**连接的**长字符串**时，才考虑使用 `"${myarray[*]}"`。
+
+两者在配合echo简单输出数组各元素的值序列是往往结果相同,但是有些情况下病不同,例如`IFS`取值自定义时
+
+```bash
+# 创建一个简单数组,包含2个元素
+myarray=("hello world" "test")
+# cxxu@CxxuDesk 14:29:42> <~/sh>
+$ IFS=:
+# cxxu@CxxuDesk 14:30:52> <~/sh>
+$ echo "${myarray[*]}"
+hello world:test #注意两个元素之间用:分隔
+# cxxu@CxxuDesk 14:30:56> <~/sh>
+$ echo "${myarray[@]}"
+hello world test #不受IFS=;的影响,仍然使用空白分割两个元素
+```
+
+
 
 ------
 
 ## 数组总结
 
-Bash 提供了**一维的索引数组**和**关联数组**变量。任何变量都可以用作索引数组； `declare` 内建命令显式声明一个数组。数组的大小没有最大限制，也不要求其成员必须连续索引或赋值。
+Bash 提供了**一维的索引数组**和**关联数组**变量。任何变量都可以用作索引数组；
 
-索引数组使用算术表达式来引用，这些表达式必须展开为整数（参见 Shell 算术），并且是**零基**的；
+ `declare` 内建命令显式声明一个数组。**数组的大小没有最大限制**，**也不要求其成员必须连续索引或赋值**。
+
+索引数组使用**算术表达式**来引用，这些表达式必须展开为整数（参见 Shell 算术），并且是**零基**的；
 
 关联数组使用任意字符串。除非另有说明，索引数组的索引必须是**非负整数**。
 
-Shell 对索引数组下标**执行参数和变量扩展、算术扩展、命令替换以及引号去除**。由于这可能会导致空字符串，**下标索引将把那些空字符串视为评估为 0 的表达式**。
+Shell 对**索引数组**下标**执行参数和变量扩展、算术扩展、命令替换以及引号去除**。由于这可能会导致空字符串，**下标索引将把那些空字符串视为评估为 0 的表达式**。
 
-Shell 对关联数组下标执行波浪线扩展、参数和变量扩展、算术扩展、命令替换以及引号去除。空字符串不能用作关联数组的键。
+Shell 对**关联数组**下标执行波浪线扩展、参数和变量扩展、算术扩展、命令替换以及引号去除。**空字符串不能用作关联数组的键**。
 
-如果使用语法给任何变量赋值，Bash 会自动创建一个索引数组。
+如果使用语法给任何变量赋值，Bash 会自动创建一个**索引数组**(而不是关联数组),`subscript`会被转换为`0`。
 
-```
+```bash
 name[subscript]=value
 ```
 
-下标被视为一个算术表达式，必须求值为大于或等于零的数字。要显式声明一个索引数组，请使用
+下标被视为一个算术表达式，必须求值为**大于或等于零的数字**(非负整数)。
 
-```
+要显式声明一个索引数组，请使用
+
+```bash
 declare -a name
 ```
 
 （参见 Bash 内置命令）。语法
 
-```
+```bash
 declare -a name[subscript]
 ```
 
 也接受这种写法；下标会被忽略。
 
-关联数组是使用
+**关联数组**是使用
 
-```
+```bash
 declare -A name
 ```
 
-使用 `declare` 和 `readonly` 内建命令可以为数组变量指定属性。每个属性适用于数组的所有成员。
+使用 `declare` 和 `readonly` 内建命令可以**为数组变量指定属性**。每个属性适用于**数组的所有成员**。
 
-使用如下形式的复合赋值来赋值数组：
+使用如下形式的**复合赋值**来赋值数组：
 
-```
+```bash
 name=(value1 value2 ... )
 ```
 
-其中每个值可以是 `[subscript]=` 字符串 的形式。索引数组赋值不需要任何其他内容，只需字符串。
+其中每个值可以是 `[subscript]=` 字符串 的形式。**索引数组赋值不需要任何其他内容，只需字符串。**
 
 列表中的每个值都会经历上述描述的 shell 展开（参见 Shell Expansions），但那些有效的变量赋值包括括号和下标的情况不会进行花括号展开和单词分割，如同单独的变量赋值一样。
 
-当为索引数组赋值时，如果提供了可选的下标，就将值赋给该下标；否则，所赋值元素的下标是该语句最后一次赋值的下标加一。索引从零开始。
+### 数组赋值
 
-当为关联数组赋值时，复合赋值中的单词可以是赋值语句，此时需要下标，或者是一组被解释为交替键值对的单词：`name=(key1 value1 key2 value2 …)`。这些与 `name=( [key1]=value1 [key2]=value2 … )`的处理方式完全相同。列表中的第一个单词决定了其余单词如何被解释；列表中的所有赋值必须为同一种类型。当使用键/值对时，键不能缺失或为空；最后缺失的值会被当作空字符串处理。
+**当为索引数组赋值时**，如果提供了(可选的)下标，就将值赋给该下标；
+
+否则，所赋值元素的下标是该语句最后一次赋值的下标加一。索引从零开始。
+
+```bash
+# cxxu@CxxuDesk 17:29:35> <~/sh>
+$ ia=('a' 'b')
+# cxxu@CxxuDesk 17:31:11> <~/sh>
+$ declare -p ia
+declare -a ia=([0]="a" [1]="b")
+# cxxu@CxxuDesk 17:31:14> <~/sh>
+$ ia[5]='f'
+# cxxu@CxxuDesk 17:31:37> <~/sh>
+$ declare -p ia
+declare -a ia=([0]="a" [1]="b" [5]="f")
+
+# cxxu@CxxuDesk 17:31:38> <~/sh>
+$ ia+='q'
+# cxxu@CxxuDesk 17:31:57> <~/sh>
+$ declare -p ia
+declare -a ia=([0]="aq" [1]="b" [5]="f")
+
+# cxxu@CxxuDesk 17:31:59> <~/sh>
+$ ia+=('q')
+# cxxu@CxxuDesk 17:32:09> <~/sh>
+$ declare -p ia
+declare -a ia=([0]="aq" [1]="b" [5]="f" [6]="q")
+```
+
+---
+
+
+
+**当为关联数组赋值时**，复合赋值中的单词可以是赋值语句，此时需要以下两种情况之一
+
+1.**下标**,`name[key1]=value1`
+
+2.一组被解释为**交替键值对的单词**：`name=(key1 value1 key2 value2 …)`。
+
+```bash
+
+$ declare -A ac=(k1 v1 k2 v2)
+
+$ declare -p ac
+declare -A ac=([k1]="v1" [k2]="v2" )
+```
+
+这些与 `name=( [key1]=value1 [key2]=value2 … )`的处理方式完全相同。列表中的第一个单词决定了其余单词如何被解释；列表中的所有赋值必须为同一种类型。
+
+当使用键/值对时，**键不能缺失或为空**；最后缺失的值会被当作空字符串处理。
 
 这种语法同样被 `declare` 内置命令接受。可以使用上面介绍的 `name[subscript]=value` 语法为数组的单个元素赋值。
 
-当为索引数组赋值时，如果 name 被负数下标引用，该负数将被解释为相对于 name 的最大索引加一的值，因此负数下标从数组的末尾开始计数，-1 引用最后一个元素。
+```bash
+
+$ declare -A bc[km]='vm'
+
+$ declare -p bc
+declare -A bc=([km]="vm" )
+```
+
+### 负数下标
+
+当为**索引数组**赋值时，如果 name 被**负数下标**引用，该负数将被解释为**相对于 name 的最大索引加一的值**，因此负数下标从数组的末尾开始计数，**-1 引用最后一个元素**。
 
 使用复合赋值语法进行赋值时，‘ += ’运算符会将值追加到数组变量中；参见上面的 Shell Parameters 部分。
 
@@ -1139,79 +1425,3 @@ name=(value1 value2 ... )
 当将带有下标的变量名作为命令的参数使用时，例如 `unset` ，如果没有使用上述描述的单词扩展语法（例如 unset a[4]），该参数将受到 shell 的文件名扩展影响。如果不想进行路径名扩展，请引用该参数（例如 unset ’a[4]’）。
 
 
-
-##  关联数组
-
-
-
-直到最近，Bash 只能使用数字（更准确地说，是非负整数）作为数组的键。这意味着你无法将一个字符串“映射”或“转换”到另一个字符串。很多人都忽略了这一点。为了解决这个问题，人们开始滥用[变量间接寻址 ](https://mywiki.wooledge.org/BashFAQ/006)。
-
-自 Bash 4 发布以来，再也没有理由使用间接寻址（或者**更糟糕的是** ，使用 `eval` ）来实现此目的了。现在您可以使用功能齐全的关联数组。
-
-要创建关联数组，需要将其声明为关联数组（使用 `declare -A` ）。这是必要的，否则 bash 无法识别您要创建的数组类型。以下是创建关联数组的方法：
-
-
-
-```
-$ declare -A fullNames
-$ fullNames=( ["lhunath"]="Maarten Billemont" ["greycat"]="Greg Wooledge" )
-$ echo "Current user is: $USER.  Full name: ${fullNames[$USER]}."
-Current user is: lhunath.  Full name: Maarten Billemont.
-```
-
-
-
-我们可以像打印普通数组一样打印关联数组的内容：
-
-
-
-```
-$ declare -A dict
-$ dict[astro]="Foo Bar"
-$ declare -p dict
-declare -A dict='([astro]="Foo Bar")'
-```
-
-
-
-使用与索引数组相同的语法，您可以遍历关联数组的键（索引）：
-
-
-
-```
-$ for user in "${!fullNames[@]}"
-> do echo "User: $user, full name: ${fullNames[$user]}."; done
-User: lhunath, full name: Maarten Billemont.
-User: greycat, full name: Greg Wooledge.
-```
-
-
-
-这里需要记住两点：首先，使用 `"${!array[@]}"` 语法从关联数组中返回的键的顺序是不可预测的；它不一定是你分配元素的顺序，也不一定是任何排序后的顺序。同样，如果你使用 `"${array[@]}"` 展开元素，你得到的元素顺序也是不可预测的。关联数组*并不*适合存储需要按特定顺序处理的列表。
-
-其次，如果您将参数用作关联数组的键，则不能省略 `$` 。对于标准索引数组， `[...]` 部分用于算术运算。在算术运算中， *Name* 不可能是有效的数字，因此 BASH 会将其视为参数，并假定您要使用其内容。但这不适用于关联数组，因为 *Name* 也可能是有效的关联数组键。
-
-让我们用例子来说明：
-
-
-
-```
-$ indexedArray=( "one" "two" )
-$ declare -A associativeArray=( ["foo"]="bar" ["alpha"]="omega" )
-$ index=0 key="foo"
-$ echo "${indexedArray[$index]}"
-one
-$ echo "${indexedArray[index]}"
-one
-$ echo "${indexedArray[index + 1]}"
-two
-$ echo "${associativeArray[$key]}"
-bar
-$ echo "${associativeArray[key]}"
-
-$ echo "${associativeArray[key + 1]}"
-```
-
-
-
-如您所见， `$index` 和 `index` 在索引数组中都能正常工作，它们的值都为 `0` 。您甚至可以对其进行运算，将其增加到 `1` ，从而得到第二个值。但是，在关联数组中则不行。我们需要使用 `$key` ；其他值都会失效。
