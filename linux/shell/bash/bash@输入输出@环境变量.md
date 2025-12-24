@@ -742,7 +742,8 @@ $ for homedir in /home/*
 
 
 
-良好做法：
+#### 小结
+
 当应用程序需要文件数据且其设计目的是从 `stdin` 读取数据时，使用重定向是一个好主意。
 
 网上有很多糟糕的例子，教你把 `cat` 的输出通过管道（稍后会讲到）传递给其他进程；但这绝对是一个非常糟糕的做法。
@@ -750,44 +751,38 @@ $ for homedir in /home/*
 
 ### 4.2 文件描述符操作
 
-
-
-既然你已经知道如何通过向文件发送数据和从文件中读取数据来操作进程的输入和输出，那么让我们让它变得更有趣一些。
-
-如您所知，**文件描述符 (FD) 的源和目标可以更改，使其指向文件或从文件指向文件。**
+**文件描述符 (FD) 的源和目标可以更改，使其指向文件或从文件指向文件。**
 
 **也可以将一个文件描述符复制到另一个文件描述符**。
 
 让我们准备一个简单的测试环境：
 
 ```bash
-$ echo "I am a proud sentence." > file
+echo "I am a proud sentence." > file
 ```
-
-
 
 我们创建了一个名为 `file` 的文件，并在其中写入了一句自豪的句子。
 
-`grep`命令基本上以***搜索模式***作为第一个参数，并可能以文件名作为额外的参数。与 `cat` 类似，如果您没有指定任何文件， `grep` 也会使用 `stdin` 。
+`grep`命令基本上以***搜索模式***作为第一个参数，并可能以**文件名作为额外的参数**。与 `cat` 类似，如果您没有指定任何文件， `grep` 也会使用 `stdin` 。
 
- `grep` 会读取文件（如果没有提供文件，则使用 `stdin` ），并搜索您提供的*搜索模式* 。大多数版本的 `grep` 甚至支持 `-r` 开关，该开关允许它将目录以及文件作为额外的参数，然后在您提供的目录中搜索所有文件和目录。以下是 `grep` 的工作示例：
+>  `grep` 会读取文件（如果没有提供文件，则使用 `stdin` ），并搜索您提供的*搜索模式* 。
+>
+> 大多数版本的 `grep` 甚至支持 `-r` 开关，该开关允许它将目录以及文件作为额外的参数，然后在您提供的目录中搜索所有文件和目录。
 
+以下是 `grep` 的工作示例：
 
-
-```
+```bash
 $ ls house/
 drawer  closet  dustbin  sofa
 $ grep -r socks house/
 house/sofa:socks
 ```
 
-
-
 在这个简单的例子中，我们有一个名为 `house` 的目录，里面存放着几件家具的文件。如果我们想在每个文件中查找 `socks` ，就需要发送 `grep` 去搜索目录 `house/` 。 `grep` 会搜索目录 `house/` 中的所有内容，打开每个文件并查看其内容。在我们的例子中， `grep` 在文件 `house/sofa` 中找到了 `socks` ；估计它藏在枕头底下。想要一个更实际的例子？当然可以：
 
 
 
-```
+```bash
 $ grep "$HOSTNAME" /etc/*
 /etc/hosts:127.0.0.1       localhost Lyndir
 ```
@@ -800,7 +795,7 @@ $ grep "$HOSTNAME" /etc/*
 
 
 
-```
+```bash
 $ grep proud *
 file:I am a proud sentence.
 ```
@@ -811,7 +806,7 @@ file:I am a proud sentence.
 
 
 
-```
+```bash
 $ grep proud file 'not a file'
 file:I am a proud sentence.
 grep: not a file: No such file or directory
@@ -825,7 +820,7 @@ grep: not a file: No such file or directory
 
 
 
-```
+```bash
 # Not quite right....
 $ grep proud file 'not a file' > proud.log 2> proud.log
 ```
@@ -836,7 +831,7 @@ $ grep proud file 'not a file' > proud.log 2> proud.log
 
 
 
-```
+```bash
 $ echo "I am a very proud sentence with a lot of words in it, all for you." > file2
 $ grep proud file2 'not a file' > proud.log 2> proud.log
 $ cat proud.log
@@ -852,7 +847,7 @@ of words in it, all for you.
 
 
 
-```
+```bash
 $ grep proud file 'not a file' > proud.log 2>&1
 ```
 
@@ -866,7 +861,7 @@ $ grep proud file 'not a file' > proud.log 2>&1
 
 
 
-```
+```bash
 $ grep proud file 'not a file' 2>&1 > proud.log
 ```
 
@@ -879,7 +874,7 @@ $ grep proud file 'not a file' 2>&1 > proud.log
 
 
 
-```
+```bash
 $ grep proud file 'not a file' &> proud.log
 ```
 
@@ -895,7 +890,7 @@ $ grep proud file 'not a file' &> proud.log
 
 
 
-- **常见问题解答中：
+- **常见问题解答：
   [如何一次性重定向多个命令的输出？](https://mywiki.wooledge.org/BashFAQ/014)**
 - **[如何将“time”的输出重定向到变量或文件？](https://mywiki.wooledge.org/BashFAQ/032)**
 - **[如何使用对话框获取用户输入？](https://mywiki.wooledge.org/BashFAQ/040)**
@@ -918,7 +913,7 @@ $ grep proud file 'not a file' &> proud.log
 
 
 
-```
+```bash
 $ grep proud <<END
 > I am a proud sentence.
 > END
@@ -935,7 +930,7 @@ I am a proud sentence.
 
 
 
-```
+```bash
 echo "Let's test abc:"
 if [[ abc = a* ]]; then
     cat <<END
@@ -950,7 +945,7 @@ fi
 
 
 
-```
+```bash
 Let's test abc:
         abc seems to start with an a!
 ```
@@ -961,7 +956,7 @@ Let's test abc:
 
 默认情况下，Bash 会对 *Heredoc* 的内容进行替换。但是，如果您将用于分隔 *Heredoc* 的单词用引号括起来，Bash 将不会对其内容进行任何替换。请尝试使用和不使用引号字符来查看以下示例，以了解区别：
 
-```
+```bash
 $ cat <<'XYZ'
 > My home directory is $HOME
 > XYZ
@@ -972,7 +967,7 @@ My home directory is $HOME
 
 *Heredocs* 最常见的用途是向用户输出文档：
 
-```
+```bash
 usage() {
     cat <<EOF
 usage: foobar [-x] [-v] [-z] [file ...]
@@ -988,7 +983,7 @@ EOF
 
 
 
-```
+```bash
 $ grep proud <<<"I am a proud sentence"
 I am a proud sentence.
 ```
@@ -999,7 +994,7 @@ I am a proud sentence.
 
 
 
-```
+```bash
 $ grep proud <<<"$USER sits proudly on his throne in $HOSTNAME."
 lhunath sits proudly on his throne in Lyndir.
 ```
@@ -1012,7 +1007,7 @@ lhunath sits proudly on his throne in Lyndir.
 
 
 
-```
+```bash
 $ echo 'Wrap this silly sentence.' | fmt -t -w 20
 Wrap this silly
    sentence.
@@ -1025,7 +1020,7 @@ Wrap this silly
 
 从技术上讲， *Heredoc* 和 *Herestring* 本身也和其他重定向一样。因此，同一行可以出现多个重定向，所有重定向都按通常的顺序执行。
 
-```
+```bash
 $ cat <<EOF > file
 > My home dir is $HOME
 > EOF
@@ -1062,7 +1057,7 @@ My home dir is /home/greg
 
 
 
-```
+```bash
 $ ls
 $ mkfifo myfifo; ls
 myfifo
