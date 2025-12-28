@@ -21,6 +21,16 @@ Bash 提供的一些复合命令—— `if` 语句， `for` 循环， `while` �
 
 - **在手册中：[ 复合命令](http://www.gnu.org/s/bash/manual/bash.html#Compound-Commands)**
 
+> 复合命令是 shell 编程语言中的一种结构。
+>
+> 每个复合命令都以一个**保留字或控制运算符开头，并以相应的保留字或运算符结尾**。
+>
+> 除非显式重写，否则与复合命令关联的任何重定向（参见 [“重定向”](https://www.gnu.org/software/bash/manual/bash.html#Redirections) ）都将应用于该复合命令中的所有命令。
+>
+> 在大多数情况下，复合命令描述中的**命令列表**可以用**一个或多个换行符**与命令的其余部分分隔开，并且可以用**换行符代替分号**。
+>
+> Bash 提供了循环结构、条件命令以及将命令分组并作为一个单元执行的机制。
+
 ## 子shell
 
 一个[子shell](https://mywiki.wooledge.org/SubShell)与子进程相似，但**继承的信息更多**。
