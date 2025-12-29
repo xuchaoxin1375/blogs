@@ -112,7 +112,33 @@ c
 
 ### 读取 read 命令的字段切分
 
-`read` 会使用 IFS 把一行分成多个字段：
+`read` 会使用 IFS 把一行分成多个字段,通常配合`-r`选项防止斜杠转义字符：
+
+将`a b`用read命令(带`-r`)解析两个词到两个变量.
+
+```bash
+# cxxu@CxxuDesk 14:14:27> <~>
+$ IFS=$' \t\n'
+# cxxu@CxxuDesk 14:14:35> <~>
+$ read -r first second <<< 'a b'
+# cxxu@CxxuDesk 14:14:38> <~>
+$ echo "$first:$second"
+a:b
+```
+
+如果要解析逗号分隔的词,可以通过修改`IFS=','`,然后执行解析
+
+```bash
+# cxxu@CxxuDesk 14:14:42> <~>
+$ IFS=','
+# cxxu@CxxuDesk 14:15:10> <~>
+$ read -r first second <<< 'a,b'
+# cxxu@CxxuDesk 14:15:24> <~>
+$ echo "first=$first second=$second"
+first=a second=b
+```
+
+### 谨慎使用管道符后使用read解析字符串
 
 ```bash
 IFS=:
@@ -228,7 +254,11 @@ done < file
 
 ------
 
-### 重点总结表
+### IFS重置或恢复默认
+
+使用`IFS=$' \t\n'`语句将`IFS`设置为默认值
+
+## 重点总结表
 
 | 项目         | 内容                                              |
 | ------------ | ------------------------------------------------- |

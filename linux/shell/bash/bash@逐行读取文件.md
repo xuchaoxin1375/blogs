@@ -1,0 +1,701 @@
+[toc]
+
+
+
+## 逐行（以及/或逐字段）读取一个文件（数据流、变量）
+
+- [BashFAQ/001 - Greg's Wiki](https://mywiki.wooledge.org/BashFAQ/001)
+- [不要尝试使用 "for"](https://mywiki.wooledge.org/DontReadLinesWithFor)。
+
+使用bash内置的语法和命令读取文件行的基本方案是使用`while` 循环和 `read` 命令最后配合文件输入重定向`< file`。
+
+下面是一个基本模板；另外,有许多变体将要讨论： 
+
+```bash
+while IFS= read -r line || [[ -n "$line" ]]; do
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+`line` 是一个变量名，由你自行选择。你可以使用任何有效的 shell 变量名； 
+
+`< "$file"` **将循环的输入重定向到一个文件**，该文件的名称存储在变量中；请参见下面的 [输入源选择 ](https://mywiki.wooledge.org/BashFAQ/001#source)。
+
+如果你想将文件中的行读入到一个 [数组 ](https://mywiki.wooledge.org/BashFAQ/005)中，请参见 [FAQ 5](https://mywiki.wooledge.org/BashFAQ/005)。
+
+
+
+`read -r` 选项**防止反斜杠的解释**（通常用作反斜杠换行对，以跨多行或转义分隔符）。如果没有这个选项，**输入中的任何未转义的反斜杠都会被丢弃**。在使用 read 时，**您几乎总是应该使用 `-r` 选项**。
+
+> 这个规则最常见的**例外情况**是当使用 `-e` 时，它通过 Readline 从交互式 shell 中获取行。
+>
+> 在这种情况下，**tab 补全会添加反斜杠来转义空格等字符**，而您不希望这些反斜杠被字面量地包含在变量中。
+>
+> 不过，当逐行读取内容时，这绝不会被使用，而且在这种情况下应该始终使用 `-r`。
+
+`IFS=`作用于`read`命令,让read文件行的时候不要执行任何行内分隔,确保行到完整性
+
+`[[ -n "$line" ]]`是为了防止结尾不是换行符的文件的处理出错.
+
+注意,如果只是出于判断文件末尾(最后一个回车符后的内容)是否为空,没有双引号也不影响结论,但是出于良好的变量引用习惯,不要漏掉双引号`""`(防止不必要的字段分割并忽略**通配符模式**展开,尤其是后者)
+
+### 判断变量是否为空的表达式
+
+#### `[[ $line ]]`和`[[ -n $line ]]`,`[[ -n "$line" ]]`
+
+`[[ $line ]]`这是 `[[ -n $line ]]` 的简写形式。在 Bash 内部，如果变量名单独出现在 `[[ ]]` 中，它会测试该字符串是否非空。
+
+- **优点**：由于 `[[` 是 Bash 的内置关键字，它不会进行单词拆分（Word Splitting）。即使不加双引号，包含空格的字符串也不会报错。
+- **注意**：虽然简洁，但对于初学者来说，语义不如 `-n` 明确。
+
+ `[[ -n $line ]]`或`[[ -n "$line" ]]`这是 **Bash 环境下最推荐** 的写法。
+
+- **原理**：`-n` 表示 "Non-zero length"（长度不为零）。
+- **优点**：同样受 Bash 关键字`[[`保护，不需要担心 `$line` 为空或含有**空格**导致的语法崩塌。不过`[[ -n "$line" ]]`也是正确的.
+- **示例**：即使 `line="a b c"`，它也会被当作一个整体处理，而不会像 `[` 那样报错。
+
+#### `[ -n "$line" ]`
+
+这是传统的 POSIX 标准写法（也称为 `test` 命令）。
+
+- **致命陷阱**：如果不加双引号，写成 `[ -n $line ]`，当 `$line` 为空时，命令会变成 `[ -n ]`。在很多 Shell 实现中，`[ -n ]` 会被判定为 **True**（因为它认为你要测试的是 "-n" 这个字符串是否存在），这会导致逻辑错误。
+- **空格问题**：如果不加双引号且变量含空格，会报 `too many arguments` 错误。
+- **使用场景**：只有当你编写需要兼容纯 `sh`（非 Bash）的脚本时，才使用这种写法，且**必须严格加双引号**。
+
+### read的退出码
+
+>  `Read` a line from the standard input and split it into fields.
+>
+> Exit Status:
+>     The return code is zero, **unless end-of-file is encountered**, read times out  (in which case it's greater than 128), a variable assignment error occurs, or an invalid file descriptor is supplied as the argument to -u.
+>
+> | 返回码 | 含义                      |
+> | ------ | ------------------------- |
+> | 0      | 成功读取一行              |
+> | 1      | 遇到 EOF（end-of-file）   |
+> | >128   | 超时（timeout）           |
+> | 1 或 2 | 变量赋值错误              |
+> | 1      | 无效的文件描述符（-u fd） |
+
+#### EOF
+
+> 一般来说,EOF **不是错误**，但返回码不为 0.
+>
+> **EOF（End Of File，文件结束）**
+>  当输入流已耗尽，`read` 无法再读到任何数据。
+>
+> 常见场景：
+>
+> - 从文件读取并读到末尾
+> - 管道输入结束
+> - 标准输入被关闭
+
+### IFS基本作用
+
+```bash
+# 构造数组
+# cxxu@CxxuDesk 10:34:47> <~>
+$ fa=(*)
+# cxxu@CxxuDesk 10:35:02> <~>
+$ declare -p fa
+declare -a fa=([0]="afile" [1]="archived" [2]="ble.sh" [3]="err.log" [4]="file" [5]="file2" [6]="file.txt" [7]="output.log" [8]="proud2.log" [9]="proud.log" [10]="sh")
+
+# 指定IFS为`:`
+# cxxu@CxxuDesk 10:35:09> <~>
+$ IFS=:
+# 用':'作为分隔符链接数组中的元素
+# cxxu@CxxuDesk 10:39:54> <~>
+$ echo "${fa[*]}"
+afile:archived:ble.sh:err.log:file:file2:file.txt:output.log:proud2.log:proud.log:sh
+```
+
+```bash
+$ IFS='|'; echo "${fa[*]}"
+afile|archived|ble.sh|err.log|file|file2|file.txt|output.log|proud2.log|proud.log|sh
+# cxxu@CxxuDesk 10:47:35> <~>
+$ IFS=';'; echo "${fa[*]}"
+afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.log;sh
+
+# cxxu@CxxuDesk 10:47:47> <~>
+$ IFS='|' echo "${fa[*]}"
+afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.log;sh
+```
+
+独立赋值语句（前两个例子）**动作**：先修改了当前 Shell 环境中的 `IFS` 变量，**然后**执行 `echo`。
+
+**结果**：`IFS` 的改变是永久性的（直到下次修改），所以 `echo` 时数组会按新 `IFS` 连接。
+
+命令前缀赋值（第三个例子）**动作**：这是一个**“临时环境变量”语法**。它本意是：**仅在执行后面那个命令的过程中**改变环境变量。
+
+**失效原因**：
+
+1. **解析顺序**：Bash 在真正执行 `echo` 之前，会先进行 **参数扩展（Parameter Expansion）**。
+2. 也就是说，在 `IFS='|'` 生效之前，`${fa[*]}` 已经被当前环境（此时 `IFS` 还是上一步设置的 `;`）解析成了 `afile;archived;...`。
+3. 当 `echo` 拿到解析好的字符串准备运行时，临时修改的 `IFS='|'` 才进入 `echo` 的环境，但此时已经晚了，字符串已经生成。
+
+使用子shell可以解决此问题(其实是在子shell中使用`VAR=var;`的语法而不是`VAR=var command`的语法,子shell中更改`IFS`不会影响到父shell,以此模拟临时环境变量更改)
+
+```bash
+# 括号会创建一个子进程，里面的 IFS 修改不会泄露到外面
+(IFS='|'; echo "${fa[*]}")
+
+# 此时验证，全局 IFS 依然没变
+echo "$IFS"
+```
+
+### 临时环境变量
+
+临时变量语法在以下两种场景中非常强大：
+
+A. 影响命令的内部行为（最常用）
+
+B. 影响内置命令读取数据的行为
+
+虽然 `echo` 这样的命令无效，但像 `read` 这种在**执行阶段**才处理数据的命令是有效的
+
+> ```bash
+> # cxxu@CxxuDesk 11:24:49> <~>
+> $ IFS=':' read -r user pass uid gid <<< "root:x:0:0"
+> # cxxu@CxxuDesk 11:25:06> <~>
+> $ echo $user
+> root
+> ```
+>
+> 然而下面的写法不能达到上述预期,因为使用了管道符,开辟了子shell,父shell无法访问user等变量
+>
+> ```bash
+> # cxxu@CxxuDesk 11:20:40> <~>
+> $ echo "root:x:0:0" | IFS=':' read -r user pass uid gid
+> 
+> ```
+>
+> 
+
+当你输入 `VAR=val command` 时(例如`IFS='|' echo ...`，Bash 的处理顺序如下：
+
+1. **参数扩展（Expansion）**：Bash 先扫描命令行，执行参数扩展,例如把 `${var}` 或 `$(cmd)` 替换为具体的值。
+2. **环境变量设置**：Bash 为即将运行的命令创建一个新的环境（Environment），并在其中设置 `VAR=val`。
+3. **命令执行**：运行 `command`。
+
+```bash
+# cxxu@CxxuDesk 10:47:35> <~>
+$ IFS=';'; 
+# cxxu@CxxuDesk 10:47:47> <~>
+$ IFS='|' echo "${fa[*]}"
+afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.log;sh
+```
+
+因为 `${fa[*]}` 的展开发生在第 1 步，而 `IFS` 的临时赋值发生在第 2 步。当数组被展开时，它使用的是当前 Shell 的全局 `IFS`
+
+### IFS清空
+
+默认情况下， `read` 会修改每行读取的内容，通过 [删除所有前导和尾随的空白字符 ](https://mywiki.wooledge.org/BashFAQ/067)（如果有 spaces 和 tabs 存在于 [IFS](https://mywiki.wooledge.org/IFS) 中）。
+
+如果不需要这种处理，可以**将 `IFS` 变量清空(执行`IFS=`)，如上面的例子所示**。如果您想要进行修剪(或者不在意空格)，请保留 `IFS`,让读入的内容更紧凑 ：
+
+```bash
+# Leading/trailing whitespace trimming.
+while read -r line; do
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+
+
+如果字段分隔符不是空白字符，您可以设置 [IFS（内部字段分隔符）](https://mywiki.wooledge.org/IFS)：
+
+```bash
+# Extract the username and its shell from /etc/passwd:
+while IFS=: read -r user pass uid gid gecos home shell; do
+  printf '%s: %s\n' "$user" "$shell"
+done < /etc/passwd
+```
+
+### 遍历行时解析字段
+
+如果您想对每行中的各个字段进行操作，可以向 `read` 提供额外的变量：
+
+```bash
+# Input file has 3 columns separated by white space (space or tab characters only).
+while read -r first_name last_name phone; do
+  # Only print the last name (second column)
+  printf '%s\n' "$last_name"
+done < "$file"
+```
+
+具体的例子:
+
+准备一个文本文件`table-s1.conf`,里面包含若干行内容
+
+```bash
+$ cat -n ./table-s1.conf 
+     1  d1.com  user1   4.es
+     2  d2.com      user2       6.us
+     3  d3.com      john        6.us
+```
+
+我们尝试使用`while read -r... < file`的方式读取其中的每一行
+
+```bash
+$ while read -r site owner template ;do printf '%s->%s\n' "$site" "$owner" ;done < ./table-s1.conf 
+#output:发现最后一行没有被解析输出
+d1.com->user1
+d2.com->user2
+```
+
+
+
+使用更加健壮的方式处理`|| [[ -n "$site" ]]`
+
+```bash
+$ while read -r site owner template || [[ -n "$site" ]]; do
+    printf '%s->%s\n' "$site" "$owner"
+done < table-s1.conf
+d1.com->user1
+d2.com->user2
+d3.com->john
+```
+
+这里选择判断read列出的变量中的第一个变量`site`,而不是其他变量
+
+如果读取的行包含非空字符,则bash分隔后优先会分配非空字符给第一个变量,如果连第一个变量都是空的,那么该行就是空的.
+
+而如果是其他变量,就无法具此代表性.
+
+### 自定义IFS
+
+对于**制表符分隔**的文件，使用 [IFS=$'\t'](https://mywiki.wooledge.org/Quotes)，不过要注意的是，输入中的多个制表符会被视为 **一个** 分隔符
+
+> （并且 Ksh93/Zsh 中的 `IFS=$'\t\t'` 巧妙解决方法在 Bash 中不起作用）。
+
+你不一定需要知道每一行输入包含多少个字段。
+
+- **如果你提供的变量数量多于字段数，多余的变量将为空**。
+- 如果你提供的变量数量少于字段数，最后一个变量将获得前面变量满足后**剩下的所有字段**。
+
+例如，
+
+```bash
+# Bash
+IFS=$' \t\n'
+read -r first last junk <<< 'Bob Smith 123 Main Street Elk Grove Iowa 123-555-6789'
+printf "%s\n%s\n%s\n" "$first" "$last" "$junk"
+# first will contain "Bob", and last will contain "Smith".
+# junk holds everything else.
+```
+
+```bash
+$ IFS=$' \t\n'
+read -r first last junk <<< 'Bob Smith 123 Main Street Elk Grove Iowa 123-555-6789'
+$ printf " first=%s\n last=%s\n junk=%s\n" "$first" "$last" "$junk"
+
+#output:
+ first=Bob
+ last=Smith
+ junk=123 Main Street Elk Grove Iowa 123-555-6789
+
+```
+
+### 丢弃变量`_`(throwaway variable /junk variable)
+
+有些人使用丢弃变量 `_` 作为“垃圾变量”来忽略字段。
+
+它（或者任何其他变量）也可以在单个 `read` 命令中使用多次，如果我们不关心它接收的内容：
+
+ 
+
+```bash
+# Bash
+read -r _ _ first middle last _ <<< "$record"
+
+# We skip the first two fields, then read the next three.
+# Remember, the final _ can absorb any number of fields.
+# It doesn't need to be repeated there.
+```
+
+
+
+请注意，这种 `_` 的使用方式**只在 Bash 中得到保证**。许多其他 shell 将 `_` 用于其他目的，这可能会导致此方法达不到预期效果，甚至完全破坏脚本。即使 `_` 是 Bash 中常见的惯例，最好还是选择一个在脚本其他地方未被使用的独特变量。
+
+### 跳过`#`开头的行
+
+如果希望避免以 `#` 开头的注释，你可以在循环中简单地跳过它们：
+
+```bash
+# Bash/
+while read -r line; do
+  [[ $line = \#* ]] && continue
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+上面 `read` 会移除行首和行尾的空格或制表符（假设 `IFS` 未被修改为默认值），因此我们只需要在（现在已修剪过的）行的开头查找 `#` 。为了保留空格：
+
+ 
+
+```bash
+# Bash
+while IFS= read -r line; do
+  [[ $line = *([[:blank:]])\#* ]] && continue
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+
+
+在较旧版本的 Bash 中，你需要 `shopt -s extglob` 以便 `*(...)` [扩展通配符 ](https://mywiki.wooledge.org/glob#extglob)可用。在较新的版本中，它们始终可用，用于 `=` / `==` / `!=` 模式匹配操作符的 `[[ ... ]]` 构造。
+
+
+
+### 输入源选择
+
+
+
+重定向 [redirection](https://mywiki.wooledge.org/BashGuide/InputAndOutput#Redirection) `< "$file"` 告诉 `while` 循环从变量 `file` 中存储的文件名读取。如果你更倾向于使用字面路径名而不是变量，你也可以这样做。如果你的输入源是脚本的标准输入，那么根本不需要任何重定向。
+
+如果你的输入源是变量/参数的内容，bash 可以使用 [here string](https://mywiki.wooledge.org/BashGuide/InputAndOutput#Heredocs_And_Herestrings) 来迭代其行：
+
+
+
+ 
+
+```bash
+while IFS= read -r line; do
+  printf '%s\n' "$line"
+done <<< "$var"
+```
+
+
+
+在任何 Bourne 类型的 shell 中，都可以使用 "here document"（尽管 `read -r` 是 POSIX，而不是 Bourne）来实现相同的功能。
+
+
+
+ 
+
+```bash
+while IFS= read -r line; do
+  printf '%s\n' "$line"
+done <<EOF
+$var
+EOF
+```
+
+
+
+也可以从命令而不是普通文件中读取：
+
+
+
+ 
+
+```bash
+some command | while IFS= read -r line; do
+  printf '%s\n' "$line"
+done
+```
+
+
+
+此方法对于处理使用一组命令对 [find](https://mywiki.wooledge.org/UsingFind) 的输出特别有用：
+
+
+
+ 
+
+```bash
+   1 find . -type f -print0 | while IFS= read -r -d '' file; do
+   2     dir=${file%/*} base=${file##*/}
+   3     mv "$file" "$dir/${base// /_}"
+   4 done
+```
+
+
+
+这会从 `find` 命令中每次读取一个文件名，并 [重命名文件 ](https://mywiki.wooledge.org/BashFAQ/030)，将其基础名中的空格替换为下划线。
+
+注意在 `find` 命令中使用 `-print0` 的方式，该命令使用空字节作为文件名分隔符；在 `read` 命令中使用 `-d ''` 来指示它将所有文本读入 `file` 变量，直到遇到空字节为止。默认情况下， `find` 和 `read` 使用换行符来分隔其输入；然而，由于文件名本身可能包含换行符，这种默认行为会在换行处分割文件名，导致循环体失败。此外，还需要将 `IFS` 设置为空字符串，否则 `read` 仍会去除首尾的空白（使用 `IFS` 的默认值）。如需更多细节，请参见 [FAQ #20](https://mywiki.wooledge.org/BashFAQ/020)。
+
+使用管道将 `find` '的输出传入一个 `while` 循环中，会使循环处于一个子 shell 中，这意味着你在循环中所做的任何状态更改（改变变量、 `cd` 、打开和关闭[文件](https://mywiki.wooledge.org/FileDescriptor)等）在循环结束后都会丢失。为了避免这种情况，你可以使用进程替换：[ProcessSubstitution](https://mywiki.wooledge.org/ProcessSubstitution)：
+
+
+
+ 
+
+```bash
+linecount=0
+
+while IFS= read -r line; do
+  linecount=$((linecount + 1))
+done < <(some command)
+
+printf 'total lines: %d\n' "$linecount"
+```
+
+
+
+参见 [FAQ 24](https://mywiki.wooledge.org/BashFAQ/024) 了解更多讨论。
+
+
+
+### 文件末尾缺少换行符的情况
+
+可以在while的条件语句部分使用`|| [[ -n "$line" ]]`兼容文件末尾缺少换行的情况.
+
+```bash
+while IFS= read -r line || [[ -n "$line" ]]; do
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+也可以考虑将额外的判断放到循环体后面,但是不够紧凑
+
+```bash
+# Emulate cat
+while IFS= read -r line; do
+   printf '%s\n' "$line"
+done < "$file"
+[[ -n "$line" ]] && printf %s "$line"
+```
+
+记得使用引号包裹行变量有关原因的解释，请参见 [引号 ](https://mywiki.wooledge.org/Quotes)或 [参数 ](https://mywiki.wooledge.org/Arguments)。
+
+> 特别是 [参数 ](https://mywiki.wooledge.org/Arguments)页面，是非常重要的总结。
+
+其他方案:
+
+> 简单起见,使用`printf`模拟文件内容传递包含`\n`(多行字符串,但是结尾不以`\n`结束)的字符串
+>
+> 下面到两个示例都是用了`|`来接受`printf`的输出,作为read的输入(但是注意管道符会引起子shell的开辟,使得子shell中的变量在结束/退出子shell后无法被引用)
+
+```bash
+# This does not work:
+printf 'line 1\ntruncated line 2' | while read -r line; do
+  echo $line
+done
+#output:
+line1
+
+# This does not work either:(这个例子对read告知IFS清空)
+printf 'line 1\ntruncated line 2' | while IFS= read -r line; do
+  echo "$line"
+done
+#仍只是打印line1
+#且由于管道符开辟的子shell在while结束后无法获取有效的line变量内容,此时line是未定义的.
+[[ $line ]] && echo -n "$line"
+# output:如果$line在当前shell进程之前定义过,则打印的是之前的内容,否则为空
+
+```
+
+对于上述第二个示例为何不符合预期的讨论，请参见 [子shell变量问题](https://mywiki.wooledge.org/BashFAQ/024)。
+
+> 我在一个管道中的循环里设置了变量。为什么这些变量在循环结束后就消失了？或者，为什么我不能将数据通过管道传递给 read 命令？在大多数 shell 中，管道中的每个命令都会在独立的 [SubShell](https://mywiki.wooledge.org/SubShell) 中执行,每个 [SubShell](https://mywiki.wooledge.org/SubShell) 都会引入一个新的变量上下文和环境。
+
+```bash
+# This works:(这里也是使用了管道符,但是我们把[[ ]]判断语句移动到了管道符中的命令分组中,使得$line可以被最后的语句所访问)
+printf 'line 1\ntruncated line 2' | {
+  while IFS= read -r line; do
+    echo "$line"
+  done
+  [[ $line ]] && echo "$line"
+}
+```
+
+当然,最简单的方案是在 while 测试中添加一个逻辑或运算符：
+
+ 
+
+```bash
+while IFS= read -r line || [[ -n $line ]]; do
+  printf '%s\n' "$line"
+done < "$file"
+```
+
+例如
+
+```bash
+printf 'line 1\ntruncated line 2' | while IFS= read -r line || [[ -n $line ]]; do
+  echo "$line"
+done
+
+# output
+line 1
+truncated line 2
+```
+
+
+
+### 如何防止其他命令“消耗”输入
+
+
+
+有些命令会贪婪地读取标准输入中的所有可用数据。上面的例子没有防范这类程序。例如，
+
+ 
+
+```bash
+   1 while IFS= read -r line; do
+   2   cat > ignoredfile
+   3   printf '%s\n' "$line"
+   4 done < "$file"
+```
+
+
+
+只会打印第一行的内容，其余内容则被送往"ignoredfile"，因为 `cat` 会读取所有可用输入。
+
+一个变通的方法是使用一个数字 [FileDescriptor](https://mywiki.wooledge.org/FileDescriptor) 而不是标准输入：
+
+ 
+
+```bash
+# Bash
+while IFS= read -r -u 9 line; do
+  cat > ignoredfile
+  printf '%s\n' "$line"
+done 9< "$file"
+
+# Note that read -u is not portable to every shell.
+# Use a redirect to ensure it works in any POSIX compliant shell:
+while IFS= read -r line <&9; do
+  cat > ignoredfile
+  printf '%s\n' "$line"
+done 9< "$file"
+```
+
+
+
+或者：
+
+ 
+
+```bash
+exec 9< "$file"
+while IFS= read -r line <&9; do
+  cat > ignoredfile
+  printf '%s\n' "$line"
+done
+exec 9<&-
+```
+
+
+
+这个例子会在每次循环中等待用户在文件 `ignoredfile` 中输入内容，而不是一次性读取循环的输入。
+
+例如，当你使用 `mencoder` 时，如果存在用户输入，它会接受输入，否则会静默继续。其他具有类似行为的命令包括 `ssh` 和 `ffmpeg` 。关于此问题的更多解决方法，请参见 [FAQ #89](https://mywiki.wooledge.org/BashFAQ/089)。
+
+在使用 `while read` 循环处理文件或字符串时，由于 Bash 的一些特性（如空白字符处理、反斜杠转义、子 Shell 作用域等），如果不注意细节，经常会导致逻辑错误。
+
+## while read 总结
+
+以下是使用 `while read` 的核心注意事项和最佳实践,尤其注意while read在读取其他平台创建的**文本文件最后一行丢失**的问题.
+
+### 1. 始终使用 `-r` 参数
+
+这是最常见的坑。默认情况下，`read` 会把反斜杠 `\` 当作转义字符。
+
+- **现象**：如果文件中有一行是 `C:\Windows`，不加 `-r` 会变成 `C:Windows`。
+- **对策**：除非你真的需要转义，否则永远使用 `while read -r line`。
+
+### 2. 谨慎处理行首位空白（IFS 变量）
+
+`read` 命令默认会根据环境变量 `IFS`（Internal Field Separator）修剪掉行首和行尾的空格或 Tab。
+
+- **现象**：原文件行是 `"  hello  "`，读取后变量变成了 `"hello"`。
+
+- **对策**：如果需要保留原样，在 `read` 前将 `IFS` 置为空：
+
+  ```Bash
+  while IFS= read -r line; do
+      echo "$line"
+  done < file.txt
+  ```
+
+### 3. 避免“最后一行丢失”问题🎈
+
+标准的 Linux 文件应该以换行符（Newline）结尾，但很多 **Windows 产生**的文件或**手动编辑**的文件**最后一行可能没有换行符**。
+
+- **现象**：`while read` 循环在读到最后一行时，因为没有发现 `\n`，`read` 会**返回非零状态码**，导致循环直接跳出，**最后一行没被处理**。(但是此时最后一行也被读取到read指定的变量中了)
+
+- **对策**：在 `read` 失败后检查变量是否有内容,配合`||`,当`read -r line`返回非零状态码时(异常退出)继续检查刚才所读取的行是否非空,如果非空,继续处理(比如打印)：
+
+  ```Bash
+  while read -r line || [[ -n "$line" ]]; do
+      echo "$line"
+  done < file.txt
+  ```
+
+`[[ -n "$string" ]]`可以检查string是否为空
+
+### 4. 优先使用重定向而非管道（作用域问题）
+
+这是你在处理变量时最容易遇到的逻辑错误。
+
+- **错误做法（管道）**：
+
+  
+
+  ```Bash
+  count=0
+  cat file.txt | while read -r line; do
+      ((count++))
+  done
+  echo $count  # 结果为 0！因为管道创建了子 Shell，变量无法传回。
+  ```
+
+- **正确做法（重定向）**：
+
+  ```Bash
+  count=0
+  while read -r line; do
+      ((count++))
+  done < file.txt
+  echo $count  # 结果正确。
+  ```
+
+### 5. 处理结构化数据（如 CSV）
+
+`read` 可以直接通过 `IFS` 将一行数据拆分到多个变量中。
+
+- **技巧**：
+
+  ```Bash
+  # 假设文件内容是：user:password:uid
+  while IFS=':' read -r username password uid; do
+      echo "用户 $username 的 ID 是 $uid"
+  done < /etc/passwd
+  ```
+
+### 6. 循环内的标准输入冲突
+
+如果 `while` 循环在读取文件的同时，循环体内部也有命令需要读取标准输入（如 `ssh`, `ffmpeg`, `read` 确认提示），会导致竞争。
+
+- **现象**：循环只运行了一次就莫名其妙退出了，因为内部的命令把文件的后续内容全部“吸走”了。
+
+- **对策**：
+
+  - **方法 A**：给内部命令重定向输入 `/dev/null`，例如 `ssh user@host "cmd" < /dev/null`。
+
+  - **方法 B**：给文件读取分配独立的文件描述符：
+
+    Bash
+
+    ```Bash
+    while read -u 3 -r line; do
+        read -p "确认处理 $line 吗? (y/n)" user_input < /dev/tty
+    done 3< file.txt
+    ```
+
+### 总结模板
+
+建议在编写脚本时，直接套用这个“最稳健”的模板：
+
+Bash
+
+```Bash
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # 你的逻辑
+done < "filename.txt"
+```
+
+如果你需要处理非常庞大的文件（GB级别），这种原生的 Bash 循环可能会比较慢，届时我们可以讨论如何结合 `awk` 来提升效率。
