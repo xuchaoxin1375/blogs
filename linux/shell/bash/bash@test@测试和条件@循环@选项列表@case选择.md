@@ -1402,13 +1402,22 @@ esac
 
 其中`|PATTERN2|...|PATTERNn`是可选的
 
+> 其中可重复单元的更准确和抽象的写法是`[PATTERN [| PATTERN]...) COMMANDS ;;]`
+
+与`for`命令开头类似
+
+```bash
+case WORD in [PATTERN [| PATTERN]...) COMMANDS ;;]... esac
+for NAME [in WORDS ... ] ; do COMMANDS; done
+```
+
 `case` 语句基本上列举了几个可能的 *Glob 模式* ，并将你的参数内容与这些模式进行比较：
 
 
 
 ```bash
 case $LANG in
-    en*) echo 'Hello!' ;;
+    en*|us*|uk*) echo 'Hello!' ;;
     fr*) echo 'Salut!' ;;
     de*) echo 'Guten Tag!' ;;
     nl*) echo 'Hallo!' ;;
