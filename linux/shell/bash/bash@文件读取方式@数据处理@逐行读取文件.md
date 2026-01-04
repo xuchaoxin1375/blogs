@@ -906,7 +906,99 @@ exec 9<&-
     done 3< file.txt
     ```
 
-### 总结模板
+## 将文件内容读取到变量中
+
+### 读取为单个字符串
+
+使用cat命令,这是最直观的方法，但在处理大文件时略慢，因为它会开启一个子进程。
+
+```bash
+content=$(cat test.txt)
+echo "$content"
+```
+
+这是 Bash 的内置技巧，比 `cat` 更快，因为它不产生子进程。
+
+```bash
+# < 符号直接将文件内容读入变量
+content=$(<test.txt)
+echo "$content"
+```
+
+读取文件的第一行
+
+如果你只需要获取文件的首行内容（例如读取版本号或配置文件首行），可以使用 `read` 命令。
+
+```bash
+# 从 test.txt 中读取第一行并赋值给变量 line
+read -r line < test.txt
+echo "第一行内容是: $line"
+```
+
+如果文件非常大，一次性存入变量会消耗大量内存。此时应使用 `while` 循环配合 `read` 逐行处理。
+
+```bash
+while IFS= read -r line; do
+    echo "当前行内容: $line"
+    # 你可以在这里对每一行进行操作
+done < test.txt
+```
+
+`IFS=`：防止行首和行尾的空格被过滤掉。
+
+`read -r`：防止反斜杠转义。
+
+### 读取各行到数组中(mapfile)
+
+如果你想把文件的每一行分别存为数组的一个元素，可以使用 `mapfile`。
+
+`mapfile`（也称为 `readarray`）是 Bash 4.0 版本引入的一个非常强大的内置命令。它的核心作用是：**将文件的内容或命令的输出直接读入到一个 Bash 数组中**。
+
+相比于传统的 `while read` 循环，`mapfile` 的执行速度极快，因为它是内置处理，大大减少了在 Shell 中循环迭代的开销。
+
+```bash
+# 将 test.txt 的每一行读入名为 my_array 的数组
+mapfile -t my_array < test.txt
+
+# 访问数组
+echo "第一行: ${my_array[0]}"
+echo "第二行: ${my_array[1]}"
+```
+
+```bash
+$ help mapfile
+mapfile: mapfile [-d delim] [-n count] [-O origin] [-s count] [-t] [-u fd] [-C callback] [-c quantum] [array]
+    Read lines from the standard input into an indexed array variable.
+
+    Read lines from the standard input into the indexed array variable ARRAY, or
+    from file descriptor FD if the -u option is supplied.  The variable MAPFILE is the default ARRAY.
+```
+
+| **参数**        | **描述**                                                     |
+| --------------- | ------------------------------------------------------------ |
+| **`-t`**        | **最常用**。移除每行末尾的换行符。如果不加，数组每个元素末尾都会带一个 `\n`。 |
+| **`-n count`**  | 限制读取的行数（例如只读取前 10 行）。                       |
+| **`-s count`**  | 跳过开头的指定行数。                                         |
+| **`-O origin`** | 指定从数组的哪个索引开始写入（默认为 0）。                   |
+| **`-u fd`**     | 从指定的文件描述符中读取（可以结合我们之前讨论的 `{varname}`）。 |
+| **`-d delim`**  | 指定行分隔符（默认是换行符，Bash 4.4+ 支持）。               |
+
+分块处理 (Callback)
+
+`mapfile` 还有一个独特的功能 `-C` 和 `-c`，可以每读取一定行数就执行一个回调函数。
+
+
+
+```Bash
+# 每读取 3 行执行一次 echo 命令
+callback() {
+    echo "--- 已处理 3 行 ---"
+}
+
+mapfile -t -c 3 -C callback < big_file.txt
+```
+
+## 总结模板
 
 建议在编写脚本时，直接套用这个“最稳健”的模板：
 

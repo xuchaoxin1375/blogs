@@ -569,7 +569,51 @@ Bash 可以执行的最后一种命令是*可执行文件* 。（可执行文件
    cd is a shell builtin
   ```
 
-  
+
+### 空命令
+
+> 重定向本身就是一个 Shell 操作，不依附于外部命令
+
+在 Bash 里：
+
+```bash
+< f
+```
+
+等价于：
+
+```bash
+: < f
+```
+
+这里的 `:` 是 **null command（空命令）**。
+
+```bash
+$ help :
+:: :
+    Null command.
+
+    No effect; the command does nothing.
+
+    Exit Status:
+    Always succeeds.
+```
+
+> `< file`在file是否存在时结果不同(虽然重定向操作不依赖于命令,但是重定向文件时需要被(输入)重定向的文件需要存在,否则shell报错)
+
+```bash
+$ : < f && echo yes
+yes
+# cxxu@CxxuDesk 16:07:06> <~>
+$ < f && echo yes
+yes
+
+# cxxu@CxxuDesk 16:07:17> <~>
+$ < fxx && echo yes
+bash: fxx: No such file or directory
+```
+
+
 
 
 ## 脚本
