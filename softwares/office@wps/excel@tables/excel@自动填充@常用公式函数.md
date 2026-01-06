@@ -1,10 +1,20 @@
 [toc]
 
+## abstract
 
+[WPS学堂](https://www.wps.cn/learning/)
 
-## 复制式填充
+[智能表格产品说明书](https://www.kdocs.cn/l/coB7v3NVEyIC)
 
-但如果 Excel 仍然尝试递增，你可以使用以下方法确保它保持原样：
+[Excel functions (by category) - Microsoft Support](https://support.microsoft.com/en-us/office/excel-functions-by-category-5f91f4e9-7b42-46d2-9bd1-63f26a86c0eb)
+
+[Excel 函数（按类别列出） - Microsoft 支持](https://support.microsoft.com/zh-cn/office/excel-函数-按类别列出-5f91f4e9-7b42-46d2-9bd1-63f26a86c0eb)
+
+## 填充
+
+复制式填充
+
+默认情况下 Excel 自动填充尝试递增,你可以使用以下方法复制式填充而不是推测序列递增：
 
 ### 按 **Ctrl** + 拖动填充
 
