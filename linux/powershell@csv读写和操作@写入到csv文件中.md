@@ -2,7 +2,13 @@
 
 ## abstract
 
-在 PowerShell 中，读取 CSV 文件的**表头行（即第一行）**非常简单。这里是几种常见的做法，结合解释和例子，帮助你快速理解：
+## 读取csv
+
+powershell内置`import-csv`(缩写为`ipcsv`)可以将csv读入到变量中.
+
+## 输出csv表头字段
+
+在 PowerShell 中，读取 CSV 文件的**表头行（即第一行）**非常简单。
 
 ------
 
@@ -30,6 +36,7 @@ $headers
 
 ```powershell
 $firstLine = Get-Content -Path "C:\path\to\yourfile.csv" -TotalCount 1
+# 假设表头字段的分隔符为","
 $headers = $firstLine -split ","
 $headers
 ```

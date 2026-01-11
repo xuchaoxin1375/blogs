@@ -91,6 +91,81 @@ ls 2>&1 > dirlist
 # 结果：fd 2 指向终端，fd 1 指向 dirlist
 ```
 
+### 1.5 重定向和权限问题
+
+cat命令结合输出重定向为例`cat > file`,如果`file`所在路径位于需要管理员权限的路径下,比如根目录`/`或者其子目录`/var/log`
+
+```bash
+$ ls -ld /var/ /var/log
+drwxr-xr-x 12 root root 4096 Jan  8 15:09 /var/
+drwxr-xr-x  6 root root 4096 Dec 31 17:31 /var/log
+```
+
+也就是普通用户无法往该类目录写入文件
+
+普通用户在 /var/log 中创建文件的方案
+
+**使用 sudo 提权**是最常见的方式。
+
+- 对于直接创建文件，可以使用 `sudo touch /var/log/myapp.log`。
+- 如果需要以特定用户身份写入，可以用 `sudo -u someuser command`，但前提是该用户有写权限。
+
+**让管理员预先创建文件并授权**是生产环境推荐的做法。
+
+- 管理员执行 `sudo touch /var/log/myapp.log && sudo chown $USER /var/log/myapp.log`，之后普通用户就可以直接写入该文件。
+
+- **使用子目录**也是一种方案。管理员创建专属目录 `sudo mkdir /var/log/myapp && sudo chown $USER /var/log/myapp`，然后普通用户可以在该目录下自由创建文件。
+
+#### 重定向权限和shell权限
+
+重定向操作符（`>`, `>>`）是由**当前 shell 处理的**，发生在命令(比如`cat`)执行之前(如果为命令提权,而shell没有被提权,那么重定向就会失败)。这导致一个常见错误：
+
+```bash
+# 错误写法：重定向由当前 shell（普通用户）执行，权限不足
+sudo echo "log content" > /var/log/myapp.log
+# bash: /var/log/myapp.log: Permission denied (注意是bash报错,而不是其他命令报错)
+```
+
+> 这是因为,`> /var/log/myapp.log`在echo命令之前执行,且有shell执行,shell会先解释重定向部分的指令,由于此例是输出重定向,shell会尝试创建文件`/var/log/myapp.log`并打开,但是由于shell权限不足(sudo作用于echo,而不是作用于shell),导致文件创建失败,shell会提示错误.
+
+如果要创建或修改这类文件:
+
+- 要么放弃重定向的方法
+- 要么就让sudo作用于shell(作用于新启动的shell命令)
+- 要么利用管理员的权限创建指定文件,然后放宽该文件权限
+
+**正确写法**有以下几种。
+
+- 使用 `tee` 命令是最常用的方式，覆盖写入用 `echo "log content" | sudo tee /var/log/myapp.log`，追加写入用 `echo "log content" | sudo tee -a /var/log/myapp.log`。
+  - 如果不想看到输出，可以重定向到 `/dev/null`：`echo "log content" | sudo tee /var/log/myapp.log > /dev/null`。
+
+- 使用子 shell 也可以解决问题：`sudo bash -c 'echo "log content" > /var/log/myapp.log'`。
+
+原理图解
+
+```
+# 失败原因
+sudo echo "x" > /var/log/file
+     │            │
+     │            └── shell 以普通用户身份打开文件（失败）
+     └── 只有 echo 以 root 运行
+
+# tee 成功原因  
+echo "x" | sudo tee /var/log/file
+           │    │
+           │    └── tee 以 root 身份打开并写入文件
+           └── sudo 提权作用于 tee
+```
+
+总结
+
+| 方法         | 命令示例                         | 适用场景           |
+| ------------ | -------------------------------- | ------------------ |
+| sudo + tee   | `echo "x" | sudo tee file`       | 临时写入，最常用   |
+| sudo bash -c | `sudo bash -c 'echo "x" > file'` | 复杂命令           |
+| 预先授权文件 | `sudo chown $USER file`          | 长期使用的日志文件 |
+| 专属子目录   | `sudo mkdir + chown`             | 应用程序日志目录   |
+
 ## 检查文件描述符使用情况
 
 简单查看当前shell上管理的文件描述符
@@ -99,7 +174,7 @@ ls 2>&1 > dirlist
 ls -la /proc/$$/fd
 ```
 
-使用lsof外部程序
+使用`lsof`外部程序
 
 使用 `lsof` 命令（最直观）
 
@@ -1334,7 +1409,7 @@ cat shared.txt
 ```bash
 #!/bin/bash
 
-# 初始化日志
+# 初始化日志()
 LOG_DIR="~/myapp"
 mkdir -p "$LOG_DIR"
 init_log(){
@@ -1353,8 +1428,13 @@ log_debug() { echo "$(date '+%F %T') [DEBUG] $*" >&$LOG_DEBUG; }
 cleanup() {
     exec {LOG_INFO}>&- {LOG_ERROR}>&- {LOG_DEBUG}>&-
 }
+# 使用trap命令注册清理函数（或命令）cleanup,确保脚本无论以何种方式退出（正常或异常），都会执行指定的 cleanup 函数
 trap cleanup EXIT
 
+
+```
+
+```bash
 # 使用
 log_info "Application started"
 log_debug "Initializing components..."
@@ -1366,72 +1446,16 @@ fi
 log_info "Application finished"
 ```
 
-### 15.2 进度和输出分离
 
-```bash
-#!/bin/bash
 
-# 保存原始 stdout 和 stderr
-exec {ORIG_STDOUT}>&1
-exec {ORIG_STDERR}>&2
 
-# 重定向所有输出到日志
-exec 1>> process.log 2>&1
 
-# 进度信息写入原始终端
-progress() {
-    echo "$*" >&$ORIG_STDOUT
-}
+### 15.2 同时捕获 stdout 和 stderr信息到两个变量
 
-# 正常输出写入日志
-echo "Starting process..."
+编写一个函数,利用该函数运行的bash命令行(通过`eval`运行)产生的输出保存到变量中
 
-for i in {1..10}; do
-    echo "Processing step $i"      # 写入日志
-    progress "Progress: ${i}0%"    # 显示在终端
-    sleep 1
-done
-
-echo "Process complete"
-progress "Done!"
-
-# 恢复
-exec 1>&$ORIG_STDOUT 2>&$ORIG_STDERR
-exec {ORIG_STDOUT}>&- {ORIG_STDERR}>&-
-```
-
-### 15.3 安全的临时文件处理
-
-```bash
-#!/bin/bash
-
-# 创建临时文件并打开 fd（文件可以立即删除，fd 仍然有效）
-tmpfile=$(mktemp)
-exec {tmp_fd}<>"$tmpfile"
-rm "$tmpfile"  # 删除文件，但 fd 仍然可用
-
-# 写入临时数据
-echo "Temporary data line 1" >&$tmp_fd
-echo "Temporary data line 2" >&$tmp_fd
-
-# 回到文件开头读取
-exec {tmp_fd}<&-
-exec {tmp_fd}< /dev/fd/$tmp_fd  # 不能直接 seek，需要其他方式
-
-# 更实用的方式：使用进程替换
-data=$(cat << 'EOF'
-line 1
-line 2
-line 3
-EOF
-)
-
-while read line; do
-    echo "Processing: $line"
-done <<< "$data"
-```
-
-### 15.4 同时捕获 stdout 和 stderr
+- 标准输出保存到`CAPTURED_STDOUT`
+- 标准错误保存到`CAPTURED_STDERR`
 
 ```bash
 #!/bin/bash
@@ -1456,7 +1480,7 @@ capture_both() {
 }
 
 # 使用
-capture_both ls /exists /nonexistent
+capture_both ls ~/ /nonexistent
 
 echo "Exit code: $?"
 echo "Stdout: $CAPTURED_STDOUT"
@@ -1469,36 +1493,58 @@ echo "Stderr: $CAPTURED_STDERR"
 
 ### 16.1 在管道中的变量作用域
 
+
+
 ```bash
 # 问题：管道中的循环在子 shell 中运行
+# 子shell可以继承count的值,对其在子shell中的副变量修改,但是运行结束后,子shell中的副本消失,父shell中访问的还是被子shell修改之前的变量count
 count=0
-cat file.txt | while read line; do
+cat file.txt | while read -r line || [[ -n $line ]]; do
     ((count++))
+    echo "$count"
 done
-echo "$count"  # 输出 0！变量修改在子 shell 中丢失
+echo "lines number=$count"   # 输出 0！变量修改在子 shell 中丢失
 
-# 解决方案 1：使用进程替换
+# 方案1:重定向
 count=0
-while read line; do
+while read -r line || [[ -n $line ]]; do
     ((count++))
-done < <(cat file.txt)
+done < file.txt
 echo "$count"  # 正确的计数
 
-# 解决方案 2：使用 here string
+# 解决方案 2：使用进程替换
+# 进程替换表达式 <(cat file.txt)整体视为一个临时文件来使用,事实上直接使用file.txt就可以了
 count=0
-while read line; do
+while read -r line || [[ -n $line ]]; do
+    ((count++))
+done < <(cat file.txt) # done < file.txt 效果相同(后者更加高效,省去了cat进程)
+echo "$count"  # 正确的计数
+
+# 解决方案 3：使用 here string
+count=0
+while read line || [[ -n $line ]]; do
     ((count++))
 done <<< "$(cat file.txt)"
 echo "$count"  # 正确的计数
 
-# 解决方案 3：使用 lastpipe 选项（Bash 4.2+）
+# 解决方案 3：使用 lastpipe 选项（Bash 4.2+）,这不推荐
 shopt -s lastpipe
 count=0
-cat file.txt | while read line; do
+cat file.txt | while read line || [[ -n $line ]]; do
     ((count++))
+    echo "$count"
 done
 echo "$count"  # 正确的计数
 ```
+
+> **`shopt -s lastpipe`** 告诉 Bash：**在交互式 shell 且禁用作业控制（job control）时，管道的最后一部分（这里是 `while`）在当前 shell 中执行**，而不是子 shell。
+>
+> `lastpipe` **只在以下情况生效**：
+>
+> - **交互式 shell**（例如你在终端直接敲命令）
+> - **必须关闭作业控制（Job Control）**： 在交互式终端（你直接输入命令的窗口）中，作业控制默认是**开启**的（为了让你能用 `Ctrl+Z` 挂起任务）。在这种情况下，`lastpipe` 会失效。
+>   - **解决方法**：在脚本中使用，或者在终端输入 `set +m`。
+> - **Bash 版本**： 需要 Bash 4.2 及以上版本（输入 `bash --version` 查看）。
 
 ### 16.2 重定向 vs 管道
 
@@ -1515,7 +1561,7 @@ command1 | command2
 # - 重定向的文件需要存在（输入）或可创建（输出）
 ```
 
-### 16.3 /dev/null 的正确使用
+### 16.3 /dev/null 丢弃输出
 
 ```bash
 # 丢弃 stdout
@@ -1528,8 +1574,6 @@ command 2> /dev/null
 command > /dev/null 2>&1
 command &> /dev/null  # 简写
 
-# 不要这样做（创建名为 /dev/null 的普通文件的风险）
-command > /dev/null 2> /dev/null  # 两次打开，通常 OK，但不必要
 ```
 
 ------

@@ -244,7 +244,7 @@ exec {fd}>&-           # 关闭
 
 ```bash
 # 打开文件描述符，绑定到一个命令，但 fd 会持续存在
-echo "first line" {fd}>output.txt
+: {fd}>output.txt
 
 # fd 仍然有效，可以继续使用
 echo "second line" >&$fd

@@ -8,7 +8,6 @@
 
 ## ref
 
-- [关于conda环境的配置，看这一篇就够了 - 哔哩哔哩 (bilibili.com)](https://www.bilibili.com/read/cv8956636?from=search)
 - [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
 - [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
 
@@ -24,16 +23,22 @@
 
 - 两种conda发行版本都包含conda的核心功能
 
-### miniconda
+### miniconda和miniforge
 
+- [conda-forge/miniforge: A conda-forge distribution.](https://github.com/conda-forge/miniforge)
 - [Miniconda — conda documentation](https://docs.conda.io/en/latest/miniconda.html)
-- 只包含最核心的conda功能组件,体积小
-- 一般来说足够使用了
+
+两者都只包含最核心的conda功能组件,体积小,提供核心功能
+
+如果要选择一个使用,现在优先考虑`miniforge`,这是`conda-forge`社区维护的免费版本
+
 - Miniconda is a free minimal installer for conda.
   -  It is a small, bootstrap version of Anaconda 
   - that includes only conda, Python, the packages they depend on, 
   - and a small number of other useful packages, including pip, zlib and a few others. 
 - Use the `conda install` command to install 720+ additional conda packages from the Anaconda repository.
+
+> manbaforge不再推荐使用,其核心特性已经合并到miniforge.
 
 ### anaconda
 
@@ -61,28 +66,32 @@
 
 - [Cheat sheet — conda  documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/cheatsheet.html)
 
-## 版本比较
+## 现代化方案
 
-- 在选择合适的 Miniconda 版本时，以下几点可以帮助你做出决定：
+### 方案 A：组合使用 
 
-  1. **Python 版本**：
-     - `miniconda3-py310`, `miniconda3-py311`, `miniconda3-py37` 等版本的后缀表示 Python 的版本。如果你的项目或库对 Python 版本有特定要求，选择对应的版本非常重要。
-     - `miniconda3`（没有后缀的）通常默认安装最新版本的 Python，适合不特别关心 Python 版本的用户。
-
-  2. **二进制包来源**：
-     - `scoop-cn`, `spc`, `ExtrasCxxu` 是不同的二进制包源。通常情况下，推荐选择你经常使用或信任的源。例如，`scoop-cn` 是 Scoop 管理器的中国镜像版本，它可以在中国地区提供更快的下载速度。
-     - `spc` 可能指代一种特定的发布渠道或特定用途的镜像。
-
-  3. **兼容性和最新特性**：
-     - 如果你希望使用最新的特性或对性能有高要求，建议选择最新的版本，如 `miniconda3` 
-     - 如果你希望保持与旧环境或旧项目的兼容性，可以选择较老的版本，如 `miniconda3-py37`。
-
-  4. **通用 vs. 特定**：
-     - `miniconda3-latest` 通常会自动更新到最新版本，适合希望保持环境自动更新的用户。
-     - 特定版本如 `miniconda3-py38` 则适合需要稳定环境的开发者。
+使用 Miniforge 创建基础环境（管理 Python 版本和系统库），然后**在 Conda 环境里用 uv 安装 Python 包**。
 
 
-## 下载安装conda/miniconda
+
+```Bash
+# 用 miniforge 创建包含特定 python 的环境
+conda create -n myenv python=3.12
+conda activate myenv
+# 在环境内安装 uv
+pip install uv
+# 之后所有包用 uv 安装，体验极速
+uv pip install pandas torch
+```
+
+### **方案 B：选择 Pixi (现代化的 Conda)**
+
+如果你既想要 `uv` 的极致速度和项目管理体验，又舍弃不了 `Conda` 的二进制包支持，你应该使用 **Pixi**。
+
+- **Pixi** 是由前 mamba 核心成员开发的，它基于 Rust，直接读取 Conda 镜像源。
+- 它像 `uv` 一样快，但能安装 `conda-forge` 上的所有包。
+
+## windows系统下载安装conda(miniforge)
 
 ### 官方网站下载安装
 
@@ -200,46 +209,6 @@
 
 - 如果下载很慢的话,还是用镜像来吧
 
-### 环境变量变化
-
-- GUI方式查看比较机械简单
-
-- 命令行方式:(by powershell)
-
-  - 关闭所有终端
-
-  - ```bash
-    PS D:\repos\scripts> envInPath|sls conda
-    
-    C:\Users\cxxu\miniconda3
-    C:\Users\cxxu\miniconda3\Library\mingw-w64\bin
-    C:\Users\cxxu\miniconda3\Library\usr\bin
-    C:\Users\cxxu\miniconda3\Library\bin
-    C:\Users\cxxu\miniconda3\Scripts
-    
-    ```
-
-  - ```powershell
-    function envInPath
-    {
-        <# 
-        .synopsis
-        check if a value is contain in the Path variable value.
-         #>
-        param (
-            $pattern = '*'
-        )
-    
-        Write-Output '😎😎😎within Path:'
-        if ($pattern -eq '*')
-        {
-            $env:path -split ';'
-            return
-        }
-        $env:path -split ';' | Select-String -Pattern $pattern
-    }
-    ```
-
 
 
 ### 配置conda国内源🎈👺
@@ -311,4 +280,75 @@
   ```
 
 
+
+## 初始化
+
+对于windows用户,在命令行中(cmd,powershell)要使用`conda activate`等命令前,需要执行初始,即运行命令
+
+```powershell
+conda init
+```
+
+运行示例
+
+```powershell
+#⚡️[Administrator@CXXUDESK][~\.ssh][14:09:22] PS >
+ conda init
+no change     C:\scoop\apps\miniforge\current\Scripts\conda.exe
+no change     C:\scoop\apps\miniforge\current\Scripts\conda-env.exe
+no change     C:\scoop\apps\miniforge\current\Scripts\conda-script.py
+no change     C:\scoop\apps\miniforge\current\Scripts\conda-env-script.py
+no change     C:\scoop\apps\miniforge\current\condabin\conda.bat
+no change     C:\scoop\apps\miniforge\current\Library\bin\conda.bat
+no change     C:\scoop\apps\miniforge\current\condabin\_conda_activate.bat
+no change     C:\scoop\apps\miniforge\current\condabin\rename_tmp.bat
+no change     C:\scoop\apps\miniforge\current\condabin\conda_auto_activate.bat
+no change     C:\scoop\apps\miniforge\current\condabin\conda_hook.bat
+no change     C:\scoop\apps\miniforge\current\Scripts\activate.bat
+no change     C:\scoop\apps\miniforge\current\condabin\activate.bat
+no change     C:\scoop\apps\miniforge\current\condabin\deactivate.bat
+modified      C:\scoop\apps\miniforge\current\Scripts\activate
+modified      C:\scoop\apps\miniforge\current\Scripts\deactivate
+modified      C:\scoop\apps\miniforge\current\etc\profile.d\conda.sh
+modified      C:\scoop\apps\miniforge\current\etc\fish\conf.d\conda.fish
+no change     C:\scoop\apps\miniforge\current\shell\condabin\Conda.psm1
+modified      C:\scoop\apps\miniforge\current\shell\condabin\conda-hook.ps1
+modified      C:\scoop\apps\miniforge\current\Lib\site-packages\xontrib\conda.xsh
+modified      C:\scoop\apps\miniforge\current\etc\profile.d\conda.csh
+modified      C:\Users\Administrator\Documents\PowerShell\profile.ps1
+modified      C:\Users\Administrator\Documents\WindowsPowerShell\profile.ps1
+modified      HKEY_CURRENT_USER\Software\Microsoft\Command Processor\AutoRun
+
+==> For changes to take effect, close and re-open your current shell. <==
+```
+
+其中被标记为`modified`的行相关文件/路径是发生了变换的.甚至还可能修改了注册表
+
+### 自动加载开关
+
+取消自动加载
+
+```powershell
+conda config --set auto_activate false
+```
+
+> 如果是老版本
+>
+> ```bash
+> conda config --set auto_activate_base false
+> ```
+
+如果要配置为自动加载,则将`false`改为`true`
+
+### 配置反初始化
+
+1. 删除 `$PROFILE` 中 `# >>> conda initialize >>>` 到 `# <<< conda initialize <<<` 之间的所有内容；
+2. 或运行：`conda init --reverse`（但此命令在某些版本中可能不完全清理，手动删除更可靠）
+
+## 手动环境变量PATH
+
+以miniforge(通过scoop 安装的)为例
+
+- 将python.exe所在目录添加到PATH,允许你在不激活环境的情况下运行python脚本等操作
+- 将`condabin`添加到PATH,可以让你直接在命令行调用其中的脚本
 

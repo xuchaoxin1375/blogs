@@ -164,11 +164,15 @@ grep -n "banana" test.txt
               directory.  This is equivalent to the -d recurse option.
 ```
 
+> `-r`等价于`-d recurse`,`--directories=recurse`
+
 在**当前目录及其所有子目录**下搜索包含 "`password`" 的文件：
 
 ```bash
 grep -r "password" . #这里的.可以省略
 ```
+
+> `grep -d recurse  "password"`和`grep --directories=recurse  "password"`等价
 
 配合其他选项(比如显示行号的`-n`)
 
@@ -381,4 +385,92 @@ $ history | grep "cat"
 | **`-E`** | 使用扩展正则表达式 | **E**xtended (支持 `|`, `+` 等) |
 
 
+
+## ripgrep和grep的常用选项对比
+
+两者核心功能类似
+
+| **目标**            | **grep 选项**    | **ripgrep (rg) 选项**       |
+| ------------------- | ---------------- | --------------------------- |
+| **忽略大小写**      | `-i`             | `-i`                        |
+| **显示匹配行号**    | `-n`             | **默认开启** (关闭用 `-N`)  |
+| **只显示文件名**    | `-l`             | `-l`                        |
+| **反向匹配**        | `-v`             | `-v`                        |
+| **上下文 (前后行)** | `-A`, `-B`, `-C` | `-A`, `-B`, `-C` (完全一致) |
+| **统计匹配行数**    | `-c`             | `-c`                        |
+| **使用固定字符串**  | `-F`             | `-F`                        |
+
+但是默认行为和许多选项存在明显差异
+
+- rg(ripgrep):ripgrep (rg) recursively searches the current directory for lines matching a regex pattern. By default, ripgrep will respect gitignore rules and automatically skip hidden files/directories and binary files.
+- grep:Search for PATTERNS in each FILE.
+
+```bash
+$ rg --help
+ripgrep 15.1.0
+Andrew Gallant <jamslam@gmail.com>
+
+ripgrep (rg) recursively searches the current directory for lines matching
+a regex pattern. By default, ripgrep will respect gitignore rules and
+automatically skip hidden files/directories and binary files.
+
+Use -h for short descriptions and --help for more details.
+
+Project home page: https://github.com/BurntSushi/ripgrep
+
+USAGE:(detail)
+    rg [OPTIONS] PATTERN [PATH ...]
+    rg [OPTIONS] -e PATTERN ... [PATH ...]
+    rg [OPTIONS] -f PATTERNFILE ... [PATH ...]
+    rg [OPTIONS] --files [PATH ...]
+    rg [OPTIONS] --type-list
+    command | rg [OPTIONS] PATTERN
+    rg [OPTIONS] --help
+    rg [OPTIONS] --version
+    
+POSITIONAL ARGUMENTS:
+  <PATTERN>   A regular expression used for searching.
+  <PATH>...   A file or directory to search.
+```
+
+```
+$ grep --help
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Search for PATTERNS in each FILE.
+Example: grep -i 'hello world' menu.h main.c
+PATTERNS can contain multiple patterns separated by newlines.
+```
+
+| **特性**     | **grep (GNU)**                | **ripgrep (rg)**                                |
+| ------------ | ----------------------------- | ----------------------------------------------- |
+| **性能**     | 较快，但受限于磁盘 I/O 和算法 | **极快**，采用高效的正则引擎和多线程            |
+| **默认搜索** | 搜索所有文件                  | **自动忽略** `.gitignore`、隐藏文件和二进制文件 |
+| **递归搜索** | 需要 `-r` 选项                | **默认递归**搜索当前目录                        |
+| **编码支持** | 对非 UTF-8 编码支持有限       | **完美支持** UTF-16, latin-1, ebcdic 等         |
+| **易用性**   | 选项较老旧，语法严谨          | 默认开启高亮，语法更简洁                        |
+
+### 用例对比
+
+如果你想在当前目录下递归查找字符串 `"API_KEY"`：
+
+- **使用 grep (通常需要手动排除干扰)**：
+
+  ```Bash
+  grep -r "API_KEY" . --exclude-dir={.git,node_modules,dist}
+  ```
+
+- **使用 ripgrep (自动处理过滤)**：
+
+  
+
+  ```Bash
+  rg "API_KEY"
+  ```
+
+  *(注意：`rg` 默认就是递归的，甚至不需要加 `-r`)*
+
+两个命令的`-r`选项在使用上有所区别:
+
+- `grep -r "pattern" dir`递归扫描当指定目录,`dir`省略时表示当前目录
+- 而`ripgrep`的`-r`选项`-r REPLACEMENT, --replace=REPLACEMENT`
 
