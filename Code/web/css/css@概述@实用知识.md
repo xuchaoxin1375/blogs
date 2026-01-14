@@ -71,7 +71,9 @@
 	- 下一张图片显示了我们的CSS，并突出显示了`声明块`。
 
 ![A highlighted declaration block](https://i-blog.csdnimg.cn/blog_migrate/e46b32dcda58271ed5b0e4d87b782389.png)
-###  CSS规则集
+
+###  css规则集
+
 - 最后，**CSS声明块**与**选择器**配对，以生成**CSS规则集**(或CSS规则)。
 - 我们的图像包含两个规则，一个用于H1选择器，另一个用于p选择器。h1的规则被突出显示。
 
@@ -117,6 +119,8 @@ p{
     color:"blue";
 }
 ```
+
+和html标签中指定属性的方式不同,`<Tag key="value">`,这里使用`=`链接键值对的两部分,并且应该坚持使用引号把包裹`value`(但是要注意引号嵌套的问题)
 
 另外,标准json是不允许使用注释,而css中运行使用注释`/*...*/`
 
