@@ -214,7 +214,7 @@ console.log(age); // ReferenceError：age 没有定义
 let age = 26; 
 ```
 
-在 let 声明之前的执行瞬间被称为“**暂时性死区**”（temporal dead zone），在此阶段引用任何后面才声明的变量都会抛出 `ReferenceError`。
+在 **let 声明之前的执行瞬间**被称为“**暂时性死区**”（temporal dead zone），在此阶段引用任何后面才声明的变量都会抛出 `ReferenceError`。
 
 #### 八种数据类型：
 
