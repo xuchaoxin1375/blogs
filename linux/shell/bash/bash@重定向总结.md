@@ -1001,9 +1001,11 @@ flock -n 200 || { echo "Another instance running"; exit 1; }
 | `>> file` | ✗    | ✓    | 创建       | 追加到末尾   |
 | `<> file` | ✓    | ✓    | 创建       | **保留内容** |
 
-#### 创建空文件
+#### 创建空文件🎈
 
-典型的方法是借助`touch`创建空文件,不过这依赖于外部程序.利用shell也可以创建空文件.
+典型的方法是借助`touch`创建空文件,不过这依赖于外部程序.
+
+利用shell也可以创建空文件.通常利用shell的重定向能力实现
 
 在bash中,可以通过`> file`创建空文件`file`(如果同名(路径)文件已经存在,则会清空原文件内容)
 
@@ -1021,7 +1023,29 @@ flock -n 200 || { echo "Another instance running"; exit 1; }
 -rw-r--r-- 1 root root 4 Jan 14 17:49 abc.txt
 ```
 
+使用内建的命令 `echo`或`printf` 配合重定向也可以实现
 
+`echo`必须配合 `-n` 参数，否则会写入一个换行符（导致文件大小为 1 字节而非 0）。
+
+> 与 `echo -n` 类似，`printf` 不会自动添加换行符.
+
+```Bash
+echo -n "" > filename.txt
+#或者
+printf "" > filename.txt
+```
+
+使用 `/dev/null`:
+
+从“黑洞”设备中拷贝内容到新文件,会得到空文件.
+
+配合基础外部命令`cp`或`cat`重定向
+
+```Bash
+cp /dev/null filename.txt
+# 或者
+cat /dev/null > filename.txt
+```
 
 #### 注意事项
 

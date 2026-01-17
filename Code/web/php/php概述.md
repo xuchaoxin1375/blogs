@@ -1,3 +1,7 @@
+[toc]
+
+
+
 # PHP 系统学习指南
 
 PHP（Hypertext Preprocessor）是一门专为 Web 开发设计的服务器端脚本语言。尽管近年来涌现了许多新技术，PHP 依然驱动着互联网上超过 70% 的网站，包括 WordPress、Facebook、Wikipedia 等知名平台。现代 PHP（PHP 8.x）已经脱胎换骨，拥有强类型、JIT 编译、属性注解等现代语言特性。
