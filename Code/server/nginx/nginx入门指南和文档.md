@@ -429,13 +429,13 @@ A few **top‑level directives**, referred to as ***contexts***, group together 
 > 将适用于**不同流量类型的指令**组合在一起的一些顶级指令称为**上下文**,在nginx中,有如下上下文
 
 1. [events](https://nginx.org/en/docs/ngx_core_module.html#events) – General connection processing
-  [事件 ](https://nginx.org/en/docs/ngx_core_module.html#events)– 常规连接处理
+    [事件 ](https://nginx.org/en/docs/ngx_core_module.html#events)– 常规连接处理
 2. [http](https://nginx.org/en/docs/http/ngx_http_core_module.html#http) – HTTP traffic (最常用,最基本)
-  [http](https://nginx.org/en/docs/http/ngx_http_core_module.html#http) – HTTP 流量
+    [http](https://nginx.org/en/docs/http/ngx_http_core_module.html#http) – HTTP 流量
 3. [mail](https://nginx.org/en/docs/mail/ngx_mail_core_module.html#mail) – Mail traffic
-  [邮件 ](https://nginx.org/en/docs/mail/ngx_mail_core_module.html#mail)– 邮件流量
+    [邮件 ](https://nginx.org/en/docs/mail/ngx_mail_core_module.html#mail)– 邮件流量
 4. [stream](https://nginx.org/en/docs/stream/ngx_stream_core_module.html#stream) – TCP and UDP traffic
-  [流 ](https://nginx.org/en/docs/stream/ngx_stream_core_module.html#stream)– TCP 和 UDP 流量
+    [流 ](https://nginx.org/en/docs/stream/ngx_stream_core_module.html#stream)– TCP 和 UDP 流量
 
 Directives placed outside of these contexts are said to be in the **main  context**.
 位于这些上下文之外的指令被称为位于**主上下文**中。
@@ -948,7 +948,7 @@ A special wildcard name in the form “`.example.org`” can be used to match bo
 
 #### Regular expressions names正则表达式名称
 
-The regular expressions used by nginx are compatible with those used by the Perl programming language (PCRE). To use a regular expression, the server name must start with the tilde character:
+The regular expressions used by nginx are compatible with those used by the Perl programming language (`PCRE`). To use a regular expression, the server name must start with the tilde character:
 nginx 使用的正则表达式与 **Perl 编程语言（PCRE）兼容**。要使用正则表达式，服务器名称必须以**波浪号开头**：
 
 > ```bash
@@ -1574,7 +1574,9 @@ location ~* \.html? {
 
 
 
-### Location Priority NGINX 位置优先级
+### Location Priority NGINX 位置优先级🎈
+
+[nginx-location-priority|配置 NGINX 和 NGINX Plus 作为 Web 服务器 | NGINX 文档 --- Configuring NGINX and NGINX Plus as a Web Server | NGINX Documentation](https://docs.nginx.com/nginx/admin-guide/web-server/web-server/#nginx-location-priority)
 
 To find the location that best matches a URI, NGINX (Plus) first compares the URI to the locations with a prefix string. It then searches the locations with a regular expression.
 为了找到与 URI **最匹配的位置**，NGINX (Plus) 首先将 URI 与**带有前缀字符串的位置**进行比较。然后使用**正则表达式搜索位置**。(注意先搜索到的优先级不一定最高)
