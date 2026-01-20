@@ -53,6 +53,8 @@ SELECT user, host FROM mysql.user WHERE user='root';
 +------+-----------+
 ```
 
+### 创建可以远程登录的root用户
+
 如果 `root@%` 不存在，可以手动创建：
 
 ```sql
@@ -60,6 +62,20 @@ CREATE USER 'root'@'%' IDENTIFIED BY 'mypassword';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
+
+创建私有管理员用户
+
+```bash
+-- 创建一个新的私有root管理员级别的用户(开放远程登录),比如root_private
+-- !注意下面两行共[两个地方]用户名都要修改,密码不要和上面的一样,建议更复杂!
+CREATE USER 'root_private'@'%' IDENTIFIED BY 'your_root_private_password';
+GRANT ALL PRIVILEGES ON *.* TO 'root_private'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+-- END
+```
+
+
 
 ## 修改方法
 
@@ -160,14 +176,17 @@ FLUSH PRIVILEGES;
 
 ------
 
-### **5. 忘记 root 密码的解决方法（所有版本通用）**
+## 忘记 root 密码的解决方法（所有版本通用）🎈
 
 如果忘记 `root` 密码，可以通过跳过权限表（`skip-grant-tables`）的方式重置：
 
 #### **步骤 1：停止 MySQL 服务**
 
 ```sh
+
 systemctl stop mysql  # Linux (Ubuntu/Debian)
+
+#其他系统
 service mysql stop    # Linux (CentOS)
 net stop mysql        # Windows
 ```

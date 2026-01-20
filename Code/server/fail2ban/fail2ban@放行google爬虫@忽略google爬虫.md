@@ -107,7 +107,7 @@ sudo systemctl restart fail2ban
 # sudo service fail2ban restart
 ```
 
-### ❓ 为什么不直接用 `ignoreip`？
+###  为什么不直接用 `ignoreip`？
 
 - **IP 变动:** Googlebot 的 IP 地址范围非常庞大且**经常变动**。手动维护这个列表几乎不可能，而且一旦 IP 发生变化，您就会开始封禁正常的爬虫。
 - **官方推荐:** Google 官方**不推荐**通过 IP 范围来识别 Googlebot，而是建议通过执行反向 DNS 查找来验证。这个 `ignorecommand` 脚本就是实现了这个验证过程。

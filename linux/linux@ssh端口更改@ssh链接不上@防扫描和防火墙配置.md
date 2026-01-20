@@ -28,6 +28,8 @@
 
 > 注意,`/etc/ssh`目录下还有`ssh_config`和`sshd_config`,这里只需要修改第2个文件!
 
+### 分步编辑
+
 1. 使用你喜欢的编辑器打开 SSH 的配置文件：
 
 比如使用 `vim`：
@@ -51,6 +53,48 @@ Port 2222
 >  **建议端口范围**：1024 - 65535，避免使用系统端口（0-1023）
 
 ---
+
+### 命令行编辑(脚本编辑)
+
+[可选]检查配置文件中是否存在对应行(如果配置文件存在的话)
+
+```bash
+#( 01/19/26@ 9:21AM )( root@s4 ):~
+   grep 'Port 22' /etc/ssh/sshd_config
+#Port 22
+```
+
+[可选]编辑预览
+
+```bash
+Port=2222
+# 方式1
+grep 'Port 22' /etc/ssh/sshd_config | sed -E "s/#?(Port 22)/Port $Port/"
+# 方式2 (使用p命令)
+sed  -nE "s/#?(Port 22)/Port $Port/p"  /etc/ssh/sshd_config 
+
+# output:
+# Port 2222
+```
+
+正式编辑(建议在bash下编辑,不容易出错,不推荐在oh my zsh主题下编辑)
+
+```bash
+OldPort=22
+Port=2222
+#(使用i命令原地修改文件并保存)
+# sed  -i -nE "s/#?(Port $OldPort)/Port $Port/"  /etc/ssh/sshd_config 
+#更安全的方案生成.bak备份,同时兼容行开头的空白和注释)
+sed -i.bak -nE "s/^[[:space:]]*#?Port $OldPort[[:space:]]*$/Port $Port/" /etc/ssh/sshd_config
+```
+
+检查
+
+```bash
+grep -C 5 'Port ' /etc/ssh/sshd_config 
+```
+
+
 
 ## 🔁 保存并退出编辑器
 

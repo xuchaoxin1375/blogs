@@ -495,7 +495,7 @@ mysql> select distinct user from mysql.user;
 
 
 
-### 检查当前用户身份
+### 检查当前用户身份🎈
 
 ```
 mysql> select user();
