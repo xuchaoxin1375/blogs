@@ -439,9 +439,44 @@ $ printf "%q\n" "$ml"
 $'line1\nline2'
 ```
 
-> 使用`cat -e`来查看换行符(被显示为可见的`$`),或者使用`printf "%q\n"`将字符串打印为Q-string,可以看到换行符被显示为`\n`
+使用上述方案:(模板如下)
 
+```bash
+$(cat <<EOF
+...
+EOF
+)
+```
 
+需要注意反斜杠`\`在文本heredoc的文档内表示要小心,部分bash版本无法正确处理,例如bash5.1(5.2+的版本可以正确处理)
+
+```bash
+#交互模式下演示
+root@s4:~# ml=$(cat <<EOF
+> line1\\
+> EOF
+> )
+>
+```
+
+变通的办法是:
+
+```bash
+COM_SEG='include /www/server/nginx/conf/com_basic.conf;'
+# 构造替换单元
+# 考虑到部分bash(5.1)无法正确处理命令替换中的heredoc中的\\,这里使用变通的方法将`\`从外部扩展替换
+bslash="\\"
+ml=$(cat <<EOF
+line1$bslash
+EOF
+)
+```
+
+或者考虑使用其他方案表示多行字符串(即使代码美观度差一些)
+
+空白字符可视化
+
+> 使用`cat -e`来查看换行符(被显示为可见的`$`),或者使用`printf "%q\n"`将字符串打印为ANSI-C Quoting,可以看到换行符被显示为`\n`
 
 > `printf %q` 是一个非常有用的格式化选项，它的作用是：**将参数转换为一种“Shell 可重新读取”的格式**。
 >

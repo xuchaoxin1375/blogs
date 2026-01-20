@@ -6,9 +6,9 @@
 
 本文介绍conda常见发行版比较,以及现代化python环境管理方案
 
-包括conda生态下的:`anaconda`,`miniconda`,`miniforge`,`pixi`如今通常仅考虑使用后两者
+包括conda生态下的:`anaconda`,`miniconda`,`miniforge`,`pixi`如今通常仅考虑使用后两者(避免conda官方通道的**商业使用许可**问题)
 
-conda客户端,图形界面通常是anaconda,命令行界面包括conda,`mamba`命令,如今后者因为性能更好更受推荐,两个命令在性能之外的其他方面比较类似,可以共享conda源.
+conda客户端,图形界面通常是anaconda,命令行界面包括`conda`,`mamba`命令,如今后者因为性能更好更受推荐,两个命令在性能之外的其他方面比较类似,可以共享conda源.
 
 针对于python环境管理,`uv`理论速度最快,但是其国内使用体验,受制于网络环境和源的质量,python依赖包国内源还不错,但是,切换python版本时情况可能有所不同,uv中,python解释器的地位和普通python包或依赖还是有差异的,尤其下载老版本python可能不走依赖包的源不好下载
 
@@ -17,6 +17,8 @@ conda客户端,图形界面通常是anaconda,命令行界面包括conda,`mamba`�
 此外conda可以管理非python的环境,跨语言管理和软件依赖源替换更加彻底等方面仍有优势,例如我可以用conda管理不同的shell环境(例如bash),这样开发完一个bash脚本,想要知道在不同版本bash下能否正常工作或者能否通过语法检查就能简单实现.
 
 ## ref
+
+- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
 
 - [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
 - [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
@@ -94,7 +96,7 @@ pip install uv
 uv pip install pandas torch
 ```
 
-### **方案 B：选择 Pixi (现代化的 Conda)**
+### 方案 B：选择 Pixi (现代化的 Conda)
 
 如果你既想要 `uv` 的极致速度和项目管理体验，又舍弃不了 `Conda` 的二进制包支持，你应该使用 **Pixi**。
 
@@ -118,7 +120,7 @@ miniforge和miniconda是 Anaconda 的轻量级替代，默认只包含了 python
 
   - 使用miniforge的话,通常推荐用`mamba`命令代替`conda`
 
-- Miniconda (不推荐)
+- Anaconda和Miniconda (不推荐)
   - Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
 
 
@@ -141,62 +143,42 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
   - [国内用户快速部署Scoop@一键加速安装scoop@Deploy-ScoopForCNUser-CSDN博客](https://blog.csdn.net/xuchaoxin1375/article/details/141385998)
 
-- 然后通过一条命令快速安装miniconda，甚至是其他常见的软件，值得推荐
+- 然后通过一条命令快速安装`miniforge`，甚至是其他常见的软件，值得推荐(可能需要**spc**这类第三方bucket)
 
 - 搜索可用版本
 
   - ```powershell
-    PS> scoop search miniconda
+    PS> scoop search miniforge
     Results from local buckets...
     
-    Name              Version   Source     Binaries
-    ----              -------   ------     --------
-    miniconda3        24.5.0-0  ExtrasCxxu
-    miniconda2        4.8.3     scoop-cn
-    miniconda3-4.12.0 4.12.0    scoop-cn
-    miniconda3-py310  24.5.0-0  scoop-cn
-    miniconda3-py311  24.5.0-0  scoop-cn
-    miniconda3-py37   23.1.0-1  scoop-cn
-    miniconda3-py38   23.11.0-2 scoop-cn
-    miniconda3-py39   24.5.0-0  scoop-cn
-    miniconda3        24.5.0-0  scoop-cn
-    miniconda-cn      23.5.2-0  spc
-    miniconda         24.5.0-0  spc
-    miniconda2        4.8.3     spc
-    miniconda3-4.12.0 4.12.0    spc
-    miniconda3-latest latest    spc
-    miniconda3-py310  24.5.0-0  spc
-    miniconda3-py311  24.5.0-0  spc
-    miniconda3-py37   23.1.0-1  spc
-    miniconda3-py38   23.11.0-2 spc
-    miniconda3-py39   24.5.0-0  spc
-    miniconda3        24.5.0-0  spc
     ```
-
     
-
+    
+  
 - 查看指定版本的介绍
 
   ```powershell
-  PS> scoop info miniconda3
+  PS> scoop info miniforge
   
-  Name        : miniconda3
-  Description : A cross-platform, Python-agnostic binary package manager
-  Version     : 24.5.0-0
-  Bucket      : ExtrasCxxu
-  Website     : https://docs.anaconda.com/free/miniconda
+  Name        : miniforge
+  Description : A minimal conda distribution specific to conda-forge.
+  Version     : 25.11.0-1
+  Source      : spc
+  Website     : https://github.com/conda-forge/miniforge
   License     : BSD-3-Clause
-  Updated at  : 2024/6/28 0:31:03
-  Updated by  : github-actions[bot]
-  Installed   : 24.5.0-0
-  Binaries    : python.exe | pythonw.exe | python3.exe
-  Path Added  : <root>\scripts
-                <root>\Library\bin
-  Notes       : From 4.6.0, conda has built the support for Cmd, Powershell or other shells.
-                Use "conda init powershell" or "conda init __your_favorite_shell__"
+  Updated at  : 2025/12/6 10:04:50
+  Updated by  : github-actions[lzw.me]
+  Installed   : 25.11.0-1
+  Binaries    : scripts\conda.exe
+  Notes       : This variant does not add the default venv into your PATH unless you activate it with 'conda activate base'.
+                You may choose to install the one from the official bucket if you do not care about python PATH pollution.
   
-                Miniconda3 drops support for 32-bit CPUs from v22.9.0. If you are running a 32-bit system, please install
-                 miniconda3-4.12.0 from the Versions bucket.
+                Conda base env is not persisted by Scoop, packages installed to the base env will be removed when upgrading the app.
+                We advice to setup 'envs_dirs' to use a seperated path like '~/.conda/envs' and avoid using the base env.
+                https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs
+  
+                To enable conda tab-completion autoload, you can add the following code to your PowerShell $PROFILE:
+                (& conda 'shell.powershell' 'hook') | Out-String | Invoke-Expression
   ```
 
   
@@ -204,10 +186,8 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 - 选择想要的版本进行安装
 
   ```cmd
-  #比如我想默认使用当前最新版的python，使用miniconda3
-  scoop install miniconda3
-  #也可以指定source: 
-  scoop install spc/miniconda3
+  #比如我想默认使用当前最新版的python
+  scoop install miniforge
   ```
 
 ### winget 命令行下载
@@ -215,31 +195,20 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 - 如果您的网络不错,可以用winget安装(Winget现在也支持换源了)
 
 - ```bash
-  PS C:\Users\cxxu> winget search miniconda3
-  名称       ID                  版本        源
-  --------------------------------------------------
-  Miniconda3 Anaconda.Miniconda3 py39_4.10.3 winget
+  #⚡️[Administrator@CXXUDESK]PS>
+   winget search miniforge
+  Name            Id                          Version   Match          Source
+  ---------------------------------------------------------------------------
+  Mambaforge      CondaForge.Mambaforge       24.11.0-1 Tag: miniforge winget
+  Miniforge3      CondaForge.Miniforge3       25.11.0-1                winget
+  Miniforge-pypy3 CondaForge.Miniforge3.PyPy3 24.11.0-1                winget
   ```
 
-  - 如果搜索到的版本符合你的需求(通常是比较新的)
-
-- ```bash
-  PS C:\Users\cxxu\AppData\Roaming\Typora\conf> winget install miniconda3
-  已找到 Miniconda3 [Anaconda.Miniconda3] 版本 py39_4.10.3
-  此应用程序由其所有者授权给你。
-  Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。
-  Downloading https://repo.anaconda.com/miniconda/Miniconda3-py39_4.10.3-Windows-x86_64.exe
-    ██████████████████████████████  58.1 MB / 58.1 MB
-  已成功验证安装程序哈希
-  正在启动程序包安装...
-  已成功安装
-  ```
+- 如果搜索到的版本符合你的需求(通常是比较新的)
 
 - 需要注意的是,GUI安装包安装的方式中途可以点击一些安装选项,比如环境变量等
 
-- 命令行则是全部安装默认的方式安装,而且往往不是最新的
-
-- 如果下载很慢的话,还是用镜像来吧
+- 命令行则是全部安装默认的方式安装,而且往往不是最新的,如果下载很慢的话,还是用镜像来吧
 
 
 
@@ -271,7 +240,7 @@ show_channel_urls: true
 
 - 方便起见,以清华源为例,参考如下一键配置的**powershell**脚本
 
-  > 近期发现清华源可能经常遇到403阻止你下载包,具体自行尝试或更换其他源
+  > 近期发现清华源可能遇到403阻止你下载包,具体自行尝试或更换其他源
 
 - 将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行:
 
