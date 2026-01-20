@@ -4,7 +4,17 @@
 
 ## abstract
 
-- conda发行版比较
+本文介绍conda常见发行版比较,以及现代化python环境管理方案
+
+包括conda生态下的:`anaconda`,`miniconda`,`miniforge`,`pixi`如今通常仅考虑使用后两者
+
+conda客户端,图形界面通常是anaconda,命令行界面包括conda,`mamba`命令,如今后者因为性能更好更受推荐,两个命令在性能之外的其他方面比较类似,可以共享conda源.
+
+针对于python环境管理,`uv`理论速度最快,但是其国内使用体验,受制于网络环境和源的质量,python依赖包国内源还不错,但是,切换python版本时情况可能有所不同,uv中,python解释器的地位和普通python包或依赖还是有差异的,尤其下载老版本python可能不走依赖包的源不好下载
+
+而conda系列的在管理python环境方面虽然逐渐被uv取代,但是国内网络环境下,下载python不同版本可以走国内源,且历史悠久更加符合部分群体的使用习惯.
+
+此外conda可以管理非python的环境,跨语言管理和软件依赖源替换更加彻底等方面仍有优势,例如我可以用conda管理不同的shell环境(例如bash),这样开发完一个bash脚本,想要知道在不同版本bash下能否正常工作或者能否通过语法检查就能简单实现.
 
 ## ref
 
@@ -66,9 +76,9 @@
 
 - [Cheat sheet — conda  documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/cheatsheet.html)
 
-## 现代化方案
+## 现代化python环境管理方案
 
-### 方案 A：组合使用 
+### 方案 A：组合使用mamba(conda)+uv
 
 使用 Miniforge 创建基础环境（管理 Python 版本和系统库），然后**在 Conda 环境里用 uv 安装 Python 包**。
 
@@ -97,11 +107,33 @@ uv pip install pandas torch
 
 - 下载速度可能比较慢，推荐用镜像或者包管理工具来下载
 
-### Miniconda 镜像
+### 镜像加速安装
 
-- Miniconda 是一个 Anaconda 的轻量级替代，默认只包含了 python 和 conda，但是可以通过 pip 和 conda 来安装所需要的包。
+#### conda|Miniforge|Miniconda 安装包镜像
 
-- Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
+miniforge和miniconda是 Anaconda 的轻量级替代，默认只包含了 python 和 conda，但是可以通过 pip 和 conda 来安装所需要的包。
+
+- Miniforge
+  - [Index of /github-release/conda-forge/miniforge/LatestRelease/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors-i.tuna.tsinghua.edu.cn/github-release/conda-forge/miniforge/LatestRelease/)
+
+  - 使用miniforge的话,通常推荐用`mamba`命令代替`conda`
+
+- Miniconda (不推荐)
+  - Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
+
+
+#### 使用github加速镜像修改下载链接
+
+例如linux上
+
+```bash
+# 下包(以https://gh-proxy.com为例)
+curl -L -O "https://gh-proxy.com/https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+# 安装
+bash Miniforge3-$(uname)-$(uname -m).sh
+```
+
+
 
 ### scoop
 
@@ -183,7 +215,7 @@ uv pip install pandas torch
 - 如果您的网络不错,可以用winget安装(Winget现在也支持换源了)
 
 - ```bash
-  PS C:\Users\cxxu\AppData\Roaming\Typora\conf> winget search miniconda3
+  PS C:\Users\cxxu> winget search miniconda3
   名称       ID                  版本        源
   --------------------------------------------------
   Miniconda3 Anaconda.Miniconda3 py39_4.10.3 winget
@@ -211,12 +243,37 @@ uv pip install pandas torch
 
 
 
-### 配置conda国内源🎈👺
+### 配置conda国内源👺
+
+- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
 
 - [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
-  - 最新的配置方法参考上述链接
 
-- 方便期间,提供以下一键配置的**powershell**脚本(将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行):
+
+最新的配置方法参考上述链接,下面的片段可能是过时的,仅供参考
+
+#### 科大源
+
+科大源conda源(也可供mamba命令使用)
+
+```ini
+channels:
+  - nodefaults
+custom_channels:
+  conda-forge: https://mirrors.ustc.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.ustc.edu.cn/anaconda/cloud
+show_channel_urls: true
+```
+
+此外科大源还提供单独的`mamba`源简化版配置,但是这个可能会跳转其他域下导致错误(比如403阻止下载),可以自行体验或更换其他方案
+
+#### 清华源
+
+- 方便起见,以清华源为例,参考如下一键配置的**powershell**脚本
+
+  > 近期发现清华源可能经常遇到403阻止你下载包,具体自行尝试或更换其他源
+
+- 将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行:
 
   - 一键配置脚本示例
 

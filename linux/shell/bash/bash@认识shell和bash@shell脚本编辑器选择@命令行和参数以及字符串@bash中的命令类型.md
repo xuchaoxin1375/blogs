@@ -302,7 +302,7 @@ a
         b
 ```
 
-### bash中的引用机制以及引号类型
+### bash中的引用机制以及引号类型🎈
 
 引号用于**去除某些字符或单词**在 shell 中的**特殊含义**。引号可以用来**禁用特殊字符的特殊处理，防止保留字被识别为保留字**，以及**防止参数扩展**。
 
@@ -381,6 +381,97 @@ $USER
 '
      1  hello
      2  $USER
+```
+
+#### 多行字符串的首尾空行问题
+
+许多表示字符串的方法会引入可能不需要的空行,主要是开头或结尾处
+
+例如典型写法:
+
+```bash
+ml="
+line1
+line2
+"
+```
+
+这种写法很直观
+
+演示:
+
+```bash
+root@s4:/www/sh/nginx_conf# ml="
+line1
+line2
+"
+# 查看输出
+root@s4:/www/sh/nginx_conf# echo "$ml"
+
+line1
+line2
+
+root@s4:/www/sh/nginx_conf#
+```
+
+可以看到,上述多行命令行在`line1`开头和结尾都引入了一个空行
+
+#### 创建无多余空行的多行字符串
+
+在 Bash 中，`$()` 被称为 **命令替换（Command Substitution）**。
+
+> 简单来说，它的作用是：**执行括号内的命令，并将该命令的标准输出（stdout）捕获，替换到当前命令行中。**
+
+```bash
+# (base) cxxu@CxxuDesk 14:05:35> <.../Administrator/Desktop>
+$ ml=$(cat <<EOF
+> line1
+> line2
+> EOF
+> )
+
+# (base) cxxu@CxxuDesk 14:06:16> <.../Administrator/Desktop>
+$ echo "$ml"|cat -e
+line1$
+line2$
+# (base) cxxu@CxxuDesk 14:13:27> <.../Administrator/Desktop>
+$ printf "%q\n" "$ml"
+$'line1\nline2'
+```
+
+> 使用`cat -e`来查看换行符(被显示为可见的`$`),或者使用`printf "%q\n"`将字符串打印为Q-string,可以看到换行符被显示为`\n`
+
+
+
+> `printf %q` 是一个非常有用的格式化选项，它的作用是：**将参数转换为一种“Shell 可重新读取”的格式**。
+>
+> 简单来说，它会自动给字符串中特殊字符(比如一些空白字符,例如换行符等)加上转义字符（如反斜杠）或引号，使得输出的结果可以直接作为下一条命令的输入，而不会因为空格、换行符或特殊字符导致解析错误。
+>
+> 不过在交互式bash环境中,通常以`printf "%q\n"`的形式出现,如果没有`\n`,会导致打印的结果和shell返回的命令提示符拼接到同一行中!
+>
+> ```bash
+> root@s4:/www/sh/nginx_conf#  printf "%q\n" "$ml"
+> $'\nline1\nline2\n'
+> root@s4:/www/sh/nginx_conf#
+> 
+> #如果去掉\n,则会和shell返回的提示符root@s4:/www/sh/nginx_conf#显示在同一行
+> root@s4:/www/sh/nginx_conf# printf "%q" "$ml"
+> $'\nline1\nline2\n'root@s4:/www/sh/nginx_conf#
+> ```
+>
+> 
+
+或者,让引号贴近多行字符串的首尾字符,尽管这样看起来字符串字面量不是很好看.
+
+```bash
+# (base) cxxu@CxxuDesk 14:09:42> <.../Administrator/Desktop>
+$ ml="line1
+line2"
+
+# (base) cxxu@CxxuDesk 14:10:05> <.../Administrator/Desktop>
+$ echo "$ml"|cat -e
+line1$
+line2$
 ```
 
 
