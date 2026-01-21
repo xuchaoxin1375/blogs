@@ -67,7 +67,7 @@ conda客户端,图形界面通常是anaconda,命令行界面包括`conda`,`mamba
 
 ### 文档
 
-#### 官方入门使用教程
+#### conda官方入门使用教程
 
 - [Getting started with conda — conda 22.11.1 documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/getting-started.html)
 
@@ -77,6 +77,8 @@ conda客户端,图形界面通常是anaconda,命令行界面包括`conda`,`mamba
   - 如果想要查看变化,更新前后分别执行一次`conda -V`
 
 - [Cheat sheet — conda  documentation](https://docs.conda.io/projects/conda/en/stable/user-guide/cheatsheet.html)
+
+
 
 ## 现代化python环境管理方案
 
@@ -371,10 +373,151 @@ conda config --set auto_activate false
 1. 删除 `$PROFILE` 中 `# >>> conda initialize >>>` 到 `# <<< conda initialize <<<` 之间的所有内容；
 2. 或运行：`conda init --reverse`（但此命令在某些版本中可能不完全清理，手动删除更可靠）
 
-## 手动环境变量PATH
+### 使用mamba代替conda加速
+
+如果使用miniforge,会携带安装mamba,不过mamba和conda命令不完全相同,例如安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要激活虚拟环境后才能被shell找到.
+
+
+
+## 手动环境变量PATH🎈
 
 以miniforge(通过scoop 安装的)为例
 
 - 将python.exe所在目录添加到PATH,允许你在不激活环境的情况下运行python脚本等操作
-- 将`condabin`添加到PATH,可以让你直接在命令行调用其中的脚本
+- 将`condabin`添加到PATH,可以让你直接在命令行调用其中的脚本,例如`C:\scoop\apps\miniforge\current\condabin`
 
+### conda相关环境变量
+
+以miniforge为例,并在当前shell中激活base环境
+
+```bash
+#⚡️[Administrator@CXXUDESK][~\Desktop][8:33:40] PS >
+ ls env:conda*
+
+Name                           Value
+----                           -----
+CONDA_DEFAULT_ENV              base
+CONDA_SHLVL                    1
+CONDA_EXE                      C:\scoop\apps\miniforge\current\Scripts\conda.exe
+CONDA_PREFIX                   C:\scoop\apps\miniforge\current
+CONDA_PROMPT_MODIFIER          (base)
+CONDA_PYTHON_EXE               C:\scoop\apps\miniforge\current\python.exe
+```
+
+从conda环境中退出
+
+```bash
+#⚡️[Administrator@CXXUDESK][~\Desktop][8:34:49] PS >
+ ls env:conda*
+
+Name                           Value
+----                           -----
+CONDA_SHLVL                    0
+CONDA_EXE                      C:\scoop\apps\miniforge\current\Scripts\conda.exe
+CONDA_PYTHON_EXE               C:\scoop\apps\miniforge\current\python.exe
+```
+
+
+
+## conda activate 命令环境切换执行过程
+
+当你执行 `conda activate <env_name>` 时，conda 会执行以下一系列操作：
+
+1. 环境验证
+
+检查指定环境是否存在 → 读取环境配置信息
+
+2. 修改环境变量
+
+核心变量修改：
+
+| 变量                | 操作         | 说明                             |
+| ------------------- | ------------ | -------------------------------- |
+| `PATH`              | **前置插入** | 将环境的 `bin/` 目录添加到最前面 |
+| `CONDA_PREFIX`      | 设置         | 指向当前激活环境的路径           |
+| `CONDA_DEFAULT_ENV` | 设置         | 当前环境名称                     |
+| `CONDA_SHLVL`       | 递增         | 记录嵌套激活的层级               |
+
+PATH 变化示例：
+
+```bash
+# 激活前
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# 激活后 (conda activate myenv)
+PATH=/home/user/miniconda3/envs/myenv/bin:/usr/local/bin:/usr/bin:/bin
+```
+
+3. 执行激活脚本
+
+conda 会按顺序执行：
+```
+$CONDA_PREFIX/etc/conda/activate.d/*.sh
+```
+这些脚本可以设置该环境特定的变量（如 `CUDA_HOME`、`LD_LIBRARY_PATH` 等）
+
+4. 修改 Shell 提示符
+
+```bash
+# 激活前
+user@host:~$
+
+# 激活后
+(myenv) user@host:~$
+```
+
+5. 内部状态更新
+
+```python
+# conda 内部维护的栈结构
+CONDA_STACKED_ENVS: base → myenv  # 支持嵌套激活
+```
+
+完整流程图
+
+```
+conda activate myenv
+        │
+        ▼
+┌───────────────────┐
+│  验证环境存在性    │
+└────────┬──────────┘
+         ▼
+┌───────────────────┐
+│  保存当前环境状态  │ (用于 deactivate 恢复)
+└────────┬──────────┘
+         ▼
+┌───────────────────┐
+│  修改 PATH 变量   │ → 新环境 bin/ 优先
+└────────┬──────────┘
+         ▼
+┌───────────────────┐
+│ 设置 CONDA_* 变量 │
+└────────┬──────────┘
+         ▼
+┌───────────────────┐
+│ 执行 activate.d/  │ → 环境特定初始化
+└────────┬──────────┘
+         ▼
+┌───────────────────┐
+│   更新 PS1 提示符  │
+└───────────────────┘
+```
+
+验证激活效果
+
+```bash
+# 查看当前环境
+echo $CONDA_DEFAULT_ENV
+
+# 查看环境路径
+echo $CONDA_PREFIX
+
+# 查看 Python 来源
+which python
+
+# 查看完整 PATH
+echo $PATH
+```
+
+这就是为什么激活环境后，`python`、`pip` 等命令会指向该环境中的版本。
