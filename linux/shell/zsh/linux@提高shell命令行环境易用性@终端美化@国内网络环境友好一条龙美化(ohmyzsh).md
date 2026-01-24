@@ -269,7 +269,7 @@ pacman -S zsh curl git man wget
 
 参考上一节
 
-### 国外环境安装
+### 国外环境安装omz
 
 注意,仍然要预先安装依赖软件(比如zsh,git等)
 
@@ -284,7 +284,7 @@ sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools
 
 
 
-### 国内推荐安装方式一键安装👺
+### 国内推荐安装方式一键安装omz👺
 
 ```bash
 # 工作目录设定为用户家目录
@@ -426,7 +426,9 @@ sudo timedatectl set-timezone Asia/Shanghai
 ### 主机名
 
 ```bash
-sudo hostnamectl set-hostname 新主机名
+sudo hostnamectl set-hostname "NewHostName"
+#重载日志服务(否则许多日志还是使用旧主机名,例如:/var/log/auth.log)
+systemctl restart rsyslog
 ```
 
 然后启动一个新shell查看变化

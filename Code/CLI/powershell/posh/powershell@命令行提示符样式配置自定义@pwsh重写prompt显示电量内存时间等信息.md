@@ -2,32 +2,45 @@
 
 ## abstract
 
-- 在 PowerShell 中，可以通过自定义 `$prompt` 变量来修改命令行提示符（Prompt）。以下是修改 PowerShell 提示符的一些基本方式：
+### 文档
 
-  1. **简单修改**：
-     你可以直接覆盖 `$prompt` 变量的内容，例如将其设为任何你想要的文字：
-     ```powershell
-     $prompt = "Hello, World PS> "
-     ```
+- [关于 Prompt - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.4)
 
-  2. **动态提示符**：
-     利用 PowerShell 表达式来构造动态提示符，例如包含当前目录、时间戳或用户名等信息：
-     ```powershell
-     function prompt {
-         "$([System.Environment]::UserName) at $(Get-Location): $(Get-Date -Format 'HH:mm:ss') > "
-     }
-     ```
+- 文档中给出了基本信息和配置方式,这里不再赘述,而讨论许多配置效果以及可能遇到的问题
 
-  3. **颜色和样式**：
-     使用 ANSI 转义码或 PowerShell 的 Write-Host 命令配合特殊字符来实现颜色和样式变化：
-     ```powershell
-     function prompt {
-         Write-Host -ForegroundColor Green -NoNewline "[ $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ]"
-         Write-Host -ForegroundColor DarkCyan -NoNewline "($(Get-Location)) "
-         return ">"
-     }
-     ```
+- 在 PowerShell 中，可以通过自定义 `$prompt` 变量来修改命令行提示符（Prompt）。
 
+### prompt修改方式
+
+以下是修改 PowerShell 提示符的一些基本方式：
+
+1. **简单修改**：
+   你可以直接覆盖 `$prompt` 变量的内容，例如将其设为任何你想要的文字：
+   ```powershell
+   $prompt = "Hello, World PS> "
+   ```
+
+2. **动态提示符**：
+   利用 PowerShell 表达式来构造动态提示符，例如包含当前目录、时间戳或用户名等信息：
+   ```powershell
+   function prompt {
+       "$([System.Environment]::UserName) at $(Get-Location): $(Get-Date -Format 'HH:mm:ss') > "
+   }
+   ```
+
+3. **颜色和样式**：
+   使用 ANSI 转义码或 PowerShell 的 Write-Host 命令配合特殊字符来实现颜色和样式变化：
+
+   前者更加强大也更加复杂,后者比较简单但是精细度较低,比如可用的样式和颜色选择上,ANSI转移码有更完整的控制方案,还和其他shell有共通的地方
+
+   ```powershell
+   # 基于pwsh的write-host的颜色控制的简单实现
+   function prompt {
+       Write-Host -ForegroundColor Green -NoNewline "[ $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ]"
+       Write-Host -ForegroundColor DarkCyan -NoNewline "($(Get-Location)) "
+       return ">"
+   }
+   ```
 
 ### 流行的powershell prompt模块
 
@@ -52,19 +65,15 @@ function prompt {
 ```
 以上示例尝试获取 Git 分支信息并检查是否有未提交的更改，从而在提示符中显示 Git 相关状态。
 
-请注意，对于不同版本的 PowerShell （尤其是跨平台的 PowerShell Core），提示符的定制可能会有所差异，需确保代码兼容对应的 PowerShell 版本。同时，为了防止与其他脚本冲突，建议在用户的配置文件（如 `Microsoft.PowerShell_profile.ps1`）中进行个性化提示符的设置。
+请注意，对于不同版本的 PowerShell （尤其是跨平台的 PowerShell Core），提示符的定制可能会有所差异，需确保代码兼容对应的 PowerShell 版本。
+
+同时，为了防止与其他脚本冲突，建议在用户的配置文件（如 `Microsoft.PowerShell_profile.ps1`）中进行个性化提示符的设置。
 
 ##  powershell原生修改Prompt函数
 
-- 通过重写prompt来修改powershell命令行提示符的样式👺
+通过重写prompt来修改powershell命令行提示符的样式
 
 - 本方案不需要第三方模块,但是需要自己编写和设计主题(可以clone或参考仓库)
-
-### 配置文档
-
-- [关于 Prompt - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.4)
-
-- 文档中给出了基本信息和配置方式,这里不再赘述,而讨论许多配置效果以及可能遇到的问题
 
 - PowerShell 中的 `prompt` 函数是一个特殊内置函数，它负责定义命令行提示符的格式和内容。每当 PowerShell 完成一行命令的执行并准备接受下一条命令输入时，它会调用 `prompt` 函数来生成一个新的提示符字符串。
 
@@ -88,15 +97,16 @@ function prompt {
 
   通过编辑 `prompt` 函数，您可以完全个性化您的 PowerShell 控制台体验，使其更符合个人喜好或特定工作场景的需求。
 
-### Prompt命令来自哪里
+### Prompt命令冲突排查
 
-如果机器上安装了许多软件,可能会遇到命令活别名冲突
+如果机器上安装了许多软件,可能会遇到命令名和别名冲突
 
-例如我的机器上安装了MiniConda,并且配置了powershell启动Conda环境
+> 例如我的机器上安装了MiniConda,并且配置了powershell启动Conda环境
+>
 
 然后发现了powershell内置的Prompt函数被覆盖了
 
-- ```bash
+- ```powershell
   PS>gcm prompt
   
   CommandType     Name                                               Version    Source
@@ -106,7 +116,81 @@ function prompt {
 
   
 
-  
+
+### 获取当前prompt函数信息
+
+对于未经修改的prompt(这里使用`-noprofile`加载避免干扰,对于使用了自定义prompt的用户也可以通过此方式获取默认的prompt定义)
+
+若要获取 `prompt` 函数，请在 Function 驱动器中使用 `Get-Command` cmdlet 或使用 `Get-Item` cmdlet。
+
+若要获取设置提示符的值的脚本，请使用点方法获取 函数的 ScriptBlock`prompt` 属性。
+
+与所有函数一样，`prompt` 函数存储在 `Function:` 驱动器中。 
+
+```bash
+#⚡️[Administrator@CXXUDESK][~\Desktop][7:46:10] PS >
+ pwsh -noprofile
+PowerShell 7.5.4
+PS C:\Users\Administrator\Desktop> gcm prompt
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        prompt
+
+PS C:\Users\Administrator\Desktop> (gcm prompt).ScriptBlock
+
+"PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) ";
+# .Link
+# https://go.microsoft.com/fwlink/?LinkID=225750
+# .ExternalHelp System.Management.Automation.dll-help.xml
+```
+
+获取脚本定义的方式
+
+```powershell
+$p=gcm prompt;$p.ScriptBlock
+```
+
+或者从`Function:`驱动器中检索(`Function:\Prompt`或`Function:Prompt`)配合`gi`命令(`get-item`)
+
+```powershell
+ (gi Function:\Prompt).ScriptBlock
+```
+
+在任何pwsh环境中,使用如下命令查询pwsh提示符的原生**内置提示符**定义(使用选项`noprofile`)
+
+```powershell
+pwsh -noprofile -c {$p=gcm prompt;$p.ScriptBlock}
+# 或
+pwsh -noprofile -c { (gi Function:\Prompt).ScriptBlock }
+```
+
+### 默认提示符
+
+仅当 `prompt` 函数**生成错误**或**未返回对象**(返回空对象)时，才会显示**默认提示符**。
+
+默认 PowerShell 提示符为：
+
+```PowerShell
+PS>
+```
+
+例如，以下命令将 `prompt` 函数设置为 `$null`，这是**无效**的(返回空对象)。 因此会**显示默认提示符**。
+
+```powershell
+PS C:\> function prompt {$null}
+PS>
+
+PS>function prompt {xxx>} #prompt的定义非法(这里是语法错误,)
+PS>
+
+PS>function prompt {'xxx>'} #将提示符修改为xxx>,语法正确且返回字符串'xxx>'
+xxx>
+```
+
+因为 PowerShell 附带**内置提示符**(通常携带当前工作路径信息)，所以通常不会看到**默认提示符**。
+
+
 
 ## 简单修改
 
