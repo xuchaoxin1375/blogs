@@ -27,7 +27,10 @@
 # Conda 激活时会这样修改：
 
 # 原始的 prompt 函数
+function prompt {"PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) ";}
+# (大致等价于)
 function prompt { "PS $pwd> " }
+
 
 # Conda 的做法：保存原函数，创建新的包装函数
 $_Old_Prompt = $function:prompt

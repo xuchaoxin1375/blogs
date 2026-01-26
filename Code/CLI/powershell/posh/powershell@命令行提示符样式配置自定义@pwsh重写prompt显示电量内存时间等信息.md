@@ -114,8 +114,8 @@ function prompt {
   Function        prompt                                             0.0        Conda
   ```
 
-  
 
+## 内置提示符函数和默认提示符
 
 ### 获取当前prompt函数信息
 
@@ -164,6 +164,8 @@ pwsh -noprofile -c {$p=gcm prompt;$p.ScriptBlock}
 # 或
 pwsh -noprofile -c { (gi Function:\Prompt).ScriptBlock }
 ```
+
+还可以通过`$Function:prompt`快捷查看prompt函数的定义(对于任何函数都可以查询)
 
 ### 默认提示符
 
