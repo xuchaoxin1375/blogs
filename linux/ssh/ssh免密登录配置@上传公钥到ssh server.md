@@ -151,7 +151,7 @@ windows上,虽然没有自带ssh-copy-id工具,可以通过powershell+ssh调用�
 
 ```
 
-或者拆成两行跑
+或者拆成两行跑,方便调整公钥路径
 
 ```powershell
 $pubkey=Get-Content ~/.ssh/id_ed25519.pub

@@ -47,6 +47,15 @@ IFS=$' \t\n'
 
 也就是：**空格 space、制表符 tab、换行符 newline**。
 
+打印出来
+
+```bash
+$ printf '%q' "$IFS"
+$' \t\n'
+```
+
+
+
 ------
 
 ### IFS 的作用场景
