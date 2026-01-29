@@ -167,6 +167,10 @@ pwsh -noprofile -c { (gi Function:\Prompt).ScriptBlock }
 
 还可以通过`$Function:prompt`快捷查看prompt函数的定义(对于任何函数都可以查询)
 
+### 查看函数的定义
+
+事实上powershell支持`${Function:function-name}`的方式查看函数的定义.详情参考:[about_Providers - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.core/about/about_providers?view=powershell-7.5)
+
 ### 默认提示符
 
 仅当 `prompt` 函数**生成错误**或**未返回对象**(返回空对象)时，才会显示**默认提示符**。
@@ -183,7 +187,7 @@ PS>
 PS C:\> function prompt {$null}
 PS>
 
-PS>function prompt {xxx>} #prompt的定义非法(这里是语法错误,)
+PS>function prompt {xxx>} #prompt的定义非法(这里是语法错误)
 PS>
 
 PS>function prompt {'xxx>'} #将提示符修改为xxx>,语法正确且返回字符串'xxx>'

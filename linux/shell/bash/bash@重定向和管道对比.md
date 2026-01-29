@@ -9,6 +9,7 @@
 ## 核心概念
 
 ### 重定向（Redirection）
+
 ```bash
 command > file      # 改变单个命令的数据通道指向
 ```

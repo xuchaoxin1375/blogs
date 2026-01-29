@@ -309,7 +309,7 @@ show_channel_urls: true
 
 
 
-## 初始化
+## 初始化(conda init)
 
 对于windows用户,在命令行中(cmd,powershell)要使用`conda activate`等命令前,需要执行初始,即运行命令
 
@@ -376,6 +376,23 @@ conda config --set auto_activate false
 ### 使用mamba代替conda加速
 
 如果使用miniforge,会携带安装mamba,不过mamba和conda命令不完全相同,例如安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要激活虚拟环境后才能被shell找到.
+
+### powershell中的conda
+
+```powershell
+ gcm conda
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Alias           conda -> Invoke-Conda                              0.0        Conda
+
+(py14) #⚡️[Administrator@CXXUDESK][~\Desktop][9:05:49] PS >
+ gcm Invoke-Conda
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        Invoke-Conda                                       0.0        Conda
+```
 
 
 

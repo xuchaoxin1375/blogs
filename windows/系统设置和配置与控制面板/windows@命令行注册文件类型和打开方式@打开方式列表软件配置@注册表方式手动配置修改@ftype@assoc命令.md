@@ -665,3 +665,61 @@ Get-Command pwsh | Select-Object -ExpandProperty Source
 
 这将返回 `pwsh.exe` 的完整路径，您可以根据此路径进行设置。
 
+## 使用register 脚本文件实现脚本运行简化配置
+
+这种操作带来了脚本命令行的简化,但是通用性不如显式指定脚本解释器.适合于个人使用.由于涉及到注册表修改,共享给其他人使用需要谨慎
+
+### 案例:简化python脚本的执行
+
+> php等其他脚本的配置方式类似
+
+配置免后缀指定脚本文件(在shell中指定文件时可以省去后缀的指定,而只输入到文件名),这一步是可选的,可以不执行.
+
+```powershell
+# 临时生效（当前会话）
+$ext=".py"
+$env:PATHEXT += ";$ext"
+# $new="$([Environment]::GetEnvironmentVariable('PATHEXT', 'Machine'));$ext"
+
+# 永久生效(当前用户作用域,可以免去管理员权限,如果要设置系统级PATHEXT,就需要管理员权限)
+[Environment]::SetEnvironmentVariable("PATHEXT",$env:PATHEXT , "User")
+```
+
+创建reg文本文件(例如`py.reg`,右键打开方式->文本编辑器(记事本或者vscode等都可以))
+
+```ini
+Windows Registry Editor Version 5.00
+
+; 系统级（所有用户）关联 .py → Python.File
+; 需要以管理员权限导入
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.py]
+@="Python.File"
+"Content Type"="text/plain"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Python.File]
+@="Python Script"
+
+; 默认动作为 open
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Python.File\shell]
+@="open"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Python.File\shell\open]
+@="Open"
+
+; 双击/右键 open 的命令
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Python.File\shell\open\command]
+@="\"C:\\scoop\\apps\\miniforge\\current\\python.exe\" \"%1\" %*"
+
+
+
+; ; 撤销：删除系统级 .py 与 Python.File 关联（需要管理员）
+; [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.py]
+; [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Python.File]
+```
+
+这里同样要强调指定正确的python路径,并且检查某个`.py`文件(右键->打开方式->调整为指定的程序执行/打开,这个步骤可以在执行上述注册表之前就执行,当然如果是之后,不能保证一定看得到打开方式中存在python解释器,那么请手动选择路径.)
+
+## 注册表修复和清理
+
+修改注册表之前通常要备份一下.如果你配置文件类型关联和默认打开方式错误,则可以考虑使用ccleaner这个程序修复/清理注册表错误.比如右键菜单或打开方式中多出来的无效选项.
