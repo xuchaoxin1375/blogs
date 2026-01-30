@@ -78,21 +78,75 @@ main "$@"
 
 ### 脚本工作路径
 
-脚本常见做法,定义变量`BASE_DIR`或`SCRIPT_DIR`赋值为命令替换语句`$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)`
+bash脚本中常见做法,定义变量`BASE_DIR`或`SCRIPT_DIR`赋值为命令替换语句`$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)`
 
 这行代码是 Bash 脚本中的“工业级标准”写法，用于**获取脚本文件所在的绝对路径**。
+
+> 其他shell,例如zsh不支持这种用法,要警惕,`$BASH_SOURCE`是bash独有的变量!
 
 `${BASH_SOURCE[0]}` —— 定位源文件
 
 - **含义**：这是一个 Bash 内置数组变量。`${BASH_SOURCE[0]}` 始终指向当前正在执行的脚本文件的路径名。
+
+  > `$BASH_SOURCE` 实际上是一个**数组**（Array）
+  >
+  > **`${BASH_SOURCE[0]}`**: 永远指向当前正在执行的脚本源代码的文件名。
+  >
+  > **用途**: 通常用于在脚本内部获取该脚本所在的绝对路径，以便引用同目录下的其他配置文件或资源。
+  >
+  > 虽然我们常用 `${BASH_SOURCE[0]}`，但它作为一个数组，记录了整个**调用栈**(进阶用法)。
+  >
+  > - 如果你有 `A.sh` source 了 `B.sh`，而 `B.sh` 又调用了某个函数。
+  > - `${BASH_SOURCE[@]}` 会包含整个调用序列的文件名。
+  > - 配合 `${BASH_LINENO[@]}`（行号）和 `${FUNCNAME[@]}`（函数名），你可以写出一个非常强大的调试/日志工具。
+
 - **为什么不用 `$0`？**
+
   - 虽然`$0`在形如`bash script ...`或`script ...`时表示脚本名`script`,但是在通过 `source` 命令调用时(`source script ...`)，返回的是 shell 的名称（如 `bash`），而不是脚本名。
   - `${BASH_SOURCE[0]}` 无论你是直接运行 `./script.sh` 还是 `source script.sh`，都能准确拿到脚本路径。
+
+  | **场景**                           | **$0 的表现**                                          | **${BASH_SOURCE[0]} 的表现** |
+  | ---------------------------------- | ------------------------------------------------------ | ---------------------------- |
+  | **直接执行脚本** (`./test.sh`)     | 脚本路径 (`./test.sh`)                                 | 脚本路径 (`./test.sh`)       |
+  | **Source 脚本** (`source test.sh`) | 返回的是 **Shell 解释器**（如 `-bash` 或 `/bin/bash`） | 返回的是 **脚本的文件名**    |
+
+```bash
+# BASH_SOURCE 是一个数组，包含函数调用栈中的源文件名
+# BASH_SOURCE[0] 始终是当前正在执行的脚本文件
+
+# 示例：假设脚本位于 /home/user/scripts/deploy.sh,当前工作目录为/home/user/scripts/
+echo "${BASH_SOURCE[0]}"
+```
+
+
+
+| 调用方式                       | `$0` 的值                      | `${BASH_SOURCE[0]}` 的值       |
+| ------------------------------ | ------------------------------ | ------------------------------ |
+| `./deploy.sh`                  | `./deploy.sh`                  | `./deploy.sh`                  |
+| `bash deploy.sh`               | `deploy.sh`                    | `deploy.sh`                    |
+| `/home/user/scripts/deploy.sh` | `/home/user/scripts/deploy.sh` | `/home/user/scripts/deploy.sh` |
+| `source deploy.sh`             | `bash` (父shell)               | `deploy.sh`                    |
 
 `dirname` —— 剥离文件名
 
 - **功能**：去掉路径最后的非目录部分。
 - **示例**：如果脚本在 `/www/sh/test.sh`，那么 `dirname` 的结果就是 `/www/sh`。
+
+`cd ... && pwd` —— 转换为绝对路径(为了获取绝对路径,需要`pwd`)
+
+1. **`cd`**：进入脚本所在的那个目录。
+2. **`&&`**：如果进入成功，执行下一步。
+3. **`pwd`**：显示当前目录的**绝对路径**。
+
+- **目的**：解决“相对路径”问题。如果你在 `/home` 运行 `sh ../www/sh/test.sh`，`dirname` 得到的是 `../www/sh`。通过 `cd` 再 `pwd`，路径会被强制解析为 `/www/sh`。
+
+`$( ... )` —— 命令替换
+
+- 将括号内运行的结果（即绝对路径字符串）赋值给变量 `BASE_DIR`。
+
+外层的双引号 `" "`
+
+- **防止空格崩坏**：如果你的目录名里带有空格（例如 `/My Scripts/task.sh`），不加引号会导致脚本解析错误。`"$(...)"` 确保路径被视为一个整体。
 
 ## 2. 参数处理
 

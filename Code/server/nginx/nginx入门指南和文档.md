@@ -1469,7 +1469,7 @@ If a server is the only server for a listen port, then nginx will not test serve
 
 但是，有一个例外。如果服务器名称是一个包含捕获项的正则表达式，那么 nginx 必须执行该表达式才能获取捕获项
 
-## Configure Locations  配置位置🎈
+## Configure Locations  配置位置(location指令)🎈
 
 NGINX (Plus) can send traffic to different proxies or serve different files based on the request URIs. These blocks are defined using the [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) directive placed within a `server` directive.
 NGINX (Plus) 可以根据请求 URI **将流量发送到不同的代理或提供不同的文件**。这些块是使用 `server` 指令中的 [location](https://nginx.org/en/docs/http/ngx_http_core_module.html#location) 指令定义的。
@@ -1588,7 +1588,9 @@ Higher priority is given to regular expressions, unless the `^~` modifier is use
 
 但是`=`修饰符优先级最高,他是**精准匹配**
 
-> 也就是说,**精准匹配>正则匹配>(普通)前缀匹配**
+#### 优先级基本原则
+
+**精准匹配>正则匹配>(普通)前缀匹配**
 
 #### 处理逻辑
 
