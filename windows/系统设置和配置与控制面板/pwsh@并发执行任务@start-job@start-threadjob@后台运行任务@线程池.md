@@ -763,7 +763,7 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 
 
 
-## 线程作业ThreadJob
+## 线程作业ThreadJob和线程池🎈
 
 powershell提供了`Start-ThreadJob` (此cmdlet没有官方内置的alias别名,不过可以自行设置,比如取名`satj`或`satjb`)用于创建类似于 `Start-Job` cmdlet 的后台作业。 
 
