@@ -4,6 +4,33 @@
 
 在 **Bash** 环境下，也有不少类似 **Oh My Zsh** 的可扩展框架（framework）或增强项目，可以显著改善交互体验、补全能力、外观与插件生态。
 
+### bash开发工具
+
+[Bash IDE - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode)
+
+> 此插件集成了最核心的功能,但是完整功能的可用性依赖于几个外部工具,需要用户自行安装,主要是shellcheck和shfmt.(其他语法检查和格式插件就可以不用单独安装了.)
+>
+> 此插件在vscode刚启动时可能无法立即工作,需要一些时间,如果过早打开shell文件可能导致该文件的分析无法正常进行
+>
+> 尤其是目标文件内容复杂的情况,如果卡住无法分析符号等,请关闭该文件后重新打开.
+
+Visual Studio Code extension utilizing the [Bash Language Server](https://github.com/bash-lsp/bash-language-server/blob/HEAD/bash-lsp) and integrating with [explainshell](https://explainshell.com/), [shellcheck](https://www.shellcheck.net/) and [shfmt](https://github.com/mvdan/sh).
+
+- We recommend that you [install shellcheck](https://github.com/koalaman/shellcheck#installing) to enable linting and [install shfmt](https://github.com/mvdan/sh?tab=readme-ov-file#shfmt) to enable formatting.这两个工具(`shellcheck`和`shfmt`)不仅在linux上可用,windows上也可用.
+- 这是一个命令行解释工具(在线网站)https://explainshell.com/,也可以部署本地服务集成到Bash IDE([idank/explainshell：将命令行参数与他们的帮助文本匹配](https://github.com/idank/explainshell)),安装条件比前面两个工具略高,这作为一个可选的功能.
+
+另外还有代码片段snippet 类型的插件可以提高编写效率(这类插件不知1个.)
+
+[shellman - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
+
+还可以额外配合ai提示补全
+
+> 这一套组合下windows下也能有较好的bash脚本开发体验
+
+但是还有一些高级特性(和命令相关的补全提示)需要linux/macos环境,对于较新版本的windows可以借助wsl获得linux环境.
+
+[Shell 脚本命令补全 - Visual Studio Marketplace --- Shell Script Command Completion - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tetradresearch.vscode-h2o)这个shell命令补全和提示插件就无法直接在windows下运行.
+
 ------
 
 ### Bash 增强框架（类似 Oh My Zsh 的 Framework）
