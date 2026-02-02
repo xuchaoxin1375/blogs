@@ -134,7 +134,7 @@ $ ls
 $ ls
 a b.txt
 # 使用ls计算目录下的文件
-$ for file in `ls`; do rm "$file"; done
+$ for file in $(ls); do rm "$file"; done
 rm: cannot remove `a': No such file or directory
 rm: cannot remove `b.txt': No such file or directory
 
@@ -146,6 +146,46 @@ $ ls
 
 
 这里我们使用 `for` 命令遍历 `ls` 命令的输出。 `ls` 命令打印字符串 `a b.txt` 。 `for` 命令将该字符串分割成单词并逐个迭代。结果， `for` 先迭代 `a` ，然后迭代 `b.txt` 。显然，这**不是**我们想要的结果。然而，glob 通配符会以正确的形式展开。它生成字符串 " `a b.txt` "， `for` 将其作为单个参数。
+
+#### 遍历目录
+
+ `for` 循环在 Bash 脚本中非常常见，但在处理文件路径和目录遍历时，有几个隐藏的“坑”可能会导致脚本报错或行为异常。
+
+假设我们在bash中定义`dir="/path/to/dir/"`(根据该目录是否存在分情况讨论.)
+
+以下是使用形如 `for item in "$dir"/*` 时必须注意的关键点：
+
+- `$dir`如果是空的,循环不会直接跳过，而是会运行一次，并且变量 `$item` 的值会变成字面量字符串 `"/path/to/dir/*"`;
+
+  对策:在循环前开启 `nullglob`，或者在循环内部判断路径是否存在。
+
+```bash
+# 方案 A: 开启 nullglob（推荐）
+shopt -s nullglob
+for plugin in "$dir"/*; do
+    # 如果目录为空，循环根本不会执行
+    echo "处理: $plugin"
+done
+shopt -u nullglob # 用完建议关闭
+
+# 方案 B: 循环内判断
+for plugin in "$dir"/*; do
+    [ -e "$plugin" ] || continue # 如果路径不存在（针对空目录），跳过
+    echo "处理: $plugin"
+done
+```
+
+- 引号的重要性
+
+如果你的插件目录名包含空格（例如 `my plugin`），不加引号会导致 Bash 将其拆分为两个元素。 **对策**：在引用变量时，**永远**加上双引号。
+
+```Bash
+for plugin in "$site_plugins_home"/*; do
+    # 错误写法：cp $plugin /backup (如果路径有空格会报错)
+    # 正确写法：
+    cp -r "$plugin" /backup
+done
+```
 
 ### 基础用例
 
