@@ -181,9 +181,9 @@ done
 
 ```Bash
 for plugin in "$site_plugins_home"/*; do
-    # 错误写法：cp $plugin /backup (如果路径有空格会报错)
     # 正确写法：
     cp -r "$plugin" /backup
+    # 错误写法：cp $plugin /backup (如果路径有空格会报错)
 done
 ```
 
