@@ -780,7 +780,7 @@ powershell提供了`Start-ThreadJob` (此cmdlet没有官方内置的alias别名,
 - **用途：** 适用于需要同时执行多个相对独立的任务，并且希望减少进程创建开销的场景，例如同时处理多个文件、调用多个 API 或执行耗时的计算。
 
 ```powershell
-# 这里计划运行3个耗时任务(每秒数1个数字),并且在第一个`Start-ThreadJob`语句中指定了线程池的大小为2,后续的threadjob如果要要加入此线程池就不需要再指定ThrottleLimit大小
+# 这里计划运行3个耗时任务(每秒数1个数字),并且在第一个`Start-ThreadJob`语句中指定了线程池的大小为2,后续的threadjob如果要要加入此线程池就不需要再指定ThrottleLimit大小(但是如果通过循环添加线程任务,则可以在start-threadjob语句都用上ThrottleLimit指定线程数.)
 # 并且,为了便于区分不同的线程作业,这里使用[t1],[t2],[t3]分别表识这几个线程作业的输出结果
 Start-ThreadJob -ScriptBlock { 1..5 | % { sleep 1; "[t1]Output $_" } } -ThrottleLimit 2
 Start-ThreadJob -ScriptBlock { 1..8 | % { sleep 1; "[t2]Output $_" } }
@@ -1049,7 +1049,7 @@ foreach ($file in $files) {
     $jobs += Start-ThreadJob -Name $file.OutFile -ScriptBlock {
         $params = $Using:file
         Invoke-WebRequest @params
-    }
+    } # 可以使用-ThrottleLimit 指定线程池大小
 }
 
 Write-Host "Downloads started..."
