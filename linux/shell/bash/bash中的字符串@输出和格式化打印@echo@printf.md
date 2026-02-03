@@ -2,7 +2,22 @@
 
 
 
-# Bash 字符串详解与 printf 使用指南
+## abstract
+
+Bash 字符串和格式化输出
+
+## 字符串输出和打印方法
+
+根据两个命令的官方介绍,`echo`用来将其参数输出到stdout,通常用于打印一段字符串
+
+而`printf`除了打印字符串,还可以用于格式化其参数(字符串),比echo更强大,对于高级脚本,或者测试一些shell特性,这是必不可少的工具.
+
+- `echo`:  **Write** arguments to the **standard output**.
+- `printf`:**Formats and prints** ARGUMENTS under control of the FORMAT.
+
+`echo`仅有三个选项,比较简单,详情另见它文,本文主要介绍`printf`
+
+> 尽管`printf`更强大,但是echo配合bash的一些字符串处理语法(参数替换),也可以做许多处理,因此echo用的不少.
 
 ## 一、Bash 字符串基础
 
@@ -71,10 +86,15 @@ c="${a}123"             # Hello123
 echo ${str:0:5}         # Hello（从位置0取5个字符）
 echo ${str:6}           # World（从位置6到末尾）
 echo ${str: -5}         # World（取最后5个字符，注意空格）
-echo ${str: -5:3}       # Wor（最后5个字符中取3个）
+echo ${str: -5:3}       # Wor（最后5个字符中取前3个）
+
 ```
 
-### 2. 查找与替换
+
+
+
+
+### 2. 查找与替换和删除
 
 ```bash
 str="hello.world.txt"
@@ -134,8 +154,8 @@ printf: printf [-v var] format [arguments]
                 显示到标准输出
 
     FORMAT 是一个字符串，包含三种类型的对象：
-    1. 普通字符 - 直接复制到标准输出
-    2. 转义序列 - 转换后复制到标准输出
+    1. 普通字符 - 直接复制到标准输出(类似于echo ...)
+    2. 转义序列 - 转换后复制到标准输出(类似于echo -e ...)
     3. 格式说明符 - 每个说明符导致打印下一个相应的参数
 
     除了 printf(3) 中描述的标准格式字符 csndiouxXeEfFgGaA 外，
@@ -155,7 +175,11 @@ printf: printf [-v var] format [arguments]
     除非给出无效选项或发生写入/赋值错误，否则返回成功。
 ```
 
-
+> `format`是printf的核心功能,其本身也是一个字符串,也就是大多数情况下`printf`的参数是一系列字符串,唯一的选项是`-v`
+>
+> `format`将构成`printf`处理得到最终结果的一部分,`format`和`arguments`相互关联.
+>
+> `format`串中出现的说明符以 `%` 开头，它像一个**占位符**，会按顺序“吞掉”后面的参数(`argument`)并按照指定的规则显示。
 
 ###  标准格式字符完整列表
 

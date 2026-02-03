@@ -222,12 +222,20 @@ echo -e "AAAAA\rBBB"        # BBBAA
 
 ##### 进度更新
 
-百分比数字原地更新,借助回车符将输出指引到当前行首的位置,新输出的字符将覆盖原位置的字符
+百分比数字原地更新,借助**回车符`\r`**将输出指引到**当前行首的位置**(echo需要配合`-n`阻止自动换行,或者使用`prinf`),新输出的字符将覆盖原位置的字符
 
 ```bash
 
 for i in {1..100}; do
     echo -ne "\rProgress: $i%"
+    sleep 0.5
+done
+echo ""
+```
+
+```bash
+for i in {1..100}; do
+    printf "%s" "\rProgress: $i%"
     sleep 0.5
 done
 echo ""
