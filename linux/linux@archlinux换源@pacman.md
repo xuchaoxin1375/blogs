@@ -14,6 +14,8 @@
 
 archlinux配置镜像十分简单,比ubuntu要简单
 
+> 如果是msys2上的pacman源配置有些不同.
+
 只需要修改 `/etc/pacman.d/mirrorlist`文件,在文件的最顶端添加合适的国内镜像：
 
 例如清华源:
@@ -41,6 +43,14 @@ pacman -Syyu
 ```
 pacman -Syyuu
 ```
+
+### msys2上的pacman配置
+
+```bash
+sed -i "s#https\?://mirror.msys2.org/#https://mirrors.tuna.tsinghua.edu.cn/msys2/#g" /etc/pacman.d/mirrorlist*
+```
+
+
 
 ## pacman的基本使用
 

@@ -4,11 +4,9 @@
 
 ## abstract
 
-Bash 字符串和格式化输出
+Bash 字符串输出和格式化打印方法
 
-## 字符串输出和打印方法
-
-bash内置两个输出字符串的命令
+### bash内置两个输出字符串的命令
 
 `echo`用来将其参数输出到stdout,通常用于打印一段字符串
 
@@ -74,10 +72,10 @@ str3="hello world"            # 双引号（支持变量/转义）
 
 | 特性       | 单引号 `' '` | 双引号 `" "` |
 | ---------- | ------------ | ------------ |
-| 变量解析   | ❌ 不解析     | ✅ 解析       |
-| 转义字符   | ❌ 不解析     | ✅ 解析       |
-| 命令替换   | ❌ 不支持     | ✅ 支持       |
-| 包含单引号 | ❌ 不能       | ✅ 可以       |
+| 变量解析   | 不解析       | 解析         |
+| 转义字符   | 不解析       | 部分解析     |
+| 命令替换   | 不支持       | 支持         |
+| 包含单引号 | 不能         | 可以         |
 
 ```bash
 name="Alice"
@@ -108,6 +106,19 @@ echo $'It\'s a test'    # 输出: It's a test
 
 ## 二、字符串操作
 
+仅介绍最常用的部分,对完整语法做了简化,详情参考文档或其他资料
+
+1. 基本格式`${parameter}`
+2. 间接引用:`${!<parameter|prefix<@|*>}`,其中`parameter`表示完整变量名或`nameref`
+3. 变量检索`${!<parameter|prefix<@|*>}`,`prefix`是变量的一部分(前缀),即根据变量名前缀检索相关变量
+4. 片段截取:`${parameter:start[:length]}`,其中`start`可以是负整数(此时`-`号和`:`必须有空格隔开),0,正整数,`length`为正整数.
+5. 长度:`${#parameter}`,其中`parameter`可以是特殊参数`@|*`或者数组序列`array[@]`或字符串
+6. 删除:`${parameter<%|%%|#|##>pattern}`
+7. 替换:`${parameter</|//>pattern1/pattern2}`
+8. 大小写转换:`${parameter<^|^^|,|,,>pattern}`
+9. 默认值处理:`${parameter[:]<-|=|+|?>word}`
+10. 参数变换:`${parameter@operator}`
+
 ### 1. 基本操作
 
 ```bash
@@ -122,19 +133,29 @@ b="World"
 c="$a $b"               # Hello World
 c="${a}123"             # Hello123
 
+
+
+```
+
+片段截取
+
+```bash
 # 索引提取（从0开始）
 echo ${str:0:5}         # Hello（从位置0取5个字符）
 echo ${str:6}           # World（从位置6到末尾）
 echo ${str: -5}         # World（取最后5个字符，注意空格）
 echo ${str: -5:3}       # Wor（最后5个字符中取前3个）
-
 ```
 
 
 
-
-
 ### 2. 查找与替换和删除
+
+删除:`${parameter<%|%%|#|##>pattern}`
+
+替换:`${parameter</|//>pattern1/pattern2}`
+
+大小写转换:`${parameter<^|^^|,|,,>pattern}`
 
 ```bash
 str="hello.world.txt"
@@ -157,6 +178,8 @@ echo ${str^}            # Hello World（首字母大写）
 ```
 
 ### 3. 默认值处理
+
+默认值处理:`${parameter[:]<-|=|+|?>word}`
 
 ```bash
 # 变量为空时使用默认值
@@ -329,7 +352,7 @@ output
 +--------------+---------------+--------+--------+
 ```
 
-
+### FORMAT串说明
 
 #### 普通字符 (Plain Characters)
 
@@ -353,8 +376,24 @@ printf "Welcome to my server.\n"
 
 ```Bash
 # \n 是换行，\t 是制表符（Tab）
-printf "User:\troot\nStatus:\tOnline\n"
+str="User:\troot\nStatus:\tOnline\n"
+printf "$str"
+
+# output
+# User:   root
+# Status: Online
+
+printf "%s\n" "$str"
+# output: User:\troot\nStatus:\tOnline\n
 ```
+
+> 这里`format`串包含的`\t,\n`的字符都被解释成对应的空白字符.
+>
+> 这和`printf "%b" "$str"`效果相当
+>
+> 第二个例子中,`format`设置为`%s\n`(包含格式说明符`s`),而`str`是上一个命令的`format`串,此时输出结果将保留`str`中的转义字符序列.
+
+这就是说,`printf`会转义`format`串中的转义序列,而`arguments`串中的转义序列是否被解释取决于使用的格式声明符(例如`%b`启用转义解释,其他情况下不解释,例如`%s`不解释)
 
 **常用转义序列：**
 
@@ -465,7 +504,9 @@ Fruit: Apple Banana Cherry
 
 ---
 
-基于上述格式说明符,可以快速实现10进制非负整数转换为进制和十六进制数数
+基于上述格式说明符,可以快速实现10进制非负整数转换为进制和十六进制数
+
+由于历史原因,不支持直接输出为二进制表示.
 
 ###  宽度,截断与对齐
 
@@ -524,7 +565,24 @@ echo "$result"      # Mr./Ms. Smith
 
 ---
 
-###  `%b` 格式说明符
+bash中: 
+`printf -v var ...` 和 `var=$(printf ...)`都可以将格式化后的字符串存储到变量var中,但是存在区别.
+
+`printf -v var `这种方式直接利用 Bash 的**内建功能**将结果写入变量。
+
+- **性能极高：** 它在当前的 Shell 进程中直接操作内存，不需要创建子进程。
+- **无管道/子进程开销：** 避免了 Fork 进程带来的系统资源消耗。
+- **简洁：** 专门用于变量赋值。
+
+`var=$(printf ...)`这是传统的**命令替换（Command Substitution）**方式。
+
+- **性能稍慢：** Shell 必须 fork 出一个**子进程（Subshell）**来执行 `printf`，然后通过管道捕获其标准输出，最后再将其赋值给变量。
+- **通用性强：** 这种语法在所有的 POSIX Shell（如 sh, dash）中都有效，而 `-v` 选项是 Bash/Zsh 的特有扩展。
+- **副作用：** 命令替换会自动**删除结尾的所有换行符**。如果你需要保留字符串末尾的 `\n`，这种方法不是很好。
+
+### 扩展格式说明符
+
+####  `%b` 格式说明符
 
 展开参数中的转义序列（类似 `echo -e`）：
 
@@ -543,24 +601,13 @@ printf "%b\n" "$msg"
 # Line2
 # Line3
 
-# 支持的转义序列
-printf "%b" '\a'      # 响铃
-printf "%b" '\b'      # 退格
-printf "%b" '\f'      # 换页
-printf "%b" '\n'      # 换行
-printf "%b" '\r'      # 回车
-printf "%b" '\t'      # 水平制表符
-printf "%b" '\v'      # 垂直制表符
-printf "%b" '\\'      # 反斜杠
-printf "%b" '\0nnn'   # 八进制值 nnn 的字符
-printf "%b" '\xHH'    # 十六进制值 HH 的字符
 ```
 
 ---
 
-###  `%q` 格式说明符
+####  `%q` 格式说明符
 
-生成可安全作为 shell 输入的引用字符串：
+生成可安全作为 shell 输入的引用字符串(可重入字符串)：
 
 ```bash
 # 基本用法
@@ -573,12 +620,21 @@ printf "%q\n" '$HOME'           # \$HOME
 printf "%q\n" "line1
 line2"                          # $'line1\nline2'
 
-# 实用场景：安全传递参数
-args='file with spaces.txt'
-safe_args=$(printf "%q" "$args")
-eval "ls $safe_args"            # 安全执行
+# 使用场景
 
-# 生成可重用的命令
+#安全传递参数
+#创建名字带有空格的文件
+args='file with spaces.txt'
+echo "demo content" > "$args"
+# 计算可用于安全传递的文件名(即便不使用引号包裹)
+safe_args=$(printf "%q" "$args")
+echo $safe_args #输出 file\ with\ spaces.txt
+#构造命令行,并执行
+cmd="ls $safe_args"            
+# 安全执行
+eval "$cmd"
+
+# 生成可重用的命令(生成/导出脚本),使得其他人可以将输出的结果当做命令行来执行
 cmd="echo"
 arg="Hello 'World'"
 printf "%s %q\n" "$cmd" "$arg"  # echo Hello\ \'World\'
@@ -586,54 +642,51 @@ printf "%s %q\n" "$cmd" "$arg"  # echo Hello\ \'World\'
 
 ---
 
-###  `%Q` 格式说明符（Bash 5.0+）
+####  `%Q` 格式说明符（Bash 5.0+）
 
-类似 `%q`，但先应用精度限制，再进行引用：
+类似 `%q`，差别在于配合精度截取(长度截取)的时候
+
+`%Q`先应用精度限制或字符串截取，再进行引用(结果的长度可能比`%q`要长,一般的,`%q`的处理结果是`%Q`的前缀)：
 
 ```bash
 str="Hello World"
 
-# %q 应用精度（对已引用的结果截断）
-printf "%.5q\n" "$str"    # Hello（截断引用后的字符串）
+# %q 应用精度（先引用(转义),再对已引用(转义)的序列结果精度截取(长度截断)
+printf "%.7q\n" "$str"    # Hello\
 
-# %Q 应用精度（先截断原始字符串，再引用）
-printf "%.5Q\n" "$str"    # Hello（先取5字符，再引用）
+# %Q 应用精度（先截断原始字符串，再引用(添加转义),使得结果字符串包含的字符(因为反斜杠的增加)可能会超出指定的精度(长度)限制）
+printf "%.7Q\n" "$str"    # Hello\ W
 
-# 差异示例
-special="ab cd"
-printf "%.3q\n" "$special"  # ab\（截断引用后的结果）
-printf "%.3Q\n" "$special"  # ab\ （先取"ab "，再引用）
 ```
 
 ---
 
-###  `%(fmt)T` 日期时间格式（Bash 4.2+）
+####  `%(fmt)T` 日期时间格式（Bash 4.2+）
 
 使用 `strftime` 格式输出日期时间：
 
 ```bash
-# 当前时间（-1 或省略参数表示当前时间）
-printf "%(%Y-%m-%d %H:%M:%S)T\n" -1
-# 2024-06-09 14:30:25
-
+# 特殊值
+# 当前时间（-1 或省略参数表示当前时间）,效果是格式化输出当前时间
 printf "%(%Y-%m-%d)T\n"           # 省略参数也表示当前时间
 # 2024-06-09
-
-# 使用 Unix 时间戳
-printf "%(%Y-%m-%d)T\n" 0         # 1970-01-01（epoch）
-printf "%(%Y-%m-%d)T\n" 1700000000  # 2023-11-14
-
-# 特殊值
-printf "%(%F %T)T\n" -1    # 当前时间
+printf "%(%Y-%m-%d %H:%M:%S)T\n" -1
+# 2024-06-09 14:30:25
 printf "%(%F %T)T\n" -2    # shell 启动时间
 
-# 常用格式代码
+# 使用 Unix 时间戳(根据fmt要求的格式打印)
+printf "%(%Y-%m-%d)T\n" 0         # 1970-01-01（epoch）
+printf "%(%Y-%m-%d)T\n" 1700000000  # 2023-11-15
+
+
+# 常用格式代码(截取日期-时间中的某个片段.)
 printf "%(%Y)T\n" -1       # 年份: 2024
 printf "%(%m)T\n" -1       # 月份: 06
 printf "%(%d)T\n" -1       # 日期: 09
 printf "%(%H)T\n" -1       # 小时: 14
 printf "%(%M)T\n" -1       # 分钟: 30
 printf "%(%S)T\n" -1       # 秒: 25
+# 其他
 printf "%(%A)T\n" -1       # 星期: Sunday
 printf "%(%B)T\n" -1       # 月名: June
 printf "%(%F)T\n" -1       # 完整日期: 2024-06-09
@@ -648,7 +701,7 @@ echo "Backup file: backup_${now}.tar.gz"
 
 ---
 
-### 格式重复使用机制
+### 格式重复使用机制(隐式循环)
 
 ```bash
 # 参数多于格式说明符时，格式会重复使用
@@ -677,6 +730,8 @@ printf "Processing: %s\n" "${arr[@]}"
 ---
 
 ###  参数不足时的行为
+
+主要取决于格式说明符,例如`%s`则补空串,而`%d`补`0`,`%f`补`0.0`
 
 ```bash
 # 缺少字符串参数 → 使用空字符串
@@ -719,39 +774,22 @@ Charlie               42    8900.75
 #### 颜色输出
 
 ```bash
-# ANSI 颜色代码
-RED='\033[0;31m'
+# ANSI 颜色代码(使用esc字符转义序列\e或八进制码表示:\033或十六进制\x1b都可以)
+RED='\e[0;31m'
 GREEN='\033[0;32m'
-NC='\033[0m' # 恢复默认
+NC='\x1b[0m' # 恢复默认
 
-printf "${RED}Error: %s${NC}\n" "Something failed"
-printf "${GREEN}Success: %s${NC}\n" "Operation completed"
+printf "${RED}Error Demo msg: %s${NC}(end)\n" "Something failed"
+printf "${GREEN}Success: %s${NC}(end)\n" "Operation completed"
 ```
 
-#### 进度条
-
-```bash
-for i in {1..100}; do
-    printf "\rProgress: [%-50s] %d%%" $(printf '#%.0s' $(seq 1 $((i/2)))) $i
-    sleep 0.05
-done
-echo
-```
-
-#### 数字格式化
-
-```bash
-# 千位分隔符（使用 printf + 引号）
-printf "%'d\n" 1234567          # 1,234,567 (需LC_NUMERIC支持)
-
-# 十六进制/八进制转换
-printf "Dec:%d Hex:%#x Oct:%#o\n" 255 255 255
-# Dec:255 Hex:0xff Oct:0377
-
-# 二进制（借助 bc）
-printf "Binary: %s\n" $(echo "obase=2; 255" | bc)
-# Binary: 11111111
-```
+> `echo`也可以输出带颜色的文字,使用`-e`选项
+>
+> ```bash
+> echo -e "\e[31m红色文字\e[0m"
+> ```
+>
+> 
 
 #### 生成重复字符
 
@@ -767,9 +805,50 @@ print_line() {
 print_line 30 "="   # ==============================
 ```
 
----
 
 
+这里利用printf的隐式循环,利用`seq m n`来生成数字序列:`m,m+1,...,n`或者直接使用bash花括号扩展`{m..n}`
+
+```bash
+f='#%s'
+printf "$f" $(seq 1 5) #printf将分别处理输入为1,2,3,4,5的情况
+printf "$f" {1..5} 
+# output
+#1#2#3#4#5
+```
+
+这种情况下,发现每次打印`#`都会带上一个数字,可以利用`%.0s`可以丢弃printf的输入而不打印.从而么每次打印都只打印`#`字符.
+
+#### 进度条
+
+```bash
+fmt="\rProgress: [%-50s] %d%%" #宽度进度条长度50个字符,左对齐
+fmt2='=%.0s' # 进度使用'='号填充,其中.0表示每次打印=号时去掉尾随的字符串
+for i in {1..100}; do
+	# 嵌套printf命令,第一个argument用printf来计算(表示进度条字符串,每次打印指定数量的=标记)
+    printf "$fmt" $( printf "$fmt2" $(seq 1  $((i/2))) ) $i #i是偶数的时候打印1个填充标记(一个`=`表示百分2)
+    sleep 0.05
+done
+echo
+
+#output
+# Progress: [##################################################] 100%
+```
+
+#### 数字格式化
+
+```bash
+# 千位分隔符（使用 printf + 引号）
+printf "%'d\n" 1234567          # 1,234,567 (需LC_NUMERIC支持,git-bash这类环境可能不支持.)
+
+# 十六进制/八进制转换
+printf "Dec:%d Hex:%#x Oct:%#o\n" 255 255 255
+# Dec:255 Hex:0xff Oct:0377
+
+# 二进制（借助 bc,如果不格式化输出的话,直接用bc即可）
+printf "Binary: %s\n" $(echo "obase=2; 255" | bc)
+# Binary: 11111111
+```
 
 #### 综合实用示例
 
@@ -778,6 +857,7 @@ print_line 30 "="   # ==============================
 
 # 日志函数（带时间戳）
 log() {
+	# 打印消息前带上打印时间(当前时间,使用-1表示)
     printf "[%(%Y-%m-%d %H:%M:%S)T] %s\n" -1 "$*"
 }
 log "Script started"
@@ -797,6 +877,7 @@ build_command ssh user@host "echo 'hello world'"
 
 # 格式化文件大小
 format_size() {
+	#将输入的字节数(B)转换为合适的单位显示
     local size=$1
     if ((size >= 1073741824)); then
         printf "%.2f GB" "$(echo "scale=2; $size/1073741824" | bc)"
@@ -815,7 +896,7 @@ format_size 1536000   # 1.46 MB
 
 | 特性       | `echo`          | `printf`            |
 | ---------- | --------------- | ------------------- |
-| 自动换行   | ✅ 是            | ❌ 否                |
+| 自动换行   | 是              | 否                  |
 | 格式控制   | 有限            | 强大精确            |
 | 可移植性   | 不同shell有差异 | POSIX标准，一致性好 |
 | 转义解析   | 需 `-e` 参数    | 默认支持            |
@@ -829,7 +910,7 @@ echo $result    # Value: 00042
 
 ---
 
-## 五、最佳实践
+## 五、关于字符串的常见操作
 
 ```bash
 #!/bin/bash

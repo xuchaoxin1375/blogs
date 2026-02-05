@@ -22,6 +22,12 @@
 
 ### 1. `@Q` - 引用格式
 
+把变量的值，转换成一个 **合法的 Bash 字符串表示形式**，并自动加上必要的**转义或引号**。
+
+shell quoting（Shell 引号/转义）
+
+reusable shell literal（可复用的 shell 字面量）
+
 ```bash
 #!/bin/bash
 # 用于安全地输出可重用的字符串
@@ -32,14 +38,7 @@ special="It's a \"test\" with \$var"
 echo "${str@Q}"        # 输出: 'Hello World'
 echo "${special@Q}"    # 输出: 'It'\''s a "test" with $var' (分为3部分子串的拼接)
 
-# 实际用途：生成可执行的命令(将构造的命令打印出来)
-cmd="cmd is: echo"
-args="-e hello\nworld"
-echo "${cmd} ${args@Q}"  # 安全传递参数
 
-cmd="cmd is: echo"
-args="-e hello\nworld"
-echo "${cmd} ${args}"  # 安全传递参数
 ```
 
 ---

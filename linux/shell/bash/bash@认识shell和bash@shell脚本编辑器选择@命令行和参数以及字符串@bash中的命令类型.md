@@ -327,10 +327,10 @@ a
 
 #### 双引号
 
-将字符放在双引号（'"'）中会保留引号内所有字符的字面值，除了 '`$`'、'&#96;'、'\\' ,当启用历史扩展时也包含'!'。
+将字符放在双引号（" "）中会**保留引号内几乎所有字符的字面值**，除了 '`$`'、'`` ` ``'、'`\`' ,当启用历史扩展时也包含'`!`',并且`\`特殊解释为转义有条件,只有5种情况才会触发(``$,`,",\,newline ``)。
 当 shell 处于 POSIX 模式（参见 Bash 和 POSIX）时，即使启用了历史扩展，' ! '在双引号内也没有特殊含义。
 
-- 字符' `$` '和'&#96;'在双引号内保留其特殊含义（参见 Shell 展开）。
+- 字符' `$` '和'`` ` ``'在双引号内总是保留其特殊含义（参见 Shell 展开）。
 
 - **反斜杠**仅在后面跟着以下字符之一时才保留其特殊含义(转义作用)
 
@@ -342,20 +342,224 @@ a
   newline
   ```
 
-  在双引号内，**反斜杠后面跟着这些字符的反斜杠会被移除**。反斜杠前面的字符如果没有特殊含义，则保持不变。
+  在双引号内，**反斜杠后面跟着这些字符的反斜杠会被移除**,以表示反斜杠后的字符的字面量表示含义。
+
+  反斜杠前面的字符如果没有特殊含义，则保持不变。
 
   例如
 
   ```bash
+  echo "*.txt"
+  # 输出: *.txt (不会进行文件名通配符扩展)
+  
+  echo "Hello    World"
+  # 输出: Hello    World (保留了中间的空格，不会被视为参数分隔符)
   $ echo "\""
   "
+  # 输出: "
+  
   $ echo "\\"
   \
+  # 输出\
   ```
 
-  
 
-- 在双引号内，可以通过在**双引号前面加上反斜杠来引用双引号**。如果启用了历史扩展，则会在双引号内的‘ ! ’出现时执行历史扩展，除非该字符被反斜杠转义。前面的反斜杠不会被移除。
+- 在双引号内，可以通过在**双引号前面加上反斜杠来引用双引号**。
+
+- 如果启用了历史扩展，则会在双引号内的‘ `!` ’出现时执行历史扩展，除非该字符被反斜杠转义。前面的反斜杠不会被移除
+
+- `$` (变量/算术扩展):
+
+  ```Bash
+  name="Alice"
+  echo "Hello $name"  # 输出: Hello Alice (变量被解析)
+  echo "Cost is $100" # 输出: Cost is 00 (因为 $1 被视为第一个参数，通常为空)
+  echo "count 1+1=$((1+1))" # 输出: count 1+1=2
+  ```
+
+- `` ` `` (旧版命令替换,主要用于兼容老脚本):
+
+  ```Bash
+  echo "Today is `date`" # 输出: Today is [当前日期]
+  ```
+
+#####  反斜杠 `\` 的“五种触发情况
+
+在双引号中，`\` 只有在紧跟以下 5 个字符时才起**转义作用**；如果跟的是其他字符，`\` 会被原样输出。
+
+| **紧跟字符** | **行为**                             | **例子**                        | **输出结果**            |
+| ------------ | ------------------------------------ | ------------------------------- | ----------------------- |
+| `"`          | 表示`"`字面量,防止被解释为字符串边界 | `echo "Hello,\"Joho\"" `        | `Hello,"Joho"`          |
+| `\`          | 表示`\`字面量,防止被解释为转义       | `echo "This is a backslash:\\"` | `This is a backslash:\` |
+| **`$`**      | 转义 `$`，防止变量替换               | `echo "\$HOME"`                 | `$HOME`                 |
+| `` ` ``      | 转义反引号，防止命令替换             | `` echo "\`date\`"``            | `` `date` ``            |
+| `newline`    | **续行符**，忽略换行                 | `` echo "Line \(回车) 1" ``     | `Line 1`                |
+
+除此之外,`" "`中的反斜杠不会被特殊解释,原地保留
+
+```bash
+echo "line1\nline2"
+#output:
+line1\nline2
+```
+
+虽然如此,shell的许多命令(字符输出/打印)提供了强制解释的选项(比如`echo`命令配合`-e`,使得`"line1\n\line2"`中的`\n`被解释为换行)
+
+```bash
+$ echo -e "line1\nline2"
+line1
+line2
+```
+
+#### 美元符单引号`$''`
+
+Character sequences of the form `$'string'` are treated as a special kind of single quotes. The sequence expands to string, with backslash-escaped characters in string replaced as specified by the ANSI C standard. Backslash escape sequences, if present, are decoded as follows:
+形如 `$' string '` 的字符序列被视为一种**特殊的单引号**。该序列会展开为 string ，其中 string 中反斜杠转义的字符会按照 ANSI C 标准的规定进行替换。
+
+The expanded result is single-quoted, as if the dollar sign had not been present.
+**展开后的结果用单引号括起来**，就好像美元符号不存在一样。
+
+反斜杠转义序列（如果存在）的解码方式如下：
+
+- `\a`
+
+  alert (bell)  警报（铃声）
+
+- `\b`
+
+  backspace  退格键
+
+- `\e`
+
+- `\E`
+
+  An escape character (not in ANSI C). 转义字符（ANSI C 中不存在）。
+
+- `\f`
+
+  form feed  进纸
+
+- `\n`
+
+  newline  换行符
+
+- `\r`
+
+  carriage return  回车符
+
+- `\t`
+
+  horizontal tab  水平标签
+
+- `\v`
+
+  vertical tab  垂直标签
+
+- `\\`
+
+  backslash  反斜杠
+
+- `\'`
+
+  single quote  单引号
+
+- `\"`
+
+  double quote  双引号
+
+- `\?`
+
+  question mark  问号
+
+- `\nnn`
+
+  The eight-bit character whose value is the octal value nnn (one to three octal digits). 值为八进制值 nnn 的八位字符。 （一到三个八进制数字）。
+
+- `\xHH`
+
+  The eight-bit character whose value is the hexadecimal value HH (one or two hex digits). 值为十六进制值 HH 的八位字符 （一位或两位十六进制数字）。
+
+- `\uHHHH`
+
+  The Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHH (one to four hex digits). Unicode（ISO/IEC 10646）字符，其值为十六进制值 HHHH （一到四个十六进制数字）。
+
+- `\UHHHHHHHH`
+
+  The Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHHHHHH (one to eight hex digits). Unicode（ISO/IEC 10646）字符，其值为十六进制值 HHHHHHHH （一到八个十六进制数字）。
+
+- `\cx`
+
+  A control-x character. 一个 Ctrl+ X 字符。
+
+场景 A：在单行字符串中插入换行
+
+```Bash
+# 普通单引号
+echo 'Hello
+World'
+# 将多行字符串表示在同一行有多重做法:
+
+# 或者使用echo的-e选项
+echo -e "Hello\nWorld"
+# 直接使用ANSI-C Quoting 表示多行字符
+echo $'Hello\nWorld'
+```
+
+场景 B：处理复杂的定界符
+
+在处理 `awk` 或 `cut` 时，如果文件的分隔符是特殊的不可见字符（如制表符），`$'...'` 就派上用场了：
+
+> 这里我们使用的命令是`cut`,不像`echo`可以指定`-e`
+
+```Bash
+# 使用制表符作为分隔符
+cut -d $'\t' -f 1 file.txt
+```
+
+`cut` 命令本身并没有类似 `echo -e` 那样的内置转义解析功能
+
+**`echo -e`**：转义逻辑是由 `echo` 这个**程序内部**实现的。它接收到原始的 `\` 和 `n`，然后在输出时将其转换成换行符。
+
+**`cut -d $'\t'`**：转义逻辑是由 **Shell（如 Bash/Zsh）** 在运行命令前完成的。`cut` 程序本身只接收到了一个“货真价实”的制表符（Tab），它甚至不知道你输入过反斜杠。
+
+当然,也可以借助`printf`来表示特殊字符
+
+```bash
+# 先把转义后的字符存入变量
+TAB=$(printf '\t')
+cut -d "$TAB" -f 1 file.txt
+```
+
+但是`$''`表示法还是比较简单的.
+
+场景 C：彩色输出
+
+在终端打印彩色文字时，通常需要 `\e` (Escape) 字符,这时候可以使用`$''`字符串：
+
+```Bash
+echo $'\e[31m这是红色的文字\e[0m'
+```
+
+当然也可以使用`-e`让普通字符串也可以转义`\e`
+
+------
+
+4. 与普通单引号的区别
+
+- **`'string'`**：强引用，内部所有字符（包括反斜杠）都按原样输出，**不做任何解释**。
+- **`$'string'`**：**有选择的解释**，专门负责处理反斜杠转义。
+
+> **注意**：虽然这种语法在 Linux 脚本中极其常用，但它并不是 POSIX 标准的一部分。如果你追求极致的跨平台兼容性（如在纯净的 `/bin/sh` 中运行），可能需要改用 `printf`。
+
+```bash
+#ansi-c 美元字符串和单引号相似的地方是非转义序列将原地保留,例如变量引用$HOME不会被解释
+$ str=$'hello world\n"$HOME"'
+echo "$str"
+# output:
+hello world
+"$HOME"
+```
+
 
 
 ### 多行字符串的表示
