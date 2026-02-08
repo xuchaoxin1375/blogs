@@ -77,7 +77,7 @@ chmod 755 /var/sftp/uploader
 
 
 
-```Bash
+```bash
 grep uploader /etc/passwd
 ```
 
@@ -100,7 +100,7 @@ Match User uploader
 
 
 
-```Bash
+```bash
 # Ubuntu/Debian
 tail -f /var/log/auth.log
 

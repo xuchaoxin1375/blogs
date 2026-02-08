@@ -88,7 +88,7 @@ conda客户端,图形界面通常是anaconda,命令行界面包括`conda`,`mamba
 
 
 
-```Bash
+```bash
 # 用 miniforge 创建包含特定 python 的环境
 conda create -n myenv python=3.12
 conda activate myenv

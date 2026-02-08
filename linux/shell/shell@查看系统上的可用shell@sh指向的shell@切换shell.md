@@ -12,7 +12,7 @@
 
 
 
-```Bash
+```bash
 cat /etc/shells
 ```
 
@@ -59,13 +59,13 @@ $ grep -E '^/.*'  /etc/shells |nl
 
 - **使用环境变量：**
 
-  ```Bash
+  ```bash
   echo $SHELL
   ```
 
 - **查看当前进程（更准确）：**
 
-  ```Bash
+  ```bash
   ps -p $$
   ```
 
@@ -90,7 +90,7 @@ $ ps -p $$
 
 
 
-```Bash
+```bash
 grep ^$USER /etc/passwd
 ```
 
@@ -164,7 +164,7 @@ lrwxrwxrwx 1 root root 4 Feb  4  2025 /usr/bin/sh -> dash
 
 有些系统下的 `sh` 虽然是 Bash，但它会以“POSIX 模式”运行。你可以尝试让它自我介绍：
 
-```Bash
+```bash
 sh --version
 ```
 
@@ -207,7 +207,7 @@ sh --version
 
 1. **输入命令**：
 
-   ```Bash
+   ```bash
    chsh -s /bin/zsh
    ```
 

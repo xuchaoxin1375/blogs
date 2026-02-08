@@ -131,7 +131,7 @@ ssh -i key.pem -f -N -L 8080:localhost:80 user@remote-server
 
 
 
-```Bash
+```bash
 # 错误示范：ssh 会读取 file.txt 的内容，导致 while 只运行一次
 while read line; do
     ssh user@host "echo $line"

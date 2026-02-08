@@ -328,7 +328,7 @@ line2
 
 > echo是bash内置的命令
 
-```Bash
+```bash
 echo <<EOF
 line1
 line2

@@ -130,7 +130,7 @@ grep "Apple" test.txt
 
 默认情况下 `grep` 是区分大小写的。使用 `-i` (ignore) 可以忽略它：
 
-```Bash
+```bash
 grep -i "apple" test.txt
 ```
 
@@ -142,7 +142,7 @@ grep -i "apple" test.txt
 
 
 
-```Bash
+```bash
 grep -n "banana" test.txt
 ```
 
@@ -455,7 +455,7 @@ PATTERNS can contain multiple patterns separated by newlines.
 
 - **使用 grep (通常需要手动排除干扰)**：
 
-  ```Bash
+  ```bash
   grep -r "API_KEY" . --exclude-dir={.git,node_modules,dist}
   ```
 
@@ -463,7 +463,7 @@ PATTERNS can contain multiple patterns separated by newlines.
 
   
 
-  ```Bash
+  ```bash
   rg "API_KEY"
   ```
 

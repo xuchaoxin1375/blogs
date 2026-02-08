@@ -28,7 +28,7 @@
 
 **示例：**
 
-> ```Bash
+> ```bash
 > # 将 "Hello" 写入 file.txt (如果原来有内容，会被清除)
 > echo "Hello" > file.txt
 > ```
@@ -47,7 +47,7 @@ echo "World" >> file.txt
 
 **示例：**
 
-> ```Bash
+> ```bash
 ># 统计 file.txt 的行数
 > wc -l < file.txt
 >```
@@ -64,7 +64,7 @@ echo "World" >> file.txt
 
 > **示例：**
 >
-> ```Bash
+> ```bash
 > # 正确输出去 stdout.txt，错误信息去 stderr.txt
 > ls existing_file non_existing_file 1> stdout.txt 2> stderr.txt
 > ```
@@ -80,7 +80,7 @@ echo "World" >> file.txt
 
 > **示例：Crontab 中最常见的写法**
 >
-> ```Bash
+> ```bash
 > # 将脚本的所有输出（包括报错）都记入日志，不发送邮件
 > ./myscript.sh &> mylog.log
 > ```
@@ -91,10 +91,10 @@ echo "World" >> file.txt
 
 bash**“从左到右处理”**重定向，这对结果有决定性影响。
 
-| **命令**         | **解释**                                                     | **结果**                                  |
-| ---------------- | ------------------------------------------------------------ | ----------------------------------------- |
-| `ls > list 2>&1` | 1. FD 1 指向文件 `list` 2. FD 2 复制 FD 1 的指向 (即 `list`) | **正确**和**错误**信息都写入 `list`       |
-| `ls 2>&1 > list` | 1. FD 2 复制 FD 1 (此时 FD 1 还是屏幕) 2. FD 1 指向文件 `list` | **错误**输出到屏幕，**正确**输出到 `list` |
+| **命令**         | **解释**                                                  | **结果**                                  |
+| ---------------- | --------------------------------------------------------- | ----------------------------------------- |
+| `ls > list 2>&1` | FD 1 指向文件 `list` ; FD 2 复制 FD 1 的指向 (即 `list`)  | **正确**和**错误**信息都写入 `list`       |
+| `ls 2>&1 > list` | FD 2 复制 FD 1 (此时 FD 1 还是屏幕); FD 1 指向文件 `list` | **错误**输出到屏幕，**正确**输出到 `list` |
 
 **结论：** 如果想把所有东西都丢进文件，请务必把 `2>&1` 放在最后，或者直接使用 `&>`。
 
@@ -114,7 +114,7 @@ bash**“从左到右处理”**重定向，这对结果有决定性影响。
 
 > **示例：自动生成一个配置文件**
 >
-> ```Bash
+> ```bash
 > cat > config.conf <<EOF
 > server_name = localhost
 > port = 8080
@@ -140,7 +140,7 @@ user = cxxu  # 这里 cxxu 会被替换为当前用户名
 
 **示例：**
 
-> ```Bash
+> ```bash
 ># 在 base64 解码中使用
 > base64 -d <<< "SGVsbG8gV29ybGQK"
 ># 输出
@@ -159,7 +159,7 @@ Bash 特有的功能。即使系统没有 `/dev/tcp` 这个真实文件，Bash �
 >
 > 使用`timeout 1`限制等待时间为1秒.
 >
-> ```Bash
+> ```bash
 > # 如果连接成功，返回 0；否则返回非 0
 > timeout 1 bash -c '</dev/tcp/www.baidu.com/80' && echo "Port Open" || echo "Port Closed"
 > ```
@@ -196,7 +196,7 @@ bash文档提到的 `{varname}` 语法允许你让 **Bash 自动分配**一个**
 
 **示例：手动读取文件的前两行**
 
-> ```Bash
+> ```bash
 > # 打开 /etc/passwd 分配给变量 $MYFD 用于读取 (<)
 > exec {MYFD}< /etc/passwd
 > ```
@@ -208,7 +208,7 @@ echo "Line 1: $line1"
 read -u $MYFD line2
 echo "Line 2: $line2"
 
-#关闭文件描述符
+#关闭文件描述符(重定向符号右侧的特殊描述符-表示关闭左侧的文件描述符)
 exec {MYFD}<&-
 ```
 

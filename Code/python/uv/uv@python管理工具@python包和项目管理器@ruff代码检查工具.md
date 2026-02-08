@@ -195,7 +195,7 @@ uv run --python 3.10 example.py
 
 
 
-```Bash
+```bash
 uv run --project C:/repos/scripts/python /C/repos/scripts/python/your_script.py
 ```
 

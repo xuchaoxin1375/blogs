@@ -370,7 +370,7 @@ a
 
 - `$` (变量/算术扩展):
 
-  ```Bash
+  ```bash
   name="Alice"
   echo "Hello $name"  # 输出: Hello Alice (变量被解析)
   echo "Cost is $100" # 输出: Cost is 00 (因为 $1 被视为第一个参数，通常为空)
@@ -379,7 +379,7 @@ a
 
 - `` ` `` (旧版命令替换,主要用于兼容老脚本):
 
-  ```Bash
+  ```bash
   echo "Today is `date`" # 输出: Today is [当前日期]
   ```
 
@@ -411,7 +411,7 @@ line1
 line2
 ```
 
-#### 美元符单引号`$''`
+#### 美元符单引号`$''`和`${str@E}`参数变换
 
 Character sequences of the form `$'string'` are treated as a special kind of single quotes. The sequence expands to string, with backslash-escaped characters in string replaced as specified by the ANSI C standard. Backslash escape sequences, if present, are decoded as follows:
 形如 `$' string '` 的字符序列被视为一种**特殊的单引号**。该序列会展开为 string ，其中 string 中反斜杠转义的字符会按照 ANSI C 标准的规定进行替换。
@@ -491,9 +491,11 @@ The expanded result is single-quoted, as if the dollar sign had not been present
 
   A control-x character. 一个 Ctrl+ X 字符。
 
+##### 应用场景
+
 场景 A：在单行字符串中插入换行
 
-```Bash
+```bash
 # 普通单引号
 echo 'Hello
 World'
@@ -511,7 +513,7 @@ echo $'Hello\nWorld'
 
 > 这里我们使用的命令是`cut`,不像`echo`可以指定`-e`
 
-```Bash
+```bash
 # 使用制表符作为分隔符
 cut -d $'\t' -f 1 file.txt
 ```
@@ -536,7 +538,7 @@ cut -d "$TAB" -f 1 file.txt
 
 在终端打印彩色文字时，通常需要 `\e` (Escape) 字符,这时候可以使用`$''`字符串：
 
-```Bash
+```bash
 echo $'\e[31m这是红色的文字\e[0m'
 ```
 
@@ -544,7 +546,7 @@ echo $'\e[31m这是红色的文字\e[0m'
 
 ------
 
-4. 与普通单引号的区别
+##### 与普通单引号的区别
 
 - **`'string'`**：强引用，内部所有字符（包括反斜杠）都按原样输出，**不做任何解释**。
 - **`$'string'`**：**有选择的解释**，专门负责处理反斜杠转义。
@@ -552,15 +554,115 @@ echo $'\e[31m这是红色的文字\e[0m'
 > **注意**：虽然这种语法在 Linux 脚本中极其常用，但它并不是 POSIX 标准的一部分。如果你追求极致的跨平台兼容性（如在纯净的 `/bin/sh` 中运行），可能需要改用 `printf`。
 
 ```bash
-#ansi-c 美元字符串和单引号相似的地方是非转义序列将原地保留,例如变量引用$HOME不会被解释
-$ str=$'hello world\n"$HOME"'
+#ansi-c引用 美元单引号字符串和单引号相似的地方是非转义序列将原地保留,例如变量引用$HOME不会被解释
+str=$'hello world\n"$HOME"'
 echo "$str"
 # output:
 hello world
 "$HOME"
+
+
+```
+
+事实上,使用`declare -p`(可重如方式打印变量定义)查看复杂字符串(包含换行符,制表符等)变量的定义,其取值也是使用`$''`字符串表示,和`${str@Q}`的打印结果相同.
+
+```bash
+$ declare -p str
+declare -- str=$'hello world\n"$HOME"'
+```
+
+#### `${str@E}`
+
+```bash
+# (base) cxxu@CxxuDesk 19:11:45> <~>
+$ str2="line1\nline2"
+
+# (base) cxxu@CxxuDesk 19:12:03> <~>
+$ echo "$str2"
+line1\nline2
+
+# 使用${str2@E}会将$str2中的转义序列解释处理,效果和把str2的字面量放在$''其中的效果类似
+# 也和使用echo -e "$str"的效果相同.
+# (base) cxxu@CxxuDesk 19:12:31> <~>
+$ echo "${str2@E}"
+line1
+line2
+
+# (base) cxxu@CxxuDesk 19:13:01> <~>
+$ echo -e "$str2"
+line1
+line2
+
+$ echo $'line1\nline2'
+line1
+line2
+
+
 ```
 
 
+
+#### 可重入输出字符串`${str@Q}`
+
+可以使用bash的变量转换语法`${str@Q}`,将多行字符串打印为单行.
+
+在 Bash 中，`${str@Q}`语法把任意字符串`str`安全、准确地转换成**可复制、可重放、可再次解析的 shell 字面量**，主要用于调试、日志、命令生成和避免 quoting bug
+
+换行符,制表符等都会编码为ansi-c转义序列表示
+
+```bash
+str=$'hello world\n"$HOME"'
+echo "${str@Q}"
+#output
+$'hello world\n"$HOME"'
+
+str1="hello,
+	world."
+echo "$str1"
+#output
+hello,
+        world.
+#
+echo "${str1@Q}"
+#output:
+$'hello,\n\tworld.'
+
+```
+
+以`str1`的`echo ${str!@Q}`输出为例,我们可以使用这个输出完美(准确无误)的还原`str1`,包括任何空白字符.
+
+换句话说,`str1`字符串在bash中的表示就是`${str!@Q}`打印出来的序列
+
+```bash
+echo $'hello,\n\tworld.'
+#output (和echo "$str1"的结果完全一致.)
+hello,
+        world.
+```
+
+##### `${str@Q}` vs 其他常见方式
+
+
+
+| 方法                 | 是否安全 | 是否可复用 | 说明                |
+| -------------------- | -------- | ---------- | ------------------- |
+| `"$str"`             | 部分     | 否         | 只能用于当前上下文  |
+| `printf '%q' "$str"` | 是       | 是         | 老牌方式，POSIX-ish |
+| `${str@Q}`           | 是       | 是         | 更直观，语义更清晰  |
+| `eval`               | 否       | 否         | 高危，尽量避免      |
+
+补充说明：
+
+- `printf '%q'` 和 `${@Q}` 在大多数情况下等价
+- `${str@Q}` 更“Bash 风味”，可读性更好
+
+#### 其他字符串处理
+
+bash还提供了其他字符串,数组变量的处理方法,是参数扩展的高级用法.详情另见它文.
+
+
+
+[bash中的字符串处理@输出和格式化打印@echo@printf-CSDN博客](https://cxxu1375.blog.csdn.net/article/details/157769408?spm=1011.2415.3001.5331)
 
 ### 多行字符串的表示
 

@@ -576,7 +576,7 @@ sum "$1" "$2"
 
 代码演示对比
 
-```Bash
+```bash
 demo_func() {
     echo "--- 使用 \$@ 遍历 ---"
     for arg in "$@"; do
@@ -740,7 +740,7 @@ local: local [option] name[=value] ...
 
  
 
-```Bash
+```bash
 var="Global"
 
 my_func() {
@@ -759,7 +759,7 @@ echo "Outside: $var" # 依然输出 "Global"
 
 Bash
 
-```Bash
+```bash
 create_global() {
     declare -g new_global="I am everywhere"
     local hidden="I stay here"
@@ -805,7 +805,7 @@ echo $hidden     # 输出为空（局部变量已销毁）
 
 
 
-```Bash
+```bash
 local var
 var=$(fail_command) || return 1
 ```

@@ -223,7 +223,7 @@ abc123
 
 
 
-```Bash
+```bash
 #!/bin/bash
 
 # 分别为两个文件分配文件描述符 3 和 4
@@ -250,7 +250,7 @@ exec 4<&-
 
 Bash
 
-```Bash
+```bash
 while read -r line; do
     # 这里的 read 会因为标准输入被文件占用而直接读取下一行，或者导致循环中断
     read -p "确认处理 $line 吗? [y/n]: " ans < /dev/tty
@@ -261,7 +261,7 @@ done < file.txt
 
 Bash
 
-```Bash
+```bash
 # 将文件重定向到 FD 3，避免占用默认的 stdin
 while read -u 3 -r line; do
     echo "正在处理项目: $line"
@@ -279,7 +279,7 @@ done 3< file.txt
 
 
 
-```Bash
+```bash
 #!/bin/bash
 
 # 使用 FD 3 读取服务器列表，防止 ssh 吸走 stdin 中的后续行
@@ -827,7 +827,7 @@ exec 9<&-
 
 - **对策**：如果需要保留原样，在 `read` 前将 `IFS` 置为空：
 
-  ```Bash
+  ```bash
   while IFS= read -r line; do
       echo "$line"
   done < file.txt
@@ -841,7 +841,7 @@ exec 9<&-
 
 - **对策**：在 `read` 失败后检查变量是否有内容,配合`||`,当`read -r line`返回非零状态码时(异常退出)继续检查刚才所读取的行是否非空,如果非空,继续处理(比如打印)：
 
-  ```Bash
+  ```bash
   while read -r line || [[ -n "$line" ]]; do
       echo "$line"
   done < file.txt
@@ -857,7 +857,7 @@ exec 9<&-
 
   
 
-  ```Bash
+  ```bash
   count=0
   cat file.txt | while read -r line; do
       ((count++))
@@ -867,7 +867,7 @@ exec 9<&-
 
 - **正确做法（重定向）**：
 
-  ```Bash
+  ```bash
   count=0
   while read -r line; do
       ((count++))
@@ -881,7 +881,7 @@ exec 9<&-
 
 - **技巧**：
 
-  ```Bash
+  ```bash
   # 假设文件内容是：user:password:uid
   while IFS=':' read -r username password uid; do
       echo "用户 $username 的 ID 是 $uid"
@@ -900,7 +900,7 @@ exec 9<&-
 
   - **方法 B**：给文件读取**分配独立的文件描述符**：
 
-    ```Bash
+    ```bash
     while read -u 3 -r line; do
         read -p "确认处理 $line 吗? (y/n)" user_input < /dev/tty
     done 3< file.txt
@@ -989,7 +989,7 @@ mapfile: mapfile [-d delim] [-n count] [-O origin] [-s count] [-t] [-u fd] [-C c
 
 
 
-```Bash
+```bash
 # 每读取 3 行执行一次 echo 命令
 callback() {
     echo "--- 已处理 3 行 ---"
@@ -1002,7 +1002,7 @@ mapfile -t -c 3 -C callback < big_file.txt
 
 建议在编写脚本时，直接套用这个“最稳健”的模板：
 
-```Bash
+```bash
 while IFS= read -r line || [[ -n "$line" ]]; do
     # 你的逻辑
 done < "filename.txt"

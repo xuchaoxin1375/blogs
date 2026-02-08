@@ -50,7 +50,7 @@ printf is /bin/printf
 
 **功能集：** Bash 内建的 `printf` 通常功能更多。例如，Bash 版支持使用 `-v` 选项直接将结果赋值给变量，而不需要开启子进程：
 
-```Bash
+```bash
 # Bash 内建特有：将格式化结果存入变量 my_var
 printf -v my_var "Value: %.2f" 3.1415
 ```
@@ -360,7 +360,7 @@ output
 
  
 
-```Bash
+```bash
 # FORMAT 字符串中除了 \n，全是普通字符
 printf "Welcome to my server.\n"
 # 输出: Welcome to my server.
@@ -374,7 +374,7 @@ printf "Welcome to my server.\n"
 
  
 
-```Bash
+```bash
 # \n 是换行，\t 是制表符（Tab）
 str="User:\troot\nStatus:\tOnline\n"
 printf "$str"
@@ -412,7 +412,7 @@ printf "%s\n" "$str"
 
  
 
-```Bash
+```bash
 # %s 对应字符串，%d 对应整数，%.2f 对应保留两位的浮点数
 printf "Name: %s | ID: %d | Score: %.2f\n" "Alice" 101 95.5
 # 输出: Name: Alice | ID: 101 | Score: 95.50
@@ -424,7 +424,7 @@ printf "Name: %s | ID: %d | Score: %.2f\n" "Alice" 101 95.5
 
 
 
-```Bash
+```bash
 # %-10s 表示左对齐，占用10个字符宽度
 # %5d   表示右对齐，占用5个字符宽度
 printf "%-10s: [%5d]\n" "CPU" 45
@@ -446,7 +446,7 @@ Memory    : [ 1024]
 
 
 
-```Bash
+```bash
 # 定义一个数组
 fruits=("Apple" "Banana" "Cherry")
 

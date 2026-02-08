@@ -62,7 +62,7 @@ Set each NAME to VALUE in the environment and run COMMAND.
 
 
 
-```Bash
+```bash
 env -i /bin/bash
 ```
 
@@ -112,7 +112,7 @@ env -i /bin/bash
 
 
 
-```Bash
+```bash
 env LANG=en_US.UTF-8 date
 ```
 

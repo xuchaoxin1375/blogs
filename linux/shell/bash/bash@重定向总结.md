@@ -224,7 +224,7 @@ ls -la /proc/$$/fd
 
 管道方式 (`|`)
 
-```Bash
+```bash
 nginx -v 2>&1 | grep 'openresty'
 ```
 
@@ -234,7 +234,7 @@ nginx -v 2>&1 | grep 'openresty'
 
 进程替换方式 (`<(...)`)
 
-```Bash
+```bash
 grep 'openresty' <(nginx -v 2>&1)
 ```
 
@@ -1084,7 +1084,7 @@ flock -n 200 || { echo "Another instance running"; exit 1; }
 
 > 与 `echo -n` 类似，`printf` 不会自动添加换行符.
 
-```Bash
+```bash
 echo -n "" > filename.txt
 #或者
 printf "" > filename.txt
@@ -1096,7 +1096,7 @@ printf "" > filename.txt
 
 配合基础外部命令`cp`或`cat`重定向
 
-```Bash
+```bash
 cp /dev/null filename.txt
 # 或者
 cat /dev/null > filename.txt

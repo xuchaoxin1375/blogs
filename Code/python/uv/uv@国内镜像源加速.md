@@ -42,7 +42,7 @@ default = true
 
 
 
-```Bash
+```bash
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
@@ -70,7 +70,7 @@ default = true
 
 目前国内尚无完美的 `uv` Python 解释器全量镜像，但你可以通过环境变量强制 `uv` 使用特定的安装源（如果该源支持）：
 
-```Bash
+```bash
 # 这种方式目前主要依赖于网络环境，建议开启代理或手动预安装 Python
 uv python install 3.12
 ```
@@ -81,7 +81,7 @@ uv python install 3.12
 
 配置完成后，你可以运行以下命令观察输出的 URL：
 
-```Bash
+```bash
 uv add requests --verbose
 ```
 

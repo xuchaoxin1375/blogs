@@ -203,7 +203,7 @@ bash: -c: line 2: syntax error: unexpected end of file from `for' command on lin
 
 Bash
 
-```Bash
+```bash
 # 例子
 set -- apple banana cherry
 
@@ -219,7 +219,7 @@ echo "所有参数: $@"  # 输出 apple banana cherry
 
 许多高级开发者在编写生产环境脚本时，习惯在脚本开头添加以下这行“魔法代码”，以确保脚本尽可能安全地运行：
 
-```Bash
+```bash
 #!/bin/bash
 set -euo pipefail
 ```
@@ -285,7 +285,7 @@ set +o xtrace
 
 > The current set of flags may be found in `$-`.  
 
-```Bash
+```bash
 echo $-
 ```
 
@@ -397,7 +397,7 @@ set +o noclobber
 
 **对比示例：**
 
-```Bash
+```bash
 # 场景：你想把 -e 设为第一个参数
 set -e     # 危险！这会激活 Bash 的 "errexit" 模式（出错立即退出脚本）
 set -- -e  # 正确！$1 现在是 "-e"，且不会触发 Shell 选项
@@ -409,7 +409,7 @@ set -- -e  # 正确！$1 现在是 "-e"，且不会触发 Shell 选项
 
 
 
-```Bash
+```bash
 line="2026-01-25 17:15:47 status=200"
 
 # 使用 set -- 将字符串拆分
@@ -516,7 +516,7 @@ output
 
   
 
-  ```Bash
+  ```bash
   declare -i num=10  # 声明为整数，num+1 会直接进行算术运算
   declare -a list    # 声明为普通数组
   declare -A map     # 声明为关联数组（键值对）
