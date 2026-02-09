@@ -19,7 +19,7 @@ Visual Studio Code extension utilizing the [Bash Language Server](https://github
 - We recommend that you [install shellcheck](https://github.com/koalaman/shellcheck#installing) to enable linting and [install shfmt](https://github.com/mvdan/sh?tab=readme-ov-file#shfmt) to enable formatting.这两个工具(`shellcheck`和`shfmt`)不仅在linux上可用,windows上也可用.
 - 这是一个命令行解释工具(在线网站)https://explainshell.com/,也可以部署本地服务集成到Bash IDE([idank/explainshell：将命令行参数与他们的帮助文本匹配](https://github.com/idank/explainshell)),安装条件比前面两个工具略高,这作为一个可选的功能.
 
-另外还有代码片段snippet 类型的插件可以提高编写效率(这类插件不知1个.)
+另外还有代码片段snippet 类型的插件可以提高编写效率(这类插件不只1个.)
 
 [shellman - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
 
@@ -30,6 +30,14 @@ Visual Studio Code extension utilizing the [Bash Language Server](https://github
 但是还有一些高级特性(和命令相关的补全提示)需要linux/macos环境,对于较新版本的windows可以借助wsl获得linux环境.
 
 [Shell 脚本命令补全 - Visual Studio Marketplace --- Shell Script Command Completion - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tetradresearch.vscode-h2o)这个shell命令补全和提示插件就无法直接在windows下运行.
+
+### 代码格式化排版插件
+
+在vscode中,Bash IDE插件已经集成了此功能,但是这需要你事先安装shfmt
+
+如果不生效,或者需要额外的配置,可以使用其他专门的格式化插件,例如`shell-forma`
+
+[marketplace.visualstudio.com/items?itemName=lumirelle.shell-format-rev](https://marketplace.visualstudio.com/items?itemName=lumirelle.shell-format-rev)
 
 ------
 

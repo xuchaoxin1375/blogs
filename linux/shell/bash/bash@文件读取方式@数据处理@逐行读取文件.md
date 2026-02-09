@@ -599,23 +599,13 @@ done < "$file"
 
 如果你的输入源是变量/参数的内容，bash 可以使用 [here string](https://mywiki.wooledge.org/BashGuide/InputAndOutput#Heredocs_And_Herestrings) 来迭代其行：
 
-
-
- 
-
 ```bash
 while IFS= read -r line; do
   printf '%s\n' "$line"
 done <<< "$var"
 ```
 
-
-
 在任何 Bourne 类型的 shell 中，都可以使用 "here document"（尽管 `read -r` 是 POSIX，而不是 Bourne）来实现相同的功能。
-
-
-
- 
 
 ```bash
 while IFS= read -r line; do
@@ -974,16 +964,19 @@ echo "第一行内容是: $line"
 
 如果文件非常大，一次性存入变量会消耗大量内存。此时应使用 `while` 循环配合 `read` 逐行处理。
 
+建议在编写脚本时，直接套用这个“最稳健”的模板：
+
 ```bash
-while IFS= read -r line; do
-    echo "当前行内容: $line"
-    # 你可以在这里对每一行进行操作
-done < test.txt
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # 你的逻辑
+done < "filename.txt"
 ```
 
 `IFS=`：防止行首和行尾的空格被过滤掉。
 
 `read -r`：防止反斜杠转义(斜杠丢弃),原样读取输入。
+
+如果你需要处理非常庞大的文件（GB级别），这种原生的 Bash 循环可能会比较慢，届时我们可以讨论如何结合 `awk` 来提升效率。
 
 ### 读取各行到数组中(mapfile)🎈
 
@@ -1043,16 +1036,29 @@ mapfile -t -c 3 -C callback < big_file.txt
 mapfile -t BLACKLIST < <(tr -d '\r' < "$BLACKLIST_FILE")
 ```
 
+#### zsh中的代替方案
 
+mapfile在zsh中不可用,但是zsh有一套更强大的方案.
 
-## 总结模板
+在 Zsh 中，你可以利用 `f` 标志（按行分割）和读取文件的语法来快速实现：
 
-建议在编写脚本时，直接套用这个“最稳健”的模板：
+```zsh
+# 读取文件内容到数组 lines 中
+lines=( ${(f)"$(cat filename)"} )
 
-```bash
-while IFS= read -r line || [[ -n "$line" ]]; do
-    # 你的逻辑
-done < "filename.txt"
+# 或者更高效的方法（不调用 cat）
+lines=( ${(f)"$(<filename)"} )
 ```
 
-如果你需要处理非常庞大的文件（GB级别），这种原生的 Bash 循环可能会比较慢，届时我们可以讨论如何结合 `awk` 来提升效率。
+**代码解析：**
+
+- `$(<filename)`：这是 Zsh/Bash 的快速语法，效果等同于 `cat`，但不会创建子进程。
+- `(f)`：这是一个 **Parameter Expansion Flag**，代表 "Splitting on Newlines"，它会自动把字符串按行切割成数组元素。
+- `"`双引号`"`：确保保留文件中的空行（如果不加引号，连续的空行可能会被合并）。
+
+| **特性**     | **Bash (mapfile)** | **Zsh**                        |
+| ------------ | ------------------ | ------------------------------ |
+| **下标起始** | 从 **0** 开始      | 默认从 **1** 开始              |
+| **空值处理** | 默认保留行尾换行符 | `(f)` 标志会自动移除行尾换行符 |
+| **赋值语法** | `mapfile ARRAY`    | `ARRAY=( ${(f)...} )`          |
+
