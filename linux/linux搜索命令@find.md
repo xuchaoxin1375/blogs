@@ -28,7 +28,21 @@ Default path is the current directory; default expression is -print.
 
 不使用参数时,默认查找当前工作目录,递归查找
 
-注意,path(路径参数是位置参数,不需要也没有前导的选项来引出path参数),并且根据语法标记`[path...]`可知,find命令允许不传入path或者传入多个path
+最核心的参数是`path`和`expression`.
+
+对于初学者,可以简化为
+
+```bash
+Usage: find [path...] [expression]
+```
+
+`path`规定了find要在哪些目录中查找
+
+> 参数**path**是位置参数,不需要也没有前导的选项来引出path,并且根据语法标记`[path...]`可知,`find`命令允许省略path或者传入多个path
+>
+> 不要和`expression`中的`-path`和`-name`混淆,`-path PATTERN`：查找路径名匹配模式`PATTERN`的文件
+
+`expression`是find命令最灵活的部分,具有大量可用的属性,可以指定复杂的匹配规则,最常用的规则是根据名字特点来找文件,通过`-name`来指定此规则
 
 ### 简介
 
@@ -72,7 +86,7 @@ expression内容较多,后文解释
   -D debugopts
   ```
 
-  ：启用调试模式，
+  启用调试模式，
 
   ```
   debugopts
@@ -91,12 +105,21 @@ expression内容较多,后文解释
 
 
 
-## expressions
+## expressions🎈
+
+这部分是find命令的核心.expression由4个部分构成:
+
+> Expression may consist of: **operators, options, tests, and actions.**
+
+其中最基础的是`options`(normal options),可以指定查找的目录深度范围等,这部分在命令行中出现的位置有讲究,是expression中靠前的部分.控制搜索行为或限制搜索范围.
+
+其次是`Tests`,写法和bash中的`test`测试语句类似,外观也像一个选项,只不过由单词代替单个字母,语义清晰.
+
+`Operators`可以链接其他基础的表达式构成更加复杂的表达式
+
+最后是`Actions`,这是find功能的延生部分,允许用户在查找到目标后执行特定操作(例如删除文件,以特定格式打印文件名等),而不需要等到后期处理.
 
 ```bash
-
-
-Expression may consist of: operators, options, tests, and actions.
 
 Operators (decreasing precedence; -and is implicit where no others are given):
       ( EXPR )   ! EXPR   -not EXPR   EXPR1 -a EXPR2   EXPR1 -and EXPR2
@@ -140,7 +163,7 @@ https://savannah.gnu.org/bugs/?group=findutils or, if
 you have no web access, by sending email to <bug-findutils@gnu.org>.
 ```
 
-这段文档是对 `find` 命令表达式的详细说明，描述了它的组成部分、选项、操作符、测试条件、动作以及一些常见的命令行选项。以下是对这段文本的翻译与解释：
+这段文档是对 `find` 命令表达式的详细说明，描述了它的组成部分、选项、操作符、测试条件、动作以及一些常见的命令行选项。
 
 ------
 
@@ -173,7 +196,7 @@ you have no web access, by sending email to <bug-findutils@gnu.org>.
 
 ### **常规选项**（总是为真，且必须在其他表达式之前指定）
 
-这些选项通常用于控制搜索行为或限制搜索范围。
+这些选项通常用于**控制搜索行为或限制搜索范围**。
 
 - `-depth`：深度优先遍历，先处理子目录，再处理父目录。
 - `-files0-from FILE`：从指定的文件中读取文件名，文件名以 null 字符 (`\0`) 结束。
@@ -185,12 +208,30 @@ you have no web access, by sending email to <bug-findutils@gnu.org>.
 - `-ignore_readdir_race`：忽略目录读取竞争（例如，目录的内容在搜索过程中被修改）。
 - `-noignore_readdir_race`：不忽略目录读取竞争。
 
-### **测试条件**（`N` 可以是 `+N`、`-N` 或 `N`，表示时间范围）
+### 测试条件
+
+### 模式匹配
+
+`find`命令比较复杂,`-name`这类接受通配符的测试选项需要将通配模式传用引号包裹,否则在传入`find`之前就会被bash解释(扩展通配符)
+
+#### 时间概念
+
+`N`表示时间范围,可以是 `+N`、`-N` 或 `N`
+
+在 `find` 命令中，时间参数（如 `-mtime`、`-atime`、`-ctime`）的 `N` 值理并不是简单的“天数”，而是一个**基于当前时间点向前推算的区间**。
+
+三种时间戳
+
+| 时间戳    | 全称        | 含义         | 触发场景                                                     |
+| --------- | ----------- | ------------ | ------------------------------------------------------------ |
+| **atime** | Access Time | 最后访问时间 | `cat`, `less`, `grep` 读取文件                               |
+| **mtime** | Modify Time | 最后修改时间 | 编辑文件内容                                                 |
+| **ctime** | Change Time | 最后变更时间 | 修改权限、所有者、重命名、内容修改(内容修改同时引起modify和change) |
 
 - `-amin N`：查找最后访问时间在 `N` 分钟前的文件。
 - `-anewer FILE`：查找自 `FILE` 之后被访问过的文件。
 - `-atime N`：查找最后访问时间在 `N` 天前的文件。
-- `-cmin N`：查找最后状态更改时间在 `N` 分钟前的文件。
+- `-cmin N`：查找最后**状态更改**(change)时间在 `N` 分钟前的文件。
 - `-cnewer FILE`：查找自 `FILE` 之后更改状态的文件。
 - `-context CONTEXT`：查找符合特定 SELinux 上下文的文件。
 - `-ctime N`：查找最后状态更改时间在 `N` 天前的文件。
@@ -206,7 +247,7 @@ you have no web access, by sending email to <bug-findutils@gnu.org>.
 - `-iregex PATTERN`：查找符合不区分大小写的正则表达式模式的文件。
 - `-links N`：查找硬链接数为 `N` 的文件。
 - `-lname PATTERN`：查找符号链接匹配模式的文件。
-- `-mmin N`：查找最后修改时间在 `N` 分钟前的文件。
+- `-mmin N`：查找最后**修改**(modify,区别于位置或权限这类的状态变化change)时间在 `N` 分钟前的文件。
 - `-mtime N`：查找最后修改时间在 `N` 天前的文件。
 - `-name PATTERN`：查找文件名匹配模式的文件。
 - `-newer FILE`：查找修改时间在 `FILE` 之后的文件。
@@ -227,7 +268,67 @@ you have no web access, by sending email to <bug-findutils@gnu.org>.
 - `-user NAME`：查找指定用户拥有的文件。
 - `-xtype [bcdpfls]`：查找特定类型的符号链接目标。
 
-### **动作**：
+
+
+为了直观理解 $+N$、$-N$ 和 $N$，我们可以将其想象成一条从现在回溯到过去的时间轴：
+
+------
+
+1. 时间参数的定义
+
+- **`-mtime`** (Modified time): 文件**内容**最后修改的时间。
+- **`-atime`** (Access time): 文件最后被**读取**或访问的时间。
+- **`-ctime`** (Change time): 文件**状态**（如权限、所有者）最后改变的时间。
+
+2. $N$ 的三种表示法
+
+假设现在是 **2月8日 12:00**，我们以 `-mtime`（单位为 24 小时）为例：
+
+在时间轴上遵循"左加右减"的规律
+
+| **符号**        | **含义**      | **实际匹配范围**                                             |
+| --------------- | ------------- | ------------------------------------------------------------ |
+| **`-mtime +n`** | 大于 $n$ 天   | 距离现在 **$(n+1)$ 天之前**的文件（不含 $n$ 到 $n+1$ 之间）。 |
+| **`-mtime -n`** | 小于 $n$ 天   | 距离现在 **$n$ 天以内**的文件（即比 $n$ 天更新）。           |
+| **`-mtime n`**  | 正好第 $n$ 天 | 距离现在 **$n$ 到 $(n+1)$ 天之间**的那个 24 小时窗口。       |
+
+------
+
+3. 具体举例
+
+场景 A：清理旧日志（查找 30 天前的文件）
+
+```bash
+find /var/log -name "*.log" -mtime +30
+```
+
+- **含义**：查找修改时间在 31 天及更久之前的文件。
+
+场景 B：查找最近 24 小时内修改过的脚本
+
+```bash
+find . -name "*.sh" -mtime -1
+```
+
+- **含义**：查找从现在起，往回推 24 小时之内被改动过的文件。
+
+场景 C：查找“前天”修改的文件（正好 48-72 小时前）
+
+```bash
+find /data -mtime 2
+```
+
+- **含义**：查找修改时间恰好落在距今 48 小时到 72 小时之间文件的。
+
+补充:
+
+- **天 vs 分钟**：`-mtime` 的单位是 **24 小时**。如果你需要更精细的控制（比如 5 分钟前），请使用 **`-mmin`**、**`-amin`** 或 **`-cmin`**。
+  - `find . -mmin -5`：查找过去 5 分钟内修改过的文件。
+- **向下取整**：`find` 的时间计算通常是向下取整的。例如，一个文件是 1.9 天前修改的，在 `find` 眼里它依然算作“1 天前”（即 $n=1$）。
+
+
+
+### 动作(Actions)
 
 动作定义了 `find` 查找结果后应该执行的操作。
 
@@ -259,14 +360,6 @@ you have no web access, by sending email to <bug-findutils@gnu.org>.
 - `exec`, `opt`, `rates`, `search`, `stat`, `time`, `tree`, `all`, `help`
 
 你可以使用 `-D help` 来查看这些选项的详细描述，或者参考 `find(1)` 手册。
-
-### **报告问题**：
-
-你可以通过访问 [GNU findutils bug-reporting page](https://savannah.gnu.org/bugs/?group=findutils) 来报告问题，或者通过电子邮件发送到 `bug-findutils@gnu.org`。
-
-------
-
-这段文档详细列出了 `find` 命令的所有可用选项和参数，帮助用户灵活使用该命令进行复杂的文件查找和操作。
 
 ## 实用部分教程🎈
 

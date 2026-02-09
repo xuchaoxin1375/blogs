@@ -23,13 +23,33 @@ done < "$file"
 
 如果你想将文件中的行读入到一个 [数组 ](https://mywiki.wooledge.org/BashFAQ/005)中，请参见 [FAQ 5](https://mywiki.wooledge.org/BashFAQ/005)。
 
+### read -r
 
-
-`read -r` 选项**防止反斜杠的解释**（通常用作反斜杠换行对，以跨多行或转义分隔符）。如果没有这个选项，**输入中的任何未转义的反斜杠都会被丢弃**。在使用 read 时，**您几乎总是应该使用 `-r` 选项**。
-
-> 这个规则最常见的**例外情况**是当使用 `-e` 时，它通过 Readline 从交互式 shell 中获取行。
+>  -r        do not allow backslashes to escape any characters
 >
-> 在这种情况下，**tab 补全会添加反斜杠来转义空格等字符**，而您不希望这些反斜杠被字面量地包含在变量中。
+> `-r`（raw mode）：禁止反斜杠 `\` 作为转义字符，将其视为普通字面字符。
+
+如果没有这个选项，**输入中的任何未转义的反斜杠都会被丢弃**。在使用 read 时，**您几乎总是应该使用 `-r` 选项**。
+
+我们使用herestring来做read命令的小实验
+
+```bash
+# 不使用 -r（反斜杠被解释为转义字符）
+$ read line <<< 'hello\nworld';echo "$line"
+hellonworld    # \被直接丢弃,且没有将\n解释换行符处理
+
+# 使用 -r（保留原始反斜杠）
+$ read -r line <<< 'hello\nworld';echo "$line"
+hello\nworld   # \ 原样保留,\n也没有被解释为换行符
+```
+
+
+
+> 这个规则(使用`-r`)最常见的**例外情况**是当使用 `-e` 时，它通过 `Readline` 从交互式 shell 中获取行。
+>
+> `-e        use Readline to obtain the line`
+>
+> 在这种情况下，**tab 补全会添加反斜杠来转义空格等字符**，而您不希望这些反斜杠被字面量地包含在变量中(不适用`-r`就可以移除这些`\`字符)。
 >
 > 不过，当逐行读取内容时，这绝不会被使用，而且在这种情况下应该始终使用 `-r`。
 
