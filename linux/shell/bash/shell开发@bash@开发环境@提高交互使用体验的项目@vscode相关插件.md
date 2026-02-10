@@ -4,22 +4,74 @@
 
 本文介绍bash的开发环境搭建和针对交互式的体验改进项目.
 
-### bash开发工具
+### Bash IDE 
 
-这部分包含最核心的功能,包括符号分析,定义跳转,高亮显示,语法检查和格式化(可以后续增强配置),变量或函数补全等
+vscode中的核心的bash插件
+
+这部分包含最核心的功能,包括符号分析,定义跳转,高亮显示,语法检查和规范检查(shellcheck)和格式化(shfmt),变量或函数补全等
 
 [Bash IDE - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode)
 
-> 此插件集成了最核心的功能,但是完整功能的可用性依赖于几个外部工具,需要用户自行安装,主要是shellcheck和shfmt.(其他语法检查和格式插件就可以不用单独安装了.)
+> 此插件集成了最核心的功能,但是完整功能的可用性依赖于几个外部工具,需要用户自行安装,主要是shellcheck和shfmt.
 >
+> 其他语法检查和格式插件是可选的(虽然这两个功能在bash IDE这个插件提供了基本功能,但是提供的可配置项以及功能完整度可能不如单独的插件专业,可以按需额外安装shellcheck和shfmt的插件.)
+
+
+
 > 此插件在vscode刚启动时可能无法立即工作,需要一些时间,如果过早打开shell文件可能导致该文件的分析无法正常进行
 >
 > 尤其是目标文件内容复杂的情况,如果卡住无法分析符号等,请关闭该文件后重新打开.
 
-Visual Studio Code extension utilizing the [Bash Language Server](https://github.com/bash-lsp/bash-language-server/blob/HEAD/bash-lsp) and integrating with [explainshell](https://explainshell.com/), [shellcheck](https://www.shellcheck.net/) and [shfmt](https://github.com/mvdan/sh).
+> Visual Studio Code extension utilizing the [Bash Language Server](https://github.com/bash-lsp/bash-language-server) and integrating with [explainshell](https://explainshell.com/), [shellcheck](https://www.shellcheck.net/) and [shfmt](https://github.com/mvdan/sh).
+>
+> We recommend that you [install shellcheck](https://github.com/koalaman/shellcheck#installing) to enable linting and [install shfmt](https://github.com/mvdan/sh?tab=readme-ov-file#shfmt) to enable formatting.
 
-- We recommend that you [install shellcheck](https://github.com/koalaman/shellcheck#installing) to enable linting and [install shfmt](https://github.com/mvdan/sh?tab=readme-ov-file#shfmt) to enable formatting.这两个工具(`shellcheck`和`shfmt`)不仅在linux上可用,windows上也可用.
+- shellcheck和shfmt这两个工具(`shellcheck`和`shfmt`)不仅在linux上可用,windows上也可用.
 - 这是一个命令行解释工具(在线网站)https://explainshell.com/,也可以部署本地服务集成到Bash IDE([idank/explainshell：将命令行参数与他们的帮助文本匹配](https://github.com/idank/explainshell)),安装条件比前面两个工具略高,这作为一个可选的功能.
+
+#### 异常检查
+
+此插件功能相对复杂,支持的功能比较多,如果环境或配置不当,许多功能无法生效.
+
+如果你发现某些功能无法工作,可以通过vscode的输出(output)窗口找到Bash IDE,看看输出了哪些错误或异常
+
+> 通过顶部菜单栏中的View->Output打开此窗口,然后再右侧的输出来源下拉列表中找到Bash IDE.
+
+例如,当你发现格式化bash代码不生效时,可能在输出中找到如下报告
+
+```bash
+[Error - 6:54:24 PM] 10:54:24.718 ERROR ⛔️ Error while formatting: Error: Shfmt: exited with status 2: invalid value "auto" for flag -ln: unknown shell language variant: "auto"
+usage: shfmt [flags] [path ...]
+
+```
+
+这表明bash ide插件在关于`shfmt`的配置上有问题(使用了无效的值`auto`,有效值可能跟随shfmt的版本不同而不同,`auto`可能需要较新的shfmt才能支持)
+
+> 运行此命令查询版本和可用的格式化选项.`shfmt -version;shfmt --help 2>&1|grep -- '-ln.*str'`
+
+```bash
+   shfmt -version;shfmt --help 2>&1|grep -- '-ln.*str'
+(devel)
+  -ln str        language variant to parse (bash/posix/mksh/bats, default "bash")
+```
+
+在较新版本中,输出可能像如下(支持`auto`选项.)
+
+```bash
+$ shfmt -version;shfmt --help 2>&1|grep -- '-ln.*str'
+3.12.0
+  -ln, --language-dialect str  bash/posix/mksh/bats, default "auto"
+```
+
+可以通过如下路径(`bashIde.shfmt.languageDialect`)将auto更改为bash或其他可用的值.
+
+或者将下面的url粘贴到设置页的查找框中
+
+```
+vscode://settings/bashIde.shfmt.languageDialect
+```
+
+
 
 ### 代码片段(模板)
 
@@ -31,7 +83,7 @@ Visual Studio Code extension utilizing the [Bash Language Server](https://github
 
 [shellman - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
 
-下面的插件是大片段补全,包含一些常用需求的标准解决方案或最佳实践,例如判断一个命令是否已经安装/可用
+下面的插件是大片段补全,包含一些常用需求的标准解决方案,例如判断一个命令是否已经安装/可用(`isCommandInstalled()`)
 
 [sheller - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=guttih.sheller)
 
@@ -51,13 +103,21 @@ Visual Studio Code extension utilizing the [Bash Language Server](https://github
 
 [Shell 脚本命令补全 - Visual Studio Marketplace --- Shell Script Command Completion - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tetradresearch.vscode-h2o)这个shell命令补全和提示插件就无法直接在windows下运行.
 
-### 代码格式化排版插件
+### 代码规范检查(shellcheck)
+
+在vscode中,Bash IDE插件已经集成了此功能,但是这需要你事先安装shellcheck
+
+如果需要更专业的配置,需要额外安装其他插件做补充
+
+[ShellCheck - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck)
+
+### 代码格式化排版插件(shfmt)
 
 在vscode中,Bash IDE插件已经集成了此功能,但是这需要你事先安装shfmt
 
 如果不生效,或者需要额外的配置,可以使用其他专门的格式化插件,例如`shell-format-rev`
 
-[marketplace.visualstudio.com/items?itemName=lumirelle.shell-format-rev](https://marketplace.visualstudio.com/items?itemName=lumirelle.shell-format-rev)
+[shell-format-rev - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=lumirelle.shell-format-rev)
 
 ------
 
