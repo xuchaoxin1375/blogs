@@ -10,6 +10,11 @@
 rsync [选项] 源路径 目标路径
 ```
 
+传输方向有2个:
+
+- 本地路径->远程路径
+- 远程路径->本地路径
+
 例如
 
 ```bash
@@ -17,6 +22,28 @@ rsync -avz -e "ssh -i /path/to/key" /local/zips/ user@server-b:/backup/
 ```
 
 ---
+
+从远程服务器拉取
+
+```bash
+user="root" #默认root
+# 远程主机
+remote_host=""
+# 本地路径
+local_path=""
+# 远程路径
+remote_path=""
+
+#准备
+authority="$user"@"$remote_host"
+remote_full_path="$authority":"$remote_path"
+
+mkdir -p "$local_path"
+
+rsync -avzP "$remote_full_path" "$local_path" 
+```
+
+
 
 ## 📚 核心常用参数详解（按你脚本中出现的）
 

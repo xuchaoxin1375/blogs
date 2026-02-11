@@ -130,3 +130,4 @@ rsync -avz /local/ myserver:/remote/
 ---
 
 如果你有自动化脚本、跨平台同步或带宽限制等需求，`-e` 选项结合 SSH 配置能提供极大的灵活性。
+
