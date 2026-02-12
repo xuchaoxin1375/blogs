@@ -55,7 +55,7 @@ ssh-copy-id -i ~/.ssh/mykey.pub -p 2222 user@remote_host
 #### 5. 使用完整 SSH 命令格式（高级）
 
 ```bash
-ssh-copy-id -i ~/.ssh/mykey.pub "user@remote_host -p 2222"
+ssh-copy-id -i ~/.ssh/mykey.pub -p 2222 "user@remote_host"
 ```
 
 > 注意：这种方式将整个 SSH 连接参数作为字符串传递，适用于复杂场景。
