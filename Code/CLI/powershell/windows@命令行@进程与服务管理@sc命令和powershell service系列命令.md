@@ -1,6 +1,6 @@
 [toc]
 
-# abstract
+## abstract
 
 
 
@@ -8,11 +8,14 @@
 - 查看/关闭/停止/移除服务
 - windows移除mysql服务
 
-# 进程管理
+命令行分析资源占用(powershell),另见它文
 
 ## powershell进程相关命令行
 
+- [Get-Process (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-process?view=powershell-7.5)
+- [Get-Service (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.5)
 
+其他
 
 - [PowerShell Get-Process | Parameters in PowerShell Get-Process (educba.com)](https://www.educba.com/powershell-get-process/)
 
@@ -22,7 +25,7 @@
 
 ### 按名称分组统计进程
 
-- `ps |group ProcessName |sort Name`
+`ps |group ProcessName |sort Name`
 
 - ```powershell
   PS C:\Users\cxxu> ps |group ProcessName |Sort Name                  
@@ -68,9 +71,9 @@ Count Name                      Group
 1 WeChatPlayer              {System.Diagnostics.Process (WeChatPlayer)}
 ```
 
-## 查看进程
+## 查看进程(get-process)
 
-`ps`命令的默认位置参数是接受进程名(ProcessName)而不是程序名
+get-process(别名为`ps`)命令的**默认位置参数**接受**进程名**(ProcessName)而不是**程序名**
 
 ```powershell
     -Name <System.String[]>
@@ -85,42 +88,42 @@ Count Name                      Group
         Accept wildcard characters?  true
 ```
 
-#### 进程详情
+### 进程详情
 
-- 例如查看所有资源管理器进程详情
+例如查看所有资源管理器进程详情
 
-  ```bash
-  PS> Get-Process explorer | Format-List *
-  
-  Name                       : explorer
-  Id                         : 2532
-  PriorityClass              : Normal
-  FileVersion                : 10.0.22621.3235 (WinBuild.160101.0800)
-  HandleCount                : 3681
-  WorkingSet                 : 91422720
-  PagedMemorySize            : 252719104
-  PrivateMemorySize          : 252719104
-  VirtualMemorySize          : 1288265728
-  TotalProcessorTime         : 00:00:29.3750000
-  SI                         : 1
-  Handles                    : 3681
-  VM                         : 2204606488576
-  ......
-  
-  ```
+```bash
+PS> Get-Process explorer | Format-List *
 
-- 查看通过命令行启动的记事本进程对应的命令行
+Name                       : explorer
+Id                         : 2532
+PriorityClass              : Normal
+FileVersion                : 10.0.22621.3235 (WinBuild.160101.0800)
+HandleCount                : 3681
+WorkingSet                 : 91422720
+PagedMemorySize            : 252719104
+PrivateMemorySize          : 252719104
+VirtualMemorySize          : 1288265728
+TotalProcessorTime         : 00:00:29.3750000
+SI                         : 1
+Handles                    : 3681
+VM                         : 2204606488576
+......
 
-  ```
-  PS> ps notepad|select CommandLine|ft -Wrap
-  
-  CommandLine
-  -----------
-  "C:\Program Files\WindowsApps\Microsoft.WindowsNotepad_11.2402.22.0_x64__8wekyb3d8bbw
-  e\Notepad\Notepad.exe" /SESSION:UXQzrUjzPUmkkKI4pz0iuwAAAAEDAAAAAaCEAQQDAAAAAAAA
-  ```
+```
 
-  
+查看通过命令行启动的记事本进程对应的命令行
+
+```
+PS> ps notepad|select CommandLine|ft -Wrap
+
+CommandLine
+-----------
+"C:\Program Files\WindowsApps\Microsoft.WindowsNotepad_11.2402.22.0_x64__8wekyb3d8bbw
+e\Notepad\Notepad.exe" /SESSION:UXQzrUjzPUmkkKI4pz0iuwAAAAEDAAAAAaCEAQQDAAAAAAAA
+```
+
+
 
 ### 查找进程
 
@@ -164,6 +167,8 @@ PS C:\Users\cxxu> ps idm*
 PS C:\Users\cxxu> stop -Name IDMan
      
 ```
+
+
 
 ## Microsoft 为windows 提供的辅助工具集合:Sysinternals
 
