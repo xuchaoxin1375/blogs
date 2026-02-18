@@ -148,6 +148,10 @@ msedge     813.93     478.79      2199.38
 
 ## powershell进程内存相关属性与任务管理器 / 资源监视器的对应关系
 
+内存管理器中的内存视图中的统计信息不局限于物理内存,还包括分页文件,例如已提交/提交量等参数
+
+资源监视器中的内存视图中的内存占用示意图(带状图)包含的指标都是物理内存相关的(分页文件pagefile.sys中的用量不参与统计)
+
 ### 任务管理器列
 
 | 任务管理器列名         | 对应 PowerShell 字段                        | 对应性能计数器                  |
@@ -188,4 +192,247 @@ PrivateMemorySize64(KB) PagedMemorySize64(KB)
 | **工作集 (KB)** | 物理内存中的驻留量             | `WorkingSet64`        |
 | **可共享 (KB)** | 工作集中可与其他进程共享的部分 | ❌ 无直接字段          |
 | **专用 (KB)**   | 工作集中专属于该进程的部分     | ❌ 无直接字段          |
+
+
+
+## 模拟进程申请和使用内存
+
+本节基于powershell,引入一些辅助的函数,帮助我们观察内存的使用变化.
+
+### 计算系统的内存已提交量
+
+计算系统当前的**总提交量（Total Commit）**，最准确的方法是使用 PowerShell 调用 Windows 的 `Win32_OperatingSystem` 类或性能计数器（Performance Counters）。
+
+在任务管理器中，你看到的“提交内容”通常显示为 **“已提交 / 提交限制”**
+
+```powershell
+function Get-CommitStatus
+{
+    <#
+    .SYNOPSIS
+        计算并显示当前系统的内存提交量（Commit Charge）。
+    .DESCRIPTION
+    TotalVirtualMemorySize: 这是 WMI 中对 Commit Limit 的定义。它不是指硬盘大小，而是 物理内存 + 分页文件 的总和。
+    FreeVirtualMemory: 系统当前还能“许诺”出去的剩余额度。
+    减法逻辑: 任务管理器显示的“已提交”本质上就是：系统总额度减去还没被许诺出去的额度。
+    #>
+    [CmdletBinding()]
+    param()
+
+    process
+    {
+        # 获取操作系统内存数据 (单位为 KB)
+        $OS = Get-CimInstance Win32_OperatingSystem
+        
+        # 1. 核心计算
+        $CommitLimitKB = $OS.TotalVirtualMemorySize
+        $FreeCommitKB = $OS.FreeVirtualMemory
+        $CommittedKB = $CommitLimitKB - $FreeCommitKB
+        
+        # 2. 转换单位为 GB
+        $CommittedGB = [Math]::Round($CommittedKB / 1MB, 2)
+        $LimitGB = [Math]::Round($CommitLimitKB / 1MB, 2)
+        $Percent = [Math]::Round(($CommittedKB / $CommitLimitKB) * 100, 1)
+
+        # 3. 确定显示颜色 (压力预警)
+        $StatusColor = "Green"
+        if ($Percent -gt 70) { $StatusColor = "Yellow" }
+        if ($Percent -gt 90) { $StatusColor = "Red" }
+
+        # 4. 格式化输出
+        Write-Host "`n--- 内存提交状态 (Commit Charge) ---" -ForegroundColor Cyan
+        Write-Host "已提交 (Committed): " -NoNewline
+        Write-Host "$CommittedGB GB" -ForegroundColor $StatusColor
+        
+        Write-Host "提交限制 (Limit):     $LimitGB GB"
+        
+        Write-Host "使用百分比:           " -NoNewline
+        Write-Host "$Percent %" -ForegroundColor $StatusColor
+        
+
+    }
+}
+```
+
+```
+ Get-CommitStatus
+
+--- 内存提交状态 (Commit Charge) ---
+已提交 (Committed): 20.08 GB
+提交限制 (Limit):     28.19 GB
+使用百分比:           71.2 %
+```
+
+### 内存占用条状示意图
+
+还可以编写一个动态刷新的内存占用条状示意图
+
+```powershell
+function Show-CommitMemoryBar
+{
+    <#
+    .SYNOPSIS
+        动态监控系统内存提交量（Commit Charge）并显示进度条。
+    
+    .DESCRIPTION
+        该函数会实时读取系统的 Committed Bytes 计数器，并对比系统的 Commit Limit（物理内存 + 分页文件）。
+        进度条会根据当前压力自动变换颜色：
+        - 绿色: < 70% (正常)
+        - 黄色: 70% - 90% (警戒)
+        - 红色: > 90% (危险)
+
+        Commit Limit 的动态性：如果你的 Windows 设置了“自动管理所有驱动器的分页文件大小”，当你运行之前写的内存增加脚本时，你会发现 Commit Limit（分母）偶尔也会变大，因为 Windows 正在动态扩充物理硬盘上的分页文件来应对压力。
+    .NOTES
+    控制台的“自动换行”机制
+    行宽溢出：你的控制台窗口不够宽。当 [时间] [进度条] 比例 这一串字符的总长度超过了窗口宽度时，即便我们用了 \r（回到行首），余下的部分也会被强制挤到下一行。
+    上一次输出的残留：如果前一次输出较长，后一次输出较短，旧的末尾字符会留在屏幕上。
+    我们需要在代码中加入动态宽度计算，并确保每一行输出后都用空格“擦除”掉行尾的残余。
+
+    .EXAMPLE
+        Watch-CommitMemory -RefreshInterval 1
+    #>
+    param (
+        [Parameter(HelpMessage = "刷新间隔（秒）")]
+        [double]$RefreshInterval = 1
+    )
+
+    # 1. 初始化系统限制数据 (单位转换为 GB)
+    # TotalVirtualMemorySize 在 WMI 中代表 Commit Limit
+    try
+    {
+        $OS = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+        $CommitLimitGB = [Math]::Round($OS.TotalVirtualMemorySize / 1MB, 2)
+    }
+    catch
+    {
+        Write-Error "无法获取系统内存信息。"
+        return
+    }
+
+    Write-Host "`n>>> 启动内存提交量监控 <<<" -ForegroundColor Cyan
+    Write-Host "系统提交限制 (RAM + 分页文件): $CommitLimitGB GB"
+    Write-Host "提示: 按 Ctrl+C 停止监控`n"
+
+    # 2. 持续循环刷新
+    try
+    {
+        # 使用性能计数器获取“已提交字节”
+        Get-Counter "\Memory\Committed Bytes" -SampleInterval $RefreshInterval -Continuous | ForEach-Object {
+            $CurrentBytes = $_.CounterSamples[0].CookedValue
+            $CurrentGB = [Math]::Round($CurrentBytes / 1GB, 2)
+            $Percent = [Math]::Min(100, [Math]::Round(($CurrentGB / $CommitLimitGB) * 100, 0))
+    
+            # --- 核心改进：动态获取窗口宽度 ---
+            # 我们预留 20 个字符给时间、百分比和括号，剩下的全给进度条
+            $HostWidth = $Host.UI.RawUI.WindowSize.Width
+            $BarWidth = [Math]::Max(10, $HostWidth - 35) 
+    
+            $FilledWidth = [Math]::Floor(($Percent / 100) * $BarWidth)
+            $EmptyWidth = [Math]::Max(0, $BarWidth - $FilledWidth)
+    
+            $Color = "Green"
+            if ($Percent -gt 70) { $Color = "Yellow" }
+            if ($Percent -gt 90) { $Color = "Red" }
+    
+            $BarText = "#" * $FilledWidth
+            $SpaceText = "-" * $EmptyWidth
+    
+            $Timestamp = Get-Date -Format "HH:mm:ss"
+    
+            # 构建最终字符串
+            $Output = "[$Timestamp] [$BarText$SpaceText] $Percent% ($CurrentGB/$CommitLimitGB GB)"
+    
+            # 关键点：用新字符串覆盖旧字符串，并在末尾补空格防止残留
+            Write-Host "`r$Output" -NoNewline -ForegroundColor $Color
+        }
+    }
+    catch
+    {
+        # 处理 Ctrl+C 退出或其他异常
+        Write-Host "`n`n监控已停止。" -ForegroundColor Cyan
+    }
+}
+```
+
+```
+# [cxxu@CXXUFIREBAT][~\Desktop][18:23:46] PS >
+ Show-CommitMemoryBar
+
+>>> 启动内存提交量监控 <<<
+系统提交限制 (RAM + 分页文件): 28.19 GB
+提示: 按 Ctrl+C 停止监控
+
+[18:23:59] [###################################---------------] 71% (19.95/28.19 GB)
+```
+
+### 模拟操作
+
+```powershell
+# 用于保存内存引用的全局变量，防止函数结束后被自动回收
+$Global:MemoryBucket = New-Object System.Collections.Generic.List[Object]
+# 计算pagefile.sys文件大小
+Get-ChildItem -Force C:\pagefile.sys | Select-Object @{name = 'length(MB)'; expression = { $_.Length / 1MB } }
+
+function Add-CommitOnly
+{
+    <# 
+    .SYNOPSIS
+    模拟进程申请内存,仅增加“提交量” (Commit Only)
+    #>
+    param([int]$SizeMB = 500)
+    Write-Host "当前pagefile.sys文件大小"
+    Write-Host "正在预订 $SizeMB MB 虚拟空间 (仅增加提交量)..." -ForegroundColor Cyan
+    
+    # 申请数组，但不操作它。Windows 此时只增加 Commit Limit 计数。
+    $buffer = New-Object Byte[] ($SizeMB * 1MB)
+    $Global:MemoryBucket.Add($buffer)
+    
+    Write-Host "Done! 请观察任务管理器：'提交大小'上涨，但'工作集/内存'几乎不动。" -ForegroundColor Yellow
+}
+
+function Add-WorkingSet
+{
+    <# 
+    .SYNOPSIS
+    增加“工作集” (Working Set/RAM)
+    .DESCRIPTION
+    基于Add-CommitOnly函数的实现，增加“工作集” (Working Set/RAM)
+    MemoryBucket写入内容
+    #>
+    param([int]$SizeMB = 500)
+    Write-Host "正在占用 $SizeMB MB 物理内存 (增加提交量 + 工作集)..." -ForegroundColor Magenta
+    
+    # 声明数组和Add-CommitOnly函数一样，但声明完毕后会增加了填充数据步骤
+    $buffer = New-Object Byte[] ($SizeMB * 1MB)
+    # 关键步骤：通过循环填充数据，强迫操作系统分配物理内存页面
+    for ($i = 0; $i -lt $buffer.Length; $i += 4096)
+    { 
+        $buffer[$i] = 1 
+    }
+    $Global:MemoryBucket.Add($buffer)
+    
+    Write-Host "Done! 请观察任务管理器：'提交大小'与'内存(已使用)'同步上涨。" -ForegroundColor Green
+}
+
+function Clear-TestMemory
+{
+    <# 
+    .SYNOPSIS
+    # 释放内存函数 
+    # 如果仅运行了add-commitonly(一次或若干次),想要直接释放这部分的提交量,可以关闭对应的powershell进程(窗口)
+
+    #>
+    Write-Host "清理引用并触发垃圾回收..." -ForegroundColor Red
+    $Global:MemoryBucket.Clear()
+    [System.GC]::Collect()
+    [System.GC]::WaitForPendingFinalizers()
+    Write-Host "清理完毕。物理内存可能转入'备用'状态，提交量应明显下降。" -ForegroundColor Green
+}
+```
+
+调用:例如,总共调用5次add-commitonly申请内存,每2秒申请1次,每次1000MB内存,可以按照如下方式编写
+
+```powershell
+1..5|%{Add-CommitOnly -SizeMB 1000;sleep 2}
+```
 
