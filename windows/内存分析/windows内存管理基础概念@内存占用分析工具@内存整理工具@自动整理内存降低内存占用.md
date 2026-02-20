@@ -2,6 +2,8 @@
 
 ## 基本概念
 
+
+
 分析 Windows 进程的内存占用，最让人头疼的就是：**任务管理器里的那个数字，往往不是进程真正占用的物理内存。**
 
 我们可以把 Windows 的内存管理想象成一个**“大型共享图书馆”**。
@@ -9,7 +11,7 @@
 - Windows程序（进程）**先申请内存再使用**,申请内存要大于需要使用的内存,内存申请成功(提交)不表示内存立即被使用.
 - 任务管理器里看到的进程所占用内存是实际使用，不是已申请的内存所以会比实际占用偏小
 
-### 两阶段
+### 进程创建申请使用内存两阶段
 
 | **维度**          | **阶段 1：VirtualAlloc(MEM_COMMIT)**                         | **阶段 2：首次读写该内存地址**                    |
 | ----------------- | ------------------------------------------------------------ | ------------------------------------------------- |
@@ -30,6 +32,10 @@
 | **成功条件** | **申请量 $\le$ 当前可用额度**   | **✅ 申请成功**：系统扣减对应额度，返回有效内存地址。         |
 | **失败条件** | **申请量 $>$ 当前可用额度**     | **❌ 申请失败**：系统拒绝请求，返回 `NULL`（导致 OOM 错误）。 |
 | **结果影响** | **行政性质的“配额”扣减**        | 此时**并不**代表物理内存被占满，仅代表“信用额度”被占满。     |
+
+### windows 分页文件
+
+[Introduction to the page file - Windows Client | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file)
 
 #### pagefile.sys文件和普通文件的对比
 
@@ -531,7 +537,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 判断内存泄漏最简单的方法：**看“提交大小”是否与操作成正比增长，且在闲置时拒绝回落。**
 
-## windows 内存占用分析工具👺
+## windows 内存占用分析工具
 
 在Windows系统中，如果需要对内存占用情况进行更为专业和深入的分析，可以采用以下微软自家以及第三方的专业内存分析工具：
 
@@ -594,15 +600,14 @@ Rammap 是一个高级内存分析工具，由Windows Sysinternals提供，它�
 
 
 
-### 内存整理和占用优化工具😊
+### 内存整理和占用优化工具
 
 - RamMap 微软官方出品[RAMMap - Sysinternals | Microsoft Learn](https://learn.microsoft.com/zh-cn/sysinternals/downloads/rammap)
 - MemReduct[henrypp/memreduct: Lightweight real-time memory management application to monitor and clean system memory on your computer. (github.com)](https://github.com/henrypp/memreduct)
-- Memorymaster 软媒魔方工具箱:[软媒魔方 (ruanmei.com)](https://mofang.ruanmei.com/)
-  - 之前有免安装版(便携版),现在只提供标准版(安装完毕后会解压出一堆工具,可以单独将需要的工具提出来)
-    - 我把便携版提取出来,只有300多kb:https://www.123pan.com/s/l7DKVv-FmcsH.html
-  - 新的版本有些组件引入广告,比如云日历,所以我还是用的免安装版
-- 上述软件都可以释放内存,并且RamMap支持命令行方式调用,通常执行`Rammap -ew`进行内存释放(建议把Rammap.exe所在路径配置到Path环境变量中方便随任意路径下调用
+- Memorymaster 软媒魔方工具箱(老版本无广告,现在可以考虑使用更专业的MemReduct代替)
+
+上述软件都可以释放内存,并且RamMap支持命令行方式调用,通常执行`Rammap -ew`进行内存释放(建议把Rammap.exe所在路径配置到Path环境变量中方便随任意路径下调用
+
 - 而后两者可以设置开机自启，以及自动清理和定时清理(比如内存占用超过80%时执行内存清理)
 - 尽管上述工具可以大幅释放内存,但是这些被释放的内存存放的数据优先级虽然不是很高,但是对于加速应用有帮助,而且随着后续的操作,这些占用可能会比较快的回升回来;如果内存充足,是不建议执行内存释放的操作
 - 另一方面，如果内存容量不充裕,那么更有效的办法仍然是加大物理内存容量,而不是反复清理;然而有些机器想要更换或增加内存条是受限的(比如板载内存),则推荐使用上一代的系统降低资源占用,并考虑使用上述软件进行自动清理,当过高的内存占用出现时,缓存内存的数据不但加速效果有限,还会导致重要数据加载受限或变慢,那么这时候执行内存清理是合适的
