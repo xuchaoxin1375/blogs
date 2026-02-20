@@ -4,7 +4,11 @@
 
 ## abstract
 
-[Get-Process (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-process?view=powershell-7.5)
+- [Get-Process (Microsoft.PowerShell.Management) - PowerShell | Microsoft Learn](https://learn.microsoft.com/zh-cn/powershell/module/microsoft.powershell.management/get-process?view=powershell-7.5)
+- [Get-Counter (Microsoft.PowerShell.Diagnostics) - PowerShell | Microsoft Learn --- Get-Counter (Microsoft.PowerShell.Diagnostics) - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-counter?view=powershell-7.5&viewFallbackFrom=powershell-7.3)
+- [Get-CimInstance (CimCmdlets) - PowerShell | Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/cimcmdlets/get-ciminstance?view=powershell-7.5)
+
+### 相关cmdlet
 
 `Get-Process` cmdlet 获取本地计算机上的进程。
 
@@ -12,7 +16,74 @@
 
 默认情况下，此 cmdlet 返回一个 **Process** 对象，该对象包含有关进程的详细信息，并支持允许你控制它的方法。 使用参数，可以更改此 cmdlet 返回的信息类型。
 
-## 基础属性和字段解释
+---
+
+
+
+`Get-Counter` cmdlet 直接从 **Windows 系列操作系统**中的**性能监视工具**(performance monitoring instrumentation)获取性能计数器数据。
+
+`Get-Counter` 可以从本地计算机或远程计算机获取性能数据。
+
+您可以使用 `Get-Counter` 参数来指定一台或多台计算机，列出性能计数器集及其包含的实例，设置采样间隔，以及指定最大采样数。如果不使用参数， `Get-Counter` 将获取一组系统计数器的性能计数器数据。
+
+许多计数器集都受访问控制列表 (ACL) 保护。要查看所有计数器集，请使用 **管理员身份运行** PowerShell。
+
+该 cmdlet 在 PowerShell 7 中重新引入。
+
+`Get-Counter`的计算速度比较慢.
+
+---
+
+
+
+`Get-CimInstance` cmdlet 从 CIM 服务器获取类的 CIM 实例。 可以指定此 cmdlet 的类名或查询。 此 cmdlet 返回一个或多个 CIM 实例对象，这些对象表示 CIM 服务器上存在的 CIM 实例的快照。
+
+如果未指定 **InputObject** 参数，则 cmdlet 的工作方式如下：
+
+- 如果既未指定 **ComputerName** 参数，也没有指定 **CimSession** 参数，则此 cmdlet 使用组件对象模型 （COM） 会话在本地 Windows Management Instrumentation （WMI） 上运行。
+- 如果指定了 **ComputerName** 参数或 **CimSession** 参数，则此 cmdlet 适用于由 **ComputerName** 参数或 **CimSession** 参数指定的 CIM 服务器。
+
+如果指定了 **InputObject** 参数，cmdlet 将通过以下方式之一工作：
+
+- 如果既未指定 **ComputerName** 参数，也没有指定 **CimSession** 参数，则此 cmdlet 将使用输入对象的 CIM 会话或计算机名称。
+- 如果指定了 **ComputerName** 参数或 **CimSession** 参数，则此 cmdlet 将使用 CimSession 参数值或 **ComputerName** 参数值。
+
+### 对比
+
+| **特性**     | **Get-Process**                  | **Get-Counter**                      | **Get-CimInstance**               |
+| ------------ | -------------------------------- | ------------------------------------ | --------------------------------- |
+| **核心用途** | 查看和管理正在运行的**进程**。   | 读取实时的**性能计数器**数据。       | 获取底层的 **WMI/CIM** 管理信息。 |
+| **数据粒度** | 进程级别（PID、内存、CPU时间）。 | 时间序列数据（百分比、速率、总数）。 | 系统级（硬件、服务、OS配置）。    |
+| **实时性**   | 静态快照（执行瞬间的状态）。     | 支持持续采样（每秒刷新）。           | 静态快照（查询数据库）。          |
+| **资源消耗** | 极低。                           | 较低，但频繁采样有开销。             | 较高，查询 WMI 库较慢。           |
+| **远程能力** | 较强（通过 `-ComputerName`）。   | 较强（通过 `-ComputerName`）。       | **最强**（现代 WinRM 协议）。     |
+| **常用场景** | 查找占用内存高的程序、杀进程。   | 监控 CPU 负载波动、磁盘 IOPS。       | 获取主板序列号、查询服务状态。    |
+
+### windows 性能监视工具
+
+> 在 Windows 操作系统中，**Windows Performance Monitoring Instrumentation** 并不是指一个单一的“.exe”程序，而是一套**框架和技术栈**，用于收集、分析和显示系统及应用程序的性能数据。
+>
+> 如果你在任务管理器或日志中看到类似词汇，它通常指向以下几个核心组件的协同工作：
+>
+> ------
+
+核心组成部分
+
+这套“仪表仪器”主要由三个关键技术支柱组成：
+
+**Performance Counters (性能计数器):** 这是最直观的部分。它记录了硬件（如 CPU 使用率、磁盘 I/O）和软件（如进程内存占用、网络吞吐量）的实时数据。
+
+**WMI (Windows Management Instrumentation):** 这是一个底层管理架构。它允许脚本和程序查询系统状态。你可以把它想象成一个数据库，存储了电脑硬件和软件的所有“体检指标”。
+
+**ETW (Event Tracing for Windows):** 这是一个高性能、低开销的事件追踪器。它负责在内核层面抓取详细的运行记录，常用于深度排查系统卡顿或蓝屏问题。
+
+| **程序名称**                         | **运行命令**  | **用途**                                                     |
+| ------------------------------------ | ------------- | ------------------------------------------------------------ |
+| **任务管理器 (Task Manager)**        | `taskmgr`     | 性能监测的“轻量版”，提供基础的 CPU、内存和磁盘视图。         |
+| **性能监视器 (Performance Monitor)** | `perfmon.msc` | 最典型的图形化工具，用于查看实时计数器曲线和创建数据收集集。 |
+| **资源监视器 (Resource Monitor)**    | `resmon`      | 介于任务管理器和性能监视器之间，详细显示哪个进程在读写哪个文件。 |
+
+## process对象基础属性和字段解释
 
 **Process** 对象的默认显示是包含下列列的表视图。括号中的字母表示单位,例如K(KB),M(MB)
 
@@ -146,6 +217,423 @@ msedge     813.93     478.79      2199.38
 
 ---
 
+## 性能计数器基本使用
+
+PowerShell Get-Counter 简介
+
+`Get-Counter` 用于**实时获取 Windows 性能计数器数据**，等同于"性能监视器"(perfmon) 的命令行版本。
+
+---
+
+### 基本逻辑
+
+Get-Counter → 连接性能计数器 → 采样数据 → 返回 `PerformanceCounterSampleSet` 对象
+
+**三个层级关系：**
+```
+计数器集 (CounterSet)
+  └─ 类别 (Category)，如 Processor, Memory
+       └─ 计数器路径 (Counter Path)
+            格式: \\Computer\Category(Instance)\CounterName
+```
+
+---
+
+### 常用用法
+
+1. 查看可用计数器集
+
+```powershell
+Get-Counter -ListSet *           # 列出所有计数器集
+Get-Counter -ListSet *cpu*       # 模糊搜索
+```
+
+2. 查看某个集合下的具体计数器路径
+
+```powershell
+(Get-Counter -ListSet Processor).Paths
+
+#output
+\Processor(*)\% Processor Time
+\Processor(*)\% User Time
+\Processor(*)\% Privileged Time
+\Processor(*)\Interrupts/sec
+\Processor(*)\% DPC Time
+\Processor(*)\% Interrupt Time
+\Processor(*)\DPCs Queued/sec
+\Processor(*)\DPC Rate
+\Processor(*)\% Idle Time
+\Processor(*)\% C1 Time
+\Processor(*)\% C2 Time
+\Processor(*)\% C3 Time
+\Processor(*)\C1 Transitions/sec
+\Processor(*)\C2 Transitions/sec
+\Processor(*)\C3 Transitions/sec
+```
+
+查看内存相关的可用计数器路径
+
+```powershell
+
+# [cxxu@CXXUFIREBAT][~\Desktop][14:38:13] PS >
+ $mem=Get-Counter -ListSet Memory
+# [cxxu@CXXUFIREBAT][~\Desktop][14:38:44] PS >
+ $mem
+
+CounterSetName     : Memory
+MachineName        : .
+CounterSetType     : SingleInstance
+Description        :
+Paths              : {\Memory\Page Faults/sec, \Memory\Available Bytes, \Memory\Committed Bytes, \Memory\Commit Limit…}
+PathsWithInstances : {}
+Counter            : {\Memory\Page Faults/sec, \Memory\Available Bytes, \Memory\Committed Bytes, \Memory\Commit Limit…}
+
+# [cxxu@CXXUFIREBAT][~\Desktop][14:38:47] PS >
+ $mem.Paths
+\Memory\Page Faults/sec
+\Memory\Available Bytes
+\Memory\Committed Bytes
+\Memory\Commit Limit
+\Memory\Write Copies/sec
+\Memory\Transition Faults/sec
+\Memory\Cache Faults/sec
+\Memory\Demand Zero Faults/sec
+\Memory\Pages/sec
+...
+\Memory\Long-Term Average Standby Cache Lifetime (s)
+```
+
+根据查询到的路径(计数器),作为`Get-Counter`的`-Counter`参数
+
+3. 获取默认计数器数据（单次采样）
+
+```powershell
+Get-Counter
+```
+
+```powershell
+ Get-Counter
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 14:49:18        \\cxxufirebat\network interface(realtek 8852be wireless la
+                          n wifi 6 pci-e nic)\bytes total/sec :
+                          5557.668988801445
+
+                          \\cxxufirebat\processor(_total)\% processor time :
+                          4.301195723836615
+
+                          \\cxxufirebat\memory\% committed bytes in use :
+                          68.3997911327518
+
+                          \\cxxufirebat\memory\cache faults/sec :
+                          6.934702838076669
+
+                          \\cxxufirebat\physicaldisk(_total)\% disk time :
+                          0.4664569640377971
+
+                          \\cxxufirebat\physicaldisk(_total)\current disk queue leng
+                          th :
+                          0
+```
+
+4. 指定计数器采样
+
+```powershell
+Get-Counter -Counter "\Processor(_Total)\% Processor Time"
+
+# output:
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 14:52:31        \\cxxufirebat\processor(_total)\% processor time :
+                          4.686335158528543
+```
+
+5. 连续采样
+
+```powershell
+Get-Counter -Counter "\Memory\Available MBytes" -SampleInterval 2 -MaxSamples 5
+# 每2秒采一次，共5次
+```
+
+6. 持续监控（Ctrl+C 停止）
+
+```powershell
+Get-Counter -Counter "\Processor(_Total)\% Processor Time" -Continuous
+```
+
+7. 多计数器同时采集
+
+```powershell
+Get-Counter -Counter @(
+    "\Processor(_Total)\% Processor Time"
+    "\Memory\Available MBytes"
+    "\PhysicalDisk(_Total)\Disk Reads/sec"
+)
+```
+
+8. 远程计算机
+
+```powershell
+Get-Counter -Counter "\Processor(_Total)\% Processor Time" -ComputerName Server01
+```
+
+---
+
+### 输出结构
+
+```powershell
+$result = Get-Counter -Counter "\Processor(_Total)\% Processor Time"
+
+$result.Timestamp                          # 采样时间
+$result.CounterSamples                     # 样本数组
+$result.CounterSamples[0].Path             # 计数器路径
+$result.CounterSamples[0].CookedValue      # 实际值（关键字段）
+```
+
+---
+
+### 实用示例
+
+```powershell
+# CPU 超过 80% 时告警
+Get-Counter "\Processor(_Total)\% Processor Time" -Continuous |
+    ForEach-Object {
+        $val = $_.CounterSamples[0].CookedValue
+        if ($val -gt 80) { Write-Warning "CPU: $([math]::Round($val,1))%" }
+    }
+
+# 导出到 CSV
+Get-Counter -Counter "\Memory\Available MBytes" -MaxSamples 10 |
+    ForEach-Object { $_.CounterSamples } |
+    Export-Csv -Path "memory.csv" -NoTypeInformation
+```
+
+---
+
+### 关键参数速查
+
+| 参数              | 作用                  |
+| ----------------- | --------------------- |
+| `-Counter`        | 指定计数器路径        |
+| `-ListSet`        | 列出可用计数器集      |
+| `-SampleInterval` | 采样间隔（秒），默认1 |
+| `-MaxSamples`     | 最大采样次数，默认1   |
+| `-Continuous`     | 持续采样直到中断      |
+| `-ComputerName`   | 远程目标机器          |
+
+> **注意：** 需要管理员权限运行；计数器路径与系统语言相关（中文系统路径可能是中文）。
+
+
+
+## 计数器路径语法结构
+
+```
+\Category(Instance)\CounterName
+```
+
+拆解为三部分：
+
+| 部分            | 示例               | 含义              |
+| --------------- | ------------------ | ----------------- |
+| **Category**    | `Processor`        | 性能对象类别      |
+| **Instance**    | `(*)`              | 实例（哪个/哪些） |
+| **CounterName** | `% Processor Time` | 具体指标名        |
+
+---
+
+### Instance（实例）详解
+
+`(*)` 是通配符，表示**所有实例**。对于 Processor 类别：
+
+`_Total` 是一个**内置的聚合实例**，代表所有实例的**汇总值**（通常是平均或求和）。
+
+```powershell
+# * = 所有CPU核心 + _Total
+Get-Counter "\Processor(*)\% Processor Time"
+
+# 指定单个核心
+Get-Counter "\Processor(0)\% Processor Time"     # 第0号核心
+Get-Counter "\Processor(1)\% Processor Time"     # 第1号核心
+
+# 汇总值
+Get-Counter "\Processor(_Total)\% Processor Time" # 所有核心的平均值
+```
+
+输出对比：
+
+```powershell
+# 用 * 的结果（假设4核）：
+\\PC\Processor(0)\% Processor Time    : 12.3
+\\PC\Processor(1)\% Processor Time    : 5.7
+\\PC\Processor(2)\% Processor Time    : 30.1
+\\PC\Processor(3)\% Processor Time    : 8.2
+\\PC\Processor(_Total)\% Processor Time : 14.1
+```
+
+---
+
+可以看到有5条结果被输出,并且前4条是关于单个核心的,最后一条是汇总值.
+
+如果是一个真实设备(16个逻辑核心)的输出,计算机名设为`cxxufirebat`,形如
+
+```powershell
+ Get-Counter "\Processor(*)\% Processor Time"
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 14:59:01        \\cxxufirebat\processor(0)\% processor time :
+                          9.15683351491291
+
+                          \\cxxufirebat\processor(1)\% processor time :
+                          1.4582600839733284
+
+                          \\cxxufirebat\processor(2)\% processor time :
+                          2.997974770161249
+                          ...
+                          \\cxxufirebat\processor(15)\% processor time :
+                          0
+                        	\\cxxufirebat\processor(_total)\% processor time :
+                          8.002052427358974
+```
+
+CounterName 逐条解读
+
+```powershell
+\Processor(*)\% Processor Time      ← CPU 总使用率（核心指标）
+\Processor(*)\% User Time           ← 用户态占用（应用程序）
+\Processor(*)\% Privileged Time     ← 内核态占用（系统/驱动）
+\Processor(*)\Interrupts/sec        ← 每秒硬件中断次数
+\Processor(*)\% DPC Time            ← 延迟过程调用占比
+\Processor(*)\% Interrupt Time      ← 处理中断占比
+\Processor(*)\DPCs Queued/sec       ← 每秒排队的DPC数
+\Processor(*)\DPC Rate              ← DPC速率
+\Processor(*)\% Idle Time           ← 空闲率（与Processor Time互补=100%）
+\Processor(*)\% C1 Time             ← C1节能状态时间占比
+\Processor(*)\% C2 Time             ← C2深度节能占比
+\Processor(*)\% C3 Time             ← C3最深节能占比
+\Processor(*)\C1 Transitions/sec    ← 每秒进入C1的次数
+\Processor(*)\C2 Transitions/sec    ← 每秒进入C2的次数
+\Processor(*)\C3 Transitions/sec    ← 每秒进入C3的次数
+```
+
+**关系：**
+
+```
+% Processor Time = % User Time + % Privileged Time
+% Processor Time + % Idle Time ≈ 100%
+% Privileged Time ≥ % DPC Time + % Interrupt Time
+```
+
+---
+
+### 不是所有类别都有 Instance
+
+```powershell
+# Memory 没有实例（整机只有一个内存）
+\Memory\Available MBytes          # 无括号
+
+# PhysicalDisk 有实例（可能多块磁盘）
+\PhysicalDisk(*)\Disk Reads/sec   # 有括号
+
+# Network Interface 有实例（可能多网卡）
+\Network Interface(*)\Bytes Total/sec
+```
+
+**规律：** 硬件可能存在多个的 → 有 Instance；全局唯一的 → 无 Instance。
+
+```powershell
+ Get-Counter -Counter '\Memory\Available MBytes'
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 15:02:58        \\cxxufirebat\memory\available mbytes :
+                          4394
+```
+
+### 计算进程私有工作集
+
+使用Get-Counter查询相关可用计数器路径
+
+```powershell
+ (Get-Counter -ListSet "Process").Paths | Select-String "Working Set"
+
+\Process(*)\Working Set Peak
+\Process(*)\Working Set
+\Process(*)\Working Set - Private
+```
+
+查询所有进程的私有工作集
+
+```powershell
+ Get-Counter -Counter '\Process(*)\Working Set - Private'
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 15:12:59        \\cxxufirebat\process(idle)\working set - private :
+                          8192
+
+                          \\cxxufirebat\process(system)\working set - private :
+                          20480
+                          ....
+```
+
+**注意：返回值单位是字节 (Bytes)**
+
+转换为MB数值,并自定义输出格式
+
+```powershell
+(Get-Counter "\Process(*)\Working Set - Private").CounterSamples |
+    Sort-Object CookedValue -Descending |
+    Select-Object @{N='Process';E={
+        # 从路径中提取进程名
+        $_.InstanceName
+    }}, @{N='Private WS (MB)';E={
+        [math]::Round($_.CookedValue / 1MB, 2)
+    }} |
+    Select-Object -First 15
+
+# output
+Process Private WS (MB)
+------- ---------------
+code             199.05
+code             188.16
+code              59.04
+code              24.57
+code              13.87
+code              10.93
+code               7.63
+code               4.16
+code               4.12
+code               0.32
+```
+
+查询特定进程名的私有工作集
+
+```powershell
+# 单个进程
+Get-Counter "\Process(chrome)\Working Set - Private"
+
+# 同名多实例（如多个chrome进程）
+# 自动编号: chrome, chrome#1, chrome#2 ...
+Get-Counter "\Process(chrome*)\Working Set - Private"
+```
+
+
+
+```powershell
+ Get-Counter -Counter '\Process(code)\Working Set - Private'
+
+Timestamp                 CounterSamples
+---------                 --------------
+2026/2/20 15:13:59        \\cxxufirebat\process(code)\working set - private :
+                          23543808
+
+```
+
+
+
 ## powershell进程内存相关属性与任务管理器 / 资源监视器的对应关系
 
 内存管理器中的内存视图中的统计信息不局限于物理内存,还包括分页文件,例如已提交/提交量等参数
@@ -154,13 +642,17 @@ msedge     813.93     478.79      2199.38
 
 ### 任务管理器列
 
-| 任务管理器列名         | 对应 PowerShell 字段                        | 对应性能计数器                  |
-| ---------------------- | ------------------------------------------- | ------------------------------- |
-| **内存（专用工作集）** | ❌ 没有直接对应,只有工作集(专用+共享)        | `Process\Working Set - Private` |
-| **工作集（内存）**     | `WorkingSet64`*                             | `Process\Working Set`           |
-| **提交大小**           | `PagedMemorySize64` / `PrivateMemorySize64` | `Process\Private Bytes`         |
-| **分页池**             | `PagedSystemMemorySize64`                   | `Process\Pool Paged Bytes`      |
-| **非分页池**           | `NonpagedSystemMemorySize64`                | `Process\Pool Nonpaged Bytes`   |
+| 任务管理器列名         | 对应 `System.Diagnostics.Process`对象中的字段 | 对应性能计数器对象`PerformanceCounterSampleSet` |
+| ---------------------- | --------------------------------------------- | ----------------------------------------------- |
+| **内存（专用工作集）** | ❌ 没有直接对应,只有工作集(专用+共享)          | `Process\Working Set - Private`                 |
+| **工作集（内存）**     | `WorkingSet64`*                               | `Process\Working Set`                           |
+| **提交大小**           | `PagedMemorySize64` / `PrivateMemorySize64`   | `Process\Private Bytes`                         |
+| **分页池**             | `PagedSystemMemorySize64`                     | `Process\Pool Paged Bytes`                      |
+| **非分页池**           | `NonpagedSystemMemorySize64`                  | `Process\Pool Nonpaged Bytes`                   |
+
+> 其中性能计数器对象的完整名称为:`Microsoft.PowerShell.Commands.GetCounter.PerformanceCounterSampleSet`
+>
+> 如果想要在powershell中获取进程的私有工作集,仅靠get-process无法实现,但是可以考虑`Get-Counter`获取该数值.
 
 关于提交大小是否为`PagedMemorySize`,`PrivateMemorySize64`,可以做如下实验;
 
@@ -434,5 +926,102 @@ function Clear-TestMemory
 
 ```powershell
 1..5|%{Add-CommitOnly -SizeMB 1000;sleep 2}
+```
+
+## powershell分析内存占用
+
+```powershell
+function Get-ProcessMemoryView
+{
+    <#
+    .SYNOPSIS
+    在管道（Pipeline）内部修改外部变量时，通常需要显式指定作用域（如 $script: 或 $global:），否则脚本块内部可能会将其视为局部变量。
+    .DESCRIPTION
+    对于分组模式(Group),是按照进程名分组的,方便用户排查哪个软件占用大量内存
+    使用 Measure-Object -Sum 计算分组总和
+    .NOTES
+    如果没有 $script: 前缀，在某些 PowerShell 版本或复杂的上下文中，$sum 可能不会在每一行之间成功传递累加值。
+    .EXAMPLE
+    计算最占内存的前若干名进程的内存占用率之和
+    Get-ProcessMemoryView|measure 'percent(%)' -Sum
+    .EXAMPLE
+    使用表格呈现统计结果
+    Get-ProcessMemoryView|Format-Table 
+    .EXAMPLE
+    按进程名分组,并且换行显示PIDs列
+    Get-ProcessMemoryView -First 10 -Group|ft -Wrap
+    .EXAMPLE
+    隐藏指定列(比如PIDs列)
+     Get-ProcessMemoryView -Group | Select-Object * -ExcludeProperty PIDs|ft
+    .EXAMPLE
+    计算进程名为msedge的进程的内存占用率之和
+     Get-ProcessMemoryView -Group | ?{$_.name -like 'msedge'}
+
+    Name       : msedge
+    Count      : 26
+    WS(GB)     : 2.73635101318359
+    PM(GB)     : 3.00244903564453
+    percent(%) : 18.01
+    sum(%)     : 18.01
+    PIDs       : 2820,2824,...
+    #>
+    param(
+        # 获取前几名进程,如果为0,则获取所有进程
+        [int]$First = 10,
+        # 是否按进程名分组
+        [switch]$Group
+    )
+    # Get-Process | Select-Object ID, Name, WorkingSet64, PagedMemorySize64 | Sort-Object WorkingSet64 -Descending | Select-Object -First 10
+    # 1. 初始化累加变量（确保每次执行前重置为0）
+    $script:Sum = 0
+    $TotalRAM = (Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize * 1KB # *1KB是换算成内存
+    
+    if ($Group)
+    {
+        # 分组模式：按进程名合并
+        $res = Get-Process | 
+        Group-Object -Property Name | 
+        Select-Object @{Name = "Name"; Expression = { $_.Name } },
+        @{Name = "Count"; Expression = { $_.Count } },
+        @{Name = "PIDs"; Expression = { ($_.Group.Id -join ",") } },
+        @{Name = "WS(GB)"; Expression = { ($_.Group | Measure-Object WorkingSet64 -Sum).Sum / 1GB } },
+        @{Name = "PM(GB)"; Expression = { ($_.Group | Measure-Object PagedMemorySize64 -Sum).Sum / 1GB } },
+        @{Name = "percent(%)"; Expression = { 
+                [math]::Round((($_.Group | Measure-Object WorkingSet64 -Sum).Sum / $TotalRAM) * 100, 2) 
+            }
+        } |
+        Sort-Object "WS(GB)" -Descending |
+        Select-Object Name, Count, "WS(GB)", "PM(GB)", "percent(%)", 
+        @{Name = "sum(%)"; Expression = { 
+                $ws = $_."WS(GB)" * 1GB
+                $script:Sum += $ws
+                [math]::Round(($script:Sum / $TotalRAM) * 100, 2) 
+            }
+        },
+        PIDs
+    }
+    else
+    {
+        # 原始模式：显示每个进程
+        $res = Get-Process | 
+        Sort-Object WorkingSet64 -Descending | 
+        Select-Object ID, Name, 
+        @{Name = "WS(GB)"; Expression = { $_.WorkingSet64 / 1GB } }, 
+        @{Name = "PM(GB)"; Expression = { $_.PagedMemorySize64 / 1GB } }, 
+        @{Name = "percent(%)"; Expression = { [math]::Round(($_.WorkingSet64 / $TotalRAM) * 100, 2) } }, 
+        @{Name = "sum(%)"; Expression = { 
+                $script:Sum += $_.WorkingSet64
+                [math]::Round(($script:Sum / $TotalRAM) * 100, 2) 
+            }
+        }
+    }
+
+    if ($First)
+    {
+        $res = $res | Select-Object -First $First
+    }
+    
+    return $res
+}
 ```
 
