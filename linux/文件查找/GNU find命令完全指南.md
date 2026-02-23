@@ -15,7 +15,7 @@
 ### 核心思维模型
 
 ```bash
-find [搜索起点...] [表达式]
+find [全局选项] [搜索起点...] [表达式]
 ```
 
 其中**表达式**由三大要素组成：
@@ -65,13 +65,13 @@ graph LR
 
 ## 二、基本语法速查
 
-| 组成部分               | 说明                      | 示例                                |
-| ---------------------- | ------------------------- | ----------------------------------- |
-| **搜索起点**           | 一个或多个目录路径        | `.` `/home` `/var/log`              |
-| **测试（Test）**       | 筛选条件，返回 true/false | `-name "*.log"`                     |
-| **动作（Action）**     | 对匹配文件执行的操作      | `-print`、`-delete`、`-exec`        |
-| **运算符（Operator）** | 逻辑组合多个条件          | `-and`、`-or`、`-not`、`()`         |
-| **选项（Option）**     | 控制 find 自身行为        | `-maxdepth`、`-mindepth`、`-follow` |
+| 组成部分               | 说明                      | 示例                                         |
+| ---------------------- | ------------------------- | -------------------------------------------- |
+| **搜索起点**           | 一个或多个目录路径        | `.` `/home` `/var/log`                       |
+| **测试（Test）**       | 筛选条件，返回 true/false | `-name "*.log"`                              |
+| **动作（Action）**     | 对匹配文件执行的操作      | `-print`、`-delete`、`-exec`                 |
+| **运算符（Operator）** | 逻辑组合多个条件          | `-and`、`-or`、`-not`、`()`                  |
+| **选项（Option）**     | 控制 find 自身行为        | `-depth`,`-maxdepth`、`-mindepth`、`-follow` |
 
 ---
 
@@ -382,7 +382,111 @@ find /home -nouser
 | `-maxdepth n` | 最多搜索 n 层深度 | `-maxdepth 1` 只搜索当前目录           |
 | `-mindepth n` | 从第 n 层开始匹配 | `-mindepth 2` 跳过当前目录和一级子目录 |
 
-> ⚠️ `-maxdepth` 和 `-mindepth` 是**全局选项**，必须放在其他测试/动作**之前**。
+⚠️ `-maxdepth` 和 `-mindepth` 是**全局选项**，必须放在其他测试/动作**之前**。
+
+还有一个选项`-depth`:
+
+> **先内容，后目录**：在处理文件系统时，它会先处理目录里的文件，最后才处理目录本身。
+>
+> **`-delete` 的隐式调用**：如果你使用了 `-delete` 参数，`find` 会自动启用 `-depth`。这非常聪明，因为你不能在一个文件夹还有内容的时候就把它删掉。
+
+如果不使用 `-depth`，默认情况下 `find` 会先处理文件夹，再进入其内部。
+
+但在以下两个场景中，这种默认行为会导致报错或失败。
+
+1. 批量重命名目录及其子项
+
+- 如果你想修改目录名，必须先修改它里面的文件，最后再改目录名。
+
+- 如果你先重命名了父目录 `old_dir` 变成 `new_dir`，那么 `find` 接下来去寻找 `old_dir/file.txt` 时，会因为路径已经不存在而报错。
+
+  假设你有一个嵌套结构：`./project_old/data_old/`
+
+  ```bash
+  
+  # (base) cxxu@CxxuDesk 18:27:39> <~/dir>
+  $ mkdir -p ./project_old/data_old/
+  mkdir: created directory './project_old'
+  mkdir: created directory './project_old/data_old/'
+  
+  # 对比find在使用和不使用depth选项时输出的路径顺序(显然是有区别的)
+  # (base) cxxu@CxxuDesk 18:47:53> <~/dir>
+  $ find . -depth -name "*old*" -type d
+  ./project_old/data_old
+  ./project_old
+  
+  # (base) cxxu@CxxuDesk 18:48:00> <~/dir>
+  $ find .  -name "*old*" -type d
+  ./project_old
+  ./project_old/data_old
+  
+  # 实验1
+  # 将所有目录名中的 "old" 替换为 "new";为了使用bash的字符串替换语法,这里用bash -c 包装占位符为位置参数
+  # 观察mv的详情打印可以发现,子目录data_old的重命名过程是工作目录切换到project_old内,然后
+  # (base) cxxu@CxxuDesk 18:27:46> <~/dir>
+  $ find . -depth -name "*old*" -type d -execdir bash -c 'mv -v "$1" "${1//old/new}"' -- {} \;
+  renamed './data_old' -> './data_new'
+  renamed './project_old' -> './project_new'
+  # 增加pwd $1语句更清晰地观察过程
+  $ find . -depth -name "*old*" -type d -execdir bash -c 'pwd $1;mv -v "$1" "${1//old/new}"' -- {} \;
+  /home/cxxu/dir/project_old
+  renamed './data_old' -> './data_new'
+  /home/cxxu/dir
+  renamed './project_old' -> './project_new'
+  
+  # 重置环境进行实验2
+  # (base) cxxu@CxxuDesk 18:33:13> <~/dir>
+  $ rm -rf ./project_old ./project_new ; mkdir -p ./project_old/data_old/
+  mkdir: created directory './project_old'
+  mkdir: created directory './project_old/data_old/'
+  
+  # 如果将-execdir替换为普通的-exec,会出现错误(父目录率先成功替换,但是原来的子目录由于父目录发生变换,mv命令发现找不到路径了)
+  # (base) cxxu@CxxuDesk 18:33:17> <~/dir>
+  $ find . -depth -name "*old*" -type d -exec bash -c 'mv -v "$1" "${1//old/new}"' -- {} \;
+  mv: cannot move './project_old/data_old' to './project_new/data_new': No such file or directory
+  renamed './project_old' -> './project_new'
+  
+  # 重置环境进行实验3
+  $ rm -rf ./project_old ./project_new ; mkdir -p ./project_old/data_old/
+  # 不使用depth也会报错,父目录率先重命名,同样导致子目录路径失效(find层面发现路径已经失效)
+  $ find .  -name "*old*" -type d -execdir bash -c 'mv -v "$1" "${1//old/new}"' -- {} \;
+  renamed './project_old' -> './project_new'
+  find: ‘./project_old’: No such file or directory # 此时无论使用-exec还是-execdir的,结果相同
+  ```
+
+  `find` 会先深入到最底层，把子文件夹改名，最后才回来改最顶层的文件夹。
+
+  - **使用 `-depth`（正确做法）：**Depth-first search
+    1. `find` 先找到最深层的 `./project_old/data_old/`。
+    2. 将其重命名为 `./project_old/data_new/`。
+    3. 然后再处理父目录 `./project_old/`，将其重命名为 `./project_new/`。
+    4. **结果：** 成功得到 `./project_new/data_new/`。
+  - **不使用 `-depth`（报错做法）：**
+    1. `find` 先找到并处理父目录 `./project_old/`。
+    2. 将其重命名为 `./project_new/`。
+    3. 接下来 `find` 尝试去原来的路径下找子目录 `./project_old/data_old/`。
+    4. **报错：** 路径已不存在，因为它的父文件夹名字已经变了。
+
+  `-execdir `  在文件所在目录中执行命令  更安全，避免路径竞争
+
+  **`-exec`**: 在当前运行命令的目录下执行，传递的是相对路径（如 `./a/b/c`）。
+
+  **`-execdir`**: 先 `cd` 进入目标文件所在的目录，再执行命令。它处理的是当前目录下的文件名（如 `./c`）。
+
+  而实验2中的错误实际上是因为执行如下命令而报的错误(`mv`命令中第一个路径存在,第二个参数中`./project_new`不存在)
+
+  ```bash
+  # 源路径检查
+  $ ls -d ./project_old/data_old
+  ./project_old/data_old
+  
+  $ mv -v ./project_old/data_old ./project_new/data_new
+  mv: cannot move './project_old/data_old' to './project_new/data_new': No such file or directory
+  ```
+
+  
+
+2. 删除空目录（配合 -empty）
 
 ```bash
 # 只在当前目录查找（不递归）
@@ -582,7 +686,26 @@ find . -name "*.gz" -print0 | xargs -0 -P 4 gunzip
 
 ## 六、排除目录（`-prune`）
 
-`-prune` 是 `find` 中最容易困惑的特性。它的作用是：**当 `find` 遍历到某个目录时，阻止进入该目录**。
+`-prune` 是 `find` 中的一个常用action.
+
+它的作用是：**当 `find` 遍历到某个目录时，阻止进入该目录**。
+
+```bash
+       -prune True; if the file is a directory, do not descend into it.
+              If -depth is given, then -prune has no effect.  Because
+              -delete implies -depth, you cannot usefully use -prune and
+              -delete together.  For example, to skip the directory
+              src/emacs and all files and directories under it, and print
+              the names of the other files found, do something like this:
+                  find . -path ./src/emacs -prune -o -print
+```
+
+**-prune** 结果为真；如果该文件是一个目录，则**不进入**该目录进行搜索。 
+
+- 如果指定了 `-depth` 选项，则 `-prune` 将**失效**。直接或间接使用`-depth`都会导致`-prune`失效,前者的优先级高.
+- 此外间接包含`-depth`的例子:由于 `-delete` 选项隐含了 `-depth` 条件，因此你无法有效地同时使用 `-prune` 和 `-delete`。
+
+例如，若要跳过 `src/emacs` 目录及其下的所有文件和子目录，并打印出找到的其他文件名，可以按照如下方式操作： `find . -path ./src/emacs -prune -o -print`
 
 ### 工作原理
 
