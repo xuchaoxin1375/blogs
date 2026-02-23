@@ -4,6 +4,28 @@
 
 ## references
 
+`find` 命令属于 **GNU Findutils** 套件。`find` 命令在几乎所有 Linux 发行版中都是自带的。
+
+[findutils - GNU Project - Free Software Foundation (FSF)](https://www.gnu.org/software/findutils/)
+
+[GNU Findutils ](https://www.gnu.org/software/findutils/manual/html_mono/find.html)
+
+GNU Find 工具集是 GNU 操作系统的基本目录搜索工具。这些程序通常与其他程序配合使用，为其他命令提供模块化且强大的目录搜索和文件定位功能。
+
+The tools supplied with this package are:
+本软件包包含以下工具：
+
+- **find** - search for files in a directory hierarchy
+  **查找** - 在目录层次结构中搜索文件
+- **locate** - list files in databases that match a pattern
+  **定位** - 列出数据库中与特定模式匹配的文件
+- **updatedb** - update a file name database
+  **updatedb** - 更新文件名数据库
+- **xargs** - build and execute command lines from standard input
+  **xargs** - 从标准输入构建和执行命令行
+
+参考资料
+
 -  [How to Use the find Command in Linux](https://www.howtogeek.com/771399/how-to-use-the-find-command-in-linux/ "How to Use the find Command in Linux")
 
 * [Linux Find Command | How does Linux Find Command work? (educba.com)](https://www.educba.com/linux-find-command/)
