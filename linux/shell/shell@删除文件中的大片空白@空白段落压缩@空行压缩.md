@@ -2,7 +2,16 @@
 
 
 
-# Linux 中移除文本文件多余空白行
+# shell移除文本文件多余空白行
+
+## powershell方案
+
+```powershell
+$content=cat file -raw
+$content = $content -replace '[\s\n]*\n', "`n"
+```
+
+
 
 ## 基础方案：压缩多个空行为一个
 
