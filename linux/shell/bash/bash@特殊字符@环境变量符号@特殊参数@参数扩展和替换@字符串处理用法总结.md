@@ -448,7 +448,7 @@ bash除了`${parameter}`这种基础参数扩展,还提供了许多变体可用.
 | `${parameter/%pat/str}` | **行尾替换**。仅当 `pat` 匹配字符串**结尾**时替换。 | `${file/%bin/.sbin}`->`/bin:/usr/.sbin`      |
 | `${parameter/pat}`      | **删除**。未指定 `str`，则删除匹配的内容。          | `${path//:/}` (删除所有冒号)->`/bin/usr/bin` |
 
-> 被替换的部分如果包含特殊字符,需要转移
+> 被替换的部分如果包含特殊字符,需要转义或引用
 
 例如
 
@@ -456,14 +456,26 @@ bash除了`${parameter}`这种基础参数扩展,还提供了许多变体可用.
 $ path="/bin:/usr/bin"
 $ echo ${path/bin/local}
 /local:/usr/bin
-# 被替换的部分包含'/'字符,需要引用它,转移或者用引号包裹一下
+# 被替换的部分包含'/'字符,需要引用它,转义或者用引号包裹一下
 $ echo ${path/#\/bin/local}
 local:/usr/bin
+# 使用''引用特殊字符也可以
 $ echo ${path/#'/'bin/local}
 local:/usr/bin
+
+
+```
+
+```bash
+# 替换换行符(比较特殊),这里使用$''引用
+declare -- jbs=$'526911\n526913'
+$ echo -e  "${jbs//$'\n'/ }"
+526911 526913
 ```
 
 
+
+> 这里使用了 `$'\n'`，这是 Bash 的 **ANSI-C Quoting** 语法，用来表示真正的换行符。
 
 ####  大小写转换 (Case Modification) 
 

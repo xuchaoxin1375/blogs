@@ -727,7 +727,29 @@ DESCRIPTION
               equalize width by padding with leading zeroes
 ```
 
+### 将seq生成的序列保存到数组中
 
+对于bash,我可以借助`mapfile`和进程替换实现
+
+```bash
+TASKS_COUNT=6 #可以是脚本命令行传入的位置参数
+mapfile -t tasks < <(seq -f "Task_%g" 1 "$TASKS_COUNT")
+
+$ declare -p tasks
+declare -a tasks=([0]="Task_1" [1]="Task_2" [2]="Task_3" [3]="Task_4" [4]="Task_5" [5]="Task_6")
+```
+
+或者使用`read -ra`
+
+```bash
+# 或者使用 read -a（适用于 Bash 4+）将输入保存到数组
+TASKS_COUNT=6
+IFS=$'\n' read -d '' -ra tasks < <(seq -f "T%g" 1 "$TASKS_COUNT" && printf '\0')
+```
+
+
+
+### 对比花括号扩展和seq命令
 
 ---
 
