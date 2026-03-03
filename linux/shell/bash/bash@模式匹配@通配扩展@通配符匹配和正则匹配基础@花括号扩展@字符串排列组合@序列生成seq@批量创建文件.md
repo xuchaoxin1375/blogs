@@ -83,7 +83,7 @@ print   punct   space   upper   word    xdigit
 
 字符类匹配属于该类的任何字符。 例如:`word` 字符类匹配字母、数字和字符“ _ ”。
 
-### 匹配文件
+### 匹配文件或目录
 
 以下示例展示了如何使用 glob 模式扩展为文件名：
 
@@ -130,7 +130,17 @@ $ ls
 
 `a b.txt`并没有被拆分成`a`,`b.txt`两个文件名,所以`rm *`在这里相当于`rm "a b.txt"`而不是`rm a b.txt`(如果是后者将尝试删除2个文件,这个例子下会报错的)
 
-使用 glob 模式枚举文件**始终**比使用 ``ls`` 更好。
+### 不要用ls扫描文件并保存到数组
+
+如果你任务ls可以扫描出你需要的文件或目录,那么几乎可以确认直接使用通配模式(glob)也可以匹配出你需要的文件(目录)列表;
+
+[ShellCheck: SC2207 – 建议使用 `mapfile` 或 `read -a` 来拆分命令输出（或者使用引号来避免拆分）.](https://www.shellcheck.net/wiki/SC2207)
+
+- 并且直接使用通配表达式(glob)的方式更加安全也更简洁;
+- 而在复杂情况下才考虑`find`(需要配合其他命令来保存到数组),可以指定复杂的规则扫描需要的文件,并且合理使用选项也可以做到安全
+- 唯独`ls`扫描的方式,几乎没有理由这么做来创建文件名数组.
+
+**使用 glob 模式枚举文件始终比使用 ``ls`` 更好。**
 
 > 我们经常要对某个目录下的所有或者某类文件进行批量处理,这需要列出目录中的相关文件或目录,例如删除某个目录下的所有文件
 
@@ -155,11 +165,59 @@ $ ls
 
 这里我们使用 `for` 命令遍历 `ls` 命令的输出。 `ls` 命令打印字符串 `a b.txt` 。 `for` 命令将该字符串分割成单词并逐个迭代。结果， `for` 先迭代 `a` ，然后迭代 `b.txt` 。显然，这**不是**我们想要的结果。然而，glob 通配符会以正确的形式展开。它生成字符串 " `a b.txt` "， `for` 将其作为单个参数。
 
-#### 遍历目录
+### 扫描指定目录下的一级子目录的若干方法
+
+例如扫描档期目录下的子目录:
+
+```bash
+# 推荐写法(直接使用通配匹配指定目录下的目录名)
+user_dirs=(*/)
+
+# 也可以用mapfile + find 组合,但是没有通配扩展方案那么简洁(mapfile 在bash 4+才可用)
+mapfile -d '' -t user_dirs < <(find . -maxdepth 1 -mindepth 1 -type d -printf "%P/\0") #使用-printf 指定输出格式,`\0`安全分割文件名.
+# 兼容老版本bash和甚至其他一些shell,可以使用循环+read命令实现,不是必须依赖mapfile
+# For bash 3.x+, must not be in posix mode, may use temporary files
+user_dirs=()
+while IFS='' read -r -d '' line; do
+    user_dirs+=("$line")
+done < <(find . -maxdepth 1 -mindepth 1 -type d -printf "%P/xx\0")
+
+# 不可靠写法(不要用!!!)
+user_dirs=($(ls -d */ 2> /dev/null)) 
+```
+
+后面两种写法初学者可以跳过,总之,这个需求下,第一个做法是最优的!
+
+如果是稍微复杂的匹配需求,可以借助find,而不是坚持使用glob;
+
+并且注意,对于`read`方案,`-a`并不适合用来执行此任务;
+
+```bash
+root@s4:/srv/uploads/uploader/files# IFS=$'\0' read -ra sql_files  < <(find z -name "*.sql*" -type f -print0 );declare -p sql_files
+declare -a sql_files=([0]="z/0.com.sql.zstz/1.com.sql.zst")
+```
+
+Bash 的变量无法存储 null 字节 `\0`，所以 `IFS=$'\0'` 实际上等同于 `IFS=''`，仍然不会工作。
+
+`read` 命令有专门的 `-d ''` 参数来处理 null 分隔符，但 **每次只读一个元素**。所以`-d`配合一个循环反复想数组添加元素;
+
+虽然下面到写法(`read -ra`)可以读取到数组,但是可靠性不佳(文件名包含空格时的分隔问题);
+
+```bash
+
+IFS=" " read -ra sql_files  < <(find zsh -name "*.sql*" -type f -printf "%f " );declare -p sql_files
+declare -a sql_files=([0]="0.com.sql.zst" [1]="1.com.sql.zst")
+```
+
+处理 `find -print0` 的输出，用 `mapfile -d ''` 或 `while read -d ''`，不要用 `IFS= read -a`。
+
+### 遍历目录
 
  `for` 循环在 Bash 脚本中非常常见，但在处理文件路径和目录遍历时，有几个隐藏的“坑”可能会导致脚本报错或行为异常。
 
 假设我们在bash中定义`dir="/path/to/dir/"`(根据该目录是否存在分情况讨论.)
+
+#### 使用shopt的nullglob选项
 
 以下是使用形如 `for item in "$dir"/*` 时必须注意的关键点：
 
@@ -347,9 +405,9 @@ extglob中的关键符号`?,*,+`这几个在正则表达式中是常见的重复
 - `@(list)` ：匹配给定的模式之一。
 - `!(list)` ：匹配除给定模式之外的任何内容。
 
-**括号内的列表**是一个**通配符或扩展通配符列表**，每个通配符之间用 `|` 字符分隔。例如：`!(*jpg|*bmp)`
-
-
+> **括号内的列表**(list)是一个**通配符或扩展通配符列表**，每个通配符之间用 `|` 字符分隔。例如：`!(*jpg|*bmp)`
+>
+> `(list)`:`(glob1|glob2|...)`
 
 ```bash
 $ ls
@@ -360,9 +418,175 @@ names.txt
 
 此扩展通配符会展开为任何不匹配 `*jpg` 或 `*bmp` 模式的内容。只有文本文件符合这个条件，因此会被展开。
 
+## shopt 常用选项
+
+在 Bash 中，如果不开启这个选项，当文件夹里没有匹配的文件时（比如没有 `.sql.lz4`），通配符会原封不动地把 `*.sql.lz4` 这个**字符串本身**塞进数组里。开启 `nullglob` 后，找不到匹配项就会返回空，这是编写健壮脚本的**最佳实践**之一。
+
+例如,有多个通配模式的情况下,如果某个通配模式在指定目录下搜索不到任何文件,那么通配表达式就会被当做结果数组中的一个元素;
+
+这种情况下推荐使用`shopt -s nullglob`
+
+```bash
+# 错误写法
+sql_archives=(*.sql.zip *.sql.7z *.sql.tar *.sql.lz4 *.sql.zst)
+
+
+```
+
+这种错误写法结果可能如下:
+
+```bash
+root@s4:/srv/uploads/uploader/files/zsh#  sql_archives=(*.sql.zip *.sql.7z *.sql.tar *.sql.lz4 *.sql.zst)
+root@s4:/srv/uploads/uploader/files/zsh# declare -p sql_archives
+declare -a sql_archives=([0]="*.sql.zip" [1]="*.sql.7z" [2]="*.sql.tar" [3]="*.sql.lz4" [4]="1.sql.zst" ...)
+
+```
+
+可以对其补救.使用`nullglob`选项,可以避免这个问题:
+
+```bash
+shopt -s nullglob
+sql_archives=(*.sql.zip *.sql.7z *.sql.tar *.sql.lz4 *.sql.zst)
+declare -p sql_archives
+# 可以得到正确结果
+```
+
+或者配合**花括号扩展**让写法更紧凑
+
+```bash
+shopt -s nullglob
+sql_archives=(*.sql.{zip,7z,tar,lz4,zst})
+declare -p sql_archives
+```
+
+或者使用扩展通配模式下的写法:
+
+```bash
+# 可用的更紧凑的写法(事先启用shopt -s extglob)
+# 但是,仍然不能省略`nullglob`,否则在所有候选后缀都不可用时还是会把glob表达式写入数组中!
+# echo *.sql.@(zip|zst|7z|lz4)
+shopt -s extglob
+sql_archives=(*.sql.@(zip|zst|7z|lz4))
+```
+
+> 这个写法,部分bash语法检查插件会误报错误
+
+也可以借助`find`来实现:
+
+```bash
+mapfile -d '' -t sql_archives < <(
+    find . -maxdepth 1 -type f \
+        \( -name "*.sql.zip" -o \
+           -name "*.sql.zst" -o \
+           -name "*.sql.7z"  -o \
+           -name "*.sql.lz4" \) \
+        -printf '%f\0' 
+)
+declare -p sql_archives
+```
+
+还可以考虑正则
+
+```bash
+mapfile -d '' -t sql_archives < <(
+    find . -maxdepth 1 -type f \
+        -regex '.*/.*\.sql\.\(zip\|zst\|7z\|lz4\)' \
+        -printf '%f\0' 
+)
+declare -p sql_archives
+```
+
+或者用 `-regextype` 切换正则风格,`posix-extended`（推荐，不用转义）
+
+```bash
+mapfile -d '' -t sql_archives < <(
+    find . -maxdepth 1 -type f \
+        -regextype posix-extended \
+        -regex '.*/.*\.sql\.(zip|zst|7z|lz4)' \
+        -printf '%f\0' 
+)
+declare -p sql_archives
+```
 
 
 
+## Bash 中复用扩展名列表
+
+### 方法一：用变量存储扩展名数组，再组合
+
+```bash
+# 定义压缩格式列表
+comp_exts=(zip 7z tar lz4 zst)
+
+# 通过循环构建 glob 模式
+sql_archives=()
+for ext in "${comp_exts[@]}"; do
+    sql_archives+=(*.sql"$ext")  # 如果是 .sqlzip, .sql7z ...
+    # 或者如果你要的是 .sql.zip, .sql.7z ...
+    # sql_archives+=(*.sql."$ext")
+done
+```
+
+### 方法二：用变量存储 brace expansion 字符串
+
+此方法需 `eval`
+
+> ⚠️ Brace expansion 发生在变量展开**之前**，所以直接用变量不会触发 brace expansion，必须用 `eval`：
+
+```bash
+comp_exts="zip,7z,tar,lz4,zst"
+
+# 需要 eval 才能让 brace expansion 生效
+eval "sql_archives=(*.sql{${comp_exts}})"
+
+# 复用同一个变量给其他场景
+eval "csv_archives=(*.csv{${comp_exts}})"
+eval "dump_archives=(*.dump{${comp_exts}})"
+```
+
+验证效果：
+
+```bash
+comp_exts="zip,7z,tar,lz4,zst"
+eval "echo *.sql{${comp_exts}}"
+# 输出: *.sqlzip *.sql7z *.sqltar *.sqllz4 *.sqlzst
+```
+
+### 方法三：推荐的安全写法
+
+不使用 eval,而是定义一个函数
+
+```bash
+# 定义一次，到处使用
+comp_exts=(zip 7z tar lz4 zst)
+
+# 封装成函数
+get_archives() {
+    local prefix="$1"
+    local result=()
+    for ext in "${comp_exts[@]}"; do
+        result+=("${prefix}.${ext}")
+    done
+    printf '%s\n' "${result[@]}"
+}
+
+# 用 glob 匹配文件
+shopt -s nullglob
+sql_archives=()
+for ext in "${comp_exts[@]}"; do
+    sql_archives+=(*.sql."$ext")
+done
+```
+
+对比总结
+
+| 方法                     | 优点                 | 缺点              |
+| ------------------------ | -------------------- | ----------------- |
+| 循环构建                 | 安全、清晰           | 代码稍长          |
+| `eval` + brace expansion | 简洁，最接近原始写法 | `eval` 有注入风险 |
+| 函数封装                 | 可复用、安全         | 需要额外定义      |
+
+**如果扩展名列表是你自己硬编码的**（不来自用户输入），`eval` 方案最简洁实用。如果来源不可控，用循环方案更安全。
 
 ## 正则表达式(Regular Expressions)
 

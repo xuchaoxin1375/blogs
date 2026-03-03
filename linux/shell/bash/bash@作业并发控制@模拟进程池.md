@@ -27,7 +27,15 @@
 
 ## 相关命令和选项
 
-### `wait -n`
+### `wait`
+
+`wait: wait [-fn] [-p var] [id ...]` (wait命令的最后可选地跟一个id列表)
+
+主要介绍`-n`选项(`-p`选项可以将进程id赋值给指定变量名,但是其依赖于`-n`)
+
+> If the `-n` option is supplied, waits for a single job from the list of IDs, or, 
+>
+> if no IDs are supplied, for the next job to complete and returns its exit status.
 
 **动态等待 (`wait -n`)**：
 
@@ -195,6 +203,8 @@ done
 
 在循环体中判断线程池任务数量(jobs数量),如果jobs数量达到或超过(即大等于)设定的最大值,则调用`wait -n`释放掉任务(等待进程池腾出合适数量的位置),再创建新的任务.
 
+### 核心代码
+
 ```bash
 MAX_JOBS=4
 
@@ -213,12 +223,127 @@ done
 wait
 ```
 
+千万不要把计算后台线程数的算式从while中搬到外面,而内部缺失重新计数的计算,这会导致后台任务数不会更新,出现死循环!
+
+```bash
+job_cnt=$(jobs -rp | wc -l)
+while (("$job_cnt" >= JOBS)); do
+	echo "当前任务数:$job_cnt"
+	wait -n
+	# 至少在这里要重新计算job_cnt
+	job_cnt=$(jobs -rp | wc -l)
+done
+```
+
+
+
 ###  原理解析
 
 - **`&` (Backgrounding)**: 相当于向线程池提交一个任务。
 - **`jobs -p | wc -l`**: 查看当前正在“干活”的任务数量,基于此判断进程池是否已满。
 - **`wait -n`**: 这个命令的调用方式是关键。单次调用,它不是等待*所有*任务，而是等待*最近的一个*任务结束。如果需要严格控制后台进程数量,需要将`wait -n`放到一个单独的检测进程池是否已满的循环中,称为消耗循环,每次离开消耗循环时,总是可以保证后台进程数低于限制数.新手容易在这上面犯错.
 - **`wait` (无参数)**: 在循环结束后使用，确保最后几个残余任务也执行完，脚本再退出。
+
+### 增加PID管理
+
+以网站解压部署场景用例说明,此版本的失败统计并不可靠,仅作参考
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+DEPLOY_DIR="/var/www"
+ARCHIVE_DIR="/opt/packages"
+MAX_JOBS=4
+
+# 解压并部署网站的任务函数(示例)
+deploy_site() {
+    local archive="$1"
+    local name
+    name=$(basename "$archive" .tar.gz)
+    local target="${DEPLOY_DIR}/${name}"
+
+    echo "[$(date '+%H:%M:%S')] 开始部署: ${name}"
+    mkdir -p "$target"
+
+    if tar -xzf "$archive" -C "$target" 2>/dev/null; then
+        echo "[$(date '+%H:%M:%S')] ✅ 成功: ${name}"
+    else
+        echo "[$(date '+%H:%M:%S')] ❌ 失败: ${name}" >&2
+        return 1
+    fi
+}
+# 记录尚未结束的进程pid
+pids=()
+failures=0
+
+for archive in "${ARCHIVE_DIR}"/*.tar.gz; do
+    [ -f "$archive" ] || continue
+
+    # 并发数达到上限时，等待任意一个完成
+    while (( ${#pids[@]} >= MAX_JOBS )); do
+    	# 等待某个进程结束,并记录可能出现的失败任务.
+        wait -n "${pids[@]}" || ((failures++))
+        # 后台某个进程被释放,需要更新pids数组状态,反映变化.
+        # 清理已结束的 PID
+        new_pids=()
+        for pid in "${pids[@]}"; do
+	        # `kill -0` 并不真的杀死进程，它只是发送一个“0 号信号”来
+	        # 检测指定进程(pid)是否存在以及当前用户是否有权向其发送信号。
+            kill -0 "$pid" 2>/dev/null && new_pids+=("$pid")	
+        done
+        # 更新pids数组
+        pids=("${new_pids[@]}")
+    done
+	# 添加任务并记录新的pid
+    deploy_site "$archive" &
+    pids+=($!)
+done
+
+# 等待剩余任务
+for pid in "${pids[@]}"; do
+    wait "$pid" || ((failures++))
+done
+
+echo "全部完成，失败: ${failures} 个"
+```
+
+**`kill -0 "$pid" 2>/dev/null`** 这是核心逻辑：
+
+- `kill -0` 并不真的杀死进程，它只是发送一个“0 号信号”来检测进程是否存在以及当前用户是否有权向其发送信号。
+  - 如果进程**存在**，返回值为 0（成功）；
+  - 如果进程**已结束**，返回值为非 0（失败）。
+- `2>/dev/null` 将报错信息丢弃，防止屏幕上出现“Process not found”之类的提示。
+
+仔细思考可以发现,此代码中对于失败的计数并不可靠了,可能后漏统计(尤其是很多任务结束时间相近)
+
+如果要统计失败任务数量,考虑以下方案
+
+>  用临时文件记录失败
+
+```bash
+fail_dir=$(mktemp -d)
+trap 'rm -rf "$fail_dir"' EXIT
+
+for archive in "${ARCHIVE_DIR}"/*.tar.gz; do
+    [ -f "$archive" ] || continue
+
+    while (( $(jobs -rp | wc -l) >= MAX_JOBS )); do
+        wait -n 2>/dev/null || true
+    done
+
+    (
+        deploy_site "$archive" || touch "${fail_dir}/$(basename "$archive")"
+    ) &
+done
+
+wait
+
+failures=$(find "$fail_dir" -type f | wc -l)
+echo "全部完成，失败: ${failures} 个"
+```
+
+
 
 ### 常见的错误写法
 
@@ -661,18 +786,8 @@ log() {
     local msg="$1"
     echo "[$(date +%T.%3N)] $msg"
 }
-loge() {
-    local msg="$1"
-    echo -e "[$(date +%T.%3N)] $msg" >&2
-}
-# ---------- 模拟任务 ----------
-do_task() {
-    local id=$1
-    local duration=$(( RANDOM % 11 + 1 ))   # 随机 1~11 秒
-    log "任务 $id 开始（将耗时 ${duration}s）"
-    sleep "$duration"
-    log "任务 $id 完成"
-}
+
+
 # 开始时间
 start_time=$(date +%s)
 log "===进程池模拟模拟程序开始[线程池大小: $MAX_JOBS]==="
@@ -728,7 +843,229 @@ log "所有任务处理完毕。耗时约: $(($(date +%s) - start_time))秒"
 
 ```
 
-### 两种方式对比
+暴露更多细节的版本
+
+```bash
+#!/bin/bash
+
+# ============================================
+# FIFO 进程池演示
+# ============================================
+
+# ---------- 配置(可通过脚本位置参数传递来覆盖默认值) ----------
+MAX_JOBS=${1:-3}    # 进程池大小（最大并发数）
+TIME_LIMIT=${2:-11} # 任务执行时间限制(如果是-开头,则表示每个任务运行相同的取固定值时间)
+TASKS_COUNT=${3:-6} # 总任务数
+# 定义一个日志函数，输出带有时间戳的日志信息，参数是日志内容
+log() {
+    local msg="$1"
+    echo "[$(date +%T.%3N)] $msg"
+}
+loge() {
+    local msg="$1"
+    echo -e "[$(date +%T.%3N)] $msg" >&2
+}
+# ---------- 模拟任务 ----------
+do_task() {
+    local id=$1
+    local time_limit=${2:-$TIME_LIMIT}
+
+    local duration
+    if [[ $time_limit =~ ^- ]]; then
+        duration=${time_limit#-} # 去掉开头的'-'符号
+    else
+        duration=$((RANDOM % "$time_limit" + 1)) # 模拟任务执行时间(1-5秒)
+    fi
+    # local duration=3   # 固定某个秒数
+    log "Task-($id) 开始（将耗时 ${duration}s）"
+    sleep "$duration"
+    log "Task-($id) 完成"
+}
+# 开始时间
+start_time=$(date +%s)
+log "===进程池模拟模拟程序开始[线程池大小: $MAX_JOBS,任务数量为: $TASKS_COUNT]==="
+if [[ $TIME_LIMIT =~ ^- ]]; then
+    log "任务执行时间固定为: ${TIME_LIMIT#-}秒"
+else
+    log "任务执行时间随机生成，范围是: 1-${TIME_LIMIT}秒"
+fi
+
+TASK_FIFO="/tmp/task_fifo_$$_$(date +%s)" # 任务队列的FIFO文件路径，使用PID和时间戳确保唯一
+mkfifo "$TASK_FIFO"
+
+# ========== 工作进程（常驻，循环取任务） ==========
+# 通过标注重定向标准输入到此worker函数,让内部的read命令读取任务参数;
+# 参考调用方式: worker < TASK_FIFO &
+worker() {
+    local wid=$1
+    # workern内部维护一个while循环,让worker可以重复利用,直到接收到退出信号为止.
+    while true; do
+        # 从任务队列读取一行（阻塞等待）
+        local task
+        read -r task
+
+        # 收到退出信号
+
+        [[ "$task" == "EXIT" ]] && log "[worker-$wid] 收到退出信号" && break
+
+        log "Worker-$wid 执行任务"
+        # 执行任务
+        do_task "$task" "$duration"
+        # sleep 3
+        log "Worker-$wid 任务完成"
+    done
+}
+
+# ========== 启动固定数量的 Worker ==========
+for ((i = 1; i <= MAX_JOBS; i++)); do
+    log "启动worker进程: $i"
+    worker "$i" < "$TASK_FIFO" & # 所有worker从同一个FIFO读
+    WORKER_PIDS+=($!)
+done
+
+# ========== 提交任务（写入 FIFO） ==========
+{
+    # 提交任务,将任务参数(简单假设为任务名) 写入FIFO
+    for task_id in $(seq 1 $TASKS_COUNT); do
+        echo "T-$task_id"
+    done
+
+    # 提示语句重定向到stderr,以免被worker进程从FIFO读到当成任务参数
+    log "worker进程创建完毕" 1>&2
+    # 发送退出信号（每个worker一个）
+    for ((i = 0; i < MAX_JOBS; i++)); do
+        echo "EXIT"
+    done
+    # 可以考虑追加一个退出信号防止部分进程接收不到EXIT信号停不下来.
+    # echo "EXIT" 
+    log "所有任务提交完毕" 1>&2
+} > "$TASK_FIFO"
+
+# ========== 等待所有 Worker 退出 ==========
+wait "${WORKER_PIDS[@]}"
+
+rm -f "$TASK_FIFO"
+
+log "======== 所有任务完成 ========"
+log "所有任务处理完毕。耗时约: $(($(date +%s) - start_time))秒"
+
+```
+
+如果脚本修改不当运行后可能出现死循环或进程没有被清理,可以考虑用如下命令清理
+
+> 这里假设脚本名称包含`bash_processpool_fifo`
+
+```bash
+# 检查
+pgrep -fl  bash_processpool_fifo
+# 清理
+pkill -f  bash_processpool_fifo
+```
+
+或者自行添加`trap`指令执行一些必要的处理.
+
+#### 运行结果示例
+
+```
+$ bash bash_processpool_fifo.sh 2 -3 6
+[09:53:20.763] ===进程池模拟模拟程序开始[线程池大小: 2,任务数量为: 6]===
+[09:53:20.765] 任务执行时间固定为: 3秒
+[09:53:20.770] 启动worker进程: 1
+[09:53:20.772] 启动worker进程: 2
+[09:53:20.775] worker进程创建完毕
+[09:53:20.775] Worker-2 执行任务
+[09:53:20.775] Worker-1 执行任务
+[09:53:20.777] 所有任务提交完毕
+[09:53:20.777] Task-(T-1) 开始（将耗时 3s）
+[09:53:20.777] Task-(T-2) 开始（将耗时 3s）
+[09:53:23.787] Task-(T-2) 完成
+[09:53:23.787] Task-(T-1) 完成
+[09:53:23.792] Worker-1 任务完成
+[09:53:23.792] Worker-2 任务完成
+[09:53:23.799] Worker-1 执行任务
+[09:53:23.800] Worker-2 执行任务
+[09:53:23.804] Task-(T-3) 开始（将耗时 3s）
+[09:53:23.804] Task-(T-4) 开始（将耗时 3s）
+[09:53:26.812] Task-(T-4) 完成
+[09:53:26.813] Task-(T-3) 完成
+[09:53:26.815] Worker-2 任务完成
+[09:53:26.816] Worker-1 任务完成
+[09:53:26.818] Worker-2 执行任务
+[09:53:26.818] Worker-1 执行任务
+[09:53:26.820] Task-(T-5) 开始（将耗时 3s）
+[09:53:26.822] Task-(T-6) 开始（将耗时 3s）
+[09:53:29.829] Task-(T-5) 完成
+[09:53:29.829] Task-(T-6) 完成
+[09:53:29.831] Worker-2 任务完成
+[09:53:29.832] Worker-1 任务完成
+[09:53:29.834] [worker-2] 收到退出信号
+[09:53:29.834] [worker-1] 收到退出信号
+[09:53:29.838] ======== 所有任务完成 ========
+[09:53:29.842] 所有任务处理完毕。耗时约: 9秒
+```
+
+后台任务耗时随机化示例:
+
+```bash
+$ bash bash_processpool_fifo.sh 2 5 3
+[09:55:37.844] ===进程池模拟模拟程序开始[线程池大小: 2,任务数量为: 3]===
+[09:55:37.847] 任务执行时间随机生成，范围是: 1-5秒
+[09:55:37.853] 启动worker进程: 1
+[09:55:37.854] 启动worker进程: 2
+[09:55:37.856] worker进程创建完毕
+[09:55:37.856] Worker-2 执行任务
+[09:55:37.856] Worker-1 执行任务
+[09:55:37.857] 所有任务提交完毕
+[09:55:37.857] Task-(T-1) 开始（将耗时 5s）
+[09:55:37.858] Task-(T-2) 开始（将耗时 4s）
+[09:55:41.860] Task-(T-2) 完成
+[09:55:41.861] Worker-1 任务完成
+[09:55:41.862] Worker-1 执行任务
+[09:55:41.863] Task-(T-3) 开始（将耗时 4s）
+[09:55:42.864] Task-(T-1) 完成
+[09:55:42.872] Worker-2 任务完成
+[09:55:42.877] [worker-2] 收到退出信号
+[09:55:45.872] Task-(T-3) 完成
+[09:55:45.876] Worker-1 任务完成
+[09:55:45.879] [worker-1] 收到退出信号
+[09:55:45.886] ======== 所有任务完成 ========
+[09:55:45.891] 所有任务处理完毕。耗时约: 8秒
+```
+
+
+
+#### 任务提交的方式
+
+在提交任务这一块,另一种写法(不推荐):
+
+> 下面的提交任务的代码片段写法似乎便于添加提示性语句,但是也存在问题
+
+```bash
+{
+    for task_id in $(seq 1 $TASKS_COUNT); do
+        echo "T-$task_id" >> "$TASK_FIFO"
+    done
+
+    # 发送退出信号（每个worker一个）
+    for (( i = 0; i < MAX_JOBS; i++ )); do
+        echo "EXIT" >> "$TASK_FIFO"
+    done
+}
+```
+
+
+
+|               | `>> FIFO`（逐行）        | `> FIFO`（整体） |
+| ------------- | ------------------------ | ---------------- |
+| 打开/关闭次数 | N 次                     | 1 次             |
+| EOF 风险      | ⚠️ **每次关闭都可能触发** | ✅ 全部写完才关闭 |
+| 性能          | 差                       | 好               |
+| `>>` 追加语义 | 对 FIFO 无意义           | —                |
+| 可靠性        | ❌ Worker 可能意外退出    | ✅ 稳定           |
+
+
+
+### 两种FIFO使用方式对比
 
 **令牌方式**本质是一个***并发限流器***，不是真正的进程池。
 
@@ -780,4 +1117,60 @@ parallel -j 4 "echo 任务 {}; sleep 2" ::: {1..10}
 | **`wait -n` 脚本** | 中等       | 纯 Bash 环境，无需安装额外工具时。           |
 | **`xargs -P`**     | 简单       | 简单的命令并行，对输出顺序要求不高。         |
 | **`GNU Parallel`** | 略高       | 大规模生产任务，需要复杂参数传递和日志管理。 |
+
+### 批量解压场景下的并发方案选择
+
+如果不额外安装parallel的情况下,对比`wait -n` vs `xargs -P`在批量解压文件的场景下的选择
+
+**对于批量解压网站压缩包这个场景，`xargs -P` 更合适。**
+
+理由很简单：你的任务模式是"对一批文件执行相同操作"，这正是 `xargs -P` 的设计初衷。
+
+| 维度               | `wait -n`                 | `xargs -P`                               |
+| ------------------ | ------------------------- | ---------------------------------------- |
+| **并发控制**       | 需要自己写循环计数逻辑    | `-P N` 一个参数搞定                      |
+| **代码复杂度**     | 较高（需手动管理 PID 池） | 低（一行命令）                           |
+| **错误处理**       | 可以逐个捕获退出码        | 只知道"有失败"，不易定位哪个             |
+| **调用 bash 函数** | ✅ 天然支持                | ⚠️ 需要 `export -f` 导出函数              |
+| **适合场景**       | 任务间有依赖、需精细控制  | 批量同构任务（你的场景）                 |
+| **Bash 版本要求**  | 4.3+（`wait -n`）         | 对bash版本无特殊要求但是依赖 `findutils` |
+
+参考代码
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+DEPLOY_DIR="/var/www"
+ARCHIVE_DIR="/opt/packages"
+CONCURRENT=4    # 并发数
+
+deploy_site() {
+    local archive="$1"
+    local name
+    name=$(basename "$archive" .tar.gz)
+    local target="${DEPLOY_DIR}/${name}"
+
+    echo "[$(date '+%H:%M:%S')] 开始部署: ${name}"
+
+    mkdir -p "$target"
+
+    if tar -xzf "$archive" -C "$target" 2>/dev/null; then
+        echo "[$(date '+%H:%M:%S')] ✅ 成功: ${name}"
+    else
+        echo "[$(date '+%H:%M:%S')] ❌ 失败: ${name}" >&2
+        return 1
+    fi
+}
+
+# 关键：导出函数和变量，让 xargs 启动的子 shell 能访问
+export -f deploy_site
+export DEPLOY_DIR
+
+# 核心就这一行
+find "$ARCHIVE_DIR" -name '*.tar.gz' -print0 \
+    | xargs -0 -P "$CONCURRENT" -I {} bash -c 'deploy_site "$@"' _ {}
+
+echo "全部部署完成"
+```
 
