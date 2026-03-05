@@ -207,7 +207,7 @@ done
 
 ```bash
 MAX_JOBS=4
-
+# 1.定义进程管理循环(离开循环后可能有后台进程尚未结束,只能确保进程(作业)数量不超过限定值,因此需要配合后面的收尾操作)
 for task in "${tasks[@]}"; do
     # 当后台任务数达到上限时，等待任意一个完成
     # 如果等待一个后台任务结束后,jobs 计算得到的任务数量仍然大等于限制,则还是要继续调用wait -n阻塞,直到后台进程数降到限制以下
@@ -219,11 +219,13 @@ for task in "${tasks[@]}"; do
     do_something "$task" &
 done
 
-# 等待所有剩余任务完成
+# 2.收尾操作:等待所有剩余任务完成
 wait
 ```
 
-千万不要把计算后台线程数的算式从while中搬到外面,而内部缺失重新计数的计算,这会导致后台任务数不会更新,出现死循环!
+千万不要把计算后台线程数的算式从while中搬到外面,却忘记内部缺失重新后台任务计数,这会导致后台任务数不会更新,出现死循环!
+
+假设我需要在循环体中打印"当前任务数",并且要求每次打印和和`while`判断时的任务数是相同的:
 
 ```bash
 job_cnt=$(jobs -rp | wc -l)
@@ -235,7 +237,53 @@ while (("$job_cnt" >= JOBS)); do
 done
 ```
 
+我们可以利用 `while` 循环的特性，将逻辑合并。这里有几种优化方案：
 
+方案一：将赋值语句放入 `while` 条件中（最推荐）
+
+最简洁的方式是把赋值和判断写在一起：
+
+```bash
+# 只要任务数大于等于 JOBS，就持续等待
+JOBS=2
+while job_cnt=$(jobs -rp | wc -l); (( job_cnt >= JOBS )); do
+    echo "当前任务数: $job_cnt"
+    wait -n
+done
+```
+
+**优点：** 逻辑紧凑，代码只出现一次计算逻辑，且完全符合 DRY (Don't Repeat Yourself) 原则。
+
+```bash
+#!/bin/bash
+for i in {3..7};do { echo "start $i";sleep $i;echo "end $i" ;} & done ;
+# 只要任务数大于等于 JOBS，就持续等待
+JOBS=2
+while job_cnt=$(jobs -rp | wc -l); (( job_cnt >= JOBS )); do
+    echo "当前任务数: $job_cnt"
+    wait -n
+done
+```
+
+
+
+------
+
+方案二：利用 `true` 循环 + `break`
+
+如果你觉得把赋值塞进条件里可读性稍差，可以使用无限循环配合内部判断：
+
+```bash
+while true; do
+    job_cnt=$(jobs -rp | wc -l)
+    (( job_cnt < JOBS )) && break
+    
+    echo "当前任务数: $job_cnt"
+    wait -n
+done
+```
+
+**优点：** 结构非常清晰，适合以后在循环中加入更复杂的判断逻辑。
 
 ###  原理解析
 
