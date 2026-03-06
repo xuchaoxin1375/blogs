@@ -137,15 +137,87 @@ Bash 还提供了一个 `help` 命令，其中包含其内置命令的简要摘�
 >
 > 尽管这些外部命令不是bash的一部分,但是bash的许多特性可以借助这些命令来演示和体现.例如`cat`和`grep`可以在介绍bash的重定向时提供直观的例子.
 >
-> 
 
 shell语言和高级编程语言有相似之处也有不同支持,例如调用工具方面,shell通常调用可执行文件或脚本文件执行任务,而高级程序设计语言(比如python)则调用一些自身语言编写的库,当然也可以是其他语言的库,并且通常以带括号函数的方式调用,将参数指定在括号内;shell的调用风格则主要通过位置参数或命令行选项来指定参数.
 
 而且由于许多命令行的用法或语法会用到一些特殊符号,比如`find`命令,shell被设计成尽可能少的占用符号,而使用更多的关键字来构成语法结构,比较典型的是`if...then elif fi`结构,这比python的类似`if`结构要显得啰嗦,也比C like语言要啰嗦,但是shell的这种if结构不占用`{}`,也不要求严格的缩进;又比如数值比较大小,shell使用`-gt,-lt,-eq`这里形如命令行参数的语法来比较大小,也比python等于语言要麻烦,不是用`<,>`,这是因为命令行中重定向输入输出要用到`<,>`符号,使用更长的"运算符"字符序列就可以避免冲突,但是这种原因和差异不是绝对的,通过引入合适的上下文标记,shell的扩展语法允许一些符号有不同的含义,比如`[[]],(())`括号内部,就可以用`<,>`做比较而不是重定向.
 
+### 对比bash和python
+
+大多数GNU/linux发行版自带bash和python;
+
+python是更加流行的高级脚本语言,作为高级编程语言的代表;而bash作为传统shell的代表,对它们做一个对比;
+
+这里主要对比语言设计和语法方面,可以发现,bash由于历史背景、设计目标和演化方式等原因,语法不太友好;
+
+> Bash 的核心定位是：命令解释器,(为命令行工具)解释命令是它的强项;
+>
+> 编程不是bash的强项,即便是普通的算数运算的支持都很有限,语法也显得啰嗦;
+
+| 主要差异         | Bash 机制                                                 | Python 思维冲突             | 典型例子               | 关键英文                    |
+| ---------------- | --------------------------------------------------------- | --------------------------- | ---------------------- | --------------------------- |
+| 设计目标不同     | Shell 用于调用系统命令                                    | Python 用于构建程序逻辑     | `ls | grep txt`        | shell / command interpreter |
+| 数据模型不同     | 几乎所有数据都是字符串                                    | Python 有丰富数据结构       | `files=$(ls)`          | string model                |
+| 数据结构缺乏     | 只有简单数组                                              | Python 有 list / dict / set | `arr=(a b c)`          | data structure              |
+| 强依赖外部工具   | 常组合 grep、awk、sed                                     | Python 更倾向内部库         | `ps aux | grep python` | Unix toolchain              |
+| 引号规则复杂     | 不正确 quoting 会导致拆词                                 | Python 字符串规则简单       | `rm "$file"`           | quoting / word splitting    |
+| 通配符展开       | `*.txt` 会被 shell 展开                                   | Python 不会自动展开         | `rm *.txt`             | glob                        |
+| 条件判断语法     | `[ ]` 实际是 test 命令                                    | Python 是语法关键字         | `[ "$a" -gt "$b" ]`    | test command                |
+| 比较运算符不同   | `-gt -lt -eq`                                             | Python 用 `>` `<`           | `[ "$a" -gt "$b" ]`    | numeric comparison          |
+| 管道执行模型     | 通过进程传递数据                                          | Python 用变量传递           | `cmd1 | cmd2`          | pipeline                    |
+| 子进程问题       | 管道会产生 subshell                                       | Python 没有这种问题         | `while read` 变量丢失  | subshell                    |
+| 错误处理机制弱   | 依赖 exit code                                            | Python 有 exception         | `set -e`               | exit code                   |
+| 语法历史包袱重   | `[ ]` `[[ ]]` `( )` `{ }`                                 | Python 语法统一             | `[[ "$a" == "$b" ]]`   | shell grammar               |
+| 变量作用域混乱   | 默认全局变量                                              | Python 有明确作用域         | `local x=1`            | scope                       |
+| 空格极易出 bug   | 文件名空格会拆词                                          | Python 自动处理字符串       | `file="a b.txt"`       | word splitting              |
+| 文件遍历习惯不同 | 不应该解析 `ls`                                           | Python 遍历列表             | `for f in *`           | file glob                   |
+| 算术运算         | 仅支持整数范围内的简单运算,需要借助`bc`命令实现浮点数运算 | 原生支持常见运算            | `(( a1+2 ))`           | Arithmetic operations       |
+
+------
+
+再用一句话概括**根本原因**：
+
+| 语言   | 本质                                             |
+| ------ | ------------------------------------------------ |
+| Python | **数据驱动编程（data-driven programming）**      |
+| Bash   | **命令管道编程（command pipeline programming）** |
+
+| 任务类型       | 推荐工具   |
+| -------------- | ---------- |
+| 系统自动化     | Bash       |
+| 文件批处理     | Bash       |
+| 文本流水线处理 | Bash + awk |
+| 复杂逻辑       | Python     |
+| 网络请求 / API | Python     |
+| 数据处理       | Python     |
+
+------
+
+## 为什么要了解shell
+
+以bash为shell代表;
+
+很多大型基础设施项目，例如 **Docker**、**Kubernetes**、以及 **Linux kernel** 构建系统，仍然大量使用 **Bash**，即使现代语言（如 **Python**、Go 等）更易维护。
+ 原因并不是 Bash 更强，而是**系统工程环境的约束**决定了它的优势。
+
+| 使用bash的原因   | 技术本质               | 解释                                                         | 关键英文             |
+| ---------------- | ---------------------- | ------------------------------------------------------------ | -------------------- |
+| 环境几乎必然存在 | Shell 是 Unix 基础组件 | 几乎所有 Linux/Unix 系统默认都有 Bash 或 POSIX shell，而 Python 不一定存在 | default runtime      |
+| 零依赖           | 不需要 runtime         | Bash 不需要解释器安装、虚拟环境或依赖管理                    | dependency-free      |
+| 启动速度快       | 进程启动轻量           | Shell 脚本启动远快于 Python interpreter                      | startup latency      |
+| 系统操作天然适合 | Shell 直接操作命令     | 构建、编译、文件操作本质是调用系统命令                       | system orchestration |
+| Unix 工具生态    | 工具链极强             | grep、awk、sed、tar、make 等组合非常方便                     | Unix toolchain       |
+| 可移植性强       | POSIX shell 标准       | 不同 Linux 发行版、CI 环境都能运行                           | portability          |
+| CI/CD 场景友好   | pipeline 执行简单      | 构建脚本通常只是命令流水线                                   | build pipeline       |
+| 调试简单         | 可逐行执行             | `set -x` 可以直接看到执行命令                                | trace debugging      |
+| 历史积累         | 大量旧脚本             | 很多项目几十年历史，迁移成本巨大                             | legacy code          |
+| 系统引导阶段     | 早期环境极简           | 系统启动或容器初始化阶段可能只有 shell                       | bootstrap stage      |
+
 ### 核心外部程序
 
-[Top (GNU Coreutils )](https://www.gnu.org/software/coreutils/manual/html_node/index.html#SEC_Contents)
+[ (GNU Coreutils )](https://www.gnu.org/software/coreutils/manual/html_node/index.html#SEC_Contents)
+
+常用的`ls`,`cat`等命令(通常是GNU/linux系统自带的工具,这些命令不是单独安装的,而是通过coreutils安装的)的在线文档说明
 
 ---
 

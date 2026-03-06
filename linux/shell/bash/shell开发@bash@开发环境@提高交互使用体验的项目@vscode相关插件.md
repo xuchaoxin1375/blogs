@@ -18,10 +18,6 @@ vscode中的核心的bash插件
 
 
 
-> 此插件在vscode刚启动时可能无法立即工作,需要一些时间,如果过早打开shell文件可能导致该文件的分析无法正常进行
->
-> 尤其是目标文件内容复杂的情况,如果卡住无法分析符号等,请关闭该文件后重新打开.
-
 > Visual Studio Code extension utilizing the [Bash Language Server](https://github.com/bash-lsp/bash-language-server) and integrating with [explainshell](https://explainshell.com/), [shellcheck](https://www.shellcheck.net/) and [shfmt](https://github.com/mvdan/sh).
 >
 > We recommend that you [install shellcheck](https://github.com/koalaman/shellcheck#installing) to enable linting and [install shfmt](https://github.com/mvdan/sh?tab=readme-ov-file#shfmt) to enable formatting.
@@ -29,9 +25,17 @@ vscode中的核心的bash插件
 - shellcheck和shfmt这两个工具(`shellcheck`和`shfmt`)不仅在linux上可用,windows上也可用.
 - 这是一个命令行解释工具(在线网站)https://explainshell.com/,也可以部署本地服务集成到Bash IDE([idank/explainshell：将命令行参数与他们的帮助文本匹配](https://github.com/idank/explainshell)),安装条件比前面两个工具略高,这作为一个可选的功能.
 
+### 部分脚本文件的符号分析和大纲(outline)失效
+
+Bash IDE插件在vscode刚启动时可能无法立即工作,需要一些时间,如果过早打开shell文件可能导致该文件的分析无法正常进行;
+
+尤其是目标文件内容复杂的情况,如果卡住无法分析符号等,请关闭该文件后重新打开.
+
+或者启用了自动保存的情况下,轻微改动原文件尝试刷新状态;
+
 #### 异常检查
 
-此插件功能相对复杂,支持的功能比较多,如果环境或配置不当,许多功能无法生效.
+Bash IDE插件功能相对复杂,支持的功能比较多,如果环境或配置不当,许多功能无法生效.
 
 如果你发现某些功能无法工作,可以通过vscode的输出(output)窗口找到Bash IDE,看看输出了哪些错误或异常
 

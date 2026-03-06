@@ -6,7 +6,11 @@
 
 将bash视为可执行程序的场景,比如用户当前使用其他shell,例如zsh,且该用户想要临时运行一个bash命令或者bash脚本,那么可以通过如下用法实现.
 
+### `bash --help`
+
 ```bash
+$ bash --help
+...
 Usage:  bash [GNU long option] [option] ...
         bash [GNU long option] [option] script-file ...
 ...
@@ -16,6 +20,8 @@ Shell options:
 Type `bash -c "help set"' for more information about shell options.
 Type `bash -c help' for more information about shell builtin commands.
 ```
+
+更详细的说明通过`bash --help`获取,但这不是最完整的介绍,可以配合其他命令获取额外的说明,例如`set --help`
 
 > 方括号 `[]` 表示“可选”，`...` 表示“可重复或带参数”
 >
@@ -85,7 +91,11 @@ Type `bash -c help' for more information about shell builtin commands.
 > 
 > > 例如：`set -e` 等价于 `set -o errexit`
 
-更详细的说明通过`bash --help`获取,但这不是最完整的,例如可用的短选项(option)没有展开说明,这可以通过查看bash 内置命令之一的`set`的帮助来获取(` help set`和`set --help`均可)
+
+
+### `set --help`
+
+例如可用的短选项(option)没有展开说明,这可以通过查看bash 内置命令之一的`set`的帮助来获取(` help set`和`set --help`均可)
 
 ```bash
 $ set --help
@@ -100,6 +110,73 @@ set: set [-abefhkmnptuvxBCEHPT] [-o option-name] [--] [-] [arg ...]
 更完整的说明查看其他资料,例如`man bash`.
 
 bash作为shell提供的功能(内置命令和语法(关键字)),可以通过`bash -c help`获取,如果已经处于bash的交互模式,则可以直接运行`help`命令获取bash内置功能的简要帮助
+
+### `help --help`
+
+在bash中,有一个`help`命令可用;
+
+该命令可以查询`bash`内置的命令(builtin)的简单用法说明
+
+```bash
+$ help --help
+help: help [-dms] [pattern ...]
+    Display information about builtin commands.
+
+    Displays brief summaries of builtin commands.  If PATTERN is
+    specified, gives detailed help on all commands matching PATTERN,
+    otherwise the list of help topics is printed.
+
+    Options:
+      -d        output short description for each topic
+      -m        display usage in pseudo-manpage format
+      -s        output only a short usage synopsis for each topic matching
+                PATTERN
+
+    Arguments:
+      PATTERN   Pattern specifying a help topic
+
+    Exit Status:
+    Returns success unless PATTERN is not found or an invalid option is given.
+```
+
+```bash
+
+# (base) cxxu@CxxuDesk 11:48:19> <.../Administrator/Desktop>
+$ help -d for*
+Shell commands matching keyword `for*'
+
+for - Execute commands for each member in a list.
+for (( - Arithmetic for loop.
+
+# (base) cxxu@CxxuDesk 11:48:31> <.../Administrator/Desktop>
+$ help for*
+Shell commands matching keyword `for*'
+
+for: for NAME [in WORDS ... ] ; do COMMANDS; done
+    Execute commands for each member in a list.
+
+    The `for' loop executes a sequence of commands for each member in a
+    list of items.  If `in WORDS ...;' is not present, then `in "$@"' is
+    assumed.  For each element in WORDS, NAME is set to that element, and
+    the COMMANDS are executed.
+
+    Exit Status:
+    Returns the status of the last command executed.
+for ((: for (( exp1; exp2; exp3 )); do COMMANDS; done
+    Arithmetic for loop.
+
+    Equivalent to
+        (( EXP1 ))
+        while (( EXP2 )); do
+                COMMANDS
+                (( EXP3 ))
+        done
+    EXP1, EXP2, and EXP3 are arithmetic expressions.  If any expression is
+    omitted, it behaves as if it evaluates to 1.
+
+    Exit Status:
+    Returns the status of the last command executed.
+```
 
 
 
@@ -211,7 +288,7 @@ find . -name "*.log" -exec bash -c 'mv "$1" "${1%.log}.txt"' _ {} \;
 
 ------
 
-###  高阶重点：参数传递（The Dummy Argument）
+###  参数传递（The Dummy Argument）
 
 在使用 `bash -c` 时，你可以向脚本传递参数。其语法规则稍微有点“怪”：
 

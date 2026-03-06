@@ -286,7 +286,11 @@ nl
 
 ## 算术求值
 
-Bash 有几种不同的方式来表示我们想要进行**算术运算**而不是字符串操作。让我们逐一来看它们。
+Bash 有几种不同的方式来表示我们想要进行**算术运算**而不是字符串操作。
+
+> bash在算数运算方面支持优先,如果不借助外部工具(比如`bc`),甚至难以计算浮点数(bash本身的计算几乎局限于整数范围内)
+>
+> bc (1)               - An arbitrary precision calculator language
 
 ### let命令
 
@@ -378,7 +382,7 @@ $ help '(('
     Returns 1 if EXPRESSION evaluates to 0; returns 0 otherwise.
 ```
 
-> 注意到返回值是C风格逻辑真/假值的翻译为bash的结果
+> 注意到**返回值**是C风格逻辑真/假值的翻译为bash的结果
 >
 > 详情可以查看`let`的帮助
 
