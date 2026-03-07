@@ -14,6 +14,8 @@ Bash 脚本交互式问答与自动化跳过的设计方案
 
 ## 方案一：全局开关（简单场景）
 
+### 仅提供位置参数解析
+
 ```bash
 
 # ============ 询问是否继续(支持定制跳过询问) ============
@@ -59,22 +61,122 @@ confirm() {
 }
 ```
 
-### 运行效果
+### 增强版本(提供选项支持)
 
 ```bash
-# 交互模式
-$ ./deploy.sh
-是否更新系统软件包? [Y/n]: y
-→ 执行: apt update && apt upgrade
-是否安装 Docker? [y/N]: 
-→ 跳过 Docker 安装           # 直接回车取默认值 n
+# ============ 询问是否继续(支持定制跳过询问) ============
+# Arguments:
+#   $1 prompt 向用户展示的提示信息
+#   $2 default 决定提示符的输入选择部分的内容是(y,Y),(n,N),
+#               或其他情况时,分别对应提示[Y/n],[y/N],[y/n]
+#   $3 assume_answer 是否跳过用户交互直接回答此变量对应的选项
+# Return:
+#  0 if yes, 1 if no;
+# Examples :
+#   confirm "是否继续执行?" "y"
+#       是否继续执行? [y/N]: (如果直接回车,会自动选择N)
+confirm() {
+    local prompt
+    local default
+    local ASSUME_ANSWER=""
 
-# 自动化模式
-$ ./deploy.sh -y
-是否更新系统软件包? → 自动回答: y
-是否安装 Docker? → 自动回答: y
-是否清理临时文件? → 自动回答: y
+    # local ASSUME_ANSWER="${3:-}" # 特殊参数,指定的话不会进入交互模式,直接返回0或1
+    # 处理可能出现的选项
+    local verbose=false
+    # 备用实现方案  Usage: confirm [-p prompt] [-d {y|Y|n|N}] [-a {y|n}] [-v] [-h]
+    local usage="
+Usage: confirm [prompt] [{y|Y}|{n|N}] [y|n]  [-v] [-h]
+其中前3个是可选的位置参数:
+第1个prompt表示交互时要打印的基础部分的提示用语
+第2个是default部分的提示语,有4个可用的值,y,Y对应[Y/n],而n,N对应于[y/N],
+    如果省略不写,得到对应的提示语为[y/n],此时用户必须输入合适的支而无法直接回车填写有效默认值;
+第3个ASSUME_ANSWER用于指定一个用于自动回答的值,可用值为y,n,如果用户交互时没有输入任何内容,则直接返回此选项对应的值;
+
+  options:
+    -h, --help     显示帮助
+    -v, --verbose   显示详细信息
+  "
+    # echo "解析函数参数..."
+    local positional=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+
+            -h | --help)
+                echo "$usage"
+                return 0
+                ;;
+            -v | --verbose)
+                verbose=true
+                ;;
+            -?*)
+                echo "错误: 未知选项 '$1'" >&2
+                echo "$usage"
+                return 2
+                ;;
+            *)
+                # 收集位置参数
+                positional+=("$1")
+
+                ;;
+        esac
+        shift
+        # echo "分析下一个参数[$1]..."
+    done
+    set -- "${positional[@]}"
+    prompt="${1:-Continue ?}"
+    default="${2:-}"
+    ASSUME_ANSWER="${3:-}"
+    # debug:
+    # echo "[$*]"
+    # echo "检查位置参数..."
+    local rc
+    # 🔑 如果指定了自动回答，直接返回值
+    if [[ -n "$ASSUME_ANSWER" ]]; then
+        echo "${prompt} → 自动回答: ${ASSUME_ANSWER}"
+        # 设置返回值rc
+        [[ "$ASSUME_ANSWER" =~ ^y(es)?$ ]] && rc=0 || rc=1
+        # if [[ "$verbose" = true ]]; then echo "return $rc"; fi
+        # return $rc
+    fi
+    # 如果命令行没有指定自动回答,则要求用户交互,交互方式可以定义3类(至少要求输入一个回车)
+    if [[ -z $rc ]]; then
+
+        # 构造提示符的输入选择部分
+        # (对于y,Y表示偏好为自动输入yes(return 0),如果是n,N,偏好是自动输入no(return 1))
+        local yn
+        case "$default" in
+            y | Y) yn="[Y/n]" ;;
+            n | N) yn="[y/N]" ;;
+            *) yn="[y/n]" ;; # 表示要求用户必须输入可用值
+        esac
+
+        # 交互式询问（支持重试）
+        while true; do
+            read -r -p "${prompt} ${yn}: " answer
+            answer="${answer:-$default}" # 用户直接回车则取默认值
+            case "${answer,,}" in        # ${,,} 转小写 (bash 4+)
+                y | yes)
+                    rc=0
+                    # echo "回答yes"
+                    break
+                    ;;
+                n | no)
+                    rc=1
+                    # echo "回答no"
+                    break
+                    ;;
+                *) echo "请输入 y(Y) 或 n(N)" ;;
+            esac
+        done
+    fi
+    # 统一返回
+    if [[ "$verbose" = true ]]; then echo "return $rc"; fi
+    return $rc
+}
+
 ```
+
+
 
 ---
 
