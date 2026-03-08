@@ -409,6 +409,10 @@ extglob中的关键符号`?,*,+`这几个在正则表达式中是常见的重复
 >
 > `(list)`:`(glob1|glob2|...)`
 
+### 反向通配(负向前瞻)
+
+扩展通配符的典型用例之一是反向匹配,例如我希望匹配后缀不是`.jpg`也不是`.bmp`的任意文件:
+
 ```bash
 $ ls
 names.txt  tokyo.jpg  california.bmp
@@ -417,6 +421,60 @@ names.txt
 ```
 
 此扩展通配符会展开为任何不匹配 `*jpg` 或 `*bmp` 模式的内容。只有文本文件符合这个条件，因此会被展开。
+
+> 这个特性类似于正则中的**负向前瞻**(断言之一);
+>
+> 初学者常尝试使用 `[^...]`，但这在正则中表示“匹配**一个**不是 j、p 或 g 的字符”。
+>
+> 中括号是**字符集**过滤，**无法处理完整的字符串单词过滤**。因此，必须使用断言。
+
+正则中,负向前瞻是实现"排除匹配"的关键：(以python为例)前瞻和后瞻的正则语法
+
+> 正向表示"是(满足)"pattern的情况,负向表示"不是(不满足)"pattern的情况
+>
+> `(?...)`表示启用断言(或分组)
+>
+> 负向就是把正向情况的`=`更改为`!`;其中正向和负向可以分别理解为"肯定"和"否定"
+>
+> 后瞻相比对应的前瞻要多一个`<`符号
+
+- 正向前瞻: ` (?=pattern)`    匹配后面是 pattern 的位置
+- 负向前瞻:  `(?!pattern)`    匹配后面不是 pattern 的位置 
+- 正向后瞻: ` (?<=pattern)`   匹配前面是 pattern 的位置
+- 负向后瞻: ` (?<!pattern)`   匹配前面不是 pattern 的位置
+
+### 更多示例
+
+```python
+import re
+
+files = ['names.txt', 'tokyo.jpg', 'california.bmp.txt', 'readme.md', 'photo.png']
+
+# 排除 jpg 和 bmp
+p1 = re.compile(r'^(?!.*\.(jpg|bmp)$).+$') # (?!regexp) ,其中regex为 .*\.(jpg|bmp)$
+print([f for f in files if p1.match(f)])
+# ['names.txt', 'readme.md', 'photo.png']
+
+# 只匹配 txt（正向匹配，等价于 shell 的 *.txt）
+p2 = re.compile(r'^.*\.txt$')
+print([f for f in files if p2.match(f)])
+# ['names.txt']
+
+# 排除所有图片格式
+p3 = re.compile(r'^(?!.*\.(jpg|bmp|png|gif)$).+$')
+print([f for f in files if p3.match(f)])
+# ['names.txt', 'readme.md']
+```
+
+对照表
+
+| Shell extglob  | 含义           | Python 正则              |
+| -------------- | -------------- | ------------------------ |
+| `!(*jpg|*bmp)` | 不匹配 jpg/bmp | `^(?!.*\.(jpg|bmp)$).*$` |
+| `*(pattern)`   | 0次或多次      | `(pattern)*`             |
+| `+(pattern)`   | 1次或多次      | `(pattern)+`             |
+| `?(pattern)`   | 0次或1次       | `(pattern)?`             |
+| `@(pattern)`   | 恰好1次        | `(pattern)`              |
 
 ## shopt 常用选项
 

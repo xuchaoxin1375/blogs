@@ -31,7 +31,7 @@ Bash IDE插件在vscode刚启动时可能无法立即工作,需要一些时间,�
 
 尤其是目标文件内容复杂的情况,如果卡住无法分析符号等,**请关闭该文件后重新打开**.
 
-#### 异常检查
+#### 插件功能异常检查
 
 Bash IDE插件功能相对复杂,支持的功能比较多,如果环境或配置不当,许多功能无法生效.
 
@@ -129,7 +129,20 @@ vscode://settings/bashIde.shfmt.languageDialect
 
 [tl;dr pages - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=bmuskalla.vscode-tldr)
 
-### Bash 增强框架
+## 有利于静态检查的写法和注意事项
+
+- 使用变量前事先声明或初始化,有助于IDE在后期赋值时对不恰当的值类型做出警告;
+- IDE的变量名重命名(重构)功能,对于部分的shell内置命令对变量名的引用和赋值可能无法级联修改;
+
+> 例如`read,mapfile`这类命令将标准输入读取为数组的命令
+>
+> ```bash
+> mapfile -t var
+> ```
+>
+> 相比于一般的初始化的变量名在使用变量重命名功能时,需要额外的注意;
+
+## Bash 增强框架
 
 按需使用
 
