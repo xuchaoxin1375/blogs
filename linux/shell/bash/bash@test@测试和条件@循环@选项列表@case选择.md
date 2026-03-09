@@ -979,7 +979,39 @@ while COMMANDS; do COMMANDS-2; done
     Returns the status of the last command executed.
 ```
 
+重点:    Expand and execute `COMMANDS-2` as long as **the final command in `COMMANDS`** has  an exit status of zero(0).
 
+**第一部分`COMMANDS`可以是任意命令序列**，判断依据是 **最后一个命令的 exit status**：
+
+- exit status = **0** → 相当于 **true**，继续循环
+- exit status = **非0** → 相当于 **false**，退出循环
+
+| 特性        | 一般编程语言        | Bash                              |
+| ----------- | ------------------- | --------------------------------- |
+| 条件类型    | 布尔**表达式**      | **命令**(序列)                    |
+| 判断依据    | 表达式的 true/false | 最后一条命令的 exit status        |
+| 条件数量    | 只能一个表达式      | **可以多条命令**                  |
+| true 的含义 | `true` / 非零值     | exit status = **0**               |
+| `[` 的本质  | 语法符号/运算符     | 一个**可执行命令** (`/usr/bin/[`) |
+
+> **核心思想**：Bash 的世界里 **一切皆命令**，**while 的条件部分**也不例外——它不是在"求值"，而是在"**执行命令并检查退出状态**"。
+>
+> 只要被测试的commands中的**最后一个命令**的退出状态是0(其他的命令执行状态码不影响是否进入循环!),就进入循环;
+
+```bash
+# 用 read 命令 —— read 成功返回0，EOF返回非0
+while read line; do
+    echo "Got: $line"
+done < file.txt
+
+# 用 grep 命令
+while grep -q "pattern" /var/log/app.log; do
+    echo "Pattern still found, waiting..."
+    sleep 5
+done
+```
+
+虽然测试条件部分可以放多条命令,但是顺序是重要的,因为只有最后一条命令的执行状态码决定是否继续进入循环;
 
 #### `until`
 

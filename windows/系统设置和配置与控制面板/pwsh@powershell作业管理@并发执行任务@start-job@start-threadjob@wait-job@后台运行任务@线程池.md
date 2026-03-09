@@ -378,7 +378,15 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 `Receive-Job` cmdlet (缩写`rcjb`)获取后台作业的结果。 作业对象不包含作业结果,作业结果类型由`start-job`运行的`ScriptBlock`所定义的代码决定的.powershell不会对返回的内容做包装.
 
 - 如果作业已完成，则 `Receive-Job` 获取所有作业结果。 **如果作业仍在运行，则 `Receive-Job` 获取迄今已生成的结果。** 可以再次运行 `Receive-Job` 命令以获取剩余结果。
-- 默认情况下，`Receive-Job` **从存储作业结果的缓存中删除结果**。(每个作业都有自己的缓存区域,不同作业的结果缓存清空是相对独立的) 再次运行 `Receive-Job` 时，只会获得**首次运行后到达的新结果**。(这种设计是考虑到有的作业返回结果并不是一次性返回,可能会边计算边返回部分结果)
+
+- 默认情况下，`Receive-Job` **从存储作业结果的缓存中删除结果**。(每个作业都有自己的缓存区域,不同作业的结果缓存清空是相对独立的) 
+
+  - 再次运行 `Receive-Job` 时，只会获得作业首次运行后自上次`Receive-Job`结束后到达的新结果(如果任务还没有结束的话,流式返回的例子有助于理解这个含义)。
+
+    By default, `Receive-Job` deletes the results from the cache where job results are stored. When you run `Receive-Job` again, you get only the new results that arrived after the first run.
+
+  - 这种设计是考虑到有的作业返回结果并不是一次性返回,可能会边计算边返回部分结果
+
 
 常用的获取指定job结果的方式是指定`-Job`或`-Id`指定job变量(或jobId)
 

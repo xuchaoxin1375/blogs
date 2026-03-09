@@ -223,6 +223,8 @@ done
 wait
 ```
 
+### 变体写法
+
 千万不要把计算后台线程数的算式从while中搬到外面,却忘记内部缺失重新后台任务计数,这会导致后台任务数不会更新,出现死循环!
 
 假设我需要在循环体中打印"当前任务数",并且要求每次打印和和`while`判断时的任务数是相同的:
@@ -237,11 +239,15 @@ while (("$job_cnt" >= JOBS)); do
 done
 ```
 
+上述写法逻辑上没有问题,但是出现了明显的代码重复,很不优雅;
+
 我们可以利用 `while` 循环的特性，将逻辑合并。这里有几种优化方案：
 
-方案一：将赋值语句放入 `while` 条件中（最推荐）
+#### 将赋值语句放入 `while` 条件中
 
 最简洁的方式是把赋值和判断写在一起：
+
+> while语句: `while COMMANDS; do COMMANDS-2; done`中,第一部分的`COMMANDS`表示命令,并且允许多条命令,且其中最后一条命令的执行状态码决定是否进入循环.
 
 ```bash
 # 只要任务数大于等于 JOBS，就持续等待
@@ -250,26 +256,39 @@ while job_cnt=$(jobs -rp | wc -l); (( job_cnt >= JOBS )); do
     echo "当前任务数: $job_cnt"
     wait -n
 done
+
 ```
 
 **优点：** 逻辑紧凑，代码只出现一次计算逻辑，且完全符合 DRY (Don't Repeat Yourself) 原则。
 
 ```bash
 #!/bin/bash
-for i in {3..7};do { echo "start $i";sleep $i;echo "end $i" ;} & done ;
+for i in {1..5}; do {
+    task_time=$((RANDOM % 5 + 2))
+    echo "start J-$i (time consumption $task_time s)"
+    sleep $task_time
+    echo "end J-$i (consumed $task_time s)"
+} & done
 # 只要任务数大于等于 JOBS，就持续等待
 JOBS=2
-while job_cnt=$(jobs -rp | wc -l); (( job_cnt >= JOBS )); do
+while
+    job_cnt=$(jobs -rp | wc -l)
+    ((job_cnt >= JOBS))
+do
     echo "当前任务数: $job_cnt"
     wait -n
 done
+
+wait
+echo "所有任务结束"
+
 ```
 
 
 
 ------
 
-方案二：利用 `true` 循环 + `break`
+#### 利用 `true` 循环 + `break`
 
 如果你觉得把赋值塞进条件里可读性稍差，可以使用无限循环配合内部判断：
 
@@ -292,7 +311,69 @@ done
 - **`wait -n`**: 这个命令的调用方式是关键。单次调用,它不是等待*所有*任务，而是等待*最近的一个*任务结束。如果需要严格控制后台进程数量,需要将`wait -n`放到一个单独的检测进程池是否已满的循环中,称为消耗循环,每次离开消耗循环时,总是可以保证后台进程数低于限制数.新手容易在这上面犯错.
 - **`wait` (无参数)**: 在循环结束后使用，确保最后几个残余任务也执行完，脚本再退出。
 
-### 增加PID管理
+### kill -0
+
+`kill -0` 是一个非常有用的技巧，它并不会真的“杀死”进程，而是用来**探测进程的存在性**。
+
+简单来说，执行 `kill -0 $PID` 时，系统会检查：
+
+1. 该 PID 是否存在？
+2. 当前用户是否有权限向该 PID 发送信号？
+
+####  返回值（Exit Status）
+
+这是该命令的核心用法，通常配合 `$?` 使用：
+
+- **退出码为 0**：进程存在，且你有权访问。
+- **退出码为 1**：进程存在，但你权限不足（例如尝试探测 root 进程）。
+- **非 0 值（通常是 1 或其他）**：进程不存在。
+
+------
+
+#### 脚本中的实战用
+
+在自动化脚本中，这通常用于监控后台任务或防止脚本重复启动。
+
+场景 A：检查后台进程是否还在运行
+
+```bash
+# 启动一个后台任务
+./backup.sh &
+PID=$!
+
+# 稍后检查它是否还在干活
+if kill -0 $PID 2>/dev/null; then
+    echo "进程 $PID 仍在运行中..."
+else
+    echo "进程 $PID 已结束或已崩溃。"
+fi
+```
+
+> **注意**：`2>/dev/null` 是为了隐藏进程不存在时系统弹出的错误提示。
+
+场景 B：等待进程结束（轮询）
+
+如果你不想用 `wait`（因为它会阻塞当前 shell），可以用循环：
+
+```bash
+while kill -0 $PID 2>/dev/null; do
+    echo "等待进程结束..."
+    sleep 2
+done
+echo "进程已退出，继续下一步操作。"
+```
+
+------
+
+3. 技术细节
+
+- **无副作用**：它不会向目标进程发送任何实际信号（如 `SIGTERM` 或 `SIGKILL`），所以目标进程完全察觉不到被探测了。
+- **僵尸进程（Zombie）**：如果进程已经结束但变成了“僵尸进程”，`kill -0` 依然会返回 **0**，因为该 PID 在进程表中尚未被回收。
+- **权限限制**：如果你是普通用户，探测 root 用户的进程可能会返回权限错误，但这依然能证明该 PID 确实存在。
+
+
+
+### PID管理
 
 以网站解压部署场景用例说明,此版本的失败统计并不可靠,仅作参考
 
@@ -365,9 +446,187 @@ echo "全部完成，失败: ${failures} 个"
 
 仔细思考可以发现,此代码中对于失败的计数并不可靠了,可能后漏统计(尤其是很多任务结束时间相近)
 
-如果要统计失败任务数量,考虑以下方案
+### 统计任务执行状态
 
->  用临时文件记录失败
+通常我们对一批任务的执行结果感兴趣;
+
+例如统计失败的任务以便排查原因或者稍后需要重试;
+
+对于串行任务,统计的思路任务十分简单,而且可以很准确;
+
+对于并发任务,如果要统计失败任务数量,需要选择合适的方案才能正确统计
+
+关键在于**捕获每个后台任务的退出码**。考虑以下方案:
+
+#### `wait <PID>` 逐个获取退出码
+
+先观察下面的不带并发数控制的版本(简单版),其通过收集后台进程的pid(通过`$i`获取),保存到数组;
+
+在每个任务后台创建完成时立即获取其进程id并保存到进程数组中;
+
+当所有后台任务创建(发射)完成,就可以遍历收集到的后台进程pid数组;依次调用`wait <pid>`来获取每个后台进程的退出状态码来统计失败(成功)任务数量;
+
+```bash
+#!/bin/bash
+
+pids=()
+tasks_count=10
+success=0
+failed=0
+failed_tasks=()
+run_task() {
+    local i="$1"
+    # 模拟任务，部分会失败
+    time_consumption=$((RANDOM % 3 + 1))
+    echo -e "\tTask $i started(time consumption: $time_consumption s)"
+    sleep "$time_consumption"
+    if ((i % 3 == 0)); then
+        exit 1 # 模拟失败
+    fi
+    exit 0
+}
+export -f task
+# 启动后台任务
+for i in $(seq 1 $tasks_count); do
+    (
+        run_task "$i"
+    ) &
+    pids+=("$!:$i") # 记录 PID 和任务标识
+    echo "Task$i(PID=$!)"
+done
+echo
+
+jobs  | nl
+# 逐个等待并检查退出码(统计失败任务)
+for entry in "${pids[@]}"; do
+    pid="${entry%%:*}"
+    task_id="${entry##*:}"
+
+    wait "$pid"
+    exit_code=$?
+
+    if [[ $exit_code -ne 0 ]]; then
+        ((failed++))
+        failed_tasks+=("$task_id")
+        echo "Task $task_id (PID=$pid) FAILED with exit code $exit_code"
+    else
+        ((success++))
+        echo "Task $task_id (PID=$pid) SUCCESS"
+    fi
+done
+
+echo "================================"
+echo "Total failed: $failed"
+echo "Total success: $success"
+echo "Failed tasks: ${failed_tasks[*]}"
+
+```
+
+如果要引入并发控制,那么情况会复杂一些:
+
+#### 带并发控制下的失败统计
+
+##### 兼容性方案(轮询)
+
+> 不是很优雅,但是可以不用`wait -n,-p`
+
+```bash
+#!/bin/bash
+
+pids=()
+tasks_count=10
+success=0
+failed=0
+failed_tasks=()
+log() {
+    echo -e "[$(date +%T)] $*"
+}
+run_task() {
+    local i="$1"
+    log "开始执行任务 $i"
+
+    # 模拟任务，部分会失败
+    time_consumption=$((RANDOM % 3 + 1))
+    log "\tTask $i started(time consumption: $time_consumption s)"
+    sleep "$time_consumption"
+    if ((i % 3 == 0)); then
+        exit 1 # 模拟失败
+    fi
+    exit 0
+}
+#!/bin/bash
+
+MAX_CONCURRENT=4
+pids=()
+declare -A pid_task_map # PID -> 任务名 的映射
+failed=0
+failed_tasks=()
+# tasks=($(seq 1 "$tasks_count"))
+mapfile -t tasks < <(seq 1 "$tasks_count")
+for task_id in "${tasks[@]}"; do
+    # 控制并发数
+    while
+        jobs_count="${#pids[@]}"
+        (("$jobs_count" >= MAX_CONCURRENT))
+    do
+        # 等待任意一个子进程结束,轮询策略;(扫描一遍进程ip数组,需要设置每次轮序的时间间隔,看哪个进程结束)
+        # log "进程数量[$jobs_count]达到上限,等待任意一个完成"
+        for i in "${!pids[@]}"; do
+            pid="${pids[$i]}"
+            # 使用kill -0 检测进程是否结束,返回0表示进程存在,返回1表示进程不存在(结束了)
+            if ! kill -0 "$pid" 2> /dev/null; then
+                log "任务 ${pid_task_map[$pid]}(pid: $pid)已完成"
+                wait "$pid"
+                exit_code=$?
+                if [[ $exit_code -ne 0 ]]; then
+                    ((failed++))
+                    failed_tasks+=("${pid_task_map[$pid]}")
+                else
+                    ((success++))
+                fi
+                unset "pids[$i]"
+                unset "pid_task_map[$pid]"
+            # else # 为了输出简洁,这里不打印此分支(可以作为verbose或debug模式打印调试)
+            #     echo -n -e "\r\t尚未有后台进程退出,继续轮询..."
+            fi
+        done
+        pids=("${pids[@]}") # 重建数组索引
+        # 轮询间隔休眠,避免CPU占用过高
+        sleep 0.5
+    done
+
+    run_task "$task_id" &
+    pid=$!
+    pids+=("$pid")
+    pid_task_map[$pid]="$task_id"
+done
+
+# 等待剩余任务
+for pid in "${pids[@]}"; do
+    wait "$pid"
+    exit_code=$?
+    if [[ $exit_code -ne 0 ]]; then
+        ((failed++))
+        failed_tasks+=("${pid_task_map[$pid]}")
+    else
+        ((success++))
+    fi
+done
+
+log "================================"
+log "Total: ${#tasks[@]}, Failed: $failed"
+log "Success_a: $((${#tasks[@]} - failed)),Success_b: $success"
+log "Failed tasks(ids): ${failed_tasks[*]}"
+
+```
+
+```bash
+
+```
+
+
+
+#### 用临时文件记录失败
 
 ```bash
 fail_dir=$(mktemp -d)
@@ -656,6 +915,30 @@ $ bash bash_processpool_demo.sh 2 -3 6
 在每个任务运行时间相同的情况下(虽然实际任务中几乎不会这样,但是演示代码中可能这么做,并且可以对比出一些写法效果上的不同)
 
 总之,根据`jobs -rp`查询结果(进程数量是否达到限制),如果达到限制就调用`wait -n`(但是调用多少次取决于调用完观察进程数是否降低到限制值以下,否则就得继续调用)
+
+## 分批执行
+
+相比于模拟进程池,分批执行是一种更简单的并发方案(并发程度比进程池低,但是最大并发数量是很容易控制的,批次之间是有序的;)
+
+> 兼容不带有`-n`选项的bash版本;
+
+```bash
+count=0
+CONCURRENCY=5
+for db in $databases; do
+    (
+        res=$(mysql -u root -p"$key" -N -s -D "$db" -e "$SQL")
+        echo "$db, $res"
+    ) &
+    
+    ((count++)) #持续累加计数(被添加到后台的任务数,无论是否已经完成;)
+    # 计数的任务每达到 CONCURRENCY 个进程(使用取模来实现判断)就等待一轮
+    if (( count % CONCURRENCY == 0 )); then
+        wait # 无参数wait会等待所有后台进程返回后继续
+    fi
+done
+wait
+```
 
 
 
