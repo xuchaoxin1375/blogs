@@ -735,6 +735,83 @@ wait: wait [-fn] [-p var] [id ...]
     children.
 ```
 
+##### wait命令注意事项
+
+**重复 wait**：如果你对同一个 PID 执行两次 `wait`，第二次会报错 `not a child of this shell`。因为第一次 `wait` 后，内核就已经把该进程的信息彻底删除了。
+
+**不带参数的 wait**：如果你只写 `wait`（不带 PID），它会等待**所有**当前的后台任务全部结束，并返回最后一个结束的任务的状态码。
+
+```bash
+# root @ CxxuColorfulWin10 in ~ [21:56:16]
+$ sleep 5 & pid=$! ;echo $pid
+[1] 495
+495
+
+# root @ CxxuColorfulWin10 in ~ [21:56:39]
+$ wait $pid
+[1]  + 495 done       sleep 5
+
+# root @ CxxuColorfulWin10 in ~ [21:56:45]
+$ wait $pid
+wait: pid 495 is not a child of this shell
+```
+
+> 我们可以在后台任务结束后不立即使用wait获取其结果(状态),而可以稍后获取;
+>
+> 但是一旦wait过某个后台进程pid,第二次wait同一个pid就会报错;尤其是使用`wait -n`(可以配合 `-p`标记哪个进程被wait掉)
+
+##### 多个后台任务已经结束时wait -n的行为
+
+> 假设用户启动了一批后台任务,并且其中一批任务很快完成;
+>
+> 那么用户这时候再去使用`wait -n`(一次或多次)将分别获取什么样的结果?
+
+```bash
+#!/bin/bash
+# wait_frist.sh
+log() {
+    echo -e "[$(date +%T)] $*"
+}
+pids=()
+log "启动5个后台任务"
+sleep 1 &
+pids+=($!)
+sleep 2 &
+pids+=($!)
+sleep 3 &
+pids+=($!)
+sleep 4 &
+pids+=($!)
+sleep 5 &
+pids+=($!)
+log "$(declare -p pids)"
+log "开始wait -n 第一个任务结束"
+wait -n -p id
+log "\tid1=$id"
+
+log "等待4秒,此时至少3个任务结束"
+sleep 4
+log "再次wait -n"
+wait -n -p id
+log "\tid2=$id"
+
+```
+
+```bash
+$ bash wait_frist.sh
+[23:05:21] 启动5个后台任务
+[23:05:21] declare -a pids=([0]="9964" [1]="9965" [2]="9966" [3]="9967" [4]="9968")
+[23:05:21] 开始wait -n 第一个任务结束
+[23:05:22]      id1=9964
+[23:05:22] 等待4秒,此时至少3个任务结束
+[23:05:26] 再次wait -n
+[23:05:26]      id2=9965
+```
+
+可以看到,先完成的任务优先被`wait -n` 命令处理;
+
+> 单个实验不严谨,但是ke'gong
+
 #### Bash 中 `jobs` 与 `wait` 命令对后台job table的影响
 
 
