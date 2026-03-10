@@ -136,6 +136,8 @@ vscode://settings/bashIde.shfmt.languageDialect
 
 > 例如`read,mapfile`这类命令将标准输入读取为数组的命令
 >
+> 又比如`unset "array[n]"`,也要注意`array`变更时带来的影响
+>
 > ```bash
 > mapfile -t var
 > ```

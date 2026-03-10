@@ -735,9 +735,84 @@ wait: wait [-fn] [-p var] [id ...]
     children.
 ```
 
-##### wait命令注意事项
+##### 多次wait 同一个pid
 
-**重复 wait**：如果你对同一个 PID 执行两次 `wait`，第二次会报错 `not a child of this shell`。因为第一次 `wait` 后，内核就已经把该进程的信息彻底删除了。
+在脚本中,我们可以构造如下实验:
+
+```bash
+#!/bin/bash
+# wait_twice_pid.sh
+log() {
+    echo -e "[$(date +%T)] $*"
+}
+log "启动1个后台任务"
+task() {
+    time="${1:-2}"
+    sleep "$time"
+    return 101
+}
+task 1 &
+pid=$!
+echo "[$pid]start"
+log "wait $pid 结束..."
+wait $pid
+echo "后台作业[$pid]结束;exit code: $?"
+
+log "第二次等待同一个pid,观察返回码"
+wait $pid
+echo "[$pid]exit code: $?"
+
+```
+
+```bash
+$ bash wait_twice_pid.sh
+[09:58:02] 启动1个后台任务
+[43412]start
+[43412]exit code: 101
+[09:58:03] 第二次等待,观察返回码
+[43412]exit code: 101
+
+```
+
+可以发现,如果某个后台作业被wait过,如果同一个shell进程内再次wait同一个pid,仍然可以获取pid进程的退出状态码.
+
+如果`jobs -l`已经观察过已结束运行的后台任务(设对应的pid为`pidx`),那么再去wait 这个`pidx`,也仍然可以获取退出状态码!
+
+```bash
+#!/bin/bash
+# wait_jobs_later_pid.sh
+log() {
+    echo -e "[$(date +%T)] $*"
+}
+log "启动1个后台任务"
+task() {
+    time="${1:-2}"
+    sleep "$time"
+    return 101
+}
+task 1 &
+pid=$!
+log "[$pid]start"
+log "sleep 3秒,等待后台作业结束"
+sleep 3
+log "调用jobs -l 检查后台作业情况"
+jobs -l
+wait $pid
+log "作业[$pid]结束;exit code: $?"
+
+log "第二次等待同一个pid,观察返回码"
+wait $pid
+log "[$pid]exit code: $?"
+
+```
+
+
+
+##### wait 不存在的pid
+
+如果你对一个不属于当前shell的 pid 做 `wait`，会报错 `not a child of this shell`。
+
+##### 不带参数的 wait
 
 **不带参数的 wait**：如果你只写 `wait`（不带 PID），它会等待**所有**当前的后台任务全部结束，并返回最后一个结束的任务的状态码。
 
@@ -810,7 +885,7 @@ $ bash wait_frist.sh
 
 可以看到,先完成的任务优先被`wait -n` 命令处理;
 
-> 单个实验不严谨,但是ke'gong
+> 单个实验不严谨,但是可供参考;
 
 #### Bash 中 `jobs` 与 `wait` 命令对后台job table的影响
 
@@ -962,7 +1037,53 @@ log "实验结束[$pid]"
 
 ```
 
+> 不要混淆jobs 和 wait,尤其是他们的`-p`选项含义不同;
 
+```bash
+#!/bin/bash
+# jobs_r.sh
+log() {
+    echo -e "[$(date +%T)] $*"
+}
+PIDS=()
+log "启动3个后台任务"
+sleep 1 &
+PIDS+=($!)
+sleep 2 &
+PIDS+=($!)
+sleep 5 &
+PIDS+=($!)
+
+
+log "$(declare -p PIDS)"
+log "开始wait -n 第一个任务结束"
+
+log "等待3秒,部分后台任务结束,使用jobs -r 观察是否有后台运行中的任务"
+sleep 3
+jobs -r 
+
+log "等待3秒,全部后台任务结束,jobs -r观察(预计为空)"
+sleep 3
+jobs -r
+
+log "使用jobs -l观察全部任务(都已经结束)"
+jobs -l
+```
+
+```bash
+[09:26:59] 启动3个后台任务
+[09:26:59] declare -a PIDS=([0]="42656" [1]="42657" [2]="42658")
+[09:26:59] 开始wait -n 第一个任务结束
+[09:26:59] 等待3秒,部分后台任务结束,使用jobs -r 观察是否有后台运行中的任务
+[3]+  Running                    sleep 5 &
+[09:27:02] 等待3秒,全部后台任务结束,jobs -r观察(预计为空)
+[09:27:05] 使用jobs -l观察全部任务(都已经结束)
+[1]  42656 Done                       sleep 1
+[2]- 42657 Done                       sleep 2
+[3]+ 42658 Done                       sleep 5
+```
+
+> `jobs -r`不会导致任务从job table中被移除,可以用来检测后台活跃作业(数量),可以用于后台作业并发数控制
 
 #### bash wait和powershell wait-job对比
 

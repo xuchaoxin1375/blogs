@@ -373,78 +373,131 @@ echo "进程已退出，继续下一步操作。"
 
 
 
-### PID管理
+## 后台作业PID管理和统计
 
-以网站解压部署场景用例说明,此版本的失败统计并不可靠,仅作参考
+在控制并发数量的情况下,正确地统计失败/成功任务的示例;
+
+### 推荐方案
+
+> 用到`wait -n`,需要bash 4.3+的版本;
+>
+> 初学者可以先参考后面关于"统计任务执行状态"的基础案例;
 
 ```bash
 #!/bin/bash
-set -euo pipefail
 
-DEPLOY_DIR="/var/www"
-ARCHIVE_DIR="/opt/packages"
-MAX_JOBS=4
-
-# 解压并部署网站的任务函数(示例)
-deploy_site() {
-    local archive="$1"
-    local name
-    name=$(basename "$archive" .tar.gz)
-    local target="${DEPLOY_DIR}/${name}"
-
-    echo "[$(date '+%H:%M:%S')] 开始部署: ${name}"
-    mkdir -p "$target"
-
-    if tar -xzf "$archive" -C "$target" 2>/dev/null; then
-        echo "[$(date '+%H:%M:%S')] ✅ 成功: ${name}"
-    else
-        echo "[$(date '+%H:%M:%S')] ❌ 失败: ${name}" >&2
-        return 1
-    fi
+PIDS=()
+TASKS_COUNT=6
+MAX_CONCURRENT=2
+TIME_LIMIT=2 #任务时间模拟(负数表示随机时间,范围不超过指定数)
+SUCCESS=0
+FAILED=0
+FAILED_TASKS=()
+declare -A PID_TASK_MAP # PID -> 任务名 的映射
+# tasks=($(seq 1 "$tasks_count"))
+mapfile -t tasks < <(seq 1 "$TASKS_COUNT")
+# ===定义函数
+log() {
+    echo -e "[$(date +%T)] $*"
 }
-# 记录尚未结束的进程pid
-pids=()
-failures=0
+run_task() {
+    local i="$1"
+    log "开始执行任务 $i"
 
-for archive in "${ARCHIVE_DIR}"/*.tar.gz; do
-    [ -f "$archive" ] || continue
+    # 模拟任务，部分会失败
+    if [[ $TIME_LIMIT =~ ^- ]]; then
+        time_limit=${TIME_LIMIT#-}
+        time_consumption=$((RANDOM % time_limit + 1))
+    else
+        time_limit=$TIME_LIMIT
+        time_consumption=$time_limit
+    fi
+    log "\tTask $i started(time consumption: $time_consumption s)"
+    sleep "$time_consumption"
+    if ((i % 3 == 0)); then
+        exit 1 # 模拟失败
+    fi
+    exit 0
+}
+# 统计后台任务状态
+# Global:
+#    FAILED,SUCCESS,FAILED_TASKS,PID_TASK_MAP
+# Arguments:
+# 	$1 pid
+# 	$2 exit_code
+count_status() {
+    pid="$1"
+    exit_code="$2"
+    # echo "进程 $pid (tid: ${PID_TASK_MAP[$pid]} )退出,exit_code=$exit_code"
+    # return $exit_code
+    if [[ $exit_code -ne 0 ]]; then
+        ((FAILED++))
+        FAILED_TASKS+=("${PID_TASK_MAP[$pid]}")
+        status="FAIL"
+    else
+        ((SUCCESS++))
+        status="SUCCESS"
+    fi
+    log "进程 $pid (tid: ${PID_TASK_MAP[$pid]} ) 结束,status=$status"
+}
+# ====开始
+start_time=$(date +%s)
 
-    # 并发数达到上限时，等待任意一个完成
-    while (( ${#pids[@]} >= MAX_JOBS )); do
-    	# 等待某个进程结束,并记录可能出现的失败任务.
-        wait -n "${pids[@]}" || ((failures++))
-        # 后台某个进程被释放,需要更新pids数组状态,反映变化.
-        # 清理已结束的 PID
-        new_pids=()
-        for pid in "${pids[@]}"; do
-	        # `kill -0` 并不真的杀死进程，它只是发送一个“0 号信号”来
-	        # 检测指定进程(pid)是否存在以及当前用户是否有权向其发送信号。
-            kill -0 "$pid" 2>/dev/null && new_pids+=("$pid")	
-        done
-        # 更新pids数组
-        pids=("${new_pids[@]}")
+for task_id in "${tasks[@]}"; do
+    # 控制并发数
+    while
+        # jobs_count="${#PIDS[@]}"
+        jobs_count="$(jobs -rp | wc -l)"
+        (("$jobs_count" >= MAX_CONCURRENT))
+    do
+        # 等待任意一个子进程结束,轮询策略;(扫描一遍进程ip数组,需要设置每次轮序的时间间隔,看哪个进程结束)
+        # log "进程数量[$jobs_count]达到上限,等待任意一个完成"
+        log "当前任务数达到$jobs_count ;逐个释放..."
+        wait -n
+
     done
-	# 添加任务并记录新的pid
-    deploy_site "$archive" &
-    pids+=($!)
+
+    run_task "$task_id" &
+    pid=$!
+    PIDS+=("$pid")
+    PID_TASK_MAP[$pid]="$task_id"
 done
 
-# 等待剩余任务
-for pid in "${pids[@]}"; do
-    wait "$pid" || ((failures++))
+log "=====等待剩余任务(所有任务已经创建完毕)"
+declare -p PIDS
+# declare -p PID_TASK_MAP
+for pid in "${PIDS[@]}"; do
+    wait "$pid"
+    exit_code=$?
+    count_status "$pid" "$exit_code"
 done
 
-echo "全部完成，失败: ${failures} 个"
+log "================================"
+log "Total: ${#tasks[@]}, FAILed: $FAILED"
+log "SUCCESS_a: $((${#tasks[@]} - FAILED)),SUCCESS_b: $SUCCESS"
+log "failed tasks(ids): ${FAILED_TASKS[*]}"
+log "所有任务处理完毕。耗时约: $(($(date +%s) - start_time))秒"
+echo "===运行参数说明:"
+echo "MAX_CONCURRENT: $MAX_CONCURRENT"
+echo "TASKS_COUNT: $TASKS_COUNT"
+echo "TIME_LIMIT: $TIME_LIMIT (如果是负数表示随机范围)"
+
 ```
 
-**`kill -0 "$pid" 2>/dev/null`** 这是核心逻辑：
+### 关于kill -0判断后台作业
 
-- `kill -0` 并不真的杀死进程，它只是发送一个“0 号信号”来检测进程是否存在以及当前用户是否有权向其发送信号。
-  - 如果进程**存在**，返回值为 0（成功）；
-  - 如果进程**已结束**，返回值为非 0（失败）。
-- `2>/dev/null` 将报错信息丢弃，防止屏幕上出现“Process not found”之类的提示。
+**`kill -0 "$pid" 2>/dev/null`** 
 
-仔细思考可以发现,此代码中对于失败的计数并不可靠了,可能后漏统计(尤其是很多任务结束时间相近)
+`kill -0` 并不真的杀死进程，它只是发送一个“0 号信号”来检测进程是否存在以及当前用户是否有权向其发送信号。
+
+- 如果进程**存在**，返回值为 0（成功）；
+- 如果进程**已结束**，返回值为非 0（失败）。
+
+这个方案可以判断活跃进程
+
+对于后台已经结束但是没未被wait的进程,此kill方法不能区分出是否已经被wait过;
+
+考虑到同一个pid被反复wait是可以的,所以一般我们用遍历pids数组对其中的pid逐个wait过去来检查任务是否成功即可(无论其中的pid是否是第一次wait;)
 
 ### 统计任务执行状态
 
@@ -465,6 +518,8 @@ echo "全部完成，失败: ${failures} 个"
 在每个任务后台创建完成时立即获取其进程id并保存到进程数组中;
 
 当所有后台任务创建(发射)完成,就可以遍历收集到的后台进程pid数组;依次调用`wait <pid>`来获取每个后台进程的退出状态码来统计失败(成功)任务数量;
+
+> 不需要`wait -n`就可以完成此实验;但是不具备并发数量控制的功能;
 
 ```bash
 #!/bin/bash
@@ -524,7 +579,7 @@ echo "Failed tasks: ${failed_tasks[*]}"
 
 如果要引入并发控制,那么情况会复杂一些:
 
-#### 带并发控制下的失败统计
+#### 其他方案:带并发控制下的失败统计
 
 ##### 兼容性方案(轮询)
 
@@ -620,16 +675,28 @@ log "Failed tasks(ids): ${failed_tasks[*]}"
 
 ```
 
-##### wait -n方案
+##### wait -n -p方案
+
+相比于最开始的方案(仅用到wait中的`-n`);
+
+如果版本高于`5.1`,`wait -p`可用,可以及时观察到被wait的进程id;
+
+借助于`-p`选项,可以及时清理掉已经被wait过的进程pid(尽管这不是必须的.)
 
 ```bash
 #!/bin/bash
-
-pids=()
-tasks_count=10
-success=0
-failed=0
-failed_tasks=()
+# bash 5.1+ 版本可用(wait -p)
+PIDS=()
+TASKS_COUNT=6
+MAX_CONCURRENT=2
+TIME_LIMIT=2 #任务时间模拟(负数表示随机时间,范围不超过指定数)
+SUCCESS=0
+FAILED=0
+FAILED_TASKS=()
+declare -A PID_TASK_MAP # PID -> 任务名 的映射
+# tasks=($(seq 1 "$tasks_count"))
+mapfile -t tasks < <(seq 1 "$TASKS_COUNT")
+# ===定义函数
 log() {
     echo -e "[$(date +%T)] $*"
 }
@@ -638,7 +705,13 @@ run_task() {
     log "开始执行任务 $i"
 
     # 模拟任务，部分会失败
-    time_consumption=$((RANDOM % 3 + 1))
+    if [[ $TIME_LIMIT =~ ^- ]]; then
+        time_limit=${TIME_LIMIT#-}
+        time_consumption=$((RANDOM % time_limit + 1))
+    else
+        time_limit=$TIME_LIMIT
+        time_consumption=$time_limit
+    fi
     log "\tTask $i started(time consumption: $time_consumption s)"
     sleep "$time_consumption"
     if ((i % 3 == 0)); then
@@ -646,34 +719,34 @@ run_task() {
     fi
     exit 0
 }
-#!/bin/bash
-
-MAX_CONCURRENT=4
-pids=()
-declare -A pid_task_map # PID -> 任务名 的映射
-failed=0
-failed_tasks=()
-# tasks=($(seq 1 "$tasks_count"))
-mapfile -t tasks < <(seq 1 "$tasks_count")
-
+# 统计后台任务状态
+# Global:
+#    FAILED,SUCCESS,FAILED_TASKS,PID_TASK_MAP
+# Arguments:
+# 	$1 pid
+# 	$2 exit_code
 count_status() {
     pid="$1"
     exit_code="$2"
+    echo "进程 $pid 退出,exit_code=$exit_code"
+    # return $exit_code
     if [[ $exit_code -ne 0 ]]; then
-        ((failed++))
-        failed_tasks+=("${pid_task_map[$pid]}")
-        status="fail"
+        ((FAILED++))
+        FAILED_TASKS+=("${PID_TASK_MAP[$pid]}")
+        status="FAIL"
     else
-        ((success++))
-        status="success"
+        ((SUCCESS++))
+        status="SUCCESS"
     fi
     log "进程 $pid 结束,status=$status"
 }
+# ====开始
+start_time=$(date +%s)
 
 for task_id in "${tasks[@]}"; do
     # 控制并发数
     while
-        jobs_count="${#pids[@]}"
+        jobs_count="${#PIDS[@]}"
         (("$jobs_count" >= MAX_CONCURRENT))
     do
         # 等待任意一个子进程结束,轮询策略;(扫描一遍进程ip数组,需要设置每次轮序的时间间隔,看哪个进程结束)
@@ -685,10 +758,10 @@ for task_id in "${tasks[@]}"; do
         # 从pids数组中移除已完成的任务pid
         # for p in "${pids[@]}";do
         # log "移除$pid 前:${pids[*]}"
-        for i in "${!pids[@]}"; do
-            if [[ "${pids[$i]}" -eq "$pid" ]]; then
+        for i in "${!PIDS[@]}"; do
+            if [[ "${PIDS[$i]}" -eq "$pid" ]]; then
                 log "\t移除此pid=$pid"
-                unset "pids[$i]"
+                unset "PIDS[$i]"
                 break
             fi
         done
@@ -697,27 +770,54 @@ for task_id in "${tasks[@]}"; do
 
     run_task "$task_id" &
     pid=$!
-    pids+=("$pid")
-    pid_task_map[$pid]="$task_id"
+    PIDS+=("$pid")
+    PID_TASK_MAP[$pid]="$task_id"
 done
 
 log "=====等待剩余任务"
-for pid in "${pids[@]}"; do
+for pid in "${PIDS[@]}"; do
     wait "$pid"
     exit_code=$?
     count_status "$pid" "$exit_code"
 done
 
 log "================================"
-log "Total: ${#tasks[@]}, Failed: $failed"
-log "Success_a: $((${#tasks[@]} - failed)),Success_b: $success"
-log "Failed tasks(ids): ${failed_tasks[*]}"
+log "Total: ${#tasks[@]}, FAILed: $FAILED"
+log "SUCCESS_a: $((${#tasks[@]} - FAILED)),SUCCESS_b: $SUCCESS"
+log "FAILed tasks(ids): ${FAILED_TASKS[*]}"
+log "所有任务处理完毕。耗时约: $(($(date +%s) - start_time))秒"
+echo "===运行参数说明:"
+echo "MAX_CONCURRENT: $MAX_CONCURRENT"
+echo "TASKS_COUNT: $TASKS_COUNT"
+echo "TIME_LIMIT: $TIME_LIMIT (如果是负数表示随机范围)"
 
 ```
 
-这里使用`wait -n`来控制并发;并且利用`-p`选项获取每次wait到的进程pid;
+这里使用`wait -n`来控制并发;并且利用`-p`选项(需要bash 5.1+版本才可用)获取每次wait到的进程pid;
+
+> 这个例子中仍然使用`jobs_count="${#pids[@]}"`来判断代表后台尚未被wait的进程(尽管可能已经结束了)
+>
+> 如果判断依据这么写,那么这个方案里,`wait -p`很重要;
+>
+> 如果使用`jobs -rp|wc -l`来判断当时后台正在运行的任务,也是可以的;
 
 注意,在我们的模拟试验设计中,可以把任务的执行耗时设计的一样,比如4个进程都耗时m秒时间,那么某次`wait -n`调用时可能已经有多个后台任务都已经结束了,那么`wait -n`会处理最先结束的那一个任务返回状态;这种情况下`wait -n`可以快速返回,几乎不阻塞;从而可以快速将近的进程添加到后台运行;
+
+模组参数下的运行结果示例:
+
+```
+===运行参数说明:
+MAX_CONCURRENT: 2
+TASKS_COUNT: 6
+TIME_LIMIT: 2 (如果是负数表示随机范围)
+[09:08:18] ================================
+[09:08:18] Total: 6, FAILed: 2
+[09:08:18] SUCCESS_a: 4,SUCCESS_b: 4
+[09:08:18] failed tasks(ids): 3 6
+[09:08:18] 所有任务处理完毕。耗时约: 6秒
+```
+
+
 
 #### 用临时文件记录失败
 

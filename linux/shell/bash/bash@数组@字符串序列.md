@@ -1261,7 +1261,7 @@ declare -a nums=([0]="zero" [1]="one" [2]="two" [4]="four")
 
 
 
-###  关联数组(字典|映射型数组)
+##  关联数组(字典|映射型数组)
 
 > [关联数组](https://en.wikipedia.org/wiki/Associative_array)是一个无序的键值对集合。可以通过提供对应的键来检索值。由于大多数 shell 只支持字符串数据类型，因此关联数组将字符串映射到字符串，这与索引数组将整数映射到字符串不同。
 >
@@ -1275,7 +1275,11 @@ declare -a nums=([0]="zero" [1]="one" [2]="two" [4]="four")
 >
 > 自 Bash 4 发布以来，现在您可以使用功能齐全的**关联数组**,再也没有理由使用**间接寻址**（或者**更糟糕的是** ，使用 `eval` ）来实现此目的了。
 
-要创建关联数组，需要将其**声明为关联数组**（使用 `declare -A` ）。**这是必要的**，否则 bash 无法识别您要创建的**数组类型**。
+### 创建关联数组
+
+要创建关联数组，需要将其**声明为关联数组**（使用 `declare -A` ）。
+
+**这是必要的**，否则 bash 无法识别您要创建的**数组类型**。
 
 > 例如`aa[key]=value`,bash会自动识别并创建一个名为`aa`的索引数组.
 >
@@ -1300,8 +1304,6 @@ declare -a nums=([0]="zero" [1]="one" [2]="two" [4]="four")
 
 以下是创建关联数组的方法：
 
-
-
 ```bash
 declare -A fullNames
 fullNames=( ["lhunath"]="Maarten Billemont" ["greycat"]="Greg Wooledge" )
@@ -1311,7 +1313,7 @@ echo "Current user is: $user.  Full name: ${fullNames[$user]}."
 Current user is: lhunath.  Full name: Maarten Billemont.
 ```
 
-
+### 打印和遍历关联数组
 
 我们可以像打印普通数组一样打印关联数组的内容：
 
@@ -1334,6 +1336,17 @@ do echo "User: $user, full name: ${fullNames[$user]}."; done
 User: lhunath, full name: Maarten Billemont.
 User: greycat, full name: Greg Wooledge.
 ```
+
+```bash
+
+fullNames=( ["lhunath"]="Maarten Billemont" ["greycat"]="Greg Wooledge" )
+# 也可以直接遍历key-value中的value部分;
+$ for item in "${fullNames[@]}";do echo $item; done;
+Maarten Billemont
+Greg Wooledge
+```
+
+
 
 ### 关联数组的无序性
 
