@@ -293,6 +293,8 @@ echo "所有任务结束"
 如果你觉得把赋值塞进条件里可读性稍差，可以使用无限循环配合内部判断：
 
 ```bash
+# 添加任务(位置1)
+# do_task &
 while true; do
     job_cnt=$(jobs -rp | wc -l)
     (( job_cnt < JOBS )) && break
@@ -300,9 +302,15 @@ while true; do
     echo "当前任务数: $job_cnt"
     wait -n
 done
+# 添加任务(位置2)
+do_task &
 ```
 
 **优点：** 结构非常清晰，适合以后在循环中加入更复杂的判断逻辑。
+
+对于表达式`(( job_cnt < JOBS ))`还是`(( job_cnt <= JOBS ))`与添加任务的位置有关
+
+- 如果添加任务的语句位置在位置2,则对应`(( job_cnt < JOBS ))`;如果是位置1,则对应于`<=`的情况
 
 ###  原理解析
 
@@ -841,6 +849,34 @@ wait
 
 failures=$(find "$fail_dir" -type f | wc -l)
 echo "全部完成，失败: ${failures} 个"
+```
+
+```bash
+#!/bin/bash
+
+tmpdir=$(mktemp -d)
+trap "rm -rf $tmpdir" EXIT
+
+for i in {1..10}; do
+    (
+        sleep $((RANDOM % 3))
+        if (( i % 4 == 0 )); then
+            echo "$i" >> "$tmpdir/failed.log"  # 记录失败任务
+            exit 1
+        fi
+    ) &
+done
+
+wait  # 等待所有
+
+if [[ -f "$tmpdir/failed.log" ]]; then
+    # 注意：并发写文件需要注意原子性，echo 单行写入通常是安全的
+    failed_count=$(wc -l < "$tmpdir/failed.log")
+    echo "Failed tasks ($failed_count):"
+    cat "$tmpdir/failed.log"
+else
+    echo "All tasks succeeded"
+fi
 ```
 
 
