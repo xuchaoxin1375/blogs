@@ -4,27 +4,58 @@
 
 Lua 是一门轻量级、高效、可嵌入的脚本语言，诞生于 1993 年的巴西里约热内卢天主教大学。它的名字在葡萄牙语中意为"月亮"，这个优雅的名字恰如其分地反映了这门语言的设计哲学：简洁、优雅、照亮其他系统。
 
+[Lua：文档](https://www.lua.org/docs.html)
+
+[lua-users wiki：教程目录](http://lua-users.org/wiki/TutorialDirectory)
+
+对应的中文文档:[lua-users wiki: 教程目录 - Lua 编程语言](https://lua-users.lua.ac.cn/wiki/TutorialDirectory)
+
+相关项目:[LuaJIT](https://luajit.org/luajit.html)
+
+[LuaJIT/LuaJIT: Mirror of the LuaJIT git repository](https://github.com/LuaJIT/LuaJIT)
+
 ------
 
 ## 第一章：Lua 的世界观
 
-### 1.1 为什么选择 Lua
+###  为什么选择 Lua
 
 Lua 的设计遵循"简单即美"的原则。整个语言的解释器编译后只有约 200KB，却提供了强大的表达能力。这种极简主义使得 Lua 成为游戏开发、嵌入式系统、配置文件和快速原型开发的首选语言。
 
 在实际应用中，你会在这些地方发现 Lua 的身影：魔兽世界的插件系统、Nginx 的 OpenResty 扩展、Redis 的脚本功能、Neovim 的配置系统，以及无数游戏引擎如 Corona SDK、Defold 和 LÖVE。
 
-### 1.2 安装与环境配置
+| **特性**       | **Lua (原生)**                 | **LuaJIT**                            |
+| -------------- | ------------------------------ | ------------------------------------- |
+| **全称**       | Standard Lua (PUC-Rio)         | Lua Just-In-Time Compiler             |
+| **解释器**     | 传统的虚拟机解释执行           | 高效的汇编级解释器 + JIT 编译器       |
+| **性能**       | 中规中矩（脚本语言中的佼佼者） | **极快**（接近 C/C++ 性能）           |
+| **版本兼容性** | 紧跟官方 (5.1, 5.2, 5.3, 5.4)  | 锁定在 **Lua 5.1** 语法，兼容部分 5.2 |
+| **内存限制**   | 取决于操作系统位宽             | 早期版本有 **2GB/4GB** 的内存寻址限制 |
+| **FFI 支持**   | 需编写复杂的 C 扩展            | **原生支持 FFI**（直接调用 C 函数）   |
+
+1. 执行机制：解释 vs 编译
+
+- **Lua：** 将源代码编译成字节码，然后在虚拟机中逐条解释执行。虽然在脚本语言里已经很快了，但面对循环计算时，效率瓶颈明显。
+- **LuaJIT：** 包含一个由手写汇编优化的解释器，以及一个**运行时编译器 (JIT)**。它会监控运行频繁的代码段（热点代码），将其直接转换成本地机器码。
+
+2. FFI (Foreign Function Interface)
+
+这是 LuaJIT 的王牌功能。
+
+- 在 **Lua** 中，调用 C 函数需要手写大量的 `lua_push*` 和 `lua_to*` 代码，性能损耗较大。
+- 在 **LuaJIT** 中，你可以直接声明 C 函数原型并调用，无需编写 C 封装。由于 FFI 与 JIT 深度集成，数据交互几乎没有性能损失。
+
+###  安装与环境配置
 
 在不同操作系统上安装 Lua 的方式各有不同。
 
 - 对于 macOS 用户，可以通过 Homebrew 执行 `brew install lua` 完成安装。
 - Linux 用户则可以使用各自发行版的包管理器，例如 Ubuntu 上的 `sudo apt install lua5.4`。
-- Windows 用户推荐从 LuaBinaries 项目下载预编译版本，或者使用 LuaRocks 生态系统。
+- Windows 用户推荐从 LuaBinaries 项目下载预编译版本，或者使用 LuaRocks 生态系统。或在有scoop的环境下安装可以通过`scoop install lua`
 
-安装完成后，在终端输入 `lua -v` 应该能看到版本信息。本指南基于 Lua 5.4 版本。
+安装完成后，在终端输入 `lua -v` 应该能看到版本信息。
 
-### 1.3 第一个程序
+###  第一个程序
 
 ```lua
 -- 这是 Lua 的单行注释
@@ -42,7 +73,7 @@ print("你好，Lua 世界！")
 
 ## 第二章：数据类型与变量
 
-### 2.1 八种基本类型
+###  八种基本类型
 
 Lua 是动态类型语言，变量本身没有类型，值才有类型。整个语言只有八种基本类型，这种极简设计是 Lua 轻量级的重要原因。
 
@@ -55,7 +86,7 @@ print(type(nothing))  --> nil
 local is_active = true
 local is_finished = false
 -- 重要：在 Lua 中，只有 nil 和 false 为假，其他所有值都为真
--- 这意味着 0、空字符串 "" 都是真值！
+-- 这意味着 0、空字符串 "" 都是真值！注意下面的测试语句的结果
 if 0 then print("0 在 Lua 中是真值") end
 if "" then print("空字符串在 Lua 中也是真值") end
 
@@ -75,7 +106,7 @@ local long_text = [[
     不需要转义引号 "like this"
 ]]
 
--- function：函数是第一类值
+-- function：函数是第一类值(使用function关键字定义函数),可以将函数的定义赋值给变量(此变量名将作为函数名)
 local add = function(a, b) return a + b end
 print(type(add))  --> function
 
@@ -87,7 +118,7 @@ print(type(person))  --> table
 -- thread：协程类型
 ```
 
-### 2.2 变量与作用域
+###  变量与作用域
 
 Lua 的作用域规则简单而重要。变量默认是全局的，使用 `local` 关键字声明局部变量。
 
@@ -116,7 +147,7 @@ end
 
 **最佳实践**：始终使用 `local` 声明变量。全局变量查找需要遍历环境表，而局部变量存储在寄存器中，访问速度更快。此外，局部变量的作用域明确，有助于避免命名冲突和意外修改。
 
-### 2.3 字符串操作
+###  字符串操作
 
 字符串在 Lua 中是不可变的，任何修改操作都会创建新字符串。
 
@@ -162,7 +193,7 @@ print(formatted)  --> 姓名: Alice, 年龄: 30
 print(string.format("价格: %.2f 元", 19.9))  --> 价格: 19.90 元
 ```
 
-### 2.4 数值运算
+###  数值运算
 
 ```lua
 -- 基本算术运算
@@ -205,7 +236,7 @@ math.randomseed(os.time())
 
 Table 是 Lua 中唯一的数据结构，但它足以表达数组、字典、集合、对象、模块、命名空间等几乎所有数据结构。理解 table 是掌握 Lua 的关键。
 
-### 3.1 Table 基础
+###  Table 基础
 
 ```lua
 -- 创建空表
@@ -250,7 +281,7 @@ local company = {
 print(company.employees[1].name)  --> Alice
 ```
 
-### 3.2 Table 作为数组
+###  Table 作为数组
 
 ```lua
 local arr = {10, 20, 30, 40, 50}
@@ -295,7 +326,7 @@ local words = {"Lua", "is", "awesome"}
 print(table.concat(words, " "))  --> Lua is awesome
 ```
 
-### 3.3 Table 作为字典
+###  Table 作为字典
 
 ```lua
 local dict = {
@@ -354,7 +385,7 @@ print(safe_get(data, "user", "profile", "name"))  --> Test
 print(safe_get(data, "user", "missing", "name"))  --> nil
 ```
 
-### 3.4 Table 作为集合
+###  Table 作为集合
 
 ```lua
 -- 使用表实现集合
@@ -397,7 +428,7 @@ local function difference(a, b)
 end
 ```
 
-### 3.5 Table 的引用语义
+###  Table 的引用语义
 
 理解表的引用语义对于正确使用 Lua 至关重要。
 
@@ -443,7 +474,7 @@ end
 
 ## 第四章：控制结构
 
-### 4.1 条件语句
+###  条件语句
 
 ```lua
 local score = 85
@@ -489,7 +520,7 @@ local function ternary(cond, t, f)
 end
 ```
 
-### 4.2 循环语句
+###  循环语句
 
 ```lua
 -- while 循环
@@ -567,7 +598,29 @@ end
 
 函数是 Lua 中的第一类值，这意味着函数可以存储在变量中、作为参数传递、作为返回值返回。
 
-### 5.1 函数基础
+定义函数:
+
+函数使用 `function` 关键字创建，如下所示
+
+```lua
+function ( 参数 ) 主体 end
+
+-- 定义名为func_name的函数(两种写法):
+func_name=function ( 参数 ) 主体 end
+function func_name( 参数 ) 主体 end
+```
+
+*参数*（也称为*形参*）在 `( )` 部分指定，并使用 `return` 关键字从函数返回。
+
+`return`可以返回多值,并可以灵活地仅接收指定的返回值而忽略其他的值
+
+> 如果被忽略的是开头的值,使用相应的`_`占位保存但不引用即可
+
+如果没有 `return`，函数将不返回任何值。
+
+###  函数基础
+
+> lua内置的函数可以参考"标准库"一章
 
 ```lua
 -- 函数定义的两种方式
@@ -622,7 +675,7 @@ local function create_user(name, age, role)
 end
 ```
 
-### 5.2 闭包
+###  闭包
 
 闭包是函数和其引用环境的组合，是 Lua 中最强大的特性之一。
 
@@ -694,7 +747,7 @@ local fast_fib = memoize(function(n)
 end)
 ```
 
-### 5.3 高阶函数
+###  高阶函数
 
 ```lua
 -- 函数作为参数
@@ -766,7 +819,7 @@ local curried_add = curry(add, 3)
 print(curried_add(1)(2)(3))  --> 6
 ```
 
-### 5.4 尾调用优化
+###  尾调用优化
 
 Lua 支持尾调用优化，正确使用尾调用可以避免栈溢出。
 
@@ -799,7 +852,7 @@ print(factorial_good(10000))  -- 可以计算，不会栈溢出
 
 元表是 Lua 实现面向对象、运算符重载和自定义行为的核心机制。
 
-### 6.1 元表基础
+###  元表基础
 
 ```lua
 -- 每个表可以关联一个元表
@@ -842,7 +895,7 @@ setmetatable(protected, {
 protected.x = 20  -- 正常，因为 x 已存在
 ```
 
-### 6.2 常用元方法
+###  常用元方法
 
 ```lua
 -- 创建一个可以像数字一样使用的向量类
@@ -918,7 +971,7 @@ print(#v1)          --> 5.0（长度）
 print(v1(0.5))      --> Vector(1.50, 2.00)（调用）
 ```
 
-### 6.3 __index 链与原型继承
+###  __index 链与原型继承
 
 ```lua
 -- Lua 的原型继承通过 __index 链实现
@@ -958,7 +1011,7 @@ myDog:fetch()   --> Buddy is fetching!
 -- 5. 在 Animal 中找到 speak
 ```
 
-### 6.4 完整的元方法列表
+###  完整的元方法列表
 
 ```lua
 --[[
@@ -1008,7 +1061,7 @@ myDog:fetch()   --> Buddy is fetching!
 
 虽然 Lua 没有内置的类系统，但通过表和元表可以实现各种面向对象范式。
 
-### 7.1 基本类实现
+###  基本类实现
 
 ```lua
 -- 经典的类实现模式
@@ -1084,7 +1137,7 @@ buddy:take_damage(30)  -- 继承的方法
 print(buddy.health) --> 70
 ```
 
-### 7.2 私有成员与封装
+###  私有成员与封装
 
 ```lua
 -- 使用闭包实现真正的私有成员
@@ -1131,7 +1184,7 @@ person:birthday()         --> Alice is now 26 years old!
 -- person.private         -- nil，无法访问
 ```
 
-### 7.3 Mixin 模式
+###  Mixin 模式
 
 ```lua
 -- Mixin 允许组合多个行为
@@ -1206,7 +1259,7 @@ player:draw()  --> Drawing at 110, 120 in white
 
 ## 第八章：模块与包
 
-### 8.1 模块基础
+###  模块基础
 
 ```lua
 -- mymodule.lua
@@ -1250,7 +1303,7 @@ local obj = mymodule.MyClass:new(42)
 print(obj:get_value())  --> 42
 ```
 
-### 8.2 require 的工作原理
+###  require 的工作原理
 
 ```lua
 -- require 的查找路径
@@ -1286,7 +1339,7 @@ table.insert(package.searchers, function(modname)
 end)
 ```
 
-### 8.3 现代模块组织
+###  现代模块组织
 
 ```lua
 -- 项目结构示例：
@@ -1326,7 +1379,7 @@ local lib = require("lib")
 local conn = lib.database.connect({host = "localhost"})
 ```
 
-### 8.4 包管理：LuaRocks
+###  包管理：LuaRocks
 
 ```bash
 # 安装 LuaRocks
@@ -1366,7 +1419,7 @@ local decoded = json.decode(json_str)
 
 协程是 Lua 提供的协作式多任务机制，它允许多个任务在单线程中交替执行。
 
-### 9.1 协程基础
+###  协程基础
 
 ```lua
 -- 创建协程
@@ -1421,7 +1474,7 @@ coroutine.resume(co3, "Hello")  --> Received: Hello
 coroutine.resume(co3, "World")  --> Received: World
 ```
 
-### 9.2 协程包装器
+###  协程包装器
 
 ```lua
 -- coroutine.wrap 返回一个函数，调用更简洁
@@ -1466,7 +1519,7 @@ for fib in fibonacci(100) do
 end
 ```
 
-### 9.3 协程实现任务调度
+###  协程实现任务调度
 
 ```lua
 -- 简单的任务调度器
@@ -1539,7 +1592,7 @@ scheduler:run()
 -- Task A done
 ```
 
-### 9.4 协程实现生产者-消费者
+###  协程实现生产者-消费者
 
 ```lua
 local function producer(queue)
@@ -1576,7 +1629,7 @@ end
 
 ## 第十章：错误处理与调试
 
-### 10.1 错误处理
+###  错误处理
 
 ```lua
 -- 抛出错误
@@ -1642,7 +1695,7 @@ local function safe_operation()
 end
 ```
 
-### 10.2 调试技术
+###  调试技术
 
 ```lua
 -- debug 库基本用法
@@ -1725,7 +1778,7 @@ local function profile(fn, ...)
 end
 ```
 
-### 10.3 日志系统
+###  日志系统
 
 ```lua
 local Logger = {}
@@ -1801,9 +1854,9 @@ log:warn("资源使用率: %d%%", 85)
 
 ------
 
-## 第十一章：标准库
+## 第十一章：标准库🎈
 
-### 11.1 字符串库
+###  字符串库
 
 ```lua
 -- 模式匹配（Lua 的正则表达式）
@@ -1868,7 +1921,7 @@ local literal = escape_pattern("test.com")
 print(literal)  --> test%.com
 ```
 
-### 11.2 表库
+###  表库
 
 ```lua
 local t = {30, 10, 50, 20, 40}
@@ -1905,7 +1958,7 @@ local x, y = table.unpack({10, 20, 30, 40}, 2, 3)
 print(x, y)  --> 20  30
 ```
 
-### 11.3 数学库
+###  数学库
 
 ```lua
 -- 常量
@@ -1952,7 +2005,7 @@ print(math.tointeger(3.5))   --> nil
 print(math.ult(-1, 1))       --> false（无符号比较）
 ```
 
-### 11.4 I/O 库
+###  I/O 库
 
 ```lua
 -- 简单 I/O 模式
@@ -2038,7 +2091,7 @@ local content = with_file("test.txt", "r", function(f)
 end)
 ```
 
-### 11.5 OS 库
+###  OS 库
 
 ```lua
 -- 时间函数
@@ -2097,7 +2150,7 @@ os.setlocale("zh_CN.UTF-8")  -- 设置区域
 
 ## 第十二章：Lua 5.4 新特性
 
-### 12.1 常量与 to-be-closed 变量
+###  常量与 to-be-closed 变量
 
 ```lua
 -- 常量声明（Lua 5.4+）
@@ -2144,7 +2197,7 @@ local function use_resource()
 end  --> 输出: 资源已清理
 ```
 
-### 12.2 泛型 for 的改进
+###  泛型 for 的改进
 
 ```lua
 -- Lua 5.4 允许 for 循环生成多个控制变量
@@ -2172,7 +2225,7 @@ coroutine.close(co)  -- 关闭协程并清理资源
 
 ## 第十三章：最佳实践与设计模式
 
-### 13.1 编码规范
+###  编码规范
 
 ```lua
 --[[
@@ -2246,7 +2299,7 @@ return M  -- 好
 -- mymodule = {}  -- 设置全局变量
 ```
 
-### 13.2 常用设计模式
+###  常用设计模式
 
 ```lua
 -- 单例模式
@@ -2410,7 +2463,7 @@ traffic_light:trigger("next")  --> 黄灯亮
 traffic_light:trigger("next")  --> 红灯亮
 ```
 
-### 13.3 性能优化技巧
+###  性能优化技巧
 
 ```lua
 -- 1. 局部化全局函数
@@ -2509,7 +2562,7 @@ end
 
 ## 第十四章：实战项目
 
-### 14.1 配置文件解析器
+###  配置文件解析器
 
 ```lua
 -- config_parser.lua
@@ -2668,7 +2721,7 @@ print(config:get("logging", "level"))  --> debug
 ]]
 ```
 
-### 14.2 简单的 HTTP 请求库
+###  简单的 HTTP 请求库
 
 ```lua
 -- simple_http.lua
@@ -2821,7 +2874,7 @@ local response = HTTP.post("http://httpbin.org/post", "name=lua&version=5.4", {
 ]]
 ```
 
-### 14.3 命令行参数解析器
+###  命令行参数解析器
 
 ```lua
 -- argparse.lua
@@ -3018,7 +3071,7 @@ print("详细:", args.verbose)
 
 ## 第十五章：与其他语言的交互
 
-### 15.1 C API 基础
+###  C API 基础
 
 ```c
 /* 示例：创建一个 C 模块 */
@@ -3062,7 +3115,7 @@ print(mylib.add(10, 20))    --> 30
 print(mylib.greet("Lua"))   --> Hello, Lua!
 ```
 
-### 15.2 嵌入 Lua 到 C 程序
+###  嵌入 Lua 到 C 程序
 
 ```c
 /* embed.c */
@@ -3102,7 +3155,7 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-### 15.3 FFI（使用 LuaJIT）
+###  FFI（使用 LuaJIT）
 
 ```lua
 -- LuaJIT FFI 示例
