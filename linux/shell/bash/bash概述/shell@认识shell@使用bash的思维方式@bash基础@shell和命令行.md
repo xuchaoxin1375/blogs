@@ -71,7 +71,7 @@ bash的系统性教程请参考其他资料.
 
 ...
 
-## 第一部分：Shell 简介
+## Shell 简介
 
 **Shell** 是用户与 Linux 内核之间的接口程序，它接收用户输入的命令并执行。
 
@@ -124,7 +124,7 @@ root@s1:~#
 
 Bash 还提供了一个 `help` 命令，其中包含其内置命令的简要摘要(其他shell,比如zsh不提供help,但是有其他类似的命令`man zshbuiltins`)
 
-### 掌握命令行🎈
+### 命令行学习的两个方面🎈
 
 掌握linux命令行,包括两个基本方面:
 
@@ -373,7 +373,7 @@ apropos               # apropos - search the manual page names and descriptions
 
 ---
 
-## 第二部分：在shell中调用常用工具
+## 在shell中调用常用工具
 
 相比于学习shell语言的高级部分,先了解常用的命令行工具是更推荐的.例如查看文件或目录及其详细信息的做法,又比如文本文件的查看,文件的移动,命名,复制等基础操作,它们是编写更加强大和有用的shell脚本的基础
 
@@ -389,7 +389,7 @@ apropos               # apropos - search the manual page names and descriptions
 
 
 
-### 1. 文件权限管理
+###  文件权限管理
 
 详情和更多细节另见它文(文件权限标记位)
 
@@ -425,7 +425,7 @@ drwxr-xr-x     - root  3 Oct 22:53  archived
 
 
 
-### 2. 进程管理
+###  进程管理
 
 ```bash
 ps                      # 显示当前进程
@@ -442,7 +442,7 @@ bg                      # 在后台继续运行
 kill PID                # 结束进程
 ```
 
-### 3. 输入输出重定向
+###  输入输出重定向
 
 ```bash
 # 输出重定向
@@ -459,7 +459,7 @@ ls -l | grep ".txt"     # 将前一个命令的输出作为后一个命令的输
 ps aux | grep "chrome"
 ```
 
-### 4. 文本处理工具
+###  文本处理工具
 
 ```bash
 # grep - 文本搜索
@@ -480,9 +480,9 @@ awk -F: '{print $1}' /etc/passwd # 指定分隔符
 
 
 
-## 第三部分：Shell 脚本编程
+## Shell 脚本编程
 
-### 1. 创建第一个 Shell 脚本
+###  创建第一个 Shell 脚本
 
 ```bash
 #!/bin/bash
@@ -496,7 +496,7 @@ chmod +x hello.sh
 ./hello.sh
 ```
 
-### 2. 变量
+###  变量
 
 ```bash
 #!/bin/bash
@@ -517,7 +517,7 @@ echo "Home directory: $HOME"
 echo "Current user: $USER"
 ```
 
-### 3. 输入输出
+###  输入输出
 
 ```bash
 #!/bin/bash
@@ -536,7 +536,7 @@ read -s -p "请输入密码: " password
 echo
 ```
 
-### 4. 条件判断
+###  条件判断
 
 ```bash
 #!/bin/bash
@@ -562,7 +562,7 @@ if [ -d "directory" ]; then
 fi
 ```
 
-### 5. 循环
+###  循环
 
 ```bash
 #!/bin/bash
@@ -587,9 +587,9 @@ done
 
 ---
 
-## 第四部分：实用脚本示例
+## 实用脚本示例
 
-### 1. 系统监控脚本
+###  系统监控脚本
 
 ```bash
 #!/bin/bash
@@ -606,7 +606,7 @@ echo "CPU 使用率最高的进程:"
 ps aux --sort=-%cpu | head -5
 ```
 
-### 2. 备份脚本
+###  备份脚本
 
 ```bash
 #!/bin/bash
@@ -628,7 +628,7 @@ find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
 echo "备份完成: backup_$DATE.tar.gz"
 ```
 
-### 3. 日志分析脚本
+###  日志分析脚本
 
 ```bash
 #!/bin/bash
@@ -649,7 +649,7 @@ echo "今天的最新日志:"
 grep "$(date +'%b %d')" $LOG_FILE | tail -5
 ```
 
-### 4. 用户管理脚本
+###  用户管理脚本
 
 ```bash
 #!/bin/bash
@@ -684,9 +684,9 @@ esac
 
 ---
 
-## 第五部分：高级技巧和最佳实践
+## 高级技巧和最佳实践
 
-### 1. 调试技巧
+###  调试技巧
 
 ```bash
 #!/bin/bash
@@ -702,7 +702,7 @@ set -u  # 遇到未定义变量退出
 set -o pipefail  # 管道中任意命令失败则整个失败
 ```
 
-### 2. 函数使用
+###  函数使用
 
 ```bash
 #!/bin/bash
@@ -728,7 +728,7 @@ file_exists() {
 }
 ```
 
-### 3. 信号处理
+###  信号处理
 
 ```bash
 #!/bin/bash
@@ -747,7 +747,7 @@ echo "脚本运行中，按 Ctrl+C 测试信号处理..."
 sleep 100
 ```
 
-### 4. 实用小技巧
+###  实用小技巧
 
 ```bash
 # 检查命令是否存在
