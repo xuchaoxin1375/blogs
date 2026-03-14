@@ -8,12 +8,30 @@ shell中使用mysql执行mysql语句@bash命令行中执行sql语句@创建数�
 
 ## mysql数据库克隆|备份与恢复🎈
 
-在shell中(比如bash)中执行
-
-- 导出sql文件备份：`mysqldump -u root -p my_database > backup.sql` 
-- 导入sql文件：`mysql -u root -p my_database < backup.sql`
+在系统命令行shell(比如bash)直接执行 (无需进入 MySQL),注意导入和导出调用的程序不一样!
 
 这里的`-p`可以直接跟上数据库密码`-p"password"`,或者先放空,回车后填写密码完成操作
+
+1.导出sql文件备份：
+
+```bash
+mysqldump -u root [-p] db_name > backup.sql
+```
+
+导入sql文件(sql分两种情况)
+
+```bash
+mysql -u db_user [-p] [db_name] < /path/to/sqlfile.sql
+```
+
+- **注意：** 如果 SQL 文件中没有 `USE database_name;` 语句，则必须在命令行中指定数据库名。
+- **小技巧：** 如果文件很大，可以加上 `--force` 忽略错误继续执行，或者使用 `-v` 查看执行进度。
+
+> 注意`-p`的参数不是`[db_name]`,而是数据库用户`db_user`的登录密码;
+>
+> `-p`后面跟随一个空格,表示后续输入密码(交互式),如果已经配置了免密,则可以省略掉`-p`
+
+这是最常用的方式，适合自动化脚本或一键导入。
 
 ### 导出数据库备份文件.sql
 

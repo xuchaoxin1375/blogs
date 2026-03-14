@@ -1644,13 +1644,13 @@ $ bash bash_processpool_fifo.sh 2 5 3
 
 ##  借助bash外的工具控制并发
 
-### `xargs` 和 `GNU Parallel`
+`xargs` 和 `GNU Parallel`也是常用的并发工具.
 
 如果你追求生产环境的稳定性，手动写 `wait -n` 可能比较繁琐。
 
 可以考虑`xargs,parallel`甚至使用python.
 
-#### 方法 A：使用 `xargs -P` (最简单)
+###  `xargs -P` (最简单)
 
 `xargs` 的 `-P` 参数代表 **Max Processes**（最大进程数）。
 
@@ -1659,7 +1659,83 @@ $ bash bash_processpool_fifo.sh 2 5 3
 printf "%s\n" {1..10} | xargs -I {} -P 4 bash -c "echo 正在处理 {}; sleep 2"
 ```
 
-#### 方法 B：使用 `GNU Parallel` (功能最强)
+但是这种方法也有缺点,主要是在被并行的语句比较复杂的情况下反而不如手写`wait -n`来的清晰
+
+例如我要对mysql中用户创建的所有数据库执行同一段sql片段
+
+```bash
+# 获取所有数据库（排除系统库）
+databases=$(mysql -u root -p$key -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|mysql|performance_schema|sys)")
+SQL=$(
+    # 指定sql片段
+    cat << eof
+SELECT COUNT(ID) 
+FROM wp_posts 
+WHERE post_type = 'product' 
+AND post_status = 'private';
+
+eof
+)
+
+key='db_user_key'
+```
+
+方案1:将逻辑写在`sh -c`后
+
+```bash
+CONCURRENCY=2
+echo "$databases" | xargs -P $CONCURRENCY -I {} \
+    sh -c "res=\$(mysql -u root -p'$key' -N -s -D '{}' -e \"\$SQL\"); echo \"{}, \$res\"" 2> /dev/null
+```
+
+方案2:将逻辑写在函数(或单独的脚本文件中),逻辑部分更加清晰
+
+```bash
+# 设置并发数
+CONCURRENCY=2
+# echo "$databases" | xargs -P $CONCURRENCY -I {} \
+#     sh -c "res=\$(mysql -u root -p'$key' -N -s -D '{}' -e \"\$SQL\"); echo \"{}, \$res\"" 2> /dev/null
+
+query_db() {
+    local db="$1"
+    local res
+
+    res=$(mysql -u root -p"$key" -N -s -D "$db" -e "$SQL" 2> /dev/null)
+    echo "$db, $res"
+}
+
+export key SQL #导出在子进程用到的变量
+export -f query_db #导出函数
+
+echo "$databases" | xargs -P "$CONCURRENCY" -I {} bash -c 'query_db "$@"' _ {}
+
+```
+
+此外,就算把需要并行执行的逻辑包装为shell函数,也不能直接在`xargs -P `后调用
+
+> 因为 `xargs` 只会执行 **可执行文件（executable）**，而不是 shell 函数。
+
+```bash
+# 错误:不能直接并行函数,需要用shell 引导
+xargs -P 4 -I {} myfunc {}
+```
+
+
+
+```bash
+myfunc() {
+    echo "processing $1"
+    sleep 1
+}
+
+export -f myfunc
+
+seq 5 | xargs -P 3 -I {} bash -c 'myfunc "$@"' _ {}
+```
+
+
+
+###  `GNU Parallel` (功能最强)
 
 这是 Linux 下处理并发任务的“神兵利器”，能自动处理负载均衡和日志合并。
 
