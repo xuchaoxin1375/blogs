@@ -387,6 +387,19 @@ afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.lo
 echo "$IFS"
 ```
 
+另一方面,如果是对于`read`这读取值赋值给变量的命令,则不需要创建子进程,可以直接临时修改`IFS`
+
+```bash
+# 仅对 read 命令临时设置 IFS，不需要手动 unset 或还原
+line="Alice,30,Engineer"
+IFS="," read -r name age job <<< "$line"
+declare -p name age job
+# 验证：这里的 IFS 依然是系统默认值
+echo "Current $IFS is safe"
+```
+
+
+
 ### 临时环境变量
 
 临时变量语法在以下两种场景中非常强大：

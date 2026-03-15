@@ -98,7 +98,28 @@ grep ^$USER /etc/passwd
 
 ------
 
-### 查看当前系统的sh是什么shell
+## 查看当前运行的shell是什么shell
+
+通过`echo $0`查询,无论是`dash`,`bash`,`zsh`都支持此用法
+
+```bash
+CxxuDesk:~# echo $0
+-sh
+```
+
+上例表明当前的shell是`sh`
+
+> 输出 `-sh` 意味着你当前运行的是一个**作为登录 Shell (Login Shell) 启动的 `sh`**。
+>
+> 那个横杠 `-` 是 Unix/Linux 的惯例，表示该 Shell 是在用户登录时直接加载的（读取了 `/etc/profile` 等初始化文件），而不是在进入系统后手动输入 `sh` 启动的子进程。
+
+| **系统类型**               | **sh 指向的真身** | **特点**                                            |
+| -------------------------- | ----------------- | --------------------------------------------------- |
+| **Debian / Ubuntu**        | **Dash**          | 极简、执行脚本速度极快，不支持数组。                |
+| **Alpine Linux / 嵌入式**  | **Ash** (BusyBox) | 极其轻量，常用于容器和路由器。                      |
+| **RHEL / CentOS / Fedora** | **Bash**          | 功能最全，但在被当作 `sh` 调用时会进入 POSIX 模式。 |
+
+## 查看当前系统的sh是什么shell
 
 在 Linux 和 macOS 系统中，`/bin/sh` 通常不是一个独立的 Shell，而是一个指向系统默认 POSIX Shell 的**软链接（Symbolic Link）**。
 
@@ -136,6 +157,14 @@ cxxu@CxxuColorfulWin10:~$ readlink -f /bin/sh
 /usr/bin/dash
 ```
 
+对于alpine linux,可能是
+
+```bash
+CxxuDesk:~# ls -l /bin/sh
+ls -l /bin/sh
+lrwxrwxrwx 1 root root 12 Feb 13  2025 /bin/sh -> /bin/busybox
+```
+
 
 
 ### 方案2
@@ -157,6 +186,14 @@ lrwxrwxrwx 1 root root 4 Aug  2 03:56 /usr/sbin/sh -> bash
 cxxu@CxxuColorfulWin10:~$  read -r _ _ shpath <<<"$(type sh)" && ls -l "$shpath"
 lrwxrwxrwx 1 root root 4 Feb  4  2025 /usr/bin/sh -> dash
 ```
+
+### 常见情况总结
+
+| **命令**             | **如果是 Bash**    | **如果是 Dash** | **如果是 Ash (BusyBox)**                |
+| -------------------- | ------------------ | --------------- | --------------------------------------- |
+| `echo $BASH_VERSION` | 有版本号           | 为空            | 为空                                    |
+| `type local`         | 显示是 builtin     | 显示是 builtin  | **报错**（部分旧版 Ash 不支持 `local`） |
+| `help`               | 输出极其详细的列表 | 输出简短列表    | 输出 BusyBox 帮助信息                   |
 
 ### 查看sh版本信息
 
@@ -201,7 +238,7 @@ sh --version
 
 如果你希望以后每次打开终端都使用某个特定的 Shell，需要修改用户的默认配置。
 
-####  `chsh` 命令 (最通用)
+####  `chsh` 命令 (最简单)
 
 `chsh` (change shell) 是最标准的修改方式：
 
@@ -216,6 +253,25 @@ sh --version
 2. **输入密码**：系统会提示你输入当前用户的登录密码。
 
 3. **重新登录**：设置完成后，通常需要**注销并重新登录**，或者重启终端才能生效。
+
+
+#### 手动更改配置文件法
+
+在 Alpine Linux 中，更改默认 Shell 的操作与常见的 Ubuntu 或 CentOS 略有不同，因为 Alpine 为了追求极简，默认并没有安装 `chsh`（change shell）工具。
+
+Alpine 中最常用的方法，不需要额外安装工具。
+
+1. 使用编辑器打开文件（例如 `vi`）：
+
+   ```bash
+   vi /etc/passwd
+   ```
+
+2. 找到你用户的那一行（通常是第一行或最后一行），你会看到类似： `root:x:0:0:root:/root:/bin/sh`
+
+3. 将结尾的 `/bin/sh` 改为 `/bin/bash`： `root:x:0:0:root:/root:/bin/bash`
+
+4. 保存并退出（在 vi 中输入 `:wq`）。
 
 ------
 
@@ -234,3 +290,40 @@ sh --version
 | 查看当前正在用的 Shell    | `echo $SHELL`               |
 | 查找某个 Shell 的安装路径 | `which zsh` 或 `which bash` |
 
+## 配置文件的自动加载问题
+
+在部分老系统或极简系统(例如 Alpine Linux) 中，即使你通过 `chsh` 或修改 `/etc/passwd` 将默认 Shell 改为了 Bash，登录时依然可能“感觉”没有加载 `.bashrc`。
+
+这背后的原因是 Bash 的**两种启动模式**对配置文件的读取规则逻辑不同：
+
+ 核心原因：登录 Shell vs 非登录 Shell
+
+当你通过 SSH 或控制台登录系统时，启动的是 **Login Shell**。
+
+- **Login Shell（登录模式）**：它会寻找 `/etc/profile`、`~/.bash_profile`、`~/.bash_login` 或 `~/.profile`，但**不会直接读取 `~/.bashrc`**。
+- **Interactive Non-login Shell（交互式非登录模式）**：比如你在终端里输入 `bash` 再次启动一个子 Shell，它才会读取 `~/.bashrc`。
+
+在很多发行版（如 Ubuntu/CentOS）中，默认的 `~/.profile` 里已经写好了调用 `.bashrc` 的脚本，但 **Alpine 的默认用户目录通常是空的**，没有这些初始化文件。
+
+### 解决方案：建立“桥接”
+
+你只需要确保你的登录脚本（`.bash_profile` 或 `.profile`）手动去调用 `.bashrc` 即可。
+
+#### 创建/修改 `~/.bash_profile` (推荐)
+
+在你的用户根目录下执行以下命令：(如果`~/.bash_profile`文件不存在,则会自动创建)覆盖`~/.bash_profile`内容
+
+```bash
+if ! [ -f ~/.bash_profile ];then
+cat << 'EOF' > ~/.bash_profile
+# 如果存在 .bashrc，则加载它
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+fi
+EOF
+fi
+```
+
+#### 修改全局配置 (如果你希望所有用户都生效)
+
+如果你希望所有使用 Bash 的用户登录时都自动加载各自的 `.bashrc`，可以修改 `/etc/profile`，但更标准的做法是确保 `~/.bash_profile` 存在。

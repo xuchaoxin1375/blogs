@@ -95,7 +95,7 @@ Bash 支持的数组包括**一维索引数组**和**关联数组**（类似于�
    - ✅ 正确（C风格循环）：`for ((i=1; i<=MAX; i++)); do ...`
 
 
-#### 将序列转化为数组：
+### 将序列转化为数组
 
 经常需要生成一个序列并将其存储到数组中以便反复使用：
 
@@ -132,9 +132,102 @@ my_array=($(seq 1 10))
 
 这种方法依赖于 `IFS`（内部字段分隔符）。虽然处理数字 1-10 没问题，**但如果序列中包含空格，数组元素会被错误拆分**。
 
+### 数组转换为序列
+
+几乎所有场景下都应使用 `"${arr[@]}"` （带双引号），这是将数组安全展开为参数序列的标准方式，能正确处理含空格、特殊字符的元素。
+
+#### 参数构造
+
+安全传递命令参数
+
+```Bash
+# 构建动态命令参数
+curl_opts=(-s -X POST -H "Content-Type: application/json" -d '{"key":"value"}')
+
+curl "${curl_opts[@]}" https://api.example.com/data
+```
+
+类似的,函数参数传递
+
+```Bash
+my_function() {
+    echo "参数个数: $#"
+    for arg in "$@"; do
+        echo "  参数: $arg"
+    done
+}
+
+args=("--verbose" "--output" "my file.txt")
+my_function "${args[@]}"
+# 参数个数: 3
+#   参数: --verbose
+#   参数: --output
+#   参数: my file.txt
+```
+
+构建动态命令
+
+```Bash
+cmd=(find /var/log -name "*.log" -mtime +7)
+
+# 条件追加参数
+if [[ "$DELETE" == true ]]; then
+    cmd+=(-delete)
+fi
+
+# 执行
+"${cmd[@]}"
+```
+
+#### 批量指定
+
+批量指定文件
+
+> 适合于精准操作,不通配
+
+```Bash
+sources=("src/main.c" "src/utils.c" "src/helper.c")
+
+# 安全地传给编译器
+gcc -o program "${sources[@]}" -Wall -O2
+```
+
+生成格式化输出
+
+```Bash
+headers=("Name" "Age" "City")
+IFS=$'\t'
+echo "${headers[*]}"    # Name	Age	City（TSV 格式）
+
+# SQL IN 子句
+ids=(101 102 103)
+IFS=","
+echo "SELECT * FROM users WHERE id IN (${ids[*]});"
+# SELECT * FROM users WHERE id IN (101,102,103);
+```
+
+#### 数组间操作
+
+```Bash
+arr1=("a" "b" "c")
+arr2=("d" "e")
+
+# 合并数组
+merged=("${arr1[@]}" "${arr2[@]}")
+echo "${merged[@]}"
+# a b c d e
+
+# 切片
+subset=("${arr1[@]:1:2}")
+echo "${subset[@]}"
+# b c
+```
+
 ## 创建数组
 
-**创建数组或向数组填充数据**的方法有很多种。没有唯一正确的方法：你需要使用的方法取决于你的**数据来源和数据类型**。
+**创建数组或向数组填充数据**的方法有很多种。
+
+没有唯一正确的方法：你需要使用的方法取决于你的**数据来源和数据类型**。
 
 ### 字面量法创建数组
 
@@ -1002,7 +1095,7 @@ $ echo ${#array[@]}
 arr=("file one.txt" "file two.txt" "normal.txt")
 ```
 
-#### 1. 使用 `"${arr[@]}"`
+####  使用 `"${arr[@]}"`
 
 推荐用于遍历或传递参数
 
@@ -1032,7 +1125,7 @@ File: [normal.txt]
 
  **正确保留了每个元素**。
 
-#### 2. 使用 `"${arr[*]}"`
+####  使用 `"${arr[*]}"`
 
 ```bash
 for f in "${arr[*]}"; do
