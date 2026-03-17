@@ -84,9 +84,25 @@ d----           2025/10/3    17:43                wsl-imgs
 
 或者可以像保存到本地,然后再将文件移动到指定目录中
 
+### 检查状态
+
+确保需要导出的wsl系统已经处于停止状态`stopped`,然后再执行导出命令
+
+```cmd
+ wsl -l -v
+  NAME         STATE           VERSION
+* archlinux    Stopped         2
+  Alpine       Stopped         2
+  ubuntu24     Stopped         2
+```
+
 
 
 #### 快速导出保存为tar文件
+
+导出命令:`wsl --export <Distro> <FileName> [选项]`,要导出的**发行版名称**(通过`-l`可以查看可用名字)和wsl**保存路径(文件名)**两个参数必须指定.
+
+例如:
 
 ```powershell
 # [cxxu@CXXUFIREBAT][~\Desktop][17:43:51][UP:0.03Days]
@@ -96,7 +112,7 @@ PS> wsl --export Ubuntu C:/wsl-imgs/Ubuntu24.04-20251003.tar
 操作成功完成。
 ```
 
-```
+```cmd
 wsl --export archlinux C:/wsl-imgs/archlinux20260317.tar
 ```
 
