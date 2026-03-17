@@ -181,14 +181,16 @@ source lib/utils.sh
 
 
 
-#### vscode中配置shellcheck -x
+#### vscode中配置`shellcheck`的`-x`参数
 
 可以尝试在vscode中的如下选项中添加shellcheck的参数`-x`(根据插件安装情况配置)
 
 - `bashIde.shellcheckArguments`
 - `shellcheck.customArgs`
 
+配置后可能需要重载vscode才会生效
 
+> 生效的特征:对于source的文件如果明确存在,则不再警告追踪问题,并且支持ctrl+鼠标点击跳转到被引用的外部shell文件
 
 ### 代码格式化排版插件(shfmt)
 
@@ -225,7 +227,110 @@ source lib/utils.sh
 
 按需使用
 
-#### Bash-it
+### bash-completion
+
+[GitHub - scop/bash-completion: Programmable completion functions for bash · GitHub](https://github.com/scop/bash-completion/)
+
+注意，部分系统安装后并不自动启用补全功能,例如ubuntu;需要根据官方文档提供的指导插入激活的shell片段;
+
+1. 现代化的激活方式 (Bash >= 4.2)
+
+文档提供了一段非常严谨的 Shell 代码，按需将其放入 `~/.bashrc`。
+
+```bash
+[[ $PS1 &&                                 # 1. 确认是交互式 Shell（防止脚本执行时加载）
+  ! ${BASH_COMPLETION_VERSINFO:-} &&        # 2. 确认还没被加载过（避免重复加载浪费资源）
+  -f /usr/share/bash-completion/bash_completion ]] && # 3. 确认文件确实存在
+    . /usr/share/bash-completion/bash_completion      # 4. 执行加载
+```
+
+**重点：** 这种方式比简单的 `source` 更聪明，它通过检查变量 `BASH_COMPLETION_VERSINFO` 来防止“二次加载”，从而提升终端启动速度。
+
+------
+
+2. 自动化加载机制 (`profile.d`)
+
+大多数现代 Linux（如你的 Ubuntu 22.04）使用 `/etc/profile.d/` 目录。
+
+- **原理：** 当你登录时，系统会自动扫描并运行该目录下所有的 `.sh` 脚本。
+- **现状：** 如果你通过 `apt install` 安装，通常系统已经自动帮你放了一个 `bash_completion.sh` 在那里，你理论上不需要手动修改 `.bashrc`。
+- **失效原因：** 如果你的系统不走这个自动化流程，你就必须回到第 1 步手动在 `.bashrc` 中 `source` 它。
+
+------
+
+上述判断片段和 `/etc/profile.d/bash_completion.sh` 的对比
+
+| 特性               | `/etc/profile.d/bash_completion.sh`          | 这段代码                                        |
+| ------------------ | -------------------------------------------- | ----------------------------------------------- |
+| **语法**           | POSIX `[ ]` (兼容 sh)                        | Bash `[[ ]]` (仅限 Bash)                        |
+| **判断是否 Bash**  | ✅ 显式检查 `${BASH_VERSION-}`                | ❌ 不检查（因为 `[[ ]]` 本身就只在 Bash 中有效） |
+| **版本检查**       | ✅ 要求 Bash ≥ 4.2                            | ❌ 无版本检查                                    |
+| **progcomp 检查**  | ✅ `shopt -q progcomp`                        | ❌ 不检查                                        |
+| **用户自定义配置** | ✅ 先加载 `~/.config/bash_completion`         | ❌ 不处理                                        |
+| **防重复加载**     | ✅ `BASH_COMPLETION_VERSINFO`                 | ✅ `BASH_COMPLETION_VERSINFO`                    |
+| **加载时机**       | login shell（`/etc/profile` → `profile.d/`） | 每次交互式 shell（`bashrc`）                    |
+
+#### 关闭bash-completion
+
+使用 `shopt -u progcomp`指令关闭;专门解决**“系统全局安装了补全，但个人不想用”**的情况。
+
+逻辑链条如下：
+
+1. **全局脚本运行：** 系统在启动时会执行 `profile.d` 里的脚本来加载补全。
+2. **钩子（Hook）检查：** 这个全局脚本在加载前,由于bash-completion的安装文件,bash会看一眼你的个人配置文件
+3. **拦截操作：** 如果你在该文件中写入 `shopt -u progcomp`：
+   - 全局脚本检测到 `progcomp`（可编程补全）被关掉了。
+   - 于是，全局脚本会**停止加载**那些沉重的补全库，从而节省内存和启动时间。
+4. **按需恢复：** 如果你只是想在特定时候关闭，可以在 `.bashrc` 里再用 `shopt -s progcomp` 开启，但这通常用于复杂的自定义环境。
+
+如果您的系统不使用 `profile.d` 目录（通常位 `/etc`目录下的一个子目录:`/etc/profile.d` ) （即，不会自动加载其中的 shell 脚本）,你可以尝试自己在`/etc/bashrc`或`~/.bashrc`(具体哪个文件取决于你的系统)文件中用`source`命令导入`bash_completion.sh`脚本.
+
+某些系统**不会**自动 source `/etc/profile.d/` 下的脚本：
+
+- **某些最小化安装的系统**（minimal install）
+- **某些 BSD 系统**（如 FreeBSD）
+- **自定义的嵌入式 Linux**
+- **`/etc/profile` 被用户修改过**，去掉了遍历 `profile.d` 的逻辑
+- **非登录 shell**（non-login shell）—— 不会读取 `/etc/profile`
+
+在这些情况下，`bash_completion.sh` 即使放在 `/etc/profile.d/` 下也**不会被自动加载**，bash 补全功能将不可用。
+
+> 对于编译安装的情况,`$sysconfdir` 是编译时（`./configure`）指定的**系统配置目录**变量：
+>
+> If your system does not use the `profile.d` directory (usually below `/etc`) mechanism (i.e., does not automatically source shell scripts in it), you can source the `$sysconfdir/profile.d/bash_completion.sh` script in `/etc/bashrc` or `~/.bashrc`.
+
+在典型的ubuntu系统上,安装后会产生`/etc/profile.d/bash_completion.sh`,
+
+> ```bash
+> $  ls /etc/profile.d/*bash_completion*
+> /etc/profile.d/bash_completion.sh
+> ```
+>
+> 
+
+`profile.d` 脚本提供了一个配置文件钩子，可用于在系统范围安装 `bash_completion` 时，阻止为每个用户单独加载该插件。具体操作如下：
+
+1. 使用 `shopt -u progcomp` 关闭可编程补全功能 `$XDG_CONFIG_HOME/bash_completion` （或 `~/.config/bash_completion` 如果未设置 `$XDG_CONFIG_HOME` ）
+2. 如果您想将可编程补全用于其他用途，请重新启用它（例如在 `~/.bashrc` 中）。
+
+### 重要脚本
+
+| 属性     | 文件 1                              | 文件 2                                       |
+| -------- | ----------------------------------- | -------------------------------------------- |
+| **路径** | `/etc/profile.d/bash_completion.sh` | `/usr/share/bash-completion/bash_completion` |
+| **角色** | **入口/加载器** (loader)            | **实际补全引擎** (engine)                    |
+| **大小** | 很小（十几行）                      | 很大（通常 2000+ 行）                        |
+
+------
+
+#### 问题排查
+
+1. **检查变量：** 在终端输入 `echo $BASH_COMPLETION_VERSINFO`。
+   - 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
+   - 如果为空，说明**没加载**。
+2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+
+### Bash-it
 
 [Bash-it/bash-it: A community Bash framework.](https://github.com/Bash-it/bash-it)
 
@@ -242,13 +347,11 @@ source lib/utils.sh
   ~/.bash_it/install.sh
   ```
 
-#### Oh My Bash
+### Oh My Bash
 
 - 专为 Bash 打造的 **Oh My Zsh 移植版本（port）**。
 
-- 结构、插件系统、主题形式都与 **Oh My Zsh** 极为接近。
-
-- 适合想保持与 Oh My Zsh 类似体验但必须使用 Bash 的用户。
+- 虽然结构、插件系统、主题形式都与 **Oh My Zsh** ,但是在交互模式中没有提供高亮,历史命令提示,,命令补全这些方面的支持,有这类需求的请寻找其他方案,比如`bash-completion`和`blesh`。
 
 - GitHub: `ohmybash/oh-my-bash`
    安装示例：
@@ -257,7 +360,7 @@ source lib/utils.sh
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
   ```
 
-#### Blesh / ble.sh🎈
+### Blesh / ble.sh🎈
 
 [akinomyoga/ble.sh: Bash Line Editor―a line editor written in pure Bash with syntax highlighting, auto suggestions, vim modes, etc. for Bash interactive sessions.](https://github.com/akinomyoga/ble.sh)
 
