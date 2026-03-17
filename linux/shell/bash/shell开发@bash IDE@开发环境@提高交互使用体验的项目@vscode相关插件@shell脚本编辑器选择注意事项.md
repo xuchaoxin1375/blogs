@@ -113,6 +113,83 @@ vscode://settings/bashIde.shfmt.languageDialect
 
 [ShellCheck - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck)
 
+配置追踪外部`shell`脚本文件的行为
+
+> [ShellCheck：SC1091 – 未跟随：（此处有错误信息）](https://www.shellcheck.net/wiki/SC1091)
+
+当脚本中使用 `source` 或 `.`（点命令）引用了外部文件，但 ShellCheck **无法找到或无法打开**该文件时，就会触发此警告。
+
+```bash
+#!/bin/bash
+
+# 引用一个外部配置文件
+source /etc/myapp/config.sh       # ← SC1091
+. ./lib/utils.sh                  # ← SC1091
+source "${DIR}/helpers.sh"        # ← SC1091
+```
+
+ShellCheck 是**静态分析**工具，它希望能够：
+
+1. **跟踪（follow）** 被 `source` 的文件
+2. 检查被引用文件中定义的**变量和函数**
+3. 避免对已在外部文件中定义的变量发出"未使用/未定义"的**误报**
+
+如果 ShellCheck 无法读取被 `source` 的文件，它就无法得知该文件中定义了哪些变量和函数，可能导致后续的**误报**。
+
+最佳处理策略：
+
+1. **首选**：使用 `shellcheck -x` + `source-path` 让 ShellCheck 能找到并分析文件
+2. **次选**：用 `# shellcheck source=实际文件路径` 手动指引
+3. **兜底**：用 `# shellcheck source=/dev/null` 显式跳过
+
+---
+
+#### 使用 `-x` 选项（推荐）
+
+`-x`（`--external-sources`）选项允许 ShellCheck 跟踪并检查外部 `source` 的文件：
+
+```bash
+shellcheck -x myscript.sh
+```
+
+这要求被引用的文件在 ShellCheck 运行时能通过相对/绝对路径访问到。
+
+### 使用 `source-path` 指令
+
+在脚本顶部指定搜索路径：
+
+```bash
+#!/bin/bash
+# shellcheck source-path=SCRIPTDIR
+# 告诉 ShellCheck 从脚本所在目录查找 source 文件
+
+source lib/utils.sh
+
+# 搜索多个路径
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source-path=SCRIPTDIR/lib
+# shellcheck source-path=/etc/myapp
+```
+
+常用的 `source-path` 值：
+
+| 值          | 含义                              |
+| ----------- | --------------------------------- |
+| `SCRIPTDIR` | 被检查脚本所在的目录              |
+| 绝对路径    | 指定具体目录，如 `/opt/myapp/lib` |
+| 相对路径    | 相对于当前工作目录                |
+
+
+
+#### vscode中配置shellcheck -x
+
+可以尝试在vscode中的如下选项中添加shellcheck的参数`-x`(根据插件安装情况配置)
+
+- `bashIde.shellcheckArguments`
+- `shellcheck.customArgs`
+
+
+
 ### 代码格式化排版插件(shfmt)
 
 在vscode中,Bash IDE插件已经集成了此功能,但是这需要你事先安装shfmt
