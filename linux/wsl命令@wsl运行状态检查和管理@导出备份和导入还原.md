@@ -1,33 +1,8 @@
 [toc]
 
-
+## abstract
 
 [WSL 的基本命令 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands)
-
-1. [安装](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#install)
-2. [列出可用的 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#list-available-linux-distributions)
-3. [列出已安装的 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#list-installed-linux-distributions)
-4. [将 WSL 版本设置为 1 或 2](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#set-wsl-version-to-1-or-2)
-5. [设置默认 WSL 版本](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#set-default-wsl-version)
-6. [设置默认 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#set-default-linux-distribution)
-7. [将目录更改为主页](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#change-directory-to-home)
-8. [通过 PowerShell 或 CMD 运行特定的 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#run-a-specific-linux-distribution-from-powershell-or-cmd)
-9. [更新 WSL](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#update-wsl)
-10. [检查 WSL 状态](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#check-wsl-status)
-11. [检查 WSL 版本](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#check-wsl-version)
-12. [Help 命令](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#help-command)
-13. [以特定用户的身份运行](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#run-as-a-specific-user)
-14. [更改发行版的默认用户](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#change-the-default-user-for-a-distribution)
-15. [关闭](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#shutdown)
-16. [Terminate](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#terminate)
-17. [标识 IP 地址](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#identify-ip-address)
-18. [导出分发版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#export-a-distribution)
-19. [导入分发版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#import-a-distribution)
-20. [就地导入发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#import-a-distribution-in-place)
-21. [注销或卸载 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#unregister-or-uninstall-a-linux-distribution)
-22. [装载磁盘或设备](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#mount-a-disk-or-device)
-23. [卸载磁盘](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#unmount-disks)
-24. [已弃用的 WSL 命令](https://learn.microsoft.com/zh-cn/windows/wsl/basic-commands#deprecated-wsl-commands)
 
 ## 列出已安装的 Linux 发行版
 
@@ -52,6 +27,36 @@ PS> wsl --list --running
 
 ## wsl 导出备份和导入备份
 
+```cmd
+用于在适用于 Linux 的 Windows 子系统中管理分发版的参数:
+
+    --export <Distro> <FileName> [选项]
+        将分发版导出到 tar 文件。
+        文件名可以是 - for stdout。
+
+        选项:
+            --format <Format>
+                指定导出格式。支持的值: tar、tar.gz、tar.xz、vhd。
+
+    --import <Distro> <InstallLocation> <FileName> [选项]
+        将指定的 tar 文件作为新分发版导入。
+        文件名可以是 - for stdin。
+
+        选项:
+            --version <Version>
+                指定要用于新分发的版本。
+
+            --vhd
+                指定所提供的文件是 .vhdx 文件，而不是 tar 文件。
+                此操作在指定的安装位置创建 .vhdx 文件的副本。
+
+    --import-in-place <Distro> <FileName>
+        将指定的 .vhdx 文件作为新分发版导入。
+        必须使用 ext4 文件系统类型设置此虚拟硬盘的格式。
+```
+
+
+
 ### 查看当前可用的wsl
 
 ```powershell
@@ -62,7 +67,7 @@ PS> wsl -l -v
 
 上面的例子说明当前可以备份的wsl系统是`Ubuntu`,如果是其他名字,则完整的拷贝下来
 
-### 备份
+### 导出备份
 
 可以首先想好要将备份存放到哪个目录,然后创建对应的目录(直接在wsl 中指定保存目录的话,如果中间目录不存在,会执行失败)
 
@@ -79,7 +84,9 @@ d----           2025/10/3    17:43                wsl-imgs
 
 或者可以像保存到本地,然后再将文件移动到指定目录中
 
-### 快速导出保存为tar文件
+
+
+#### 快速导出保存为tar文件
 
 ```powershell
 # [cxxu@CXXUFIREBAT][~\Desktop][17:43:51][UP:0.03Days]
@@ -89,18 +96,13 @@ PS> wsl --export Ubuntu C:/wsl-imgs/Ubuntu24.04-20251003.tar
 操作成功完成。
 ```
 
-如果想要节约空间,也可以先快速导出为tar格式,然后手动压缩成其他格式,甚至在wsl提供的几个基本压缩格式之外的格式,就像压缩一个普通文件一样节约空间,比如使用7z,tar,zstd
-
-例如我使用快速压缩的zstd来节约备份占用的空间(需要zstd命令可用,推荐的zstd参数:`-5 -T0`然后跟上要压缩的tar文件,输出文件可以用`-o`指定,否则输出到当前目录)
-
-```powershell
-zstd -5 -T0 .\Ubuntu24.04-20251003.tar
-.\Ubuntu24.04-20251003.tar : 29.71%   (  1.41 GiB =>    430 MiB, .\Ubuntu24.04-20251003.tar.zst)
+```
+wsl --export archlinux C:/wsl-imgs/archlinux20260317.tar
 ```
 
-这个过程很快,并且压缩效果很不错,但是导入备份的时候,尤其是在另一个设备上导入时,需要手动解压zst格式(较新版本的7z和windows系统都可以解压zstd格式的压缩包)
 
-### 节约空间导出
+
+#### 节约空间导出(带压缩导出)
 
 指定导出格式`--format`为`tar.gz`或者`tar.xz`,直接一步到位,但是速度比较慢
 
@@ -113,4 +115,31 @@ PS> wsl --export Ubuntu C:/wsl-imgs/Ubuntu24.04-20251003.tar.gz --format tar.gz
 ```
 
 
+
+如果想要节约空间,也可以先快速导出为tar格式,然后手动压缩成其他格式,甚至在wsl提供的几个基本压缩格式之外的格式,就像压缩一个普通文件一样节约空间,比如使用7z,tar,zstd
+
+#### 打包为zst格式
+
+例如我使用快速压缩的zstd来节约备份占用的空间(需要zstd命令可用,推荐的zstd参数:`-5 -T0`然后跟上要压缩的tar文件,输出文件可以用`-o`指定,否则输出到当前目录)
+
+```powershell
+zstd -5 -T0 .\Ubuntu24.04-20251003.tar
+```
+
+这个过程很快,并且压缩效果很不错,但是导入备份的时候,尤其是在另一个设备上导入时,需要手动解压zst格式(较新版本的7z和windows系统都可以解压zstd格式的压缩包)
+
+### 导入恢复
+
+命令用法` wsl --import <Distro> <InstallLocation> <FileName> [选项]`
+
+> 前三个参数必写,且`InstallLocation`应该是一个空目录或者尚不存在的目录(wsl会自动创建),否则会提示
+>
+> `提供的安装位置已在使用中。错误代码: Wsl/Service/RegisterDistro/ERROR_FILE_EXISTS`
+
+例如:
+
+```bash
+ wsl --import ubuntu24 C:\wsl\ubuntu .\ubuntu\Ubuntu24.04-20251003.tar
+
+```
 
