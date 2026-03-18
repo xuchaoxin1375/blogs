@@ -358,19 +358,9 @@ source /usr/share/bash-completion/completions/git
 
 2. 检查环境变量和配置文件
 
-如果手动加载有效，但新开窗口又失效，请检查你的 `~/.bashrc`。
+如果手动加载有效，但新开窗口又失效，请检查你的 `~/.bashrc`。里面可能有和补全脚本冲突的设置项
 
-**确保文件末尾有这段“万能加载”代码：**
-
-```Bash
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-```
+> 可以临时讲`~/.bashrc`重命名(.bak);然后创建一份空的`~/.bashrc`,仅保留bash-completion激活代码片段来观察效果
 
 > **注意：** 修改后记得执行 `source ~/.bashrc` 使其生效。
 
@@ -398,7 +388,7 @@ fi
 
 5. 一个“暴力”但有效的诊断命令
 
-在终端输入：
+使用bash内置的`completion`命令(readline 系列)
 
 ```Bash
 complete -p git
@@ -406,8 +396,6 @@ complete -p git
 
 - **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
 - **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
-
-**你需要我帮你写一段自动检测并修复 Git 补全的脚本吗？**
 
 ### Bash-it
 
@@ -849,7 +837,6 @@ process_user() {
 | 智能跳转               | **zoxide**                | 比 autojump 更现代              |
 | 模糊查找               | **fzf**                   | 搜索文件/历史                   |
 | 修错工具               | **thefuck**               | 快速修复拼写错误                |
-
 
 
 
