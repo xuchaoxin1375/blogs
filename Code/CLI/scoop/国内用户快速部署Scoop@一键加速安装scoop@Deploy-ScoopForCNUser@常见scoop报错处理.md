@@ -28,11 +28,14 @@
 
 - 通常普通权限用户就可以利用此脚本安装scoop
 - 个别情况下会出现安装失败,那么请使用管理员身份启动一个powershell窗口,然后在其中运行此部署脚本
-  - 在管理员窗口下运行此脚本,脚本中提问你是否使用管理员权限安装时选择`y`才有效
+- 在管理员窗口下运行此脚本,脚本中提问你是否使用管理员权限安装时选择`y`才有效
 
 ### 在线下载脚本并安装🎈
 
-有先在普通powershell窗口(非管理员窗口执行)
+打开powershell窗口,有两类安装:**管理员模式和普通用户模式**(处于安全性,scoop默认是拒绝管理员方式,但是可以通过参数来启用管理员模式安装)
+
+- 如果是普通权限用户,则可以直接运行安装脚本(使用)
+- 如果是管理员账户,例如`Administrator`,或者当前用户属于Administrators组的用户,可以右键powershell以管理员方式运行,在shell中
 
 ```powershell
 irm https://gitee.com/xuchaoxin1375/scripts/raw/main/PS/Deploy/Deploy.psm1 |iex
@@ -40,13 +43,20 @@ gcm *scoop* #查看关于scoop的可用命令
 #部署scoop for Chinese User
 ## 查看基本语法
 gcm Deploy-ScoopForCNUser -syntax
-#默认部署方案
+
+#默认部署方案(下面两种方式中,可以选的使用-InstallBasicSoftwares,这会预先帮你安装一些常用的工具)
+# 下面两个方案二选一(不要都跑!)
+# 方案1:普通用户方式方案(根据自己的安装条件和偏好使用)
 Deploy-ScoopForCNUser -UseGiteeForkAndBucket
+
+# 方案2:管理员方式安装方案(按需使用!要求管理员权限!)
+Deploy-ScoopForCNUser -UseGiteeForkAndBucket  -InstallForAdmin
 ```
 
-例如,可用选项可能有`Deploy-ScoopForCNUser [-InstallBasicSoftwares] [-UseGiteeForkAndBucket] [-InstallForAdmin] [-delay <Object>] [<CommonParameters>]`
+> 对于管理员窗口,需要你追加参数,`[-InstallForAdmin]`
+>
 
-对于管理员窗口,需要你追加参数,`[-InstallForAdmin]`
+可用选项可能有`Deploy-ScoopForCNUser [-InstallBasicSoftwares] [-UseGiteeForkAndBucket] [-InstallForAdmin] [-delay <Object>] [<CommonParameters>]`
 
 如果你后悔了使用默认安装方案,可以进入到你的用户家目录,将`scoop`文件夹重命名为其他名字或者直接移除
 

@@ -238,10 +238,10 @@ source lib/utils.sh
 文档提供了一段非常严谨的 Shell 代码，按需将其放入 `~/.bashrc`。
 
 ```bash
-[[ $PS1 &&                                 # 1. 确认是交互式 Shell（防止脚本执行时加载）
-  ! ${BASH_COMPLETION_VERSINFO:-} &&        # 2. 确认还没被加载过（避免重复加载浪费资源）
-  -f /usr/share/bash-completion/bash_completion ]] && # 3. 确认文件确实存在
-    . /usr/share/bash-completion/bash_completion      # 4. 执行加载
+[[ $PS1 &&                                 #  确认是交互式 Shell（防止脚本执行时加载）
+  ! ${BASH_COMPLETION_VERSINFO:-} &&        #  确认还没被加载过（避免重复加载浪费资源）
+  -f /usr/share/bash-completion/bash_completion ]] && #  确认文件确实存在
+    . /usr/share/bash-completion/bash_completion      #  执行加载
 ```
 
 **重点：** 这种方式比简单的 `source` 更聪明，它通过检查变量 `BASH_COMPLETION_VERSINFO` 来防止“二次加载”，从而提升终端启动速度。
@@ -313,7 +313,7 @@ source lib/utils.sh
 1. 使用 `shopt -u progcomp` 关闭可编程补全功能 `$XDG_CONFIG_HOME/bash_completion` （或 `~/.config/bash_completion` 如果未设置 `$XDG_CONFIG_HOME` ）
 2. 如果您想将可编程补全用于其他用途，请重新启用它（例如在 `~/.bashrc` 中）。
 
-### 重要脚本
+#### 补全相关脚本
 
 | 属性     | 文件 1                              | 文件 2                                       |
 | -------- | ----------------------------------- | -------------------------------------------- |
@@ -329,6 +329,85 @@ source lib/utils.sh
    - 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
    - 如果为空，说明**没加载**。
 2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+
+#### 部分命令补全不可用
+
+这说明了一个很关键的点：你的 **基础补全（bash-completion）** 是在工作的，但 **特定命令的补全（Programmable Completion）** 在处理 `git` 时掉链子了。
+
+`ls -` 能补全是因为它是 Bash 最基础的内置规则，而 `git` 补全需要依赖专门的脚本来解析 Git 的子命令。
+
+以下是排查和修复的步骤：
+
+------
+
+1. 核心原因：Git 补全脚本没有“挂载”成功
+
+Bash 补全像是一个插件系统。`ls` 的插件默认加载了，但 `git` 的插件可能在当前 Shell 环境中失效了。
+
+**立即测试：**
+
+在终端输入以下命令，手动加载 Git 补全脚本（路径通常如下）：
+
+```Bash
+source /usr/share/bash-completion/completions/git
+```
+
+然后再输入 `git che` 按 **Tab**。如果好了，说明就是加载问题。
+
+------
+
+2. 检查环境变量和配置文件
+
+如果手动加载有效，但新开窗口又失效，请检查你的 `~/.bashrc`。
+
+**确保文件末尾有这段“万能加载”代码：**
+
+```Bash
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+```
+
+> **注意：** 修改后记得执行 `source ~/.bashrc` 使其生效。
+
+------
+
+3. 为什么 `ls` 可以但 `git` 不行？
+
+这是因为补全机制分为两个层级：
+
+1. **通用补全 (Common Completion):** 处理路径、文件名、以及像 `ls`、`cd` 这种极其基础的命令。
+2. **扩展补全 (Completions):** 位于 `/usr/share/bash-completion/completions/` 目录下。每个复杂命令（如 `git`, `docker`, `kubectl`）都有一个专门的脚本文件。
+
+如果 `git` 补全脚本损坏、丢失，或者因为权限问题没被加载，Bash 就会回退到“文件名补全”模式。这就是为什么它不给你补全 `checkout`，反而去补全 `check.sh` 的原因。
+
+------
+
+4. 检查是否安装了 git-core
+
+在某些精简版系统（如 Docker 容器或轻量版 Ubuntu）中，可能只安装了 `git` 执行文件，没装补全增强包。
+
+- **Ubuntu/Debian:** `sudo apt install bash-completion`
+- **RHEL/CentOS:** `sudo yum install bash-completion`
+
+------
+
+5. 一个“暴力”但有效的诊断命令
+
+在终端输入：
+
+```Bash
+complete -p git
+```
+
+- **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
+- **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
+
+**你需要我帮你写一段自动检测并修复 Git 补全的脚本吗？**
 
 ### Bash-it
 
@@ -393,7 +472,7 @@ source lib/utils.sh
 
 VS Code 中 Bash 函数文档注释方案
 
-### 一、相关插件推荐
+### 相关插件推荐
 
 有几个插件可以辅助，但**没有专门针对 Bash 函数文档注释**的成熟插件（不像 JSDoc/Doxygen 那样自动生成）：
 
@@ -401,7 +480,7 @@ VS Code 中 Bash 函数文档注释方案
 
 ---
 
-### 二、自定义 Snippet
+### 自定义 Snippet
 
 #### 步骤
 
@@ -558,7 +637,7 @@ process_user() {
 
 ---
 
-### 四、完整 `shellscript.json` 一键复制
+### 完整 `shellscript.json` 一键复制
 
 ```json
 {
@@ -770,6 +849,7 @@ process_user() {
 | 智能跳转               | **zoxide**                | 比 autojump 更现代              |
 | 模糊查找               | **fzf**                   | 搜索文件/历史                   |
 | 修错工具               | **thefuck**               | 快速修复拼写错误                |
+
 
 
 
