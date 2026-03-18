@@ -397,11 +397,23 @@ complete -p git
 - **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
 - **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
 
-### Bash-it
+
+
+### ohmyzsh类似的bash框架
+
+这些参考oh my zsh设计的框架,效果并不如oh my zsh好,交互式插件例如命令语法高亮是缺失的.
+
+主要是提供prompt美化和常用别名的集成,以及常见命令的补全提示,但是和oh my zsh还有较大差距(可以考虑ble.sh项目提供的补全体验);
+
+总之,下面的项目酌情考虑;
+
+#### Bash-it
 
 [Bash-it/bash-it: A community Bash framework.](https://github.com/Bash-it/bash-it)
 
-- 功能非常接近 **Oh My Zsh**：支持**插件（plugins）**、**别名（aliases）**、**自动补全（completions）**、**主题（themes）**。
+- **Bash-it** 是一个社区 Bash 命令和脚本的集合，专为 Bash 而设计。
+
+- 功能非常接近 **Oh My Zsh**：支持**插件（plugins）**、**别名（aliases）**、**命令补全（completions）**、**主题（themes）**。
 
 - 适合希望在 Bash 上获得完整“插件生态”的用户。
 
@@ -414,7 +426,7 @@ complete -p git
   ~/.bash_it/install.sh
   ```
 
-### Oh My Bash
+#### Oh My Bash
 
 - 专为 Bash 打造的 **Oh My Zsh 移植版本（port）**。
 
@@ -427,11 +439,15 @@ complete -p git
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
   ```
 
-### Blesh / ble.sh🎈
+### Blesh / ble.sh
+
+
 
 [akinomyoga/ble.sh: Bash Line Editor―a line editor written in pure Bash with syntax highlighting, auto suggestions, vim modes, etc. for Bash interactive sessions.](https://github.com/akinomyoga/ble.sh)
 
-- 全称 **Bash Line Editor**。
+全称 **Bash Line Editor**。
+
+*Bash 行编辑器* ( `ble.sh` [†1](https://github.com/akinomyoga/ble.sh#discl-pronun) ) 是一个用纯 Bash [†2](https://github.com/akinomyoga/ble.sh#discl-pure) 编写的命令行编辑器，它**取代了默认的 GNU Readline**。
 
 - 这是 Bash 用户体验增强中最现代、**功能最强**的项目之一。
 
@@ -445,6 +461,14 @@ complete -p git
   - **异步提示更新（async prompt）**
 
 - 不修改你的 Bash 配置框架，只增强 Bash 本身的输入体验。
+
+
+> - **语法高亮** ：ble.sh 可以像 `fish` 和 `zsh-syntax-highlighting` 一样，高亮显示用户输入的命令行。与 `zsh-syntax-highlighting` 的简单高亮不同， `ble.sh` 会进行语法分析，从而能够正确高亮显示复杂的结构，例如嵌套的命令替换、多个 here 文档等。高亮颜色和样式完全可配置 。
+> - **增强完成** ：延长完成时间 通过**语法感知补全** 、带引号的补全、前缀文本中的参数扩展、 **歧义候选词生成**等方式，以及**菜单补全。** 支持使用光标键、 TAB 和 S-TAB 在菜单（候选人列表）中选择候选。该功能**支持自动完成。** 支持类似 `fish` 和 `zsh-autosuggestions` 的自动文本建议功能（Bash 4.0 及更高版本）。该功能**还包含菜单过滤器** 。 将自动筛选候选词的功能集成到菜单补全中（Bash 4.0+）。 还有其他功能，例如： **缩写**和 **缩写** *zsh 缩写*或 `zsh-abbr` 。
+> - **Vim 编辑模式** ：增强 `readline` 的 vi 编辑模式，可通过 `set -o vi` 启用。Vim 编辑模式支持多种 vim 模式，例如字符/行/块可视/选择模式、替换模式、命令模式、运算符挂起模式、插入模式和普通模式。Vim 编辑模式支持各种运算符、文本对象、寄存器、键盘宏、标记等。它还提供 `vim-surround` 作为可选组件。
+> - 其他有趣的功能包括 **状态行** ， **历史分享** ， **正确的提示** ， **瞬态提示** ， **xterm 标题**等。
+>
+> 注意：ble.sh 不提供提示符、别名、函数等的具体设置。ble.sh 提供了一个更基础的架构，以便用户可以设置自己的提示符、别名、函数等。当然，ble.sh 可以与其他 Bash 配置（例如 [`bash-it`](https://github.com/Bash-it/bash-it) 和 [`oh-my-bash`](https://github.com/ohmybash/oh-my-bash) 结合使用。
 
 - 安装示例：
 
