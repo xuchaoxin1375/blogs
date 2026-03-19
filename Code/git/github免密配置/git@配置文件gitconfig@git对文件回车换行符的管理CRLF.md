@@ -58,7 +58,7 @@ Git 配置文件中可以设置很多选项，以下是一些常见的配置：
 git config --global core.autocrlf false
 ```
 
-
+如果本地`CRLF`已经发生混乱,那么可以考虑移除本地已有的仓库目录,然后在新参数设置完毕hou重新克隆
 
 ### 查看和编辑 Git 配置
 
