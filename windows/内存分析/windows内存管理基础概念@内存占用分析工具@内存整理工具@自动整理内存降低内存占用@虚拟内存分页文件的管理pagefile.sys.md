@@ -37,6 +37,84 @@
 
 [Introduction to the page file - Windows Client | Microsoft Learn](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file)
 
+### 设置windows虚拟内存分页文件@分页文件大小限制@分区无法格式化问题
+
+pagefile.sys的大小是可以调的;
+
+在windows的系统属性中设置虚拟内存大小;
+
+> 可以在命令行中输入` SystemPropertiesAdvanced.exe`,弹出系统属性窗口
+>
+> 在高级选项卡中,选择第一个模块(性能)->设置->"高级"选项卡(默认是视觉效果,需要手动点击到高级)->第二个模块(虚拟内存)->更改
+>
+> 这里可以选择分区盘符(存放pagefile.sys),可以自定义pagefile.sys文件的大小区间;调整完毕后,点击**"设置"**(一定要点击"设置",而不是直接点击下面的确认或者应用,否则不生效!点击完设置后再点击应用)
+>
+> 更改完毕后如果系统提示需要重启计算机,则按需要重启计算机
+
+或者用纯命令行更改虚拟内存分页文件(数值单位是MB)
+
+查询分页文件信息
+
+```powershell
+Get-WmiObject -Class Win32_PageFileSetting
+```
+
+完整信息(如果是系统自动管理虚拟内存的话),形式如下:
+
+```powershell
+ Get-WmiObject -Class Win32_PageFileSetting |select *
+
+RunspaceId       : d14dd83d-d70a-4773-93e0-283c68ba370a
+__GENUS          : 2
+__CLASS          : Win32_PageFileSetting
+__SUPERCLASS     : CIM_Setting
+__DYNASTY        : CIM_Setting
+__RELPATH        : Win32_PageFileSetting.Name="c:\\pagefile.sys"
+__PROPERTY_COUNT : 6
+__DERIVATION     : {CIM_Setting}
+__SERVER         : CXXUDESK
+__NAMESPACE      : root\cimv2
+__PATH           : \\CXXUDESK\root\cimv2:Win32_PageFileSetting.Name="c:\\pagefile.sys"
+Caption          : c:\ 'pagefile.sys'
+Description      : 'pagefile.sys' @ c:\
+InitialSize      : 0
+MaximumSize      : 0
+Name             : c:\pagefile.sys
+SettingID        : pagefile.sys @ c:
+```
+
+
+
+> ```powershell
+> #关闭自动管理
+> wmic computersystem where name="%computername%" set AutomaticManagedPagefile=False
+> 
+> 
+> # 如果原先没有分页文件：(C:\pagefile.sys表示分页文件将创建在C盘根目录下)
+> Set-WmiInstance -Class Win32_PageFileSetting -Arguments @{
+>     Name = "C:\pagefile.sys"
+>     InitialSize = 4096
+>     MaximumSize = 28192
+> }
+> # 如果已经确定存在分页文件,可以直接设置分页文件大小区间
+> $pf = Get-WmiObject -Class Win32_PageFileSetting
+> $pf.InitialSize = 4096
+> $pf.MaximumSize = 8192
+> $pf.Put()
+> ```
+>
+> 
+
+虚拟内存大小通常交给系统自行管理,但是某些系统会将分页文件(pagefiles.sys)放在某个分区下,这种情况下会导致此分区无法被格式化,也就无法被并入到C盘;
+
+如果用户发现自己的D盘没什么文件,但是占用了几甚至几十个G,可能就是分页文件设置到D盘中的原因.
+
+可以设置显示隐藏文件,或者在powershell中进入D盘,然后用`ls -force`查看被隐藏的文件
+
+如果确实是`pagefile.sys`占用了大量空间,则考虑更改虚拟内存分页文件的存放位置(改盘符)
+
+
+
 #### pagefile.sys文件和普通文件的对比
 
 | **特性**       | **普通文件 **                            | **分页文件 (pagefile.sys)**                                  |
@@ -46,7 +124,7 @@
 | **读写优先级** | 受文件系统缓存（FileSystem Cache）影响。 | **绕过缓存**。直接由内存管理器（Memory Manager）与硬件交互，优先级极高。 |
 | **删除机制**   | 关闭程序后文件依然存在。                 | **动态收缩**。Windows 重启后通常会重置回初始大小；即便运行中增加，后续空闲时也可能收缩。 |
 
-### 1. 虚拟内存 (Virtual Memory) 
+###  虚拟内存 (Virtual Memory) 
 
 每个进程都以为自己拥有巨大的、连续的内存空间，但其实这只是系统给它画的一个“大饼”。
 
@@ -276,7 +354,7 @@ Windows 并不需要让 pagefile.sys 和物理内存的总和时刻满足 20GB �
 总结：
 pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内存换硬盘）过程会消耗时间，且速度取决于硬盘性能。这也是为什么当内存吃紧时，电脑会变慢的原因。
 
-### 2. 工作集 (Working Set) —— “你桌上的书”
+###  工作集 (Working Set) —— “你桌上的书”
 
 这是分析时**最重要**的指标之一，它代表了进程当前实际占用的**物理内存 (RAM)**。
 
@@ -285,7 +363,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
   - **私有工作集 (Private Working Set)：** 只有你能看，别人不能碰的部分（比如你的私人笔记）。
   - **共享工作集 (Shareable Working Set)：** 别人也能看的公共资料（比如系统 DLL 库）。
 
-### 3. 提交 (Commit Size) —— “已经出库的书”
+###  提交 (Commit Size) —— “已经出库的书”
 
 这是最容易和工作集搞混的概念。它指的是系统已经为该进程在**物理内存或分页文件（虚拟内存文件）**中预留的总量。
 
@@ -294,7 +372,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 ------
 
-### 4. 关键指标对比表
+###  关键指标对比表
 
 在分析资源监视器（Resource Monitor）或 Process Explorer 时，请参考下表：
 
@@ -306,7 +384,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 ------
 
-### 5. 页面错误 (Page Faults) —— “跑回书库换书”
+###  页面错误 (Page Faults) —— “跑回书库换书”
 
 当程序想读的数据不在物理内存里，而在硬盘（分页文件）里时，就会发生页面错误。
 
@@ -470,7 +548,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 ------
 
-### 1. 内存泄漏的三个阶段
+###  内存泄漏的三个阶段
 
 你可以通过以下三个阶段来识别和定位泄漏：
 
@@ -495,7 +573,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 ------
 
-### 2. 核心排查指标：Handle (句柄) 泄漏
+###  核心排查指标：Handle (句柄) 泄漏
 
 很多时候，内存泄漏不只是因为数据没删，还因为**句柄 (Handles)** 没关。
 
@@ -504,7 +582,7 @@ pagefile.sys 的扩容动作很快，但伴随扩容而来的数据交换（内�
 
 ------
 
-### 3. 如何实战排查？
+###  如何实战排查？
 
 如果你怀疑某个进程（例如 `example.exe`）有泄露，请按以下步骤操作：
 

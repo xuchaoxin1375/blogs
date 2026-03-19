@@ -69,7 +69,7 @@ uname (2)            - get name and information about current kernel
   Ubuntu 22.04.4 LTS \n \l
   ```
 
-### 方法2:lsb_release
+#### 方法2:lsb_release
 
 有的发行版可能无法直接运行,这时候请尝试安装这个工具
 
@@ -83,6 +83,28 @@ Distributor ID: Ubuntu
 Description:    Ubuntu 22.04.4 LTS
 Release:        22.04
 Codename:       jammy
+```
+
+#### 方法3:查看/etc/os-release文件中记录到系统信息
+
+例如
+
+```bash
+# [Ubuntu][bash] opcxxu @ OP-XCX in /mnt/c [15:08:41]
+$ cat /etc/os-release
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
 ```
 
 
@@ -100,17 +122,9 @@ Linux version 4.15.0-169-generic (buildd@lcy02-amd64-015) (gcc version 7.5.0 (Ub
 
 ##  其他工具包
 
-### neofetch
-
-- [Gitee 极速下载/neofetch](https://gitee.com/mirrors/neofetch)
+### fastfetch
 
 - 如果系统比较干净,安装后会占多占用上百兆内存,要掂量一下值不值得,毕竟就看个logo和基本信息
-
-  - ```
-    Need to get 37.6 MB of archives.
-    After this operation, 139 MB of additional disk space will be used.
-    Do you want to continue? [Y/n] y
-    ```
 
 - 如果是ubuntu安装很简单:
 
