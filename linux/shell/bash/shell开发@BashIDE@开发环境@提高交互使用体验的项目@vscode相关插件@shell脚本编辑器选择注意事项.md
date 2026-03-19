@@ -470,15 +470,26 @@ complete -p git
 >
 > 注意：ble.sh 不提供提示符、别名、函数等的具体设置。ble.sh 提供了一个更基础的架构，以便用户可以设置自己的提示符、别名、函数等。当然，ble.sh 可以与其他 Bash 配置（例如 [`bash-it`](https://github.com/Bash-it/bash-it) 和 [`oh-my-bash`](https://github.com/ohmybash/oh-my-bash) 结合使用。
 
-- 安装示例：
+安装示例：
 
-  ```bash
-  git clone https://github.com/akinomyoga/ble.sh.git
-  make -C ble.sh install PREFIX=~/.local
-  echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
-  ```
+> 推荐的方式是git+make+gwak的方式
+
+```bash
+git clone https://github.com/akinomyoga/ble.sh.git
+make -C ble.sh install PREFIX=~/.local
+echo 'source ~/.local/share/blesh/ble.sh' >> ~/.bashrc
+```
 
 ------
+
+> 对于alpine linux,通常需要手动额外安装以下依赖,然后安装blesh:
+
+```bash
+# 安装 bash、git、make 和 gawk (ble.sh 依赖 gawk)
+apk add --no-cache bash git make gawk
+```
+
+安装完毕后记得运行`source ~/.bashrc`重载配置以使blesh生效;
 
 ## 自定义代码片段(snippet)
 
