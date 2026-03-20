@@ -1,9 +1,11 @@
-系统地介绍[ bash配置文件加载机制 ],要求适当对核心概念,规则或原理进行解释,内容现代化,包含最佳实践指导,深入浅出,适合指导新手学习
+系统地介绍[ openclaw(ai助理) ],项目地址[openclaw/openclaw: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞](https://github.com/openclaw/openclaw);文档:[OpenClaw - OpenClaw](https://docs.openclaw.ai/);[OpenClaw/OpenClaw |DeepWiki](https://deepwiki.com/openclaw/openclaw)
+
+要求适当对核心概念,规则或原理进行解释,内容现代化,包含最佳实践指导,深入浅出,适合指导新手学习
 
 - 如果内容适合表格展示,则优先考虑采用易于markdown的表格能够呈现的形式,并配合对应的文字描述
 - 如果适合流程图呈现,则优先考虑mermaid方式)
 - 不要滥用代码块来表示文本可以直接描述的内容
-- 章节标题不需要数字编号(无论是大标题还是小标题),我经常调整内容,编号的调整会增加我的负担
+- 章节标题不需要数字编号(无论是大标题还是小标题),我经常调整内容,编号的调整会增加我的负担.
 
 ---
 
