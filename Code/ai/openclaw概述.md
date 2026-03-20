@@ -23,9 +23,165 @@ OpenClaw（曾用名 Clawdbot、Moltbot、Molty）是一个免费开源的自主
 
 ---
 
+ 
+
 ## 核心架构
 
 OpenClaw 的架构围绕一个中心原则构建："Gateway 只是控制平面——产品是那个助理。"
+
+### Mermaid 架构图
+
+```mermaid
+graph TB
+    subgraph External_Clients [外部客户端]
+        CLI[openclaw.mjs]
+        UI[控制界面 / 界面]
+        Mobile[移动节点 iOS/Android]
+    end
+
+    subgraph Message_Channels [消息频道]
+        WhatsApp[WhatsApp Baileys]
+        Telegram[电报 grammY]
+        Discord[Discord discord.js]
+        Slack[Slack Bolt SDK]
+        Others[信号/iMessage/矩阵等]
+    end
+
+    subgraph Gateway_Process [网关流程]
+        GS[Gateway Server<br/>src/gateway/server.ts<br/>ws://127.0.0.1:18789]
+        SM[会话管理器<br/>src/session/]
+        AR[代理路由器<br/>src/agent/router.ts]
+        CM[Config Manager<br/>~/.openclaw/openclaw.json<br/>Zod validation]
+        Cron[Cron Service<br/>src/cron/]
+        
+        GS --- SM
+        GS --- AR
+        GS --- CM
+        GS --- Cron
+    end
+
+    subgraph Agent_Runtime [代理运行时]
+        PA[Pi agent<br/>@mariozechner/pi-agent-core<br/>@mariozechner/pi-ai]
+        AW[Agent Workspace<br/>~/.openclaw/workspace<br/>SOUL.md, AGENTS.md]
+        SS[技能系统<br/>技能/SKILL.md]
+        MI[内存索引<br/>sqlite-vec<br/>~/.openclaw/memory/]
+        
+        PA --> AW
+        PA --> SS
+        PA --> MI
+    end
+
+    TR[工具注册表<br/>src/tools/registry.ts]
+
+    subgraph Plugin_System [插件系统]
+        CE[频道插件<br/>扩展/*/]
+        TP[工具插件]
+        SDK[Plugin SDK<br/>openclaw/plugin-sdk]
+        
+        CE --> SDK
+        TP --> SDK
+    end
+
+    %% Connections
+    External_Clients --> GS
+    Message_Channels --> GS
+    AR --> PA
+    PA --> TR
+    SDK --> TR
+    TR --> PA
+```
+
+架构描述:
+
+**OpenClaw** 的智能代理（AI Agent）系统的架构。它是一个高度模块化的系统，旨在将各种外部客户端和消息频道连接到一个核心的 AI 代理运行时。
+
+该系统主要由四个核心板块组成：
+
+###  接入层 (External Clients & Message Channels)
+
+这是系统的入口点，分为两类：
+
+- **外部客户端 (External Clients):** 包括命令行工具 (CLI)、控制界面 (UI) 以及移动端应用 (iOS/Android)。
+- **消息频道 (Message Channels):** 集成了主流社交平台，如 WhatsApp (Baileys)、Telegram (grammY)、Discord (discord.js)、Slack (Bolt SDK) 以及 Signal/iMessage 等。
+
+###  网关流程 (Gateway Process)
+
+这是系统的中枢，负责协调通信和管理：
+
+- **Gateway Server:** 核心服务器，运行在 `ws://127.0.0.1:18789`。
+- **管理组件:** 包含会话管理器 (Session Manager)、代理路由 (Agent Router)、配置管理器 (Config Manager，使用 **Zod** 进行校验) 以及定时任务 (Cron Service)。
+
+> **Zod 是一个面向 TypeScript 的模式声明和验证库（Schema Declaration and Validation Library）。**
+>
+> 在像 OpenClaw 这样复杂的系统中，配置文件（如 `openclaw.json`）非常关键。如果用户在 JSON 里填错了字段类型（比如该填数字的地方填了字符串），程序运行到一半崩溃会很难排查。
+>
+> **Zod 的核心任务是：**
+>
+> - **守门员：** 当系统加载 `openclaw.json` 时，Zod 会立即检查数据格式是否符合预定义的规则。
+> - **类型安全：** 它能自动为 TypeScript 生成类型定义，确保开发者在写代码时（如 `src/gateway/server.ts`）能获得精准的自动补全，且不会出现 `undefined` 导致的错误。
+>
+> 在 OpenClaw 的架构里，Zod 确保了系统的**稳定性**。它保证了不论是用户手动修改的配置文件，还是通过网关传入的参数，只要进入系统内部，就一定是符合预期、干净、安全的数据。
+
+###  代理运行时 (Agent Runtime)
+
+这是 AI 的“大脑”所在：
+
+- **Pi Agent:** 基于 `@mariozechner/pi-agent-core` 构建的核心引擎。
+- **支撑系统:**  
+  - **工作空间 (Agent Workspace):** 存储 `SOUL.md` 和 `AGENTS.md`。
+  - **技能系统 (Skills):** 定义在 `SKILL.md`。
+  - **内存索引 (Memory Index):** 使用 `sqlite-vec` 进行向量检索。
+  
+
+###  插件系统 (Plugin System)
+
+提供扩展能力：
+
+- **插件分类:** 分为频道插件 (Channel Extensions) 和工具插件 (Tool Plugins)。
+- **Plugin SDK:** 通过专门的 SDK 与核心系统进行交互。
+
+------
+
+## openclaw对需求和任务的理解和执行
+
+**OpenClaw** 能够**理解需求并完成复杂任务**的核心关键在于 **代理运行时 (Agent Runtime)** 与 **工具注册表 (Tool Registry)** 之间的解耦与协作机制。
+
+具体可以拆解为以下三个核心维度：
+
+####  核心大脑：Pi Agent (@mariozechner/pi-agent-core)
+
+这是系统的“智力”来源。
+
+- **角色定位：** 它不是简单的脚本，而是一个基于大语言模型（LLM）的推理引擎。它负责将用户从不同频道（Discord, Slack 等）发送的自然语言**解析成可执行的逻辑**。
+- **关键点：** 它决定了系统是否能理解“模糊需求”。如果这个核心使用了高性能的 LLM 结合合理的 Prompt 工程，它就能进行任务拆解（Task Planning）。
+
+####  知识与约束：Agent Workspace (SOUL.md / AGENTS.md)
+
+这是决定代理**“行为准则”和“上下文感知”**的地方。
+
+- **SOUL.md：** 通常定义了 **AI 的性格、目标和决策偏好**。这决定了在面对复杂任务时，AI 是倾向于保守执行还是主动探索。
+- **AGENTS.md：** 可能定义了不同**子代理的角色分工**。复杂任务往往需要**多个角色**协作，这个文件是系统实现“多代理协作”的基础。
+
+####  执行能力：工具注册表 (src/tools/registry.ts) 与 Plugin SDK
+
+**这是从“想到”到“做到”的关键桥梁。**
+
+- **能力边界：** AI 即使再聪明，如果没有工具也无法干活。`Tool Registry` 充当了 AI 的“军火库”。
+- **任务闭环：** 复杂任务通常涉及外部操作（如查数据库、调用 API、读写文件）。
+- **插件化：** 通过 `Plugin SDK` 和 `工具插件`，用户可以不断给系统安装“新技能”。这意味着 OpenClaw 的上限取决于你为它注册了多少强大的工具。
+
+------
+
+#### 总结
+
+如果非要选一个**最关键**的点，那就是 **Pi Agent 对工具注册表（Tool Registry）的调用能力**。
+
+1. **感知：** 网关接收到复杂任务。
+2. **规划：** Pi Agent 结合 `SOUL.md` 进行思考，拆解任务。
+3. **行动：** 关键点！Pi Agent 从 `Tool Registry` 中检索并选择合适的工具执行。
+4. **反馈：** 通过 `Memory Index (sqlite-vec)` 记录中间结果，直到任务完成。
+
+如果没有这个灵活的工具注册机制，OpenClaw 充其量只是一个聊天机器人；有了它，它才真正具备了“完成任务”的生产力。
 
 ```mermaid
 graph TB
@@ -78,7 +234,9 @@ graph TB
     A1 & A2 --> BR & EX & FS & WEB & CR & CV & ND
 ```
 
-### Gateway（网关）
+## 相关概念补充和说明
+
+#### Gateway（网关）
 
 你在自己的机器（或服务器）上运行一个 Gateway 进程，它就成为你的消息应用与始终可用的 AI 助理之间的桥梁。 它作为单一进程在你的基础设施上运行，管理会话、路由、工具执行和频道连接。
 
@@ -92,9 +250,9 @@ Gateway 的核心职责：
 | **配置热加载**    | 大多数配置更改无需重启即可生效（端口/绑定需要重启）          |
 | **控制 UI**       | 控制界面 + WebChat 直接从 Gateway 提供服务                   |
 
-### Agent（智能体）
+#### Agent（智能体）
 
-Agent 是 AI 助理的核心，通过工作区文件（Identity、Soul、Tools、Skills 等）定义，指定能力、记忆和交互风格。
+Agent 是 AI 助理的核心，通过工作区文件（Identity、Soul、Tools、Skills 等）定义，指定**能力、记忆和交互风格**。
 
 Agent 的工作区目录通常包含以下关键文件：
 
@@ -106,13 +264,15 @@ Agent 的工作区目录通常包含以下关键文件：
 | `MEMORY.md`    | 长期记忆存储                               |
 | `HEARTBEAT.md` | 编辑此文件可以改变助理的主动签到计划       |
 
-> **什么是 Heartbeat（心跳）？** OpenClaw 的 Heartbeat 功能允许它主动行动：监控收件箱并主动提醒紧急邮件、定期检查日程并提前准备会议材料、监控特定网页变化并即时通知你——这个特性将 OpenClaw 从"工具"升级为真正的"助理"。
+#### heartbeat(心跳)
 
-### Channel（频道）
+> **什么是 Heartbeat（心跳）？** OpenClaw 的 Heartbeat 功能允许它主动行动：监控收件箱并**主动**提醒紧急邮件、定期检查日程并提前准备会议材料、监控特定网页变化并**即时通知你**——这个特性将 OpenClaw 从"工具"升级为真正的"助理"。
 
-频道（Channel）是 OpenClaw 与用户交互的入口，支持 WhatsApp、Telegram、Discord、iMessage 等。
+#### Channel（频道）
 
-频道子系统通过提供者模式（Provider Pattern）集成外部消息平台：每个平台运行一个独立的监控器，接收原始事件、执行访问控制、将消息标准化为通用信封格式，并通过平台特定的投递机制路由回复。
+频道（Channel）是 OpenClaw 与**用户交互的入口**，支持 WhatsApp、Telegram、Discord、iMessage 等。
+
+频道(子系统)通过**提供者模式**（Provider Pattern）集成**外部消息平台**：每个平台运行一个独立的**监控器**，接收原始事件、执行访问控制、将消息**标准化为通用信封格式**，并通过平台特定的投递机制路由回复。
 
 ```mermaid
 flowchart LR
@@ -132,11 +292,9 @@ flowchart LR
 
 ## Tools 与 Skills：理解两大核心概念
 
-这是新手最容易混淆的两个概念。用一个类比来理解：
+**Tools 是器官**——它们决定 OpenClaw "能不能"做某事。read 和 write 让它访问文件，exec 让它运行系统命令，**web_search** 让它像 Google 一样搜索，**browser** 让它与网页交互。没有启用 Tool，就像没有手——什么都做不了。
 
-> **Tools 是器官**——它们决定 OpenClaw "能不能"做某事。read 和 write 让它访问文件，exec 让它运行系统命令，web_search 让它像 Google 一样搜索，browser 让它与网页交互。没有启用 Tool，就像没有手——什么都做不了。
->
-> **Skills 是教科书**——它们教 OpenClaw 如何组合 Tools 来完成任务。gog 教它使用 Google Workspace 处理邮件和日历，obsidian 教它整理笔记，github 教它操作仓库，slack 教它向频道发消息。
+**Skills 是教科书**——它们教 OpenClaw 如何组合 Tools 来完成任务。gog 教它使用 Google Workspace 处理邮件和日历，obsidian 教它整理笔记，github 教它操作仓库，slack 教它向频道发消息。
 
 ### Tools 分类
 
@@ -153,7 +311,9 @@ flowchart LR
 
 ### Skills 系统
 
-OpenClaw 使用兼容 AgentSkills 的技能文件夹来教 Agent 如何使用工具。每个 Skill 是一个包含 SKILL.md（带 YAML frontmatter 和指令）的目录。OpenClaw 加载内置 Skills 和可选的本地覆盖，在加载时根据环境、配置和二进制文件存在性进行过滤。
+OpenClaw 使用兼容 AgentSkills 的**技能文件夹**来教 Agent 如何使用工具。每个 **Skill** 是一个包含 `SKILL.md`（带 YAML frontmatter 和指令）的**目录**。
+
+OpenClaw 加载**内置 Skills** 和**可选的本地覆盖**，在加载时根据环境、配置和二进制文件存在性进行过滤。
 
 **Skills 加载优先级**（从高到低）：
 
@@ -168,19 +328,27 @@ graph LR
 
 ### Skill 生效的三个必要条件
 
-要让 OpenClaw 通过 Skill 真正做事，需要同时满足三个条件——以"读取 Gmail"为例：①配置（Configuration）：你是否允许 OpenClaw 运行命令？（没有 exec，它连程序都启动不了）②安装（Installation）：机器上是否安装了 gog 桥接工具？（没有它，OpenClaw 知道做什么但无法连接 Google）③授权（Authorization）：你是否登录了 Google 账户并授予权限？（没有授权，Google 不会放行）三个条件缺一不可。
+要让 OpenClaw 通过 Skill 真正做事，需要同时满足三个条件
+
+以"读取 Gmail"为例：
+
+①配置（Configuration）：你是否允许 OpenClaw 运行命令？（没有 exec，它连程序都启动不了）
+
+②安装（Installation）：机器上是否安装了 gog 桥接工具？（没有它，OpenClaw 知道做什么但无法连接 Google）
+
+③授权（Authorization）：你是否登录了 Google 账户并授予权限？（没有授权，Google 不会放行）三个条件缺一不可。
 
 ### ClawHub — Skills 生态
 
 ClawHub 是 OpenClaw 的公共技能注册中心，可在 https://clawhub.com 浏览，用来发现、安装、更新和备份 Skills。 目前 ClawHub 上已有 13,700+ 第三方 Skills。
 
-> ⚠️ **安全提醒**：将第三方 Skills 视为不受信任的代码，在启用之前先阅读它们，对不受信任的输入和高风险工具优先使用沙盒运行。
+> ⚠️ **安全提醒**：将第三方 Skills 视为**不受信任的代码，在启用之前先阅读它们**，对不受信任的输入和高风险工具优先使用沙盒运行。
 
 ---
 
 ## 多 Agent 路由
 
-OpenClaw 支持多 Agent 路由——将入站频道/账户/对等方路由到隔离的 Agent（独立的工作区 + 每 Agent 独立会话）。
+OpenClaw 支持**多 Agent 路由**——将入站频道/账户/对等方**路由到隔离的 Agent**（独立的工作区 + 每 Agent 独立会话）。
 
 ```mermaid
 graph TD
@@ -194,9 +362,27 @@ graph TD
     AGENT_C --> SESSION_C[隔离会话]
 ```
 
-会话文件以 JSONL 格式存储在 `~/.openclaw/agents/<agentId>/sessions/<sessionKey>.jsonl` 中。
+会话文件以 `JSONL` 格式存储在 `~/.openclaw/agents/<agentId>/sessions/<sessionKey>.jsonl` 中。
 
-这意味着你可以为不同场景配置不同人格、不同能力的 Agent，彼此之间完全隔离。
+这意味着你可以为**不同场景**配置**不同人格、不同能力的 Agent**，彼此之间完全隔离。
+
+> **JSONL**（全称 **JSON Lines**）是一种非常实用的文本格式，专门为了**逐行处理数据**而设计。
+>
+> 简单来说，它就像是把一个巨大的 JSON 数组“拍扁”了，每一行都是一个完整、独立的 JSON 对象。
+
+JSONL 的三大核心优势
+
+> - **流式处理（Streaming）**：这是它最大的优点。解析标准 JSON 必须把整个文件读入内存，而 JSONL 可以**一行一行地读**。如果你有一个 100GB 的日志文件，JSONL 可以轻松处理，而标准 JSON 会直接让内存溢出。
+> - **容错性高**：在标准 JSON 中，如果文件末尾少了一个括号或中间多了一个逗号，整个文件就坏了。在 JSONL 中，如果某一行损坏，你只需要跳过那一行，剩下的数据依然有效。
+> - **方便读写**：向文件末尾追加新数据时，JSONL 只需要直接写入新的一行，不需要像标准 JSON 那样先解析、再 Push、最后重新写入。
+
+jsonl用途
+
+> **大模型训练（LLM Datasets）**： 你会发现 OpenAI、HuggingFace 上的数据集几乎全是 `.jsonl`。因为训练数据通常以亿计，逐行读取能极大节省内存开销。
+>
+> **日志记录（Logging）**： 系统产生的日志每秒成千上万条，JSONL 格式非常适合这种持续追加的场景。
+>
+> **数据流水线（ETL）**： 在数据处理过程中，常用于在不同的处理脚本之间传递结构化数据。
 
 ---
 
@@ -211,9 +397,9 @@ OpenClaw 开箱即支持 25+ 个 LLM 提供商，包括 Anthropic、OpenAI 等�
 | **本地模型**   | Ollama 本地模型                                              | 本地 API 端点             |
 | **自定义端点** | OpenRouter、AI/ML API 等                                     | OpenAI 兼容 API           |
 
-模型提供商的凭据存储在 auth-profiles.json 中，位于 Agent 目录下。
+模型提供商的凭据存储在 `auth-profiles.json` 中，位于 `Agent` 目录下。
 
-**模型容错（Failover）**：OpenClaw 支持模型选择、模型容错切换和会话剪枝。 你可以配置一个主模型和备用模型，当主模型不可用时自动切换。
+**模型容错（Failover）**：OpenClaw 支持模型选择、模型容错切换和会话剪枝。 你可以配置一个**主模型和备用模型**，当主模型不可用时**自动切换**。(降低罢工的可能)
 
 > **最佳实践**：为获得最佳质量和安全性，使用你能获取到的最强最新一代模型。
 
