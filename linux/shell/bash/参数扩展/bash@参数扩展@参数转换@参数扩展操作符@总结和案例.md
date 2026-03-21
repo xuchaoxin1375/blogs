@@ -158,6 +158,8 @@ echo "${status@P}"   # 输出: [14:30:25] username >
 
 ---
 
+
+
 ### 4. `@A` - 声明语句
 
 和`declare -p`效果类似
