@@ -1,6 +1,6 @@
 [toc]
 
-# 
+
 
 ##  abstract
 
@@ -9,7 +9,7 @@
 - [Downloading and installing Node.js and npm | npm Docs (npmjs.com)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
   - linux系统上安装:nodeSourceDistributions(github)
     - [nodesource/distributions: NodeSource Node.js Binary Distributions (github.com)](https://github.com/nodesource/distributions#installation-instructions)
-  - 包管理器安装
+  - nvm包管理器安装
     - [nvm-sh/nvm: Node Version Manager - POSIX-compliant bash script to manage multiple active node.js versions (github.com)](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
     - [Node.js — Download Node.js® (nodejs.org)](https://nodejs.org/en/download/package-manager/)
 

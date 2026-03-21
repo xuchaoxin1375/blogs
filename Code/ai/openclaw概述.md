@@ -27,6 +27,8 @@ OpenClaw（曾用名 Clawdbot、Moltbot、Molty）是一个免费开源的自主
 
 ## 核心架构
 
+[OpenClaw/OpenClaw |DeepWiki](https://deepwiki.com/openclaw/openclaw)
+
 OpenClaw 的架构围绕一个中心原则构建："Gateway 只是控制平面——产品是那个助理。"
 
 ### Mermaid 架构图
@@ -89,6 +91,23 @@ graph TB
     PA --> TR
     SDK --> TR
     TR --> PA
+```
+
+```
+WhatsApp / Telegram / Slack / Discord / Google Chat / Signal / iMessage / BlueBubbles / IRC / Microsoft Teams / Matrix / Feishu / LINE / Mattermost / Nextcloud Talk / Nostr / Synology Chat / Tlon / Twitch / Zalo / Zalo Personal / WebChat
+               │
+               ▼
+┌───────────────────────────────┐
+│            Gateway            │
+│       (control plane)         │
+│     ws://127.0.0.1:18789      │
+└──────────────┬────────────────┘
+               │
+               ├─ Pi agent (RPC)
+               ├─ CLI (openclaw …)
+               ├─ WebChat UI
+               ├─ macOS app
+               └─ iOS / Android nodes
 ```
 
 架构描述:
@@ -184,7 +203,7 @@ graph TB
 如果没有这个灵活的工具注册机制，OpenClaw 充其量只是一个聊天机器人；有了它，它才真正具备了“完成任务”的生产力。
 
 ```mermaid
-graph TB
+graph LR
     subgraph "用户端 (Channels)"
         WA[WhatsApp]
         TG[Telegram]
@@ -236,7 +255,7 @@ graph TB
 
 ## 相关概念补充和说明
 
-#### Gateway（网关）
+### Gateway（网关）
 
 你在自己的机器（或服务器）上运行一个 Gateway 进程，它就成为你的消息应用与始终可用的 AI 助理之间的桥梁。 它作为单一进程在你的基础设施上运行，管理会话、路由、工具执行和频道连接。
 
@@ -250,9 +269,9 @@ Gateway 的核心职责：
 | **配置热加载**    | 大多数配置更改无需重启即可生效（端口/绑定需要重启）          |
 | **控制 UI**       | 控制界面 + WebChat 直接从 Gateway 提供服务                   |
 
-#### Agent（智能体）
+### Agent（智能体和工作区文件）
 
-Agent 是 AI 助理的核心，通过工作区文件（Identity、Soul、Tools、Skills 等）定义，指定**能力、记忆和交互风格**。
+Agent 是 AI 助理的核心，通过**工作区文件**（Identity、Soul、Tools、Skills 等）定义，指定**能力、记忆和交互风格**。
 
 Agent 的工作区目录通常包含以下关键文件：
 
@@ -264,11 +283,11 @@ Agent 的工作区目录通常包含以下关键文件：
 | `MEMORY.md`    | 长期记忆存储                               |
 | `HEARTBEAT.md` | 编辑此文件可以改变助理的主动签到计划       |
 
-#### heartbeat(心跳)
+### heartbeat(心跳)
 
 > **什么是 Heartbeat（心跳）？** OpenClaw 的 Heartbeat 功能允许它主动行动：监控收件箱并**主动**提醒紧急邮件、定期检查日程并提前准备会议材料、监控特定网页变化并**即时通知你**——这个特性将 OpenClaw 从"工具"升级为真正的"助理"。
 
-#### Channel（频道）
+### Channel（频道）
 
 频道（Channel）是 OpenClaw 与**用户交互的入口**，支持 WhatsApp、Telegram、Discord、iMessage 等。
 
@@ -287,6 +306,75 @@ flowchart LR
 ```
 
 频道分为核心频道（内置于主源码树）和扩展频道（独立的扩展包）。 频道支持每个平台多个账户（例如多个 Telegram Bot、多个 Discord Bot）。
+
+### Openclaw涉及的基础文件格式
+
+在 OpenClaw 的架构中，文件的设计遵循“**文本即配置**”和“**Markdown 驱动**”的原则。对于初学者，你不需要去钻研复杂的数据库代码，只需要理解以下几类主要文件即可：
+
+------
+
+#### 核心配置文件 (`.json`)
+
+这类文件是系统的“开关”和“名片”，主要用于存放技术参数。
+
+- **`openclaw.json` (或 `config.json`)**:
+  - **用途**：存储 API Keys (如 OpenRouter)、服务器端口、数据库路径等。
+  - **格式**：标准 JSON。
+  - **初学者注意**：这是你最常修改的文件，比如更换 Key 或调整模型。
+- **`package.json`**:
+  - **用途**：定义项目依赖（比如它用到了哪些 Node.js 库）。
+  - **格式**：标准 JSON。
+
+------
+
+#### 身份与行为定义 (`.md`)
+
+OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆。这极其方便初学者通过文字直接修改 AI 的表现。
+
+| **文件名**      | **作用描述**                                                 | **形象比喻**  |
+| --------------- | ------------------------------------------------------------ | ------------- |
+| **`SOUL.md`**   | 定义 AI 的性格、语气、核心价值观和长远目标。                 | **灵魂/三观** |
+| **`USER.md`**   | 记录关于你的信息、偏好、习惯（它会从这里知道你是 Web 开发人员）。 | **你的简历**  |
+| **`AGENTS.md`** | 规定 AI 的工作流程、构建命令、代码规范和安全准则。           | **员工守则**  |
+| **`MEMORY.md`** | 存放 AI 总结的长期事实，避免它“转头就忘”。                   | **记事本**    |
+
+------
+
+#### 功能扩展文件 (`.md` & `.ts`)
+
+这些文件决定了 OpenClaw “能做什么”。
+
+- **`SKILL.md` (或在 `skills/` 文件夹下)**:
+  - **用途**：这是**技能模板**。它用 Markdown 描述了一个具体任务的操作流程（比如“如何采集产品”）。
+  - **内容**：通常包含任务描述、触发条件和具体的 Prompt 指令。
+- **`tools/` 目录下的 `.ts` 文件**:
+  - **用途**：这是**具体的工具代码**（TypeScript）。
+  - **内容**：定义了 AI 可以调用的实际功能，比如“打开浏览器”、“读取文件”、“写入 CSV”。
+  - **初学者建议**：虽然是代码，但结构很固定。你可以模仿现有的工具，把你写的 Python 脚本封装进去。
+
+------
+
+#### 运行数据与日志 (`.log` & `.sqlite`)
+
+系统在运行时产生的文件，用于调试和持久化存储。
+
+- **`memory/YYYY-MM-DD.md`**:
+  - **用途**：当天的原始对话记录。AI 会定期阅读这些文件并把精华提炼到 `MEMORY.md`。
+- **`memory.sqlite` (或 `sqlite-vec`)**:
+  - **用途**：向量数据库文件。用于存放 AI 的“深层记忆”，支持根据语义进行搜索。
+- **`openclaw.log`**:
+  - **用途**：记录系统运行时的报错和状态信息。当你发现 AI 不听话时，先看这个文件。
+
+------
+
+给初学者的“无痛”学习路径：
+
+1. **先改 `openclaw.json`**：确保网络连通。
+2. **读写 `USER.md`**：告诉 AI 你是谁，让它更懂你。
+3. **创建 `SKILL.md`**：用自然语言写下你的采集需求模板。
+4. **最后碰 `.ts`**：当你需要 AI 真正去执行那个 Python 采集脚本时，再去研究怎么写一个简单的工具包装器。
+
+
 
 ---
 
@@ -399,15 +487,121 @@ OpenClaw 开箱即支持 25+ 个 LLM 提供商，包括 Anthropic、OpenAI 等�
 
 模型提供商的凭据存储在 `auth-profiles.json` 中，位于 `Agent` 目录下。
 
+> `.openclaw/agents`下面默认有一个`main`目录,其中的`agent`目录包含若干`.json`文件
+>
+> 
+
+```bash
+# [Ubuntu][bash] opcxxu @ OP-XCX in ~/.openclaw/agents/main/agent [15:41:12]                                                                                                                                               
+$ ls -l
+total 8
+-rw------- 1 opcxxu opcxxu  332 Mar 20 14:58 auth-profiles.json
+-rw------- 1 opcxxu opcxxu 1426 Mar 19 17:02 models.json
+```
+
 **模型容错（Failover）**：OpenClaw 支持模型选择、模型容错切换和会话剪枝。 你可以配置一个**主模型和备用模型**，当主模型不可用时**自动切换**。(降低罢工的可能)
 
 > **最佳实践**：为获得最佳质量和安全性，使用你能获取到的最强最新一代模型。
 
 ---
 
+## 目录结构参考
+
+```bash
+# [Ubuntu][bash] opcxxu @ OP-XCX in ~/.openclaw [15:43:10]                                                                                                                                                                 
+$ tree
+.
+├── agents
+│   └── main
+│       ├── agent
+│       │   ├── auth-profiles.json
+│       │   └── models.json
+│       └── sessions
+│           ├── 1149a84f-ee8e-4e12-94d3-bdf8b55d5fc0.jsonl.reset.2026-03-20T00-15-40.173Z
+│           ├── 47b018b5-aac8-4eb9-9202-d03e92faed66.jsonl
+│           └── sessions.json
+├── canvas
+│   └── index.html
+├── completions
+│   ├── openclaw.bash
+│   ├── openclaw.fish
+│   ├── openclaw.ps1
+│   └── openclaw.zsh
+├── cron
+│   └── jobs.json
+├── devices
+│   ├── paired.json
+│   └── pending.json
+├── exec-approvals.json
+├── identity
+│   ├── device-auth.json
+│   └── device.json
+├── logs
+│   └── config-audit.jsonl
+├── memory
+│   └── main.sqlite
+├── openclaw.json
+├── openclaw.json.bak
+├── openclaw.json.bak.1
+├── update-check.json
+└── workspace
+    ├── AGENTS.md
+    ├── BOOTSTRAP.md
+    ├── HEARTBEAT.md
+    ├── IDENTITY.md
+    ├── SOUL.md
+    ├── TOOLS.md
+    └── USER.md
+
+```
+
+
+
 ## 配置系统
 
-配置文件位于 `~/.openclaw/openclaw.json`，使用 Zod schema 进行验证，支持 JSON5 格式（允许注释和尾逗号）。
+[openclaw/openclaw|configuration-overview | DeepWiki --- openclaw/openclaw | DeepWiki](https://deepwiki.com/openclaw/openclaw#configuration-overview)
+
+[Configuration - OpenClaw](https://docs.openclaw.ai/gateway/configuration#enable-relay-backed-push-for-official-ios-builds)
+
+OpenClaw 读取一个可选参数**JSON5**配置来自 `~/.openclaw/openclaw.json` 。如果文件缺失，OpenClaw 将使用安全的默认值。添加配置文件的常见原因：
+
+- 连接频道并控制谁可以向机器人发送消息
+- 设置模型、工具、沙箱或自动化（定时任务、钩子）
+- 调整会话、媒体、网络或用户界面
+
+请查看每个可用字段的[完整参考文档 ](https://docs.openclaw.ai/gateway/configuration-reference)。
+
+### 最小配置
+
+最小配置仅需一个模型： `~/.openclaw/openclaw.json`
+
+例如
+
+```json
+{
+  agent: {
+    model: "anthropic/claude...",
+  },
+}
+```
+
+**资料来源：** [README.md320-328](https://github.com/openclaw/openclaw/blob/17eaa59a/README.md#L320-L328)
+
+### 关键配置部分
+
+| 部分       | 目的                        | 例子                                                     |
+| ---------- | --------------------------- | -------------------------------------------------------- |
+| `gateway`  | 端口、绑定、认证、Tailscale | `gateway: { port: 18789, auth: { mode: "token" } }`      |
+| `agents`   | 代理列表、工作区、绑定      | `agents: { list: [{ name: "work", workspace: "..." }] }` |
+| `channels` | 渠道凭证和策略              | `channels: { whatsapp: { allowFrom: ["+1..."] } }`       |
+| `tools`    | 工具策略和允许列表          | `tools: { global: { allowlist: ["bash", "read"] } }`     |
+| `skills`   | 技能配置和门槛              | `skills: { entries: { mcp: { enabled: true } } }`        |
+| `memory`   | 向量搜索配置                | `memory: { provider: "openai" }`                         |
+| `cron`     | 计划任务                    | `cron: { jobs: [{ schedule: "0 9 * * *" }] }`            |
+
+有关完整的配置参考，请参阅[配置 ](https://deepwiki.com/openclaw/openclaw/2.3.1-configuration-reference)。
+
+主配置文件位于 `~/.openclaw/openclaw.json`，使用 **Zod schema** 进行验证，支持 JSON5 格式（允许注释和尾逗号）。
 
 ### 关键配置层级
 
@@ -420,6 +614,28 @@ graph TD
     JSON --> SKILLS["skills 技能配置<br/>entries, install, extraDirs"]
     JSON --> GATEWAY["gateway 网关配置<br/>port, bind, auth, tailscale"]
 ```
+
+例如:
+
+```json
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/free"
+      },
+      "models": {
+        "openrouter/auto": {
+          "alias": "OpenRouter"
+        },
+        "openrouter/minimax/minimax-m2.5": {},
+        "openrouter/free": {}
+      },
+      "workspace": "/home/opcxxu/.openclaw/workspace"
+    }
+  },
+```
+
+
 
 ### 秘密管理
 
@@ -484,9 +700,9 @@ OpenClaw 的设计因其有效运作所需的广泛权限而受到网络安全�
 | 方式                       | 命令                                                         | 适合人群           |
 | -------------------------- | ------------------------------------------------------------ | ------------------ |
 | **一键脚本 (macOS/Linux)** | `curl -fsSL https://openclaw.ai/install.sh \| bash`          | 新手推荐           |
+| **Windows**                | `powershell -c "irm https://openclaw.ai/install.ps1 \| iex"` | Windows 用户       |
 | **npm 全局安装**           | `npm install -g openclaw@latest`                             | Node.js 开发者     |
 | **pnpm 全局安装**          | `pnpm add -g openclaw@latest`                                | 偏好 pnpm 的开发者 |
-| **Windows**                | `powershell -c "irm https://openclaw.ai/install.ps1 \| iex"` | Windows 用户       |
 | **Nix**                    | Nix 声明式配置模式                                           | NixOS 用户         |
 | **Docker**                 | Docker 容器化安装                                            | 服务器/VPS 部署    |
 
@@ -579,4 +795,4 @@ OpenClaw 在 2026 年 1 月下旬迅速走红，归功于其开源特性以及 M
 | ClawHub      | [clawhub.com](https://clawhub.com)                           | 浏览和安装 Skills  |
 | Discord 社区 | 官方 Discord                                                 | 获取帮助和交流经验 |
 
-OpenClaw 正在快速发展，是当前 AI Agent 领域最具代表性的开源项目之一。它将 AI 从"对话工具"推向了"行动助手"，让每个人都能拥有一个运行在自己设备上、通过日常使用的消息应用随时可达的 AI 伙伴。
+ 
