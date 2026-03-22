@@ -26,7 +26,7 @@
      git commit -m "your comments (if you need) "
      ```
 
-### 本地仓库和github仓库关联
+### 本地仓库和github仓库关联🎈
 
 - 在Github上手动创建好一个与本地Git仓库对应的仓库之后,我们就可以和本地仓库进行关联了
 - 根据创建好的Git仓库页面的提示，可以在本地输入
