@@ -65,22 +65,74 @@ VERSION="24.04.3 LTS (Noble Numbat)"
 VERSION_CODENAME=noble
 ```
 
-安装`venv`
+#### 安装`venv`
 
 ```bash
 #( 01/20/26@ 5:08PM )( root@s3 ):~
    apt install python3.12-venv
 ```
 
-新建venv(假设指定环境目录为`~/.venv`)并安装pandas包
+#### 新建venv
+
+假设指定环境目录为`~/.venv`并安装pandas包
 
 ```bash
 
 #( 01/20/26@ 5:09PM )( root@s3 ):~
    python3 -m venv .venv
-# 激活venv
+```
+
+#### 激活venv
+
+```bash
+
+# 启动venv目录(一般是.venv/bin/这类的路径下的activate命令)
 #( 01/20/26@ 5:09PM )( root@s3 ):~
    source .venv/bin/activate
+
+```
+
+#### 环境检查
+
+激活 `venv` 后，检查当前环境名的方法主要取决于你是想**肉眼观察**、**通过命令查询**，还是在**脚本代码中判断**。
+
+以下是几种最有效的方法：
+
+1. 使用环境变量命令 (最可靠)
+
+如果你想通过命令确认，最直接的方式是检查 `VIRTUAL_ENV` 变量。这个变量记录了当前激活环境的**绝对路径**。
+
+2. 观察 Shell 提示符 (最直观)
+
+默认情况下，激活脚本会修改你的终端提示符（`PS1`）。
+
+- 你会看到命令行开头多了个圆括号，里面就是环境名： `(.venv) user@machine:~/project$`
+- **注意**：如果你使用了自定义主题（如 Oh My Zsh 或 Powerlevel10k），环境名可能会以小图标的形式出现在右侧或上方。
+
+------
+
+在此环境被激活后,shell的提示符(prompt)可能会多出一个前缀
+
+```bash
+(base) #( 03/22/26@10:03AM )( cxxu@CxxuDesk ):~
+   source ./.venv1/bin/activate
+```
+
+如果在conda中叠加使用`venv`,就可能出现多重前缀(一般不这么嵌套使用)
+
+```bash
+(base) #( 03/22/26@10:03AM )( cxxu@CxxuDesk ):~
+   source ./.venv1/bin/activate
+((.venv1) ) (base) #( 03/22/26@10:03AM )( cxxu@CxxuDesk ):~
+```
+
+
+
+### 使用已激活的venv环境
+
+此时,在此环境中安装某个包(比如pandas)
+
+```bash
    
 (.venv) #( 01/20/26@ 5:09PM )( root@s3 ):~
    pip install pandas
@@ -89,7 +141,67 @@ Collecting pandas
 Successfully installed numpy-2.4.1 pandas-2.3.3 python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 tzdata-2025.3
 ```
 
+### 多个venv环境
 
+管理多个 `venv` 时，最核心的原则是：**保持环境与项目代码的分离，同时确保环境的可重建性**。
+
+####  目录结构：推荐“项目内置”模式
+
+虽然你可以把所有虚拟环境集中放在一个文件夹里（类似 Conda），但在 Python 社区，最推荐的做法是将虚拟环境放在**项目根目录下**。
+
+以下是针对开发者和生产环境的推荐用法：
+
+```bash
+my_project1/
+├── .venv/       <--- 虚拟环境文件夹（建议以点开头，保持隐藏）
+├── src/
+├── tests/
+├── .gitignore   <--- 必须在这里忽略 .venv/
+└── requirements.txt
+```
+
+多个venv环境应该放在不同项目的根目录下(而不应该放同一个根目录下)
+
+类似的,第二个`venv`目录放在第二个项目根目录中,例如`my_project2`下的`.venv`
+
+- **编辑器自动识别**：VS Code 和 PyCharm 会自动扫描项目下的 `.venv` 并建议将其作为解释器。
+- **路径清晰**：你永远不会搞混哪个环境属于哪个项目。
+- **易于清理**：删除项目文件夹时，环境也随之删除，不会留下系统垃圾。
+
+### git版本控制管理：`.gitignore`
+
+**千万不要将 `.venv` 文件夹上传到 Git！** 虚拟环境包含大量硬编码的绝对路径，换台机器就失效了。
+
+在项目根目录创建 `.gitignore` 文件。
+
+写入一行：`.venv/`。
+
+共享项目时，只共享 `requirements.txt`。
+
+### 移除venv
+
+移除 `venv` 虚拟环境的操作非常简单，因为它不像 Conda 那样需要复杂的卸载命令。`venv` 本质上就是一个包含 Python 解释器和库文件的**普通文件夹**。
+
+以下是标准步骤：
+
+1. 退出环境（如果已激活）
+
+如果你的终端提示符前还显示着 `(.venv)`，请先运行：`deactivate`命令
+
+> 在环境被激活时,激活脚本(例如~/.venv/bin/activate)会向当前shell注册`deactivate`命令(函数),方便用户取消激活当前环境
+
+这一步会恢复你的系统环境变量（特别是 `PATH`），防止后续操作出现残留。
+
+直接删除你创建虚拟环境时指定的那个文件夹（通常命名为 `.venv`、`venv` 或 `env`）。
+
+> 一步到位的命令:`deactivate && rm -rf <your_venv_dir_path>` 
+
+总结与对比
+
+| **工具**  | **移除命令**                   | **原理**                     |
+| --------- | ------------------------------ | ---------------------------- |
+| **venv**  | `rm -rf <dir>`                 | 物理删除文件夹即可           |
+| **Conda** | `conda remove -n <name> --all` | 需要通过管理工具修改中央索引 |
 
 ## uv,conda,venv
 

@@ -320,6 +320,54 @@ declare -A user=([name]="Tom" [age]=25)
 echo ${!user[@]}    # 输出: name age
 ```
 
+```bash
+$ printf "%s\n" ${!BASH*}
+BASH
+BASHOPTS
+BASHPID
+BASHRC_FILE
+BASH_ALIASES
+BASH_ARGC
+BASH_ARGV
+BASH_ARGV0
+BASH_CMDS
+BASH_COMMAND
+BASH_COMPLETION_VERSINFO
+BASH_LINENO
+BASH_PROMPT
+BASH_REMATCH
+BASH_SOURCE
+BASH_SUBSHELL
+BASH_VERSINFO
+BASH_VERSION
+```
+
+又比如,如果你安装并激活了conda:
+
+```bash
+$ for item in "${!CONDA@}";do echo "$item";done
+CONDA_DEFAULT_ENV
+CONDA_EXE
+CONDA_PREFIX
+CONDA_PREFIX_1
+CONDA_PREFIX_2
+CONDA_PROMPT_MODIFIER
+CONDA_PYTHON_EXE
+CONDA_SHLVL
+
+$ for item in "${!CONDA@}";do echo "$item=${!item}";done
+CONDA_DEFAULT_ENV=base
+CONDA_EXE=/home/cxxu/miniforge3/bin/conda
+CONDA_PREFIX=/home/cxxu/miniforge3
+CONDA_PREFIX_1=/home/cxxu/miniforge3
+CONDA_PREFIX_2=/home/cxxu/miniforge3/envs/bash51
+CONDA_PROMPT_MODIFIER=(base) 
+CONDA_PYTHON_EXE=/home/cxxu/miniforge3/bin/python
+CONDA_SHLVL=3
+```
+
+
+
 ## 展开总结
 
 在以下每种情况下，语法中的`word` 会受到波浪线扩展、参数扩展、命令替换和算术扩展的影响。

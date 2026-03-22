@@ -107,12 +107,46 @@ nvm 是最流行的 Node 版本管理方案（GitHub Stars 约 75.2k），也是
 
 ### 安装
 
+前往github获取最新安装链接;
+
+> 国内用户如果没有代理,可以使用github加速镜像,例如`https://gh-proxy.com/`套在原github链接前;
+>
+> ```bash
+> curl -o- https://gh-proxy.com/https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+> ```
+
+安装完毕后,会给出提示,注意其插入的片段以及插入哪个配置文件中(如果是zsh,bash用户,需要关注一下)
+
 ```bash
-# macOS / Linux
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  master
+=> Compressing and cleaning up git repository
+
+=> Appending nvm source string to /home/cxxu/.zshrc
+=> Appending bash_completion source string to /home/cxxu/.zshrc
+=> Close and reopen your terminal to start using nvm or run the following to use it now:
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ```
 
 安装完成后需重启终端或执行 `source ~/.bashrc`（或 `.zshrc`）。
+
+如果使用多个shell(bash,zsh),可以维护一个共用的`shell_env_mgr.sh`
+
+```bash
+#!/bin/bash
+# shellcheck disable=SC1091
+# 在这里可以手动维护一些常用的环境管理的程序的导入脚本,注意检查相关环境变量,避免重复导入;
+if [[ -z $NVM_DIR ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+fi
+
+```
+
+然后以合适的方式让shell的rc配置文件能够导入这个公用j
 
 ### 核心命令
 
