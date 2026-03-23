@@ -18,20 +18,331 @@ OpenClaw（曾用名 Clawdbot、Moltbot、Molty）是一个免费开源的自主
 | 更名历程   | 2026 年 1 月 27 日因 Anthropic 商标投诉改名 Moltbot，三天后改名 OpenClaw |
 | 开源协议   | MIT 许可，社区驱动                                           |
 | 主技术栈   | TypeScript                                                   |
-| 运行时要求 | Node 24（推荐）或 Node 22 LTS（22.16+）                      |
+| 运行时要求 | Node 24+（推荐）或 Node 22 LTS（22.16+）                     |
 | 现状       | 2026 年 2 月 14 日，Steinberger 宣布加入 OpenAI，项目将移交到一个开源基金会 |
 
 ---
 
- 
+## 文档
 
-## 核心架构
+[OpenClaw - OpenClaw](https://docs.openclaw.ai/)
 
 [OpenClaw/OpenClaw |DeepWiki](https://deepwiki.com/openclaw/openclaw)
 
-OpenClaw 的架构围绕一个中心原则构建："Gateway 只是控制平面——产品是那个助理。"
+##  从入门到配置
 
-### Mermaid 架构图
+> 受mermaid图的限制,放大可能导致子图标题被遮挡,可以缩小查看;
+
+```mermaid
+%%{init: { 
+  'themeVariables': { 
+    'subgraphPadding': 25, 
+    'subgraphTitleFontSize': '15px',
+    'clusterTitleAlign': 'left',
+    'nodeSpacing': 45,
+    'rankSpacing': 60
+  }
+}}%%
+graph TD
+    %% --- Layer 1: User Interaction ---
+    subgraph UI ["User Interaction (用户交互)"]
+        direction LR
+        API["Provide API Key<br/>(提供 API 密钥)"]
+        QS["Select 'QuickStart'<br/>(选择快速启动)"]
+        TG["Enable Telegram<br/>(启用 Telegram)"]
+    end
+
+    %% --- Layer 2: Code Entity Space ---
+    subgraph Code ["Code Entity Space (代码实体空间)"]
+        direction TB
+        BACO["buildAuthChoiceOptions<br/>(src/commands/auth-choice-options.ts)"]
+        POCM["planOpenClawModelsJson<br/>(src/agents/models-config.plan.js)"]
+        RCW["runConfigureWizard<br/>(src/commands/configure.wizard.js)"]
+        WCF["writeConfigFile<br/>(src/config/config.js)"]
+
+        %% Logic Flow
+        API --> BACO
+        BACO --> POCM
+        QS --> RCW
+        TG --> RCW
+        
+        POCM --> WCF
+        RCW --> WCF
+    end
+
+    %% --- Layer 3: Configuration Space ---
+    subgraph Config ["Configuration Space (openclaw.json)"]
+        direction LR
+        PORT["gateway.port: 18789"]
+        PROV["models.providers"]
+        TGE["channels.telegram.enabled: true"]
+
+        WCF --> PORT
+        WCF --> PROV
+        WCF --> TGE
+    end
+
+```
+
+此图说明了引导 CLI 如何将用户输入与特定的代码实体和配置键关联起来。
+
+OpenClaw 如何通过 CLI 实现**声明式配置**的自动化生成。整个过程可以分为三个维度：
+
+A. 用户交互层 (User Interaction)
+
+这是引导程序的起点，捕捉用户的初衷。
+
+- **API 密钥输入：** 针对需要模型访问权限的用户。
+- **快速启动 (QuickStart)：** 为新用户提供一套默认的、可工作的最小化配置。
+- **频道启用 (Telegram等)：** 针对特定集成场景的选择。
+
+B. 代码实体层 (Code Entity Space)
+
+这是系统的“大脑”，负责将模糊的用户意图转化为**结构化的数据**计划。
+
+- **权限与模型规划：** * `buildAuthChoiceOptions` 负责构建认证选项。
+  - 紧接着 `planOpenClawModelsJson` 会生成一个逻辑上的“模型计划”，它决定了哪些 Provider（如 OpenAI, Anthropic）会被写入配置。
+- **配置向导：** * `runConfigureWizard` 是一个交互式状态机，它汇总了类似“快速启动”或“启用频道”的各种开关。
+- **统一写入器：** * `writeConfigFile` 是所有逻辑的收敛点。它不直接关心用户点击了什么，它只负责接收前面步骤生成的 JSON 对象，并将其持久化。
+
+C. 配置空间 (Configuration Space)
+
+这是最终生成的 `openclaw.json` 文件内容，也是系统运行时的物理依据。
+
+- **网络层：** 自动分配或确认 `gateway.port`（默认为 18789）。
+- **模型层：** 填充 `models.providers` 数组。
+- **集成层：** 将特定频道的 `enabled` 状态标记为 `true`。
+
+这种设计采用了典型的 **Plan-then-Execute（先计划，后执行）** 模式：
+
+1. **解耦：** 具体的 UI 交互（如命令行提问）与文件写入逻辑是完全分离的。这意味着未来如果你想增加一个 Web 版的初始化页面，只需要调用 `writeConfigFile` 即可。
+2. **安全性：** 通过 `Zod`（结合前一张图）或类似的验证机制，在 `writeConfigFile` 之前可以确保 `openclaw.json` 永远不会因为用户输错一个单词而损坏。
+3. **可追溯性：** 明确的文件路径（如 `src/commands/`）说明了 CLI 命令的逻辑边界非常清晰。
+
+## 核心系统架构概述(System Architecture Overview)
+
+openclaw的源码获取：
+
+```bash
+git clone --depth=1 --single-branch   https://github.com/openclaw/openclaw.git
+```
+
+第一层目录结构:
+
+```bash
+# (base) (node:v22.22.1)[Ubuntu][bash]opcxxu@OP-XCX in ~/openclaw-code-repo/openclaw on git:main [17:10:56]
+$ tree -L 1 -d
+.
+├── Swabble
+├── apps
+├── assets
+├── docs
+├── extensions
+├── git-hooks
+├── packages
+├── patches
+├── scripts
+├── skills
+├── src
+├── test
+├── test-fixtures
+├── ui
+└── vendor
+
+```
+
+通过`tree -L 2 -d`命令查看基础的项目原码结构,部分目录在下面的架构图中提及
+
+这是一个基于Mermaid的架构图，旨在更清晰地展示OpenClaw AI的各个组件及其相互关系：
+
+```mermaid
+graph TD
+    %% Subgraph: Entry Points (外部接口)
+    subgraph Sub_EP["Entry Points "]
+        direction TB
+        CLI("CLI
+        (openclaw.mjs)")
+        CUI("Control UI
+        (ui/ Lit components)")
+    end
+
+    %% Subgraph: Gateway Core (网关核心)
+    subgraph Sub_GW["Gateway Core"]
+        direction TB
+        GWServer("GatewayServer
+        (src/gateway/server.ts)")
+        SessMan("SessionManager
+        (src/gateway/session/)")
+        ChanMan("ChannelManager
+        (src/gateway/channels/)")
+        ZSchema("ZodSchema
+        (src/config/zod-schema.ts)")
+        GWServer --> SessMan
+        GWServer --> ChanMan
+        GWServer --> ZSchema
+    end
+
+    %% Subgraph: Agent Runtime (代理运行时)
+    subgraph Sub_AR["Agent Runtime"]
+        direction TB
+        RRunner("runEmbeddedPiAgent
+        (src/agents/pi-embedded-runner.ts)")
+        PiTools("PiTools
+        (src/agents/pi-tools.ts)")
+        QMDMem("QmdMemoryManager
+        (src/memory/qmd-manager.ts)")
+        RRunner --> PiTools
+        RRunner --> QMDMem
+    end
+
+    %% Subgraph: Vendored & Shims (第三方库和填充)
+    subgraph Sub_VS["Vendored & Shims"]
+        direction TB
+        A2UI("A2UI
+        (vendor/a2ui)")
+        Swabble("Swabble
+        (Swabble/)")
+        ClawdB("clawdbot/moltbot
+        (packages/)")
+    end
+
+    %% 主系统连接 (实线)
+    CLI --> GWServer
+    CUI --> GWServer
+    GWServer --> RRunner
+
+    %% 外部依赖连接 (虚线)
+    GWServer -.-> Swabble
+    RRunner -.-> A2UI
+```
+
+此架构图展示了 OpenClaw AI 的模块化系统设计，主要分为四个逻辑和文件系统区域：**Entry Points (入口点)**、**Gateway Core (网关核心)**、**Agent Runtime (代理运行时)** 和 **Vendored & Shims (供应商和填充)**。这种设计强调了关注点分离、中心化控制和对核心人工智能代理运行时的灵活支持。
+
+以下是各部分的详细介绍：
+
+###  Entry Points (入口点)
+
+这部分代表了外部系统与 OpenClaw AI 交互的两种主要方式。它们是系统的门面，不直接运行代理逻辑，而是充当将用户请求转发给核心的适配器。
+
+- **CLI (openclaw.mjs):**
+  - **描述:** 一个命令行界面 (CLI)，通过核心的 `openclaw.mjs` 文件运行。
+  - **作用:** 它是一个基于终端的工具，允许开发人员、系统管理员或自动化脚本通过命令行与 OpenClaw 系统交互。它可能包括用于代理管理、会话检查或系统诊断的命令。
+- **Control UI (ui/ Lit components):**
+  - **描述:** 一个基于 Web 的控制用户界面 (UI)，使用 **Lit** 组件构建。
+  - **作用:** 为用户提供一个可视化的、基于浏览器的仪表板，用于监控代理、配置设置和查看日志。它通过 Web API 与核心服务器通信。
+
+> Lit 是一个由 Google 推出的轻量级 JavaScript 库，用于构建快速、现代的 **Web Components**。它的核心理念是通过极小的体积提供响应式状态管理和高效的模板渲染。
+
+###  Gateway Core (网关核心)
+
+这是系统的中央协调枢纽，充当**所有外部请求和内部代理操作之间的流量控制和资源管理服务器**。它基于文件系统路径 `src/gateway/`。
+
+- **GatewayServer (src/gateway/server.ts):**
+  - **描述:** 核心服务器组件。它是整个 OpenClaw 系统的主要处理单元。
+  - **作用:** 接收来自 Entry Points（CLI 和 Control UI）的所有请求。它验证这些请求，应用必要的安全和权限检查，然后将其路由到适当的内部组件。它是管理会话、通道和代理状态的中央控制器。
+- **SessionManager (src/gateway/session/):**
+  - **描述:** 管理特定用户会话的组件。
+  - **作用:** 负责维护所有活动客户端会话的状态。它管理会话生命周期（创建、维护、终止），并确保代理上下文在会话之间保持一致或正确地重新加载。
+- **ChannelManager (src/gateway/channels/):**
+  - **描述:** 管理通信通道的组件。
+  - **作用:** 负责管理代理与其客户端或用户之间的实时、双向通信通道。这可能用于代理输出流、用户反馈收集或实时状态更新。
+- **ZodSchema (src/config/zod-schema.ts):**
+  - **描述:** 用于配置和数据验证的 Zod 模式定义。
+  - **作用:** 这是一个数据验证和类型定义库。GatewayServer 使用它来验证所有输入请求的结构和有效性，确保配置设置是正确的。这有助于保持系统的数据完整性。
+
+###  Agent Runtime (代理运行时)
+
+这是实际**人工智能代理**逻辑执行的容器。它通过文件系统路径 `src/agents/` 分隔开来，专注于代理行为和资源管理。
+
+- **runEmbeddedPiAgent (src/agents/pi-embedded-runner.ts):**
+
+  - **描述:** 嵌入式 Pi 代理的主执行器。它是 GatewayServer 调用的代理逻辑入口点。
+  - **作用:** 这是核心执行循环。**它管理 Pi 代理的生命周期，负责加载代理代码，执行代理动作，并协调其所需的工具和记忆组件**。它从 GatewayServer 接收指令，并将代理状态和输出发送回网关。
+
+- **PiTools (src/agents/pi-tools.ts):**
+
+  - **描述:** **代理可访问的一组工具或能力**。
+  - **作用:** 这是**代理的“手和脚”**。PiTools 包含了代理与之交互的所有实用程序、API 接口和外部系统挂钩。这可能包括文件系统访问、网络 API、甚至是指向**外部 LLM 服务的接口**。代理通过调用这些工具来影响外部世界。
+
+- **QmdMemoryManager (src/memory/qmd-manager.ts):**
+
+  - **描述:** 用于管理代理记忆（短期和长期）的 **Qmd 存储管理组件**。
+  - **作用:** 这是代理的“大脑”。QmdMemoryManager 允许代理持久化保存其先前的对话、动作日志、以及它构建的知识库。它提供了一个结构化的方式来检索、存储和搜索这些信息，从而实现具有持久性的多会话交互。
+
+  > 它并非传统的通用存储管理，而是专门为 AI Agent 设计的**上下文与状态管理引擎**。
+  >
+  > 其代码通常位于 `src/memory/qmd-manager.ts`
+  >
+  > 在 OpenClaw 中，QMD 被定义为 **"Quick Message Data"（快速消息数据）** 管理器。它的主要任务是解决 AI 模型在长对话或多任务执行过程中的“失忆”问题，通过**高效的存储和检索机制，确保 Agent 能够实时调用历史背景**。
+  >
+  > QMD 组件通过以下三个维度来管理 Agent 的存储空间：
+  >
+  > 短期记忆 (STM) 与 消息队列
+  >
+  > QMD 维护一个高性能的内存队列，用于存储当前会话的最近几轮对话（Window-based Context）。
+  >
+  > - **自动截断：** 当 Token 数量接近模型上限时，QMD 会根据权重自动丢弃非核心信息。
+  > - **状态同步：** 确保多个 Tool 调用之间的数据状态是一致的。
+  >
+  > 长期记忆 (LTM) 持久化
+  >
+  > QMD 存储管理组件通过接口与后端数据库（如 Redis 或向量数据库）对接。
+  >
+  > - **向量化索引：** 将历史对话转化为 Embedding，存储在 QMD 的“知识库”层。
+  > - **语义检索：** 当 Agent 遇到新问题时，QMD 会从存储中检索相似的旧案例。
+  >
+  > 状态快照 (State Snapshot)
+  >
+  > 对于复杂的自动化流，QMD 会定期保存 **Runtime Snapshot**。
+  >
+  > - **断点续传：** 如果任务中断，QMD 可以从存储组件中恢复 Agent 的内部变量和执行进度。
+  >
+  > | **挑战**         | **QMD 的解决方案**                                           |
+  > | ---------------- | ------------------------------------------------------------ |
+  > | **Token 成本高** | 通过 QMD 的精细化存储过滤，仅发送最相关的上下文。            |
+  > | **多代理协作**   | QMD 提供了一个共享的存储池，让不同的 Agent 能够“交换信息”。  |
+  > | **系统延迟**     | 采用缓存预加载机制，将常用的 Agent 预设（Prompts）存储在本地。 |
+
+###  Vendored & Shims (供应商和填充)
+
+这一层代表了**系统的所有外部依赖项**，无论是预构建的供应商代码还是桥接不同组件的填充（Shim）。
+
+1. A2UI (vendor/a2ui)
+
+**A2UI** 在 OpenClaw 中通常是指 **"Agent-to-User Interface"** 的缩写，或者是一个被引入（Vendor）的 UI 框架。
+
+- **核心功能：** 它定义了 Agent 与用户之间交互的标准化界面。
+- **为什么放在 Vendor 目录：** 意味着它原本是一个独立的项目，但被复制到了 `vendor/` 目录下，以便开发者对其进行针对性的性能微调，而不受外部 npm/包管理更新的影响。
+- **作用：** 处理对话气泡、状态显示以及 Agent 的多模态渲染输出。
+
+2. Swabble (Swabble/)
+
+**Swabble** 是 OpenClaw 项目中一个非常特殊的逻辑层或小型工具集。
+
+- **核心功能：** 它主要负责 **"Data Sanitization"（数据清洗）** 和 **"Context Cleaning"（上下文归并）**。
+- **功能定位：**
+  - **洗牌/转换：** 在将数据交给模型之前，Swabble 会“清洗”掉无关的原始元数据，只保留核心 Prompt 逻辑。
+  - **Shim 作用：** 它可以看作是底层数据接口与高层 Agent 逻辑之间的“垫片”，解决数据结构不匹配的问题。
+- **代码位置：** 既然它有独立的文件夹，说明它包含了一套完整的逻辑转换规则。
+
+3. clawdbot / moltbot (packages/)
+
+这两个组件是 **OpenClaw** 核心功能的具象化，作为内部包（Packages）管理。
+
+- **clawdbot：** 这是系统的默认基础 Agent 驱动包。它负责基础的任务分发、指令解析和 QMD 存储的调用。
+- **moltbot：** "Molt"（蜕变/换羽）暗示了这是一个具有**自我进化**或**动态策略切换**能力的 Bot 模块。
+  - 它通常用于实验性的 AI 行为，或者根据不同的任务场景（如编码、搜索、翻译）动态调整 Agent 的“形态”。
+- **管理方式：** 使用 `packages/` 意味着项目采用了 **Monorepo（单仓多包）** 架构。你可以独立地更新 `moltbot` 而不影响系统的 UI 或其他基础组件。
+
+### 总结
+
+- **A2UI (vendor/a2ui):** 代理运行时需要与之通信的外部 UI 库或供应商 API 包装器。它可能是代理本身需要使用的特定 UI 框架，或者是一个特定于供应商的控制层。
+- **Swabble (Swabble/):** 核心服务器所需的一个关键供应商库。它通过虚线连接到 `GatewayServer`，表明它是一个必要的、但可能不是直接由核心代码库维护的核心依赖项。
+- **clawdbot/moltbot (packages/):** 两个供应商提供的软件包。它们是系统中更具体的特定于项目的包依赖，可能作为系统整体架构的一部分使用。
+
+OpenClaw  架构采用了一种经典的**网关+代理运行时**的设计。它提供了一个**中心化的网关服务器**，用于处理外部交互和会话管理，从而保持了系统的稳健性和安全性。与此同时，它将代理逻辑隔离在一个**专用的运行时环境**中，使得代理可以灵活地扩展其工具集和记忆管理。外部依赖项的清晰分离使得整个系统更具模块化和可维护性。
+
+## 系统架构System Architecture
 
 ```mermaid
 graph TB
@@ -307,13 +618,13 @@ flowchart LR
 
 频道分为核心频道（内置于主源码树）和扩展频道（独立的扩展包）。 频道支持每个平台多个账户（例如多个 Telegram Bot、多个 Discord Bot）。
 
-### Openclaw涉及的基础文件格式
+## Openclaw涉及的基础文件格式
 
 在 OpenClaw 的架构中，文件的设计遵循“**文本即配置**”和“**Markdown 驱动**”的原则。对于初学者，你不需要去钻研复杂的数据库代码，只需要理解以下几类主要文件即可：
 
 ------
 
-#### 核心配置文件 (`.json`)
+### 核心配置文件 (`.json`)
 
 这类文件是系统的“开关”和“名片”，主要用于存放技术参数。
 
@@ -327,7 +638,7 @@ flowchart LR
 
 ------
 
-#### 身份与行为定义 (`.md`)
+### 身份与行为定义 (`.md`)
 
 OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆。这极其方便初学者通过文字直接修改 AI 的表现。
 
@@ -340,7 +651,7 @@ OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆�
 
 ------
 
-#### 功能扩展文件 (`.md` & `.ts`)
+### 功能扩展文件 (`.md` & `.ts`)
 
 这些文件决定了 OpenClaw “能做什么”。
 
@@ -354,7 +665,7 @@ OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆�
 
 ------
 
-#### 运行数据与日志 (`.log` & `.sqlite`)
+### 运行数据与日志 (`.log` & `.sqlite`)
 
 系统在运行时产生的文件，用于调试和持久化存储。
 
@@ -367,12 +678,278 @@ OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆�
 
 ------
 
-给初学者的“无痛”学习路径：
+给初学者的“无痛”学习路径(以采集网站数据为例)：
 
 1. **先改 `openclaw.json`**：确保网络连通。
 2. **读写 `USER.md`**：告诉 AI 你是谁，让它更懂你。
 3. **创建 `SKILL.md`**：用自然语言写下你的采集需求模板。
 4. **最后碰 `.ts`**：当你需要 AI 真正去执行那个 Python 采集脚本时，再去研究怎么写一个简单的工具包装器。
+
+## 运行时组件
+
+### 网关进程(Gateway)
+
+**网关**(gateway)是一个长时间运行的 **Node.js 守护进程**，它：
+
+- 管理通道插件生命周期和健康状况监控
+- 使用中心辐射型模型将入站消息路由到代理会话。
+- 以 JSONL 格式保存配置、凭据和会话记录。
+
+**认证模式** ：
+
+- `SecretRef` ：OpenClaw 使用 `SecretRef` 系统安全地从环境变量或文件中引用敏感令牌。
+- `OAuth` ：支持 OpenAI 和 MiniMax 等提供商的原生 OAuth 流程
+
+### 代理运行时（Pi Agent）
+
+OpenClaw 嵌入了 **Pi Agent** 运行时，该运行时负责处理：
+
+- **工具执行** ： `exec` 、 `read` 和 `write` 等工具都受到严格的策略约束。
+- **上下文压缩** ：通过 `compactEmbeddedPiSession` 自动汇总会话，以保持在模型令牌限制内
+- **内存** ：支持多种后端，包括 `builtin` SQLite 和用于矢量/混合搜索的 `qmd` （Quick Markdown）
+
+------
+
+### 关键引入组件与兼容适配层(Key Vendored Components & Shims)
+
+OpenClaw 集成了几个关键的外部组件和兼容层：
+
+| **组件名称**           | **核心职责 (Role)**                                          | **存放路径 (Location)** |
+| ---------------------- | ------------------------------------------------------------ | ----------------------- |
+| **A2UI**               | **智能体用户界面**：负责渲染 Canvas（画布）及其他交互式 UI 元素的标准格式。 | `vendor/a2ui`           |
+| **Swabble**            | **唤醒词守护进程**：用于实现语音助手功能的“唤醒词”监听后台服务。 | `Swabble/`              |
+| **clawdbot / moltbot** | **兼容性适配层 (Shims)**：用于集成旧版机器人（Legacy Bot）的兼容层，提供包级别的抽象支持。 | `packages/`             |
+
+1. Key Vendored Components (关键引入组件)
+
+- **Vendored (引入/供应商化):** * 在编程中，“Vendoring” 指的是**将第三方库的源代码直接拷贝到自己的项目代码库中**，而不是通过包管理器（如 npm, pip）远程引用。
+  - **为什么要这么做？** 主要是为了确保即使外部库删库或更新了，项目依然能稳定运行；同时也方便开发者对这些第三方代码进行微调或定制。
+- **Components (组件):** 指项目中独立的功能模块。
+- **合起来理解：** 这些是 OpenClaw 项目**直接内置**的、非自研但至关重要的第三方功能模块。
+
+2. Shims (兼容适配层/垫片)
+
+- **Shim (垫片/适配器):**
+  - **直观比喻：** 就像在摇晃的桌子腿下垫一块小木片（Shim），让它变平稳。
+  - **技术定义：** 它是一段轻量级的代码，用于**拦截 API 调用**或在两个不兼容的接口之间建立桥梁。
+  - **在这里的意义：** 指为了让旧版代码（如老款机器人 `moltbot`）能在新框架下跑起来而写的“翻译层”或“转换层”。
+- **合起来理解：** 这些是为了保持向下兼容、连接新旧系统而存在的**胶水代码**。
+
+### 数据流:从消息到操作
+
+```mermaid
+sequenceDiagram
+    participant User as User (Telegram/WhatsApp)
+    participant CR as ChannelRuntime
+    participant GS as GatewayServer
+    participant REPA as runEmbeddedPiAgent
+    participant PT as PiTools
+    participant QMM as QmdMemoryManager
+
+    User->>CR: "Search my notes for 'Claw'"
+    CR->>GS: Inbound Message
+    GS->>REPA: Invoke Session Execution
+    REPA->>QMM: sync() / search() [src/memory/qmd-manager.ts]
+    QMM-->>REPA: Search Results
+    REPA->>PT: isToolAllowedByPolicies() [src/agents/pi-tools.ts]
+    PT-->>REPA: Tool Result (Success)
+    REPA->>GS: Stream Response
+    GS->>CR: Delivery Payload
+    CR->>User: Assistant: "Found 'Claw' in your notes..."
+```
+
+
+
+流程说明
+
+该流程可以分为四个主要阶段：**消息接收、核心处理、数据检索与验证、结果返回**。
+
+#### **阶段一：消息接收 (Inbound)**
+
+1. **用户 (User)** 在终端（Telegram 或 WhatsApp）输入指令：“Search my notes for 'Claw'”。
+2. **ChannelRuntime (频道运行时)** 接收到原生平台的消息，并将其转发给 **GatewayServer (网关服务器)**。网关负责统一处理不同渠道的输入。
+
+#### **阶段二：核心逻辑触发 (Execution)**
+
+1. **GatewayServer** 调用 **runEmbeddedPiAgent**（嵌入式 Pi 代理），这是系统的核心大脑，负责协调任务执行。
+
+#### **阶段三：数据检索与策略检查 (Memory & Policy)**
+
+1. **代理 (REPA)** 首先与 **QmdMemoryManager (存储管理器)** 通信，调用 `search()` 方法在用户的笔记数据中查找关键字 "Claw"。
+2. **QmdMemoryManager** 返回搜索到的结果。
+3. 在生成最终答复前，**代理** 访问 **PiTools**，通过 `isToolAllowedByPolicies()` 检查该操作或结果是否符合安全与权限策略。
+4. **PiTools** 确认操作合法并返回成功信号（Success）。
+
+#### **阶段四：结果流式返回 (Response)**
+
+1. **代理** 将处理好的结果以流的形式（Stream Response）传回 **GatewayServer**。
+2. **GatewayServer** 将响应封装成 **Delivery Payload (投递负载)** 发送回特定的频道运行时。
+3. **ChannelRuntime** 最终将文本转化为用户可见的消息：“Found 'Claw' in your notes...”。
+
+------
+
+总结
+
+该架构体现了一个典型的**解耦设计**：
+
+- **网关层**处理多平台接入。
+- **内存层 (QmdMemoryManager)** 专门负责 RAG（检索增强生成）或笔记搜索。
+- **策略层 (PiTools)** 确保 AI 的行为在合规范围内。
+
+## Openclaw 中大模型（LLM）在架构中的作用
+
+openclaw 是一个多平台 AI 网关，LLM 并非单一组件，而是贯穿于**整个 Agent Runtime（代理运行时）**的核心驱动力。以下是 LLM 在各层架构中发挥作用的详细说明。
+
+---
+
+### Openclaw使用LLM的示意图
+
+```mermaid
+graph TB
+    subgraph "消息渠道层"
+        A["用户消息 (Telegram/WhatsApp/Slack 等)"]
+    end
+
+    subgraph "Gateway 控制层"
+        B["runReplyAgent(auto-reply/reply/agent-runner.ts)"]
+    end
+
+    subgraph "Agent Runtime LLM 调用层"
+        C["runEmbeddedPiAgent(pi-embedded-runner/run.ts)"]
+        D["Provider 配置 & 模型解析(models-config.providers.ts)"]
+        E["认证 & Auth Profile 轮换(model-auth.ts)"]
+        F["系统 Prompt 构建(system-prompt.ts)"]
+        G["runEmbeddedAttempt(pi-embedded-runner/run/attempt.ts)"]
+        H["实际 LLM API 调用(@mariozechner/pi-coding-agent)"]
+    end
+
+    subgraph "LLM 决策产出层"
+        I["Tool 执行(pi-tools.ts)"]
+        J["上下文压缩 Compaction(compact.ts)"]
+        K["流式响应处理(pi-embedded-subscribe.ts)"]
+    end
+
+    A --> B --> C
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+    G --> H
+    H --> I
+    H --> J
+    H --> K
+    K --> A
+```
+
+---
+
+### 模型调用前置步骤
+
+####  Provider 配置与模型发现
+
+这是 LLM 接入的**入口配置层**，负责将各种 LLM 服务商（OpenAI、Anthropic、Gemini、Ollama、Amazon Bedrock 等）规范化为统一格式。
+
+- **`normalizeProviders()`** 处理用户在 `openclaw.json` 中显式配置的 provider（包括 Base URL、API Key、请求适配器类型等）。
+
+- **`resolveImplicitProviders()`** 负责从环境变量或 Auth Profile 中自动发现未显式配置的 provider（如 GitHub Copilot、Amazon Bedrock）。
+
+- 规范化结果持久化到 `models.json`，供 Agent Runtime 使用（原子写入、进程锁保护）。
+
+---
+
+####  模型解析（resolveModel）
+
+在每次 Agent 运行前，`resolveModel()` 函数将用户指定的 `provider/modelId` 解析为实际可用的模型对象（含 `api`、`baseUrl`、`contextWindow`、`cost` 等元数据）。
+
+支持从模型注册表（`modelRegistry`）查找、内联配置覆盖、OpenRouter 透传、前向兼容等多种解析路径。
+
+---
+
+####  System Prompt 构建层
+
+在每次 LLM 调用前，系统动态构建 System Prompt，内容包括：
+
+- **Skills 指令**（技能加载规则）
+- **Memory 召回提示**（是否调用 `memory_search`）
+- **用户身份标识**（Authorized Senders）
+- **工具使用指导**、沙箱路径、时区信息等
+
+LLM 的行为完全由这个动态构建的 Prompt 驱动。
+
+###  Agent 运行时核心
+
+LLM 实际调用的地方(Agent Runtime LLM 调用层)
+
+####  入口：`runEmbeddedPiAgent`
+
+这是整个 LLM 调用链的**主入口**，负责：
+
+- 序列化执行（通过 session lane 和 global lane 队列）
+- 调用 `resolveModel()` 解析模型
+- 管理 Auth Profile 轮换（多凭证轮询、冷却检测）
+- 循环调用 `runEmbeddedAttempt` 进行实际推理 
+
+####  核心执行：`runEmbeddedAttempt`
+
+这是**真正向 LLM 发起请求**的地方，主要步骤包括：
+
+| 步骤                         | 功能                                 |
+| ---------------------------- | ------------------------------------ |
+| `buildEmbeddedSystemPrompt`  | 构建发送给 LLM 的 System Prompt      |
+| `createOpenClawCodingTools`  | 创建 LLM 可调用的工具集              |
+| `createAgentSession`         | 初始化 pi-coding-agent 会话          |
+| `agent.run(prompt)`          | **向 LLM Provider API 发起推理请求** |
+| `subscribeEmbeddedPiSession` | 处理 LLM 流式输出                    |
+
+针对不同 provider，会配置不同的 Stream 函数（如 Ollama 使用 `createConfiguredOllamaStreamFn`，OpenAI Responses 使用 WebSocket 流）： 
+
+---
+
+###  LLM 决策产出：Tool 执行
+
+LLM 在推理后**决定调用哪些工具**（如文件读写、bash 执行、网络搜索、子 Agent 生成等）。`createOpenClawCodingTools` 将所有可用工具注册给 LLM，工具策略流水线（`applyToolPolicyPipeline`）控制工具访问权限。
+
+---
+
+###  上下文压缩（Compaction）
+
+当会话历史超出 LLM 的上下文窗口时，系统会**再次调用 LLM** 对历史进行摘要压缩（`compactEmbeddedPiSession`），压缩完成后继续正常运行。这意味着 **LLM 既用于主对话推理，也用于上下文管理**。
+
+---
+
+###  故障转移与重试（Failover）
+
+当 LLM 调用失败时，系统根据错误类型（认证失败、上下文溢出、超时、限流等）自动：
+
+- 切换到下一个 Auth Profile（多 API Key 轮换）
+- 触发 Compaction 后重试
+- 指数退避后重试  
+
+---
+
+### 小结
+
+LLM 在 openclaw 架构中的角色：
+
+```mermaid
+graph LR
+    A["Provider 配置层(models-config.providers.ts)"] --> B["模型解析层(model.ts)"]
+    B --> C["运行时调用层(runEmbeddedAttempt)"]
+    C --> D["System Prompt驱动 LLM 行为"]
+    C --> E["Tool 调用LLM 决策执行工具"]
+    C --> F["上下文压缩LLM 摘要历史"]
+    C --> G["流式响应实时输出到消息渠道"]
+```
+
+LLM 是 openclaw **Agent Runtime 的核心引擎**，所有的智能行为（回复生成、工具选择、记忆检索、上下文管理）都由 LLM 推理驱动，而 openclaw 的其他层（渠道接入、工具系统、认证管理、沙箱）都是围绕 LLM 调用提供支撑服务。
+
+---
+
+Notes
+
+1. **底层依赖**：实际的 LLM API 调用封装在外部包 `@mariozechner/pi-agent-core` 和 `@mariozechner/pi-coding-agent` 中，openclaw 通过 `createAgentSession` 和 `agent.run()` 进行调用，具体流的适配（Anthropic Messages API、OpenAI Completions、OpenAI Responses、Google Generative AI）由 `api` 字段决定。
+2. **多 Provider 支持**：openclaw 支持同时配置多个 LLM provider，通过 Auth Profile 机制实现自动故障转移，用户无需感知底层 provider 的切换。
+3. **`disableTools` 模式**：存在一个"仅 LLM"模式（`disableTools: true`），此时不向 LLM 注册任何工具，适用于简单问答场景。
 
 
 
@@ -796,3 +1373,4 @@ OpenClaw 在 2026 年 1 月下旬迅速走红，归功于其开源特性以及 M
 | Discord 社区 | 官方 Discord                                                 | 获取帮助和交流经验 |
 
  
+

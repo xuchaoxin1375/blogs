@@ -246,7 +246,6 @@ openclaw browser evaluate "JSON.stringify({
 
 ```
 openclaw browser close
-```
 
 ## 批量采集流程 (`/scrape-batch`)
 
@@ -267,7 +266,6 @@ openclaw browser close
 - 每次请求间隔至少 3 秒
 - 遵守 robots.txt 规则
 - 仅用于个人学习研究目的
-```
 
 ###  准备待采集链接列表 `urls.txt`
 
