@@ -136,14 +136,14 @@ OAuth 凭证（旧版导入）位于 `~/.openclaw/credentials/oauth.json`，认�
 
 ---
 
-## 文件总览表
+## 文件总览表🎈
 
 | 文件/目录                                          | 用途                                     | 是否必须 |
 | -------------------------------------------------- | ---------------------------------------- | -------- |
 | `~/.openclaw/openclaw.json`                        | 主配置（模型、通道、智能体等）           | ✅ 核心   |
 | `~/.openclaw/.env`                                 | API 密钥等敏感环境变量                   | **推荐** |
 | `~/.openclaw/agents/{id}/SOUL.md`                  | 智能体人格定义                           | **推荐** |
-| `~/.openclaw/agents/{id}/agent/auth-profiles.json` | 认证配置                                 | 按需     |
+| `~/.openclaw/agents/{id}/agent/auth-profiles.json` | 认证配置,保存模型api key等敏感环境变量   | 按需     |
 | `~/.openclaw/credentials/oauth.json`               | OAuth 凭证                               | 按需     |
 | `~/.openclaw/workspace/AGENTS.md`                  | AI 行为指南                              | **推荐** |
 | `~/.openclaw/workspace/TOOLS.md`                   | 机器环境配置                             | 可选     |
@@ -158,7 +158,23 @@ OAuth 凭证（旧版导入）位于 `~/.openclaw/credentials/oauth.json`，认�
 
 > 💡 **快速上手建议：** 刚开始使用 OpenClaw 时，一切都可以"开箱即用"（使用默认设置），但迟早你会想要更改一些东西：连接通讯软件、选择不同的 AI 模型、设置计划任务等。 建议从 `openclaw onboard` 开始，逐步根据需要编辑以上文件。
 
+### auth-profiles.json 的作用
 
+这个文件存储每个智能体的认证配置文件，包括： model-failover.md:28-32
+
+- **API 密钥**：用于付费 API 访问（如 Anthropic、OpenAI）
+- **OAuth 令牌** ：用于订阅认证（如 OpenAI Codex、Anthropic setup-token）
+- **可选的 SecretRef**：引用环境变量或其他密钥源
+
+**不需要的情况：**
+
+- 仅使用本地模型（如 Ollama、本地 LLM 路径）
+- 通过环境变量（如 `ANTHROPIC_API_KEY`）提供所有认证信息
+
+你可以通过以下方式避免使用此文件：
+
+1. **环境变量**：在 `~/.openclaw/.env` 或系统环境中设置 API 密钥
+2. **SecretRef**：配置引用环境变量的密钥引用
 
 ---
 

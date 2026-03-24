@@ -1,3 +1,7 @@
+[toc]
+
+
+
 # OpenClaw — 你的私人 AI 助理全面指南 🦞
 
 ## 什么是 OpenClaw
@@ -269,39 +273,6 @@ graph TD
   - **描述:** 用于管理代理记忆（短期和长期）的 **Qmd 存储管理组件**。
   - **作用:** 这是代理的“大脑”。QmdMemoryManager 允许代理持久化保存其先前的对话、动作日志、以及它构建的知识库。它提供了一个结构化的方式来检索、存储和搜索这些信息，从而实现具有持久性的多会话交互。
 
-  > 它并非传统的通用存储管理，而是专门为 AI Agent 设计的**上下文与状态管理引擎**。
-  >
-  > 其代码通常位于 `src/memory/qmd-manager.ts`
-  >
-  > 在 OpenClaw 中，QMD 被定义为 **"Quick Message Data"（快速消息数据）** 管理器。它的主要任务是解决 AI 模型在长对话或多任务执行过程中的“失忆”问题，通过**高效的存储和检索机制，确保 Agent 能够实时调用历史背景**。
-  >
-  > QMD 组件通过以下三个维度来管理 Agent 的存储空间：
-  >
-  > 短期记忆 (STM) 与 消息队列
-  >
-  > QMD 维护一个高性能的内存队列，用于存储当前会话的最近几轮对话（Window-based Context）。
-  >
-  > - **自动截断：** 当 Token 数量接近模型上限时，QMD 会根据权重自动丢弃非核心信息。
-  > - **状态同步：** 确保多个 Tool 调用之间的数据状态是一致的。
-  >
-  > 长期记忆 (LTM) 持久化
-  >
-  > QMD 存储管理组件通过接口与后端数据库（如 Redis 或向量数据库）对接。
-  >
-  > - **向量化索引：** 将历史对话转化为 Embedding，存储在 QMD 的“知识库”层。
-  > - **语义检索：** 当 Agent 遇到新问题时，QMD 会从存储中检索相似的旧案例。
-  >
-  > 状态快照 (State Snapshot)
-  >
-  > 对于复杂的自动化流，QMD 会定期保存 **Runtime Snapshot**。
-  >
-  > - **断点续传：** 如果任务中断，QMD 可以从存储组件中恢复 Agent 的内部变量和执行进度。
-  >
-  > | **挑战**         | **QMD 的解决方案**                                           |
-  > | ---------------- | ------------------------------------------------------------ |
-  > | **Token 成本高** | 通过 QMD 的精细化存储过滤，仅发送最相关的上下文。            |
-  > | **多代理协作**   | QMD 提供了一个共享的存储池，让不同的 Agent 能够“交换信息”。  |
-  > | **系统延迟**     | 采用缓存预加载机制，将常用的 Agent 预设（Prompts）存储在本地。 |
 
 ###  Vendored & Shims (供应商和填充)
 
@@ -618,72 +589,7 @@ flowchart LR
 
 频道分为核心频道（内置于主源码树）和扩展频道（独立的扩展包）。 频道支持每个平台多个账户（例如多个 Telegram Bot、多个 Discord Bot）。
 
-## Openclaw涉及的基础文件格式
 
-在 OpenClaw 的架构中，文件的设计遵循“**文本即配置**”和“**Markdown 驱动**”的原则。对于初学者，你不需要去钻研复杂的数据库代码，只需要理解以下几类主要文件即可：
-
-------
-
-### 核心配置文件 (`.json`)
-
-这类文件是系统的“开关”和“名片”，主要用于存放技术参数。
-
-- **`openclaw.json` (或 `config.json`)**:
-  - **用途**：存储 API Keys (如 OpenRouter)、服务器端口、数据库路径等。
-  - **格式**：标准 JSON。
-  - **初学者注意**：这是你最常修改的文件，比如更换 Key 或调整模型。
-- **`package.json`**:
-  - **用途**：定义项目依赖（比如它用到了哪些 Node.js 库）。
-  - **格式**：标准 JSON。
-
-------
-
-### 身份与行为定义 (`.md`)
-
-OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆。这极其方便初学者通过文字直接修改 AI 的表现。
-
-| **文件名**      | **作用描述**                                                 | **形象比喻**  |
-| --------------- | ------------------------------------------------------------ | ------------- |
-| **`SOUL.md`**   | 定义 AI 的性格、语气、核心价值观和长远目标。                 | **灵魂/三观** |
-| **`USER.md`**   | 记录关于你的信息、偏好、习惯（它会从这里知道你是 Web 开发人员）。 | **你的简历**  |
-| **`AGENTS.md`** | 规定 AI 的工作流程、构建命令、代码规范和安全准则。           | **员工守则**  |
-| **`MEMORY.md`** | 存放 AI 总结的长期事实，避免它“转头就忘”。                   | **记事本**    |
-
-------
-
-### 功能扩展文件 (`.md` & `.ts`)
-
-这些文件决定了 OpenClaw “能做什么”。
-
-- **`SKILL.md` (或在 `skills/` 文件夹下)**:
-  - **用途**：这是**技能模板**。它用 Markdown 描述了一个具体任务的操作流程（比如“如何采集产品”）。
-  - **内容**：通常包含任务描述、触发条件和具体的 Prompt 指令。
-- **`tools/` 目录下的 `.ts` 文件**:
-  - **用途**：这是**具体的工具代码**（TypeScript）。
-  - **内容**：定义了 AI 可以调用的实际功能，比如“打开浏览器”、“读取文件”、“写入 CSV”。
-  - **初学者建议**：虽然是代码，但结构很固定。你可以模仿现有的工具，把你写的 Python 脚本封装进去。
-
-------
-
-### 运行数据与日志 (`.log` & `.sqlite`)
-
-系统在运行时产生的文件，用于调试和持久化存储。
-
-- **`memory/YYYY-MM-DD.md`**:
-  - **用途**：当天的原始对话记录。AI 会定期阅读这些文件并把精华提炼到 `MEMORY.md`。
-- **`memory.sqlite` (或 `sqlite-vec`)**:
-  - **用途**：向量数据库文件。用于存放 AI 的“深层记忆”，支持根据语义进行搜索。
-- **`openclaw.log`**:
-  - **用途**：记录系统运行时的报错和状态信息。当你发现 AI 不听话时，先看这个文件。
-
-------
-
-给初学者的“无痛”学习路径(以采集网站数据为例)：
-
-1. **先改 `openclaw.json`**：确保网络连通。
-2. **读写 `USER.md`**：告诉 AI 你是谁，让它更懂你。
-3. **创建 `SKILL.md`**：用自然语言写下你的采集需求模板。
-4. **最后碰 `.ts`**：当你需要 AI 真正去执行那个 Python 采集脚本时，再去研究怎么写一个简单的工具包装器。
 
 ## 运行时组件
 
@@ -695,7 +601,7 @@ OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆�
 - 使用中心辐射型模型将入站消息路由到代理会话。
 - 以 JSONL 格式保存配置、凭据和会话记录。
 
-**认证模式** ：
+#### 认证模式 ：
 
 - `SecretRef` ：OpenClaw 使用 `SecretRef` 系统安全地从环境变量或文件中引用敏感令牌。
 - `OAuth` ：支持 OpenAI 和 MiniMax 等提供商的原生 OAuth 流程
@@ -706,7 +612,7 @@ OpenClaw 嵌入了 **Pi Agent** 运行时，该运行时负责处理：
 
 - **工具执行** ： `exec` 、 `read` 和 `write` 等工具都受到严格的策略约束。
 - **上下文压缩** ：通过 `compactEmbeddedPiSession` 自动汇总会话，以保持在模型令牌限制内
-- **内存** ：支持多种后端，包括 `builtin` SQLite 和用于矢量/混合搜索的 `qmd` （Quick Markdown）
+- **内存** ：支持多种后端，包括 `builtin` (SQLite )和用于矢量/混合搜索的 `qmd` （**Quick Markdown**）
 
 ------
 
@@ -722,7 +628,7 @@ OpenClaw 集成了几个关键的外部组件和兼容层：
 
 1. Key Vendored Components (关键引入组件)
 
-- **Vendored (引入/供应商化):** * 在编程中，“Vendoring” 指的是**将第三方库的源代码直接拷贝到自己的项目代码库中**，而不是通过包管理器（如 npm, pip）远程引用。
+- **Vendored (引入/供应商化):**  在编程中，“Vendoring” 指的是**将第三方库的源代码直接拷贝到自己的项目代码库中**，而不是通过包管理器（如 npm, pip）远程引用。
   - **为什么要这么做？** 主要是为了确保即使外部库删库或更新了，项目依然能稳定运行；同时也方便开发者对这些第三方代码进行微调或定制。
 - **Components (组件):** 指项目中独立的功能模块。
 - **合起来理解：** 这些是 OpenClaw 项目**直接内置**的、非自研但至关重要的第三方功能模块。
@@ -795,6 +701,293 @@ sequenceDiagram
 - **网关层**处理多平台接入。
 - **内存层 (QmdMemoryManager)** 专门负责 RAG（检索增强生成）或笔记搜索。
 - **策略层 (PiTools)** 确保 AI 的行为在合规范围内。
+
+## 主要功能
+
+### 多通道网关
+
+OpenClaw 连接到各种消息界面。 通过 `dmPolicy` 严格控制 DM 访问（配对、白名单、开放、或禁用)
+
+在 **OpenClaw** 的架构中，`dmPolicy`（Direct Message Policy，私信策略,私聊访问策略）是一个核心的安全控制组件。它决定了 AI 助手在接入社交平台（如 Telegram, Discord, WhatsApp 等）时，**如何过滤并响应非群聊的个人私信**。
+
+> 这里将 **"Direct Message"** 翻译为 **“私信”** 
+
+由于 OpenClaw 作为一个 AI 代理系统，如果直接向互联网开放，可能会面临 Token 消耗过快或隐私泄露的问题，因此 `dmPolicy` 充当了“门卫”的角色。
+
+------
+
+`dmPolicy` 的四种核心模式
+
+根据你的描述，这四种模式分别代表了从“完全封闭”到“完全开放”的不同安全等级：
+
+| **模式**               | **行为描述**                                                 | **适用场景**                 |
+| ---------------------- | ------------------------------------------------------------ | ---------------------------- |
+| **禁用 (Disabled)**    | 彻底关闭私信功能。AI 不会读取或回复任何私信。                | 仅限群组管理的专用机器人。   |
+| **配对 (Pairing)**     | 仅允许已通过特定流程（如输入验证码或后台手动绑定）的特定账号访问。 | 个人专属的 AI 助理。         |
+| **白名单 (Whitelist)** | 只有记录在配置文件中的特定用户 ID (UID) 才能得到响应。       | 核心团队或受邀用户内部测试。 |
+| **开放 (Open)**        | 任何发送私信的用户，AI 都会响应。                            | 公共客服机器人或推广型 AI。  |
+
+------
+
+为什么 `dmPolicy` 对 OpenClaw 至关重要？
+
+1. **资源保护 (Cost Control)**：
+
+   AI 响应需要消耗大量的 API Token。如果设置成 `Open`，外部恶意脚本可能会通过大量私信刷爆你的 API 额度。`dmPolicy` 让你能精准控制谁在花你的钱。
+
+2. **反垃圾/防骚扰 (Anti-Spam)**：
+
+   在 Telegram 等平台上，机器人极易被垃圾信息账户盯上。通过 `Whitelist` 或 `Pairing` 策略，可以确保 AI 只服务于真实且有权限的用户。
+
+3. **身份隔离**：
+
+   在 OpenClaw 这种多接口连接的系统中，`dmPolicy` 确保了私人对话环境的纯净。例如，你可以设置为“群聊开放，但私聊仅限管理员”。
+
+### 工具与技能系统(SKILL)
+
+代理可以通过在 `SKILL.md` 文件中定义的"技能"进行扩展。这些技能映射到如下工具：
+
+- 执行：Shell 命令执行
+- 内存：通过 `qmd` 或 `builtin` SQLite 进行向量搜索
+- 浏览器：网页抓取和解析
+
+### 网关(Gateway)：中央控制平面
+
+**网关**是协调所有 OpenClaw 活动的中心 **WebSocket RPC** 服务器。 它充当"主"进程，管理连接、路由和状态。
+
+**主要职责：**
+
+- **频道管理：** 维护与消息平台的持久连接（WhatsApp， Telegram 等 
+- **路由：** 根据绑定将传入消息定向到正确的代理和会话
+- **认证：** 执行基于角色和基于设备的安全策略
+- **持久性：** 作为会话记录和令牌计数的真实来源 
+
+**网关实现：**
+
+- `src/gateway/gateway.ts`: 主要服务入口。
+- `src/gateway/rpc-server.ts`: 处理控制界面和节点的 WebSocket 协议。
+
+
+------
+
+### 智能体(代理agent)：执行单元
+
+一个**agent**是一个独立的"大脑"，拥有自己的工作空间、角色和配置。 OpenClaw 支持在**单个 Gateway 进程**中同时托管**多个代理**
+
+**agent隔离：** 每个代理由唯一的 `agentId` 定义(例如`main`)，并维护其自身：
+
+> 典型路径`~/.openclaw/agents/{id}/SOUL.md`,`~/.openclaw/workspace/AGENTS.md`
+
+- **工作区：** 类似于 `SOUL.md` 和 `AGENTS.md`.
+- **状态目录 (`agentDir`):** 存储 `auth-profiles.json `(API 密钥) 和模型注册表
+- **会话存储：** 与其他代理隔离的聊天历史
+
+**agent路由（确定性）：** 传入消息通过基于优先级的绑定系统进行路由 
+
+1. 精确的 `peer` 匹配（直接消息或群组 ID）。
+2. `parentPeer` 匹配（线程继承）。
+3. `guildId` / `teamId` (Discord/Slack 服务器)
+4. `accountId` (特定频道登录).
+5. 默认代理回退.
+
+
+
+------
+
+### 会话：对话状态
+
+一个**会话**代表一个单独的对话线程。 OpenClaw 使用一个复杂的**密钥系统**来确定消息是属于现有的聊天还是开启一个新的聊天。
+
+**会话作用域 (`dmScope`):** 控制如何将私信分组 
+
+- `main`: 所有 DM 共享一个全局会话（默认）。
+- `per-peer`: 在所有频道中，通过发送者 ID 进行隔离。
+- `per-channel-peer`: 通过通道+发送者进行隔离（推荐用于安全） 
+
+**会话生命周期与维护:**
+
+- **存储：** 会话以 JSONL 转录形式存储在 `~/.openclaw/agents/<agentId>/sessions/` 
+- **清理：** 网关根据 `pruneAfter`（默认 30 天）和 `maxEntries`
+- **分支:** 新的线程（例如，Slack/Discord 线程）可以从父会话中"分支"出来， 在不修改原始内容的情况下继承上下文 
+
+------
+
+### 频道：消息集成
+
+**频道**是用户与代理交互的接口。 OpenClaw 支持包括 WhatsApp、Telegram、Discord 和 iMessage 在内的众多平台 
+
+**安全策略：** 每个通道强制执行一个 `dmPolicy` 来处理不可信输入 ：
+
+- `pairing`: 未知发送者将收到一个代码，必须通过 `openclaw `配对批准
+- `allowlist` : 只有 `allowFrom` 中的特定 ID 可以与代理交互 
+- `open`: 公开访问（需要明确选择加入）
+
+------
+
+### 工具与技能(Tools & Skills)
+
+**工具**(Tools)是指功能能力（例如，`exec`, `web_search`, `read_file`）是代理可以调用的。 
+
+**技能**(Skills):以 `SKILL.md` 格式定义的模块化工具和提示词包。
+
+- 工具策略：可以通过 `tools` 对工具进行全局或按agent进行访问限制。profile (例如，"coding")
+- **网络搜索：** 集成服务商如 Perplexity 或 Brave 可以在初始设置过程中进行配置 
+
+
+
+------
+
+### 模型提供者与认证配置
+
+OpenClaw 支持多个 LLM 提供商（Anthropic，OpenAI， 通过插件式架构（如 Google 等）
+
+- **认证配置文件：** 凭证（API 密钥或 OAuth 令牌）存储在 `auth-profiles.json`
+- **故障转移：** 如果主模型失败（例如，429 速率限制）， OpenClaw 可以自动旋转到不同的 API 密钥或回退模型
+- **向前兼容性：** 该系统包含通过 `resolveDynamicModel`
+
+------
+
+## 核心组件与架构
+
+### 系统实体映射
+
+下图将高级概念映射到其特定的代码实现和配置键。
+
+**图：自然语言到代码实体空间**
+
+```mermaid
+graph TD
+    subgraph NLS ["Natural Language Space (自然语言空间)"]
+        Telegram["'Message from Telegram'"]
+        Agent["'The Coding Agent'"]
+        APIKey["'Anthropic API Key'"]
+    end
+
+    subgraph CES ["Code Entity Space (代码实体空间)"]
+        subgraph src_auto ["src/auto-"]
+            ISS["initSessionState()"]
+        end
+
+        subgraph src_sessions ["src/config/sessions.ts"]
+            RSK["resolveSessionKey()"]
+            SDM["session.dmScope"]
+        end
+
+        subgraph src_agent_scope ["src/agents/agent-scope.ts"]
+            RSAI["resolveSessionAgentId()"]
+        end
+
+        subgraph config_json ["openclaw.json"]
+            Bindings["bindings: []"]
+            Auth["agents.list[].agentDir/auth-profiles.json"]
+        end
+    end
+
+    %% 逻辑连接
+    Telegram --> ISS
+    ISS --> RSK
+    ISS --> RSAI
+    
+    RSK -.->|"解析为"| SDM
+    RSAI -.->|"关联"| Bindings
+    APIKey -->|"映射至"| Auth
+
+    style NLS fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style CES fill:#fff,stroke:#333,stroke-dasharray: 5 5
+```
+
+**会话初始化 (Session Initialization)**
+
+- **输入**：来自 Telegram 的消息。
+- **处理**：由 `initSessionState()` 承接，随后分流。
+- **路径 A**：进入 `sessions.ts` 确定会话密钥，最终锁定到 `session.dmScope`（直连私信范围）。
+- **路径 B**：进入 `agent-scope.ts` 确定 Agent ID，并查阅 `openclaw.json` 中的 `bindings` 绑定关系。
+
+**身份与鉴权 (Authentication)**
+
+- **输入**：例如自然语言中提到的 “Anthropic API Key”。
+- **映射**：直接对应到配置文件 `openclaw.json` 里的 `auth-profiles.json`。这意味着系统能识别用户提到的“密钥”并自动关联到后台存储的物理路径。
+
+
+
+### 组件架构
+
+该图说明了网关如何与第三方组件和适配器交互。
+
+**图示：网关与组件交互**
+
+```mermaid
+graph LR
+    %% 定义全局样式
+    classDef box fill:#fff,stroke:#333,stroke-width:1px;
+
+    %% Gateway (Control Plane) 区域
+    subgraph Gateway ["Gateway (Control Plane)"]
+        direction TB
+        AR["agent-router.ts"]
+        RS["rpc-server.ts"]
+    end
+
+    %% Compatibility Shims 区域
+    subgraph Shims ["Compatibility Shims"]
+        direction TB
+        CB["packages/clawdbot"]
+        MB["packages/moltbot"]
+    end
+
+    %% Vendored & External 区域
+    subgraph External ["Vendored & External"]
+        direction TB
+        A2UI["vendor/a2ui (Canvas Rendering)"]
+        SW["Swabble/ (Wake-word Daemon)"]
+    end
+
+    %% 节点连接关系
+    AR -.-> CB
+    AR -.-> MB
+    
+    RS <--> A2UI
+    RS <--> SW
+
+    %% 应用样式
+    class AR,RS,CB,MB,A2UI,SW box
+```
+
+1. Gateway (Control Plane) - 核心控制层
+
+这是系统的“大脑”，负责逻辑分发和通信协调。
+
+- **agent-router.ts (代理路由)**：主要负责**指令分发**。它通过虚线连接到“兼容层”，意味着它可能是在进行静态链接或逻辑上的路由引导，决定将请求发送给哪个具体的机器人实例。
+- **rpc-server.ts (RPC 服务端)**：负责**实时通信与数据交换**。它通过双向实线与外部组件连接，表明这是一种高频、双向的数据流（例如状态同步或命令回传）。
+
+2. Compatibility Shims - 兼容适配层
+
+这一层主要存放特定设备的驱动或适配逻辑。
+
+- **packages/clawdbot** 和 **packages/moltbot**：看起来是针对不同机器人型号（Clawdbot 和 Moltbot）的“适配插件”或“垫片（Shim）”。这种设计允许核心网关保持通用，通过适配层来处理不同硬件的差异。
+
+3. Vendored & External - 供应商与外部组件
+
+这一层集成了第三方库或独立的系统服务：
+
+- **vendor/a2ui (Canvas Rendering)**：负责图形界面或画布渲染逻辑。`rpc-server` 与其交互，可能是为了根据指令实时更新 UI 画面。
+- **Swabble/ (Wake-word Daemon)**：这是一个**唤醒词守护进程**（类似“嘿，Siri”的机制）。双向连接意味着 `rpc-server` 既接收来自它的唤醒信号，也可能向其反馈监听状态。
+
+------
+
+## 本机组件与适配器
+
+### A2UI（代理用户界面）
+
+位于 `vendor/a2ui` 这是 OpenClaw 用于渲染 **Canvas** 的标准格式。 它允许代理控制移动节点（iOS/Android）上的实时 UI 以及 macOS 客户端 [[README.md:22\]](https://deepwiki.com/openclaw/openclaw/1.2-core-concepts)。
+
+### Swabble（唤醒词守护进程）
+
+位于 `Swabble/`，该组件负责 macOS 应用程序的本地语音唤醒词检测， 允许通过语音指令激活助手 [[docs/start/hubs.md:131\]](https://deepwiki.com/openclaw/openclaw/1.2-core-concepts)。
+
+### 兼容性适配层 (clawdbot/moltbot)
+
+位于 `packages/` 中，这些适配层为传统的命名规范和集成（Clawd/Molt）提供向后兼容性， 确保旧版工作流程在现代 OpenClaw 网关中继续运行 [[docs/docs.json:244-250\]](https://deepwiki.com/openclaw/openclaw/1.2-core-concepts)。
 
 ## Openclaw 中大模型（LLM）在架构中的作用
 
@@ -1225,6 +1418,75 @@ SecretRef 支持三种引用方式：
 - **exec 命令**：动态执行命令获取密钥
 
 ---
+
+
+
+## Openclaw涉及的基础文件格式
+
+在 OpenClaw 的架构中，文件的设计遵循“**文本即配置**”和“**Markdown 驱动**”的原则。对于初学者，你不需要去钻研复杂的数据库代码，只需要理解以下几类主要文件即可：
+
+------
+
+### 核心配置文件 (`.json`)
+
+这类文件是系统的“开关”和“名片”，主要用于存放技术参数。
+
+- **`openclaw.json` (或 `config.json`)**:
+  - **用途**：存储 API Keys (如 OpenRouter)、服务器端口、数据库路径等。
+  - **格式**：标准 JSON。
+  - **初学者注意**：这是你最常修改的文件，比如更换 Key 或调整模型。
+- **`package.json`**:
+  - **用途**：定义项目依赖（比如它用到了哪些 Node.js 库）。
+  - **格式**：标准 JSON。
+
+------
+
+### 身份与行为定义 (`.md`)
+
+OpenClaw 的一大特色是使用 **Markdown** 来定义 AI 的灵魂和记忆。这极其方便初学者通过文字直接修改 AI 的表现。
+
+| **文件名**      | **作用描述**                                                 | **形象比喻**  |
+| --------------- | ------------------------------------------------------------ | ------------- |
+| **`SOUL.md`**   | 定义 AI 的性格、语气、核心价值观和长远目标。                 | **灵魂/三观** |
+| **`USER.md`**   | 记录关于你的信息、偏好、习惯（它会从这里知道你是 Web 开发人员）。 | **你的简历**  |
+| **`AGENTS.md`** | 规定 AI 的工作流程、构建命令、代码规范和安全准则。           | **员工守则**  |
+| **`MEMORY.md`** | 存放 AI 总结的长期事实，避免它“转头就忘”。                   | **记事本**    |
+
+------
+
+### 功能扩展文件 (`.md` & `.ts`)
+
+这些文件决定了 OpenClaw “能做什么”。
+
+- **`SKILL.md` (或在 `skills/` 文件夹下)**:
+  - **用途**：这是**技能模板**。它用 Markdown 描述了一个具体任务的操作流程（比如“如何采集产品”）。
+  - **内容**：通常包含任务描述、触发条件和具体的 Prompt 指令。
+- **`tools/` 目录下的 `.ts` 文件**:
+  - **用途**：这是**具体的工具代码**（TypeScript）。
+  - **内容**：定义了 AI 可以调用的实际功能，比如“打开浏览器”、“读取文件”、“写入 CSV”。
+  - **初学者建议**：虽然是代码，但结构很固定。你可以模仿现有的工具，把你写的 Python 脚本封装进去。
+
+------
+
+### 运行数据与日志 (`.log` & `.sqlite`)
+
+系统在运行时产生的文件，用于调试和持久化存储。
+
+- **`memory/YYYY-MM-DD.md`**:
+  - **用途**：当天的原始对话记录。AI 会定期阅读这些文件并把精华提炼到 `MEMORY.md`。
+- **`memory.sqlite` (或 `sqlite-vec`)**:
+  - **用途**：向量数据库文件。用于存放 AI 的“深层记忆”，支持根据语义进行搜索。
+- **`openclaw.log`**:
+  - **用途**：记录系统运行时的报错和状态信息。当你发现 AI 不听话时，先看这个文件。
+
+------
+
+给初学者的“无痛”学习路径(以采集网站数据为例)：
+
+1. **先改 `openclaw.json`**：确保网络连通。
+2. **读写 `USER.md`**：告诉 AI 你是谁，让它更懂你。
+3. **创建 `SKILL.md`**：用自然语言写下你的采集需求模板。
+4. **最后碰 `.ts`**：当你需要 AI 真正去执行那个 Python 采集脚本时，再去研究怎么写一个简单的工具包装器。
 
 ## Companion Apps（伴侣应用）
 
