@@ -311,9 +311,13 @@ graph TD
 - **Swabble (Swabble/):** 核心服务器所需的一个关键供应商库。它通过虚线连接到 `GatewayServer`，表明它是一个必要的、但可能不是直接由核心代码库维护的核心依赖项。
 - **clawdbot/moltbot (packages/):** 两个供应商提供的软件包。它们是系统中更具体的特定于项目的包依赖，可能作为系统整体架构的一部分使用。
 
-OpenClaw  架构采用了一种经典的**网关+代理运行时**的设计。它提供了一个**中心化的网关服务器**，用于处理外部交互和会话管理，从而保持了系统的稳健性和安全性。与此同时，它将代理逻辑隔离在一个**专用的运行时环境**中，使得代理可以灵活地扩展其工具集和记忆管理。外部依赖项的清晰分离使得整个系统更具模块化和可维护性。
+OpenClaw  架构采用了一种经典的**Gateway+Agent Running Time**的设计。它提供了一个**中心化的网关服务器**，用于处理外部交互和会话管理，从而保持了系统的稳健性和安全性。与此同时，它将代理逻辑隔离在一个**专用的运行时环境**中，使得代理可以灵活地扩展其工具集和记忆管理。外部依赖项的清晰分离使得整个系统更具模块化和可维护性。
 
 ## 系统架构System Architecture
+
+OpenClaw 遵循**中心辐射式架构** ，网关作为中央控制平面。 所有用户界面（命令行界面、Web 界面、原生应用程序）和消息通道都通过网关通过 **WebSocket 或 HTTP** 进行通信。
+
+网关协调agent执行。 管理具有每通道隔离的会话，处理认证，并将消息路由到/从消息平台。
 
 ```mermaid
 graph TB
@@ -633,6 +637,12 @@ OpenClaw 集成了几个关键的外部组件和兼容层：
 - **Components (组件):** 指项目中独立的功能模块。
 - **合起来理解：** 这些是 OpenClaw 项目**直接内置**的、非自研但至关重要的第三方功能模块。
 
+在很多中文技术社区中，"`vendored`" 这个词常常不翻译，直接使用英文原词，因为它是一个约定俗成的技术概念。
+
+> vendor(ed):将第三方依赖代码直接复制/内置到项目中（而非通过包管理器动态引用）
+>
+> Vendored Components:**内置（第三方）组件**或**捆绑的依赖组件**
+
 2. Shims (兼容适配层/垫片)
 
 - **Shim (垫片/适配器):**
@@ -670,23 +680,23 @@ sequenceDiagram
 
 该流程可以分为四个主要阶段：**消息接收、核心处理、数据检索与验证、结果返回**。
 
-#### **阶段一：消息接收 (Inbound)**
+#### 阶段一：消息接收 (Inbound)
 
 1. **用户 (User)** 在终端（Telegram 或 WhatsApp）输入指令：“Search my notes for 'Claw'”。
 2. **ChannelRuntime (频道运行时)** 接收到原生平台的消息，并将其转发给 **GatewayServer (网关服务器)**。网关负责统一处理不同渠道的输入。
 
-#### **阶段二：核心逻辑触发 (Execution)**
+#### 阶段二：核心逻辑触发 (Execution)
 
 1. **GatewayServer** 调用 **runEmbeddedPiAgent**（嵌入式 Pi 代理），这是系统的核心大脑，负责协调任务执行。
 
-#### **阶段三：数据检索与策略检查 (Memory & Policy)**
+#### 阶段三：数据检索与策略检查 (Memory & Policy)
 
 1. **代理 (REPA)** 首先与 **QmdMemoryManager (存储管理器)** 通信，调用 `search()` 方法在用户的笔记数据中查找关键字 "Claw"。
 2. **QmdMemoryManager** 返回搜索到的结果。
 3. 在生成最终答复前，**代理** 访问 **PiTools**，通过 `isToolAllowedByPolicies()` 检查该操作或结果是否符合安全与权限策略。
 4. **PiTools** 确认操作合法并返回成功信号（Success）。
 
-#### **阶段四：结果流式返回 (Response)**
+#### 阶段四：结果流式返回 (Response)
 
 1. **代理** 将处理好的结果以流的形式（Stream Response）传回 **GatewayServer**。
 2. **GatewayServer** 将响应封装成 **Delivery Payload (投递负载)** 发送回特定的频道运行时。
@@ -702,15 +712,15 @@ sequenceDiagram
 - **内存层 (QmdMemoryManager)** 专门负责 RAG（检索增强生成）或笔记搜索。
 - **策略层 (PiTools)** 确保 AI 的行为在合规范围内。
 
-## 主要功能
+## 关键功能
 
-### 多通道网关
+### 多通道网关(Multi-Channel Gateway)
 
 OpenClaw 连接到各种消息界面。 通过 `dmPolicy` 严格控制 DM 访问（配对、白名单、开放、或禁用)
 
 在 **OpenClaw** 的架构中，`dmPolicy`（Direct Message Policy，私信策略,私聊访问策略）是一个核心的安全控制组件。它决定了 AI 助手在接入社交平台（如 Telegram, Discord, WhatsApp 等）时，**如何过滤并响应非群聊的个人私信**。
 
-> 这里将 **"Direct Message"** 翻译为 **“私信”** 
+> 这里将 **"Direct Message"** 	翻译为 **“私信”** 
 
 由于 OpenClaw 作为一个 AI 代理系统，如果直接向互联网开放，可能会面临 Token 消耗过快或隐私泄露的问题，因此 `dmPolicy` 充当了“门卫”的角色。
 
@@ -743,13 +753,15 @@ OpenClaw 连接到各种消息界面。 通过 `dmPolicy` 严格控制 DM 访问
 
    在 OpenClaw 这种多接口连接的系统中，`dmPolicy` 确保了私人对话环境的纯净。例如，你可以设置为“群聊开放，但私聊仅限管理员”。
 
-### 工具与技能系统(SKILL)
+### 工具与技能系统(Tool & Skills System)
 
 代理可以通过在 `SKILL.md` 文件中定义的"技能"进行扩展。这些技能映射到如下工具：
 
 - 执行：Shell 命令执行
 - 内存：通过 `qmd` 或 `builtin` SQLite 进行向量搜索
 - 浏览器：网页抓取和解析
+
+## 主要功能
 
 ### 网关(Gateway)：中央控制平面
 
@@ -810,6 +822,8 @@ OpenClaw 连接到各种消息界面。 通过 `dmPolicy` 严格控制 DM 访问
 - **清理：** 网关根据 `pruneAfter`（默认 30 天）和 `maxEntries`
 - **分支:** 新的线程（例如，Slack/Discord 线程）可以从父会话中"分支"出来， 在不修改原始内容的情况下继承上下文 
 
+
+
 ------
 
 ### 频道：消息集成
@@ -828,7 +842,7 @@ OpenClaw 连接到各种消息界面。 通过 `dmPolicy` 严格控制 DM 访问
 
 **工具**(Tools)是指功能能力（例如，`exec`, `web_search`, `read_file`）是代理可以调用的。 
 
-**技能**(Skills):以 `SKILL.md` 格式定义的模块化工具和提示词包。
+**技能**(Skills):以 `v` 格式定义的模块化工具和提示词包。
 
 - 工具策略：可以通过 `tools` 对工具进行全局或按agent进行访问限制。profile (例如，"coding")
 - **网络搜索：** 集成服务商如 Perplexity 或 Brave 可以在初始设置过程中进行配置 
