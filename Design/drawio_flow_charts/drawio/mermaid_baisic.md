@@ -2,8 +2,7 @@
 - `mermaid`是一种画流图的方便的工具,使用简单的语法,就可以渲染出相关的流图,对于小型图很友好
 - 在markdown中也有所应用
 
-
-## mermaid_starter使用入门
+## 使用入门
 
 - 不同图型的语法不同/效果不同
   - 在同一段mermaid代码在图型(A)中是有效且正确的,
@@ -483,7 +482,25 @@ flowchart LR
   	x2-..->|165|p_num
   ```
 
-  
+
+## 案例
+
+```mermaid
+graph LR
+    A(SDT) --查找-->B([DCT])
+    B --"设备状态(status)"--- C{busy?}
+    D(挂到PCB任务队列)
+    E[计算本次分配安全性]
+    C -->|yes|D 
+    C -->|no|E
+    F(执行分配)
+    G{save?}
+    E-->G
+    G-->|yes|F
+    G-->|No|D
+```
+
+
 
 # 🎈ref of mermaid
 

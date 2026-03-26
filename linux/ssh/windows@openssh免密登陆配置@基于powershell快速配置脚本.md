@@ -84,107 +84,112 @@
 
   - 参考:[在Windows Server 之间配置SSH 免密登录 - LearningAlbum - 博客园 (cnblogs.com)](https://www.cnblogs.com/deepinnet/p/15228378.html)
 
-- 这里直接给出我已经修改过的一个可以免密登录ssh的配置文件(sshd_config)
 
-  ```cmd
-  # This is the sshd server system-wide configuration file.  See
-  # sshd_config(5) for more information.
-  
-  # The strategy used for options in the default sshd_config shipped with
-  # OpenSSH is to specify options with their default value where
-  # possible, but leave them commented.  Uncommented options override the
-  # default value.
-  
-  #Port 22
-  #AddressFamily any
-  #ListenAddress 0.0.0.0
-  #ListenAddress ::
-  
-  #HostKey __PROGRAMDATA__/ssh/ssh_host_rsa_key
-  #HostKey __PROGRAMDATA__/ssh/ssh_host_dsa_key
-  #HostKey __PROGRAMDATA__/ssh/ssh_host_ecdsa_key
-  #HostKey __PROGRAMDATA__/ssh/ssh_host_ed25519_key
-  
-  # Ciphers and keying
-  #RekeyLimit default none
-  
-  # Logging
-  #SyslogFacility AUTH
-  #LogLevel INFO
-  
-  # Authentication:
-  
-  #LoginGraceTime 2m
-  #PermitRootLogin prohibit-password
-  #StrictModes yes
-  #MaxAuthTries 6
-  #MaxSessions 10
-  
-  PubkeyAuthentication yes
-  
-  # The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
-  # but this is overridden so installations will only check .ssh/authorized_keys
-  AuthorizedKeysFile	.ssh/authorized_keys
-  
-  #AuthorizedPrincipalsFile none
-  
-  # For this to work you will also need host keys in %programData%/ssh/ssh_known_hosts
-  #HostbasedAuthentication no
-  # Change to yes if you don't trust ~/.ssh/known_hosts for
-  # HostbasedAuthentication
-  #IgnoreUserKnownHosts no
-  # Don't read the user's ~/.rhosts and ~/.shosts files
-  #IgnoreRhosts yes
-  
-  # To disable tunneled clear text passwords, change to no here!
-  #PasswordAuthentication yes
-  #PermitEmptyPasswords no
-  
-  # GSSAPI options
-  #GSSAPIAuthentication no
-  
-  #AllowAgentForwarding yes
-  #AllowTcpForwarding yes
-  #GatewayPorts no
-  #PermitTTY yes
-  #PrintMotd yes
-  #PrintLastLog yes
-  #TCPKeepAlive yes
-  #UseLogin no
-  #PermitUserEnvironment no
-  #ClientAliveInterval 0
-  #ClientAliveCountMax 3
-  #UseDNS no
-  #PidFile /var/run/sshd.pid
-  #MaxStartups 10:30:100
-  #PermitTunnel no
-  #ChrootDirectory none
-  #VersionAddendum none
-  
-  # no default banner path
-  #Banner none
-  
-  # override default of no subsystems
-  Subsystem	sftp	sftp-server.exe
-  
-  # Example of overriding settings on a per-user basis
-  #Match User anoncvs
-  #	AllowTcpForwarding no
-  #	PermitTTY no
-  #	ForceCommand cvs server
-  
-  # Match Group administrators
-  #        AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
-  
-  ```
+#### 开放免密的配置文件参考
 
-  其实总共就保留了三条配置,其余都是注释掉:(不同版本的openssh server可能有所不同)
+这里直接给出我已经修改过的一个可以免密登录ssh的配置文件(sshd_config)
 
-  ```cmd
-  PubkeyAuthentication yes
-  AuthorizedKeysFile	.ssh/authorized_keys
-  Subsystem	sftp	sftp-server.exe
-  ```
+注意如果修改了端口或有需要修改端口,将`Port 22`注释解开,并修改端口号
+
+```cmd
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+#Port 22
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+#HostKey __PROGRAMDATA__/ssh/ssh_host_rsa_key
+#HostKey __PROGRAMDATA__/ssh/ssh_host_dsa_key
+#HostKey __PROGRAMDATA__/ssh/ssh_host_ecdsa_key
+#HostKey __PROGRAMDATA__/ssh/ssh_host_ed25519_key
+
+# Ciphers and keying
+#RekeyLimit default none
+
+# Logging
+#SyslogFacility AUTH
+#LogLevel INFO
+
+# Authentication:
+
+#LoginGraceTime 2m
+#PermitRootLogin prohibit-password
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+
+PubkeyAuthentication yes
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+AuthorizedKeysFile	.ssh/authorized_keys
+
+#AuthorizedPrincipalsFile none
+
+# For this to work you will also need host keys in %programData%/ssh/ssh_known_hosts
+#HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# HostbasedAuthentication
+#IgnoreUserKnownHosts no
+# Don't read the user's ~/.rhosts and ~/.shosts files
+#IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+
+# GSSAPI options
+#GSSAPIAuthentication no
+
+#AllowAgentForwarding yes
+#AllowTcpForwarding yes
+#GatewayPorts no
+#PermitTTY yes
+#PrintMotd yes
+#PrintLastLog yes
+#TCPKeepAlive yes
+#UseLogin no
+#PermitUserEnvironment no
+#ClientAliveInterval 0
+#ClientAliveCountMax 3
+#UseDNS no
+#PidFile /var/run/sshd.pid
+#MaxStartups 10:30:100
+#PermitTunnel no
+#ChrootDirectory none
+#VersionAddendum none
+
+# no default banner path
+#Banner none
+
+# override default of no subsystems
+Subsystem	sftp	sftp-server.exe
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#	AllowTcpForwarding no
+#	PermitTTY no
+#	ForceCommand cvs server
+
+# Match Group administrators
+#        AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+```
+
+其实总共就保留了三条配置,其余都是注释掉:(不同版本的openssh server可能有所不同)
+
+```cmd
+PubkeyAuthentication yes
+AuthorizedKeysFile	.ssh/authorized_keys
+Subsystem	sftp	sftp-server.exe
+```
 
 ##### 一键脚本修改👺
 
@@ -407,7 +412,13 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
 
 ### 傻瓜式配置免密自动登录👺👺
 
-#### 准备
+> 如果配置过程中发现乱码(比如使用的是windows自带的powershell版本(v5)容易遇到乱码),这属于严重错误;
+>
+> 可能会导致ssh配置文件sshd_config和`~/.ssh/authorized_keys`内容引入乱码!
+>
+> 这种情况建议手动配置,而且要注意检查公钥列表文件authorized_keys内容干净,或者直接移除重新创建!
+
+### 准备
 
 上述两种方法都是powershell命令行,都算简单可行,任选一种即可,能够为两台windwos计算机建创建免密码ssh链接公钥文件
 
@@ -457,7 +468,7 @@ Get-SSHPreRunScript|iex #将脚本输出并调用执行 #我觉得这里利用ie
      # Get-SSHPubKeysPushScripts #方案2
      ```
 
-   - Note:
+   - Note:上述命令这会输出2个方案
 
      1. 方案1是输出在终端上,直接复制即可;
      2. 方案2会打开一个记事本,在其中做必要的填写或修改;然后复制其中内容

@@ -93,7 +93,9 @@ Feb 16 11:07:53 CxxuDesk sshd[46114]: Server listening on :: port 22.
 Feb 16 11:07:53 CxxuDesk systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
 ```
 
-或者检查`ssh.service`:命令如下`sudo systemctl status ssh.service`
+或者检查`ssh.service`:
+
+命令如下`sudo systemctl status ssh.service`
 
 ```bash
 #( 02/16/25@11:08AM )( cxxu@CxxuDesk ):~
