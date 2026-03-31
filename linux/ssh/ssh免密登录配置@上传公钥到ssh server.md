@@ -459,6 +459,71 @@ sudo sshd -T
 
 检查`sshd_config`中解析结果(但是不一定生效,取决于ssh激活模式)
 
+### 突然无法通过密钥对登录只能用密码登录
+
+SSH 密钥登录突然失效通常由**权限变更、配置修改**或**密钥匹配**问题引起。由于你通常管理多个站点和服务器，这类问题往往隐藏在细微的系统安全限制中。
+
+以下是排查和解决该问题的步骤，建议按优先级依次检查：
+
+####  检查服务器端文件权限 (最常见原因)
+
+SSH 对权限控制极其严格。如果 `~/.ssh` 目录或其中的文件权限过大（如组用户有写权限），SSH 出于安全考虑会直接禁用密钥登录。
+
+请确保服务器上的权限符合以下标准：
+
+- **用户主目录 (`/home/username`):** 建议 `755` 或 `700`。
+- **`.ssh` 目录:** 必须是 `700`。
+- **`authorized_keys` 文件:** 必须是 `600` 或 `644`。
+
+#### 快速修复命令(关键目录权限设置)
+
+```bash
+chmod 755 /home/opcxxu
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+#### 检查 SSH 服务配置文件
+
+可能是在优化服务器安全（如配置 Fail2Ban 或 Cloudflare WAF 关联项）时，误触了 `/etc/ssh/sshd_config`。
+
+检查以下关键项：
+
+- `PubkeyAuthentication yes` (确保未被设置为 `no`)
+- `AuthorizedKeysFile .ssh/authorized_keys` (路径是否正确)
+- **AllowUsers:** 如果开启了此项，确保你的用户名在白名单中。
+
+> **注意：** 修改后记得重启服务：`sudo systemctl restart ssh`
+
+#### 查看服务器安全日志
+
+这是最直观的排查方式。通过密码登录后，实时查看认证日志，然后尝试进行一次密钥连接：
+
+```bash
+# Ubuntu/Debian
+tail -f /var/log/auth.log
+
+# CentOS/RHEL
+tail -f /var/log/secure
+```
+
+**日志中的常见线索：**
+
+- `Authentication refused: bad ownership or modes`: 权限问题。
+- `Connection closed by authenticating user`: 可能是密钥不匹配或算法被禁用。
+
+#### 客户端密钥丢失或环境变更
+
+如果你近期更新了 Windows 终端、VS Code 或使用 Git Bash，请检查：
+
+- **本地私钥路径：** 确认 `~/.ssh/id_rsa`（或你的私钥文件）是否存在。
+
+- **SSH Agent：** 尝试手动添加密钥：`ssh-add ~/.ssh/your_key_name`。
+
+- **算法兼容性：**如果你的密钥是旧版生成的，可能需要更换为 **Ed25519** 算法：
+
+  `ssh-keygen -t ed25519 -C "your_email"`
+
 ## 登录日志查看
 
 **主流系统日志路径**

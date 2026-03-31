@@ -46,6 +46,16 @@ WebDAV 使用 HTTP 协议（默认端口 80/8080），不会与 Windows 冲突�
 
 相比于简单的 `nohup` 或 `screen`，systemd 提供了开机自启、自动故障重启、标准日志管理等企业级特性。
 
+### 单次后台运行webdav服务
+
+使用nohup + &操作符；
+
+```bash
+nohup wsgidav --host=0.0.0.0 --port=8080 --root=<your dir> --auth=anonymous &
+```
+
+
+
 ------
 
 #### 创建 Systemd 服务单元
@@ -80,7 +90,7 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-### 3. 启动并持久化
+###  启动并持久化
 
 执行以下命令让配置生效：
 
@@ -121,4 +131,6 @@ sudo ufw allow 8080/tcp
 | **日志**     | 容易撑爆 nohup.out         | **自动滚动管理**，不会塞满硬盘      |
 
 ------
+
+
 
