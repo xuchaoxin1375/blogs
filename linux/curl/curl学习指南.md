@@ -202,6 +202,88 @@ EOF
 curl [选项] [URL...]
 ```
 
+#### url的协议名猜测
+
+在使用 `curl` 时，虽然不加 `http(s)` 协议头有时也能返回结果，但**最佳实践是始终明确指定协议**。
+
+```bash
+(base) #⚡️[Administrator@CXXUDESK][C:\repos\blogs][16:31:48]{Git:main} PS >
+ curl ifconfig.me
+175.44.9.236
+(base) #⚡️[Administrator@CXXUDESK][C:\repos\blogs][16:53:23]{Git:main} PS >
+ curl ipconfig.me
+Moved Permanently. Redirecting to https://ifconfig.me/
+(base) #⚡️[Administrator@CXXUDESK][C:\repos\blogs][16:53:27]{Git:main} PS >
+ curl -L ipconfig.me
+175.44.9.236
+# 建议指定协议:
+curl -L https://ipconfig.me
+# 或
+curl https://ifconfig.me
+```
+
+以下是详细的原因分析，以及不加协议时 `curl` 是如何处理的：
+
+1. 不加协议时，curl 会猜
+
+如果你只输入 `curl ifconfig.me`，`curl` 默认会尝试使用 **HTTP** 协议。
+
+- **旧版本/默认行为：** 默认补全为 `http://`。
+- **现代版本：** 虽然行为没变，但现在的互联网环境大多强制使用 **HTTPS**。
+
+这就是为什么你在之前的操作中看到了 "Moved Permanently"（301 重定向）。服务器在说：“别用不安全的 HTTP 连我，去用 HTTPS。”
+
+2. 为什么要写全协议头？
+
+A. 避免重定向开销（性能）
+
+正如你刚才发现的，不写协议通常会导致一次重定向：
+
+1. 你执行 `curl ifconfig.me` $\rightarrow$ 访问 `http://ifconfig.me`
+2. 服务器返回 301 重定向。
+3. 如果你加了 `-L` 参数，`curl` 才会再次发起请求访问 `https://ifconfig.me`。
+
+**直接写 `curl https://ifconfig.me` 可以省掉第一次请求，速度更快。**
+
+B. 安全性 (HTTPS)
+
+明文 HTTP 请求（不带 `s`）在传输过程中可以被监听或篡改。如果你在传输敏感数据（如 API Token 或密码），**必须**使用 `https://`。
+
+C. 处理特殊端口
+
+`curl` 默认根据协议判断端口：
+
+- `http://` $\rightarrow$ 端口 80
+- `https://` $\rightarrow$ 端口 443
+- `ftp://` $\rightarrow$ 端口 21
+
+如果你不写协议，`curl` 无法预判非标准端口的行为。
+
+------
+
+3. 常见用法对比
+
+| **命令**                  | **行为**                          | **建议程度** |
+| ------------------------- | --------------------------------- | ------------ |
+| `curl google.com`         | 尝试访问端口 80，通常被重定向     | ❌ 不推荐     |
+| `curl -L google.com`      | 尝试访问端口 80，并自动跟进重定向 | ✅ 懒人做法   |
+| `curl https://google.com` | 直接建立安全连接，最准确          | ⭐ **最推荐** |
+
+------
+
+#### 设置默认猜测协议
+
+如果你觉得每次打 `https://` 太麻烦，可以利用 `curl` 的 `--proto-default` 参数，或者在你的 `.bashrc` / `.zshrc` 中设置别名：
+
+```bash
+# 让 curl 默认使用 https 而不是 http
+alias curl='curl --proto-default https'
+```
+
+**总结：** 虽然 `curl` 足够聪明能帮你“猜”一下，但为了**更快的速度**和**更高的安全性**，明确写出 `https://` 是更好的习惯。
+
+
+
 ### 3.2 最常用选项速查
 
 ```
