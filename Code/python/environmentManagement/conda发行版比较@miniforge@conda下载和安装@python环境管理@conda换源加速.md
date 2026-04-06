@@ -111,7 +111,7 @@ uv pip install pandas torch
 
 - 下载速度可能比较慢，推荐用镜像或者包管理工具来下载
 
-### 镜像加速安装
+### miniforge包镜像站加速下载和安装
 
 #### conda|Miniforge|Miniconda 安装包镜像
 
@@ -214,7 +214,7 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 
 
-### 配置conda国内源👺
+## 配置conda国内源👺
 
 - [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
 
@@ -223,7 +223,7 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 最新的配置方法参考上述链接,下面的片段可能是过时的,仅供参考
 
-#### 科大源
+### 科大源
 
 科大源conda源(也可供mamba命令使用)
 
@@ -238,13 +238,17 @@ show_channel_urls: true
 
 此外科大源还提供单独的`mamba`源简化版配置,但是这个可能会跳转其他域下导致错误(比如403阻止下载),可以自行体验或更换其他方案
 
-#### 清华源
+### 清华源
+
+> conda用户可以用清华源,如果是mamba,清华源可能不是很合适(容易报错,考虑科大源)
+>
+> 将`@'...'@`内的配置替换为科大源的配置即可
 
 - 方便起见,以清华源为例,参考如下一键配置的**powershell**脚本
 
   > 近期发现清华源可能遇到403阻止你下载包,具体自行尝试或更换其他源
 
-- 将清华园配置到conda中,但是会覆盖掉原有的配置,请谨慎执行:
+- 将清华园配置到conda中,但是**会覆盖掉原有的配置**,请谨慎执行:
 
   - 一键配置脚本示例
 
@@ -255,7 +259,8 @@ show_channel_urls: true
     # 查看配置前的内容
     Get-Content $home/.condarc
     # 将国内源(比如清华源)写入到配置文件中
-    'channels:
+    @'
+    channels:
       - defaults
     show_channel_urls: true
     default_channels:
@@ -264,12 +269,8 @@ show_channel_urls: true
       - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
     custom_channels:
       conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
       pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud'>$home/.condarc
+    '@ >$home/.condarc
     
     # 检查写入结果
     Get-Content $home/.condarc
@@ -278,9 +279,9 @@ show_channel_urls: true
     
     
     ```
-
+    
   - 如果需要更灵活的配置(不希望覆盖掉已有的配置),可以考虑使用文本编辑器编辑`.condarc`文件
-
+  
 - 执行效果:
 
 - ```powershell
