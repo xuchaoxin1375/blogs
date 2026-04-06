@@ -114,6 +114,18 @@ function prompt {
   Function        prompt                                             0.0        Conda
   ```
 
+```powershell
+PS /Users/cxxu/repos/scripts> gcm prompt*          
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        prompt                                                        
+Function        Prompt                                             0.0        ArgumentCompletion
+Function        PromptBalance                                      0.0        Pwsh
+Function        PromptBrilliant                                    0.0        Pwsh
+```
+
+
 
 ## 内置提示符函数和默认提示符
 
@@ -200,9 +212,17 @@ xxx>
 
 ## 简单修改
 
+### 使用`Set-Item`修改函数`Prompt`的取值
+
 - 使用posh等美化工具需要比较大的开销,反映会变慢;
 
-- 我们可以利用以下方法简单地修改默认地powershell提示符样式
+- 我们可以利用以下方法(调用`set-item`来更改`prompt`函数的取值简单地修改默认地powershell提示符样式
+
+  ```powershell
+   Set-Item -Path function:prompt -Value { 'PS ' + '🕰️' + (Get-Date -Format T) + ' ' + "[$(Get-Location)]" + ' ' }
+  ```
+
+  包装在函数中,然后调用函数:
 
   ```powershell
   function prompt_style
@@ -210,6 +230,7 @@ xxx>
       Set-Item -Path function:prompt -Value { 'PS ' + '🕰️' + (Get-Date -Format T) + ' ' + "[$(Get-Location)]" + ' ' }
       # 显示时分秒,可以用-Format T 或 -Displayhint time
   }
+  propmt_style
   ```
 
 - ```bash
