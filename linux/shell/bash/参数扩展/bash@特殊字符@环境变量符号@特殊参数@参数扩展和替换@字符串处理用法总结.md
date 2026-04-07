@@ -302,7 +302,7 @@ echo ${ref}         # 输出: hello（nameref 本身就自动解引用）
 
 下面描述的`${!prefix*}`和`${!name[@]}`的展开情况是例外。感叹号**必须紧接在左大括号之后**，才能引入间接引用。
 
-#### 特殊展开
+#### 特殊展开🎈
 
 | 语法          | 含义                       | 示例         |
 | ------------- | -------------------------- | ------------ |
@@ -355,6 +355,12 @@ CONDA_PROMPT_MODIFIER
 CONDA_PYTHON_EXE
 CONDA_SHLVL
 
+
+```
+
+#### 查看所有指定前缀变量名的取值
+
+```bash
 $ for item in "${!CONDA@}";do echo "$item=${!item}";done
 CONDA_DEFAULT_ENV=base
 CONDA_EXE=/home/cxxu/miniforge3/bin/conda
@@ -364,6 +370,24 @@ CONDA_PREFIX_2=/home/cxxu/miniforge3/envs/bash51
 CONDA_PROMPT_MODIFIER=(base) 
 CONDA_PYTHON_EXE=/home/cxxu/miniforge3/bin/python
 CONDA_SHLVL=3
+```
+
+或者使用declare -p 来查看
+
+```bash
+declare -p ${!CONDA@}
+```
+
+又比如查看homebrew相关环境变量配置
+
+```bash
+$ declare -p ${!HOMEBREW@}
+declare -x HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+declare -x HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+declare -x HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+declare -x HOMEBREW_PIP_INDEX_URL="https://pypi.mirrors.ustc.edu.cn/simple"
+declare -x HOMEBREW_PREFIX="/opt/homebrew"
+declare -x HOMEBREW_REPOSITORY="/opt/homebrew"
 ```
 
 
