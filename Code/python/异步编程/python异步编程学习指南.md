@@ -46,6 +46,79 @@
 
 ---
 
+## 同步和异步概念
+
+同步和异步的核心差异是要不要"等待";
+
+- 同步:在执行过程中，调用方（caller）必须**等待**被调用方（callee）完成操作后，才能继续执行后续步骤的一种控制方式。
+  1. 阻塞（blocking）
+  2. 顺序执行（sequential execution）
+  3. 等待（wait）
+
+> A 调用 B → B 执行完成 → A 继续执行
+
+- 异步:在执行过程中，**调用方**发起请求后，**不需要等待被调用方**完成操作即可**继续执行**，待结果准备好后**通过某种机制通知调用方**的一种控制方式。
+  1. 非阻塞（non-blocking）
+  2. 回调（callback）
+  3. 事件驱动（event-driven）
+  4. Future / Promise（未来结果）
+
+> A 调用 B → A 继续执行 → B 完成 → 通知 A
+
+```python
+import asyncio
+import time
+
+
+# 定义简单的log函数打印包含时间:
+def log(event):
+    print(time.strftime("%H:%M:%S", time.localtime()), event)
+
+
+async def task():
+    log("task:任务开始")
+    await asyncio.sleep(1)
+    log("task:任务结束")
+
+
+async def main():
+    log("main:create async task")
+    at = asyncio.create_task(task())
+    log("main:继续执行")
+    log("main:await 等待异步任务结束,程序终止")
+    await at
+    log("main:全部任务结束")
+
+
+asyncio.run(main())
+
+```
+
+```
+ python .\async_task_line.py
+14:35:26 main:create async task
+14:35:26 main:继续执行
+14:35:26 main:await 等待异步任务结束,程序终止
+14:35:26 task:任务开始
+14:35:27 task:任务结束
+14:35:27 main:全部任务结束
+```
+
+### 小结:
+
+同步：**调用后必须等待结果返回才能继续执行**
+
+异步：**调用后无需等待结果返回，通过通知机制获取结果**
+
+| 特性     | 同步（Synchronous）      | 异步（Asynchronous）             |
+| -------- | ------------------------ | -------------------------------- |
+| 执行方式 | 顺序执行（sequential）   | 可并发执行（concurrent）         |
+| 是否等待 | 必须等待（blocking）     | 不等待（non-blocking）           |
+| 控制权   | 被调用者完成后返回       | 调用者立即继续                   |
+| 实现机制 | 函数调用栈（call stack） | 事件循环（event loop）           |
+| 常见技术 | 普通函数调用             | callback / Promise / async-await |
+| 性能特点 | 简单但可能低效           | 高效但复杂                       |
+
 ### 同步/异步/多线程
 
 | **维度**     | **同步 (Sync)** | **多线程 (Threading)**  | **异步 (Asyncio)**                  |
@@ -168,7 +241,7 @@ asyncio 提供一组 高层级 API 用于：
     - [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 函数用来运行最高层级的入口点 "main()" 函数 (参见上面的示例。)
     - 对**协程**(对象)执行 `await`(有使用条件:只能在`async def`函数体中使用,普通函数内不能使用)。
 
-#### await 表达式
+### await 表达式
 
 **挂起 coroutine 的执行**以等待一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象。 
 
@@ -498,7 +571,9 @@ async def fetch_data_logic(name: str):
 
 协程不能像普通函数那样直接调用（直接调用只会返回一个协程对象）。
 
-#### 方式 A：作为程序主入口（Python 3.7+）
+#### 方式 A：作为程序主入口
+
+（Python 3.7+）
 
 这是最常用的启动方式：
 
