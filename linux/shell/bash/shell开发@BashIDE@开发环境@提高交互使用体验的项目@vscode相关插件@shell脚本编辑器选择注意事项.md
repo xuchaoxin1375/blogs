@@ -325,9 +325,17 @@ source lib/utils.sh
 
 #### 问题排查
 
-1. **检查变量：** 在终端输入 `echo $BASH_COMPLETION_VERSINFO`。
+1. **检查变量：** 在终端输入 `echo $BASH_COMPLETION_VERSINFO`
+
+   ```
+   echo "[bash-completion] ${BASH_COMPLETION_VERSINFO:-'bash-completion unavailable !'}..."
+   ```
+
+   
+
    - 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
    - 如果为空，说明**没加载**。
+
 2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
 
 #### 部分命令补全不可用
