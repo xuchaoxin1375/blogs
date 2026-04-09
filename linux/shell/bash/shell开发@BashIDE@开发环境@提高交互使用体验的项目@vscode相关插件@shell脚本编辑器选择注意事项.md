@@ -502,6 +502,14 @@ brew install grep gnu-sed gawk
 
 在需要的时候提高gnu版本的优先级;
 
+```bash
+
+export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+```
+
+
+
 ### ohmyzsh类似的bash框架
 
 这些参考oh my zsh设计的框架,效果并不如oh my zsh好,交互式插件例如命令语法高亮是缺失的.
