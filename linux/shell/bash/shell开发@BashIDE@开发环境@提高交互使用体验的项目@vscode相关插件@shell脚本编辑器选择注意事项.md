@@ -419,11 +419,13 @@ declare -p PS1 #debug:检查PS1环境变量取值
 >
 > 要调试动态加载的补全功能，需要在首次尝试调用该补全功能之前启用跟踪。最简单的方法是启动一个新的 shell 会话，并在执行任何其他操作之前启用跟踪。
 
-#### 部分命令补全不可用
+##### 部分命令补全不可用(补全已注册但不生效)
 
 这说明了一个很关键的点：你的 **基础补全（bash-completion）** 是在工作的，但 **特定命令的补全（Programmable Completion）** 在处理 `git` 时掉链子了。
 
 `ls -` 能补全是因为它是 Bash 最基础的内置规则，而 `git` 补全需要依赖专门的脚本来解析 Git 的子命令。
+
+###### Git 补全排查
 
 以下是排查和修复的步骤：
 
@@ -437,11 +439,52 @@ Bash 补全像是一个插件系统。`ls` 的插件默认加载了，但 `git` 
 
 在终端输入以下命令，手动加载 Git 补全脚本（路径通常如下）：
 
+```bash
+$ ls -l /usr/share/bash-completion/completions/git
+-rw-r--r-- 1 root root 94587 Aug 28  2025 /usr/share/bash-completion/completions/git
+```
+
+如果git补全脚本路径确实存在,则尝试手动加载:
+
 ```Bash
 source /usr/share/bash-completion/completions/git
 ```
 
 然后再输入 `git che` 按 **Tab**。如果好了，说明就是加载问题。
+
+---
+
+对于macos,通常使用brew安装的bash-completion,那么对git的版本(主要是路径)有所要求;
+
+macos可能自带`git`程序,但通过brew安装的bash-completion可能仅扫描指定目录的git;
+
+```bash
+$ type -a git
+git is /opt/homebrew/bin/git
+git is /usr/bin/git
+```
+
+这里有两个git版本;其中第一个是通过brew安装的,而第二个是系统自带的;
+
+如果用户没有用brew(安装git),那么bash-completion可能无法提供git补全;
+
+Brew安装的bash-completion对各个命令的补全脚本可能位于`/opt/homebrew/share/bash-completion/completions`
+
+```bash
+$ ls  /opt/homebrew/share/bash-completion/completions/git
+/opt/homebrew/share/bash-completion/completions/git
+```
+
+当软件版本配套后,bash-completion尝试在目录`/opt/homebrew/etc/bash_completion.d`目录下创建对应的补全脚本:
+
+```bash
+# ✔ (base) [macOS 26.4][bash]cxxu@CxxuMac in /opt/homebrew/etc/bash_completion.d on git:stable [00:00:45]
+$ ls -1 git*
+git-completion.bash
+git-prompt.sh
+```
+
+
 
 ------
 
@@ -486,7 +529,7 @@ complete -p git
 - **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
 - **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
 
-#### 检查awk,sed,grep等命令版本
+##### 检查awk,sed,grep等命令版本
 
 `bash-completion`并不是纯bash实现,因此依赖的外部使用程序版本可能会对补全功能造成影响;
 

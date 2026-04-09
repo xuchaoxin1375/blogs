@@ -8,7 +8,7 @@ Shell 在与用户交互时，需要通过"提示符"来告知用户当前状态
 
 ```mermaid
 flowchart TD
-    A[用户打开终端] --> B[Bash 读取配置文件\n~/.bashrc / ~/.bash_profile]
+    A[用户打开终端] --> B[Bash 读取配置文件~/.bashrc / ~/.bash_profile]
     B --> C{交互场景判断}
     C -->|主命令行等待输入| D[PS1 主提示符]
     C -->|命令未输入完整换行| E[PS2 续行提示符]
