@@ -369,43 +369,55 @@ fi
 
 ------
 
-#### 问题排查🎈
+#### 问题排查(troubleshooting)🎈
 
-1. **检查变量：** 在终端输入 `echo $BASH_COMPLETION_VERSINFO`
+[troubleshooting|scop/bash-completion: Programmable completion functions for bash](https://github.com/scop/bash-completion/?tab=readme-ov-file#troubleshooting)
 
-   ```bash
-   # 注意感叹号!在双引号中可能具有特殊性,尤其是历史功能启用的情况下,建议转义!号
-   echo "[bash-completion] ${BASH_COMPLETION_VERSINFO:-'bash-completion unavailable \!'}..."
-   # 或者:
-   echo "[bash-completion] (version:${BASH_COMPLETION_VERSINFO:-"None"})..."
-   
-   ```
 
-   
 
-   - 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
-   - 如果为空，说明**没加载**。
+##### 检查变量
 
-2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码(`bash-completion`加载片段,简称**加载片段**)直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+在终端输入 `echo $BASH_COMPLETION_VERSINFO`
 
-   如果手动执行后,专属环境变量`BASH_COMPLETION_VERSINFO`可用,说明对应的"加载片段"没有完整执行;也就是说
+```bash
+# 注意感叹号!在双引号中可能具有特殊性,尤其是历史功能启用的情况下,建议转义!号
+echo "[bash-completion] ${BASH_COMPLETION_VERSINFO:-'bash-completion unavailable \!'}..."
+# 或者:
+echo "[bash-completion] (version:${BASH_COMPLETION_VERSINFO:-"None"})..."
 
-   ```bash
-   [[ $PS1 &&                                 #  确认是交互式 Shell（防止脚本执行时加载）
-     ! ${BASH_COMPLETION_VERSINFO:-} &&        #  确认还没被加载过（避免重复加载浪费资源）
-     -f /usr/share/bash-completion/bash_completion ]] #  确认文件确实存在
-   ```
+```
 
-   这些条件中至少有一个不满足,尤其是使用了自定义Prompt的情况下,可能会因为逻辑编写不当覆盖`PS1`为空值;
 
-   可考虑追加调试语句:逐个条件检查,例如"加载片段"前检查`PS1`是否满足非空
 
-   ```bash
-   # 检查PS1环境变量,非空(且尚未导入过)bash-completion采执行导入;
-   declare -p PS1 #debug:检查PS1环境变量取值
-   ```
+- 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
+- 如果为空，说明**没加载**。
 
-   
+**手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码(`bash-completion`加载片段,简称**加载片段**)直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+
+如果手动执行后,专属环境变量`BASH_COMPLETION_VERSINFO`可用,说明对应的"加载片段"没有完整执行;也就是说
+
+```bash
+[[ $PS1 &&                                 #  确认是交互式 Shell（防止脚本执行时加载）
+  ! ${BASH_COMPLETION_VERSINFO:-} &&        #  确认还没被加载过（避免重复加载浪费资源）
+  -f /usr/share/bash-completion/bash_completion ]] #  确认文件确实存在
+```
+
+这些条件中至少有一个不满足,尤其是使用了自定义Prompt的情况下,可能会因为逻辑编写不当覆盖`PS1`为空值;
+
+可考虑追加调试语句:逐个条件检查,例如"加载片段"前检查`PS1`是否满足非空
+
+```bash
+# 检查PS1环境变量,非空(且尚未导入过)bash-completion采执行导入;
+declare -p PS1 #debug:检查PS1环境变量取值
+```
+
+##### 命令跟踪
+
+> 如果您发现某个函数在尝试补全时出现错误或在某些情况下无法正常工作，请在再次尝试补全之前运行 `set -x` 或 `set -v` 命令。这将生成有用的调试输出。
+>
+> 运行 `set +x` 或 `set +v` 可以关闭跟踪输出。
+>
+> 要调试动态加载的补全功能，需要在首次尝试调用该补全功能之前启用跟踪。最简单的方法是启动一个新的 shell 会话，并在执行任何其他操作之前启用跟踪。
 
 #### 部分命令补全不可用
 
@@ -474,7 +486,21 @@ complete -p git
 - **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
 - **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
 
+#### 检查awk,sed,grep等命令版本
 
+`bash-completion`并不是纯bash实现,因此依赖的外部使用程序版本可能会对补全功能造成影响;
+
+许多代码补全函数都假定它们调用的各种文本实用程序（例如 `grep` 、 `sed` 和 `awk` ）是 **GNU** 版本。实际效果可能因系统而异。
+
+macos用户需要特别注意,默认的工具不是`gnu`版本的而是bsd版本;
+
+可通过brew安装gnu版本工具
+
+```bash
+brew install grep gnu-sed gawk
+```
+
+在需要的时候提高gnu版本的优先级;
 
 ### ohmyzsh类似的bash框架
 
