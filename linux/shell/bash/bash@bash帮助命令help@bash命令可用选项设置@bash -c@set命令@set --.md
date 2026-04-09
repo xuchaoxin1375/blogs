@@ -511,7 +511,8 @@ set +o xtrace
 > The current set of flags may be found in `$-`.  
 
 ```bash
-echo $-
+$ echo $-
+himBHs
 ```
 
 输出通常类似于 `himBHs`，每个字母代表一个已激活的选项。
@@ -567,7 +568,17 @@ set +C
 set +o noclobber
 ```
 
+### set -x (set -o xtrace)
 
+`set -x` 是一个非常实用的**调试利器**。它的核心作用是开启 **“执行回显”**（Execution Tracing）。
+
+```bash
+-x  Print commands and their arguments as they are executed.
+```
+
+使用`set +x`关闭执行回显;
+
+通过修改`PS4`来自定义回显;
 
 ## set和declare命令的比较
 

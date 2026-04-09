@@ -233,6 +233,10 @@ source lib/utils.sh
 
 注意，部分系统安装后并不自动启用补全功能,例如ubuntu;需要根据官方文档提供的指导插入激活的shell片段;
 
+#### linux
+
+[Linux|scop/bash-completion: Programmable completion functions for bash](https://github.com/scop/bash-completion/?tab=readme-ov-file#installation)
+
 1. 现代化的激活方式 (Bash >= 4.2)
 
 文档提供了一段非常严谨的 Shell 代码，按需将其放入 `~/.bashrc`。
@@ -269,6 +273,48 @@ source lib/utils.sh
 | **用户自定义配置** | ✅ 先加载 `~/.config/bash_completion`         | ❌ 不处理                                        |
 | **防重复加载**     | ✅ `BASH_COMPLETION_VERSINFO`                 | ✅ `BASH_COMPLETION_VERSINFO`                    |
 | **加载时机**       | login shell（`/etc/profile` → `profile.d/`） | 每次交互式 shell（`bashrc`）                    |
+
+#### macos
+
+[Macos|scop/bash-completion: Programmable completion functions for bash](https://github.com/scop/bash-completion/?tab=readme-ov-file#macos-os-x)
+
+如果您使用的是 macOS（以前称为 OS X）， `/etc/bashrc` 似乎根本不会被加载，而且默认情况下 `~/.bashrc` 也不会从 `~/.bash_profile` 加载（因为 `~/.bash_profile` 默认情况下不会创建）。
+
+在这种情况下，标准方法是配置 `~/.bash_profile` 以加载 `~/.bashrc` ，并在 `~/.bashrc` 中写入交互式设置。
+
+较新的系统和bash版本(通过brew安装)可能已经为你配置好了在`~/.bash_profile`自动加载`~/.bashrc`;
+
+> 通过`cat ~/.bash_profile`查看内容
+
+如果没有,也可以手动配置:
+
+您可以在 ~/.bash_profile 中加载 `~/.bashrc` 。 按如下方式修改 `~/.bash_profile` ：
+
+```bash
+# ~/.bash_profile
+
+if [[ -f ~/.bashrc ]]; then
+  source ~/.bashrc
+fi
+```
+
+然后，你可以在 `~/.bashrc` 文件中启用 `bash-completion` 。
+
+需要注意的是，不应该在 `~/.bash_profile` 中启用 `bash-completion` 因为 `~/.bash_profile` 仅在交互式***登录*** shell 会话中加载。
+
+> 这种情况在,如果您启动嵌套的 Bash 会话， `~/.bash_profile` 中的交互式设置将会丢失。
+>
+>  It is strongly recommended to source `~/.bashrc` from `~/.bash_profile` and write interactive settings in `~/.bashrc`.
+>
+> 强烈建议用户从`~/.bash_profile`中执行`source ~/.bashrc`;并在`~/.bashrc`中写入每次shell加载所需要执行的加载片段;
+
+例如，如果您使用 Homebrew 安装 `bash-completion`(如果是4+版本的bash,使用名字`bash-completion@2`来安装) ，它会将 `bash-completion` 的入口点安装到 `$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh` 您可以通过将以下内容添加到启动文件 `~/.bashrc` 来加载它：
+
+```bash
+if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
+  . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+fi
+```
 
 #### 关闭bash-completion
 
@@ -323,12 +369,16 @@ source lib/utils.sh
 
 ------
 
-#### 问题排查
+#### 问题排查🎈
 
 1. **检查变量：** 在终端输入 `echo $BASH_COMPLETION_VERSINFO`
 
-   ```
-   echo "[bash-completion] ${BASH_COMPLETION_VERSINFO:-'bash-completion unavailable !'}..."
+   ```bash
+   # 注意感叹号!在双引号中可能具有特殊性,尤其是历史功能启用的情况下,建议转义!号
+   echo "[bash-completion] ${BASH_COMPLETION_VERSINFO:-'bash-completion unavailable \!'}..."
+   # 或者:
+   echo "[bash-completion] (version:${BASH_COMPLETION_VERSINFO:-"None"})..."
+   
    ```
 
    
@@ -336,7 +386,26 @@ source lib/utils.sh
    - 如果有输出版本号，说明`bash-completion` **已经加载**了，可能是某个特定命令（如 docker）的补全脚本没装好。
    - 如果为空，说明**没加载**。
 
-2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+2. **手动强制加载：** 将文档中那段 `[[ $PS1 && ... ]]` 代码(`bash-completion`加载片段,简称**加载片段**)直接复制到你的 `~/.bashrc` 文件末尾，然后重启终端。
+
+   如果手动执行后,专属环境变量`BASH_COMPLETION_VERSINFO`可用,说明对应的"加载片段"没有完整执行;也就是说
+
+   ```bash
+   [[ $PS1 &&                                 #  确认是交互式 Shell（防止脚本执行时加载）
+     ! ${BASH_COMPLETION_VERSINFO:-} &&        #  确认还没被加载过（避免重复加载浪费资源）
+     -f /usr/share/bash-completion/bash_completion ]] #  确认文件确实存在
+   ```
+
+   这些条件中至少有一个不满足,尤其是使用了自定义Prompt的情况下,可能会因为逻辑编写不当覆盖`PS1`为空值;
+
+   可考虑追加调试语句:逐个条件检查,例如"加载片段"前检查`PS1`是否满足非空
+
+   ```bash
+   # 检查PS1环境变量,非空(且尚未导入过)bash-completion采执行导入;
+   declare -p PS1 #debug:检查PS1环境变量取值
+   ```
+
+   
 
 #### 部分命令补全不可用
 
