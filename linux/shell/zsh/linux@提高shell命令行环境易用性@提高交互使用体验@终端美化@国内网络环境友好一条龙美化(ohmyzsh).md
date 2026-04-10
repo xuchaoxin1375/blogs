@@ -354,7 +354,7 @@ chsh -s /usr/bin/zsh
 2. 在**bash**下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
    - ```bash
-     #bash
+     #!/bin/bash
      #将工作目录转移到家目录
      cd ~
      path=.zshrc
@@ -365,11 +365,12 @@ chsh -s /usr/bin/zsh
          z\
          zsh-syntax-highlighting\
          zsh-autosuggestions\
+         zsh-history-substring-search\
          # 注意,sed命令的后续不能换行\
      )' -r -iE $path
      
      #检查配置文件是否有相应的行
-     cat ~/.zshrc|grep  -e zsh-syntax-highlighting -e zsh-autosuggestions
+     cat ~/.zshrc|grep  -e zsh-syntax-highlighting -e zsh-autosuggestions -e zsh-history-substring-search
      
      
      ```

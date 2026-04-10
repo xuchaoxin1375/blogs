@@ -91,13 +91,7 @@
 
 ## sed语句基本组成和概述🎈
 
-### sed script|sed基础语法结构
-
-- sed script,是sed包含语句动作的字符串,简称script
-  - `sed script`和`sed options`共同决定sed行为
-  - 正则表达式(模式串匹配逻辑)主要是编写在`script`字符串中
-
-#### 简化的sed语法
+简化的sed语法
 
 - Normally `sed` is invoked like this:
 
@@ -105,7 +99,7 @@
 sed SCRIPT INPUTFILE...
 ```
 
-#### 完整语法
+完整语法
 
 - The full format for invoking `sed` is:
 
@@ -114,9 +108,15 @@ sed SCRIPT INPUTFILE...
 sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 ```
 
-选项(option,input-file)不是必须的
+选项(option,input-file)不是必须的,后者可以从标准输入(键盘)中读取输入,也可以从管道符接收上一个命令的输出;
 
-如果使用选项,可以修改sed的默认行为
+如果使用选项(option),可以修改sed的默认行为
+
+### sed script
+
+- sed script,是sed包含语句动作的字符串,简称script
+  - `sed script`和`sed options`共同决定sed行为
+  - 正则表达式(模式串匹配逻辑)主要是编写在`script`字符串中
 
 ## 语法结构解析
 
@@ -125,20 +125,23 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 2. **[OPTION]...**: 可选的命令行选项，可以有一个或多个
    - 常用选项包括：
      - `-e script`: 添加脚本到命令中执行(直接将sed脚本写在命令行中)
-     - `-f script-file`: 添加脚本文件中的内容到命令中执行(脚本比价复杂的情况下,写在脚本文件中可以让命令行更简洁可读)
+     - `-f script-file`: 添加sed脚本文件中的内容到命令中执行(脚本比较复杂的情况下,写在脚本文件中可以让命令行更简洁可读)
      - `-i[SUFFIX]`: 直接修改文件内容（如果提供SUFFIX则创建备份）
      - `-n`: 禁止自动打印模式空间
 
 3. **{script-only-if-no-other-script}**: 
-   - 如果没有使用 `-e` 或 `-f` 选项指定脚本，则可以直接在这里提供sed脚本
-   - 如果有其他脚本选项，则这部分不能出现
-
-4. **[input-file]...**: 可选的输入文件，可以有一个或多个
+   - 如果没有使用 `-e` 或 `-f` 选项指定脚本，则可以直接在命令行中提供sed脚本(通常是简短sed脚本命令)
+   - 如果有其他指定脚本选项(比如从脚本文件读取脚本)，则这部分不能出现
+   - 也就是说,sed命令读取sed脚本的来源不能多个,要么内联,要么从文件中读取;
+   
+4. **[input-file]...**: 可选的输入文件(区别于sed脚本文件)，可以有一个或多个
    - 如果不提供，sed将从标准输入读取数据
 
 
 
-### 示例: 替换hello->world
+### 示例
+
+#### 替换hello->world
 
 - For example, to replace all occurrences of ‘hello’ to ‘world’ in the file input.txt:
 
@@ -147,10 +150,11 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
   ```
 
   - 上述示例中sed 语句的script(sed script)就是字符串` 's/hello/world/'`
-    - 这里的script用到的指令是`s///`,其中`s`表示subtitute(替换),例子的作用是输入中的第一次出现`hello`替换为`world`
+    - 这里的script用到的sed指令是`s///`
+    - 其中`s`表示subtitute(替换),例子的作用是输入中的第一次出现`hello`替换为`world`
   - INPUTFILE就是`input.txt`
   - `> output.txt`则是sed语句之外的部分,属于对sed处理的后续处理
-  - 本例在bash中,将sed传输结果重定向输出到output.txt文件中,即理解为:`(sed 's/hello/world/' input.txt) > output.txt`
+  - 本例在bash中,将sed结果重定向输出到output.txt文件中,即理解为:`(sed 's/hello/world/' input.txt) > output.txt`
 
 ### sed script常用命令总结
 
@@ -162,18 +166,20 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 - If you do not specify INPUTFILE, or if INPUTFILE is -, `sed` filters the contents of **the standard input**.
 
--  The following commands are equivalent:以下4个命令行效果**等价**
+- The following commands are equivalent:以下4个命令行效果**等价**
 
   ```bash
-  sed 's/hello/world/' input.txt > output.txt
+  sed 's/hello/world/' input.txt > output.txt # 将修改另存为output.txt
   sed 's/hello/world/' < input.txt > output.txt
   cat input.txt | sed 's/hello/world/' - > output.txt
   cat input.txt | sed 's/hello/world/' > output.txt
   ```
 
-  - 可以看到,input.txt文件被写在不同的位置,上述方式都是可行的
+  - 可以看到,input.txt文件被写在不同的位置,上述方式都是可行的;
+  - 如果对输入输出重定向有疑问,另见其他资料;
 
 - 此外,输入文件可以有多个
+
 
 下面分别解释这四种 `sed` 命令行的用法及其区别：
 
@@ -181,7 +187,7 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 **1. `sed 's/hello/world/' input.txt > output.txt`**
 
-#### **解释**
+**解释**
 
 - `sed` 直接读取 `input.txt` 文件，执行替换操作 `s/hello/world/`（每行第一个 `hello` 替换为 `world`）。
 - 结果被重定向（`>`）到 `output.txt`，**原文件 `input.txt` 不会被修改**。
@@ -192,7 +198,7 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 **2. `sed 's/hello/world/' < input.txt > output.txt`**
 
-#### **解释**
+**解释**
 
 - `< input.txt` 表示将文件内容通过 **标准输入（stdin）** 传递给 `sed`。
 - `sed` 处理数据后，结果重定向到 `output.txt`。
@@ -203,19 +209,20 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 **3. `cat input.txt | sed 's/hello/world/' - > output.txt`**
 
-#### **解释**
+**解释**
 
 - `cat input.txt` 读取文件内容，并通过管道（`|`）传给 `sed`。
 - `sed` 的 `-` 表示 **从标准输入读取数据**（可省略，见下一条）。
 - 结果写入 `output.txt`。
 
- 
+>  在 Shell 管道（Pipe，符号为 `|`）中，前一个命令的**标准输出（stdout）**会被重定向，并直接连接到后一个命令的**标准输入（stdin）**上。
+>
 
 ---
 
 **4. `cat input.txt | sed 's/hello/world/' > output.txt`**
 
-#### **解释**
+**解释**
 
 - `cat input.txt` 读取文件内容，并通过管道传给 `sed`。
 - `sed` 默认会从标准输入读取数据（不需要显式指定 `-`）。
@@ -238,14 +245,9 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 ## sed文本替换(典型用例)🎈
 
-- `sed` writes output to standard output. 
-
-- Use `-i` to edit files in-place instead of printing to standard output. 
-
-- See also the `W` and `s///w` commands for writing output to other files. 
 
 
-### 源文件中直接替换🎈
+### 源文件中直接替换
 
 The following command modifies `file.txt` and does not produce any output:
 
@@ -253,22 +255,22 @@ The following command modifies `file.txt` and does not produce any output:
 sed -i 's/hello/world/' file.txt
 ```
 
-- 上面的语句中引入了选项` -i`,选项不是一条sed语句的必须部分
+- 上面的语句中引入了选项` -i`,而选项不是一条sed语句的必须部分;如果没有`-i`,sed会将修改的内容打印到标准输出,源文件不发生变化;
 
-当你需要修改默认行为,使用选项或许可以达到目的,例如这里选项使得sed对文本文件原地修改,而不是输出打印
+- 当你需要修改默认行为,通常就要用选项来实现,例如这里选项使得sed对文本文件原地修改,而不是默认行为输出到stdout.
 
-### `-i`选项|带备份修改源文件
+#### `-i`选项|带备份修改源文件
 
 ```bash
 -i[SUFFIX]
 --in-place[=SUFFIX]
 ```
 
-如果`-i`(或`--in-place`)后面没有追加`[SUFFIX]`(或者`[=SUFFIX]`),那么不做备份,直接修改
+如果`-i`(或`--in-place`)后面没有追加`[SUFFIX]`(或者`[=SUFFIX]`),那么**不做备份,直接修改**;
 
-这里的[SUFFIX]一般相当于[Extension]的意思,指定了被修改的文件的备份文件名在源文件名追加后缀
+这里的`[SUFFIX]`一般相当于`[Extension]`的意思,指定了被修改之前的**文件的备份**文件名在源文件名的基础上,要追加**后缀**.
 
-此外还可以通过使用`*`来代指源文件名,从而实现添加前缀的方式命名备份文件,设置可以将备份文件存放到另外的目录中
+此外还可以通过使用`*`来代指源文件名,从而实现**添加前缀**的方式命名备份文件,还可以将备份文件存放到另外的目录中;
 
 ---
 
@@ -291,7 +293,7 @@ sed -i 's/hello/world/' file.txt
      - or even to place backup copies of the original files into **another directory** (provided the directory already exists).
   3.  If no extension is supplied, the original file is overwritten **without making a backup.**
 
-### `-i`选项后不要跟其他选项字母
+#### `-i`选项后不要跟其他选项字母
 
 参数可选的选项的用法警示:正如上文所说的那样,如果使用`-i`,那么`-ixxx`会把`xxx`理解为备份被编辑的文件,将文件名命名为原名字带后缀`xxx`,因此,如果你将sed其他选项追加在`-i`之后,会造成错误解释,因此若你想要是用包含`-i`在内的多个sed选项,你总是应该将`-i`做作为`sed`命令的最后一个选项(option)是个好习惯
 
@@ -305,7 +307,7 @@ sed -i 's/hello/world/' file.txt
 
     This is equivalent to `--in-place=E`, creating FILEE as backup of FILE
 
-#### 例🎈
+#### 例
 
 - `sed -i.bak 's/BE/bbee/' demo.txt `
   - 这里的[SUFFIX]指定为`.bak`,输入文件为`demo.txt`
@@ -323,7 +325,7 @@ sed -i 's/hello/world/' file.txt
        5  # or via wget:
        
   ➜  ~ sed -i.bak 's/BE/bbee/' demo.txt     
-       
+  # 查看编辑前后的文件:     
   ➜  ~ ls -1l
   total 28
   -rw-r--r-- 1 cxxu_u22 cxxu_u22   202 Jan  1 16:42 demo.txt
@@ -350,18 +352,21 @@ sed -i 's/hello/world/' file.txt
 
 ### `-n`选项停用默认打印
 
-默认情况下,sed将会输出所有行(除了被删除的行,例如,script中使用d选项删除的部分不会打印出来)
+默认情况下,sed将会输出所有行(除了被删除的行,例如,`sed script`中使用`d`选项删除的部分不会打印出来)
 
 - By default `sed` prints all processed input (except input **that has been modified/deleted** by commands such as `d`). 
 
-- Use `-n` to suppress output, 
 
-  - ```bash
-    -n, --quiet, --silent
-                     suppress automatic printing of pattern space
-    ```
+Use `-n` to suppress output, 
 
-在 `sed` 命令中，`-n` 是一个非常重要的选项，它用于 **禁止自动打印模式空间（pattern space）**。默认情况下，`sed` 会在处理完每一行后自动打印模式空间的内容，而 `-n` 选项会关闭这一行为，使得只有显式使用 `p`（print）命令时才会输出内容。
+- ```bash
+  -n, --quiet, --silent
+                   suppress automatic printing of pattern space
+  ```
+
+  在 `sed` 命令中，`-n` 是一个非常重要的选项，它用于 **禁止自动打印模式空间（pattern space）**。
+  
+  > 默认情况下，`sed` 会在处理完每一行后自动打印模式空间的内容，而 `-n` 选项会关闭这一行为，使得只有显式使用 `p`（print）命令时才会输出内容。
 
 ### `p`标记打印/查看指定的行
 
