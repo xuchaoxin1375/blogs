@@ -29,7 +29,7 @@
 # 将 gnubin 放在 $PATH 的最前面，这样 shell 搜到它就停止了，不会去搜 /usr/bin 下的 BSD 版
 export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
 export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gawk/libexec/gnubin:$P"
+export PATH="/opt/homebrew/opt/gawk/libexec/gnubin:$PATH"
 ```
 
 例如:对于M系列芯片的macos,brew安装的gawk:

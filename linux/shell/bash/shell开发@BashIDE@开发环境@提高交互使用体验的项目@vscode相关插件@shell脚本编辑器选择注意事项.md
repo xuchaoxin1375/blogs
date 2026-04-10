@@ -419,13 +419,13 @@ declare -p PS1 #debug:检查PS1环境变量取值
 >
 > 要调试动态加载的补全功能，需要在首次尝试调用该补全功能之前启用跟踪。最简单的方法是启动一个新的 shell 会话，并在执行任何其他操作之前启用跟踪。
 
-##### 部分命令补全不可用(补全已注册但不生效)
+#### 部分命令补全不可用(补全已注册但不生效)
 
-这说明了一个很关键的点：你的 **基础补全（bash-completion）** 是在工作的，但 **特定命令的补全（Programmable Completion）** 在处理 `git` 时掉链子了。
+如果`$BASH_COMPLETION_VERSINFO`变量有定义,那么一般 **基础补全（bash-completion）** 是在工作的，但 **特定命令的补全（Programmable Completion）** ,例如 `git` 可能会因为git的版本和安装路径不符合bash-completion默认值预期导致补全脚本找不到。
 
 `ls -` 能补全是因为它是 Bash 最基础的内置规则，而 `git` 补全需要依赖专门的脚本来解析 Git 的子命令。
 
-###### Git 补全排查
+#### Git 补全排查
 
 以下是排查和修复的步骤：
 
@@ -464,9 +464,15 @@ git is /opt/homebrew/bin/git
 git is /usr/bin/git
 ```
 
-这里有两个git版本;其中第一个是通过brew安装的,而第二个是系统自带的;
+这里有两个git版本;其中第一个是通过brew安装的,而第二个是系统默认安装路径(git作为基础软件,macos可能不自带,但是提供了一键安装入口,当某个程序依赖git,macos就会弹出窗口告知用户安装git,例如安装brew时,就会依赖git);
 
 如果用户没有用brew(安装git),那么bash-completion可能无法提供git补全;
+
+> 其实 macOS 系统里藏着补全脚本，只是没激活。路径通常在： `/Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash`;
+>
+> 如果是zsh用户,使用ohmyzsh或启用git插件后就可以为git命令补全;
+>
+> 但是bash用户可能要额外的检查和设置才能让git补全生效;
 
 Brew安装的bash-completion对各个命令的补全脚本可能位于`/opt/homebrew/share/bash-completion/completions`
 
@@ -494,24 +500,22 @@ git-prompt.sh
 
 如果手动加载有效，但新开窗口又失效，请检查你的 `~/.bashrc`。里面可能有和补全脚本冲突的设置项
 
-> 可以临时讲`~/.bashrc`重命名(.bak);然后创建一份空的`~/.bashrc`,仅保留bash-completion激活代码片段来观察效果
+> 可以临时将`~/.bashrc`重命名(.bak);然后创建一份空的`~/.bashrc`,仅保留bash-completion激活代码片段来观察效果
 
 > **注意：** 修改后记得执行 `source ~/.bashrc` 使其生效。
 
 ------
 
-3. 为什么 `ls` 可以但 `git` 不行？
+##### 为什么有时候 `ls` 可以补全但 `git` 不行
 
 这是因为补全机制分为两个层级：
 
 1. **通用补全 (Common Completion):** 处理路径、文件名、以及像 `ls`、`cd` 这种极其基础的命令。
-2. **扩展补全 (Completions):** 位于 `/usr/share/bash-completion/completions/` 目录下。每个复杂命令（如 `git`, `docker`, `kubectl`）都有一个专门的脚本文件。
+2. **扩展补全 (Completions):** 位于 `/usr/share/bash-completion/completions/` (linux系统为例)目录下。每个复杂命令（如 `git`, `docker`, `kubectl`）都有一个专门的脚本文件。
 
-如果 `git` 补全脚本损坏、丢失，或者因为权限问题没被加载，Bash 就会回退到“文件名补全”模式。这就是为什么它不给你补全 `checkout`，反而去补全 `check.sh` 的原因。
+如果 `git` 补全脚本损坏、丢失，或者因为权限问题没被加载，Bash 就会回退到“文件名补全”模式。
 
-------
-
-4. 检查是否安装了 git-core
+##### 检查是否安装了 git-core
 
 在某些精简版系统（如 Docker 容器或轻量版 Ubuntu）中，可能只安装了 `git` 执行文件，没装补全增强包。
 
@@ -520,7 +524,7 @@ git-prompt.sh
 
 ------
 
-5. 一个“暴力”但有效的诊断命令
+##### 检查补全注册
 
 使用bash内置的`completion`命令(readline 系列)
 
@@ -529,9 +533,14 @@ complete -p git
 ```
 
 - **正常结果：** 应该输出类似 `complete -o bashdefault -o default -o nospace -F __git_wrap__git_main git`。
+
 - **错误结果：** 如果输出 `bash: complete: git: no completion specification found`，说明 Git 的补全定义彻底没加载。
 
+  
+
 ##### 检查awk,sed,grep等命令版本
+
+> 通常不会是这个原因,优先检查需要被补全的软件版本
 
 `bash-completion`并不是纯bash实现,因此依赖的外部使用程序版本可能会对补全功能造成影响;
 
@@ -551,6 +560,7 @@ brew install grep gnu-sed gawk
 
 export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+export PATH="/usr/local/opt/gwak/libexec/gnubin:$PATH"
 ```
 
 

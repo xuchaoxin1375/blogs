@@ -332,10 +332,11 @@ chsh -s /usr/bin/zsh
 
 
 
-这里推荐2个插件
+这里推荐插件(让体验向fish靠拢):
 
 - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-users/zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh.](https://github.com/zsh-users/zsh-syntax-highlighting)
+- [zsh-users/zsh-history-substring-search: 🐠 ZSH port of Fish history search (up arrow)](https://github.com/zsh-users/zsh-history-substring-search?tab=readme-ov-file)
 
 1. 下载插件到对应的目录(`.oh-my-zsh`)
 
@@ -347,6 +348,7 @@ chsh -s /usr/bin/zsh
      
      git clone --depth 1 https://gitee.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
      
+     git clone --depth 1 https://gitee.com/mirror-hub/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
      ```
 
 2. 在**bash**下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
