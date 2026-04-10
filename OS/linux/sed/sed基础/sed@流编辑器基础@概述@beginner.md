@@ -427,9 +427,35 @@ hello,world
 
 - Use `-s` to reverse this behavior.
 
-  - ```bash
-    sed -n  '1p ; $p' one.txt two.txt three.txt
-    ```
+#### sed 读取多文件的默认行为
+
+在默认情况下，`sed` 将所有输入文件视为一个**单一的、连续的逻辑流**。这意味着，如果你在处理多个文件，`sed` 会认为第一个文件的第一行是绝对的第 1 行，而最后一个文件的最后一行才是唯一的 `$`（最后一行）。
+
+当你执行类似 `sed -n '1p; $p' one.txt two.txt three.txt` 时：
+
+- **`1p`**：只匹配 `one.txt` 的第一行。
+- **`$p`**：只匹配 `three.txt` 的最后一行。
+- 中间的所有边界（如 `one.txt` 的结尾和 `two.txt` 的开头）都被忽略了，`sed` 认为它们只是中间的普通行。
+
+#### 使用 `-s` (separate) 选项
+
+当你加入 `-s`（或 `--separate`）参数时，`sed` 的逻辑会发生变化：它将每个文件视为**独立的流**。
+
+> **命令：** `sed -s -n '1p; $p' one.txt two.txt three.txt`
+
+此时，`sed` 会为**每一个**文件重置行计数器：
+
+- **`1p`**：匹配 `one.txt` 的第一行、`two.txt` 的第一行、`three.txt` 的第一行。
+- **`$p`**：匹配 `one.txt` 的最后一行、`two.txt` 的最后一行、`three.txt` 的最后一行。
+
+#### 小结
+
+| **特性**     | **默认行为 (Standard)**      | **使用 -s 选项 (Separate)** |
+| ------------ | ---------------------------- | --------------------------- |
+| **流处理**   | 多个文件合并为一个长流       | 每个文件是独立的流          |
+| **地址 `1`** | 仅指向第一个文件的第一行     | 指向**每个**文件的第一行    |
+| **地址 `$`** | 仅指向最后一个文件的最后一行 | 指向**每个**文件的最后一行  |
+| **行号计数** | 全局累加                     | 每个文件从 1 重新开始计数   |
 
 ## 参数和选项的解析规则🎈
 
@@ -450,17 +476,19 @@ hello,world
 
 > 注意,所谓的非选项**参数**是没有`-`开头的参数(下一节详解)
 
-此外跟在sed script后面的被视为输入的文件(可以指定多个)
+
 
 - Without `-e` or `-f` options, `sed` uses **the first non-option parameter as the script**, and the following **non-option parameters as input files**. 
 
-如果使用了`-e`或`-f`选项,那么**所有非选项参数都被视为输入文件**
+  在不使用`-e,-f`参数时,在sed script后面的所有参数被视为数据输入的文件(可以指定多个)
 
-If `-e` or `-f` options are used to **specify a script**, all non-option parameters **are taken as input files**. 
+- If `-e` or `-f` options are used to **specify a script**, all non-option parameters **are taken as input files**. 
+
+  如果使用了`-e`或`-f`选项,那么**所有非选项参数都被视为输入文件**
 
 - Options `-e` and `-f` can be combined, and **can appear multiple times** (in which case the final effective script will be **concatenation** of all the individual scripts).
 
-为了提高可读性,使用`-e`或`-f`(或者使用更加可读的长选项:`--expression=`,`--file=`)是更好的做法
+  为了提高可读性,使用`-e`或`-f`(或者使用更加可读的长选项:`--expression=`,`--file=`)是更好的做法
 
 
 
