@@ -340,7 +340,7 @@ chsh -s /usr/bin/zsh
 
 1. 下载插件到对应的目录(`.oh-my-zsh`)
 
-   - 使用浅克隆加速(这一步在zsh或bash下执行都可)
+   - 使用浅克隆加速
      
      ```bash
      # 将两个插件下载到指定目录下:(git 已经指定好了目录)
@@ -351,27 +351,44 @@ chsh -s /usr/bin/zsh
      git clone --depth 1 https://gitee.com/mirror-hub/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
      ```
 
-2. 在**bash**下调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
+2. 调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
    - ```bash
      #!/bin/bash
-     #将工作目录转移到家目录
-     cd ~
-     path=.zshrc
-     sed '/(^plugins)/ s/^#*/#/;
-     /^#*plugins/ a\
+     # 将工作目录转移到家目录
+     cd ~ || exit 1
+     zshrc_path="$HOME/.zshrc"
+     
+     # 20260411
+     plugins_list=$(
+         cat << EOF
+         git\\
+         z\\
+         zsh-syntax-highlighting\\
+         zsh-autosuggestions\\
+         zsh-history-substring-search\\
+     EOF
+     )
+     echo "[$plugins_list]"
+     
+     echo "[$zshrc_path]"
+     if grep '^plugins=(.*)' "$zshrc_path"; then
+         echo "初次覆盖plugins(单行)"
+         sed -i 's/^plugins=(.*)/\
      plugins=(\
-         git\
-         z\
-         zsh-syntax-highlighting\
-         zsh-autosuggestions\
-         zsh-history-substring-search\
-         # 注意,sed命令的后续不能换行\
-     )' -r -iE $path
+     '"$plugins_list"'
+     )/'  -i "$zshrc_path"
+     elif grep '^plugins=($' "$zshrc_path"; then
+         echo "覆盖插件列表(多行plugins更新)"
+         sed -i '/^plugins=(/,/)/c\
+     plugins=(\
+     '"$plugins_list"'
+     )'  -i "$zshrc_path"
+     
+     fi
      
      #检查配置文件是否有相应的行
-     cat ~/.zshrc|grep  -e zsh-syntax-highlighting -e zsh-autosuggestions -e zsh-history-substring-search
-     
+     cat "$zshrc_path" | grep -e zsh-syntax-highlighting -e zsh-autosuggestions -e zsh-history-substring-search
      
      ```
 
@@ -383,7 +400,7 @@ chsh -s /usr/bin/zsh
    
    ```
 
-4.现在到下一节配置oh my zsh主题
+   4.现在到下一节配置oh my zsh主题
 
 
 ## 配置oh my zsh主题
