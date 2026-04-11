@@ -362,13 +362,15 @@ chsh -s /usr/bin/zsh
      # 20260411
      plugins_list=$(
          cat << EOF
-         git\\
-         z\\
-         zsh-syntax-highlighting\\
-         zsh-autosuggestions\\
-         zsh-history-substring-search\\
+         git
+         z
+         zsh-syntax-highlighting
+         zsh-autosuggestions
+         zsh-history-substring-search
      EOF
      )
+     # 为每行插件名末尾增加`\`便于在sed中使用(注意最后一个比较特殊,手动补充\\)
+     plugins_list="${plugins_list//$'\n'/\\$'\n'}\\"
      echo "[$plugins_list]"
      
      echo "[$zshrc_path]"
@@ -427,7 +429,13 @@ chsh -s /usr/bin/zsh
 
 使用`lsd`等现代化的ls来提高列举体验
 
+## 一键在线部署
 
+```bash
+ bash <(curl -L https://gitee.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_omz.sh)
+```
+
+> 如果有需要,还可以将链接中的gitee换为github
 
 ## 其他
 
