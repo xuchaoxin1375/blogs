@@ -349,6 +349,11 @@ chsh -s /usr/bin/zsh
      git clone --depth 1 https://gitee.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
      
      git clone --depth 1 https://gitee.com/mirror-hub/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
+     
+     # zsh-completions这个项目gitee官方可能没有镜像,使用个人用户的自镜像版本(建议有需要的可以自己拉取一份比较安全)
+     # 另外这个插件比其他zsh插件不同,在配合oh my zsh使用时需要额外注意配置文件的写法;
+     git clone --depth 1 https://gitee.com/duchenpaul/zsh-completions.git \
+       ${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions
      ```
 
 2. 调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
