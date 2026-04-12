@@ -158,7 +158,7 @@ shellcheck -x myscript.sh
 
 #### shellcheck进程对内存的消耗问题
 
-如果用户的脚本代码较多,shellcheck每次启动可能会占用大量内存;
+如果用户的脚本代码较多(包括直接和间接,尤其是间接引入的代码,体积可能很大),shellcheck每次启动可能会占用大量内存;
 
 如果脚本文件之间没有循环引用问题,那么通常在几秒之后进程就会结束;会释放内存占用,但是如果代码文件之间引用关系混乱,就可能导致内存泄露,导致系统死机.
 
@@ -187,6 +187,69 @@ ShellCheck 会**递归地加载整个依赖链**，甚至可能出现：
 
 - **循环引用**（A source B，B source A）
 - **通配符/动态 source**（`source ~/sh/*.sh`），导致加载大量文件
+
+#### vscode中调用shellcheck插件的基本原理
+
+在 VS Code 中，插件（如 **ShellCheck** 扩展）并不是自己重写了一套语法检测逻辑，而是充当了一个**中间人**的角色。它负责在你的编辑器环境和底层的 `shellcheck` 二进制程序之间建立通信。
+
+其核心工作原理可以拆解为以下几个步骤：
+
+------
+
+1. 触发与监听 (The Trigger)
+
+当你打开一个 `.sh` 文件或更改代码时，插件会监听 VS Code 的文档事件：
+
+- **On Open:** 打开文件时立即扫描。
+- **On Save:** 保存时触发（默认配置）。
+- **On Type:** 边写边点亮错误（通常有几百毫秒的延迟，防止频繁调用）。
+
+2. 构建执行命令 (Command Construction)
+
+插件会根据你的 `settings.json` 配置，拼凑出一条类似于你提供的 shell 命令。
+
+- **路径定位：** 插件首先寻找系统路径（`$PATH`）中的 `shellcheck` 程序。如果你在设置中指定了 `shellcheck.executablePath`，它会优先使用该路径。
+- **参数注入：** 它会自动添加 `--format=json`（或 `json1`）。**JSON 格式是关键**，因为它机器可读，方便插件解析错误的位置、级别和修复建议。
+- **上下文处理：** * `--external-sources`：允许检查 `source` 引入的文件。
+  - `--source-path`：对应你在设置中定义的搜索路径，确保交叉引用的脚本能被找到。
+
+3. 数据交换 (Data Flow)
+
+这是最核心的运行机制：
+
+1. **输入：** 插件通常通过 **标准输入 (stdin)** 将你当前编辑器里的代码发送给二进制程序。这样即使你还没保存文件，它也能进行实时检测。
+2. **执行：** `shellcheck` 在后台进程运行，分析语法树。
+3. **输出：** `shellcheck` 将结果通过 **标准输出 (stdout)** 以 JSON 格式返回给插件。
+
+------
+
+4. 结果解析与渲染 (Parsing & Rendering)
+
+插件拿到 JSON 结果后，会进行“翻译”：
+
+- **错误定位：** JSON 中包含 `line`, `column`, `endLine`, `endColumn`。插件利用这些坐标在编辑器中画出**波浪线**。
+- **严重程度映射：** * `error` -> 红色波浪线
+  - `warning` -> 黄色波浪线
+  - `info`/`style` -> 蓝色或绿色波浪线
+- **问题面板：** 将所有条目汇总到 VS Code 底部的 **"Problems"** 栏。
+
+5. 快速修复 (Quick Fix / Code Actions)
+
+`shellcheck` 的 JSON 输出中往往带有 `replacement` 字段。当你点击黄色小灯泡时，插件会读取这个字段，调用 VS Code 的 API 自动替换代码，实现“一键修复”。
+
+------
+
+总结
+
+你提供的命令：
+
+```
+shellcheck --format=json1 --external-sources --source-path=... -
+```
+
+末尾的 **`-`** 非常关键，它告诉 shellcheck：**“不要去读磁盘上的文件，请读取我从标准输入传给你的内容。”**
+
+这正是 VS Code 插件能让你“边写边改”而不需要频繁按 `Ctrl+S` 的秘密所在。
 
 #### 使用 `source-path` 指令
 
