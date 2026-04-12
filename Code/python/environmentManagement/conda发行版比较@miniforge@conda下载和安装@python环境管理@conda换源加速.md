@@ -214,7 +214,7 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 
 
-## 配置conda国内源👺
+## 配置conda/mamba国内源👺
 
 - [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
 
@@ -236,7 +236,32 @@ custom_channels:
 show_channel_urls: true
 ```
 
-此外科大源还提供单独的`mamba`源简化版配置,但是这个可能会跳转其他域下导致错误(比如403阻止下载),可以自行体验或更换其他方案
+> 此外科大源还提供单独的`mamba`源简化版配置,**但是这个可能会跳转其他域下导致错误**(比如403阻止下载),可以自行体验或更换其他方案
+>
+> ```ini
+> channels:
+>   - conda-forge
+> mirrored_channels:
+>   conda-forge:
+>     - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
+> ```
+
+一键配置:(适用于bash,zsh)
+
+```bash
+cat << EOF > ~/.condarc
+# create at $(date +%F-%T)
+channels:
+  - nodefaults
+custom_channels:
+  conda-forge: https://mirrors.ustc.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.ustc.edu.cn/anaconda/cloud
+show_channel_urls: true
+# end.
+EOF
+```
+
+
 
 ### 清华源
 

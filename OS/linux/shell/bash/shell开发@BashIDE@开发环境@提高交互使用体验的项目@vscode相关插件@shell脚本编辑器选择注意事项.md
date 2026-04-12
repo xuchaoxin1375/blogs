@@ -154,7 +154,41 @@ shellcheck -x myscript.sh
 
 这要求被引用的文件在 ShellCheck 运行时能通过相对/绝对路径访问到。
 
-### 使用 `source-path` 指令
+> 这个选项要谨慎使用,可能会占用大量内存,甚至可能因为用户的脚本之间引用不当导致内存泄露(耗尽所有内存导致计算机卡死)
+
+#### shellcheck进程对内存的消耗问题
+
+如果用户的脚本代码较多,shellcheck每次启动可能会占用大量内存;
+
+如果脚本文件之间没有循环引用问题,那么通常在几秒之后进程就会结束;会释放内存占用,但是如果代码文件之间引用关系混乱,就可能导致内存泄露,导致系统死机.
+
+#### shellcheck遇到循环source导致内存泄露问题
+
+---
+
+在vscode中,shellcheck插件可能会以如下的方式调用shellcheck
+
+```bash
+$ pgrep -ilf shellcheck #通过pgrep 命令检查shellcheck相关进程
+
+# 例如:不同shellcheck插件的调用方式可能有差异
+$ pgrep -ilf shellcheck
+25703 /Users/cxxu/.vscode/extensions/timonwong.shellcheck-0.39.3-darwin-arm64/binaries/darwin/arm64/shellcheck -f json1 -x -
+25718 shellcheck --shell=bash --format=json1 --external-sources --source-path=file:///Users/cxxu/sh --source-path=/Users/cxxu/sh -
+```
+
+末尾的 `-` 表示它从 **stdin（标准输入）** 读取内容，这是 VS Code 扩展调用 ShellCheck 的典型方式。
+
+`--external-sources` 导致递归解析
+
+这是最常见的内存爆炸原因。这个参数让 ShellCheck 跟踪并解析所有 `source` / `.` 引入的外部文件.
+
+ShellCheck 会**递归地加载整个依赖链**，甚至可能出现：
+
+- **循环引用**（A source B，B source A）
+- **通配符/动态 source**（`source ~/sh/*.sh`），导致加载大量文件
+
+#### 使用 `source-path` 指令
 
 在脚本顶部指定搜索路径：
 
