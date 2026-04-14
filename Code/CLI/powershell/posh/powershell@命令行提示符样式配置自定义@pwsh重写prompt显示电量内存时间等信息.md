@@ -106,13 +106,13 @@ function prompt {
 
 然后发现了powershell内置的Prompt函数被覆盖了
 
-- ```powershell
-  PS>gcm prompt
-  
-  CommandType     Name                                               Version    Source
-  -----------     ----                                               -------    ------
-  Function        prompt                                             0.0        Conda
-  ```
+```powershell
+PS>gcm prompt
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        prompt                                             0.0        Conda
+```
 
 ```powershell
 PS /Users/cxxu/repos/scripts> gcm prompt*          
