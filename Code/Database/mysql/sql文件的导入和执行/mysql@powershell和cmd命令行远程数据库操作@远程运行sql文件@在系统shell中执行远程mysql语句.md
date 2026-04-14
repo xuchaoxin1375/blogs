@@ -1,8 +1,166 @@
 [toc]
 
+## abstract
+
+在命令行中运行mysql导入sql文件|运行sql文件操作
+
+## 类unix
+
+在类unix系统上的常用Shell（主要是 Linux/Unix 境下的 Bash，也包括 macOS）中执行 MySQL 查询有多种灵活的方法。
+
+> powershell(pwsh)风格与bash等`*nix shell`差异较大,写法在下一节说明;
 
 
-## 在命令行中运行mysql导入sql文件|运行sql文件操作
+
+------
+
+###  命令行直接执行 (`-e` 参数)
+
+这是最常用的方式，适用于执行单条或简单的多条语句。
+
+```Bash
+mysql -u root -p'password' -e "SELECT NOW();" database_name
+```
+
+- **`-u`**: 用户名。
+- **`-p`**: 密码（建议在脚本中使用变量或配置文件以提高安全性）。
+- **`-e`**: 执行 SQL 语句并立即退出。
+
+------
+
+###  使用标准输入 (Standard Input)
+
+通过重定向或管道将 SQL 语句传递给 `mysql` 客户端。
+
+#### A. 管道方式 (`echo` / `printf`)
+
+适用于动态生成的简单查询：
+
+```Bash
+echo "SELECT * FROM users LIMIT 5;" | mysql -u root -p'password' db_name
+```
+
+#### B. Here-Doc 方式 (推荐用于脚本)
+
+如果你有多行 SQL 语句，这种方式最清晰：
+
+```Bash
+mysql -u root -p'password' db_name <<EOF
+...
+...
+EOF
+```
+
+------
+
+###  执行 SQL 脚本文件
+
+当你有一个现成的 `.sql` 文件时，可以使用以下两种方式：
+
+#### A. 输入重定向 (`<`)
+
+这是执行备份恢复或大型脚本的标准做法：
+
+```Bash
+mysql -u root -p'password' db_name < /path/to/script.sql
+```
+
+#### B. 进入交互模式后执行 (`source`)
+
+如果你已经在 MySQL 提示符下，或者在 `-e` 可以执行`source`命令来运行指定sql文件中的语句：
+
+```Bash
+mysql -u root -p'password' -e "source /path/to/script.sql" db_name
+```
+
+------
+
+如果路径中有空格,source也可以识别,不需要额外添加引号包裹(条件允许的话,文件名最好不要包含空格);
+
+对于windows,可以使用`/`或`\`来分割路径
+
+```bash
+mysql> source C:\users\administrator\desktop\demo 1.sql
++---+
+| 1 |
++---+
+| 1 |
++---+
+1 row in set (0.00 sec)
+
+mysql> source C:/users/administrator/desktop/demo 1.sql
++---+
+| 1 |
++---+
+| 1 |
++---+
+1 row in set (0.00 sec)
+
+```
+
+不进入mysql shell中使用`-e`也可以执行`source`语句:
+
+```bash
+ mysql -e "source $desktop/demo 1.sql"
++---+
+| 1 |
++---+
+| 1 |
++---+
+```
+
+> 这里配置了免密,可以只用`-e`选项
+
+###  格式化输出结果
+
+在 Shell 中，你可能需要将结果用于后续处理，可以通过参数控制输出格式：
+
+- **`-N` (Skip Column Names)**: 不显示列名。
+- **`-s` (Silent)**: 静默模式，去掉表格边框（通常与 `-N` 配合使用）。
+- **`-H` (HTML)**: 输出为 HTML 表格。
+- **`-X` (XML)**: 输出为 XML 格式。
+
+**示例：只获取一个纯净的值（用于赋值给变量）**
+
+```bash
+user_count=$(mysql -u root -p'password' -N -s -e "SELECT COUNT(*) FROM users" db_name)
+echo "当前用户总数是: $user_count"
+```
+
+------
+
+###  安全性：使用配置文件 (`.my.cnf`)
+
+在 Shell 脚本中明文写密码会触发警告：`mysql: [Warning] Using a password on the command line interface can be insecure.`
+
+**解决方案：**
+
+在用户家目录创建 `~/.my.cnf` 文件：
+
+```ini
+[client]
+user=root
+password=your_secure_password
+```
+
+然后修改权限：`chmod 600 ~/.my.cnf`。
+
+之后你在 Shell 中直接执行 `mysql -e "..."` 就不再需要手动输入用户名和密码。
+
+------
+
+### 总结对比表
+
+| **场景**     | **推荐方法**           | **特点**                |
+| ------------ | ---------------------- | ----------------------- |
+| **单条命令** | `mysql -e "SQL"`       | 快速、直接              |
+| **多行语句** | `<<EOF (Here-Doc)`     | 脚本可读性最好          |
+| **执行文件** | `mysql < script.sql`   | 适合处理大数据量        |
+| **变量赋值** | `mysql -N -s -e "SQL"` | 方便 Shell 获取纯净结果 |
+
+你是准备将这些命令集成到自动化部署脚本（如 CI/CD）中，还是仅仅用于日常的数据库维护？
+
+## windows
 
 利用`cmd /c`执行mysql查询命令,尤其是从指定sql文件导入sql语句;
 
