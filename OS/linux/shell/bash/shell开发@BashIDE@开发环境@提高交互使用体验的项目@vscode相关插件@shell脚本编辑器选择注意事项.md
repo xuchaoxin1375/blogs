@@ -144,7 +144,7 @@ ShellCheck 是**静态分析**工具，它希望能够：
 
 ---
 
-#### 使用 `-x` 选项（推荐）
+#### 使用 `-x` 选项
 
 `-x`（`--external-sources`）选项允许 ShellCheck 跟踪并检查外部 `source` 的文件：
 
@@ -351,6 +351,8 @@ install_argc_completions bash # 可以将bash替换为其他常见shell,例如po
 > 注意,该项目虽然支持windows(针对powershell),但是安装依赖于git(git-bash或者其他可以执行bash的环境,例如msys2,zsh也是可以的,但是不能直接用powershell运行安装命令);
 >
 > windows用户如果安装了git,通常也会自带有git-bash组件,因此不需要额外安装一个bash;
+
+该项目可用于powershell,对于一些常用的命令行工具,例如nginx,mysql,git都提供了补全;
 
 ### bash-completion
 
