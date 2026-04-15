@@ -322,9 +322,39 @@ source lib/utils.sh
 
 ## Bash 增强框架
 
-按需使用
+按需使用,未必都要安装(过多可能会产生冲突)
+
+### argc-completions
+
+[sigoden/argc-completions: {bash,zsh,fish,powershell,nushell}-completions for 1000+ commands.](https://github.com/sigoden/argc-completions)
+
+- Cross shells: bash/zsh/powershell/fish/nushell/elvish/xonsh/tcsh.
+- Cross platforms: linux, macOS, and Windows.
+
+```bash
+# 安装跨平台跨shell补全项目argc-completions
+# 默认为bash安装补全(注意,bash下和blesh可能会有冲突,酌情使用)
+# 默认不会向shell的配置文件插入激活argc_completions的代码,需要手动输入选项激活
+# 该项目依赖于(argc,yq)国内网络下载可能较慢(从github下载)
+install_argc_completions() {
+    local shell="${1:-bash}"
+    git clone https://github.com/sigoden/argc-completions.git
+    cd argc-completions || exit 1
+    ./scripts/download-tools.sh
+    # bash/zsh/powershell/fish/nushell/elvish/xonsh/tcsh
+    ./scripts/setup-shell.sh "$shell"
+}
+install_argc_completions bash # 可以将bash替换为其他常见shell,例如powershell
+
+```
+
+> 注意,该项目虽然支持windows(针对powershell),但是安装依赖于git(git-bash或者其他可以执行bash的环境,例如msys2,zsh也是可以的,但是不能直接用powershell运行安装命令);
+>
+> windows用户如果安装了git,通常也会自带有git-bash组件,因此不需要额外安装一个bash;
 
 ### bash-completion
+
+传统补全项目
 
 [GitHub - scop/bash-completion: Programmable completion functions for bash · GitHub](https://github.com/scop/bash-completion/)
 
