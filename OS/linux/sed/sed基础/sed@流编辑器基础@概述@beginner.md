@@ -139,9 +139,7 @@ sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 
 
 
-### 示例
-
-#### 替换hello->world
+### 示例:替换hello->world
 
 - For example, to replace all occurrences of ‘hello’ to ‘world’ in the file input.txt:
 
