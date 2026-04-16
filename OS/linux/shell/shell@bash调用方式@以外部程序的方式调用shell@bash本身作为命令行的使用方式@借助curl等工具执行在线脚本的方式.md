@@ -124,9 +124,27 @@ curl -sSfL URL
 
  组合起来就是：**安静但可靠地下载资源**
 
+### `wget -O-` 的 `curl` 等效写法
+
+有时也用`wget`命令获取在线脚本(有的系统可能不预装)
+
+```bash
+sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+ `wget` 命令含义是：下载内容并将其通过标准输出（Stdout）打印出来，通常后面会接 `| sh` 来直接运行脚本。
+
+**对应的 `curl` 写法为：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+```
+
+
+
 ## 常用选项
 
-你提供的这组选项 `-ilrsD` 是 Bash 启动时的**调用选项（Invocation Options）**。它们通常在启动 Bash 进程的那一刻决定了该会话的“性格”和“行为准则”。
+这组选项 `-ilrsD` 是 Bash 启动时的**调用选项（Invocation Options）**。它们通常在启动 Bash 进程的那一刻决定了该会话的“性格”和“行为准则”。
 
 以下是这五个选项的逐一深度解析：
 

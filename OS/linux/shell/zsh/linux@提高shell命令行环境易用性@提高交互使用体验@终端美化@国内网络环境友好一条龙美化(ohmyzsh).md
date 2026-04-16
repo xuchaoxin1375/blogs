@@ -269,7 +269,9 @@ pacman -S zsh curl git man wget
 
 参考上一节
 
-### 国外环境安装omz
+### 安装命令
+
+#### 国外环境安装omz
 
 注意,仍然要预先安装依赖软件(比如zsh,git等)
 
@@ -280,11 +282,33 @@ pacman -S zsh curl git man wget
 
 ```
 sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# 或
+curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 ```
 
+Basic Installation:
 
+Oh My Zsh is installed by running one of the following commands in your terminal. You can install this via the command-line with either `curl`, `wget` or another similar tool.
 
-### 国内推荐安装方式一键安装omz👺
+| Method    | Command                                                      |
+| --------- | ------------------------------------------------------------ |
+| **curl**  | `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
+| **wget**  | `sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
+| **fetch** | `sh -c "$(fetch -o - https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
+
+#### 国内ip的额外选择
+
+Alternatively, the installer is also mirrored outside GitHub. Using this URL instead may be required if you're in a country like China or India (for certain ISPs), that blocks `raw.githubusercontent.com`:
+
+| Method    | Command                                           |
+| --------- | ------------------------------------------------- |
+| **curl**  | `sh -c "$(curl -fsSL https://install.ohmyz.sh/)"` |
+| **wget**  | `sh -c "$(wget -O- https://install.ohmyz.sh/)"`   |
+| **fetch** | `sh -c "$(fetch -o - https://install.ohmyz.sh/)"` |
+
+*Note that any previous `.zshrc` will be renamed to `.zshrc.pre-oh-my-zsh`. After installation, you can move the configuration you want to preserve into the new `.zshrc`.*
+
+#### 国内gitee源安装方式
 
 ```bash
 # 工作目录设定为用户家目录
