@@ -129,7 +129,7 @@ rm /tmp/new_sudo_rule
 
 **修改用户的 shell 为 `/usr/sbin/nologin` 或 `/bin/false`**
 
-这将阻止该用户通过 SSH 或任何交互式终端登录。这比较严格,可能会影响自己的使用
+这将阻止该用户通过 SSH 或任何交互式终端登录。这比较严格,可能会影响自己的使用,考虑方案2
 
 #### 方案2
 
@@ -192,7 +192,7 @@ Error: The current working directory must be readable to linuxbrew to run brew.
 
 最后执行完毕后,会尝试回到原工作目录下
 
-可以个函数取名为`bw`或其他名字
+可以给函数取名为`bw`或其他名字
 
 ```bash
 brew() {
