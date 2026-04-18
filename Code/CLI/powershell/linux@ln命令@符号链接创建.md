@@ -307,9 +307,9 @@ lrwxrwxrwx 1 cxxu cxxu 8 Nov 30 10:49 dir/f1 -> ../f1
 
 可以发现,此变更后`dir/f1`符号指向为`../f1`(也就是`dir/../f1`,指向的是`dir`的父目录中的`f1`文件,f1文件存在,且没有造成闭环指向,此用例是一个正确`ln`的用例)
 
-## -T选项的作用
+## -T选项的作用(gnu ln)
 
-针对`ln`命令手册的第一中用法包含了`-T`的可选项
+针对gnu的`ln`命令手册的第一中用法包含了`-T`的可选项
 
 ```bash
 ln [OPTION]... [-T] TARGET LINK_NAME
@@ -319,7 +319,14 @@ ln [OPTION]... [-T] TARGET LINK_NAME
 
 > -T, --no-target-directory   treat LINK_NAME as a normal file always
 
-`LINK_NAME`被视为文件
+`LINK_NAME`被视为文件;
+
+在 GNU `ln` 中，`-T` 的作用是强制将目标视为一个**文件**而非**目录**。
+
+- **如果不带 `-T`：** 如果目标 `$LINK_NAME` 已经是一个现有的目录，`ln -s` 会默认把链接创建在该目录**里面**（例如：`$SH_SYM/$SH_SCRIPT_DIR`）。
+- **如果带了 `-T`：** 它会尝试直接替换 `$LINK_NAME` 这个路径名，如果 `$LINK_NAME` 是目录，它会报错或按预期覆盖，而不会跳进目录内部。
+
+
 
 我们知道,在linux上(其他系统一般也是),创建一个与已经存在的文件或目录同名的文件会失败,目录也是
 
@@ -498,6 +505,18 @@ lrwxrwxrwx 1 cxxu cxxu 45 Oct  8 17:10 sh -> /mnt/c/repos/scripts/wp/woocommerce
 $ pwd
 /www/x/sh/sh/sh
 ...
+```
+
+## -n选项
+
+BSD（包括 macOS）版本的 `ln` 命令通常不支持 `-T` (或 `--no-target-directory`) 选项;
+
+这是 GNU Coreutils（Linux 常用的工具集）和 BSD 工具集之间一个经典的兼容性差异。
+
+
+
+```
+
 ```
 
 
