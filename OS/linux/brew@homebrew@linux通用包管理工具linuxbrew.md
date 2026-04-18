@@ -582,3 +582,43 @@ lrwxrwxrwx 1 linuxbrew linuxbrew   59 Sep 14  2025 /home/linuxbrew/.linuxbrew/sh
 [oh-my-zsh] "true" before oh-my-zsh is sourced in your zshrc file.
 ```
 
+### brew doctor
+
+如果brew运行过程中遇到警告,可以考虑运行brew doctor;
+
+这可能会提供一些方案帮你消除警告;
+
+```bash
+#( 04/18/26@10:53PM )( root@s1 ):~/repos/scripts@main✔
+   brewr doctor
+params:[doctor]
+[INFO] Root detected. Executing as 'www': brew doctor
+Please note that these warnings are just used to help the Homebrew maintainers
+with debugging if you file an issue. If everything you use Homebrew for is
+working fine: please don't worry or file an issue; just ignore this. Thanks!
+
+Warning: Missing https://github.com/Homebrew/brew git origin remote.
+
+Without a correctly configured origin, Homebrew won't update
+properly. You can solve this by adding the remote:
+  git -C "/home/linuxbrew/.linuxbrew/Homebrew" remote add origin https://github.com/Homebrew/brew
+```
+
+例如用户可能操作不当让brew的安装目录中的远程分支丢失,导致brew无法更新.
+
+考虑执行分支修复语句:
+
+```bash
+git -C "/home/linuxbrew/.linuxbrew/Homebrew" remote add origin https://github.com/Homebrew/brew
+```
+
+不过如果是目录权限混乱(所有者混乱),则考虑`chmod`命令修改brew安装目录所有者:
+
+> 例如系统上有一个普通用户`www`,则可以尝试将所有者指定为`www`
+>
+> 如果创建了专用用户`linuxbrew`,指定给专用用户会更好,但这不是必须的;
+
+```bash
+chown -R www:www /home/linuxbrew/.linuxbrew/Homebrew
+```
+
