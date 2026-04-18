@@ -157,6 +157,15 @@ git remote set-url --add --push origin https://gitee.com/user/repo.git
 # 此时 git push origin main 会同时推送到两个地址
 ```
 
+例如:
+
+```bash
+git remote set-url --add --push origin https://github.com/xuchaoxin1375/scripts.git
+git remote set-url --add --push origin https://gitee.com/xuchaoxin1375/scripts.git
+```
+
+
+
 ### 4. 删除某个 URL
 
 ```bash
