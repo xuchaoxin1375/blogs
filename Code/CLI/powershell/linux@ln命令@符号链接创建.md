@@ -328,7 +328,7 @@ ln [OPTION]... [-T] TARGET LINK_NAME
 
 
 
-我们知道,在linux上(其他系统一般也是),创建一个与已经存在的文件或目录同名的文件会失败,目录也是
+我们知道,在linux上(其他系统一般也是),创建一个与已经存在的文件或目录同名的文件会失败,目录也是.
 
 而在`ln`命令中,有一定的灵活性,在`LINK_NAME`已经存在且是个目录的时候会尝试这个目录内创建符号(相当于多一个机会)
 
@@ -513,7 +513,29 @@ BSD（包括 macOS）版本的 `ln` 命令通常不支持 `-T` (或 `--no-target
 
 这是 GNU Coreutils（Linux 常用的工具集）和 BSD 工具集之间一个经典的兼容性差异。
 
+对于gnu `ln`有两组相关选项:
 
+```bash
+--no-dereference       -n      -- treat destination symbolic link to a directory as if it were a normal file
+--no-target-directory  -T      -- treat destination as a normal file
+```
+
+在bsd版本上,替换已有符号链接主要通过`-h(-n)`选项配合`-f`实现;
+
+```bash
+SYNOPSIS
+     ln [-L | -P | -s [-F]] [-f | -iw] [-hnv] source_file [target_file]
+     ln [-L | -P | -s [-F]] [-f | -iw] [-hnv] source_file ... target_dir
+     link source_file target_file
+     ....
+-h    If the target_file or target_dir is a symbolic link, do not follow it.  This is most useful with the -f
+           option, to replace a symlink which may point to a directory.
+```
+
+在 BSD/macOS 上，要达到类似 `-T` 的“直接覆盖/替换”效果，通常使用 `-n` 选项（有时与 `-f` 配合）：
+
+- **`-n` (或 `-h`)：** 如果目标名是一个指向目录的**符号链接**，将其视为**文件**，而不是它指向的目录。简单来说，`-h` 的核心作用是：**把符号链接本身当成一个“文件”处理，**而不是顺着链接摸到它背后的实际目标**。**
+- **`-f`：** 强制删除已存在的目标。
 
 ```
 
