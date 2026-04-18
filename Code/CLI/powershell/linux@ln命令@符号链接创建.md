@@ -538,7 +538,7 @@ SYNOPSIS
 - **`-f`：** 强制删除已存在的目标。
 
 ```
-
+ln -snfv <link_to_path> <link_path>
 ```
 
 
