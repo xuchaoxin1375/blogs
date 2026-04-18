@@ -123,6 +123,8 @@ rm /tmp/new_sudo_rule
 
 为了提高安全性,如果使用`linuxbrew`这个用户名,可以禁止此专用用户(非普通用户使用的用户)的一些功能,比如禁止从远程登录(ssh)
 
+> 如果是root用户,调用其他用户身份时不需要输入用户密码,这种情况下,安全起见,可以把linuxbrew密码设置的很复杂,因为不用输入密码就能借用身份,且root用户容易重置普通用户的密码,也不失方便.
+
 或者取一个默认名以外的用户名比如不用`linuxbrew`而是用其他名字比如`bwuser`
 
 #### 方案1
@@ -502,20 +504,81 @@ brew update
 
 ## FAQ常见问题解决
 
-### Q1: `brew command not found`
+###  `brew command not found`
 
 - 检查是否添加了 `eval "$(...)"` 到 shell 配置文件
 - 执行 `source ~/.bashrc`（或对应 shell 文件）
 - 重启终端
 - 尝试绝对路径访问`brew`
 
-### Q2: 安装时提示权限错误
+###  安装时提示权限错误
 
 - 确保没有用 `sudo`
 - 检查 `/home/linuxbrew/.linuxbrew` 或 `~/.linuxbrew` 是否属于当前用户
 
-### Q3: 编译失败或缺少依赖
+### 编译失败或缺少依赖
 
 - 确保已安装 `build-essential` / `Development Tools`
 - 运行 `brew doctor` 诊断问题
+
+### brew安装目录因权限错乱拒绝运行
+
+如果是root用户或者是sudo使用不当,可能导致brew目录权限不符合默认的安全检查;
+
+> 通常是写权限(w)被滥用;
+
+> 对于zsh的一些命令补全框架可能会检查加载的代码权限
+
+例如:`Insecure completion-dependent directories detected:`
+
+```bash
+[oh-my-zsh] Insecure completion-dependent directories detected:
+drwxr-xr-x 3 linuxbrew linuxbrew 4096 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh
+drwxr-xr-x 2 linuxbrew linuxbrew 4096 Apr 17 16:52 /home/linuxbrew/.linuxbrew/share/zsh/site-functions
+lrwxrwxrwx 1 linuxbrew linuxbrew   39 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_brew -> ../../../Homebrew/completions/zsh/_brew
+lrwxrwxrwx 1 linuxbrew linuxbrew   58 Apr 17 16:52 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_curl -> ../../../Cellar/curl/8.19.0/share/zsh/site-functions/_curl
+lrwxrwxrwx 1 linuxbrew linuxbrew   54 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_fd -> ../../../Cellar/fd/10.3.0/share/zsh/site-functions/_fd
+lrwxrwxrwx 1 linuxbrew linuxbrew   59 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_rg -> ../../../Cellar/ripgrep/14.1.1/share/zsh/site-functions/_rg
+
+[oh-my-zsh] For safety, we will not load completions from these directories until
+[oh-my-zsh] you fix their permissions and ownership and restart zsh.
+[oh-my-zsh] See the above list for directories with group or other writability.
+
+
+
+```
+
+检查权限:借助`compaudit`和`xargs`,使用`ls -ld`查看相关目录的权限位.
+
+```bash
+compaudit|xargs ls -ld
+There are insecure directories and files:
+drwxr-xr-x 3 linuxbrew linuxbrew 4096 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh
+drwxr-xr-x 2 linuxbrew linuxbrew 4096 Apr 17 16:52 /home/linuxbrew/.linuxbrew/share/zsh/site-functions
+lrwxrwxrwx 1 linuxbrew linuxbrew   39 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_brew -> ../../../Homebrew/completions/zsh/_brew
+lrwxrwxrwx 1 linuxbrew linuxbrew   58 Apr 17 16:52 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_curl -> ../../../Cellar/curl/8.19.0/share/zsh/site-functions/_curl
+lrwxrwxrwx 1 linuxbrew linuxbrew   54 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_fd -> ../../../Cellar/fd/10.3.0/share/zsh/site-functions/_fd
+lrwxrwxrwx 1 linuxbrew linuxbrew   59 Sep 14  2025 /home/linuxbrew/.linuxbrew/share/zsh/site-functions/_rg -> ../../../Cellar/ripgrep/14.1.1/share/zsh/site-functions/_rg
+```
+
+
+
+- 警告处理`compaudit | xargs chmod g-w,o-w`,可以在末尾使用`--verbose`查看变更详情;
+- 如果仍然无效,可以考虑设置环境变量`ZSH_DISABLE_COMPFIX=true`,禁用补全代码的检查(如果是写入配置文件中,此变量赋值语句的位置可能需要靠前(早于compaudit执行之前),否则可能无效!).
+
+> 对于root用户,如果引入了linuxbrew目录相关代码,引发上述警告通常是因为相关代码的所有者混乱,普通的权限修改后可能会又被改回去;
+>
+> 可以考虑直接设置环境变量
+
+```bash
+[oh-my-zsh] To fix your permissions you can do so by disabling
+[oh-my-zsh] the write permission of "group" and "others" and making sure that the
+[oh-my-zsh] owner of these directories is either root or your current user.
+[oh-my-zsh] The following command may help:
+[oh-my-zsh]     compaudit | xargs chmod g-w,o-w
+
+[oh-my-zsh] If the above didn't help or you want to skip the verification of
+[oh-my-zsh] insecure directories you can set the variable ZSH_DISABLE_COMPFIX to
+[oh-my-zsh] "true" before oh-my-zsh is sourced in your zshrc file.
+```
 
