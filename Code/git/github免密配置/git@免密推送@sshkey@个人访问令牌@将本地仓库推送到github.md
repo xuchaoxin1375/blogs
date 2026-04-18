@@ -190,9 +190,9 @@ git@ssh和github@个人访问令牌@将本地仓库推送到github
 
   - 在powershell中,可以使用`cat ~/.ssh/id*pub|scb`直接将公钥内容复制到剪切板上
 
-## 访问令牌作为验证密码👺🎈
+## 访问令牌作为验证密码
 
-
+> github禁用账号密码作为推送凭据,密码验证不再支持
 
 - 在命令行上使用 HTTPS URL 将 `git clone`、`git fetch`、`git pull` 或 `git push` 执行到远程存储库时，Git 将要求你提供 GitHub **用户名和密码**。 
 - 当 Git 提示你输入密码时，请输入你的personal access token。 或者，可以使用 [Git 凭据管理器](https://github.com/GitCredentialManager/git-credential-manager/blob/main/README.md)等凭据帮助程序。
