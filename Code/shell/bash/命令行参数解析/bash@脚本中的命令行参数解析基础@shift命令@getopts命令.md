@@ -4,17 +4,19 @@
 
 ## bash脚本中处理命令行选项和参数
 
+- [How can I handle command-line options and arguments in my script easily?|BashFAQ/035 - Greg's Wiki](https://mywiki.wooledge.org/BashFAQ/035)
+
 命令行参数到解析方式很大程度上取决于你想用它们做什么。bash中至少有两种方法，各有优缺点。
 
 > 在一众脚本语言中,bash的命令行参数解析支持力度有限,对于编程人员要求较高,由于bash比较古老
 >
 > 尽管bash作为一门shell语言,在这方面的易用性和其他shell语言相比并不出众.尤其是powershell这类现代shell语言,对命令行参数的解析支持可谓是极好.
 >
-> 1. ✅ 声明式，一目了然
-> 2. ✅ 自动类型验证
-> 3. ✅ 自动生成 `-?` 帮助
-> 4. ✅ 支持 Tab 补全
-> 5. ✅ 内置必填/默认值/验证
+> 1. 声明式，一目了然
+> 2. 自动类型验证
+> 3. 自动生成 `-?` 帮助
+> 4. 支持 Tab 补全
+> 5. 内置必填/默认值/验证
 
 但是这里我们主要讨论的是bash.
 
@@ -316,10 +318,10 @@ while [ $# -gt 0 ]; do
             ;;
         --)
             shift
-            break              # -- 后面的都是普通参数,使用break结束选项参数的解析.
+            break              # -- 后面的都是普通参数,使用break结束选项参数的解析循环.
             ;;
         -*)                    # 使用*作为通配模式,捕获所有未被其他选项匹配的选项,通常放在最后
-            echo "未知选项: $1"
+            echo "未知选项: $1" >&2
             exit 1
             ;;
         *)
@@ -376,6 +378,36 @@ shift 2
 ```
 
 ---
+
+### 兼容选项和位置参数的解析
+
+```bash
+ # 参数解析
+    local args_pos=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h | --help)
+                echo "$usage"
+                exit 0
+                ;;
+            --)
+                shift
+                break # -- 后面的都是普通参数,使用break结束选项参数的解析.
+                ;;
+            -?*)
+                echo "Unknown option: " >&2
+                show_help
+                exit 1
+                ;;
+            *)
+                args_pos+=("$1")
+                ;;
+        esac
+        shift
+    done
+    set -- "${args_pos[@]}"
+    # 参数解析并调整完毕
+```
 
 
 

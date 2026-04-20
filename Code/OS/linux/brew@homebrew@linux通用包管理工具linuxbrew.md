@@ -24,78 +24,138 @@
 
 1. **遵循官方推荐安装方式**：始终使用 Homebrew 官网首页提供的安装脚本来进行安装。这是获得最佳、受支持体验的唯一推荐方法。
 
-2. **使用默认安装前缀**：安装脚本会将 Homebrew 安装到 `/home/linuxbrew/.linuxbrew` 目录（可能需要 `sudo` 权限）。**强烈建议不要更改此默认路径**。
+2. **使用默认安装前缀**：安装脚本会将 Homebrew 安装到 `/home/linuxbrew/.linuxbrew` 目录（可能需要 `sudo` 权限）。
 
-    *   **原因**：使用默认前缀可以最大限度地利用预编译的二进制包（称为 "bottles"），这能显著加快安装速度并提高稳定性。
-    *   **警告**：如果安装在其他位置（如个人家目录），绝大多数软件包都需要从源码编译，这会非常缓慢、耗能，且容易出错，官方对此不提供支持。在此情况下遇到问题，即使看似无关，提交的 Issue 也会被直接关闭。
+    - **强烈建议不要更改此默认路径**。
+    - **原因**：使用默认前缀可以最大限度地利用预编译的二进制包（称为 "bottles"），这能显著加快安装速度并提高稳定性。
+    - **警告**：如果安装在其他位置（如个人家目录），绝大多数软件包都需要从源码编译，这会非常缓慢、耗能，且容易出错，官方对此不提供支持。在此情况下遇到问题，即使看似无关，提交的 Issue 也会被直接关闭。
+    - > 官方安装脚本会将 Homebrew 安装到其默认的、受支持的最佳前缀（Apple Silicon 系统为 `/opt/homebrew` ，macOS Intel 系统为 `/usr/local` ，Linux 系统为 `/home/linuxbrew/.linuxbrew` ），这样在**首次安装 Homebrew 后**，使用 `brew install` 时[就不需要 *sudo 权限了* ](https://docs.brew.sh/FAQ#why-does-homebrew-say-sudo-is-bad)。
+        >
+        > 大多数二进制软件包 (bottle) **都需要使用此前缀才能正常工作**。
+        >
+        > 这是一个非常严谨的脚本；即使您已经在首选前缀中安装了其他软件，它仍然可以运行。脚本会在执行任何操作之前明确告知您其将要执行的操作。您必须在脚本开始运行之前确认所有操作。
 
-3. **为无管理员权限的用户准备**：如果你没有管理员 (`sudo`) 权限，可以请求系统管理员创建一个名为 `linuxbrew` 的角色账户，并将其家目录设置为 `/home/linuxbrew`。这样你仍然可以受益于预编译的二进制包。
+3. **为无管理员权限的用户准备**：
+
+    1. 如果你没有管理员 (`sudo`) 权限，可以请求系统管理员创建一个名为 `linuxbrew` 的角色账户(其他名字也可以)，并将其家目录设置为 `/home/linuxbrew`。这样你仍然可以受益于预编译的二进制包。
+
+    2. brew是为单用户设计的,执行安装脚本是,不能用root用户执行,而是需要一个非root的(但是能够执行sudo)的管理员组用户(如果系统尚未有这种用户,建议创建一个专用用户,名字没有特别要求,可以考虑用`linuxbrew`名)
 
 4. **安装系统依赖**：在运行 Homebrew 安装脚本前，确保系统已安装必要的构建工具。根据你的 Linux 发行版运行相应命令：
+
     *   **Debian 或 Ubuntu**: `sudo apt-get install build-essential procps curl file git`
     *   **Fedora**: `sudo dnf group install development-tools` 和 `sudo dnf install procps-ng curl file`
     *   **CentOS Stream 或 RHEL**: `sudo dnf group install 'Development Tools'` 和 `sudo dnf install procps-ng curl file`
     *   **Arch Linux**: `sudo pacman -S base-devel procps-ng curl file git`
 
-5. **配置 Shell 环境**：安装完成后，**务必**按照安装脚本输出的 “Next steps” 指令，将 Homebrew 添加到你的 `PATH` 环境变量中。
 
-    按照命令行(最新版请到brew首页查看)
+### 执行安装脚本
 
-    ```bash
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    ```
+> 安装完成后，**务必**按照安装脚本输出的 “Next steps” 指令，将 Homebrew 添加到你的 `PATH` 环境变量中。
 
-    但是,更具体的,如果当前用户是root,运行上述命令会被拒绝安装(root下安装是高风险的)
+按照命令行(最新版请到brew首页查看)
 
-    现在假设你创建了`linuxbrew`专用的非root用户来安全安装brew,则命令行可以具体为
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-    ```bash
-     sudo -u linuxbrew /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    ```
+但是,更具体的,如果当前用户是root,运行上述命令会被拒绝安装(root下安装是高风险的)
 
-    这里使用` sudo -u linuxbrew`来指明使用非root用户linuxbrew来运行安装脚本
+现在假设你创建了`linuxbrew`专用的非root用户来安全安装brew,则命令行可以具体为:
 
-    结束后可以看看安装目录
+```bash
+ sudo -u linuxbrew /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-    ```bash
-    #( 09/14/25@10:48AM )( root@s2 ):~
-       ls /home/linuxbrew/.linuxbrew
-    bin  Caskroom  Cellar  etc  Frameworks  Homebrew  include  lib  opt  sbin  share  var
-    ```
+这里使用` sudo -u linuxbrew`来指明使用非root用户linuxbrew来运行安装脚本
 
-    通常需要将以下命令添加到你的 shell 配置文件（如 `~/.bashrc` 或 `~/.zshrc`）中：
+结束后可以看看安装目录
 
-    ```bash
-    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
-    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    ```
-    然后重新加载配置文件（例如 `source ~/.bashrc`）或重启终端。
+```bash
+#( 09/14/25@10:48AM )( root@s2 ):~
+   ls /home/linuxbrew/.linuxbrew
+bin  Caskroom  Cellar  etc  Frameworks  Homebrew  include  lib  opt  sbin  share  var
+```
 
-    
+### 添加到shell的配置文件
 
-6. **验证安装**：完成上述步骤后，可以通过安装一个测试包来验证 Homebrew 是否正常工作：
+将 Homebrew 添加到你的 `PATH` 和你的 bash shell rc 文件中，对于 `bash` 来说是 `~/.bashrc` ，对于 `zsh` 来说是 `~/.zshrc` 。
+
+通常需要运行以下命令,会计算出合适的加载片段(shell语句)添加到你的 shell 配置文件（如 `~/.bashrc` 或 `~/.zshrc`）中：
+
+```bash
+test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
+# 计算结果参考:
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
+> 最终你的配置可能包含语句形如`eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"`
+>
+> 注意不是手动编辑 shell rc文件,而是直接粘贴到shell中运行,插入shell rc配置文件(例如`~/.bashrc`,`~/.zshrc`中的内容是自动计算的，一般就一行)
+
+然后重新加载配置文件（例如 `source ~/.bashrc`）或重启终端。
+
+第一行检查**家目录**下的安装路径（非 root 安装）。
+
+第二行检查**系统标准目录** `/home/linuxbrew/`（通常是具有 sudo 权限时的安装路径）
+
+这两行通常只有一行会完整执行;
+
+**`eval "$(... shellenv)"`**:
+
+- 执行 `brew shellenv` 会输出几行导出变量的命令（如 `export PATH="..."`）。
+- `eval` 会直接在**当前终端运行这些输出**，从而**立即激活** `brew` 命令。
+
+---
+
+
+
+1. **验证安装**：完成上述步骤后，可以通过安装一个测试包来验证 Homebrew 是否正常工作：
     ```bash
     brew install hello
     ```
     首次在较旧的 Linux 发行版上安装软件包时，Homebrew 可能会自动为你安装新版的 `glibc` 和 `gcc`。
 
-7. **使用 `brew doctor`**：如果遇到问题，运行 `brew doctor` 命令可以诊断并提示常见的配置问题。
+2. **使用 `brew doctor`**：如果遇到问题，运行 `brew doctor` 命令可以诊断并提示常见的配置问题。
 
-8. **平台注意事项**：
+3. **平台注意事项**：
     *   **ARM32 (如树莓派)**：可以运行，但属于 Tier 3 支持，因为没有预编译包，所有软件都需要从源码编译。可能需要自行通过系统包管理器或 `rbenv` 安装 Ruby。
     *   **32-bit x86**: **完全不支持**。
     *   **WSL 1**: 属于 Tier 3 支持，已知存在各种问题，**强烈建议升级到 WSL 2**。
 
 **核心原则**：为了获得最佳体验，严格遵循官方默认设置，特别是安装路径。任何偏离都可能导致性能下降和失去官方支持。
 
+### 安装linuxbrew所需依赖说明
+
+Homebrew 软件包管理器可用于 Linux 和 [Windows 子系统 Linux 版 (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) 2。Homebrew 以前在 Linux 或 WSL 上运行时被称为 Linuxbrew。Homebrew 不使用主机系统提供的任何库，但 *glibc* 和 *gcc* 除外（如果它们足够新）。对于较旧的 Linux 发行版，Homebrew 可以安装其自身最新版本的 *glibc* 和 *gcc* 。
+
+安装脚本会使用 *sudo 命令*将 Homebrew 安装到 `/home/linuxbrew/.linuxbrew` 目录。**Homebrew 安装完成后不再使用 *sudo*** 。使用 `/home/linuxbrew/.linuxbrew` 可以安装大多数二进制软件包（bottles），而这些软件包如果安装到例如您的个人主目录则无法正常工作。
+
+### linuxbrew的路径前缀
+
+理论上，你可以将 Homebrew 安装到任何你想要的位置。但是，你不应该安装在默认、受支持且最佳的前缀之外。
+
+**在默认前缀之外，很多东西都需要从源代码构建。从源代码构建速度慢、能耗高、容易出错且不受支持。**
+
+Homebrew 之所以能正常工作，主要原因是**它**使用 bottle（二进制软件包），**而大多数 bottle 都需要使用默认前缀**。
+
+选择前缀 `/home/linuxbrew/.linuxbrew` 是为了避免安装后写入系统目录，同时仍然允许使用大多数预编译二进制文件（bottles）。Homebrew 是为**单用户安装**而设计的，而不是为共享角色帐户而设计的。
+
+> 但是在有root权限的情况下,我们可以通过角色借用的方式来间接调用brew,还可以包装为函数;(但不是直接从root角色直接调用brew)
+
+ 
+
 ## 创建linuxbrew用户🎈
+
+如果是系统管理员,可以执行下面的脚本创建一个linuxbrew工具专用的用户角色;
+
+> 这里假设系统上`sudo`命令可用!
 
 ```bash
 username='linuxbrew' #根据需要更改要操作的用户名(homebrew,linuxbrew)
-sudo useradd -m -s /bin/bash $username # 配置改用户默认使用bash
+sudo useradd -m -s /bin/bash $username # 配置该用户默认使用bash
 passwd $username
 usermod -aG sudo $username
 
@@ -119,7 +179,65 @@ rm /tmp/new_sudo_rule
 
 ```
 
-### 安全性
+### 密码设置
+
+简单来说：`adduser` 会交互式地引导你设置，而 `useradd` 则需要你手动额外操作。
+
+------
+
+### 1. `adduser` 
+
+在 Debian/Ubuntu 等系统中，`adduser` 是一个 Perl 脚本，它非常友好。
+
+- **是否要指定密码：** 你不需要在命令参数里写密码。
+- **交互过程：** 运行命令后，系统会**自动提示**你输入密码、确认密码，并询问姓名、电话等基本信息。
+- **结果：** 运行完命令，账号就直接可用了（密码已设好，家目录已创建，Shell 已配置）。
+
+```bash
+sudo adduser username
+# 随后根据屏幕提示输入密码即可
+```
+
+------
+
+### 2. `useradd` 
+
+这是 Linux 原生的底层命令。
+
+- **是否要指定密码：** 它默认**不会**提示你设置密码。
+- **默认状态：** 如果你只运行 `sudo useradd username`，该账号会被创建，但通常处于**锁定状态**（没有密码），用户无法直接登录。
+- **正确姿势：** 运行完 `useradd` 后，必须紧接着运行 `passwd` 来设置密码。
+
+```bash
+sudo useradd -m username  # -m 表示创建家目录
+sudo passwd username      # 为该用户手动设置密码
+```
+
+------
+
+### 命令行里直接写密码
+
+技术上可以，但**强烈不建议**。
+
+如果你想在脚本中一行搞定，可以使用 `-p` 参数，但 `useradd` 的 `-p` 要求提供的是**加密后的哈希值**，而不是明文。
+
+> **警告：** 在命令行里直接输入明文密码（例如通过管道符 `echo "password" | ...`）会留下历史记录，极其不安全。
+
+或者创建的时候不设置密码,后期手动添加密码;
+
+而有的软件专用用户(不是给人用的用户),用户密码不重要,甚至可以不设置.
+
+---
+
+#### 无密码账户
+
+创建用户时没有设置密码,默认情况下，不能通过常规方式登录.
+
+虽然不能直接“登录”，但拥有 **root 权限** 的人可以通过以下方式切换过去：
+
+- **使用 `su` 命令：** root 用户运行 `sudo su - 用户名` 可以直接进入该账户，不需要密码。
+
+### 登录安全性
 
 为了提高安全性,如果使用`linuxbrew`这个用户名,可以禁止此专用用户(非普通用户使用的用户)的一些功能,比如禁止从远程登录(ssh)
 
