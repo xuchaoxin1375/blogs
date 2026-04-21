@@ -27,66 +27,44 @@ Zsh 实际上自带了一个强大的辅助工具叫 `run-help`。它不仅能�
 #( 04/21/26@ 9:16AM )( root@s3 ):~
    run-help run-help
 run-help is a shell function from /usr/share/zsh/functions/Misc/run-help
+
+# 根据系统的差异,还有可能显示为:
+$ type -a run-help
+run-help is an alias for man
 ```
 
-**如何开启？**
+可以看到`run-help`可能是一个zsh函数,也可能是`man`的别名;
 
-默认情况下,`run-help`是zsh提供的一个函数:
-
-```zsh
-#( 04/21/26@ 9:22AM )( root@s3 ):~
-   type run-help
-run-help is a shell function from /usr/share/zsh/functions/Misc/run-help
-```
-
-你需要在 `.zshrc` 中添加额外的配置:
-
-```zsh
-alias help=run-help 
-# 或者
-alias help=\run-help
-```
-
-
-
-或者使用`\`修饰:`\run-help <command>`,例如`\run-help read`
-
-> 在 Zsh 或 Bash 中，在命令前面加上反斜杠（例如 `\ls` 或 `\cd`）是一个非常实用且“硬核”的小技巧。
+> `/usr/share/zsh/functions/Misc/run-help` 是 zsh 自带的一个**高级脚本函数**。它比 `man` 聪明得多：
 >
-> 它的核心作用是：**禁用别名（Alias），强制执行原始命令。**
->
-> **如果你在命令前面加上反斜杠 `\ls`：** Shell 会跳过别名检查，直接去环境变量 `$PATH` 中寻找名为 `ls` 的二进制可执行文件。
->
-> 这在你怀疑别名有 Bug，或者想临时避开别名自带的参数（比如不想让 `rm` 弹出确认提示）时非常有用。
+> - **识别内建命令**：如果你查 `cd`，它会自动跳转到 `zshbuiltins` 手册的对应章节。
+> - **处理复杂命令**：它能识别 zsh 特有的语法和模块。
+> - 识别外部命令: 例如获取git的man帮助.
+
+下面到片段可以强制将`run-help`定义为zsh的帮助函数而不是`man`的别名;
+
+> 最后将`run-help`定义一个别名`help`,甚至是代替`man`,从而同时实现查询zsh内部和外部命令(自动判断并查询命令.)
 
 ```zsh
- 
-   read [ -rszpqAclneE ] [ -t [ num ] ] [ -k [ num ] ] [ -d delim ]
-     [ -u n ] [ [name][?prompt] ] [ name ...  ]
-       Read  one  line and break it into fields using the characters in
-       $IFS as separators, except as noted below.  The first  field  is
-       assigned to the first name, the second field to the second name,
-       etc.,  with  leftover fields assigned to the last name.  If name
-       is omitted then REPLY is used for scalars and reply for arrays.
-...
+# 为设置zsh设置help命令(对于bash,zsh混用用户友好)
+unalias run-help 2> /dev/null
+# 如果系统路径里找不到，可以手动把函数路径加入 fpath 数组（可选）
+# [[ -d /usr/share/zsh/functions/Misc ]] && fpath=(/usr/share/zsh/functions/Misc $fpath) 
+autoload -Uz run-help
+alias help=run-help
+```
+
+之后，你就可以像在 Bash 中一样使用 `help <命令>` 了。
+
+甚至在相关插件的帮助在,可以执行如下风格的命令帮助
+
+```bash
+ run-help git checkout
+ # 或(设置run-help的别名的情况下)
+ help git checkout
 ```
 
 
-
-但是和 Bash 不同,使用 `help <命令>` 并不是查找内置命令的帮助,而是外部命令的帮助。
-
-例如`pwd`命令
-
-```zsh
-   type -a pwd
-pwd is a shell builtin
-pwd is /usr/sbin/pwd
-pwd is /usr/bin/pwd
-pwd is /sbin/pwd
-pwd is /bin/pwd
-```
-
-这里pwd既是shell内置命令,又有外部单独的实现,`run-help`查询结果实际上是外部帮助;
 
 ### 快捷键：`Alt + h` (Esc + h)
 
@@ -94,17 +72,13 @@ pwd is /bin/pwd
 
 ------
 
-## 3. 为什么 Zsh 推荐使用 `man`？
+## 3. 为什么 Zsh 推荐使用 `man`
 
 Zsh 的开发者认为，与其维护一套 Shell 特有的简易文档（像 Bash 的 help），不如直接让用户去读标准的 **Man Page**。
 
 Zsh 的内建命令文档通常都集成在 `man zshbuiltins` 中。
 
-如果你觉得这个文档太长，难以定位，可以安装更加现代化的工具，这也是现在很多 Zsh 用户的首选：
 
-- **tldr(tlrc) / cheat.sh：** 提供命令的最常用示例，比 Bash 的 `help` 更直观。
-  - *用法：* `tldr tar`
-- **zsh-help：** 一些插件管理器（如 Oh My Zsh）提供的增强脚本。
 
 ------
 
