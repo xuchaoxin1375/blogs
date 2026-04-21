@@ -322,7 +322,7 @@ while [ $# -gt 0 ]; do
             ;;
         -*)                    # 使用*作为通配模式,捕获所有未被其他选项匹配的选项,通常放在最后
             echo "未知选项: $1" >&2
-            exit 1
+            exit 1 #脚本中解析参数用exit 1,函数内部的参数解析用return 1
             ;;
         *)
             break              # 非选项参数,执行和--相似的行为(break)，停止解析
@@ -365,7 +365,7 @@ echo "命令参数: $args"
 
 ---
 
-### 注意事项
+#### 注意事项
 
 ```bash
 # ⚠️ shift 不影响 $0 (脚本名称)
@@ -379,25 +379,30 @@ shift 2
 
 ---
 
-### 兼容选项和位置参数的解析
+### 兼容选项和位置参数的解析(解析模板代码)🎈
 
 ```bash
- # 参数解析
+# 参数解析
     local args_pos=()
+    local usage=""
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -h | --help)
                 echo "$usage"
-                exit 0
+                return 0 #按需使用return或exit
+                ;;
+            -s | --separator)
+                separator="$2"
+                shift
                 ;;
             --)
                 shift
-                break # -- 后面的都是普通参数,使用break结束选项参数的解析.
+                break
                 ;;
             -?*)
                 echo "Unknown option: " >&2
-                show_help
-                exit 1
+                echo "$usage"
+                return 1 #按需使用return或exit
                 ;;
             *)
                 args_pos+=("$1")
@@ -406,10 +411,10 @@ shift 2
         shift
     done
     set -- "${args_pos[@]}"
-    # 参数解析并调整完毕
+# 参数解析并调整完毕
 ```
 
-
+> 注意如果是嵌在函数内,分析到错误选项分支通常使用`return`退出,而不是`exit`.
 
 ## 选项处理循环的两种方案
 
