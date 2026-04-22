@@ -352,7 +352,7 @@ chsh -s /usr/bin/zsh
 
 
 
-## oh-my-zsh 插件🎈
+## omz+常用插件部署
 
 
 
@@ -361,6 +361,9 @@ chsh -s /usr/bin/zsh
 - [zsh-users/zsh-autosuggestions: Fish-like autosuggestions for zsh (github.com)](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-users/zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh.](https://github.com/zsh-users/zsh-syntax-highlighting)
 - [zsh-users/zsh-history-substring-search: 🐠 ZSH port of Fish history search (up arrow)](https://github.com/zsh-users/zsh-history-substring-search?tab=readme-ov-file)
+- [marlonrichert/zsh-autocomplete: 🤖 Real-time type-ahead completion for Zsh. Asynchronous find-as-you-type autocompletion.](https://github.com/marlonrichert/zsh-autocomplete)
+
+下面是基本步骤(下一节提供一键部署脚本)
 
 1. 下载插件到对应的目录(`.oh-my-zsh`)
 
@@ -382,86 +385,17 @@ chsh -s /usr/bin/zsh
 
 2. 调用sed来配置.zshrc文件,将相关插件配置到zsh插件(plugins)中
 
-   - ```bash
-     #!/bin/bash
-     # 将工作目录转移到家目录
-     cd ~ || exit 1
-     zshrc_path="$HOME/.zshrc"
-     
-     # 20260411
-     plugins_list=$(
-         cat << EOF
-         git
-         z
-         zsh-syntax-highlighting
-         zsh-autosuggestions
-         zsh-history-substring-search
-     EOF
-     )
-     # 为每行插件名末尾增加`\`便于在sed中使用(注意最后一个比较特殊,手动补充\\)
-     plugins_list="${plugins_list//$'\n'/\\$'\n'}\\"
-     echo "[$plugins_list]"
-     
-     echo "[$zshrc_path]"
-     if grep '^plugins=(.*)' "$zshrc_path"; then
-         echo "初次覆盖plugins(单行)"
-         sed -i 's/^plugins=(.*)/\
-     plugins=(\
-     '"$plugins_list"'
-     )/'  -i "$zshrc_path"
-     elif grep '^plugins=($' "$zshrc_path"; then
-         echo "覆盖插件列表(多行plugins更新)"
-         sed -i '/^plugins=(/,/)/c\
-     plugins=(\
-     '"$plugins_list"'
-     )'  -i "$zshrc_path"
-     
-     fi
-     
-     #检查配置文件是否有相应的行
-     cat "$zshrc_path" | grep -e zsh-syntax-highlighting -e zsh-autosuggestions -e zsh-history-substring-search
-     
-     ```
-
 3. 进入到**zsh**刷新`~/.zshrc`,让zsh的配置生效(直接输入zsh即可)
 
-   ```bash
-   #zsh(可选)
-   source ~/.zshrc
-   
-   ```
 
-   4.现在到下一节配置oh my zsh主题
+4. 配置oh my zsh主题
 
 
-## 配置oh my zsh主题
 
-- 进入`zsh`,然后执行以下内容
-  
-  ```bash
-  zshrc=~/.zshrc
-  echo $zshrc
-  # 利用sed并启用扩展正则原地修改,将Zsh主题设置为随机
-  sed -Ei 's/(^ZSH_THEME=)(.*)/\1"random"/' $zshrc
-  #设置随机选择的主题的列表为ys,junkfood,rkj-repos;具体可以改成自己喜欢的主题
-  sed -Ei.bak 's/(^#*\s*)(ZSH_THEME_RANDOM.*=)(.*)/\2("ys" "junkfood" )/' $zshrc
-  #检查修改结果
-  cat   ~/.zshrc|grep -E  '^[^#]'|grep -e random -e THEME -e RANDOM|cat -n
-  #刷新配置结果
-  source $zshrc
-  
-  
-  ```
-  
-
-## 美化ls的输出
-
-使用`lsd`等现代化的ls来提高列举体验
-
-## 一键在线部署
+### 一键在线部署命令
 
 ```bash
- bash <(curl -L https://gitee.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_omz.sh)
+ bash <(curl -sSfL https://gitee.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_omz.sh)
 ```
 
 > 如果有需要,还可以将链接中的gitee换为github
@@ -469,6 +403,10 @@ chsh -s /usr/bin/zsh
 ## 其他
 
 针对ubuntu
+
+### 美化ls的输出
+
+使用`lsd`,`eza`等现代化的`ls`代替品来提高列举体验
 
 ### 修改系统时间
 
