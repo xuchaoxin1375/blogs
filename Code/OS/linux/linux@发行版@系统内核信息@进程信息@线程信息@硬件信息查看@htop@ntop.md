@@ -173,11 +173,9 @@ Linux version 4.15.0-169-generic (buildd@lcy02-amd64-015) (gcc version 7.5.0 (Ub
 
 
 
-###  htop@top的代替品和增强版
+###  btop@top的代替品和增强版
 
 #### 安装和使用htop
-
-- `sudo apt install htop`
 
 - 获取帮助(输入`h`)
 
@@ -186,7 +184,7 @@ Linux version 4.15.0-169-generic (buildd@lcy02-amd64-015) (gcc version 7.5.0 (Ub
 
   - 这就有点像windows上的资源管理器
 
-  - windows上有类似的ntop,但是可以用process explorer更加强大
+  - windows上有btop,ntop可用,但是可以用process explorer更加强大
 
 - 即便是服务器版本的linux,通过windows terminal访问,也能用鼠标排序htop
 
