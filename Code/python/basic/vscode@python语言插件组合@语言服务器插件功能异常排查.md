@@ -38,11 +38,15 @@ Astral致力于为 Python 生态系统构建高性能开发者工具。
 
 - [Ruff](https://docs.astral.sh/ruff/)
 
-### python插件功能异常排查
+### python插件功能配置和异常排查
 
 不恰当的项目目录(工作区)配置会导致python插件提供的部分甚至主要功能失效;
 
 除了**系统级和用户级配置**,在vscode在工作区(项目根目录)中针对python的配置`.vscode/settings.json`文件中通常有3个配置项:
+
+#### pylance
+
+> 这些配置项在vscode的设置中都可以找到(python插件+pylance插件)
 
 ```json
 {
@@ -52,8 +56,6 @@ Astral致力于为 Python 生态系统构建高性能开发者工具。
 }
 ```
 
-这些配置项在vscode的设置中都可以找到(python插件+pylance插件)
-
 其中最为重要的是`python language server`;
 
 如果语言服务器运行异常,那么许多基础功能,例如符号分析和跳转都无法工作;
@@ -62,44 +64,11 @@ Astral致力于为 Python 生态系统构建高性能开发者工具。
 
 > `Output: Focus on Output View`
 
-下面是一些语言服务器插件输出的日志示例
 
-#### ty
-
-```log
-2026-04-23 17:05:19.384 [info] Name: ty
-2026-04-23 17:05:19.384 [info] Module: ty
-2026-04-23 17:05:19.384 [info] Python extension loading
-2026-04-23 17:05:19.384 [info] Waiting for interpreter from python extension.
-2026-04-23 17:05:22.216 [info] Python extension loaded
-2026-04-23 17:05:22.268 [info] Using interpreter: c:\scoop\apps\miniforge\25.11.0-1\python.exe
-2026-04-23 17:05:22.316 [info] Initialization options: {}
-2026-04-23 17:05:22.379 [info] Using the ty binary: c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe
-2026-04-23 17:05:22.382 [info] Found executable at c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe
-2026-04-23 17:05:22.382 [info] Server run command: c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe server
-2026-04-23 17:05:22.383 [info] Server: Start requested.
-2026-04-23 17:05:22.407 [info] ty server version: 0.0.32 (4d1e1fc57 2026-04-20)
-```
-
-
-
-```log
-2026-04-23 16:59:06.723737600  INFO Version: 0.0.32 (4d1e1fc57 2026-04-20)
-2026-04-23 16:59:06.764138700  INFO Defaulting to python-platform `win32`
-2026-04-23 16:59:06.765158200  INFO Python version: Python 3.12, platform: win32
-2026-04-23 16:59:13.035895900  INFO Indexed 100 file(s) in 0.016s
-2026-04-23 16:59:15.425918000  INFO Checking file `c:\Users\Administrator\Desktop\woo_df\woosqlitedb.py` took more than 100ms (457.1503ms)
-
-```
-
-
-
-#### pylance
 
 日志输出示例:
 
 ```log
-
 2026-04-23 11:50:39.231 [info] Client: Pylance client (2026.2.1) started with python extension (2026.4.0)
 2026-04-23 11:50:39.957 [info] (6952): Server root directory: file:///c%3A/Users/Administrator/.vscode/extensions/ms-python.vscode-pylance-2026.2.1/dist
 2026-04-23 11:50:40.047 [info] (6952): Pylance language server 2026.2.1 (pyright version 1.1.408, commit 138238b4) starting
@@ -131,13 +100,41 @@ Astral致力于为 Python 生态系统构建高性能开发者工具。
 
 语言服务器插件会跳过一些通常不适合检索的目录,例如`node_modules`,`__pycache__`以及`.`开头的(通常被视为隐藏文件)
 
-### pylance报多余而不该有的错
+下面是一些语言服务器插件输出的日志示例
 
-- 重载窗口,pylance可以重新扫描新模块
-- 配置extra路径
-  - `python.analysis.extraPaths`
-    - Used to specify extra search paths for import resolution. This replaces the old `python.autoComplete.extraPaths` setting.
-    - Default value: empty array
+#### ty
+
+高性能的python语言服务器插件
+
+如果使用这个方案代替pylance,它是自动配置的,如果行为不符合预期,可以尝试在vscode设置中进一步配置;
+
+启动日志示例
+
+```log
+2026-04-23 17:05:19.384 [info] Name: ty
+2026-04-23 17:05:19.384 [info] Module: ty
+2026-04-23 17:05:19.384 [info] Python extension loading
+2026-04-23 17:05:19.384 [info] Waiting for interpreter from python extension.
+2026-04-23 17:05:22.216 [info] Python extension loaded
+2026-04-23 17:05:22.268 [info] Using interpreter: c:\scoop\apps\miniforge\25.11.0-1\python.exe
+2026-04-23 17:05:22.316 [info] Initialization options: {}
+2026-04-23 17:05:22.379 [info] Using the ty binary: c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe
+2026-04-23 17:05:22.382 [info] Found executable at c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe
+2026-04-23 17:05:22.382 [info] Server run command: c:\scoop\apps\miniforge\25.11.0-1\Scripts\ty.exe server
+2026-04-23 17:05:22.383 [info] Server: Start requested.
+2026-04-23 17:05:22.407 [info] ty server version: 0.0.32 (4d1e1fc57 2026-04-20)
+```
+
+
+
+```log
+2026-04-23 16:59:06.723737600  INFO Version: 0.0.32 (4d1e1fc57 2026-04-20)
+2026-04-23 16:59:06.764138700  INFO Defaulting to python-platform `win32`
+2026-04-23 16:59:06.765158200  INFO Python version: Python 3.12, platform: win32
+2026-04-23 16:59:13.035895900  INFO Indexed 100 file(s) in 0.016s
+2026-04-23 16:59:15.425918000  INFO Checking file `c:\Users\Administrator\Desktop\woo_df\woosqlitedb.py` took more than 100ms (457.1503ms)
+
+```
 
 
 

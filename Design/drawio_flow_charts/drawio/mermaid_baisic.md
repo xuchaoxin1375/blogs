@@ -1,4 +1,5 @@
 #  mermaid简单流程图
+
 - `mermaid`是一种画流图的方便的工具,使用简单的语法,就可以渲染出相关的流图,对于小型图很友好
 - 在markdown中也有所应用
 
@@ -40,21 +41,21 @@ flowchart TB
 ```
 ### 圆柱体
 
-- ```mermaid
-  flowchart LR
-  	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
-  	st1<-->st3[(stiwtch3)]<-->st2
-  ```
+```mermaid
+flowchart LR
+	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
+	st1<-->st3[(stiwtch3)]<-->st2
+```
 
-  
 
-- ```
-  flowchart LR
-  	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
-  	st1<-->st3[(stiwtch3)]<-->st2
-  ```
 
-  
+```
+flowchart LR
+	H1[H1]<--->st1[(switch1)]<-->st2[(switch2)]<-->H2[H2]
+	st1<-->st3[(stiwtch3)]<-->st2
+```
+
+
 
 ##  不稳定性
 
@@ -156,31 +157,31 @@ flowchart LR
 
 ### 例子1
 
-- ```m
-  flowchart LR
-  subgraph  
-      M[主机]
-  end
-      M<==>IO[I/O接口]<==>dc
-  subgraph  IO设备 
-      dc[设备控制器]-->机,电,磁,光部件
-  end
-  ```
-
-  
+```m
+flowchart LR
+subgraph  
+    M[主机]
+end
+    M<==>IO[I/O接口]<==>dc
+subgraph  IO设备 
+    dc[设备控制器]-->机,电,磁,光部件
+end
+```
 
 
 
-- ```mermaid
-  flowchart LR
-  subgraph  
-      M[主机]
-  end
-      M<==>IO[I/O接口]<==>dc
-  subgraph  IO设备 
-      dc[设备控制器]-->机,电,磁,光部件
-  end
-  ```
+
+
+```mermaid
+flowchart LR
+subgraph  
+    M[主机]
+end
+    M<==>IO[I/O接口]<==>dc
+subgraph  IO设备 
+    dc[设备控制器]-->机,电,磁,光部件
+end
+```
 
 ### 例字2
 
@@ -233,47 +234,47 @@ flowchart LR
 
 ### 例子3
 
-- ```mermaid
+```mermaid
+flowchart LR
+    c1-->a2
+    subgraph one
+    a1--->a2
+    end
+    subgraph two
+    b1-->b2
+    end
+    subgraph three
+    c1--->c2
+    end
+    one---> two
+    three--> two
+    two--> c2
+
+```
+
+- ```m
     flowchart LR
         c1-->a2
+        %%子图1
         subgraph one
-        a1--->a2
+            a1--->a2
         end
+    	%%子图2
         subgraph two
-        b1-->b2
+            b1-->b2
         end
+    	%%子图3
         subgraph three
-        c1--->c2
+            c1--->c2
         end
-        one---> two
+    	%%组织
+    	one---> two
         three--> two
         two--> c2
     
     ```
 
-    - ```m
-        flowchart LR
-            c1-->a2
-            %%子图1
-            subgraph one
-                a1--->a2
-            end
-        	%%子图2
-            subgraph two
-                b1-->b2
-            end
-        	%%子图3
-            subgraph three
-                c1--->c2
-            end
-        	%%组织
-        	one---> two
-            three--> two
-            two--> c2
-        
-        ```
-
-        
+    
 
 
 ### VLAN
@@ -332,97 +333,97 @@ flowchart TB
 
 #### 路由网络
 
-- 双路由器三网络
+双路由器三网络
 
-- 
 
-  ```mermaid
-  flowchart LR
-  	subgraph net1
-  	 H1 & H2
-  	end
-  	
-  	%%subgraph R1.
-  	%%R1
-  	%%end
-  	
-  	subgraph net2
-  	 H3
-  	end
-  	
-  	subgraph net3
-  	 H4
-  	end
-  	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
-  	
-  ```
 
-  - ```tex
-    flowchart LR;
-    	subgraph net1
-    	 H1 & H2
-    	end
-    	
-    	%%subgraph R1.
-    	%%R1
-    	%%end
-    	
-    	subgraph net2
-    	 H3
-    	end
-    	
-    	subgraph net3
-    	 H4
-    	end
-    	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
-    	
-    ```
+```mermaid
+flowchart LR
+	subgraph net1
+	 H1 & H2
+	end
+	
+	%%subgraph R1.
+	%%R1
+	%%end
+	
+	subgraph net2
+	 H3
+	end
+	
+	subgraph net3
+	 H4
+	end
+	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
+	
+```
 
-    
+```tex
+flowchart LR;
+	subgraph net1
+	 H1 & H2
+	end
+	
+	%%subgraph R1.
+	%%R1
+	%%end
+	
+	subgraph net2
+	 H3
+	end
+	
+	subgraph net3
+	 H4
+	end
+	net1<-->R1[(R1)]<-->net2<-->R2[(R2)]<--->net3
+	
+```
 
-- 
 
-  ```mermaid
-  flowchart LR
-  	subgraph net1
-  	Net1<-->H1 & H2
-  	end
-  	
-  	%%subgraph R1.
-  	%%R1
-  	%%end
-  	
-  	subgraph net2
-  	Net2<-->H3
-  	end
-  	
-  	subgraph net3
-  	Net3<-->H4
-  	end
-  	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
-  	
-  ```
 
-  - ```tex
-    flowchart LR
-    	subgraph net1
-    	Net1<-->H1 & H2
-    	end
-    	
-    	%%subgraph R1.
-    	%%R1
-    	%%end
-    	
-    	subgraph net2
-    	Net2<-->H3
-    	end
-    	
-    	subgraph net3
-    	Net3<-->H4
-    	end
-    	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
-    	
-    ```
+
+
+```mermaid
+flowchart LR
+	subgraph net1
+	Net1<-->H1 & H2
+	end
+	
+	%%subgraph R1.
+	%%R1
+	%%end
+	
+	subgraph net2
+	Net2<-->H3
+	end
+	
+	subgraph net3
+	Net3<-->H4
+	end
+	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
+	
+```
+
+```tex
+flowchart LR
+	subgraph net1
+	Net1<-->H1 & H2
+	end
+	
+	%%subgraph R1.
+	%%R1
+	%%end
+	
+	subgraph net2
+	Net2<-->H3
+	end
+	
+	subgraph net3
+	Net3<-->H4
+	end
+	net1<-->R1[(R1)]<-->net2<-->R2<--->net3
+	
+```
 
 
 ### 集线器@交换机@路由器@网络混合系统(color demo)
@@ -442,45 +443,46 @@ flowchart LR
 
 ## 计算图
 
-- ```mermaid
-  flowchart LR
-  	a_num --->|2|x1
-  	apple --->|100|x1((x)) 
-  	x1 -->|200| +1((+))
-  	pear --->|150|x2((x))
-      p_num --->|3|x2
-  	x2 -->|450| +1((+))
-  	+1-->|650|x3((x))
-  	tax----->|1.1|x3
-  	x3-->|715|price
-  	
-  	
-  ```
+```mermaid
+flowchart LR
+	a_num --->|2|x1
+	apple --->|100|x1((x)) 
+	x1 -->|200| +1((+))
+	pear --->|150|x2((x))
+    p_num --->|3|x2
+	x2 -->|450| +1((+))
+	+1-->|650|x3((x))
+	tax----->|1.1|x3
+	x3-->|715|price
+	
+	
+```
 
-  
 
-- ```mermaid
-  flowchart LR
-  	a_num --->|2|x1
-  	apple --->|100|x1((x)) 
-  	x1 -->|200| +1((+))
-  	pear --->|150|x2((x))
-      p_num --->|3|x2
-  	x2 -->|450| +1((+))
-  	+1-->|650|x3((x))
-  	tax----->|1.1|x3
-  	x3-->|715|price
-  	
-  	price-..->|1|x3
-  	x3-..->|650|tax
-  	x3-..->|1.1|+1
-  	+1-..->|1.1|x1
-  	+1-..->|1.1|x2
-  	x1-..->|110|a_num
-  	x1-..->|2.2|apple
-  	x2-..->|3.3|pear
-  	x2-..->|165|p_num
-  ```
+
+```mermaid
+flowchart LR
+	a_num --->|2|x1
+	apple --->|100|x1((x)) 
+	x1 -->|200| +1((+))
+	pear --->|150|x2((x))
+    p_num --->|3|x2
+	x2 -->|450| +1((+))
+	+1-->|650|x3((x))
+	tax----->|1.1|x3
+	x3-->|715|price
+	
+	price-..->|1|x3
+	x3-..->|650|tax
+	x3-..->|1.1|+1
+	+1-..->|1.1|x1
+	+1-..->|1.1|x2
+	x1-..->|110|a_num
+	x1-..->|2.2|apple
+	x2-..->|3.3|pear
+	x2-..->|165|p_num
+```
+
 
 
 ## 案例
@@ -502,29 +504,31 @@ graph LR
 
 
 
-# 🎈ref of mermaid
+## 参考文档
 
 - [mermaid - Markdownish syntax for generating flowcharts, sequence diagrams, class diagrams, gantt charts and git graphs. (mermaid-js.github.io)](https://mermaid-js.github.io/mermaid/#/)
-  支持一下类型的图型,各有个的语法
 
-  * [Flowchart](https://mermaid-js.github.io/mermaid/#/flowchart "Flowchart")
+## FAQ
 
-  * [Sequence diagram](https://mermaid-js.github.io/mermaid/#/sequenceDiagram "Sequence diagram")
+- 结点文字建议始终使用引号包裹,避免特殊符号,比如括号等被特殊解释导致错误
+- 子图内部可以使用`direction`指令指定方向,配合外部的方向进行布局调整
+- 结点名字边缘不要有多余的空格,尤其是名字**末尾**的空格(尤其是`subgraph`子图名字),否则会导致结点引用不正确
 
-  * [Class Diagram](https://mermaid-js.github.io/mermaid/#/classDiagram "Class Diagram")
+```mermaid
+flowchart LR
+	subgraph export_data
+	 	direction TB    %% 子图内部垂直
+        a["export_csv()"]
+        b["get_data()"]
+       a-->b 
+	end
+	
+    subgraph data_normalization
+    	direction TB    %% 子图内部垂直
+		update_products["update_products()"]
+		
+    end
+    export_data --> data_normalization
 
-  * [State Diagram](https://mermaid-js.github.io/mermaid/#/stateDiagram "State Diagram")
+```
 
-  * [Entity Relationship Diagram](https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram "Entity Relationship Diagram")
-
-  * [User Journey](https://mermaid-js.github.io/mermaid/#/user-journey "User Journey")
-
-  * [Gantt](https://mermaid-js.github.io/mermaid/#/gantt "Gantt")
-
-  * [Pie Chart](https://mermaid-js.github.io/mermaid/#/pie "Pie Chart")
-
-  * [Requirement Diagram](https://mermaid-js.github.io/mermaid/#/requirementDiagram "Requirement Diagram")
-
-  * [Gitgraph (Git) Diagram 🔥](https://mermaid-js.github.io/mermaid/#/gitgraph "Gitgraph (Git) Diagram 🔥")
-
-  * [Other Examples](https://mermaid-js.github.io/mermaid/#/examples "Other Examples")
