@@ -12,30 +12,33 @@
 
 ##  永久配置(长期有效配置)👺
 
-- 清华源为例,配置命令为:
 
-  - ```cmd
-    pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-    ```
 
-    
+### 相关命令行文档:
 
-- 相关命令行文档:
+- ```bash
+  python -m pip config [<file-option>] list
+  python -m pip config [<file-option>] [--editor <editor-path>] edit
+  
+  python -m pip config [<file-option>] get command.option
+  python -m pip config [<file-option>] set command.option value
+  python -m pip config [<file-option>] unset command.option
+  python -m pip config [<file-option>] debug
+  ```
 
-  - ```bash
-    python -m pip config [<file-option>] list
-    python -m pip config [<file-option>] [--editor <editor-path>] edit
-    
-    python -m pip config [<file-option>] get command.option
-    python -m pip config [<file-option>] set command.option value
-    python -m pip config [<file-option>] unset command.option
-    python -m pip config [<file-option>] debug
-    ```
+- 这里:
 
-  - 这里:
+  - `command.option=global.index-url`
+  - `value=https://pypi.tuna.tsinghua.edu.cn/simple`
 
-    - `command.option=global.index-url`
-    - `value=https://pypi.tuna.tsinghua.edu.cn/simple`
+### 配置主镜像和备用镜像
+
+```python
+pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simple/
+pip config set global.extra-index-url "https://pypi.tuna.tsinghua.edu.cn/simple https://repo.huaweicloud.com/repository/pypi/simple/  https://mirrors.aliyun.com/pypi/simple/ https://pypi.org/simple"
+```
+
+这里主镜像配置为阿里源,备用镜像配置为清华源,华为源和原始官方源
 
 ### 配置检查
 
