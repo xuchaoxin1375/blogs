@@ -654,7 +654,7 @@ Timestamp                 CounterSamples
 >
 > 如果想要在powershell中获取进程的私有工作集,仅靠get-process无法实现,但是可以考虑`Get-Counter`获取该数值.
 
-关于提交大小是否为`PagedMemorySize`,`PrivateMemorySize64`,可以做如下实验;
+关于**提交大小**是否为`PagedMemorySize`,`PrivateMemorySize64`,可以做如下实验;
 
 选取一个系统上正在运行的进程(可以倒序排列选择占用较大的进程,比如我的设备上有一个进程ID为`5928`的进程)
 
