@@ -389,7 +389,11 @@ CONDA_PYTHON_EXE=/home/cxxu/miniforge3/bin/python
 CONDA_SHLVL=3
 ```
 
-或者使用declare -p 来查看
+> 注意这种写法:`printf "${!"%s"}\n" "${!CONDA@}"`无法代替上述循环写法;
+>
+> bash不识别这种嵌套写法:`${!"%s"}`因为`%s`在bash看来不是变量名;
+
+或者使用declare -p 来查看;
 
 ```bash
 declare -p ${!CONDA@}
@@ -405,6 +409,42 @@ declare -x HOMEBREW_CELLAR="/opt/homebrew/Cellar"
 declare -x HOMEBREW_PIP_INDEX_URL="https://pypi.mirrors.ustc.edu.cn/simple"
 declare -x HOMEBREW_PREFIX="/opt/homebrew"
 declare -x HOMEBREW_REPOSITORY="/opt/homebrew"
+```
+
+##### 借助grep
+
+如果你只是想快速查看，不想写 `for` 循环，也可以利用 `env` 命令配合 `grep`：
+
+```bash
+env | grep "^HOMEBREW"
+```
+
+> **注意**：`env` 只能看到已经 `export`（导出）的环境变量。如果变量只是本地脚本变量，则必须使用上面的 `for` 循环方法。
+
+`compgen -v`不带取值
+
+```bash
+$ compgen -v |grep '^CONDA'
+CONDA_DEFAULT_ENV
+CONDA_EXE
+CONDA_PREFIX
+CONDA_PROMPT_MODIFIER
+CONDA_PYTHON_EXE
+CONDA_SHLVL
+```
+
+
+
+`set`命令(带有取值)
+
+```bash
+$ set |grep '^CONDA'
+CONDA_DEFAULT_ENV=base
+CONDA_EXE=/opt/homebrew/Caskroom/miniforge/base/bin/conda
+CONDA_PREFIX=/opt/homebrew/Caskroom/miniforge/base
+CONDA_PROMPT_MODIFIER='(base) '
+CONDA_PYTHON_EXE=/opt/homebrew/Caskroom/miniforge/base/bin/python
+CONDA_SHLVL=1
 ```
 
 
