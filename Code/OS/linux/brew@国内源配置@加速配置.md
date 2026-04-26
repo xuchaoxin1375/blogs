@@ -14,7 +14,10 @@ Homebrew 不会将文件安装到它本身目录之外，所以您可将 Homebre
 - 理论上，你可以将 Homebrew 安装到任何你想要的位置。但是，你不应该安装在默认、受支持且最佳的前缀之外。在默认前缀之外，很多东西都需要从源代码构建。从源代码构建速度慢、能耗高、容易出错且不受支持。Homebrew 之所以能正常工作，主要原因是**它**使用 bottle（二进制软件包），而大多数 bottle 都需要使用默认前缀。
 - 选择前缀 `/home/linuxbrew/.linuxbrew` 是为了避免安装后写入系统目录，同时仍然允许使用大多数预编译二进制文件（bottles）。Homebrew 是为单用户安装而设计的，而不是为共享角色帐户而设计的。
 
+## 文档和手册
 
+- [brew(1) – The Missing Package Manager for macOS (or Linux) — Homebrew Documentation](https://docs.brew.sh/Manpage) 
+- 或者在brew已经安装的情况下,通过输入`man brew`查询本地手册;
 
 ### homebrew相关术语和概念
 
@@ -65,6 +68,8 @@ $ type -aS shfmt
 shfmt is /opt/homebrew/bin/shfmt -> /opt/homebrew/bin/../Cellar/shfmt/3.13.1/bin/shfmt
 ```
 
+### 概念关系示意图
+
 ```mermaid
 graph TD
     %% 核心层级结构
@@ -107,6 +112,8 @@ graph TD
 - **安装来源**：`Formula`（配方）决定了如何通过源码或 `Bottle`（预编译好的瓶装包）来填充 `Keg`。
 - **访问方式**：为了方便调用，当前活跃的 `Keg` 会被链接到 `opt prefix`，如果不是 `keg-only` 的软件，它的可执行文件最终会出现在系统的 `bin` 路径下。
 - **Cask 的区别**：`Caskroom` 与 `Cellar` 并列，专门用于处理那些预编译好的 GUI 程序或二进制应用（如 Chrome, Docker 等）。
+
+### 展开解释
 
 #### Formula (配方)
 
@@ -178,6 +185,48 @@ Homebrew 将 `formulae` 安装到 `$(brew --cellar)` 的 Cellar 中，然后将�
 
 >  阅读一个简单的 formula，例如 `brew edit etl`（或 etl.rb），或一个更高级的，例如 `brew edit git`（或 git.rb）。
 
+## 关于prefix和opt prefix
+
+- prefix(homebrew prefix):主要是指homebrew安装目录;
+- opt prefix:在 Homebrew 的语境下，`opt` 这个词并不是随机选择的，它背后有着 Unix 系统的传统逻辑和 Homebrew 特有的版本管理机制。
+
+`opt` 既代表 **Optional**（第三方软件目录），也代表了 Homebrew 的 **优化访问层**。它通过提供一个“永久固定”的地址，屏蔽了底层软件版本更迭带来的路径变化。
+
+### 1. Unix 传统的传承
+
+在传统的 Unix 文件系统层次结构（Filesystem Hierarchy Standard）中，**/opt** 目录代表 **"optional"**（可选的）。
+
+- 它通常用于存放那些不属于操作系统核心部分的软件，或者由第三方供应商提供的软件包。
+- Homebrew 沿用了这个命名习惯，将它管理的所有软件包放在这个目录下。
+
+------
+
+### 2. 在 Homebrew 中的核心作用：符号链接（Symlink）
+
+虽然 Homebrew 的软件真正下载和解压的地方是在 `/opt/homebrew/Cellar`（窖藏），但直接引用 Cellar 里的路径会非常麻烦，因为路径里包含了具体的版本号。
+
+这就是 `opt` 目录发挥威力的地方。它存放的是指向当前 **活动版本（active version）** 的**符号链接（Symbolic Links）**。
+
+为什么要这么做？
+
+我们可以通过下面这个例子来理解：
+
+| **路径类型**          | **实际路径示例**                  | **存在的问题/优点**                      |
+| --------------------- | --------------------------------- | ---------------------------------------- |
+| **真实路径 (Cellar)** | `/opt/homebrew/Cellar/foo/1.2.3/` | 软件升级到 1.2.4 后，旧路径就会失效。    |
+| **优化路径 (opt)**    | `/opt/homebrew/opt/foo/`          | **始终有效**。它永远指向当前最新的版本。 |
+
+homebrew会自动维护opt中的符号链接指向,默认情况下指向最新版本;
+
+- **版本无关性**：你在配置环境变量（如 `PATH` 或 `LDFLAGS`）时，只需要指向 `opt/foo`。这样即使你通过 `brew upgrade` 升级了软件，你的配置文件也不需要做任何修改。
+- **平滑切换**：Homebrew 只需要更改 `opt/foo` 这个“快捷方式”的目标，就能瞬间完成版本的切换。
+
+在windows平台的scoop有类似的手法;
+
+### 环境变量
+
+[ENVIRONMENT 环境变量](https://docs.brew.sh/Manpage#environment)
+
 ## 国内配置brew加速
 
 [Module: Homebrew::EnvConfig — Homebrew Ruby API](https://docs.brew.sh/rubydoc/Homebrew/EnvConfig.html)
@@ -188,13 +237,49 @@ Homebrew 将 `formulae` 安装到 `$(brew --cellar)` 的 Cellar 中，然后将�
 
 ------
 
-##  核心加速点 (Components)
+###  核心加速点 (Components)
 
-要达到完全加速，必须配置以下三个部分：
+要达到完全加速，配置以下几个部分(尤其是前2个)：
 
 - **Brew Repo**: Homebrew 程序本身的源代码（Git 仓库）。
-- **Core Repo (Formulae)**: 核心软件包定义文件，决定了 `brew install` 搜什么、怎么装。
 - **Homebrew Bottles**: 预编译好的二进制包（最影响下载速度的部分）。
+
+brew4.0后,下面的两个配置项不再必须,考虑兼容性,可以按需配置:
+
+- **Core Repo (Formulae)**: 核心软件包定义文件，决定了 `brew install` 搜什么、怎么装。
+- (`*`)**Case Repo**(for MacOs):针对Macos的应用,主要是GUI程序;linux系统一般不用关心;
+
+---
+
+
+
+以中科大源为例:
+
+1. Homebrew 源代码仓库[Homebrew - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/brew.git.html)
+2. Homebrew **预编译**二进制软件包与软件包**元数据文件**[Homebrew Bottles - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/homebrew-bottles.html)
+
+> Brew 4.0 版本后默认使用元数据 JSON API 获取仓库信息，因此在大部分情况下都不再需要进行如下配置。可参考 `homebrew-bottles` 进行相关配置。
+
+- Homebrew 核心软件仓库[Homebrew Core - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/homebrew-core.git.html)
+
+- `*`Homebrew cask 软件仓库，提供 **macOS** 应用和大型二进制文件[Homebrew Cask - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/homebrew-cask.git.html)
+
+  针对于macos(linux用户不用关心)`brew tap --custom-remote homebrew/cask https://mirrors.ustc.edu.cn/homebrew-cask.git`
+
+```bash
+# Homebrew 源代码仓库
+export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+# Homebrew 预编译二进制软件包与软件包元数据文件
+export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+# Homebrew 核心软件仓库(Brew 4.0 版本后默认使用元数据 JSON API 获取仓库信息，因此在大部分情况下都不再需要进行如下配置。可参考 homebrew-bottles 进行相关配置。)
+export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+brew update
+```
+
+
+
+
 
 ------
 
