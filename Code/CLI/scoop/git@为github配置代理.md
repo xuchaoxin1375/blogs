@@ -12,17 +12,28 @@
 
 你可以利用 Git 的 **URL 条件配置**。这种方法只会对包含 `github.com` 的请求生效，完全不影响 Gitee。
 
-打开终端，直接执行以下命令（请根据你代理软件的实际端口修改，一般是 **7890** 或 **1080**）：
+打开终端，直接执行以下命令（请根据你代理软件的实际端口修改）：
 
-```Bash
-# 如果你的代理是 HTTP/HTTPS 协议
-git config --global http.https://github.com.proxy http://127.0.0.1:7890
 
-# 或者如果你的代理支持 SOCKS5 (推荐，通常更稳定)
-git config --global http.https://github.com.proxy socks5://127.0.0.1:7890
-```
 
 > **注意：** 这里使用的是 `http.https://github.com.proxy`，这是一种限定域名的写法。
+
+#### 情况 A：如果你使用 SOCKS5 代理（推荐）
+
+```bash
+# 只针对 GitHub 域名进行配置（最优雅）
+git config --global http.https://github.com.proxy socks5://127.0.0.1:端口号
+git config --global https.https://github.com.proxy socks5://127.0.0.1:端口号
+```
+
+> 针对 `http `协议的 GitHub 地址（现在很少见，但为了兼容性）第一行也保留
+
+#### 情况 B：如果你使用 HTTP/HTTPS 代理
+
+```bash
+git config --global http.https://github.com.proxy http://127.0.0.1:端口号
+git config --global https.https://github.com.proxy http://127.0.0.1:端口号
+```
 
 ------
 
