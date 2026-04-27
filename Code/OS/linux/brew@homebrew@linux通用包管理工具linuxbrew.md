@@ -103,14 +103,31 @@ echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
 
 这两行通常只有一行会完整执行;
 
+#### shellenv命令
+
 **`eval "$(... shellenv)"`**:
 
 - 执行 `brew shellenv` 会输出几行导出变量的命令（如 `export PATH="..."`）。
 - `eval` 会直接在**当前终端运行这些输出**，从而**立即激活** `brew` 命令。
 
+```bash
+# shellenv 如果检测到已经安装并配置brew的情况下是不会输出内容的;
+# 这里使用--norc,让shellenv输出内容;
+bash --norc
+bash-5.3$ /home/linuxbrew/.linuxbrew/bin/brew shellenv
+export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew";
+export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar";
+export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew";
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin${PATH+:$PATH}";
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
+export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}";
+```
+
+
+
 ---
 
-
+#### 测试安装结果
 
 1. **验证安装**：完成上述步骤后，可以通过安装一个测试包来验证 Homebrew 是否正常工作：
     ```bash
