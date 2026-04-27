@@ -435,8 +435,11 @@ brew update
 
 ### 方案2
 
+> 非交互式安装,通过指定选项完成安装
+
 ```bash
-https://raw.giteeusercontent.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/shell_utils.sh?metadata=eyJyIjoibWFpbiIsImZwIjoid3Avd29vY29tbWVyY2Uvd29vX2RmL3NoL3NoZWxsX3V0aWxzLnNoIiwicGlkIjoxOTQ0NTQwMSwic3RvIjoiZ2l0LXNoYXJkaW5nLXN0by0xMHQtMDUzIiwicnAiOiJyZXBvcy8xYS81MS8xYTUxMDVjNmNkZDc1Y2E2MThiZDZiMmVhMWJjNTg3ZjM2OGE0ZmU2ZmNiOTU1MmMzYWQ3ZDk5Y2EyNzIyMTMwLmdpdCIsImlzcCI6dHJ1ZSwiZXhwaXJlX2F0IjoxNzc3Mjg0NjAwfQ&signature=LvEMAN6XaxYQK9xT22UVp8RKsFmwrs-DehW_NGCQjd4
+source <(curl -fsSL https://raw.giteeusercontent.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/shell_utils.sh)
+install_brew_cn # 添加-h选项查看帮助(默认使用ustc源安装)
 ```
 
 
