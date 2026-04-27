@@ -251,7 +251,12 @@ brew4.0后,下面的两个配置项不再必须,考虑兼容性,可以按需配�
 
 ---
 
-
+> 替换homebrew为国内镜像加速有两类方案:
+>
+> - homebrew镜像环境变量配置方案
+> - homebrew相关的git仓库绑定源更换
+>
+> [常见 Homebrew 国内镜像源大全](https://xuanyuan.cloud/docker/homebrew-mirrors?section=tsinghua-source)
 
 以中科大源为例:
 
@@ -419,14 +424,24 @@ brew update
 
 ##  自动化安装/换源脚本
 
-如果你觉得手动配置太麻烦，国内目前最流行的“一键安装/换源”方案是使用 **中科大** 或 **金大侠 (Cunkai)** 的脚本：
+如果你觉得手动配置太麻烦，国内目前最流行的“一键安装/换源”方案:
+
+### 方案1
 
 ```Bash
 # 自动选择最快镜像源的一键脚本 (由国内开发者维护)
 /bin/zsh -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
 ```
 
-**💡 小贴士：**
+### 方案2
+
+```bash
+https://raw.giteeusercontent.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/shell_utils.sh?metadata=eyJyIjoibWFpbiIsImZwIjoid3Avd29vY29tbWVyY2Uvd29vX2RmL3NoL3NoZWxsX3V0aWxzLnNoIiwicGlkIjoxOTQ0NTQwMSwic3RvIjoiZ2l0LXNoYXJkaW5nLXN0by0xMHQtMDUzIiwicnAiOiJyZXBvcy8xYS81MS8xYTUxMDVjNmNkZDc1Y2E2MThiZDZiMmVhMWJjNTg3ZjM2OGE0ZmU2ZmNiOTU1MmMzYWQ3ZDk5Y2EyNzIyMTMwLmdpdCIsImlzcCI6dHJ1ZSwiZXhwaXJlX2F0IjoxNzc3Mjg0NjAwfQ&signature=LvEMAN6XaxYQK9xT22UVp8RKsFmwrs-DehW_NGCQjd4
+```
+
+
+
+### 小贴士：
 
 - **关于 Cask**: 如果你经常安装带 GUI 的应用（如 Chrome），记得也要更换 `homebrew-cask` 的远程地址。
 - **关于 API**: 现代版本的 Homebrew 默认开启了 API 模式（不再需要下载庞大的整个仓库），因此设置 `HOMEBREW_API_DOMAIN` 环境变量在 2024 年以后变得尤为重要。
