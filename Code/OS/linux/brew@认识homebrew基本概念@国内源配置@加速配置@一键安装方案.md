@@ -431,7 +431,7 @@ brew update
 ### 方案1
 
 ```Bash
-# 自动选择最快镜像源的一键脚本 (由国内开发者维护)
+# 交互式安装脚本
 /bin/zsh -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
 ```
 
@@ -447,4 +447,68 @@ install_brew_cn # 添加-h选项查看帮助(默认使用ustc源安装)
 ```
 
 
+
+## brew安装路径和环境变量PATH
+
+在brew安装结束后,末尾可能会提示形如下面的通知(不同设备或不同shell,镜像安装结束给出的通知一般不同,以脚本给出的为准,请勿直接照搬下面的示例):
+
+> 例如我使用zsh运行安装命令(使用ustc源)的情况下:
+
+```bash
+
+==> Next steps:
+- Run these commands in your terminal to add Homebrew to your PATH:
+    echo >> /home/cxxu/.zshrc
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"' >> /home/cxxu/.zshrc
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+    
+    
+- Run these commands in your terminal to add the non-default Git remotes for Homebrew/brew and Homebrew/homebrew-core:
+    echo '# Set non-default Git remotes for Homebrew/brew and Homebrew/homebrew-core.' >> /home/cxxu/.zshrc
+    echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"' >> /home/cxxu/.zshrc
+    echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"' >> /home/cxxu/.zshrc
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+```
+
+> 提示分为2个部分,都是关于brew相关的环境变量(直接插入或通过环境片段计算命令间接导入环境变量)到shell配置文件中持久化;
+>
+> - 第一部分是关于brew安装路径添加到`PATH`的语句(通过`eval`动态计算brew相关路径);
+> - 第二部分是设置brew镜像源的;
+>
+> 以linuxbrew的标准安装为例:
+>
+> ```bash
+> # 如果已经安装过brew(尤其是PATH中能够找到brew安装路径,就会shellenv就拒绝输出内容)
+> # 需要清理相关配置后才可以看到shellenv的输出(比如登录shell时使用--norc绕过brew在配置中对PATH的xiu'g)
+> # 这个命令会计算出一些brew相关的环境变量的表达式;
+> # 借助eval命令,可以将这些环境变量注入到当前交互是shell中;
+> # 其中比较特殊的变量是`PATH`,也就是这个brew命令会尝试修改PATH;
+> bash-5.3$ /home/linuxbrew/.linuxbrew/bin/brew shellenv
+> export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew";
+> export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar";
+> export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew";
+> # 其他
+> export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin${PATH+:$PATH}";
+> [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
+> export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}";
+> ```
+>
+> 
+
+检查当前shell的`PATH`环境值是否包含了brew所在目录:
+
+```bash
+echo "$PATH"|tr ':' '\n'|grep brew
+```
+
+例如:
+
+```bash
+   echo "$PATH"|tr ':' '\n'|grep brew
+/home/linuxbrew/.linuxbrew/bin
+/home/linuxbrew/.linuxbrew/sbin
+```
+
+部分情况下,用户可能看到重复的brew路径被添加到PATH中;
 

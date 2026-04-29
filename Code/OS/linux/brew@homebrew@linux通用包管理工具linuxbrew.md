@@ -83,6 +83,8 @@ bin  Caskroom  Cellar  etc  Frameworks  Homebrew  include  lib  opt  sbin  share
 
 通常需要运行以下命令,会计算出合适的加载片段(shell语句)添加到你的 shell 配置文件（如 `~/.bashrc` 或 `~/.zshrc`）中：
 
+> 对于linuxbrew:
+
 ```bash
 test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
 test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -90,6 +92,27 @@ echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
 echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
 # 计算结果参考:
 # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
+
+通用兼容版(判断系统平台执行对应操作)
+
+> macos对于shell启动加载配置文件的默认行为和linux有些区别,配置片段可能要写入到`.bash_profile`,或者自行在`.bash_profile`中导入`.bashrc`;
+
+```bash
+# 判断系统平台,找到正确的brew路径并执行shellenv命令生成环境变量设置语句;在通过eval注入到当前环境中;
+if [[ $OSTYPE == linux* ]]; then
+    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [[ $OSTYPE == darwin* ]]; then
+    # 针对 Apple Silicon Mac
+    test -d /opt/homebrew && eval "$(/opt/homebrew/bin/brew shellenv)"
+    # 针对 Intel Mac
+    test -d /usr/local/bin/brew && eval "$(/usr/local/bin/brew shellenv)"
+fi
+# 插入到shell配置文件中以便持久化
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.zshrc
+
 ```
 > 最终你的配置可能包含语句形如`eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"`
 >
@@ -121,6 +144,11 @@ export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew";
 export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin${PATH+:$PATH}";
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
 export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}";
+```
+
+```bash
+test -d ~/.linuxbrew && ~/.linuxbrew/bin/brew shellenv
+test -d /home/linuxbrew/.linuxbrew && /home/linuxbrew/.linuxbrew/bin/brew shellenv
 ```
 
 
@@ -202,7 +230,7 @@ rm /tmp/new_sudo_rule
 
 ------
 
-### 1. `adduser` 
+### `adduser`
 
 在 Debian/Ubuntu 等系统中，`adduser` 是一个 Perl 脚本，它非常友好。
 
@@ -217,7 +245,7 @@ sudo adduser username
 
 ------
 
-### 2. `useradd` 
+###  `useradd`
 
 这是 Linux 原生的底层命令。
 
