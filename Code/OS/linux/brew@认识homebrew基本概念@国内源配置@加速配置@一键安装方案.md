@@ -70,6 +70,8 @@ shfmt is /opt/homebrew/bin/shfmt -> /opt/homebrew/bin/../Cellar/shfmt/3.13.1/bin
 
 ### 概念关系示意图
 
+> 以功能最完整的MacOS(arm64架构芯片)中的brew为例(其他系统类似)
+
 ```mermaid
 graph TD
     %% 核心层级结构
@@ -435,7 +437,9 @@ brew update
 
 ### 方案2
 
-> 非交互式安装,通过指定选项完成安装
+> 非交互式安装,通过指定选项完成安装;
+>
+> 兼容GNU/linux系统
 
 ```bash
 source <(curl -fsSL https://raw.giteeusercontent.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/shell_utils.sh)
@@ -443,9 +447,4 @@ install_brew_cn # 添加-h选项查看帮助(默认使用ustc源安装)
 ```
 
 
-
-### 小贴士：
-
-- **关于 Cask**: 如果你经常安装带 GUI 的应用（如 Chrome），记得也要更换 `homebrew-cask` 的远程地址。
-- **关于 API**: 现代版本的 Homebrew 默认开启了 API 模式（不再需要下载庞大的整个仓库），因此设置 `HOMEBREW_API_DOMAIN` 环境变量在 2024 年以后变得尤为重要。
 
