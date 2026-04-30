@@ -124,15 +124,19 @@ pip config set global.extra-index-url "https://pypi.tuna.tsinghua.edu.cn/simple 
 
 ## 国内源
 
-###  清华源
+清华源
 
-- 推荐使用清华源
+- 清华源(可能会被限流)
 - `https://pypi.tuna.tsinghua.edu.cn/simple`
 
-###  阿里源
+阿里源
 
 - (更新没有清华源勤快)
 - `https://mirrors.aliyun.com/pypi/simple/`
+
+科大源
+
+- `https://pypi.mirrors.ustc.edu.cn/simple/`
 
 ###  linux ubuntu
 ####  设置pip别名(推荐)
