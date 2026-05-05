@@ -2,11 +2,53 @@
 
 
 
-## 1. 基础日志记录
+##  日志库
 
-### 1.1 最简单的日志记录
+日志库采用模块化方法，并提供几类**组件**：记录器(logger)、处理器(handler)、过滤器(filter)和格式器(formatter).
 
-就像是调用带有预置格式的print()语句
+```mermaid
+flowchart 
+    subgraph Logger["记录器 (Logger)"]
+        L1["logger.debug/info/warning/error/exception/critical"]
+        L2["设置级别 setLevel()"]
+        L3["添加过滤器 addFilter()"]
+        L4["添加处理器 addHandler()"]
+    end
+
+    subgraph Handler["处理器 (Handler)"]
+        H1["StreamHandler<br/>控制台输出"]
+        H2["FileHandler<br/>文件输出"]
+        H3["RotatingFileHandler<br/>滚动文件"]
+        H4["SMTPHandler<br/>邮件发送"]
+        H5["其他内置/自定义处理器"]
+    end
+
+    subgraph Filter["过滤器 (Filter)"]
+        F1["Logger 级别过滤器"]
+        F2["Handler 级别过滤器"]
+        F3["自定义过滤器<br/>filter(record) 方法"]
+    end
+
+    subgraph Formatter["格式器 (Formatter)"]
+        FM1["格式化字符串<br/>'%(asctime)s - %(name)s - %(levelname)s - %(message)s'"]
+        FM2["设置格式 setFormatter()"]
+    end
+
+    Logger -->|"可添加多个"| Handler
+    Handler -->|"可设置一个"| Formatter
+    Logger -->|"可添加多个"| Filter
+    Handler -->|"可添加多个"| Filter
+```
+
+
+
+###  最简单的日志记录
+
+就像是调用带有预置格式的print()语句;
+
+> 对于简单的演示脚本,基础用法已经足够.(默认仅输出warning及更高级别的信息,且日志格式中默认不含日期,仅带有该条日志消息级别和日志记录器名称)
+>
+> 如果需要自定义,需要定义对应的日志记录器;
 
 ```python
 import logging
@@ -20,7 +62,7 @@ logging.error('这是一个错误信息')
 # ERROR:root:这是一个错误信息
 ```
 
-### 1.2 日志级别🎈
+###  日志级别🎈
 
 Python logging 有5个标准级别(数值表示重要/严重程度)：
 
@@ -56,6 +98,8 @@ DEBUG = 10
 NOTSET = 0
 ```
 
+### 默认日志级别
+
 默认的级别是 `WARNING`，意味着只会追踪该严重程度及以上的事件，除非 logging 包另有其他配置。
 
 - 其中`DEBUG`是我们调试程序的时候使用,是最详细的信息输出级别
@@ -75,9 +119,13 @@ logging.error('错误信息')
 logging.critical('严重错误')
 ```
 
-## 2. 日志配置
+##  日志配置
 
-### 2.1 基本配置|日志格式|文件文件输出
+当默认的日志器行为不满足需求或者需要定制化行为,则需要额外的配置;
+
+例如将日志写入文件,定义日志格式,以及日志级别;
+
+###  基本配置|日志格式|文件文件输出
 
 logging模块不宜在同一个上下文下多次更改配置,如果要运行/测试新的logging配置,请另起一个新的python解释器环境
 
@@ -95,7 +143,7 @@ logging.basicConfig(
 logging.info('这是一条信息日志')
 ```
 
-### 2.2 日志格式参数🎈
+###  日志格式参数🎈
 
 常用格式参数：
 
@@ -108,9 +156,74 @@ logging.info('这是一条信息日志')
 - `%(module)s`:模块名
 - `%(lineno)d`: 行号
 
-## 3. 高级用法
+#### 日志时间自定义(datefmt)
 
-### 3.1 使用记录器(Logger)
+```python
+import logging
+
+# 格式1：完整日期时间
+datefmt1 = '%Y-%m-%d %H:%M:%S'  # 2024-01-15 14:30:45
+# 仅包含时-分-秒的简短格式
+datefmt1 = '%H:%M:%S' # 14:30:45
+# 格式2：带毫秒
+datefmt2 = '%Y-%m-%d %H:%M:%S,%f'[:-3]  # 2024-01-15 14:30:45,123
+
+# 格式3：紧凑格式
+datefmt3 = '%Y%m%d-%H%M%S'  # 20240115-143045
+
+# 格式4：带星期几
+datefmt4 = '%Y-%m-%d %H:%M:%S %A'  # 2024-01-15 14:30:45 Monday
+
+# 格式5：ISO格式
+datefmt5 = '%Y-%m-%dT%H:%M:%S'  # 2024-01-15T14:30:45
+
+```
+
+使用方式:
+
+```python
+
+# 简单设置
+logging.basicConfig(
+    format='%(asctime)s - %(message)s',
+    datefmt=datefmt1
+)
+# 或者通过创建formatter并设置时间格式
+formatter = logging.Formatter(
+    fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+```
+
+对于formatter的更完整用例:
+
+```python
+import logging
+
+# 创建logger
+logger = logging.getLogger('my_logger')
+logger.setLevel(logging.INFO)
+
+# 创建handler
+handler = logging.StreamHandler()
+
+# 创建formatter并设置时间格式
+formatter = logging.Formatter(
+    fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+logger.info("自定义格式的日志")
+```
+
+
+
+##  高级用法
+
+###  使用记录器(Logger)
 
 ```python
 import logging
@@ -144,7 +257,7 @@ logger.error('错误信息')
 logger.critical('严重错误')
 ```
 
-### 3.2 日志文件轮转
+###  日志文件轮转
 
 ```python
 from logging.handlers import RotatingFileHandler
@@ -163,7 +276,7 @@ for i in range(10000):
     logger.info(f'这是第 {i} 条日志')
 ```
 
-### 3.3 定时轮转日志
+###  定时轮转日志
 
 ```python
 from logging.handlers import TimedRotatingFileHandler
@@ -181,9 +294,9 @@ logger.addHandler(handler)
 logger.info('这条日志会根据时间轮转')
 ```
 
-## 4. 最佳实践
+##  最佳实践
 
-### 4.1 在模块中使用日志
+###  在模块中使用日志
 
 ```python
 # mymodule.py
@@ -199,7 +312,7 @@ def do_something():
         logger.error('发生了除以零错误', exc_info=True)
 ```
 
-### 4.2 配置日志的推荐方式
+###  配置日志的推荐方式
 
 ```python
 import logging
@@ -245,7 +358,7 @@ logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('my_app')
 ```
 
-### 4.3 在生产环境中的日志建议
+###  在生产环境中的日志建议
 
 1. 使用 JSON 或 YAML 文件配置日志
 2. 为不同环境（开发、测试、生产）设置不同的日志级别
@@ -253,15 +366,15 @@ logger = logging.getLogger('my_app')
 4. 避免记录敏感信息
 5. 使用结构化日志（如 JSON 格式）便于日志分析
 
-## 5. 常见问题
+##  常见问题
 
-### 5.1 为什么我的日志没有显示？
+###  为什么我的日志没有显示？
 
 - 检查日志级别设置
 - 确保没有禁用日志记录器
 - 检查是否有处理器(handler)添加到记录器
 
-### 5.2 如何捕获异常堆栈？
+###  如何捕获异常堆栈？
 
 ```python
 try:
@@ -272,7 +385,7 @@ except ZeroDivisionError:
     logging.exception("发生了错误")
 ```
 
-### 5.3 如何临时禁用日志？
+###  如何临时禁用日志？
 
 ```python
 logging.disable(logging.CRITICAL)  # 禁用所有低于CRITICAL级别的日志
