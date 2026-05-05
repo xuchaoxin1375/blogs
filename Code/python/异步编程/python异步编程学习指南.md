@@ -6,10 +6,13 @@
 
 ## 为什么需要异步编程
 
+- [asyncio 的概念概述 — Python  文档](https://docs.python.org/zh-cn/3.14/howto/a-conceptual-overview-of-asyncio.html#a-conceptual-overview-of-asyncio)
+- [asyncio --- 异步 I/O — Python  文档](https://docs.python.org/zh-cn/3.14/library/asyncio.html)
+
 想象一个餐厅的场景：
 
-- **同步模式**：一个服务员接待一位客人，等他点完菜、做完菜、吃完饭、结完账后，才去接待下一位客人。
-- **异步模式**：一个服务员同时接待多位客人——给A点完菜后,交代厨房做菜，然后去给B点菜、给C上菜、给D结账(而不是等待A离开后才服务其他人)。
+- **同步模式**：一个服务员(线程)接待一位客人，等他点完菜、做完菜、吃完饭、结完账后，才去接待下一位客人。
+- **异步模式**：一个服务员(线程)同时接待多位客人——给A点完菜后,交代厨房做菜，然后去给B点菜、给C上菜、给D结账(而不是等待A离开后才服务其他人)。
 
 程序中大量操作是 **I/O 密集型** 的（网络请求、文件读写、数据库查询），CPU 大部分时间在"等待"。异步编程的核心目标就是：**在等待时去做别的事，而不是干等着**。
 
@@ -22,33 +25,36 @@
 > 3. **挂起线程**：在磁盘准备好数据之前，当前的 CPU 核心无法继续运行这个程序的下一行代码。
 > 4. **上下文切换**：为了不浪费算力，操作系统会将当前线程设为“阻塞”状态，把 CPU 分配给其他任务。
 >
-> 虽然 CPU 可能会去处理别的任务，但对于**原本那个程序**而言，它的逻辑是停滞的。如果你的程序是单线程的，且没有其他任务可做，那么这个 CPU 核心就真的在执行“空闲指令”（Idle Task），白白浪费电量。
->
+
+虽然 CPU 可能会去处理别的任务，但对于**原本那个程序**而言，它的逻辑是停滞的。
+
+如果你的程序是单线程的，且没有其他任务可做，那么这个 CPU 核心就真的在执行“空闲指令”（Idle Task），白白浪费电量。
+
 > - 现代 CPU 在“闲着没事干”的时候，并不是真的在高速空转，而是通过一系列精密的硬件机制进入了“低功耗/休眠模式”。
 >
 > - 当操作系统发现没有任何任务需要处理时，它会运行一个特殊的内核线程（通常叫 `Idle Task`）。在 x86 架构中，这个线程主要执行的是 **`HLT` (Halt)** 指令。这条指令会告诉 CPU 暂停指令执行，并让核心进入低功耗状态，直到下一个硬件中断（比如你动了下鼠标或网卡收到了数据）将其唤醒。
 >
 > - 即使在执行空闲指令，CPU 内部依然存在两种主要的功耗来源：
->
+> 
 >   静态功耗（漏电功耗）
->
->   即使晶体管不切换状态（不运算），只要通电，就会因为半导体物理特性产生**漏电流**。这就像一个关不紧的水龙头，虽然没在用水，但一直在滴水。随着制程工艺越来越先进（如 5nm, 3nm），晶体管越小，漏电控制就越挑战。
->
->   动态功耗
->
->   为了随时准备响应，CPU 的某些部分必须保持工作：
->
->   - **时钟树（Clock Tree）**：维持系统节拍的部分电路仍在震荡。
+> 
+>  即使晶体管不切换状态（不运算），只要通电，就会因为半导体物理特性产生**漏电流**。这就像一个关不紧的水龙头，虽然没在用水，但一直在滴水。随着制程工艺越来越先进（如 5nm, 3nm），晶体管越小，漏电控制就越挑战。
+> 
+>  动态功耗
+> 
+>  为了随时准备响应，CPU 的某些部分必须保持工作：
+> 
+>  - **时钟树（Clock Tree）**：维持系统节拍的部分电路仍在震荡。
 >   - **内存控制器**：需要维持与内存的数据交换。
->   - **电源管理单元**：在实时监控电压和温度。
->
-> **I/O 密集型**任务的瓶颈不在于“算不过来”，而在于“**数据供不上**”。
+>  - **电源管理单元**：在实时监控电压和温度。
+> 
+>**I/O 密集型**任务的瓶颈不在于“算不过来”，而在于“**数据供不上**”。
 
 ---
 
 ## 同步和异步概念
 
-同步和异步的核心差异是要不要"等待";
+同步和异步的核心差异是要不要"**等待**";
 
 - 同步:在执行过程中，调用方（caller）必须**等待**被调用方（callee）完成操作后，才能继续执行后续步骤的一种控制方式。
   1. 阻塞（blocking）
@@ -134,13 +140,13 @@ asyncio.run(main())
 | ------------------------ | ------------------- | -------------- | -------------------------- | ------------------------------------------------ |
 | 多线程 `threading`       | OS 线程切换         | I/O 密集型     | 编程模型直观               | 老版本python有GIL 限制、线程安全问题、资源开销大 |
 | 多进程 `multiprocessing` | 独立进程            | CPU 密集型     | 真正并行、绕过 GIL         | 进程间通信复杂、内存开销大                       |
-| **异步 `asyncio`**       | **事件循环 + 协程** | **I/O 密集型** | **极低开销、高并发、无锁** | **不能加速 CPU 密集型任务、生态需要异步库支持**  |
+| 异步(协程)`asyncio`      | **事件循环 + 协程** | **I/O 密集型** | **极低开销、高并发、无锁** | **不能加速 CPU 密集型任务、生态需要异步库支持**  |
 
 **关键区别**：多线程由操作系统决定何时切换（抢占式），协程由**程序自己决定何时让出控制权**（协作式）。
 
 ---
 
-## 核心概念全景
+## 核心概念全景(python异步编程)
 
 ```mermaid
 graph TB
@@ -176,11 +182,9 @@ Python 异步的逻辑就是：**利用 IO 等待的空档，让单线程不停�
 
 ### asyncio库
 
-[asyncio --- 异步 I/O — Python  文档](https://docs.python.org/zh-cn/3.14/library/asyncio.html)
-
 asyncio 是用来编写 **并发** 代码的库，使用 **async/await** 语法。
 
-asyncio 被用作多个 Python 异步框架的基础，这些框架提供高性能网络和网站服务，数据库连接库，分布式任务队列等等。
+**asyncio** 被用作多个 **Python 异步框架**的基础，这些框架提供高性能网络和网站服务，数据库连接库，分布式任务队列等等。
 
 asyncio 往往是构建 IO 密集型和高层级 **结构化** 网络代码的最佳选择。
 
@@ -219,11 +223,48 @@ asyncio 提供一组 高层级 API 用于：
 - **暂停机制：** 协程本质上是一个增强版的生成器。`await` 在底层类似于 `yield`，它能保存函数当前的局部变量和执行状态。
 - **调度机制：** 当代码运行到 `await` 时，协程对象会**向事件循环抛出一个信号**，事件循环接收到信号后，将该协程标记为“等待中”，然后立即转向执行队列里的下一个任务。
 
-### 事件循环
+## 事件循环(Event Loop)
+
+`asyncio` 中的一切都与事件循环相关。它是演出的主角。它就像一名乐队指挥一样在幕后管理资源。它掌握着一些权力，但它完成工作的能力很大程度上来自于它的工蜂们的尊重与合作。
+
+用更专业的术语来说，事件循环包含一组**待运行的作业**。有些作业是由你直接添加的，有些则是由 `asyncio` 间接添加的。 
+
+事件循环会从其待处理事项中取出一个作业并唤起它（或称“给予其控制权”），类似于调用一个函数，然后该作业就会运行。 
+
+一旦它暂停或完成，它会将控制权返回给事件循环。然后事件循环会从作业池中选择另一个作业并唤起它。
+
+你可以 *粗略地* 将这组作业视为一个**队列**：作业被添加然后被逐个处理，通常（但不总是）按顺序进行。此过程将无限地重复，事件循环也不停地循环下去。 
+
+> 如果没有待执行的作业，事件循环会足够智能地转入休息状态以避免浪费 CPU 周期，并在有更多工作需完成时恢复运行。
+
+**有效的执行依赖于作业的良好共享和合作**；一个贪婪的作业可能会霸占控制权，让其他作业陷入饥饿，从而使整个事件循环机制变得毫无用处。
+
+---
+
+
 
 [Event loop — Python 文档](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html)
 
-关于事件循环详情,另见它文
+事件循环是每个 asyncio 应用的核心。 事件循环会运**行异步任务和回调，执行网络 IO 操作，以及运行子进程**。
+
+应用开发者通常应当使用高层级的 asyncio 函数，例如 [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run)，应当很少有必要引用循环对象或调用其方法。 
+
+asyncio 带有两种不同的事件循环实现：[`SelectorEventLoop`](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html#asyncio.SelectorEventLoop) 和 [`ProactorEventLoop`](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html#asyncio.ProactorEventLoop).
+
+`asyncio.EventLoop` = “当前平台最优实现”的别名(从python3.13开始)
+
+在给定平台上可用的最高效的 [`AbstractEventLoop`](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html#asyncio.AbstractEventLoop) 子类的别名。
+
+它在 Unix 上是 [`SelectorEventLoop`](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html#asyncio.SelectorEventLoop) 的别名而在 Windows 上是 [`ProactorEventLoop`](https://docs.python.org/zh-cn/3.14/library/asyncio-eventloop.html#asyncio.ProactorEventLoop) 的别名。
+
+也就是说,Python 已经帮你选好了：
+
+| 平台                  | 默认事件循环      |
+| --------------------- | ----------------- |
+| Unix（Linux / macOS） | SelectorEventLoop |
+| Windows               | ProactorEventLoop |
+
+关于事件循环详情,另见它文;
 
 ## 基础语法
 
@@ -236,43 +277,30 @@ asyncio 提供一组 高层级 API 用于：
 - `async def` 定义的函数**调用后**返回的是一个**协程对象**，不会立即执行
   - 简单地调用一个协程并不会使其被调度执行:
 
-- 协程必须**被 `await` 或包装成 `Task`** 才会真正运行
+- 协程必须**被 `await` **或**包装成 `Task`** 才会真正运行
   - 要实际运行一个协程，`asyncio `提供了以下几种机制：
-    - [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 函数用来运行最高层级的入口点 "main()" 函数 (参见上面的示例。)
+    - [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 函数用来运行最高层级的入口点 "main()" 函数 
     - 对**协程**(对象)执行 `await`(有使用条件:只能在`async def`函数体中使用,普通函数内不能使用)。
+
+
 
 ### await 表达式
 
-**挂起 coroutine 的执行**以等待一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象。 
+- **挂起 coroutine 的执行**以等待一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象。 
+- 只能在 [coroutine function](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine-function) 内部使用(普通函数内部或函数外部都不能使用)。
 
-只能在 [coroutine function](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine-function) 内部使用(普通函数内部或函数外部都不能使用)。
+> 后面会重新提起await.
 
 ### 协程运行方式(串行或并行)
 
-异步程序不一定是并行的,也可以串行执行;需要用一定的包装才能并行执行;
+异步程序不一定是并行的,也可以串行执行(尽管异步通常和并发联系在一起);
+
+我们需要用一定的包装才能并行执行;
 
 - [`asyncio.create_task()`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.create_task) 函数用来**并发运行**作为 asyncio [`Task`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.Task) 的**多个协程**。
 - [`asyncio.TaskGroup`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.TaskGroup) 类提供的 [`create_task()`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.create_task) 的更**现代化**的替代(通常配合`with`上下文管理,这样可以自动为我们执行task的`await`操作)
 
 ### 第一个异步程序
-
-从串行运行开始:
-
-```python
-import asyncio
-
-async def say_hello(name: str, delay: float) -> str:
-    print(f"开始问候 {name}")
-    await asyncio.sleep(delay)  # 模拟 I/O 操作，这里会让出控制权
-    print(f"问候完毕 {name}")
-    return f"Hello, {name}!"
-
-async def main():
-    result = await say_hello("World", 1.0)
-    print(result)
-
-asyncio.run(main())  # Python 3.7+ 推荐的入口方式
-```
 
 以下代码段会在等待 1 秒后打印 "hello"，然后 *再次* 等待 2 秒后打印 "world":
 
@@ -301,7 +329,16 @@ asyncio.run(main())
 
 ```
 
-并行化
+```text
+23:02:48 - INFO - __main__ - started at 23:02:48
+23:02:49 - INFO - __main__ - hello
+23:02:51 - INFO - __main__ - world
+23:02:51 - INFO - __main__ - finished at 23:02:51
+```
+
+ 可见耗时3秒,串行执行并无提高效率;
+
+现在我们将其并行化(使用`create_task`包装协程,且`await`的对象从协程变成task)
 
 ```python
 import asyncio
@@ -333,6 +370,21 @@ async def main():
 asyncio.run(main())
 
 ```
+
+> await: **挂起当前的可等待对象，让出控制权，等异步结果准备好再恢复执行**
+>
+> Suspend the execution of *coroutine* on an *awaitable* object. 
+>
+> Can only be used inside a *coroutine function*.
+
+```text
+23:06:48 - INFO - __main__ - started at 23:06:48
+23:06:49 - INFO - __main__ - hello
+23:06:50 - INFO - __main__ - world
+23:06:50 - INFO - __main__ - finished at 23:06:50
+```
+
+
 
 现代化的并行写法(上下文管理器)
 
@@ -436,7 +488,151 @@ async def main():
 asyncio.run(main())
 ```
 
+粗略地说，[任务](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio-task-obj) 是绑定到事件循环的协程（而非协程函数）。
 
+> 任务还维护一个回调函数列表，这些回调函数的重要性在稍后讨论 [`await`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#await) 时会更加清晰。
+>
+> 推荐使用 [`asyncio.create_task()`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.create_task) 创建任务。
+
+创建任务会**自动安排它的执行**（通过在事件循环的待办事项列表（即作业集合）中添加回调函数来运行它）。
+
+> `asyncio` 会为你自动**将任务与事件循环进行关联**。这种自动关联是出于简便的考虑有意设计在 `asyncio` 中的。 
+>
+> 如果不是这样，你将需要手动将事件循环传给任何想要创建任务的协程函数，给你的代码增加大量冗余内容。
+
+### asyncio.run()
+
+[`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run)，它负责管理事件循环并确保提供的协程在继续执行之前结束.
+
+```python
+import asyncio
+
+async def main():
+    # 执行各种稀奇古怪、天马行空的异步操作……
+    ...
+
+if __name__ == "__main__":
+    asyncio.run(main())
+    # 直到协程 main() 结束，程序才会到达下面的打印语句。
+    print("coroutine main() is done!")
+```
+
+需要注意的是，任务本身不会被添加到事件循环中，只有**任务的回调函数才会被添加到事件循环中**。如果你创建的任务对象在被事件循环调用之前就被垃圾回收了，这就会产生问题。
+
+例如，考虑这个程序：
+
+```python
+async def hello():
+    print("hello!")
+
+async def main():
+    asyncio.create_task(hello()) # 向事件循环注册任务(回调)
+    # 其他异步指令运行一段时间并将控制权交还给事件循环......
+    ...
+
+asyncio.run(main())
+```
+
+由于没有对第 5 行创建的**任务对象**的引用，它 *可能* 在事件循环调用它之前就被垃圾回收了。
+
+> 例如,使用`task=asyncio.create_task(hello())`的方式创建引用.
+
+协程 `main()` 中的后续指令将控制权交还给事件循环，以便它可以调用其他作业。当事件循环最终尝试运行该任务时，它可能会失败并发现**任务对象**不存在！
+
+即使协程持有对某个任务(task1)的引用，但如果协程在该任务(task1)结束之前就完成了，也可能发生这种情况。当协程退出时，局部变量超出范围，可能被垃圾回收。
+
+实际上，`asyncio` 和 Python 的垃圾回收器会非常努力地确保此类事情不会发生。但这并不是鲁莽行事的理由！
+
+## await
+
+[`await`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#await) 是一个 Python 关键字，通常以两种不同的方式使用:
+
+```python
+await task
+await coroutine
+```
+
+从关键方面来说，`await` 的行为取决于所等待对象的类型。
+
+#### await task
+
+等待任务会将控制权从当前任务或协程交还给事件循环。在交还控制权的过程中，会发生一些重要的事情。
+
+我们将使用以下代码示例来说明:
+
+```python
+async def plant_a_tree():
+    dig_the_hole_task = asyncio.create_task(dig_the_hole())
+    await dig_the_hole_task
+
+    # 与植树相关的其他指令。
+    ...
+```
+
+在这个例子中，假设事件循环已经将控制权交给了协程 `plant_a_tree()` 的开始部分。
+
+如上所示，协程创建了一个任务，然后对其执行了 await。
+
+- `await dig_the_hole_task` 这条指令会将一个**回调函数**（用于恢复 `plant_a_tree()` 的执行）添加到 `dig_the_hole_task` 对象的**回调函数列表**中(不是直接添加到事件循环中)。
+
+- 随后，这条指令将控制权交还给事件循环。过一段时间后，事件循环会将控制权传递给 `dig_the_hole_task`，该任务会完成它需要做的工作。一旦任务结束，它会将它的各种**回调函数**添加到事件循环中，在这里是恢复 `plant_a_tree()` 的执行。
+
+一般来说，当等待的任务完成时 (`dig_the_hole_task`)，原先的任务或协程 (`plant_a_tree()`) 将被添加回事件循环的待办列表以便恢复运行。
+
+这是一个基础但可靠的思维模型。实际操作中，控制权交接会稍微复杂一些，但不会复杂太多。
+
+#### await coroutine
+
+**与任务不同，等待协程并不会将控制权交还给事件循环！** 
+
+先将协程包装到任务中，然后再等待，会导致控制权交还。
+
+`await coroutine` 的行为**实际上与调用常规的同步 Python 函数相同**。考虑以下程序:
+
+```python
+import asyncio
+
+async def coro_a():
+   print("I am coro_a(). Hi!")
+
+async def coro_b():
+   print("I am coro_b(). I sure hope no one hogs the event loop...")
+
+async def main():
+   task_b = asyncio.create_task(coro_b())
+   num_repeats = 3
+   for _ in range(num_repeats):
+      await coro_a()
+   await task_b
+
+asyncio.run(main())
+```
+
+协程 `main()` 中的第一条语句创建了 `task_b` 并调度它通过事件循环运行。然后，将重复地等待 `coro_a()`。 控制权从未被交还给事件循环，这就是为什么在 `coro_b()` 的输出之前我们会看到所有三次唤起 `coro_a()` 的输出：
+
+```text
+I am coro_a(). Hi!
+I am coro_a(). Hi!
+I am coro_a(). Hi!
+I am coro_b(). I sure hope no one hogs the event loop...
+```
+
+如果我们将 `await coro_a()` 改为 `await asyncio.create_task(coro_a())`，行为就会发生变化。
+
+协程 `main()` 会通过该语句将控制权交还给事件循环。然后，事件循环会继续处理其积压的工作，先调用 `task_b`，然后调用包装 `coro_a()` 的任务，最后恢复协程 `main()`。
+
+```text
+I am coro_b(). I sure hope no one hogs the event loop...
+I am coro_a(). Hi!
+I am coro_a(). Hi!
+I am coro_a(). Hi!
+```
+
+这种 `await coroutine` 的行为可能会困扰很多人！这个例子强调了仅使用 `await coroutine` 可能会无意中霸占其他任务的控制权并在实际上阻滞事件循环。 [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 可以通过 `debug=True` 旗标来检测这种情况，它将会启用 [调试模式](https://docs.python.org/zh-cn/3.14/library/asyncio-dev.html#asyncio-debug-mode)。此外，它还会记录任何独占执行时间 100 毫秒以上的协程。
+
+该设计有意牺牲了 `await` 用法的某些概念明晰度以**提升性能**。每当有任务被等待时，控制权都需要沿着调用栈一路向上传递到事件循环。 这听起来可能微不足道，但在一个具有大量 `await` 语句和深度调用栈的大型程序中，这种开销可能会累积到明显拖累性能。
+
+### await 小结
 
 简单来说，`await` 的作用是 **“非阻塞地等待结果”**。
 
