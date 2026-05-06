@@ -15,6 +15,10 @@ Nix 是一款采用独特方法进行**软件包管理和系统配置**的工具
 - [Nix & NixOS | Declarative builds and deployments](https://nixos.org/)
 - [学习 Nix | Nix 和 NixOS | Nix 和 NixOS --- Learn Nix | Nix & NixOS | Nix & NixOS](https://nixos.org/learn/)
 
+> nix主要在linux系统上使用,macos上次之(尤其是GUI应用,支持力度可能不如brew,但是对于命令行工具来说支持还是较好的.)
+>
+> 适用于macos(darwin)的额外扩展有其他的一些项目,例如nix-darwin等供进阶用户参考.
+
 ---
 
 ### 什么是 Nix？

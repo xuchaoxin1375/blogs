@@ -2,68 +2,206 @@
 
 
 
-##  变参函数@可变数量的参数函数
+##  函数和参数
 
-[function](https://docs.python.org/zh-cn/3/glossary.html#term-function) （或方法）定义中的命名实体，它指定函数可以接受的一个 [argument](https://docs.python.org/zh-cn/3/glossary.html#term-argument) （或在某些情况下，多个实参）。有五种形参：
+函数:**可以向调用者返回某个值的一组语句**。还可以向其传入零个或多个 [参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 并在函数体执行中被使用。
 
-- *positional-or-keyword*：位置或关键字，指定一个可以作为 [位置参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入也可以作为 [关键字参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入的实参。这是默认的形参类型，例如下面的 *foo* 和 *bar*:
+另见 [parameter](https://docs.python.org/zh-cn/3/glossary.html#term-parameter), [method](https://docs.python.org/zh-cn/3/glossary.html#term-method) 和 [函数定义](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#function) 等节。
 
-  ```python
-  def func(foo, bar=None): ...
-  ```
+### 形参
 
-- *positional-only*：仅限位置，指定一个只能通过位置传入的参数。 仅限位置形参可通过在函数定义的形参列表中它们之后包含一个 `/` 字符来定义，例如下面的 *posonly1* 和 *posonly2*:
+[function](https://docs.python.org/zh-cn/3/glossary.html#term-function) （或方法）定义中的命名实体，它指定函数可以接受的一个 [argument](https://docs.python.org/zh-cn/3/glossary.html#term-argument) （或在某些情况下，多个实参）。
 
-  ```python
+有五种形参(这5种形参可以同时出现在同一个函数中)：
+
+- *positional-or-keyword*：**位置或关键字**，指定一个可以作为 [位置参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入也可以作为 [关键字参数](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 传入的实参。**这是默认的形参类型**，例如下面的 *foo* 和 *bar*:
+
+
+```python
+def func(foo, bar=None): ...
+```
+
+- *positional-only*：仅限位置，指定一个只能通过位置传入的参数。 
+
+
+仅限位置形参可通过在函数定义的形参列表中它们之后包含一个 `/` 字符来定义，例如下面的 *posonly1* 和 *posonly2*:
+
+
+```python
   def func(posonly1, posonly2, /, positional_or_keyword): ...
-  ```
+```
 
-- *keyword-only*：仅限关键字，指定一个只能通过关键字传入的参数。仅限关键字形参可通过在函数定义的形参列表中包含单个可变位置形参或者在多个可变位置形参之前放一个 `*` 来定义，例如下面的 *kw_only1* 和 *kw_only2*:
+斜杠`/`之前仅限位置参数,之后可以是位置也可以是关键字参数;
+
+- *keyword-only*：**仅限关键字**，指定一个只能通过关键字传入的参数。
+
+仅限关键字形参可通过在函数定义的形参列表中**包含单个或多个可变位置形参之前**放一个 `*` 来定义，例如下面的 *kw_only1* 和 *kw_only2*:
+
 
   ```python
   def func(arg, *, kw_only1, kw_only2): ...
   ```
 
-- *var-positional*：可变位置，指定可以提供由一个任意数量的位置参数构成的序列（附加在其他形参已接受的位置参数之后）。这种形参可通过在形参名称前加缀 `*` 来定义，例如下面的 *args*:
+`*`之后仅限关键字参数;
+
+对于`def func(arg, *args, kw_only1, kw_only2): ...`,`*args`之后也是仅允许关键字参数;
+
+- *var-positional*：**可变位置**(位置参数数量可变)，指定可以提供由一个**任意数量的位置参数**构成的**序列**（附加在其他形参已接受的位置参数之后）。
+
+这种形参可通过在**形参名称**前加缀 `*` 来定义，例如下面的 *args*:
+
 
   ```python
   def func(*args, **kwargs): ...
   ```
 
-- *var-keyword*：可变关键字，指定可以提供任意数量的关键字参数（附加在其他形参已接受的关键字参数之后）。这种形参可通过在形参名称前加缀 `**` 来定义，例如上面的 *kwargs*。
+这里也包含了可变关键字参数`**kwargs`
 
-- 形参可以同时指定可选和必选参数，也可以为某些可选参数指定默认值。
+- *var-keyword*：**可变关键字**，指定可以**提供任意数量的关键字参数**（附加在其他形参已接受的关键字参数之后）。
 
-- 另参见 [argument](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 术语表条目、[参数与形参的区别](https://docs.python.org/zh-cn/3/faq/programming.html#faq-argument-vs-parameter) 中的常见问题、[`inspect.Parameter`](https://docs.python.org/zh-cn/3/library/inspect.html#inspect.Parameter) 类、[函数定义](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#function) 一节以及 [**PEP 362**](https://peps.python.org/pep-0362/)。
+  - 这种形参可通过在形参名称前加缀 `**` 来定义，例如上面的 *kwargs*。
+
+
+形参可以同时指定可选和必选参数，也可以为某些可选参数指定默认值。
+
+另参见 [argument](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 术语表条目、[参数与形参的区别](https://docs.python.org/zh-cn/3/faq/programming.html#faq-argument-vs-parameter) 中的常见问题、[`inspect.Parameter`](https://docs.python.org/zh-cn/3/library/inspect.html#inspect.Parameter) 类、[函数定义](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#function) 一节以及 [**PEP 362**](https://peps.python.org/pep-0362/)。
+
+## 示例
+
+------
+
+###  位置或关键字参数 (Positional-or-Keyword)
+
+这是最常见的类型。调用函数时，既可以按**位置**传参，也可以按**关键字**传参。
+
+```python
+def greet(name, message):
+    print(f"{message}, {name}!")
+
+# 两种方式均可
+greet("Alice", "Hello")            # 位置传参
+greet(name="Bob", message="Hi")    # 关键字传参
+```
+
+------
+
+###  仅限位置参数 (Positional-Only)
+
+这种参数必须通过位置传递，不能使用关键字。在参数列表中使用斜杠 **`/`** 来表示，`/` 左侧的参数均为仅限位置参数。
+
+```python
+def power(x, y, /):
+    return x ** y
+
+print(power(2, 3))       # 正确
+# print(power(x=2, y=3)) # 错误：TypeError
+```
+
+> **为什么要用它？** 它可以重命名形参而不影响调用者，常用于底层 C 扩展函数或逻辑上不强调变量名的场景。
+
+------
+
+###  仅限关键字参数 (Keyword-Only)
+
+这种参数必须通过关键字传递。在参数列表中使用星号 **`*`** 或在**可变位置参数**之后定义的参数即为此类。
+
+```python
+def calculate_tax(price, *, tax_rate):
+    return price * tax_rate
+
+print(calculate_tax(100, tax_rate=0.05)) # 正确
+# print(calculate_tax(100, 0.05))        # 错误：TypeError
+```
+
+------
+
+###  可变位置参数 (Var-Positional)
+
+使用 **`\*args`** 接收。它会将接收到的多余位置参数打包成一个**元组 (tuple)**。
+
+```python
+def sum_all(*numbers):
+    return sum(numbers)
+
+print(sum_all(1, 2, 3, 4, 5)) # numbers 此时是 (1, 2, 3, 4, 5)
+```
+
+------
+
+###  可变关键字参数 (Var-Keyword)
+
+使用 **`kwargs`** 接收。它会将接收到的多余关键字参数打包成一个**字典 (dict)**。
+
+```python
+def show_info(**info):
+    for key, value in info.items():
+        print(f"{key}: {value}")
+
+show_info(name="Charlie", age=25, city="Shanghai")
+```
+
+------
+
+### 综合示例（顺序规则）
+
+在定义函数时，如果这几种参数同时存在，必须遵循特定的顺序：
+
+**位置参数 → 可变位置参数 (`*args`) → 仅限关键字参数 → 可变关键字参数 (`kwargs`)**。
+
+```python
+def complex_func(a, b, /, c, d, *args, e, f, **kwargs):
+    print(f"a, b (pos-only): {a, b}")
+    print(f"c, d (pos-or-key): {c, d}")
+    print(f"args: {args}")
+    print(f"e, f (key-only): e={e}, f={f}")
+    print(f"kwargs: {kwargs}")
+
+print("全部按规则传递(尽可能不使用关键字参数(c,d使用位置参数)和扩展参数*args,**kwargs):")
+complex_func(1, 2, 3, 4, e=5, f=6)
+print()
+
+print("c,d使用关键字参数传参:")
+complex_func(1, 2, d=4, c=3, e=5, f=6)
+print()
+
+print("包含所有扩展参数 (args 和 kwargs):")
+complex_func(1, 2, 3, 4, 100, 200, e=5, f=6, g=7, h=8)
+
+```
+
+ **可迭代对象解包（Iterable Unpacking）**
+
+1. **`*` 作用于字典时，只会解包字典的键（Keys）**。
+   `*kwargs` 会被解包成两个独立的位置参数字符串：`"g"` 和 `"h"`。
 
 ### code0
 
-- ```python
-  #%%
-  ##可变位置参数
-  def concat(*args,sep="/"):
-      print(args,type(args))
-      return sep.join((str(item) for item in args))
-  concat("a","b","c",1,2,3)
-  #%%
-  ## 解包实参列表
-  args=(1,15,2)
-  list(range(*args))
-  #%%
-  def test(k1="",k2=""):
-      print(k1,k2)
-  ##可变关键字参数
-  def show_kwargs(**kwargs):
-      print(kwargs)
-      test(**kwargs)
-  show_kwargs(k1="1",k2="2")
-  #{'k1': '1', 'k2': '2'}
-  #1 2
-  #%%
-  
-  ```
+```python
+#%%
+##可变位置参数
+def concat(*args,sep="/"):
+    print(args,type(args))
+    return sep.join((str(item) for item in args))
+concat("a","b","c",1,2,3)
+#%%
+## 解包实参列表
+args=(1,15,2)
+list(range(*args))
+#%%
+def test(k1="",k2=""):
+    print(k1,k2)
+##可变关键字参数
+def show_kwargs(**kwargs):
+    print(kwargs)
+    test(**kwargs)
+show_kwargs(k1="1",k2="2")
+#{'k1': '1', 'k2': '2'}
+#1 2
+#%%
 
-  
+```
+
+
 
 ### code1
 
