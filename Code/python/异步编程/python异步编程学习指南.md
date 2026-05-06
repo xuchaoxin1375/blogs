@@ -286,8 +286,48 @@ asyncio 带有两种不同的事件循环实现：[`SelectorEventLoop`](https://
 
 ### await 表达式
 
-- **挂起 coroutine 的执行**以等待一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象。 
-- 只能在 [coroutine function](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine-function) 内部使用(普通函数内部或函数外部都不能使用)。
+>Await expression
+>****************
+>
+>Suspend the execution of *coroutine* on an *awaitable* object. 
+>
+>Can only be used inside a *coroutine function*.
+
+中文文档的翻译:
+
+>挂起 [coroutine](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine) 的执行以等待一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象。 只能在 [coroutine function](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine-function) 内部使用。
+
+- 在“可等待对象”（awaitable）上挂起当前“协程”（coroutine）的执行。
+- 普通函数内部或函数外部都不能使用
+
+A. 挂起执行 (Suspend execution)
+
+这是 `await` 的灵魂。
+
+在传统的同步编程中，如果程序遇到一个耗时操作（如下载文件），它会“阻塞”**在那里，什么也干不了。 而在异步编程中，`await` 的意思是：**“我需要这个结果，但我先不占着 CPU 了。等结果好了，你（事件循环）再叫醒我继续执行。” 这种“挂起”释放了控制权，让程序可以在同一时间处理其他任务。
+
+> 但是具体行为,要根据await 的等待对象而定;
+>
+> 如果await对象是task,那么就如上所述,交还控制权给事件循环(这是最典型的用法,基础的异步并发方式,通常默认指的是这一种情况);
+>
+> 如果await对象是coroutine,则是启动协程的运行,并立即等待结果,而不会主动把控制权交还给事件循环.(await coroutine并不意味着并发,非主流用法.)
+
+(对于await task)挂起协程意味着cpu不再等待协程(io处理期间不需要cpu,cpu至多只能守着等待结果),程序的执行控制权回到事件循环上而不阻塞,程序其他部分的运行有机会继续运行.当协程的io有结果了,事件循环会尝试恢复执行挂起点后的代码执行
+
+B. 可等待对象 (Awaitable object)
+
+并不是所有的对象都能被 `await`。如果你尝试 `await 123`，Python 会抛出错误。 常见的三类可等待对象包括：
+
+1. **协程 (Coroutines)**：由 `async def` 定义的函数调用后产生的对象。
+2. **任务 (Tasks)**：被包装后的协程，已经进入调度队列。
+3. **Future**：代表一个“未来”才会产生的结果。
+
+C. 只能在协程函数内部使用
+
+这是 Python 的语法强制规定。如果你在普通函数（由 `def` 定义）中使用 `await`，会报 `SyntaxError`。
+
+- **普通函数**：调用即执行，执行完返回。
+- **协程函数**：由 `async def` 定义，它是一个可以“暂停”和“恢复”的特殊函数。
 
 > 后面会重新提起await.
 
@@ -500,9 +540,37 @@ asyncio.run(main())
 >
 > 如果不是这样，你将需要手动将事件循环传给任何想要创建任务的协程函数，给你的代码增加大量冗余内容。
 
+`await task` 主要承担了以下三个职责：
+
+------
+
+1. 确保任务执行完毕
+
+当你使用 `task=asyncio.create_task(nested())` 时，你已经向事件循环（Event Loop）提交了一个任务。
+
+并且通常使用`await task`收尾,如果不使用 `await`，`main()` 函数会继续向下执行。
+
+- **如果没有 `await`：** `main()` 可能会在 `nested()` 还没跑完时就直接结束了。一旦 `main()` 结束，整个程序（`asyncio.run`）也会关闭，导致 `nested()` 任务被强行中断。
+- **有了 `await`：** 程序会在这里“站住”，直到 `nested()` 执行完并返回结果。
+
+2. 获取返回值
+
+`nested()` 函数返回了 `42`。
+
+- 如果你写 `result = await task`，变量 `result` 就会拿到 `42`。
+- 如果不 `await`，你拿到的只是一个 `Task` 对象（就像是一个还没打开的快递盒子），而不是里面的值。
+
+3. 让出控制权（非阻塞）
+
+这是 `await` 最神奇的地方。虽然它在“等待”，但它不会让整个程序卡死。
+
+- 当执行到 `await task` 时，`main()` 会暂停。
+- **此时，CPU 会切换去执行其他的异步任务**（如果你在 `create_task` 里创建了多个任务的话）。
+- 一旦 `task` 完成了，**事件循环**会唤醒 `main()`，从刚才暂停的地方继续往下走。
+
 ### asyncio.run()
 
-[`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run)，它负责管理事件循环并确保提供的协程在继续执行之前结束.
+[`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run)，它负责**管理事件循环**并确保**提供的协程**在**继续执行(后续代码)之前结束**.
 
 ```python
 import asyncio
@@ -517,7 +585,9 @@ if __name__ == "__main__":
     print("coroutine main() is done!")
 ```
 
-需要注意的是，任务本身不会被添加到事件循环中，只有**任务的回调函数才会被添加到事件循环中**。如果你创建的任务对象在被事件循环调用之前就被垃圾回收了，这就会产生问题。
+需要注意的是，**任务本身不会被添加到事件循环中**，只有**任务的回调函数才会被添加到事件循环中**。
+
+如果你创建的任务对象在被事件循环调用之前就被垃圾回收了，这就会产生问题。
 
 例如，考虑这个程序：
 
@@ -556,7 +626,7 @@ await coroutine
 
 #### await task
 
-等待任务会将控制权从当前任务或协程交还给事件循环。在交还控制权的过程中，会发生一些重要的事情。
+等待任务会**将控制权从当前任务或协程交还给事件循环**。在交还控制权的过程中，会发生一些重要的事情。
 
 我们将使用以下代码示例来说明:
 
@@ -571,7 +641,7 @@ async def plant_a_tree():
 
 在这个例子中，假设事件循环已经将控制权交给了协程 `plant_a_tree()` 的开始部分。
 
-如上所示，协程创建了一个任务，然后对其执行了 await。
+如上所示，协程创建了一个任务，然后对其执行了 `await`。
 
 - `await dig_the_hole_task` 这条指令会将一个**回调函数**（用于恢复 `plant_a_tree()` 的执行）添加到 `dig_the_hole_task` 对象的**回调函数列表**中(不是直接添加到事件循环中)。
 
@@ -581,34 +651,45 @@ async def plant_a_tree():
 
 这是一个基础但可靠的思维模型。实际操作中，控制权交接会稍微复杂一些，但不会复杂太多。
 
+
+
 #### await coroutine
 
 **与任务不同，等待协程并不会将控制权交还给事件循环！** 
 
-先将协程包装到任务中，然后再等待，会导致控制权交还。
+先将协程包装到任务中(create_task)，然后再等待(await)，会导致控制权交还。
 
 `await coroutine` 的行为**实际上与调用常规的同步 Python 函数相同**。考虑以下程序:
 
 ```python
 import asyncio
 
+
 async def coro_a():
-   print("I am coro_a(). Hi!")
+    print("I am coro_a(). Hi!")
+
 
 async def coro_b():
-   print("I am coro_b(). I sure hope no one hogs the event loop...")
+    print("I am coro_b(). I sure hope no one hogs the event loop...")
+
 
 async def main():
-   task_b = asyncio.create_task(coro_b())
-   num_repeats = 3
-   for _ in range(num_repeats):
-      await coro_a()
-   await task_b
+    task_b = asyncio.create_task(coro_b())
+    # 执行多次await coro_a()
+    num_repeats = 3
+    for _ in range(num_repeats):
+        await coro_a()
+        # await asyncio.create_task(coro_a())
+    await task_b
+
 
 asyncio.run(main())
+
 ```
 
-协程 `main()` 中的第一条语句创建了 `task_b` 并调度它通过事件循环运行。然后，将重复地等待 `coro_a()`。 控制权从未被交还给事件循环，这就是为什么在 `coro_b()` 的输出之前我们会看到所有三次唤起 `coro_a()` 的输出：
+协程 `main()` 中的第一条语句创建了 `task_b` 并调度它通过事件循环运行。
+
+然后，将重复地等待 `coro_a()`。 **控制权从未被交还给事件循环**，这就是为什么在 `coro_b()` 的输出之前我们会看到所有三次唤起 `coro_a()` 的输出：
 
 ```text
 I am coro_a(). Hi!
@@ -616,51 +697,100 @@ I am coro_a(). Hi!
 I am coro_a(). Hi!
 I am coro_b(). I sure hope no one hogs the event loop...
 ```
+
+---
+
+
 
 如果我们将 `await coro_a()` 改为 `await asyncio.create_task(coro_a())`，行为就会发生变化。
 
-协程 `main()` 会通过该语句将控制权交还给事件循环。然后，事件循环会继续处理其积压的工作，先调用 `task_b`，然后调用包装 `coro_a()` 的任务，最后恢复协程 `main()`。
+> 这里我给协程添加编号
+
+```python
+import asyncio
+async def coro_a(cid):
+    print(f"[{cid}]:I am coro_a(). Hi!")
+async def coro_b():
+    print("I am coro_b(). I sure hope no one hogs the event loop...")
+async def main():
+    task_b = asyncio.create_task(coro_b())
+    # 执行多次await coro_a()
+    num_repeats = 3
+    for cid in range(num_repeats):
+        #   await coro_a()
+        await asyncio.create_task(coro_a(cid))
+    await task_b # await的对象仍然普通的协程,而不是task,这个语句不会主动交还控制权给事件循环,除非协程结束;
+
+
+asyncio.run(main())
+
+```
+
+
+
+协程(对象) `main()` 会通过该语句将控制权交还给事件循环。
+
+然后，事件循环会继续处理其积压的工作，**先调用 `task_b`**，然后调用包装 `coro_a()` 的任务，最后恢复协程 `main()`。
 
 ```text
 I am coro_b(). I sure hope no one hogs the event loop...
-I am coro_a(). Hi!
-I am coro_a(). Hi!
-I am coro_a(). Hi!
+[0]:I am coro_a(). Hi!
+[1]:I am coro_a(). Hi!
+[2]:I am coro_a(). Hi!
 ```
 
-这种 `await coroutine` 的行为可能会困扰很多人！这个例子强调了仅使用 `await coroutine` 可能会无意中霸占其他任务的控制权并在实际上阻滞事件循环。 [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 可以通过 `debug=True` 旗标来检测这种情况，它将会启用 [调试模式](https://docs.python.org/zh-cn/3.14/library/asyncio-dev.html#asyncio-debug-mode)。此外，它还会记录任何独占执行时间 100 毫秒以上的协程。
+这种 `await coroutine` 的行为可能会困扰很多人！这个例子强调了仅使用 `await coroutine` **可能会无意中霸占其他任务的控制权并在实际上阻滞事件循环**。 
 
-该设计有意牺牲了 `await` 用法的某些概念明晰度以**提升性能**。每当有任务被等待时，控制权都需要沿着调用栈一路向上传递到事件循环。 这听起来可能微不足道，但在一个具有大量 `await` 语句和深度调用栈的大型程序中，这种开销可能会累积到明显拖累性能。
+> [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 可以通过 `debug=True` 旗标来检测这种情况，它将会启用 [调试模式](https://docs.python.org/zh-cn/3.14/library/asyncio-dev.html#asyncio-debug-mode)。此外，它还会记录任何独占执行时间 100 毫秒以上的协程。
+
+该设计有意牺牲了 `await` 用法的某些概念明晰度以**提升性能**。
+
+每当有任务被等待时，**控制权都需要沿着调用栈一路向上传递到事件循环**。 这听起来可能微不足道，但在一个具有大量 `await` 语句和深度调用栈的大型程序中，这种开销可能会累积到明显拖累性能。
 
 ### await 小结
 
 简单来说，`await` 的作用是 **“非阻塞地等待结果”**。
 
-`await task` 主要承担了以下三个职责：
+在 Python 的异步编程中，`await` 的核心作用是**挂起当前协程的执行**(控制权转移)，直到被等待的对象完成并返回结果。
+
+虽然语法上看起来一样，但针对 **协程 (Coroutine)** 和 **任务 (Task)**，其行为逻辑和对程序流的影响有所不同。
+
+以下是针对这两者的行为总结：
+
+1. 等待协程 (await coroutine)
+
+当你直接 `await` 一个协程函数（由 `async def` 定义）时，你是在**串行地**驱动它。
+
+- **即时实例化**：调用协程函数会创建一个协程对象，`await` 则立即开始执行它。
+- **串行执行**：当前的协程会暂停，直到被等待的协程运行完毕。这种方式并不会产生真正的并发效果。
+- **生命周期**：协程的生命周期紧紧绑定在 `await` 语句上。
+
+2. 等待任务 (await task)
+
+当你 `await` 一个任务（通过 `asyncio.create_task()` 创建）时，行为会转变为**对状态的查询**。
+
+- **调度优先**：一旦任务被创建，它就已经被提交给了事件循环（Event Loop），可能在你执行 `await` 之前就已经开始运行了。
+- **并发支持**：通常你会先创建多个任务，然后再去 `await` 它们。这样可以实现多个操作同时在后台推进。
+- **非阻塞启动**：`await task` 仅仅是确保“我需要这个结果”。
+  - 如果任务已经完成，它会立即返回结果；
+  - 如果没有完成，它会挂起当前协程等待结果，但**不会影响其他已经在运行的任务**。
 
 ------
 
-1. 确保任务执行完毕
+#### 核心区别对比表
 
-当你使用 `asyncio.create_task(nested())` 时，你已经向事件循环（Event Loop）提交了一个任务。但是，如果不使用 `await`，`main()` 函数会继续向下执行。
+| **关键维度** | **await coroutine**    | **await task**               |
+| ------------ | ---------------------- | ---------------------------- |
+| **执行时机** | `await` 时才开始执行   | 创建任务时即进入调度队列     |
+| **并发性**   | 串行（一个接一个）     | 并发（多个任务可同时推进）   |
+| **控制权**   | 完全控制子协程的起始   | 仅作为获取结果的同步点       |
+| **典型用途** | 将逻辑拆分为小的子程序 | 执行独立的、可并行的后台操作 |
 
-- **如果没有 `await`：** `main()` 可能会在 `nested()` 还没跑完时就直接结束了。一旦 `main()` 结束，整个程序（`asyncio.run`）也会关闭，导致 `nested()` 任务被强行中断。
-- **有了 `await`：** 程序会在这里“站住”，直到 `nested()` 执行完并返回结果。
-
-2. 获取返回值
-
-`nested()` 函数返回了 `42`。
-
-- 如果你写 `result = await task`，变量 `result` 就会拿到 `42`。
-- 如果不 `await`，你拿到的只是一个 `Task` 对象（就像是一个还没打开的快递盒子），而不是里面的值。
-
-3. 让出控制权（非阻塞）
-
-这是 `await` 最神奇的地方。虽然它在“等待”，但它不会让整个程序卡死。
-
-- 当执行到 `await task` 时，`main()` 会暂停。
-- **此时，CPU 会切换去执行其他的异步任务**（如果你在 `create_task` 里创建了多个任务的话）。
-- 一旦 `task` 完成了，**事件循环**会唤醒 `main()`，从刚才暂停的地方继续往下走。
+> **一句话总结**：
+>
+> `await coroutine` 是**“现在开始做这件事，做完再继续”**；
+>
+> `await task` 是**“task可能早已运行，我现在只是等它的进度结果”**。
 
 ### 最终结果占位(Futures)
 
