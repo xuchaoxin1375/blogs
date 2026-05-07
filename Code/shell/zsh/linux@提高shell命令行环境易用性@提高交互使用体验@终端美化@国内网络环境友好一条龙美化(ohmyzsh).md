@@ -5,7 +5,7 @@
 - 主要适配于Debian系的linux发行版
 - 由于不同发行版换源的动作各有差异,这里就不展开了(默认用户都搞定了,最好还搞定了ssh链接)
 - 主要介绍利用Oh my zsh来美化,并且在国内网络环境下也能够快速下载安装的开门见山的脚本集合
-- 理想情况下,不需要太多时间就可以完成部署
+- 理想情况下,不需要太多时间就可以完成部署.
 
 
 
@@ -354,7 +354,7 @@ chsh -s /usr/bin/zsh
 
 ## omz+常用插件部署
 
-
+> 这里是手动操作说明,可以直接使用下一节中的一键部署方案.
 
 这里推荐插件(让体验向fish靠拢):
 
@@ -392,13 +392,18 @@ chsh -s /usr/bin/zsh
 
 
 
-### 一键在线部署命令
+## 一键在线部署命令🎈
+
+注意,第一次使用,可能需要运行2次.
 
 ```bash
- bash <(curl -sSfL https://gitee.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_omz.sh)
+ bash <(curl -sSfL https://gitee.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_omz.sh) -s gitee
 ```
 
-> 如果有需要,还可以将链接中的gitee换为github
+- 国内可以考虑用gitee,但是可能要登录账号;如果有需要,还可以将链接中的gitee换为github
+- 使用`-h`获取使用帮助
+
+- 这里的链接gitee也可以换成github
 
 ## 其他
 
