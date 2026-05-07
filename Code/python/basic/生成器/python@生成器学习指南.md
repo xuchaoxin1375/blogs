@@ -4,7 +4,47 @@
 
 # Python 生成器 (Generator) 完全指南
 
-[ 类 — Python 文档](https://docs.python.org/zh-cn/3/tutorial/classes.html#generators)
+- [ generators|类 — Python 文档](https://docs.python.org/zh-cn/3/tutorial/classes.html#generators)
+- [ yield-expressions|表达式 — Python  文档](https://docs.python.org/zh-cn/3.14/reference/expressions.html#yield-expressions)
+
+yield 表达式在定义 [generator](https://docs.python.org/zh-cn/3.14/glossary.html#term-generator) 函数或 [asynchronous generator](https://docs.python.org/zh-cn/3.14/glossary.html#term-asynchronous-generator) 函数时才会用到，因此**只能在函数定义的内部使用**。
+
+-  在一个函数体内使用 yield 表达式会使这个函数变成一个生成器函数，
+- 而在一个 [`async def`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#async-def) 函数的内部使用它则会让这个协程函数变成一个异步生成器函数。 例如:
+
+```python
+def gen():  # 定义一个生成器函数
+    yield 123
+
+async def agen(): # 定义一个异步生成器函数
+    yield 123
+```
+
+由于它们会对外层作用域造成附带影响，`yield` 表达式不被允许作为用于实现推导式和生成器表达式的隐式定义作用域的一部分。
+
+当一个生成器函数被调用时，它将返回一个**名为生成器的迭代器**。 然后**这个生成器将控制"生成器函数"的执行**。 
+
+- 执行过程会在这个**生成器的某个方法**被调用时开始。 这时，函数会**执行到第一个 yield 表达式，在那里它将再次被挂起**，向生成器的调用方**返回 `yield_list` 的值**，或者如果 `yield_list` 被省略则返回 `None`。 
+- 所谓的**挂起**，就是说**所有局部状态都会被保留，包括局部变量的当前绑定、指令指针、内部求值栈及任何异常处理等等**。
+- 当通过调用生成器的某个方法恢复执行时，这个函数的运行就与 yield 表达式只是一个外部调用的情况完全一样。 在恢复执行后 **yield 表达式的值取**决于恢复执行所调用的方法(后面会展开介绍)。 
+  - 如果是用 [`__next__()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.__next__) (一般是通过 [`for`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#for) 或者 [`next()`](https://docs.python.org/zh-cn/3.14/library/functions.html#next) 内置函数) 则结果为 [`None`](https://docs.python.org/zh-cn/3.14/library/constants.html#None)。 
+  - 在其他情况下，如果是用 [`send()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.send)，则结果将为传给该方法的值。
+
+所有这些使**生成器函数与协程非常相似**；它们 yield 多次，它们具有多个入口点，并且它们的执行可以被挂起。
+
+> 唯一的区别是**生成器函数不能控制在它在 yield 后交给哪里继续执行**；控制权总是转移到**生成器的调用者**。
+
+> 在 [`try`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#try) 结构中的任何位置都允许 yield 表达式。如果生成器在（因为引用计数到零或是因为被垃圾回收）销毁之前没有恢复执行，将调用生成器-迭代器的 [`close()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.close) 方法，从而允许任何挂起的 [`finally`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#finally) 子句执行。
+
+当使用 `yield from <expr>` 时，所提供的**表达式必须是一个可迭代对象**。迭代该可迭代对象所产生的值**会被直接传递给当前生成器方法的调用者**。 
+
+> 任何通过 [`send()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.send) 传入的值以及任何通过 [`throw()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.throw) 传入的异常如果有适当的方法则会被传给下层迭代器。 如果不是这种情况，那么 `send()` 将引发 [`AttributeError`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#AttributeError) 或 [`TypeError`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#TypeError)，而 `throw()` 将立即引发所转入的异常。
+>
+> 当下层迭代器完成时，被引发的 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration) 实例的 [`value`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration.value) 属性会成为 yield 表达式的值。 它可以在引发 `StopIteration` 时被显式地设置，也可以在子迭代器是一个生成器时自动地设置（通过从子生成器返回一个值）。
+>
+> *在 3.3 版本发生变更:* 添加 `yield from <expr>` 以委托控制流给一个子迭代器。
+
+当yield表达式是赋值语句右侧的唯一表达式时，括号可以省略。
 
 ## 什么是生成器
 
@@ -118,22 +158,26 @@ print(sys.getsizeof(squares_gen))    # 约 200 字节
 
 ### yield from（委托子生成器）
 
+[yield from|delegating-to-a-subgenerator|Python  Python 文档](https://docs.python.org/zh-cn/3.14/whatsnew/3.3.html#pep-380-syntax-for-delegating-to-a-subgenerator)
+
+> 异步生成器函数中,`yield from`不可用,仅在普通的生成器函数中可用.
+
 `yield from` 是 Python 3.3 引入的语法，用于将生成器的控制**权委托给另一个可迭代对象**：
 
 ```python
-# 不使用 yield from（繁琐）
+# 普通写法:不使用 yield from 
 def chain_v1(*iterables):
     for it in iterables:
         for item in it:
             yield item
 ```
 
-
+> `*iterables`表示函数接收可变位置参数,即数量可变的可迭代对象作为参数;
+>
+> 例如`chain_v1([1,2],[3,4])`
 
 ```python
-
-
-# 使用 yield from（简洁）
+# 使用 yield from,少写一层循环
 def chain_v2(*iterables):
     for it in iterables:
         yield from it
@@ -150,31 +194,244 @@ print(result)   # [1, 2, 3, 4, 5, 6]
 
 生成器对象除了支持 `next()`，还提供了三个重要方法：
 
-| 方法          | 作用                                     | 使用场景           |
-| ------------- | ---------------------------------------- | ------------------ |
-| `send(value)` | 向生成器内部发送值，同时推进执行         | 双向通信、协程     |
-| `throw(type)` | 向生成器内部抛出异常                     | 错误注入、取消操作 |
-| `close()`     | 终止生成器（在内部抛出 `GeneratorExit`） | 资源清理           |
+| 方法          | 作用                                       | 使用场景           |
+| ------------- | ------------------------------------------ | ------------------ |
+| `send(value)` | (外部)向**生成器内部**发送值，同时推进执行 | **双向通信**、协程 |
+| `throw(type)` | 向生成器内部抛出异常                       | 错误注入、取消操作 |
+| `close()`     | 终止生成器（在内部抛出 `GeneratorExit`）   | 资源清理           |
+
+生成器（Generator）不仅仅是一个“产生数据的管道”，它实际上是一个协程（Coroutine）的雏形。
+
+`next()` 和 `send()` 方法的存在，意味着生成器与调用者之间建立了一种**双向通信**的机制。
+
+1. `next()`：请求数据（单向）
+
+当你调用 `next(g)` 时，你在告诉生成器：“请继续执行，直到遇到下一个 `yield`，然后把值给我。”
+
+- **数据流向：** 生成器 $\rightarrow$ 调用者。
+
+- **本质：** 它是 `send(None)` 的一种**特殊形式**,`next()`是更加语义化的调用方式。
+
+  > 注意:`next()` 等同于 `send(None)`.
+
+2. `send(value)`：注入数据（双向）
+
+这是理解生成器进阶用法的高级特性。`send()` 允许你在生成器**挂起**的地方，将一个值“推”回给它。
+
+- **数据流向：** 调用者 $\leftrightarrow$ 生成器。
+- **语法表现：** 在生成器内部，`yield` 表达式不仅能产出值，还能**接收值**。
+
+> `res = yield 100`
+
+### 异步生成器方法文档
+
+详情见文档手册,这里仅介绍最常用的两个:
+
+- generator.**__next__**()
+
+  开始一个生成器函数的执行或是从上次执行 yield 表达式的位置恢复执行。 当一个生成器函数通过 [`__next__()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.__next__) 方法恢复执行时，当前的 yield 表达式总是取值为 [`None`](https://docs.python.org/zh-cn/3.14/library/constants.html#None)。 随后会继续执行到下一个 yield 表达式，这时生成器将再次挂起，而 [`yield_list`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#grammar-token-python-grammar-yield_list) 的值会被返回给 [`__next__()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.__next__) 的调用方。 如果生成器没有产生下一个值就退出，则将引发 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration) 异常。
+
+  此方法通常是隐式地调用，例如通过 [`for`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#for) 循环或是内置的 [`next()`](https://docs.python.org/zh-cn/3.14/library/functions.html#next) 函数。
+
+- generator.**send**(*value*)
+
+  **恢复执行并向生成器函数“发送”一个值**。
+
+   *value* 参数将**成为当前 yield 表达式的结果**。(`res = yield output`)
+
+  [`send()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#generator.send) 方法会**返回生成器所产生的下一个值**，或者如果生成器没有产生下一个值就退出则会引发 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration)。
+
+   当调用 `send()` 来**启动生成器**时，它必须以 [`None`](https://docs.python.org/zh-cn/3.14/library/constants.html#None) 作为**调用参数**，因为这时**没有可以接收值的 yield 表达式**。
+
+表达式语法拆解：`res = yield output`
+
+这行代码在执行时其实分成了**两个阶段**，中间被“暂停”隔开了：
+
+- **阶段 A（产出）：** 执行 `yield output`。生成器把 `output` 丢给外界，代码在这里**停住**。此时 `res =` 还没有执行。
+- **阶段 B（接收）：** 当外界调用 `send(input_val)` 时，生成器醒来。**整个 `yield output` 表达式在这一瞬间变成了 `input_val`**(但是`output`本身不受影响。
+- **阶段 C（继续）：** 接着执行赋值操作 `res = input_val`，然后代码继续往下走。
+
+### 官方示例
+
+```python
+# 定义典型的生成器函数(打印指定内容),能够处理next,send和throw,以及close调用
+def echo(value=None):
+    print("Execution starts when 'next()' is called for the first time.")
+    # 将循环放在try-finally中
+    try:
+        while True: 
+            # 循环内部逻辑也放置异常处理try-except结构中.
+            try:
+                value = (yield value) # value=yield ... 接收send传入的value
+            except Exception as e:
+                value = e
+    finally:
+        print("Don't forget to clean up when 'close()' is called.")
+
+generator = echo(1)
+print(next(generator))
+
+
+print(next(generator))
+
+print(generator.send(2))
+
+generator.throw(TypeError, "spam")
+
+generator.close()
+```
+
+### 对send()传入的值做处理
+
+对于最基础的生成器函数定义:
+
+```python
+# 从start 到 end 的数字生成器函数
+def count_up(start, end):
+    current = start
+    while current <= end:
+        yield current         
+        current += 1          
+
+```
+
+**该生成器可以接收 `.send()` 调用，但它不会对接收到的值做任何处理。**
+
+在 Python 中，所有的生成器对象都拥有 `.send()` 方法，但要**让这个方法产生实质性的作用，代码逻辑需要适配**。
+
+------
+
+1. 为什么它目前“无效”？
+
+在你的代码中，`yield current` 仅仅是将值“发送”出去。如果你调用 `gen.send("hello")`，这个字符串确实会被送回生成器内部，但由于你没有**赋值语句**来捕捉这个值，它随即便被丢弃了。
+
+2. 如何让它接收并利用数据？
+
+如果你希望生成器能够根据外界输入的信息改变行为（例如：手动重置当前的数字），你需要将 `yield` 的结果赋值给一个变量：
+
+```python
+def count_up(start, end):
+    current = start
+    while current <= end:
+        # 这里的 val 将接收通过 .send() 传入的值
+        val = yield current 
+        
+        if val is not None:
+            current = val  # 如果外部 send 了新值，则跳转到新值
+        else:
+            current += 1   # 否则正常递增
+```
+
+这里`val=yield current`的含义是:
+
+>  调用者通过生成器`gen`的`next()`或`.send()`调用时(例如`res=gen.send(value)`,生成器`gen`先返回`current`给调用者(`res`会被赋值为`current`),`send(value)`把`yield current`这个表达式的值替换为`value`再赋值给`val`
+
+3. 使用时的注意事项
+
+在使用 `.send()` 时，有两个关键点需要注意：
+
+- **启动（Priming）：** 你不能在生成器刚创建时就直接调用 `.send(value)`（除非发送 `None`）。必须先调用一次 `next()` 或 `gen.send(None)`，让生成器运行到第一个 `yield` 语句处停下。
+- **双向通道：** `yield` 此时既是“出口”也是“入口”。
+  - **出口：** 将 `current` 传给外部。
+  - **入口：** 将外部传入的值赋给 `val`。
 
 ### send() 双向通信示例
 
 ```python
+# 累加器
 def accumulator():
     total = 0
     while True:
-        value = yield total    # yield 左边接收 send() 传入的值
+        print(f' Total will be yield (return):{total}')
+        value = yield total  # yield 左边接收 send() 传入的值
+        print(f'\n Continue from last yield. Get value from send:{value}')
+        # 判断value 是否为 None
         if value is None:
             break
         total += value
 
+
 gen = accumulator()
-next(gen)           # 必须先用 next() 或 send(None) 启动，输出: 0
-print(gen.send(10)) # 输出: 10
-print(gen.send(20)) # 输出: 30
+# 必须先用 next() 或 send(None) 启动
+init = next(gen)
+print(init)  # 输出: 0
+print(gen.send(10))  # 输出: 10
+print(gen.send(20))  # 输出: 30
 print(gen.send(5))  # 输出: 35
+
 ```
 
 > **注意**：第一次必须调用 `next(gen)` 或 `gen.send(None)` 来启动生成器，直接 `send(非None值)` 会抛出 `TypeError`，因为生成器还未到达第一个 `yield` 处。
+
+```text
+ python .\gen_send.py 
+ Total will be yield (return):0
+0
+
+ Continue from last yield. Get value from send:10
+ Total will be yield (return):10
+10
+
+ Continue from last yield. Get value from send:20
+ Total will be yield (return):30
+30
+
+ Continue from last yield. Get value from send:5
+ Total will be yield (return):35
+35
+```
+
+
+
+```python
+
+# 可变步长的累加器
+def accumulator_step():
+    cnt = 0
+    STEP = 1
+    while cnt <= 9:
+        val = yield cnt
+        print(' val:', val)
+        # 错误用法:将yield表达式左侧变量直接使用
+        # 标准做法是添加一个判断(是否为None),按需设置分支
+        if val is not None:
+            # break
+            STEP = val
+        print(' +STEP:', STEP)
+        cnt += STEP
+
+
+gen = accumulator_step()
+print(next(gen))  # 0
+print(next(gen))  # 1
+print(next(gen))  # 2
+print(gen.send(2))# 4
+print(next(gen))  # 6
+print(next(gen))  # 8
+
+```
+
+```text
+ python .\gen_send_cnt.py 
+0
+ val: None
+ +STEP: 1
+1
+ val: None
+ +STEP: 1
+2
+ val: 2
+ +STEP: 2
+4
+ val: None
+ +STEP: 2
+6
+ val: None
+ +STEP: 2
+8
+```
+
+
 
 ---
 
@@ -295,6 +552,39 @@ print(small_fibs)  # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
 ```
 
 ---
+
+## 异步生成器函数
+
+在一个使用 [`async def`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#async-def) 定义的函数或方法中出现的 yield 表达式会进一步将该函数定义为一个 [asynchronous generator](https://docs.python.org/zh-cn/3.14/glossary.html#term-asynchronous-generator) 函数。
+
+当一个异步生成器函数被调用时，它会返回一个名为**异步生成器对象**的**异步迭代器**。 此对象将在之后控制该生成器函数的执行。 异步生成器对象通常被用在协程函数的 [`async for`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#async-for) 语句中，类似于在 [`for`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#for) 语句中使用生成器对象。
+
+调用某个**异步生成器的方法**将返回一个 [awaitable](https://docs.python.org/zh-cn/3.14/glossary.html#term-awaitable) 对象，执行会在此对象**被等待时启动**。 
+
+> 到那时，将**执行至第一个 `yield `表达式**，在那里它会**再次挂起**，将 [`yield_list`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#grammar-token-python-grammar-yield_list) 的值返回给等待中的协程。 
+>
+> 与生成器一样，**挂起**意味着所有局部状态会被保留，包括局部变量的当前绑定、指令指针、内部求值栈以及任何异常处理的状态。 
+
+> 当**执行**[在等待异步生成器的方法返回下一个对象后]**恢复时**，该函数可以从原状态继续执行，就仿佛 yield 表达式只是另一个外部调用那样。 
+
+恢复执行后 **yield 表达式的值**取决于恢复执行所用的方法。 
+
+- 如果是使用 [`__anext__()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#agen.__anext__) 则结果为 [`None`](https://docs.python.org/zh-cn/3.14/library/constants.html#None)。 
+- 否则的话，如果是使用 [`asend()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#agen.asend)，则结果将是传递给该方法的值。
+
+> 如果一个异步生成器恰好因 [`break`](https://docs.python.org/zh-cn/3.14/reference/simple_stmts.html#break)、调用方任务被取消，或是其他异常而提前退出，生成器的异步清理代码将会运行并可能引发异常或访问意外上下文中的上下文变量 -- 也许是在它所依赖的任务的生命周期之后，或是在异步生成器垃圾回收钩子被调用时的**事件循环**关闭期间。 
+>
+> 为了防止这种情况，调用方必须通过调用 [`aclose()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#agen.aclose) 方法来**显式地关闭异步生成器以终结生成器**并最终**从事件循环中将其分离**。
+
+在异步生成器函数中，yield 表达式允许出现在 [`try`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#try) 结构的任何位置。
+
+> 但是，如果一个异步生成器在其被终结（由于引用计数达到零或被作为垃圾回收）之前未被恢复，则 `try` 结构中的 yield 表达式可能导致挂起的 [`finally`](https://docs.python.org/zh-cn/3.14/reference/compound_stmts.html#finally) 子句执行失败。在此情况下，应由运行该异步生成器的事件循环或任务调度器来负责调用异步生成器-迭代器的 [`aclose()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#agen.aclose) 方法并运行所返回的协程对象，从而允许任何挂起的 `finally` 子句得以执行。
+
+为了能在事件循环终结时执行最终化处理，事件循环应当定义一个 *终结器* 函数，它接受一个异步生成器迭代器并将调用 [`aclose()`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#agen.aclose) 且执行该协程。 
+
+> 这个 *终结器* 可以通过调用 [`sys.set_asyncgen_hooks()`](https://docs.python.org/zh-cn/3.14/library/sys.html#sys.set_asyncgen_hooks) 来注册。 当首次迭代时，异步生成器迭代器将保存已注册的 *终结器* 以便在最终化时调用。 有关 *终结器* 方法的参考示例请查看在 [Lib/asyncio/base_events.py](https://github.com/python/cpython/tree/3.14/Lib/asyncio/base_events.py) 中的 `asyncio.Loop.shutdown_asyncgens` 实现。
+
+`yield from <expr>` 表达式如果在异步生成器函数中使用会**引发语法错误**。
 
 ## 生成器与协程
 
@@ -427,4 +717,55 @@ def safe_gen():
         print("清理资源")   # close() 或迭代完成时执行
 ```
 
-生成器是 Python 中"用时间换空间"哲学的完美体现，掌握它，你就掌握了处理大规模数据流的核心武器。
+## 总结
+
+Python 生成器（Generator）是 Python 中非常强大且优雅的特性。如果用一句话概括它的核心，那就是：**“按需取值，延时计算。”**
+
+以下是 Python 生成器的核心特性标签：
+
+------
+
+### 1. 惰性求值 (Lazy Evaluation)
+
+这是生成器最重要的标签。不同于列表（List）一次性将所有元素加载到内存中，生成器只有在被迭代（调用 `next()` 或在 `for` 循环中）时，才会计算并返回下一个值。
+
+- **优势：** 节省 CPU 资源，只有在需要时才工作。
+
+### 2. 内存增量极低 (Memory Efficiency)
+
+无论生成器将要产生 10 个还是 10 亿个数据，它在内存中占用的空间始终是恒定的（非常小）。
+
+- **对比：**
+  - `[i for i in range(1000000)]` 会创建一个包含百万元素的列表，占用大量内存。
+  - `(i for i in range(1000000))` 只是一个生成器对象，几乎不占内存。
+
+### 3. 状态挂起 (State Retention)
+
+当生成器函数遇到 `yield` 关键字时，它会暂停执行，保存当前的局部变量、指令指针和异常处理状态，并将值返回给调用者。
+
+- **恢复：** 下次调用时，它会从上次离开的地方**原封不动地**继续执行，就像“断点续传”一样。
+
+------
+
+### 4. 单向迭代 (One-way Traversal)
+
+生成器是“一次性”的。你只能向前迭代，不能后退、不能切片、也不能重置。
+
+- **特性：** 一旦遍历结束，再次调用会抛出 `StopIteration` 异常。如果想再次使用，必须重新创建一个生成器对象。
+
+### 5. 协同程序的基础 (Coroutine Foundation)
+
+生成器不仅能“产出”数据（`yield`），还可以通过 `.send()` 方法“接收”外部传入的数据。这使得生成器成为了 Python 实现异步编程（asyncio 的前身）和协程的基础。
+
+------
+
+### 总结对比表
+
+| **特性**     | **列表 (List)**                | **生成器 (Generator)**           |
+| ------------ | ------------------------------ | -------------------------------- |
+| **存储方式** | 存储所有值                     | 存储生成值的**算法/逻辑**        |
+| **内存占用** | 随数据量线性增长               | 始终保持极低且恒定               |
+| **读取速度** | 索引访问极快                   | 只能顺序访问，计算耗时           |
+| **适用场景** | 需要频繁随机访问、重复使用数据 | 处理海量数据、流式数据、节省内存 |
+
+ 

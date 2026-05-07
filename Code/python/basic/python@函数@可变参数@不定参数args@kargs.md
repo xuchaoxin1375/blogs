@@ -47,6 +47,7 @@ def func(foo, bar=None): ...
 对于`def func(arg, *args, kw_only1, kw_only2): ...`,`*args`之后也是仅允许关键字参数;
 
 - *var-positional*：**可变位置**(位置参数数量可变)，指定可以提供由一个**任意数量的位置参数**构成的**序列**（附加在其他形参已接受的位置参数之后）。
+- 使用`*args`(有对应实参要传递)的情况下,`*args`之前的参数只能以位置参数的形式传递.
 
 这种形参可通过在**形参名称**前加缀 `*` 来定义，例如下面的 *args*:
 
@@ -156,7 +157,10 @@ def complex_func(a, b, /, c, d, *args, e, f, **kwargs):
     print(f"e, f (key-only): e={e}, f={f}")
     print(f"kwargs: {kwargs}")
 
-print("全部按规则传递(尽可能不使用关键字参数(c,d使用位置参数)和扩展参数*args,**kwargs):")
+
+print(
+    "全部按规则传递(尽可能不使用关键字参数(c,d使用位置参数)和扩展参数*args,**kwargs):"
+)
 complex_func(1, 2, 3, 4, e=5, f=6)
 print()
 
@@ -166,19 +170,36 @@ print()
 
 print("包含所有扩展参数 (args 和 kwargs):")
 complex_func(1, 2, 3, 4, 100, 200, e=5, f=6, g=7, h=8)
+print()
+
+print(
+    "可迭代对象解包（Iterable Unpacking）的方式传参给*args,把关键字参数放在字典中通过**kwargs进行传递"
+)
+args = (5, 6)
+kwargs = {"g": 9, "h": 10}
+# print("args:", args, "kwargs:", kwargs)
+# *kwargs仅解包key,得到('g','h'),而应该使用**kwargs解包字典或的关键字参数
+complex_func(1, 2, 3, 4, *args, e=7, f=8, **kwargs)
+
+# print("*args非空时,前面的参数不能以关键字参数传入(仅位置参数).混用位置参数和关键字参数导致错误")
+# 如果用到可变位置参数*args,那么其之前就不能关键字参数(pos_or_key类型的参数都只能以position参数的形式传入)
+# 否则会导致错误
+# complex_func(1, 2, 3,d=4, *args, e=7, f=8,**kwargs) # got multiple values for argument 'd'
+# complex_func(1, 2, c=3, d=4, *args, e=7, f=8, **kwargs) # got multiple values for argument 'c'
+# complex_func(1, 2, c=3, d=4, e=7, f=8, **kwargs) # 合法调用
+complex_func(1, 2, 3, d=4, e=7, f=8, **kwargs) # 合法调用
 
 ```
 
- **可迭代对象解包（Iterable Unpacking）**
+有的实参以 可迭代对象解包（Iterable Unpacking）的形式传递.
 
-1. **`*` 作用于字典时，只会解包字典的键（Keys）**。
-   `*kwargs` 会被解包成两个独立的位置参数字符串：`"g"` 和 `"h"`。
 
-### code0
+
+## 用例
 
 ```python
 #%%
-##可变位置参数
+##可变位置参数(将输入的每个参数用指定的分隔符拼接成一个字符串)
 def concat(*args,sep="/"):
     print(args,type(args))
     return sep.join((str(item) for item in args))
@@ -190,7 +211,7 @@ list(range(*args))
 #%%
 def test(k1="",k2=""):
     print(k1,k2)
-##可变关键字参数
+##可变关键字参数(将传入的所有关键字参数打印出来)
 def show_kwargs(**kwargs):
     print(kwargs)
     test(**kwargs)
@@ -202,8 +223,6 @@ show_kwargs(k1="1",k2="2")
 ```
 
 
-
-### code1
 
 ```python
 # %%
@@ -384,268 +403,66 @@ done!
 
 ```
 
-## 解包unpacking
+## 函数的默认参数
 
-- [解包实参列表](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#unpacking-argument-lists)
+当一个或多个 [形参](https://docs.python.org/zh-cn/3/glossary.html#term-parameter) 具有 *形参* `=` *表达式* 这样的形式时，该函数就被称为具有“默认形参值”。 对于一个具有默认值的形参，其对应的 [argument](https://docs.python.org/zh-cn/3/glossary.html#term-argument) 可以在调用中被省略，在此情况下会用形参的默认值来替代。 
 
-- 函数调用要求独立的位置参数，但实参在列表或元组里时，要执行相反的操作。例如，内置的 [`range()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#range) 函数要求独立的 *start* 和 *stop* 实参。如果这些参数不是独立的，则要在调用函数时，用 `*` 操作符把实参从列表或元组解包出来：
+如果一个形参具有默认值，**后续**所有在 "`*`" **之前的形参**也必须具有默认值 --- 这个句法限制并未在语法中明确表达。
 
-  - ```python
-    list(range(3, 6))            # normal call with separate arguments
-    #[3, 4, 5]
-    args = [3, 6]
-    list(range(*args))            # call with arguments unpacked from a list
-    #[3, 4, 5]
-    ```
+> 通常设置默认值的形参靠后放置.
 
-  - 同样，字典可以用 `**` 操作符传递关键字参数
+**默认形参值会在执行函数定义时按从左至右的顺序被求值**。
 
-- ```python
-  def parrot(voltage, state="a stiff", action="voom"):
-      print("-- This parrot wouldn't", action, end=" ")
-      print("if you put", voltage, "volts through it.", end=" ")
-      print("E's", state, "!")
-  
-  
-  d = {"voltage": "four million", "state": "bleedin' demised", "action": "VOOM"}
-  parrot(**d)
-  
-  ```
+ 这意味着当**函数被定义时将对表达式求值一次**，相同的“预计算”值将在每次调用时被使用。 
 
-### 其他解包
+这一点在默认形参为可变对象，例如**列表或字典**的时候尤其需要重点理解：
 
-- Python 的列表解包是一种方便的语法，可以将列表中的元素解包并分配给多个变量。以下是关于 Python 列表解包的文档：
-
-#### 列表解包@extended unpacking
-
-- [PEP 3132 – Extended Iterable Unpacking | peps.python.org](https://peps.python.org/pep-3132/)
-
-- [ More Control Flow Tools — Python documentation](https://docs.python.org/3/tutorial/controlflow.html)
-
-
-
-- 列表解包是一种将列表中的元素分配给多个变量的方法。它通过在变量前面使用星号（*）来指示 Python 将列表中的其余元素分配给该变量。例如：
-
-- ```python
-  a, b, *rest = [1, 2, 3, 4, 5]
-  print(a)    # 输出：1
-  print(b)    # 输出：2
-  print(rest) # 输出：[3, 4, 5]
-  ```
-
-- 这里，`a` 和 `b` 分别分配了列表中的前两个元素，而 `rest` 变量使用星号（*）来分配列表中的其余元素。如果列表中的元素数量不足以填满所有变量，则剩余变量将分配为一个空列表：
-
-- ```python
-  a, b, *rest = [1, 2]
-  print(a)    # 输出：1
-  print(b)    # 输出：2
-  print(rest) # 输出：[]
-  ```
-
-- 在列表解包中，星号（*）也可以在中间使用，以便只获取列表中的部分元素：
-
-- ```python
-  a, *mid, b = [1, 2, 3, 4, 5]
-  print(a)    # 输出：1
-  print(b)    # 输出：5
-  print(mid)  # 输出：[2, 3, 4]
-  ```
-
-- 这里，`a` 和 `b` 分别分配了列表中的第一个和最后一个元素，而 `mid` 变量使用星号（*）来分配列表中的中间元素。
-
-- 列表解包还可以用于函数调用中，以便将列表中的元素传递给函数的参数：
-
-- ```python
-  def my_func(a, b, c):
-      print(a, b, c)
-  
-  my_list = [1, 2, 3]
-  my_func(*my_list) # 输出：1 2 3
-  ```
-
-- 在这个例子中，使用星号（*）将列表解包，并将其作为参数传递给 `my_func` 函数。这样，列表中的第一个元素 `1` 将分配给 `a`，第二个元素 `2` 将分配给 `b`，第三个元素 `3` 将分配给 `c`。
-
-#### 二维列表
-
-- ```python
-  a=[[1,2,3]]
-  b=[[11,22,33]]
-  c=[[1,2,3],*a,*b]
-  print(f'{c=}')
-  ```
-
-  
-
-###  星号表达式
-
-- 一个简单的赋值语句中，左边的元组（或列表）最多只能包含一个使用单个星号（*）作为前缀的表达式（称为“星号表达式”），而其余表达式称为“强制的”。
-
-- 这个星号表达式将被分配为从正在解包的可迭代对象中未分配给任何强制表达式的所有项目的列表，如果没有这样的项目，则分配一个空列表。
-
-- 例如，如果`seq`是一个可切片的序列，并且`seq`至少有两个元素，则以下所有赋值都是等价的：
-
-  ```python
-  a, b, c = seq[0], list(seq[1:-1]), seq[-1]
-  a, *b, c = seq
-  [a, *b, c] = seq
-  ```
-
-- 如果可迭代对象中的项目数量不足以分配给所有强制表达式，则会引发错误。
-
-  在赋值语句中，不能将星号表达式作为单独的目标，例如：
-
-  ```python
-  *a = range(5)
-  ```
-
-  但是，以下语法是有效的：
-
-  ```python
-  *a, = range(5)
-  ```
-
-- 需要注意的是，此提案还适用于隐式赋值上下文中的元组，例如在for循环语句中：
-
-  ```python
-  for a, *b in [(1, 2, 3), (4, 5, 6, 7)]:
-      print(b)
-  ```
-
-  将打印：
-
-  ```python
-  [2, 3]
-  [5, 6, 7]
-  ```
-
-#### Warning
-
-- **星号表达式**只允许用作赋值目标，将它们用于其他任何地方（除了函数调用中的star-args）都是错误的。
-
-### starred assignment
-
-- Python 中的 starred assignment 是一种特殊的赋值语法，用于将可迭代对象中的多个值解包并分配给变量。
-
-- 在 starred assignment 中，使用单个星号（*）前缀的变量被称为 starred variable。
-
-- 在英语中，starred 通常表示带星号的、有明星的或者是非常出色的。在 Python 中，星号（*）通常用于解包序列或可迭代对象，而使用星号前缀的变量被称为 starred variable，表示一个包含多个值的列表。
-
-  因此，在 Python 中，starred 可以理解为“带星号的”，它指代的是一个带有星号前缀的变量，用于解包序列或可迭代对象。
-
-- ```python
-  a, *b = [1, 2, 3, 4, 5]
-  ```
-
-  - 变量 b 就是一个 starred variable，表示一个包含多个值的列表。在这个例子中，starred 可以理解为“带星号的变量”，或者“使用了星号前缀的变量”。
-
-下面是一些示例：
+> 如果函数修改了该对象（例如向列表添加了一项），则**实际上默认值也会被修改**。 
+>
+> 这通常不是人们所想要的。 绕过此问题的一个方法是使用 `None` 作为默认值，并**在函数体中显式地对其进行测试**，例如:
 
 ```python
-# 一个简单的 starred assignment
-a, *b = [1, 2, 3, 4, 5]
-print(a)  # 输出：1
-print(b)  # 输出：[2, 3, 4, 5]
-
-# starred variable 只能在左侧的最后一个位置出现
-a, *b, c = [1, 2, 3, 4, 5]
-print(a)  # 输出：1
-print(b)  # 输出：[2, 3, 4]
-print(c)  # 输出：5
-
-# 用于 tuple 和其他可迭代对象
-a, *b = (1, 2, 3, 4, 5)
-print(a)  # 输出：1
-print(b)  # 输出：[2, 3, 4, 5]
-
-# starred variable 可以是空列表
-a, *b = [1]
-print(a)  # 输出：1
-print(b)  # 输出：[]
-
-# 使用星号运算符展开列表和元组
-a = [1, 2, 3]
-b = [4, 5, 6]
-c = [*a, *b]
-print(c)  # 输出：[1, 2, 3, 4, 5, 6]
+def whats_on_the_telly(penguin=None):
+    if penguin is None:
+        penguin = []
+    penguin.append("property of the zoo")
+    return penguin # 返回列表
 ```
 
-需要注意的是，在 Python 3 中，starred assignment 也可以用于 for 循环中：
+### 函数调用
 
-```python
-numbers = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
-for a, *b in numbers:
-    print(a)  # 输出：1, 4, 7
-    print(b)  # 输出：[2, 3], [5, 6], [8, 9]
-```
+函数调用的语义在 [调用](https://docs.python.org/zh-cn/3/reference/expressions.html#calls) 一节中有更详细的描述。 
 
-在这个例子中，starred variable `*b` 将被分配为除了第一个元素以外的所有元素的列表。
+函数调用总是会给形参列表中列出的所有形参赋值，或是用位置参数，或是用关键字参数，或是用默认值。 
 
-需要注意的是，starred assignment 只能在 Python 3 中使用。在 Python 2 中，没有这个特性。
+如果存在 "`*identifier`" 这样的形式，它会被初始化为一个元组来接收任何额外的位置参数，默认为一个空元组。 
 
-### 错误示例
+如果存在 "`**identifier`" 这样的形式，它会被初始化为一个新的有序映射来接收任何额外的关键字参数，默认为一个相同类型的空映射。 
 
-- 基本示例
+在 "`*`" 或 "`*identifier`" 之后的形参都是**仅限关键字形参**因而只能通过关键字参数传入。
 
-  - ```python
-    for a, b in [(1, 2),(3, 4)]:
-        print(f'{a=},{b=}')
-    ```
+ 在 "`/`" 之前的形参都是**仅限位置形参**因而只能通过位置参数传入。
 
-  - ```bash
-    a=1,b=2
-    a=3,b=4
-    ```
+> *在 3.8 版本发生变更:* 可以使用 `/` 函数形参语法来标示仅限位置形参。 请参阅 [**PEP 570**](https://peps.python.org/pep-0570/) 了解详情。
 
-  - 本例可以成功运行,因为a,b分别试图解包(1,2),(3,4),2个元组包含的元素都相等,而且等于2,用两个变量刚好可以解包各个元组
+### 形参注解
 
-- ```python
-  for a, b in [(1, 2, 3), (4, 5, 6, 7)]:
-      print(b)
-  #ValueError: too many values to unpack (expected 2)
-  ```
+形参可以带有 [注解](https://docs.python.org/zh-cn/3/glossary.html#term-function-annotation)，其形式为在形参名后加 "`: expression`"。 
 
-  - 本例无法顺利运行因为这里试图用a,b两个变量解包具有3个元素的(1,2,3)和具有4个元素的(4,5,6,7)
+任何形参都可以带注解，甚至 `*identifier` 或 `**identifier` 这样的形参也可以。 （作为特例，`*identifier` 这样的形参可以有 "`: *expression`" 形式的注解。）
 
-- 如果使用扩展解包的语法,那么可以顺利执行:
+函数可以带有“返回”注解，其形式为在形参列表后加 "`-> expression`"。
 
-  - ```python
-    for a, *b in [(1, 2, 3), (4, 5, 6, 7)]:
-        print(b)
-    ```
+这些注解可以是任何有效的 Python 表达式。 注解的存在不会改变函数的语义。 有关注解的更多信息，请参阅 [标注](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#annotations)。
 
-  - `*b`将接收a,装不下的部分
+> *在 3.11 版本发生变更:* 形式为 "`*identifier`" 的形参可以带有 "`: *expression`" 标注。 参见 [**PEP 646**](https://peps.python.org/pep-0646/)。
 
-  - 这里要求被遍历的列表的元素(元组)至少含有2个元素
+### 匿名函数(lambda)
 
-- ```python
-  for a, *b in [(1), (4)]:
-      print(b)
-  # cannot unpack non-iterable int object
-  ```
+创建匿名函数（未绑定到一个名称的函数）以便**立即在表达式中使用**也是可能的。
 
-  
+ 这需要使用 lambda 表达式，具体描述见 [lambda 表达式](https://docs.python.org/zh-cn/3/reference/expressions.html#lambda) 一节。 请注意 lambda 只是简单函数定义的一种简化写法；在 "[`def`](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#def)" 语句中定义的函数也可以像用 lambda 表达式定义的函数一样被传递或赋值给其他名称。
 
-##  references🎈
+ "`def`" 形式实际上更为强大，因为它允许执行多条语句和使用标注。
 
-- [参数parameter — Python 3.11.2 文档](https://docs.python.org/zh-cn/3/glossary.html)
-
-* [4.7. 定义函数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#defining-functions)
-* [4.8. 函数定义详解](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#more-on-defining-functions)
-  * [4.8.1. 默认值参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#default-argument-values)
-  * [4.8.2. 关键字参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#keyword-arguments)
-  * [4.8.3. 特殊参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#special-parameters)
-    * [4.8.3.1. 位置或关键字参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#positional-or-keyword-arguments)
-    * [4.8.3.2. 仅位置参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#positional-only-parameters)
-    * [4.8.3.3. 仅限关键字参数](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#keyword-only-arguments)
-    * [4.8.3.4. 函数示例](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#function-examples)
-    * [4.8.3.5. 小结](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#recap)
-  * [4.8.4. 任意实参列表](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#arbitrary-argument-lists)
-  * [4.8.5. 解包实参列表](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#unpacking-argument-lists)
-  * [4.8.6. Lambda 表达式](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#lambda-expressions)
-  * [4.8.7. 文档字符串](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#documentation-strings)
-  * [4.8.8. 函数注解](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#function-annotations)
-
-
-
-
-
+**程序员注意事项:** 函数属于一等对象。 在一个函数内部执行的 "`def`" 语句会定义一个局部函数并可被返回或传递。 在嵌套函数中使用的自由变量可以访问包含该 def 语句的函数的局部变量。 详情参见 [命名与绑定](https://docs.python.org/zh-cn/3/reference/executionmodel.html#naming) 一节。
