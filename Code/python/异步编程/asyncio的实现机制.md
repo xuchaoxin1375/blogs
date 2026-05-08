@@ -47,12 +47,13 @@
 它没有使用任何库，而是通过手动驱动**协程（Coroutine）**，揭示了 `await` 关键字背后是如何通过生成器（Generator）机制工作的。
 
 ```python
+# 定义一个简单的可等待对象(awaitable)
 class Rock:
-    def __await__(self):
+    def __await__(self): # 一个普通的生成器
         value_sent_in = yield 7
         print(f"Rock.__await__ resuming with value: {value_sent_in}.")
         return value_sent_in
-
+# 主协程
 async def main():
     print("Beginning coroutine main().")
     rock = Rock()
@@ -89,7 +90,7 @@ print(f"Coroutine main() finished and provided value: {returned_value}.")
 
 通常我们用 `asyncio.run()` 来运行协程，但这个程序展示了“手动挡”操作：
 
-- **激活协程**: `coroutine.send(None)` 是启动协程的标准方式，程序运行到 `yield 7` 处暂停。
+- **激活协程**: `coroutine.send(None)` 是**启动协程的标准方式**，程序运行到 `yield 7` 处暂停。
 - **传递数据**: `coroutine.send(42)` 将 `42` 送回暂停的地方。
 
 ------
