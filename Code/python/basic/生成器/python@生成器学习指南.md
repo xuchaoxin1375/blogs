@@ -162,7 +162,7 @@ print(sys.getsizeof(squares_gen))    # 约 200 字节
 
 > 异步生成器函数中,`yield from`不可用,仅在普通的生成器函数中可用.
 
-`yield from` 是 Python 3.3 引入的语法，用于将生成器的控制**权委托给另一个可迭代对象**：
+`yield from` 是 Python 3.3 引入的语法，用于将生成器的**控制权委托给另一个可迭代对象**：
 
 ```python
 # 普通写法:不使用 yield from 
