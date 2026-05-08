@@ -302,6 +302,24 @@ asyncio 带有两种不同的事件循环实现：[`SelectorEventLoop`](https://
 - 在“可等待对象”（awaitable）上挂起当前“协程”（coroutine）的执行。
 - 普通函数内部或函数外部都不能使用
 
+```python
+# 定义协程函数
+async def coroutine_func:
+  # do something.
+  await ... # await <awaitable_obj> ,例如await asynicio.sleep()
+  # do something else.
+# 获取协程对象
+coroutine=coroutine_func()
+# 执行协程
+asyncio.run(coroutine)
+```
+
+结合上述典型的异步代码(伪代码)示例,我们重新描述一下文档中的对于`await`表达式的说明. 
+
+> 挂起(当前await语句所在的)协程的执行,以等待一个 `awaitable` 对象.
+>
+> 等待期间不会执行协程内后续的代码,例如上例中的`do something else`在`await ...`得到结果前是不会执行的.
+
 A. 挂起执行 (Suspend execution)
 
 这是 `await` 的灵魂。
@@ -733,6 +751,10 @@ await coroutine
 
 等待任务会**将控制权从当前任务或协程交还给事件循环**。在交还控制权的过程中，会发生一些重要的事情。
 
+> 先将协程包装到任务中(create_task)，然后再等待(await)，会导致控制权交还。
+>
+> 与等待任务(await task)不同，等待协程(await coroutine)并不会将控制权交还给事件循环
+
 我们将使用以下代码示例来说明:
 
 ```python
@@ -792,9 +814,11 @@ asyncio.run(main())
 
 ```
 
-协程 `main()` 中的第一条语句创建了 `task_b` 并调度它通过事件循环运行。
+> 假设事件循环将控制权传递到了主协程main的开始处.
 
-然后，将重复地等待 `coro_a()`。 **控制权从未被交还给事件循环**，这就是为什么在 `coro_b()` 的输出之前我们会看到所有三次唤起 `coro_a()` 的输出：
+协程 `main()` 中的第一条语句创建了 `task_b` 并调度它通过事件循环运行。这个语句不会阻塞协程(没有使用await立刻挂起,就不会阻塞该协程,控制权仍然还在main中,而**未交还给事件循环**.)
+
+继续运行下面的普通语句,然后，将重复地等待 `coro_a()`。 **控制权从未被交还给事件循环**，这就是为什么在 `coro_b()` 的输出之前我们会看到所有三次唤起 `coro_a()` 的输出：
 
 ```text
 I am coro_a(). Hi!
@@ -805,7 +829,7 @@ I am coro_b(). I sure hope no one hogs the event loop...
 
 ---
 
-
+只要控制权没有交还给事件循环,即便事件循环中任务组中的某些任务已经就绪,也得不到执行.
 
 如果我们将 `await coro_a()` 改为 `await asyncio.create_task(coro_a())`，行为就会发生变化。
 
@@ -824,18 +848,19 @@ async def main():
     for cid in range(num_repeats):
         #   await coro_a()
         await asyncio.create_task(coro_a(cid))
-    await task_b # await的对象仍然普通的协程,而不是task,这个语句不会主动交还控制权给事件循环,除非协程结束;
+    await task_b 
 
 
 asyncio.run(main())
 
 ```
 
+> 为了便于讨论,记变量`task_a`:`task_a = asyncio.create_task(coro_a(cid))`
+>
 
+协程(对象) `main()` 会通过该语句(`await asyncio.create_task(...)`)**将控制权交还给事件循环**(挂起main协程的执行),同时会向事件循环注册任务`task_a`。
 
-协程(对象) `main()` 会通过该语句将控制权交还给事件循环。
-
-然后，事件循环会继续处理其积压的工作，**先调用 `task_b`**，然后调用包装 `coro_a()` 的任务，最后恢复协程 `main()`。
+然后，事件循环会**继续处理其积压的工作**(事件循环注意到先前的`task_b = asyncio.create_task(coro_b())`注册了任务(回调)，先调用(处理)任务 `task_b`，然后(恢复main协程被挂起的位置继续执行),调用(包装 `coro_a()` 的)任务，最后恢复协程 `main()`。
 
 ```text
 I am coro_b(). I sure hope no one hogs the event loop...
@@ -843,6 +868,8 @@ I am coro_b(). I sure hope no one hogs the event loop...
 [1]:I am coro_a(). Hi!
 [2]:I am coro_a(). Hi!
 ```
+
+> `await task`类型的语句所在的协程中,会使当前协程**交还控制权给事件循环**(尽管一般情况下不需要关心这个事实).而不仅仅是挂起当前协程的执行.
 
 这种 `await coroutine` 的行为可能会困扰很多人！这个例子强调了仅使用 `await coroutine` **可能会无意中霸占其他任务的控制权并在实际上阻滞事件循环**。 
 
@@ -1053,21 +1080,31 @@ from datetime import datetime
 def printd(message=""):
     print(f"[{datetime.now()}] {message}")
 
-# ❌ 串行执行，总耗时 3 秒
+# 在睡眠前后各打印一条消息.支持指定任务ID便于区分不同睡眠任务
+async def sleepm(delay=1,id_msg=""):
+    printd(f"[{id_msg}]:start sleep...")
+    await asyncio.sleep(delay=delay)
+    printd(f"[{id_msg}]:end sleep.")
+    
+# 主协程(验证await coroutine的执行效果:不会交还控制权给事件循环.)
 async def sequential():
     printd("任务开始执行...")
-    await asyncio.sleep(1)
-    printd()
-    await asyncio.sleep(1)
-    printd()
-    await asyncio.sleep(1)
+    await sleepm(1,id_msg="1")
+    await sleepm(1,id_msg="2")
+    await sleepm(1,id_msg="3")
     printd("任务执行完毕.")
+# async def sequential():
+#     printd("任务开始执行...")
+#     await asyncio.sleep(1)
+#     printd()
+#     await asyncio.sleep(1)
+#     printd()
+#     await asyncio.sleep(1)
+#     printd("任务执行完毕.")
 
 
 if __name__ == "__main__":
     asyncio.run(sequential())
-
-
 
 ```
 
@@ -1079,6 +1116,51 @@ async def concurrent():
         asyncio.sleep(1),
         asyncio.sleep(1),
     )
+```
+
+完整的脚本
+
+```python
+import asyncio
+from datetime import datetime
+import random
+def printd(message=""):
+    print(f"[{datetime.now()}] {message}")
+
+# 在睡眠前后各打印一条消息.支持指定任务ID便于区分不同睡眠任务
+async def sleepm(delay=None,id_msg=""):
+    delay=delay or round(random.random(),2)
+    prefix_msg=f"[{id_msg}]:(sleep {delay}s)"
+    printd(f"{prefix_msg}:start sleep...")
+    await asyncio.sleep(delay=delay)
+    printd(f"[{id_msg}]::end sleep.")
+
+# 主协程(验证await coroutine的执行效果:不会交还控制权给事件循环.)
+async def sequential():
+    printd("任务开始执行...")
+    await sleepm(1,id_msg="1")
+    await sleepm(1,id_msg="2")
+    await sleepm(1,id_msg="3")
+    printd("任务执行完毕.")
+# 包装为task实现并发
+async def concurrent():
+    printd("任务开始执行...")
+    c1= sleepm(1,id_msg="1")
+    c2= sleepm(1,id_msg="2")
+    c3= sleepm(1,id_msg="3")
+    # 让三个协程包装成task并行运行.
+    tasks=[ asyncio.create_task(c) for c in [c1,c2,c3]]
+    # 等待所有任务完成
+    # await asyncio.gather(*tasks)
+    _res=[await t for t in tasks]
+    printd("任务执行完毕.")
+
+
+
+if __name__ == "__main__":
+    asyncio.run(sequential())
+    # asyncio.run(concurrent())
+
 ```
 
 
