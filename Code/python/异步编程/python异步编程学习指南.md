@@ -272,15 +272,17 @@ asyncio 带有两种不同的事件循环实现：[`SelectorEventLoop`](https://
 
 通过 async/await 语法来声明 [协程](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine) 是编写 asyncio 应用的推荐方式;
 
-关键规则：
+### 执行协程的方法
 
-- `async def` 定义的函数**调用后**返回的是一个**协程对象**，不会立即执行
-  - 简单地调用一个协程并不会使其被调度执行:
+`async def` 定义的函数**调用后**返回的是一个**协程对象**，不会立即执行
 
-- 协程必须**被 `await` **或**包装成 `Task`** 才会真正运行
-  - 要实际运行一个协程，`asyncio `提供了以下几种机制：
-    - [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 函数用来运行最高层级的入口点 "main()" 函数 
-    - 对**协程**(对象)执行 `await`(有使用条件:只能在`async def`函数体中使用,普通函数内不能使用)。
+简单地调用一个协程并不会使其被调度执行:
+
+协程必须**被 `await` **或**包装成 `Task`** 才会真正运行;
+
+要实际运行一个协程，`asyncio `提供了以下几种机制：
+- [`asyncio.run()`](https://docs.python.org/zh-cn/3.14/library/asyncio-runner.html#asyncio.run) 函数用来运行最高层级的入口点 "main()" 函数 
+- 对**协程**(对象)执行 `await`(有使用条件:只能在`async def`函数体中使用,普通函数内不能使用)。
 
 
 
@@ -335,10 +337,87 @@ C. 只能在协程函数内部使用
 
 异步程序不一定是并行的,也可以串行执行(尽管异步通常和并发联系在一起);
 
-我们需要用一定的包装才能并行执行;
+我们需要用一定的包装才能**并行执行**;
 
 - [`asyncio.create_task()`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.create_task) 函数用来**并发运行**作为 asyncio [`Task`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.Task) 的**多个协程**。
 - [`asyncio.TaskGroup`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.TaskGroup) 类提供的 [`create_task()`](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio.create_task) 的更**现代化**的替代(通常配合`with`上下文管理,这样可以自动为我们执行task的`await`操作)
+
+极少单独使用`asyncio.create_task()`:
+
+```python
+# 如果不使用await直接,而是单纯asyncio.create_task(),协程容易被回收导致结果和异常无法被处理
+asyncio.create_task(coro1)
+asyncio.create_task(coro2)
+# 逐个await也不能并发,await虽然不会阻塞python线程,但是会局部阻塞所在的协程
+await asyncio.create_task(coro1)
+await asyncio.create_task(coro1)
+
+```
+
+不恰当的用法:
+
+```python
+async def main():
+    # 这会等待 A 完成，才开始创建 B 的任务
+    await asyncio.create_task(download_file("A"))
+    await asyncio.create_task(download_file("B"))
+    # 这和直接 await download_file() 没有区别，浪费了 create_task
+```
+
+
+
+通常我们是先创建一堆任务，最后再集中 `await` 它们;
+
+或者使用 `asyncio.gather`代替逐个`asyncio.create_task()`任务创建,也不用手动逐个`await`,使得代码更加紧凑.
+
+手动管理task用例
+
+```python
+async def main():
+    # 同时开始两个任务
+    task1 = asyncio.create_task(download_file("A"))
+    task2 = asyncio.create_task(download_file("B"))
+
+    # 此处可以做点别的事...
+    
+    # 最后集中等待结果(而不是和上面的任务创建代码穿插编写)
+    await task1
+    await task2
+```
+
+在使用 `asyncio.create_task` 而不立即 `await` 时，需要注意 **Task 可能会被垃圾回收**。但是为了并发适合任务创建后立即await.
+
+Python 官方文档建议：如果你创建了一个任务但不打算立即等待它，应该保留一个对该 `Task` 对象的引用（例如存入一个集合中），否则 Python 的垃圾回收机制可能会在任务执行完之前将其销毁。
+
+asyncio.gather的用例:
+
+```python
+import asyncio
+
+async def download_file(name, duration):
+    print(f"任务 {name}: 开始下载...")
+    await asyncio.sleep(duration)
+    print(f"任务 {name}: 下载完成 (耗时 {duration}s)")
+    return f"{name}_data"
+
+async def main():
+    # 同时启动多个协程，并等待它们全部完成
+    # gather 会自动将协程包装成 Task
+    print("--- 并发开始 ---")
+    results = await asyncio.gather(
+        download_file("A", 2),
+        download_file("B", 1),
+        download_file("C", 1.5)
+    )
+    
+    # results 是一个列表，顺序与传入参数的顺序一致
+    print(f"所有任务结果: {results}")
+    print("--- 全部处理完毕 ---")
+
+asyncio.run(main())
+```
+
+
 
 ### 第一个异步程序
 
@@ -384,32 +463,60 @@ asyncio.run(main())
 import asyncio
 import time
 
+import logging
+
+datefmt1 = "%H:%M:%S"  # 仅打印时分秒
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(funcName)s - %(message)s",
+    datefmt=datefmt1,
+)
+logger=logging.getLogger(__name__)
+print=logger.info
 
 async def say_after(delay, what):
+    print(f"start say_after...[{what}]")
     await asyncio.sleep(delay)
     print(what)
 
 
 async def main():
+    print("create tasks...")
     task1 = asyncio.create_task(
         say_after(1, 'hello'))
 
     task2 = asyncio.create_task(
         say_after(2, 'world'))
-
-    print(f"started at {time.strftime('%X')}")
-
-    # 等待直到两个任务都完成
     # task1,2被asyncio.crate_task函数包装后,可以并发运行,节约时间（会花费约 2 秒钟。）
+
+    # 如果等待足够的时间,可以看到,即便后面没有使用await相关task,上述两个任务依然会执行.
+    await asyncio.sleep(3) # 可以注释此行查看效果
+    print(f"Try await at {time.strftime('%X')}")
+
+    # 等待直到两个任务都完成;注意await task并不是为了启动task,而是等待异步任务的结果
     await task1
     await task2
-
     print(f"finished at {time.strftime('%X')}")
 
 
 asyncio.run(main())
 
 ```
+
+output
+
+```bash
+ python .\async_demo_hello_task.py 
+17:01:05 - main - create tasks...
+17:01:05 - say_after - start say_after...[hello]
+17:01:05 - say_after - start say_after...[world]
+17:01:06 - say_after - hello
+17:01:07 - say_after - world
+17:01:08 - main - Try await at 17:01:08
+17:01:08 - main - finished at 17:01:08
+```
+
+
 
 > await: **挂起当前的可等待对象，让出控制权，等异步结果准备好再恢复执行**
 >
@@ -653,7 +760,7 @@ async def plant_a_tree():
 
 #### await coroutine
 
-**与任务不同，等待协程并不会将控制权交还给事件循环！** 
+**与任务不同，等待协程(await coroutine)并不会将控制权交还给事件循环！** 
 
 先将协程包装到任务中(create_task)，然后再等待(await)，会导致控制权交还。
 
@@ -934,17 +1041,37 @@ asyncio.run(main())
 1. **不要在协程里写耗时的计算任务**：协程擅长 I/O（网络、文件、数据库），但不擅长 CPU 密集型任务（如大型矩阵运算）。如果是后者，请使用 `run_in_executor` 交给线程池处理。
 2. **避免“影子阻塞”**：使用了 `async def` 却在内部调用了同步的阻塞库（比如 `requests` 或 `time.sleep`），这会导致异步程序失去意义，性能退化到同步水平。
 
-## 并发执行：asyncio.gather 与 TaskGroup
+## 并发执行🎈
+
+asyncio.gather 与 TaskGroup
 
 异步编程的威力在于**并发**。如果只是依次 `await`，**和同步没有区别**：
 
 ```python
+import asyncio
+from datetime import datetime
+def printd(message=""):
+    print(f"[{datetime.now()}] {message}")
+
 # ❌ 串行执行，总耗时 3 秒
 async def sequential():
+    printd("任务开始执行...")
     await asyncio.sleep(1)
+    printd()
     await asyncio.sleep(1)
+    printd()
     await asyncio.sleep(1)
+    printd("任务执行完毕.")
 
+
+if __name__ == "__main__":
+    asyncio.run(sequential())
+
+
+
+```
+
+```python
 # ✅ 并发执行，总耗时 1 秒
 async def concurrent():
     await asyncio.gather(
@@ -954,13 +1081,23 @@ async def concurrent():
     )
 ```
 
+
+
 ### asyncio.gather
 
 同时启动多个协程，等待全部完成，**按传入顺序返回**结果：
 
 - `awaitable asyncio.gather(*aws, return_exceptions=False)`
 
-  *并发* 运行 *aws* 序列中的 [可等待对象](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio-awaitables)。如果 *aws* 中的某个可等待对象为协程，它将自动被作为一个任务调度。如果所有可等待对象都成功完成，结果将是一个由所有返回值聚合而成的列表。结果值的顺序与 *aws* 中可等待对象的顺序一致。
+  *并发* 运行 *aws* 序列中的 [可等待对象(awaitable)](https://docs.python.org/zh-cn/3.14/library/asyncio-task.html#asyncio-awaitables)。
+  
+  如果 *aws* 中的某个可等待对象为**协程**，它将**自动被作为一个任务调度**。
+  
+  如果所有可等待对象都成功完成，结果将是一个**由所有返回值聚合而成的列表**。
+  
+  结果值的顺序与 *aws* 中可等待对象的**顺序一致**。
+
+#### 网络请求
 
 ```python
 import asyncio
@@ -983,6 +1120,25 @@ async def main():
 # 运行协程
 asyncio.run(main())
 ```
+
+```python
+import asyncio
+
+async def fetch(i):
+    await asyncio.sleep(1)
+    return f"数据 {i}"
+
+async def main():
+    tasks = [fetch(i) for i in range(5)]
+    results = await asyncio.gather(*tasks)
+    print(results)
+
+asyncio.run(main())
+```
+
+
+
+#### 计算3个阶乘
 
 ```python
 import asyncio
