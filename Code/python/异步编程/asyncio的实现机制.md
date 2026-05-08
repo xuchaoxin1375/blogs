@@ -47,34 +47,94 @@
 它没有使用任何库，而是通过手动驱动**协程（Coroutine）**，揭示了 `await` 关键字背后是如何通过生成器（Generator）机制工作的。
 
 ```python
+# demo_coroutine_send.py
+import logging
+
+datefmt1 = "%H:%M:%S"  # 仅打印时分秒
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(funcName)s - %(message)s",
+    datefmt=datefmt1,
+)
+logger = logging.getLogger(__name__)
+print = logger.info
+
+
 # 定义一个简单的可等待对象(awaitable)
 class Rock:
-    def __await__(self): # 一个普通的生成器
-        value_sent_in = yield 7
+    def __await__(self):  # 一个普通的生成器
+        value_sent_in = yield 7 # 本函数被调用后,向调用者返回7(但不是将value_sent_in赋值为7),然后暂停(如果协程恢复,则继续下面到代码,返回value_sent_in)
+        # 通过send(None)启动生成器
         print(f"Rock.__await__ resuming with value: {value_sent_in}.")
-        return value_sent_in
+        return value_sent_in  # 可以配合await 表达式来接收返回值.
+
+
 # 主协程
 async def main():
     print("Beginning coroutine main().")
+    # 实例化可等待对象,得到rock
     rock = Rock()
     print("Awaiting rock...")
-    value_from_rock = await rock
+    value_from_rock = await rock  # 触发rock.__await__()方法的调用,执行到内部的field后暂停,main协程也会暂停(等待send来恢复协程.)
+    # 注意这里接收到的只是return的值,而不是yield的返回值(yield表达式返回的值是返回给协程启动(恢复)调用者的,同时也意味着协程的执行又被暂停了,例如后面的语句coroutine.send(42)返回值就是yield的返回值7).
     print(f"Coroutine received value: {value_from_rock} from rock.")
+
+    # 设置主协程的返回值,外部检测coroutine.send()抛出的StopIteration异常中获取main协程的返回值
+    # 当一个 generator 或 coroutine 函数返回时，将引发一个新的 StopIteration 实例，函数返回的值将被用作异常构造器的 value 形参。
     return 23
 
-coroutine = main()
-intermediate_result = coroutine.send(None)
-print(f"Coroutine paused and returned intermediate value: {intermediate_result}.")
 
-print(f"Resuming coroutine and sending in value: 42.")
-try:
-    coroutine.send(42)
-except StopIteration as e:
-    returned_value = e.value
-print(f"Coroutine main() finished and provided value: {returned_value}.")
+if __name__ == "__main__":
+    # 创建主协程(对象)
+    coroutine = main()
+
+    # 通过协程的send()方法手动启动协程,而非asyncio.run
+    print("Starting main coroutine by send(None)...")
+    intermediate_result = coroutine.send(None) # main协程运行到await rock(内部的yield后暂停执行,并获得yield返回值7),直到下面到send(value)调用恢复被挂起的协程(内的其余代码的执行).
+    # 虽然协程被挂起,但这不会阻塞主线程其他代码的执行.下面到语句会继续执行.
+
+    print(f"[I]:Coroutine paused and returned intermediate value: {intermediate_result}.")
+
+    print("[I]:Resuming coroutine and sending in value: 42.")
+
+    try:
+        coroutine.send(42) # 恢复主协程的执行.
+    except StopIteration as e:
+        returned_value = e.value
+    print(f"[I]:Coroutine main() finished and provided value: {returned_value}.")
+
 ```
 
-核心机制解析
+```bash
+ python .\demo_coroutine_send.py 
+<module> - Starting main coroutine by send(None)...
+main - Beginning coroutine main().
+main - Awaiting rock...
+<module> - [I]:Coroutine paused and returned intermediate value: 7.
+<module> - [I]:Resuming coroutine and sending in value: 42.
+__await__ - Rock.__await__ resuming with value: 42.
+main - Coroutine received value: 42 from rock.
+<module> - [I]:Coroutine main() finished and provided value: 23.
+```
+
+await表达式:
+
+> Suspend the execution of coroutine on an awaitable object.
+
+程序执行流程图解(仅重要结点)
+
+| **步骤** | **执行操作**           | **控制权 / 状态**                           | **输出内容**                              |
+| -------- | ---------------------- | ------------------------------------------- | ----------------------------------------- |
+| **1**    | `coroutine = main()`   | 创建协程对象，但不执行                      | (无输出)                                  |
+| **2**    | `coroutine.send(None)` | 进入 `main`，执行到 `await rock`            | `Beginning coroutine main()...`           |
+| **3**    | `Rock.__await__` 执行  | 遇到 `yield 7`，协程**挂起**并向外返回 `7`  | `Coroutine paused... value: 7`            |
+| **4**    | `coroutine.send(42)`   | 将 `42` 送入 `yield` 处，`Rock` 继续执行    | `Rock.__await__ resuming with value: 42.` |
+| **5**    | `Rock` 返回值          | `await rock` 拿到 `42`                      | `Coroutine received value: 42 from rock.` |
+| **6**    | `main` 结束            | `main` 返回 `23`，抛出 `StopIteration` 异常 | `Coroutine main() finished... value: 23.` |
+
+
+
+#### 核心机制解析
 
 1. 魔法方法 `__await__`
 
@@ -95,17 +155,6 @@ print(f"Coroutine main() finished and provided value: {returned_value}.")
 
 ------
 
-程序执行流程图解
-
-| **步骤** | **执行操作**           | **控制权 / 状态**                           | **输出内容**                              |
-| -------- | ---------------------- | ------------------------------------------- | ----------------------------------------- |
-| **1**    | `coroutine = main()`   | 创建协程对象，但不执行                      | (无输出)                                  |
-| **2**    | `coroutine.send(None)` | 进入 `main`，执行到 `await rock`            | `Beginning coroutine main()...`           |
-| **3**    | `Rock.__await__` 执行  | 遇到 `yield 7`，协程**挂起**并向外返回 `7`  | `Coroutine paused... value: 7`            |
-| **4**    | `coroutine.send(42)`   | 将 `42` 送入 `yield` 处，`Rock` 继续执行    | `Rock.__await__ resuming with value: 42.` |
-| **5**    | `Rock` 返回值          | `await rock` 拿到 `42`                      | `Coroutine received value: 42 from rock.` |
-| **6**    | `main` 结束            | `main` 返回 `23`，抛出 `StopIteration` 异常 | `Coroutine main() finished... value: 23.` |
-
 关键结论：`await` 的本质是什么？
 
 通过这段代码，你可以发现 `await` 实际上是一个“中继器”：
@@ -115,6 +164,23 @@ print(f"Coroutine main() finished and provided value: {returned_value}.")
 3. **处理终止信号**：当底层的迭代器 `return` 时，它会触发 `StopIteration` 异常，`await` 捕获这个异常并拿到 `return` 的值。
 
 > **小知识**： 为什么最后要用 `try...except StopIteration`？ 因为在 Python 中，当一个异步函数（协程）运行结束时，它会像生成器一样抛出一个 `StopIteration` 异常，而它的返回值（这里是 `23`）就被封装在异常对象的 `.value` 属性中。
+
+await 表达式是否阻塞,区分**局部**和**全局**两个视角。
+
+------
+
+1. 局部视角：它是“阻塞”的（顺序执行）
+
+从编写代码的角度看，`await` 的行为就像是同步代码。 当程序执行到 `value = await rock` 时，`main()` 协程会**停在这一行**。在 `rock` 返回结果之前，`main()` 协程内部的其余代码不会执行。
+
+- **对开发者而言**：它维持了逻辑的连贯性，让你不用写复杂的各种回调函数（Callback）。
+
+2. 全局视角：它是“非阻塞”的（并发执行）
+
+这就是异步编程的魔力所在。当 `main()` 停在 `await` 时，它会通过 `yield` 将 CPU 的**控制权交还**给调用者（通常是事件循环 Event Loop）。
+
+- **事件循环**：在 `main()` 挂起期间，事件循环可以去处理其他任务。
+- **资源利用**：单线程下，CPU 不会在那里空转等待，而是去忙别的事情。
 
 ---
 
@@ -129,19 +195,18 @@ print(f"Coroutine main() finished and provided value: {returned_value}.")
 
 在本例中，这将回到第 16 行的 `... = coroutine.send(None)`。
 
-协程通过第 21 行的 `coroutine.send(42)` 调用恢复。协程从第 3 行 `yield` (或暂停) 的位置继续执行，并执行其主体中的剩余语句。协程完成后，它会引发一个 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration) 异常，并将返回值附加在 [`value`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration.value) 属性中。
+- 协程通过第 21 行的 `coroutine.send(42)` 调用恢复。
+- 协程从第 3 行 `yield` (或暂停) 的位置继续执行，并执行其主体中的剩余语句。
+- **协程完成后，它会引发一个 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration) 异常**，并将**返回值附加在 `value` 属性**中。
 
-该代码片段产生以下输出：
-
-```python
-Beginning coroutine main().
-Awaiting rock...
-Coroutine paused and returned intermediate value: 7.
-Resuming coroutine and sending in value: 42.
-Rock.__await__ resuming with value: 42.
-Coroutine received value: 42 from rock.
-Coroutine main() finished and provided value: 23.
-```
+> 由内置函数 [`next()`](https://docs.python.org/zh-cn/3.14/library/functions.html#next) 和 [iterator](https://docs.python.org/zh-cn/3.14/glossary.html#term-iterator) 的 [`__next__()`](https://docs.python.org/zh-cn/3.14/library/stdtypes.html#iterator.__next__) 方法所引发，用来表示该迭代器不能产生下一项。
+>
+> **value** (StopIteration.value)
+>
+> 该异常对象只有一个属性 `value`，它在**构造该异常时作为参数给出**，默认值为 [`None`](https://docs.python.org/zh-cn/3.14/library/constants.html#None)。
+>
+> - 当一个 [generator](https://docs.python.org/zh-cn/3.14/glossary.html#term-generator) 或 [coroutine](https://docs.python.org/zh-cn/3.14/glossary.html#term-coroutine) (协程)函数返回时，将引发一个新的 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration) 实例，**函数返回的值将被用作异常构造器的 `value` 形参。**
+> - 如果某个生成器代码直接或间接地引发了 [`StopIteration`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#StopIteration)，它会被转换为 [`RuntimeError`](https://docs.python.org/zh-cn/3.14/library/exceptions.html#RuntimeError) (并将 `StopIteration` 保留为导致新异常的原因)。
 
 这里值得暂停一下，确保您已经理解了控制流和值传递的各种方式。我们涵盖了很多重要的概念，确保您理解得足够牢固。
 
