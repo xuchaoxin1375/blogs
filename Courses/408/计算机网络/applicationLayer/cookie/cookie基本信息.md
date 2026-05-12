@@ -1,4 +1,48 @@
+[toc]
+
+## abstract
+
+[HTTP Cookie - HTTP | MDN --- HTTP Cookie - HTTP | MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies)
+
 Cookie 是一种存储在用户浏览器中的小型文本数据文件，通常用于存储和传递状态信息，以便网站能够记住用户的信息或偏好设置。它在现代网页应用中扮演了重要的角色，尤其是在用户认证、个性化设置和跟踪用户行为等方面。
+
+## HTTP Cookie
+
+HTTP Cookie（也叫 Web Cookie 或浏览器 Cookie）是**服务器发送到用户浏览器**并保存在本地的一**小块数据**。
+
+**浏览器**会存储 cookie 并在**下次向同一服务器再发起请求时携带并发送到服务器上**。
+
+通常，它用于**告知服务端两个请求是否来自同一浏览器**——如保持用户的登录状态。
+
+> Cookie 使基于[无状态](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Overview#http_是无状态，有会话的)的 HTTP 协议记录稳定的状态信息成为了可能。
+
+Cookie 主要用于以下三个方面：
+
+- [会话状态管理](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies#会话状态管理)
+
+  如用户登录状态、购物车、游戏分数或其他需要记录的信息
+
+- [个性化设置](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies#个性化设置)
+
+  如用户自定义设置、主题和其他设置
+
+- [浏览器行为跟踪](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies#浏览器行为跟踪)
+
+  如跟踪分析用户行为等
+
+Cookie 曾一度用于**客户端数据**的存储，因当时并没有其他合适的存储办法而作为唯一的存储手段，但**现在推荐使用现代存储 API**。
+
+> 由于服务器指定 Cookie 后，浏览器的每次请求都会携带 Cookie 数据，会带来额外的性能开销（尤其是在移动环境下）。
+>
+> 新的浏览器 API 已经允许开发者直接**将数据存储到本地**，如使用 [Web storage API](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Storage_API)（`localStorage` 和 `sessionStorage`）或 [IndexedDB](https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API) 。
+
+**备注：**要查看 Cookie 存储（或网页上能够使用其他的存储方式），你可以在开发者工具中启用存储查看器（[Storage Inspector](https://firefox-source-docs.mozilla.org/devtools-user/storage_inspector/index.html)）功能，并在存储树上选中 Cookie。
+
+
+
+## 创建 Cookie
+
+服务器收到 HTTP 请求后，服务器可以在响应标头里面添加一个或多个 [`Set-Cookie`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Set-Cookie) 选项。浏览器收到响应后通常会保存下 Cookie，并将其放在 HTTP [`Cookie`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cookie) 标头内，向同一服务器发出请求时一起发送。你可以指定一个过期日期或者时间段之后，不能发送 cookie。你也可以对指定的域和路径设置额外的限制，以限制 cookie 发送的位置。关于下面提到的头部属性的详细信息，请参考 [`Set-Cookie`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Set-Cookie) 文章。
 
 ### Cookie的主要组成
 
