@@ -14,7 +14,7 @@ Python 爬虫框架推荐（有反反爬需求）
 
 ### 1. **Scrapling**（🔥 新星首选）
 
-Scrapling 集自适应解析、反爬绕过、高性能和 AI 集成于一体，是 2026 年最值得关注的 Python 爬虫框架。
+Scrapling 集自适应解析、反爬绕过、高性能和 AI 集成于一体.
 
 **为什么适合你：**
 - 其 fetcher 可以开箱即用地绕过 Cloudflare Turnstile 等反爬系统。
@@ -59,12 +59,6 @@ Scrapy 是最强大的大规模爬虫框架。但学习曲线较陡。
 - 学习曲线陡峭。
 - 虽然 Scrapy 没有内置反爬绕过机制，但可以通过中间件无缝集成反爬服务。
 - 适合大项目，入门不太推荐。
-
-### 4. **Selenium + undetected-chromedriver**（🕵️ 经典方案）
-
-对于需要 Selenium 功能又面临反爬封锁的人，Undetected-Chromedriver 可以让你的自动化浏览器看起来尽可能像人类操作。
-
-- Playwright-Extra 和 Undetected-Chromedriver 等浏览器自动化库对复杂反爬系统的成功率最高（92-95%），但需要更多资源。
 
 ### 5. **curl_cffi**（⚡ 轻量级指纹伪装）
 

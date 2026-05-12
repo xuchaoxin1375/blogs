@@ -9,6 +9,8 @@
 完整文档:[序列图 | Mermaid中文文档](https://docs.min2k.com/zh/mermaid/syntax/sequenceDiagram.html)
 
 > 本文仅介绍最常用的部分;
+>
+> 完整内容比这里说的要多的多,并且对于初学者而言,许多符号可能会破坏解析,需要特殊处理.
 
 序列图（Sequence Diagram）是 UML 中用于描述**对象之间按时间顺序交互**的图表。它展示了参与者（Participants）如何通过消息传递来协作完成某个功能或流程。
 
@@ -16,6 +18,68 @@
 - 清晰描述系统中**谁**在**何时**向**谁**发送了**什么**消息
 - 帮助理解复杂业务流程的调用链路
 - 是接口设计、系统架构讨论的高效沟通工具
+
+### 关键字end
+
+关于节点的说明，“end”这个词可能会破坏图表，因为 Mermaid 语言的脚本方式。
+
+如果不可避免，必须使用**括号（）、引号“ ” 或 括号{}，[]**来封装“**end**”一词。即：（结束）、[end]、[end}。
+
+
+
+### 实体编码用于转义字符
+
+🌐 Entity codes to escape characters
+
+可以使用此处示例的语法来转义字符。
+
+🌐 It is possible to escape characters using the syntax exemplified here.
+
+代码: `#9829;`代替('&#9829;'),与`&#9829;`不同,mermaid中不需要`&`前缀.
+
+```text
+sequenceDiagram
+    A->>B: I #9829; you!
+    B->>A: I #9829; you #infin; times more!
+```
+
+
+
+```mermaid
+sequenceDiagram
+    A->>B: I #9829; you!
+    B->>A: I #9829; you #infin; times more!
+```
+
+给出的数字是十进制，因此 `#` 可以编码为 `#35;`。也支持使用 HTML 字符名称。
+
+🌐 Numbers given are base 10, so `#` can be encoded as `#35;`. It is also supported to use HTML character names.
+
+### 小心处理分号`;`
+
+因为**分号**可以用来**代替换行符**来**定义标记**，所以**在消息文本中包含分号时，你需要使用 `#59;`**。
+
+🌐 Because semicolons can be used instead of line breaks to define the markup, you need to use `#59;` to include a semicolon in message text.
+
+> 小技巧是可以先统一使用普通的`;`,写完后统一替换为`#59;`
+
+```mermaid
+
+sequenceDiagram
+    participant B as 浏览器
+    participant S as 服务器
+
+    B->>S: GET /login (首次请求，无 Cookie)
+    S-->>B: 200 OK + Set-Cookie: session=abc123#59; HttpOnly#59; Secure
+
+    Note over B: 浏览器保存 Cookie
+
+    B->>S: GET /dashboard (自动携带 Cookie: session=abc123)
+    S-->>B: 200 OK (识别用户，返回个人数据)
+
+```
+
+
 
 ## 对比时序图和流程图
 
@@ -315,7 +379,7 @@ deactivate 服务端
 
 ---
 
-## 注释（Notes）
+## 注释（Notes）🎈
 
 注释用于在图中添加说明性文字，不影响流程逻辑。
 

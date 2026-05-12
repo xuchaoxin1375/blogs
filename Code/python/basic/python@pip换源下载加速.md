@@ -33,12 +33,25 @@
 
 ### 配置主镜像和备用镜像
 
-```python
+```shell
 pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simple/
-pip config set global.extra-index-url "https://pypi.tuna.tsinghua.edu.cn/simple https://repo.huaweicloud.com/repository/pypi/simple/  https://mirrors.aliyun.com/pypi/simple/ https://pypi.org/simple"
+
+# pip config set global.extra-index-url "https://pypi.tuna.tsinghua.edu.cn/simple https://repo.huaweicloud.com/repository/pypi/simple/  https://mirrors.aliyun.com/pypi/simple/ https://pypi.org/simple"
 ```
 
-这里主镜像配置为阿里源,备用镜像配置为清华源,华为源和原始官方源
+这里主镜像配置为ustc;
+
+还可以配置备用镜像,但是会拖慢速度,通常不建议添加,而是直接指定一个明确可用的作为主要镜像源即可
+
+> 例如备用镜像配置为清华源,华为源和原始官方源
+>
+> 如果想要取消配置,可以执行如下命令取消配置`global.extra-index-url`:
+>
+> ```shell
+>  pip config unset global.extra-index-url
+> ```
+>
+> 
 
 ### 配置检查
 
