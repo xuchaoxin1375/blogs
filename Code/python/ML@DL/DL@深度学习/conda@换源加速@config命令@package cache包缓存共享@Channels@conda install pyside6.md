@@ -123,9 +123,14 @@
 
 - [Conda channels — conda 23.3.0.post2+8419c02f5 documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html)
 
-### 国内通道加速@清华源通道👺
+### 国内通道加速通道👺
 
-- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
+- [anaconda |Tuna | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
+
+- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
+
+
+说明:
 
 - Anaconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/ 下载。
 
@@ -133,7 +138,8 @@
 
 - Windows 用户,可先执行 `conda config --set show_channel_urls yes` 生成 `.condarc` 的文件之后再修改。
 
-- powershell下执行:`notepad "$userprofile\.condarc"`编辑该文件,粘贴(追加)如以下内容
+  - powershell下执行:`notepad "$home\.condarc"`编辑该文件,粘贴(追加)如以下内容
+
 
   ```bash
   channels:
@@ -145,13 +151,7 @@
     - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
   custom_channels:
     conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
     pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
   ```
 
 - powershell下一键复制粘贴版本:
@@ -159,8 +159,8 @@
   - ```powershell
     
     #备份旧配置,如果有的话
-    if(Test-Path "$userprofile\.condarc"){
-    cp "$userprofile\.condarc" "$userprofile\.condarc.bak"
+    if(Test-Path "$home\.condarc"){
+    cp "$home\.condarc" "$home\.condarc.bak"
     }
     #写入内容
     @'
@@ -180,11 +180,12 @@
       pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
       simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
       deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
-    '@ >"$userprofile\.condarc"
+    '@ >"$home\.condarc" 
     
     ```
 
-    
+
+  如果手动编辑,记得如果原文件中已有`channels:`字段,则要移除或注释旧有的,然后覆盖新片段
 
 
 #### 检查是否配置成功

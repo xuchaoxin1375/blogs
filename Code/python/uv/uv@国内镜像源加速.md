@@ -1,6 +1,6 @@
 [toc]
 
-
+## abstract
 
 在国内环境下，`uv` 的默认下载速度可能确实不理想。由于 `uv` 是为了性能设计的，它**故意不读取** `pip` 的全局配置文件（如 `pip.conf`），所以你需要专门为 `uv` 配置国内镜像源。
 
@@ -9,6 +9,8 @@
 ------
 
 ## 1. 全局配置
+
+[Configuration files | uv](https://docs.astral.sh/uv/concepts/configuration-files/)
 
 你可以创建一个全局配置文件，让所有的 `uv` 命令（包括 `uv add`、`uv run`、`uv tool`）默认都使用国内源。
 
@@ -19,10 +21,30 @@
 
 **操作步骤：**
 
-1. 如果目录不存在，先创建它：`mkdir -p ~/.config/uv`
-2. 编辑或创建 `uv.toml` 文件，写入以下内容：
+ustc源:
 
+**当前项目配置**：修改项目根目录下的 `uv.toml` 
 
+```toml
+[[index]]
+url = "https://mirrors.ustc.edu.cn/pypi/simple"
+default = true
+```
+
+或 `pyproject.toml`：
+
+```toml
+[[tool.uv.index]]
+url = "https://mirrors.ustc.edu.cn/pypi/simple"
+default = true
+```
+
+**全局配置**：修改全局配置文件 `~/.config/uv/uv.toml`（Linux/macOS）或 `%AppData%\uv\uv.toml`（Windows），内容同上。
+
+1. 如果目录不存在，先创建它：`mkdir -p ~/.config/uv`(linux/macos)或`mkdir $env:appdata/uv `(windows powershell)
+2. 编辑或创建 `uv.toml` 文件
+
+或者tuna
 
 ```TOML
 [[index]]
@@ -89,14 +111,12 @@ uv add requests --verbose
 
 ## 常用国内镜像源地址
 
-你可以根据自己的网络环境选择最快的源：
-
-| **机构**             | **镜像地址**                                           |
-| -------------------- | ------------------------------------------------------ |
-| **清华大学 (TUNA)**  | `https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple` |
-| **阿里云**           | `https://mirrors.aliyun.com/pypi/simple/`              |
-| **腾讯云**           | `https://mirrors.cloud.tencent.com/pypi/simple/`       |
-| **中国科学技术大学** | `https://mirrors.ustc.edu.cn/pypi/web/simple`          |
+| **机构**                   | **镜像地址**                                           |
+| -------------------------- | ------------------------------------------------------ |
+| **中国科学技术大学**(USTC) | `https://mirrors.ustc.edu.cn/pypi/web/simple`          |
+| **清华大学 (TUNA)**        | `https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple` |
+| **阿里云**                 | `https://mirrors.aliyun.com/pypi/simple/`              |
+| **腾讯云**                 | `https://mirrors.cloud.tencent.com/pypi/simple/`       |
 
 ------
 

@@ -16,12 +16,7 @@ conda客户端,图形界面通常是anaconda,命令行界面包括`conda`,`mamba
 
 此外conda可以管理非python的环境,跨语言管理和软件依赖源替换更加彻底等方面仍有优势,例如我可以用conda管理不同的shell环境(例如bash),这样开发完一个bash脚本,想要知道在不同版本bash下能否正常工作或者能否通过语法检查就能简单实现.
 
-## ref
 
-- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
-
-- [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
-- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
 
 ## conda官网
 
@@ -192,6 +187,64 @@ bash Miniforge3-$(uname)-$(uname -m).sh
   scoop install miniforge
   ```
 
+#### 避免使用base环境
+
+使用scoop安装的情况下,应该避免使用默认的base环境.
+
+因为scoop升级miniforge程序会导致base环境被覆盖.
+
+```powershell
+
+Conda base env is not persisted by Scoop, packages installed to the base env will be
+removed when upgrading the app.
+We advice to setup 'envs_dirs' to use a seperated path like '~/.conda/envs' and
+avoid using the base env.
+https://conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#specify-environment-directories-envs-dirs
+```
+
+### 指定`envs_dirs`
+
+为了防止数据丢失，建议将**虚拟环境的存放路径**挪出 Scoop 的管理范围。
+
+#### 修改 `envs_dirs` 路径
+
+你需要配置 Conda，让它把新建的环境存放在你的用户目录下（例如 `~/.conda/envs`或者`C:/.conda/envs`），而不是安装目录下。 
+
+执行以下命令：
+
+```shell
+conda config --add envs_dirs ~/.conda/envs
+```
+
+> 如果指定了envs_dirs到家目录后,仍然不建议使用base环境.
+
+即便你指定了 `envs_dirs` 到家目录，这只是保证了你以后 **新建的虚拟环境（`conda create`）** 是安全的，但 **`base` 环境本身的位置并没有改变**。
+
+检查`envs_dirs`
+
+```shell
+ conda config --show envs_dirs
+envs_dirs:
+  - C:\Users\cxxu\.conda\envs
+  - C:\scoop\apps\miniforge\current\envs
+  - C:\Users\cxxu\AppData\Local\conda\conda\envs
+```
+
+这样conda会优先使用第一顺位的路径存放虚拟环境.
+
+### 创建自己的默认环境
+
+创建一个“伪 Base”环境:
+
+创建一个你专属的常用环境，给它起个好记的名字（比如 `main` 或 `dev`,或`default`）：
+
+```shell
+# 使用conda或mamba创建环境(语法基本相同)
+conda create -n main python=3.13 # numpy pandas matplotlib
+```
+
+由于你已经设置了 `envs_dirs` 到家目录，这个 `main` 环境在 Scoop 更新时是**绝对安全**的。
+
 ### winget 命令行下载
 
 - 如果您的网络不错,可以用winget安装(Winget现在也支持换源了)
@@ -216,12 +269,22 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 ## 配置conda/mamba国内源👺
 
-- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)
+- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)(推荐)
 
+- [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
 - [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
 
+最新的配置方法参考上述链接,下面的片段可能是过时的,仅供参考;
 
-最新的配置方法参考上述链接,下面的片段可能是过时的,仅供参考
+> miniforge用户优先按照mamba方案配置,速度较快.
+
+### 搜索软件包(miniforge packages)
+
+[Packages | conda-forge | community-driven packaging for conda](https://conda-forge.org/packages/)
+
+本地直接用miniforge的mamba命令或者conda命令搜索包比较慢,可以考虑使用在线网站搜索,尤其是查看包的可用性和版本.
+
+
 
 ### 科大源
 
@@ -333,7 +396,13 @@ EOF
   
   ```
 
+### 清理旧索引
 
+**强制清理旧索引：** 换源后务必执行一次：
+
+```shell
+mamba clean -i
+```
 
 ## 初始化(conda init)
 
@@ -378,6 +447,77 @@ modified      HKEY_CURRENT_USER\Software\Microsoft\Command Processor\AutoRun
 
 其中被标记为`modified`的行相关文件/路径是发生了变换的.甚至还可能修改了注册表
 
+> 默认情况在,conda init后,会尝试自动在shell启动后激活conda环境.
+>
+> 可以通过修改`.condarc`配置文件来更改这一默认行为.
+
+### conda 配置检查
+
+```shell
+ conda config --help
+ 
+--show-sources flag to display all identified configuration locations on
+your computer.
+
+Config Subcommands:
+  --show [SHOW ...]     Display configuration values as calculated and compiled. If no arguments given, show information for all configuration values.
+  --show-sources        Display all identified configuration sources.
+  --validate            Validate all configuration sources. Iterates over all .condarc files and checks for parsing errors.
+  --describe [DESCRIBE ...]
+                        Describe given configuration parameters. If no arguments given, show information for all configuration parameters.
+  --write-default       Write the default configuration to a file. Equivalent to `conda config --describe > ~/.condarc`.
+```
+
+```shell
+# [pwsh][cxxu@CXXUFIREBAT][~][0:02:14]
+ conda config --show-source
+==> C:\scoop\apps\miniforge\current\.condarc <==
+auto_activate: False
+channels:
+  - conda-forge
+
+==> C:\Users\cxxu\.condarc <==
+auto_activate: False
+channels:
+  - defaults
+```
+
+检查当前是否自动激活环境:
+
+```shell
+ conda config --show auto_activate
+auto_activate: False
+```
+
+如果是`False`说明shell加载后不会自动激活加载conda环境
+
+### mamba配置检查
+
+mamba命令和conda命令的语法有差异,使用`mamba config list`查看.
+
+```shell
+(main) # [pwsh][cxxu@CXXUFIREBAT][~\Desktop][1:22:10]
+ mamba config list
+envs_dirs:
+  - C:\Users\cxxu\.conda\envs
+  - C:\Users\cxxu\.local\share\mamba\envs
+channels:
+  - conda-forge
+mirrored_channels:
+  conda-forge:
+    - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
+```
+
+> 注意,mamba用户使用的镜像源和conda有些区别,虽然mamba可利用conda的镜像源,但是效果不如专用的mamba源好.
+>
+> 但注意,选择了mamba后就不要和conda混用(使用mamba创建和管理环境,安装包等操作,而不混用conda),避免不必要的错误出现.
+
+Miniforge 是 conda-forge 官方维护的 Miniconda 替代品，默认使用 conda-forge 频道。安装包可以在 https://mirrors.ustc.edu.cn/github-release/conda-forge/miniforge/LatestRelease/ 下载。
+
+如果使用 Miniforge 提供的 `conda`，请参考上述 Miniconda 的配置方法。不过，Miniforge 通常会搭配 mamba 一起使用。mamba 是 conda 的一个高性能替代实现，用来解决 conda 速度慢的问题。
+
+如果使用 `mamba`，其支持 `mirrored_channels` 选项，配置可以简化。
+
 ### 自动加载开关
 
 取消自动加载
@@ -401,7 +541,82 @@ conda config --set auto_activate false
 
 ### 使用mamba代替conda加速
 
-如果使用miniforge,会携带安装mamba,不过mamba和conda命令不完全相同,例如安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要激活虚拟环境后才能被shell找到.
+如果使用miniforge,会携带安装mamba.
+
+不过mamba和conda命令不完全相同,例如安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要**激活虚拟环境后才能被shell找到**.
+
+```shell
+
+(base) # [pwsh][cxxu@CXXUFIREBAT][~\Desktop][0:43:21]
+ gcm mamba
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Application     mamba.exe                                          0.0.0.0    C:\scoop\apps\miniforge\current\Library\bin\mamba.exe
+```
+
+> 可以根据查询到的mamba所在路径,添加到环境变量PATH中便于后续使用
+>
+> 和conda类似,需要初始化才能直接使用.
+
+```shell
+critical libmamba Shell not initialized
+
+'mamba' is running as a subprocess and can't modify the parent shell.
+Thus you must initialize your shell before using activate and deactivate.
+
+To initialize the current powershell shell, run:
+    $ mamba.exe shell hook -s powershell | Out-String | Invoke-Expression
+ 
+and then activate or deactivate with:
+    $ mamba activate
+    
+    
+To automatically initialize all future (powershell) shells, run:
+    $ mamba shell init --shell powershell --root-prefix=~/.local/share/mamba
+    
+    
+If your shell was already initialized, reinitialize your shell with:
+    $ mamba shell reinit --shell powershell
+    
+Otherwise, this may be an issue. In the meantime you can run commands. See:
+    $ mamba run --help
+
+Supported shells are {bash, zsh, csh, posix, xonsh, cmd.exe, powershell, fish, nu}.
+```
+
+自动初始化所有mamba功能,使用下面的命令
+
+```shell
+mamba shell init --shell powershell --root-prefix=~/.local/share/mamba
+```
+
+### 避免同时初始化conda和mamba
+
+运行过`conda init`和`mamba init`后可能会向配置文件中注册各自的自动激活代码,这会造成冗余,可以手动移除其中的一个.
+
+```shell
+# $profile.CurrentUserAllHosts= ~\Documents\PowerShell\profile.ps1
+# 下面两个片段通常不应该同时使用.
+
+#region conda initialize
+# !! Contents within this block are managed by 'conda init' !!
+If (Test-Path "C:\scoop\apps\miniforge\current\Scripts\conda.exe") {
+    (& "C:\scoop\apps\miniforge\current\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+}
+#endregion
+
+
+#region mamba initialize
+# !! Contents within this block are managed by 'mamba shell init' !!
+$Env:MAMBA_ROOT_PREFIX = "C:\Users\cxxu\.local\share\mamba"
+$Env:MAMBA_EXE = "C:\scoop\apps\miniforge\current\Library\bin\mamba.exe"
+(& $Env:MAMBA_EXE 'shell' 'hook' -s 'powershell' -r $Env:MAMBA_ROOT_PREFIX) | Out-String | Invoke-Expression
+#endregion
+
+```
+
+
 
 ### powershell中的conda
 
@@ -420,7 +635,15 @@ CommandType     Name                                               Version    So
 Function        Invoke-Conda                                       0.0        Conda
 ```
 
+## 使用uv代替pip
 
+uv不仅可以代替pip,还可以做更多的事,包括python环境管理;
+
+对于初学者而言,可以使用`uv pip`代替`pip`提高python包的安装效率;
+
+不过和pip类似,为了在国内获得良好的下载包到速度,一般要配置镜像加速;
+
+具体操作另见它文,比如为uv配置ustc或者tuna源.
 
 ## 手动环境变量PATH🎈
 
