@@ -108,17 +108,20 @@ uv pip install pandas torch
 
 ### miniforge包镜像站加速下载和安装
 
-#### conda|Miniforge|Miniconda 安装包镜像
+#### Miniforge安装包镜像
 
 miniforge和miniconda是 Anaconda 的轻量级替代，默认只包含了 python 和 conda，但是可以通过 pip 和 conda 来安装所需要的包。
 
-- Miniforge
-  - [Index of /github-release/conda-forge/miniforge/LatestRelease/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors-i.tuna.tsinghua.edu.cn/github-release/conda-forge/miniforge/LatestRelease/)
+miniforge安装包可以在github或其他多个国内镜像源下载:
 
-  - 使用miniforge的话,通常推荐用`mamba`命令代替`conda`
+- [miniforge | nju](https://mirrors.nju.edu.cn/help/miniforge)
 
-- Anaconda和Miniconda (不推荐)
-  - Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
+- https://mirrors.ustc.edu.cn/github-release/conda-forge/miniforge/LatestRelease/ 下载。
+
+- [Index of /github-release/conda-forge/miniforge/LatestRelease/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors-i.tuna.tsinghua.edu.cn/github-release/conda-forge/miniforge/LatestRelease/)
+
+Anaconda和Miniconda (不再推荐)
+- Miniconda 安装包可以到 https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/ 下载。
 
 
 #### 使用github加速镜像修改下载链接
@@ -134,7 +137,7 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 
 
 
-### scoop
+### scoop install miniforge
 
 - 默认的scoop下载器也是比较慢的，但是你可以找到scoop cn这类项目来加速部署scoop
 
@@ -267,18 +270,7 @@ conda create -n main python=3.13 # numpy pandas matplotlib
 
 
 
-## 配置conda/mamba国内源👺
-
-- [Anaconda - USTC Mirror Help](https://mirrors.ustc.edu.cn/help/anaconda.html)(推荐)
-
-- [anaconda | 镜像站使用帮助 | 北京外国语大学开源软件镜像站 | BFSU Open Source Mirror](https://mirrors.bfsu.edu.cn/help/anaconda/)
-- [anaconda | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/)
-
-最新的配置方法参考上述链接,下面的片段可能是过时的,仅供参考;
-
-> miniforge用户优先按照mamba方案配置,速度较快.
-
-### 搜索软件包(miniforge packages)
+## 搜索软件包(miniforge packages)
 
 [Packages | conda-forge | community-driven packaging for conda](https://conda-forge.org/packages/)
 
@@ -286,123 +278,101 @@ conda create -n main python=3.13 # numpy pandas matplotlib
 
 
 
-### 科大源
+## 配置文件说明
 
-科大源conda源(也可供mamba命令使用)
+- [conda config — conda  documentation](https://docs.conda.io/projects/conda/en/latest/commands/config.html)
 
-```ini
-channels:
-  - nodefaults
-custom_channels:
-  conda-forge: https://mirrors.ustc.edu.cn/anaconda/cloud
-  bioconda: https://mirrors.ustc.edu.cn/anaconda/cloud
-show_channel_urls: true
-```
+- [mamba|Configuration — documentation](https://mamba.readthedocs.io/en/latest/user_guide/configuration.html)
 
-> 此外科大源还提供单独的`mamba`源简化版配置,**但是这个可能会跳转其他域下导致错误**(比如403阻止下载),可以自行体验或更换其他方案
->
-> ```ini
-> channels:
->   - conda-forge
-> mirrored_channels:
->   conda-forge:
->     - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
-> ```
+conda和mamba它们在很大程度上共用同一个配置文件，但也存在一些微小的区别。
 
-一键配置:(适用于bash,zsh)
+| **工具**    | **读取的配置文件**       | **优先级**                        |
+| ----------- | ------------------------ | --------------------------------- |
+| **`conda`** | `.condarc`               | 仅读取 `.condarc`                 |
+| **`mamba`** | `.mambarc` 和 `.condarc` | `.mambarc` (高) > `.condarc` (低) |
 
-```bash
-cat << EOF > ~/.condarc
-# create at $(date +%F-%T)
-channels:
-  - nodefaults
-custom_channels:
-  conda-forge: https://mirrors.ustc.edu.cn/anaconda/cloud
-  bioconda: https://mirrors.ustc.edu.cn/anaconda/cloud
-show_channel_urls: true
-# end.
-EOF
-```
+### conda info 和 mamba info
 
+通过`conda info`获取当前conda版本的信息,包括安装目录,版本号,求解器(solver,miniforge默认是`libmamba`)
 
-
-### 清华源
-
-> conda用户可以用清华源,如果是mamba,清华源可能不是很合适(容易报错,考虑科大源)
->
-> 将`@'...'@`内的配置替换为科大源的配置即可
-
-- 方便起见,以清华源为例,参考如下一键配置的**powershell**脚本
-
-  > 近期发现清华源可能遇到403阻止你下载包,具体自行尝试或更换其他源
-
-- 将清华园配置到conda中,但是**会覆盖掉原有的配置**,请谨慎执行:
-
-  - 一键配置脚本示例
-
-  - ```powershell
-    # 设置 Conda 在安装包或搜索包时显示使用的具体镜像源（channel）URL,如果实现不存在配置文件.condarc,还会创建配置文件.condarc
-    conda config --set show_channel_urls yes
-    
-    # 查看配置前的内容
-    Get-Content $home/.condarc
-    # 将国内源(比如清华源)写入到配置文件中
-    @'
-    channels:
-      - defaults
-    show_channel_urls: true
-    default_channels:
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-    custom_channels:
-      conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-      pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    '@ >$home/.condarc
-    
-    # 检查写入结果
-    Get-Content $home/.condarc
-    # 清理conda缓存
-    conda clean -i
-    
-    
-    ```
-    
-  - 如果需要更灵活的配置(不希望覆盖掉已有的配置),可以考虑使用文本编辑器编辑`.condarc`文件
-  
-- 执行效果:
-
-- ```powershell
-  PS C:\Users\cxxu>  conda config --set show_channel_urls yes
-  PS C:\Users\cxxu> cat .\.condarc
-  channels:
-    - defaults
-  show_channel_urls: true
-  PS C:\Users\cxxu> "channels:
-  >>   - defaults
-  >> show_channel_urls: true
-  >> default_channels:
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-  >>   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-  >> custom_channels:
-  >>   conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-  >>   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud">$home\.condarc
-  
-  ```
-
-### 清理旧索引
-
-**强制清理旧索引：** 换源后务必执行一次：
+以及通道,缓存,虚拟环境位置等信息
 
 ```shell
-mamba clean -i
+# [pwsh][cxxu@CXXUCOLORFULWIN][~\Desktop][0:03:11]
+ conda info
+
+     active environment : None
+       user config file : C:\Users\cxxu\.condarc
+ populated config files : C:\scoop\apps\miniforge\current\.condarc
+          conda version : 26.3.2
+    conda-build version : not installed
+         python version : 3.13.13.final.0
+                 solver : libmamba (default)
+       virtual packages : __archspec=1=skylake
+                          __conda=26.3.2=0
+                          __win=10.0.19044=0
+       base environment : C:\scoop\apps\miniforge\current  (writable)
+      conda av data dir : C:\scoop\apps\miniforge\current\etc\conda
+  conda av metadata url : None
+           channel URLs : https://conda.anaconda.org/conda-forge/win-64
+                          https://conda.anaconda.org/conda-forge/noarch
+          package cache : C:\scoop\apps\miniforge\current\pkgs
+                          C:\Users\cxxu\.conda\pkgs
+                          C:\Users\cxxu\AppData\Local\conda\conda\pkgs
+       envs directories : C:\scoop\apps\miniforge\current\envs
+                          C:\Users\cxxu\.conda\envs
+                          C:\Users\cxxu\AppData\Local\conda\conda\envs
+    temporary directory : C:\Users\cxxu\AppData\Local\Temp
+               platform : win-64
+             user-agent : conda/26.3.2 requests/2.34.1 CPython/3.13.13 Windows/10 Windows/10.0.19044 solver/libmamba conda-libmamba-solver/26.4.2 libmambapy/2.6.0
+          administrator : False
+             netrc file : None
+           offline mode : False
 ```
+
+通过` mamba info`命令,可以获取mamba的信息,例如:
+
+```shell
+ mamba info
+
+       libmamba version : 2.6.0
+          mamba version : 2.6.0
+           curl version : libcurl/8.20.0 Schannel zlib/1.3.2 libssh2/1.11.1 WinLDAP
+     libarchive version : libarchive 3.8.7 zlib/1.3.2 liblzma/5.8.3 bz2lib/1.0.8 liblz4/1.10.0 libzstd/1.5.7 libxml2/2.14.6 cng/2.0 libb2/bundled
+       envs directories : C:\Users\cxxu\.conda\envs
+                          C:\scoop\apps\miniforge\26.3.2-2\envs
+          package cache : C:\scoop\apps\miniforge\26.3.2-2\pkgs
+                          C:\Users\cxxu\.mamba\pkgs
+                          C:\Users\cxxu\AppData\Roaming\.mamba\pkgs
+            environment : base
+           env location : C:\scoop\apps\miniforge\26.3.2-2
+      user config files : C:\Users\cxxu\.mambarc
+ populated config files : C:\scoop\apps\miniforge\current\.condarc
+                          C:\Users\cxxu\.condarc
+                          C:\scoop\apps\miniforge\26.3.2-2\.condarc
+       virtual packages : __win=10.0.19044=0
+                          __archspec=1=x86_64_v3
+               channels : https://conda.anaconda.org/conda-forge/noarch
+                          https://conda.anaconda.org/conda-forge/win-64
+       base environment : C:\scoop\apps\miniforge\26.3.2-2
+               platform : win-64
+```
+
+> 处理基本信息还包括了channels信息.
+
+虽然 `mamba` 完美兼容 `.condarc`，但作为一个用 C++ 重写的加速版工具，它也支持一些 `conda` 没有的专属高级特性。
+
+- **专属配置文件：** **`.mambarc`**（同样位于用户主目录下，默认可能不存在，需要手动创建）。
+- **专属参数：** 比如用来控制并发下载线程数的 `max_downloads` 等。如果 `.mambarc` 和 `.condarc` 中有冲突的配置，`mamba` 会优先采用 `.mambarc` 中的设置。
+
+------
+
+环境变量与激活脚本
+
+在终端环境的初始化上，它们也是一体的：
+
+- 当你运行 `conda init` 或 `mamba init` 时，它们修改的是同一个 Shell 配置文件（如 `.bashrc`、`.zshrc` 或 PowerShell 的 `profile.ps1`）。
+- 无论是用 `conda activate` 还是 `mamba activate`，背后调用的核心激活逻辑和环境变量完全一致。
 
 ## 初始化(conda init)
 
@@ -411,6 +381,8 @@ mamba clean -i
 ```powershell
 conda init
 ```
+
+> mamba有类似的命令(`mamba shell init ...`),有区别
 
 运行示例
 
@@ -512,7 +484,7 @@ mirrored_channels:
 >
 > 但注意,选择了mamba后就不要和conda混用(使用mamba创建和管理环境,安装包等操作,而不混用conda),避免不必要的错误出现.
 
-Miniforge 是 conda-forge 官方维护的 Miniconda 替代品，默认使用 conda-forge 频道。安装包可以在 https://mirrors.ustc.edu.cn/github-release/conda-forge/miniforge/LatestRelease/ 下载。
+Miniforge 是 conda-forge 官方维护的 Miniconda 替代品，默认使用 conda-forge 频道。
 
 如果使用 Miniforge 提供的 `conda`，请参考上述 Miniconda 的配置方法。不过，Miniforge 通常会搭配 mamba 一起使用。mamba 是 conda 的一个高性能替代实现，用来解决 conda 速度慢的问题。
 
@@ -539,11 +511,15 @@ conda config --set auto_activate false
 1. 删除 `$PROFILE` 中 `# >>> conda initialize >>>` 到 `# <<< conda initialize <<<` 之间的所有内容；
 2. 或运行：`conda init --reverse`（但此命令在某些版本中可能不完全清理，手动删除更可靠）
 
-### 使用mamba代替conda加速
+### 使用mamba还是conda?
 
 如果使用miniforge,会携带安装mamba.
 
-不过mamba和conda命令不完全相同,例如安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要**激活虚拟环境后才能被shell找到**.
+两者仍然存在区别,虽然conda命令的求解器(solver默认已经是libmamba),但是conda的执行过程和mamba还是不完全一样.
+
+通常conda命令是首选(继承了libmamba的优点),且国内的镜像对conda支持较好,对于mamba,兼容性要差一些.
+
+此外,安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要**激活虚拟环境后才能被shell找到**.
 
 ```shell
 
@@ -558,6 +534,8 @@ Application     mamba.exe                                          0.0.0.0    C:
 > 可以根据查询到的mamba所在路径,添加到环境变量PATH中便于后续使用
 >
 > 和conda类似,需要初始化才能直接使用.
+
+powershell下为例:
 
 ```shell
 critical libmamba Shell not initialized
@@ -585,11 +563,31 @@ Otherwise, this may be an issue. In the meantime you can run commands. See:
 Supported shells are {bash, zsh, csh, posix, xonsh, cmd.exe, powershell, fish, nu}.
 ```
 
-自动初始化所有mamba功能,使用下面的命令
+自动初始化所有mamba功能,使用下面的命令(windows powershell环境下.)
 
 ```shell
 mamba shell init --shell powershell --root-prefix=~/.local/share/mamba
 ```
+
+**为你 Windows 系统中的 PowerShell 终端初始化 Mamba 环境，并指定 Mamba 的数据和环境存储路径**。
+
+1. `mamba shell init`
+
+这是 Mamba 的初始化命令。它的作用是将 Mamba 的启动脚本（类似于环境激活代码）配置到你终端的配置文件中。这样一来，你每次打开新的终端窗口时，就可以直接使用 `mamba activate` 或 `mamba install` 等命令，而不需要每次都手动配置。
+
+2. `--shell powershell`
+
+这个参数明确指定了你正在使用的终端类型。
+
+- Windows 自带的命令行工具主要有 `cmd`、`powershell` 等。
+- 这里指定 `powershell`，意味着 Mamba 会去修改 PowerShell 的配置文件（即 `$PROFILE` 脚本），在其中添加初始化代码。
+
+3. `--root-prefix=~/.local/share/mamba`
+
+这个参数用于指定 Mamba 的**根目录（Root Prefix）**。所有后续通过 Mamba 下载的软件包、虚拟环境以及缓存数据，默认都会存放在这个指定的路径下。
+
+- `~`：代表当前用户的家目录（在 Windows 上通常是 `C:\Users\你的用户名`）。
+- `/.local/share/mamba`：是具体的文件夹路径。
 
 ### 避免同时初始化conda和mamba
 
