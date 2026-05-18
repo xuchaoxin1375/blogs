@@ -288,6 +288,8 @@ asyncio 带有两种不同的事件循环实现：[`SelectorEventLoop`](https://
 
 ### await 表达式
 
+这里仅做最精要的说明,后面会重新提及await.
+
 >Await expression
 >****************
 >
@@ -326,15 +328,19 @@ A. 挂起执行 (Suspend execution)
 
 这是 `await` 的灵魂。
 
-在传统的同步编程中，如果程序遇到一个耗时操作（如下载文件），它会“阻塞”**在那里，什么也干不了。 而在异步编程中，`await` 的意思是：**“我需要这个结果，但我先不占着 CPU 了。等结果好了，你（事件循环）再叫醒我继续执行。” 这种“挂起”释放了控制权，让程序可以在同一时间处理其他任务。
+在传统的同步编程中，如果程序遇到一个耗时操作（如下载文件），它会“阻塞”在那里，什么也干不了。 而在异步编程中;
 
-> 但是具体行为,要根据await 的等待对象而定;
->
-> 如果await对象是task,那么就如上所述,交还控制权给事件循环(这是最典型的用法,基础的异步并发方式,通常默认指的是这一种情况);
->
-> 如果await对象是coroutine,则是启动协程的运行,并立即等待结果,而不会主动把控制权交还给事件循环.(await coroutine并不意味着并发,非主流用法.)
+通常(典型用途中),这种“挂起”释放了控制权，让程序可以在同一时间处理其他任务。
 
-(对于await task)挂起协程意味着cpu不再等待协程(io处理期间不需要cpu,cpu至多只能守着等待结果),程序的执行控制权回到事件循环上而不阻塞,程序其他部分的运行有机会继续运行.当协程的io有结果了,事件循环会尝试恢复执行挂起点后的代码执行
+> `await` 的意思是：“我需要这个结果，但我先不占着 CPU 了。等结果好了，你（事件循环）再叫醒我继续执行。但是具体行为,要根据await 的等待对象而定;
+
+- 如果await对象是task,那么就如上所述,交还控制权给事件循环(这是最典型的用法,基础的异步并发方式,通常默认指的是这一种情况);
+
+- 如果await对象是coroutine,则是启动协程的运行,并立即等待结果,而不会主动把控制权交还给事件循环.(await coroutine并不意味着并发,非主流用法.)
+
+(对于await task)挂起协程意味着cpu不再等待协程(io处理期间不需要cpu,cpu至多只能守着等待结果),程序的执行控制权回到事件循环上而不阻塞,程序其他部分的运行有机会继续运行.
+
+当协程的io有结果了,事件循环会尝试恢复执行挂起点后的代码执行
 
 B. 可等待对象 (Awaitable object)
 
@@ -740,7 +746,7 @@ asyncio.run(main())
 
 实际上，`asyncio` 和 Python 的垃圾回收器会非常努力地确保此类事情不会发生。但这并不是鲁莽行事的理由！
 
-## await
+## await 常见用法
 
 [`await`](https://docs.python.org/zh-cn/3.14/reference/expressions.html#await) 是一个 Python 关键字，通常以两种不同的方式使用:
 
@@ -751,7 +757,9 @@ await coroutine
 
 从关键方面来说，`await` 的行为取决于所等待对象的类型。
 
-#### await task
+> await还可以等待future,但是这比较少用.
+
+### await task
 
 等待任务会**将控制权从当前任务或协程交还给事件循环**。在交还控制权的过程中，会发生一些重要的事情。
 
@@ -784,7 +792,7 @@ async def plant_a_tree():
 
 
 
-#### await coroutine
+### await coroutine
 
 **与任务不同，等待协程(await coroutine)并不会将控制权交还给事件循环！** 
 
@@ -883,11 +891,13 @@ I am coro_b(). I sure hope no one hogs the event loop...
 
 每当有任务被等待时，**控制权都需要沿着调用栈一路向上传递到事件循环**。 这听起来可能微不足道，但在一个具有大量 `await` 语句和深度调用栈的大型程序中，这种开销可能会累积到明显拖累性能。
 
-### await 小结
+## await 小结
 
 简单来说，`await` 的作用是 **“非阻塞地等待结果”**。
 
-在 Python 的异步编程中，`await` 的核心作用是**挂起当前协程的执行**(控制权转移)，直到被等待的对象完成并返回结果。
+在 Python 的异步编程中，`await` 的核心作用是**挂起当前协程的执行**.
+
+> (但不不必然让出控制权,取决于await的对象类型)，直到被等待的对象完成并返回结果。
 
 虽然语法上看起来一样，但针对 **协程 (Coroutine)** 和 **任务 (Task)**，其行为逻辑和对程序流的影响有所不同。
 
@@ -913,7 +923,7 @@ I am coro_b(). I sure hope no one hogs the event loop...
 
 ------
 
-#### 核心区别对比表
+### 核心区别对比表
 
 | **关键维度** | **await coroutine**    | **await task**               |
 | ------------ | ---------------------- | ---------------------------- |
@@ -960,7 +970,54 @@ async def main():
 | **网络 IO / 磁盘 IO** | **能**               | 完美，释放 CPU 提高吞吐          | `async/await` 标准用法                            |
 | **CPU 计算密集型**    | **不能**             | **阻塞事件循环**，导致程序无响应 | 使用 `run_in_executor` 结合 `ProcessPoolExecutor` |
 
+### await要点罗列
 
+根据 Python 官方文档（主要是 *Language Reference* 的 `Expressions`、`Coroutines`、`Data model` 章节），`await` 的核心要点可严谨归纳为：
+
+1. 语法定位
+   `await` 是一个**表达式运算符**（await expression），用于**等待一个可等待对象完成并取得其结果**。(注意,await并不必然将控制权交换给事件循环,尤其是`await coroutine`的情况下. )
+
+2. 使用位置限制
+   `await` 只能出现在**协程函数体**（`async def`）内；在普通 `def` 或模块顶层直接使用会触发 `SyntaxError`。
+   在异步推导式场景也可出现（受异步上下文规则约束）。
+
+3. 操作数类型要求（最关键）
+   `await x` 中的 `x` 必须是 **awaitable object（可等待对象）**，否则抛出 `TypeError`。
+   文档定义的典型 awaitable 包括：
+
+   - `async def` 调用返回的协程对象
+
+   - 实现了 `__await__()` 且该方法返回迭代器的对象（如 `asyncio.Future`）
+
+4. `__await__` 协议要求
+   对象若自定义可等待能力，`__await__()` **必须返回迭代器**。返回非迭代器属于协议错误（运行时报错）。
+
+5. 语义本质
+   `await` 会**挂起当前协程**，把控制权交回事件循环/调度器；待被等待对象完成后，恢复当前协程继续执行。
+
+6. 返回值语义
+   `await expr` 的结果就是被等待对象“最终完成值”（协程 `return` 的值）。
+
+7. `await`与 `yield from` 的关系与差异
+   文档与 PEP 语义上可理解`await`为“受限版的 `yield from`”：
+
+   - `await` 只接受 awaitable（更严格）
+
+   - `yield from` 可用于一般迭代协议对象
+
+8. 运算符优先级（较少提及）
+   `await` 的优先级：
+
+   - 低于：调用/下标/属性访问
+
+   - 高于：`**`
+     这是一条专门设计来减少歧义与误用的规则。
+
+9. 协程复用限制
+   同一个协程对象不能被重复等待执行；重复 `await` 已执行过的协程会触发 `RuntimeError`（文档在 coroutine object 行为中明确）。
+
+10. 关键版本语义
+    `async`/`await` 在 Python 3.5 引入（PEP 492）；自 Python 3.7 起它们是正式关键字。
 
 ### 不含await的协程函数
 
@@ -1138,11 +1195,58 @@ asyncio.run(main())
 1. **不要在协程里写耗时的计算任务**：协程擅长 I/O（网络、文件、数据库），但不擅长 CPU 密集型任务（如大型矩阵运算）。如果是后者，请使用 `run_in_executor` 交给线程池处理。
 2. **避免“影子阻塞”**：使用了 `async def` 却在内部调用了同步的阻塞库（比如 `requests` 或 `time.sleep`），这会导致异步程序失去意义，性能退化到同步水平。
 
-## 并发执行🎈
 
-asyncio.gather 与 TaskGroup
 
-异步编程的威力在于**并发**。如果只是依次 `await`，**和同步没有区别**：
+## 异步执行流程
+
+典型的异步并发请求的处理模型的时序图示意:
+
+**核心机制**：当协程遇到 `await` 一个尚未完成的 I/O 操作时，它会**将控制权交还给事件循环**。事件循环去**运行其他就绪的协程**，直到 I/O 完成后再回来恢复之前的协程。
+
+```mermaid
+sequenceDiagram
+    participant EL as 事件循环
+    participant A as 协程 A
+    participant B as 协程 B
+    participant IO as I/O 子系统
+
+    EL->>A: 启动协程 A
+    A->>IO: await 网络请求（发出请求后让出控制权）
+    EL->>B: 启动协程 B
+    B->>IO: await 文件读取（发出请求后让出控制权）
+    IO-->>EL: 协程 A 的网络请求完成
+    EL->>A: 恢复协程 A
+    A-->>EL: 协程 A 执行完毕，返回结果
+    IO-->>EL: 协程 B 的文件读取完成
+    EL->>B: 恢复协程 B
+    B-->>EL: 协程 B 执行完毕，返回结果
+```
+
+---
+
+
+
+## 常用异步 API
+
+符号说明:对下文出现的api中的符号说明:
+
+`aw`:awaitable object,表示可等待对象
+
+`aws`:awaitable objects,表示可等待对象的集合,例如列表
+
+`*`:形参声明中的分隔符,`*`前的参数只能是位置参数.
+
+`*aws`:表示可以传入多个可等待对象(数量可变的位置参数)
+
+### 并发执行
+
+从普通的串行的代码过渡到`asyncio.gather` 与 `TaskGroup`.
+
+> 并发执行api不仅限于这两个,但这两个是最基础的api.
+
+异步编程的威力在于**并发**。
+
+如果只是依次 `await`，**和同步没有区别**：
 
 ```python
 import asyncio
@@ -1178,8 +1282,10 @@ if __name__ == "__main__":
 
 ```
 
+使用`asyncio.gather()`让协程并发.
+
 ```python
-# ✅ 并发执行，总耗时 1 秒
+# 并发执行，总耗时 1 秒
 async def concurrent():
     await asyncio.gather(
         asyncio.sleep(1),
@@ -1233,11 +1339,11 @@ if __name__ == "__main__":
 
 ```
 
+在等待所有异步任务结束方面,可以用`asyncio.gather()`,也可以编写列表推导式来等待所有任务完成,他们都是按照传入顺序返回结果,而`asyncio.gather`的写法会更加紧凑和简洁;
 
+#### `asyncio.gather`
 
-### asyncio.gather
-
-同时启动多个协程，等待全部完成，**按传入顺序返回**结果：
+**同时启动**多个协程，**等待全部**完成，**按传入顺序返回**结果：
 
 - `awaitable asyncio.gather(*aws, return_exceptions=False)`
 
@@ -1249,7 +1355,13 @@ if __name__ == "__main__":
   
   结果值的顺序与 *aws* 中可等待对象的**顺序一致**。
 
-#### 网络请求
+如果是希望按照完成顺序来返回结果,可以使用另一个api:`asyncio.as_completed()`
+
+#### 异步网络请求示例
+
+网络请求并发是最典型的异步并发场景,请求函数(协程函数)这里使用简单的`asyncio.sleep(1)`代替实际的请求(实际情况要比这个复杂,通常会用到异步请求库,例如`aiohttp`和`httpx`,单纯的同步库无法满足异步并发的需求,例如`requests`库,只能通过多线程或多进程来并发)
+
+这里仅仅是为了演示`asyncio.gather`的典型用法.
 
 ```python
 import asyncio
@@ -1270,21 +1382,6 @@ async def main():
         print(r)
     
 # 运行协程
-asyncio.run(main())
-```
-
-```python
-import asyncio
-
-async def fetch(i):
-    await asyncio.sleep(1)
-    return f"数据 {i}"
-
-async def main():
-    tasks = [fetch(i) for i in range(5)]
-    results = await asyncio.gather(*tasks)
-    print(results)
-
 asyncio.run(main())
 ```
 
@@ -1335,9 +1432,13 @@ Task C: Compute factorial(4), currently i=4...
 
 
 
-### TaskGroup
+#### `asyncio.TaskGroup`和`async with`异步上下文管理
 
-（Python 3.11+，推荐）
+`class asyncio.TaskGroup`
+
+持有一个任务分组的 [异步上下文管理器](https://docs.python.org/zh-cn/3/reference/datamodel.html#async-context-managers)。可以使用 [`create_task()`](https://docs.python.org/zh-cn/3/library/asyncio-task.html#asyncio.create_task) 将任务添加到分组中。**当该上下文管理器退出时所有任务都将被等待**。
+
+> 和`asyncio.gather`不同,`asyncio.TaskGroup`并不是通过函数调用的方式来使用.
 
 `TaskGroup` 是更现代、更安全的并发方式，提供**结构化并发**——如果任意任务抛异常，会自动取消其余任务：
 
@@ -1356,54 +1457,52 @@ async def main():
     print(task_a.result(), task_b.result(), task_c.result())
 ```
 
-### gather vs TaskGroup
+#### async with异步上下文管理器
 
-| 特性             | `asyncio.gather`                        | `asyncio.TaskGroup`                     |
-| ---------------- | --------------------------------------- | --------------------------------------- |
-| Python 版本      | 3.4+                                    | 3.11+                                   |
-| 异常处理         | 需手动设置 `return_exceptions=True`     | 自动取消剩余任务，抛出 `ExceptionGroup` |
-| 取消传播         | 不自动取消其他任务                      | 任一失败 → 全部取消                     |
-| **动态添加任务** | 不支持                                  | 支持在块内动态 `create_task`            |
-| **推荐度**       | 简单场景仍可用,或者希望任务尽可能运行完 | **新代码优先使用**                      |
+另见它文.
 
----
+#### gather vs TaskGroup
 
-## 异步执行流程
-
-```mermaid
-sequenceDiagram
-    participant EL as 事件循环
-    participant A as 协程 A
-    participant B as 协程 B
-    participant IO as I/O 子系统
-
-    EL->>A: 启动协程 A
-    A->>IO: await 网络请求（发出请求后让出控制权）
-    EL->>B: 启动协程 B
-    B->>IO: await 文件读取（发出请求后让出控制权）
-    IO-->>EL: 协程 A 的网络请求完成
-    EL->>A: 恢复协程 A
-    A-->>EL: 协程 A 执行完毕，返回结果
-    IO-->>EL: 协程 B 的文件读取完成
-    EL->>B: 恢复协程 B
-    B-->>EL: 协程 B 执行完毕，返回结果
-```
-
-**核心机制**：当协程遇到 `await` 一个尚未完成的 I/O 操作时，它会**将控制权交还给事件循环**。事件循环去**运行其他就绪的协程**，直到 I/O 完成后再回来恢复之前的协程。
+| 特性             | `asyncio.gather`                    | `asyncio.TaskGroup`                     |
+| ---------------- | ----------------------------------- | --------------------------------------- |
+| Python 版本      | 3.4+                                | 3.11+                                   |
+| 异常处理         | 需手动设置 `return_exceptions=True` | 自动取消剩余任务，抛出 `ExceptionGroup` |
+| 取消传播         | **不自动取消其他任务**              | **任一失败 → 全部取消**                 |
+| **动态添加任务** | 不支持                              | 支持在块内动态 `create_task`            |
 
 ---
 
-## 常用异步 API
+
 
 ### 超时控制
 
-对于较新版本:
+#### `asyncio.timeout`
 
-`asyncio.timeout()`设置超时控制,可以配合`with`上下文管理;
+`asyncio.timeout(delay)`
 
-兼容老版本python,使用`asyncio.wait_for()`的写法;
+返回一个可被用于限制等待某个操作所耗费时间的 [异步上下文管理器](https://docs.python.org/zh-cn/3/reference/datamodel.html#async-context-managers)。
+
+*delay* 可以为 `None`，或是一个表示等待秒数的浮点数/整数。如果 *delay* 为 `None`，将不会应用时间限制；如果当创建上下文管理器时无法确定延时则此设置将很适用。
+
+在两种情况下，该上下文管理器都可以在创建之后使用 [`Timeout.reschedule()`](https://docs.python.org/zh-cn/3/library/asyncio-task.html#asyncio.Timeout.reschedule) 来重新安排计划。
+
+#### `asyncio.wait_for`
+
+`async asyncio.wait_for(aw, timeout)`
+
+等待 *aw* 可等待对象 完成，指定 timeout 秒数后超时。
+
+如果 *aw* 是一个协程，它将自动被作为任务调度。
+
+*timeout* 可以为 `None`，也可以为 float 或 int 型数值表示的等待秒数。如果 *timeout* 为 `None`，则等待直到完成。
+
+兼容老版本python.
+
+#### 示例:
 
 ```python
+async def long_running_task():
+    ...
 async def main():
     try:
         # Python 3.11+ 推荐
@@ -1419,14 +1518,23 @@ async def main():
         print("操作超时！")
 ```
 
-### asyncio.wait：更精细的控制
+### `asyncio.wait`：更精细的控制
+
+`async asyncio.wait(aws, *, timeout=None, return_when=ALL_COMPLETED)`
+
+并发地运行 *aws* 可迭代对象中的 [`Future`](https://docs.python.org/zh-cn/3/library/asyncio-future.html#asyncio.Future) 和 [`Task`](https://docs.python.org/zh-cn/3/library/asyncio-task.html#asyncio.Task) 实例并进入阻塞状态直到满足 *return_when* 所指定的条件。
+
+*aws* 可迭代对象必须不为空。
+
+返回两个 Task/Future 集合: `(done, pending)`。
+
+> 与 [`wait_for()`](https://docs.python.org/zh-cn/3/library/asyncio-task.html#asyncio.wait_for) 不同，`wait()` 在超时发生时不会取消可等待对象。
 
 ```python
 async def main():
     # 使用普通的create_task()创建任务
     tasks = [asyncio.create_task(fetch(url)) for url in urls]
     
-
 ```
 
 普通等待(逐个task做`await`)
@@ -1439,19 +1547,50 @@ for task in tasks:
 精细等待:按条件等待`asyncio.wait`等待任务集合的任务(个别或全部)
 
 ```python
-    # 等待第一个完成
+# 等待第一个完成
+done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+# 等待全部完成
+done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+
+# 等待第一个异常
+done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+```
+
+完整示例:
+
+```python
+import asyncio
+
+async def worker(t, res):
+    await asyncio.sleep(t)
+    return res
+
+async def main():
+    tasks = {asyncio.create_task(worker(2, 'A')), asyncio.create_task(worker(1, 'B'))}
+    
+    # 只要有一个任务完成了，就立刻返回
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
     
-    # 等待全部完成
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+    print(f"已完成: {len(done)} 个")     # 已完成: 1 个 (B)
+    print(f"未完成: {len(pending)} 个")  # 未完成: 1 个 (A)
     
-    # 等待第一个异常
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+    # 获取已完成任务的结果
+    for task in done:
+        print(task.result()) # 输出 'B'
+
+asyncio.run(main())
 ```
 
 
 
-### as_completed：按完成顺序处理结果
+### `asyncion.as_completed`：按完成顺序处理结果
+
+`asyncio.as_completed(aws, *, timeout=None)`
+
+并发地运行 *aws* 可迭代对象中的 [可等待对象](https://docs.python.org/zh-cn/3/library/asyncio-task.html#asyncio-awaitables)。 返回的对象可以被迭代以获取可等待对象结束时的结果。
+
+由 `as_completed()` 返回的对象可作为 [asynchronous iterator](https://docs.python.org/zh-cn/3/glossary.html#term-asynchronous-iterator) 或普通的 [iterator](https://docs.python.org/zh-cn/3/glossary.html#term-iterator) 被迭代。当使用异步迭代时，原来提供的可等待对象如果为 Task 或 Future 对象则会被产出。 这样可以更容易地将之前加入计划的任务与其结果进行对应。
 
 ```python
 async def main():
@@ -1465,6 +1604,36 @@ async def main():
 
 ---
 
+```python
+ipv4_connect = create_task(open_connection("127.0.0.1", 80))
+ipv6_connect = create_task(open_connection("::1", 80))
+tasks = [ipv4_connect, ipv6_connect]
+
+async for earliest_connect in as_completed(tasks):
+    # earliest_connect 已完成。要获取结果可通过等待它
+    # 或是调用 earliest_connect.result()
+    reader, writer = await earliest_connect
+
+    if earliest_connect is ipv6_connect:
+        print("IPv6 connection established.")
+    else:
+        print("IPv4 connection established.")
+```
+
+
+
+### 对比并发管理异步任务api
+
+| **特性**     | **asyncio.gather**                                         | **asyncio.as_completed**                                     | **asyncio.wait**                                             |
+| ------------ | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **核心定位** | **结果聚合器**：打包多个任务，等待它们全部完成后一起返回。 | **流水线/先到先得**：谁先完成就先处理谁，提高响应速度。      | **精细化控制**：满足特定条件（如第一个完成/报错）时返回。    |
+| **返回内容** | 包含所有任务返回值的**列表（List）**。                     | 一个**迭代器（Iterator）**，每次 `yield` 最先完成的 Future。 | 两个集合：`(done_set, pending_set)`（已完成和未完成的任务）。 |
+| **返回顺序** | **严格保证顺序**，与传入的任务顺序完全一致。               | **按完成时间排序**，先完成的先返回，与传入顺序无关。         | 无序（直接返回当前满足条件的任务集合）。                     |
+| **异常处理** | 默认直接抛出，但可通过 `return_exceptions=True` 捕获。     | 在 `await` 对应的任务时抛出，需在循环中单独捕获。            | 不会直接抛出，异常保存在 `done` 集合的任务对象中。           |
+| **接收参数** | 可变参数 `*aws`（需要解包传递）。                          | 可迭代对象 `aws`（如列表、集合）。                           | 可迭代对象 `aws`，常配合 `return_when` 使用。                |
+
+
+
 ### python异步api和多线程api对比
 
 | **功能**       | **异步 API (Asyncio)**               | **多线程 API (Threading)**                 |
@@ -1475,6 +1644,8 @@ async def main():
 | **获取返回值** | 直接通过 `await` 获取                | 需配合 `Queue` 或使用 `ThreadPoolExecutor` |
 | **互斥锁**     | `async with asyncio.Lock():`         | `with threading.Lock():`                   |
 | **取消任务**   | `task.cancel()`（支持良好）          | 极其困难（通常只能设置标志位手动退出）     |
+
+
 
 ## 异步迭代器与异步生成器
 

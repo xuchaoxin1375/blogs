@@ -635,6 +635,8 @@ Function        Invoke-Conda                                       0.0        Co
 
 ## 使用uv代替pip
 
+[uv 中文文档](https://uv.doczh.com/)
+
 uv不仅可以代替pip,还可以做更多的事,包括python环境管理;
 
 对于初学者而言,可以使用`uv pip`代替`pip`提高python包的安装效率;
