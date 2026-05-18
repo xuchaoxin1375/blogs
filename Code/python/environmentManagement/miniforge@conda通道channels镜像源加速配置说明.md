@@ -137,6 +137,15 @@ channels:
 >
 > 在这种情况下,就不需要指定`default_channels`,如同ustc提供的配置方案,只需要`custom_channels`
 
+### channel_alias
+
+```shell
+ conda config --show channel_alias
+channel_alias: https://conda.anaconda.org
+```
+
+
+
 ### default_channels
 
 使用 `default_channels` 可以覆盖[默认配置 ](https://docs.conda.io/projects/conda/en/latest/configuration.html)。例如：
@@ -182,13 +191,13 @@ custom_channels:
   conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
 ```
 
-#### 场景 A：你运行 `mamba install numpy`（不加任何参数）
+场景 A：你运行 `mamba install numpy`（不加任何参数）
 
 1. Mamba 发现你没指定通道，于是去查 `channels:`。
 2. 看到里面有 `- defaults`，于是它去 `defaults` 仓库里找 `numpy`。
 3. 此时，它**完全不会理会** `custom_channels` 下面的 `conda-forge`，因为你根本没调用它。
 
-#### 场景 B：你运行 `mamba install numpy -c conda-forge`（显式指定通道）
+场景 B：你运行 `mamba install numpy -c conda-forge`（显式指定通道）
 
 1. Mamba 看到你指定了 `-c conda-forge`。
 2. 它**不会**去 `channels:` 列表里按顺序找，而是直接去查 `custom_channels:` 规则。
@@ -370,7 +379,7 @@ custom_channels:
 
 ------
 
-### 💡 总结与针对 Miniforge 的使用建议
+### 总结与针对 Miniforge 的使用建议
 
 这份配置整体非常优秀，但对于 **Miniforge** 用户来说，有一个潜在的**小陷阱**需要注意：
 
@@ -713,17 +722,13 @@ Using Flat Repodata for conda-forge/win-64                                      
 
 ## 备用源方案
 
-## 自动降级方案（国内首选 + 官方兜底）
-
-这是最省心的配置。平时百分之百使用国内镜像提速，一旦国内源崩溃，Mamba 会**自动切换到国外的官方源**。虽然速度会变慢，但至少能保证包能顺利装上。
-
-修改你的 `~/.condarc` 文件如下：
+## 自动降级方案
 
 ```yaml
 channels:
   - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/       # 首选：科大镜像
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/  # 备用：清华镜像（极速）
-  - conda-forge                                                   # 3. 兜底：官方源
+  - conda-forge                                                   #  兜底：官方源
 ```
 
 > **原理：** Mamba 会优先请求清华源，如果清华源返回 404 或超时，它会立刻转向科大源，若还不行，则走官方 `conda-forge`。
@@ -740,3 +745,14 @@ mamba install numpy -c conda-forge --override-channels
 conda install numpy -c conda-forge --override-channels
 ```
 
+### `-c, --channel CHANNEL`
+
+> 用于搜索包的额外通道（Channel）。
+>
+> Conda 会按照输入的先后顺序依次检索这些 **URL**（支持使用 `file://` 语法的本地目录，或诸如 `/home/conda/mychan`、`../mychan` 的直接路径）。
+>
+> 随后，Conda 会继续检索默认通道或 `.condarc` 配置文件中固化的通道`channels`（除非指定了 `--override-channels` 参数）。
+>
+> 你可以使用 `'defaults'` 来获取 Conda 的默认宏包。你也可以直接使用任何通道名称，Conda 会自动在其前面拼接 `.condarc` 中配置的 `channel_alias`（通道别名'`channel_alias`'）前缀。
+>
+> 默认的通道别名为 `https://conda.anaconda.org/`。
