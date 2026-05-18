@@ -2,76 +2,322 @@
 
 ## abstract
 
-[内置类型 — Python 字符串 文档](https://docs.python.org/zh-cn/3/library/stdtypes.html#text-sequence-type-str)
+[内置类型 — Python 文档 --- Built-in Types — Python documentation](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str)
 
-[string --- 常见的字符串操作 — Python 3.13.2 文档](https://docs.python.org/zh-cn/3/library/string.html#)
+[字符串和字节字面量](https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals)
 
-### 词法分析
-
-[词法分析 — Python   文档](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#literals)
-
-[Lexical analysis — Python  documentation](https://docs.python.org/3/reference/lexical_analysis.html#literals)
+[string --- 常见的字符串操作 — Python  文档](https://docs.python.org/zh-cn/3/library/string.html#)
 
 ------
 
-##   字面值
+## 字面量
 
-字面值是内置类型**常量值**的表示法。
+字面量是某些内置类型的常量值的表示法。
 
-###   字符串与字节串字面值|词法定义
+就词法分析而言，Python 有两大类字面量:
 
-字符串字面值的词法定义如下：
+- [字符串和字节](https://docs.python.org/3/reference/lexical_analysis.html#strings) 字面量
+- [数值](https://docs.python.org/3/reference/lexical_analysis.html#numbers)字面量。
+
+其他“字面意义”则用[关键词](https://docs.python.org/3/reference/lexical_analysis.html#keywords)进行词汇表示。 （ `None` ， `True` ， `False` ）和特殊 [省略号标记 ](https://docs.python.org/3/reference/lexical_analysis.html#lexical-ellipsis)（ `...` ）。
+
+### 字符串和字节字面量
+
+字符串字面量是用单引号 ( `'` ) 或双引号 ( `"` ) 括起来的文本。例如：
 
 ```python
-stringliteral   ::= [stringprefix](shortstring | longstring)
-stringprefix    ::= "r" | "u" | "R" | "U" | "f" | "F"
-                    | "fr" | "Fr" | "fR" | "FR" | "rf" | "rF" | "Rf" | "RF"
-shortstring     ::= "'" shortstringitem* "'" | '"' shortstringitem* '"'
-longstring      ::= "'''" longstringitem* "'''" | '"""' longstringitem* '"""'
-shortstringitem ::= shortstringchar | stringescapeseq
-longstringitem  ::= longstringchar | stringescapeseq
-shortstringchar ::= <any source character except "\" or newline or the quote>
-longstringchar  ::= <any source character except "\">
-stringescapeseq ::= "\" <any source character>
-bytesliteral   ::= bytesprefix(shortbytes | longbytes)
-bytesprefix    ::= "b" | "B" | "br" | "Br" | "bR" | "BR" | "rb" | "rB" | "Rb" | "RB"
-shortbytes     ::= "'" shortbytesitem* "'" | '"' shortbytesitem* '"'
-longbytes      ::= "'''" longbytesitem* "'''" | '"""' longbytesitem* '"""'
-shortbytesitem ::= shortbyteschar | bytesescapeseq
-longbytesitem  ::= longbyteschar | bytesescapeseq
-shortbyteschar ::= <any ASCII character except "\" or newline or the quote>
-longbyteschar  ::= <any ASCII character except "\">
-bytesescapeseq ::= "\" <any ASCII character>
+"spam"
+'eggs'
 ```
 
-- 这些产生式未指明的一个句法限制是空白符不允许在 [`stringprefix`](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#grammar-token-python-grammar-stringprefix) 或 [`bytesprefix`](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#grammar-token-python-grammar-bytesprefix) 与**字面值的其余部分之间**出现。 
-- 源字符集是由**编码格式声明**来定义的；**如果源文件没有给出编码格式声明则默认 UTF-8**；参见 [编码声明](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#encodings) 一节。
+用于开始字符串字面量的引号也同时终止字符串字面量，因此字符串字面量只能包含另一个引号（转义序列除外，见下文）。例如：
 
-## 字符串字面值概述
+```python
+'Say "Hello", please.'
+"Don't do that!"
+```
 
-直白的说明：**两种类型的字面值**都可用成对的单引号 (`'`) 或双引号 (`"`) 括起来。 它们还可以用**成对的连续三个单引号或双引号**括起来 (这通常被称为 ***三重引号字符串***)。 
+除了这个限制之外，引号字符（ `'` 或 `"` ）的选择不会影响字面量的解析方式。
 
-反斜杠 (`\`) 字符被用来**给予普通的字符特殊含义**例如 `n`，当用斜杠转义时 (`\n`) 表示 '换行'。
+在字符串字面量中，反斜杠 ( `\` ) 字符用于引入一个 *转义序列* ，其特殊含义取决于反斜杠后面的字符。例如， `\"` 表示双引号字符，并且*不会*结束字符串：
 
-它还可以被用来**对具有特殊含义的字符进行转义**，例如**换行符、反斜杠本身或者引号**等。 请参阅下面的 [转义序列](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#escape-sequences) 查看示例。
+```python
+print("Say \"Hello\" to everyone!")
+Say "Hello" to everyone!
+```
 
+### 数值字面量
 
+[`NUMBER`](https://docs.python.org/3/library/token.html#token.NUMBER) 标记表示数值字面量，其中有三种类型：**整数、浮点数和虚数**。
 
-**字节串字面值**要加前缀 `'b'` 或 `'B'`；生成的是类型 [`bytes`](https://docs.python.org/zh-cn/3/library/stdtypes.html#bytes) 的实例，不是类型 [`str`](https://docs.python.org/zh-cn/3/library/stdtypes.html#str) 的实例；字节串只能包含 ASCII 字符；字节串数值大于等于 128 时，必须用转义表示。
+```
+NUMBER: integer | floatnumber | imagnumber
+```
 
-**字符串和字节串字面值**都可选择加前缀字母 `'r'` 或 `'R'`；这分别被称为 *原始字符串字面值* 和 *原始字节串字面值* 并会**将反斜杠视为原本的字符字面值**。 因此，在原始字符串字面值中，`'\U'` 和 `'\u'` 转义符号不会被特殊对待。
+数值字面量的数值与将其作为字符串分别传递给 [`int`](https://docs.python.org/3/library/functions.html#int) 、 [`float`](https://docs.python.org/3/library/functions.html#float) 或 [`complex`](https://docs.python.org/3/library/functions.html#complex) 类构造函数时的值相同。
 
-*Added in version 3.3:* 新增原始字节串 `'rb'` 前缀，是 `'br'` 的同义词。
+> ```python
+> # 1. 普通十进制整数
+> lit_int = 123
+> str_int = int("123")
+> print(lit_int == str_int)  # True
+> 
+> # 2. 带有下划线的分隔符(最终表示的数值是`_`移除后的数值)
+> lit_thou = 1_000_000
+> str_thou = int("1_000_000")
+> print(lit_thou) # 1000000
+> print(lit_thou == str_thou)  # True
+> 
+> # 3. 十六进制 (Hexadecimal)
+> lit_hex = 0xff
+> str_hex = int("0xff", 16)  # 注意：字符串转非十进制时需指定基数
+> print(lit_hex == str_hex)  # True
+> 
+> 
+> ```
+>
+> 浮点数不仅支持普通的小数点写法，还支持科学计数法（使用 `e` 或 `E`）。
+>
+> ```python
+> # 1. 标准浮点数
+> lit_float = 3.14159
+> str_float = float("3.14159")
+> print(lit_float == str_float)  # True
+> 
+> # 2. 科学计数法 (1.23 * 10^4)
+> lit_sci = 1.23e4
+> str_sci = float("1.23e4")
+> print(lit_sci == str_sci)  # True
+> 
+> # 3. 带有下划线的浮点数
+> lit_float_drop = 3_14.15_92
+> str_float_drop = float("3_14.15_92")
+> print(lit_float_drop == str_float_drop)  # True
+> ```
+>
+> 在Python中，复数的虚部用 `j` 或 `J` 表示。使用**字符串构造复数**时，**加减号两边绝对不能有空格**（例如 `"1+2j"` 是合法的，而 `"1 + 2j"` 会报错）
+>
+> ```python
+> # 1. 纯虚数
+> lit_comp1 = 5j
+> str_comp1 = complex("5j")
+> print(lit_comp1 == str_comp1)  # True
+> 
+> # 2. 实部 + 虚部
+> lit_comp2 = 2 + 3j
+> str_comp2 = complex("2+3j")  # 注意：字符串内不能有空格
+> print(lit_comp2 == str_comp2)  # True
+> 
+> # 3. 科学计数法形式的复数
+> lit_comp_sci = 1e3 + 2e-1j
+> str_comp_sci = complex("1e3+2e-1j")
+> print(lit_comp_sci == str_comp_sci)  # True
+> ```
+>
+> 
 
-支持 unicode 字面值（`u'value'`）遗留代码，简化 Python 2.x 和 3.x 并行代码库的维护工作。详见 [**PEP 414**](https://peps.python.org/pep-0414/)。
+请注意，并非所有这些**构造函数的有效输入**都是有效的字面量。
 
+> “数值字面量与字符串构造函数的值相同”是一个**单向的等价性**：所有合法的数值字面量，写成字符串传给构造函数都是有效的；但反过来，**构造函数能够接收并解析的某些字符串，在 Python 语法中根本不是合法的数值字面量。**
 
+数值字面量不包含符号；像 `-1` 这样的短语实际上是一个由一元运算符“ `-` ”和字面量组成的表达式
 
-前缀为 `'f'` 或 `'F'` 的字符串称为 *格式字符串*；详见 [f 字符串](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#f-strings)。`'f'` 可与 `'r'` 连用，但不能与 `'b'` 或 `'u'` 连用，因此，可以使用原始格式字符串，但不能使用格式字节串字面值。
+> 在 Python 语法中，`-5` 或 `+5` 严格来说**不是一个字面量**，它是一个一元运算符（`-` 或 `+`）作用于一个正数数字字面量（`5`）上。而在构造函数中，正负号可以作为字符串的一部分被直接解析。
+>
+> 这在含有正负号的复数或科学计数法中尤为明显：
+>
+> ```python
+> # 构造函数完全合法
+> f = float("+3.14")
+> c = complex("-1-2j")
+> 
+> # 但在 Python 中，你不能直接写出带有“内嵌正号”的字面量（除了运算符连接）
+> # 比如 1e+5 是合法的科学计数法字面量，但 "+3.14" 作为独立字面量其实是隐式包含了运算
+> ```
 
-三引号字面值可以包含未转义的换行和引号（原样保留），除了连在一起的，用于终止字面值的，未经转义的三个引号。（"引号" 是启用字面值的字符，可以是 `'`，也可以是 `"`。）
+字符串两端的空白字符 (Whitespace)
 
-####  转义序列
+> 构造函数在解析字符串时，会自动剥离（strip）两端的空格、制表符（`\t`）或换行符（`\n`）。但在代码中，数值字面量绝对不能包含这些空白。
+>
+> ```python
+> # 构造函数：完美运行
+> print(int("  42  \n"))      # 输出: 42
+> print(float("\t3.14 "))     # 输出: 3.14
+> 
+> # 字面量：直接报语法错误 (SyntaxError)
+> #   42  
+> # \t3.14
+> ```
+
+特殊的浮点数值：`NaN` 和 `Inf`
+
+`float()` 构造函数可以接受特殊的字符串来表示“非数（Not a Number）”或“无穷大（Infinity）”，这些字符串甚至是不区分大小写的。然而，Python 并没有为它们设计对应的字面量。
+
+```python
+# 构造函数：成功创建特殊浮点数
+nan_val = float("nan")
+inf_val = float("-infinity")
+
+# 字面量：Python 语法中没有 nan 或 inf 这样的字面量
+# 如果直接在代码里写 nan，Python 会把它当成一个未定义的变量名，报 NameError
+```
+
+复数构造函数的双参数形式
+
+`complex()` 构造函数还允许传入两个参数（分别代表实部和虚部），这显然是无法用单个数值字面量来表示的。
+
+```python
+# 构造函数：传入两个独立数字
+c = complex(1.2,3.4)   # 得到 1.2 + 3.4j
+
+# 字面量：你必须连着写成 1.2+3.4j
+```
+
+#### 总结
+
+- **数值字面量**：受限于 **Python 词法分析器（Lexer）** 的严格规则，主要用于在代码中静态地硬编码数字。
+- **构造函数**：是一个 **运行时的解析器**，它的容错率更高，设计目的是为了处理来自用户输入、文件读取或网络传输的、格式可能不太完美的文本数据。
+
+## 文本序列类型(text sequence type )
+
+Python 中用 [`str`](https://docs.python.org/3/library/stdtypes.html#str) 对象（或*字符串）* 处理文本数据。 字符串是不可变的 Unicode 代码点[序列 ](https://docs.python.org/3/library/stdtypes.html#typesseq)。字符串字面量可以用多种方式书写：
+
+- 单引号： `'allows embedded "double" quotes'`
+- 双引号： `"allows embedded 'single' quotes"`
+- 三重引号： `'''Three single quotes'''` ， `"""Three double quotes"""`
+
+三引号括起来的字符串可以跨越多行——所有相关的空格都将包含在**字符串字面量**中。
+
+**单个表达式**中**仅包含空格的字符串字面量**将被隐式转换为**单个字符串字面量**。也就是说， `("spam " "eggs") == "spam eggs"` 。
+
+```python
+print("spam"  "eggs" == "spameggs") # 结果是True
+```
+
+### 字符串前缀
+
+字符串字面量可以有一个可选的*前缀* ，该前缀会影响字面量内容的解析方式，例如：
+
+```
+b"data"
+f'{result=}'
+```
+
+允许使用的前缀有：
+
+- `b` ：[ 字节字面量](https://docs.python.org/3/reference/lexical_analysis.html#bytes-literal)
+- `r` ：[ 原始字符串](https://docs.python.org/3/reference/lexical_analysis.html#raw-strings)
+- `f` ：[ 格式化字符串字面量 ](https://docs.python.org/3/reference/lexical_analysis.html#f-strings)（“f-string”）
+- `t` ：[ 模板字符串字面量 ](https://docs.python.org/3/reference/lexical_analysis.html#t-strings)（“t-string”）
+- `u` ：无影响（为向后兼容而允许）
+
+请参阅相关链接章节了解每种类型的详细信息。
+
+前缀不区分大小写（例如，“ `B` ”与“ `b` ”的效果相同）。前缀“ `r` ”可以与“ `f` ”、“ `t` ”或“ `b` ”组合，因此“ `fr` ”、“ `rf` ”、“ `tr` ”、“ `rt` ”、“ `br` ”和“ `rb` ”也是有效的前缀。
+
+### 字节字面量
+
+*字节字面量*总是以“ `b` ”或“ `B` ”为前缀；
+
+它们会生成 [`bytes`](https://docs.python.org/3/library/stdtypes.html#bytes) 类型的实例，而不是 [`str`](https://docs.python.org/3/library/stdtypes.html#str) 类型的实例。 
+
+它们只能包含 ASCII 字符；数值为 128 的字节。 
+
+或更大必须用**转义序列**表示（通常为 [十六进制字符](https://docs.python.org/3/reference/lexical_analysis.html#string-escape-hex)或[八进制字符 ](https://docs.python.org/3/reference/lexical_analysis.html#string-escape-oct)）：
+
+```python
+b'\x89PNG\r\n\x1a\n'
+b'\x89PNG\r\n\x1a\n'
+list(b'\x89PNG\r\n\x1a\n')
+[137, 80, 78, 71, 13, 10, 26, 10]
+```
+
+同样，零字节必须使用转义序列（通常为 `\0` 或 `\x00` ）。
+
+#### bytes类型
+
+Python 中的 `bytes` 类型是不可变的字节序列，每个元素是 0-255 范围内的整数。它用于处理二进制数据，比如文件 I/O、网络通信、加密等场景。
+
+**创建方式**
+
+```python
+# 字面量（仅限 ASCII）
+b = b'hello'
+
+# 从字符串编码
+b = 'hello'.encode('utf-8')
+
+# 从整数列表
+b = bytes([72, 101, 108, 108, 111])
+
+# 指定长度的零填充
+b = bytes(5)  # b'\x00\x00\x00\x00\x00'
+
+# 从十六进制字符串
+b = bytes.fromhex('48656c6c6f')
+```
+
+**基本操作**
+
+```python
+b = b'hello'
+
+b[0]        # 104（整数，不是字符）
+b[1:3]      # b'el'（切片仍是 bytes）
+len(b)      # 5
+b + b'!'    # b'hello!'
+b * 2       # b'hellohello'
+```
+
+**与 str 的转换**
+
+```python
+# bytes -> str
+b'hello'.decode('utf-8')    # 'hello'
+
+# str -> bytes
+'hello'.encode('utf-8')     # b'hello'
+```
+
+**常用方法**
+
+`bytes` 拥有和 `str` 类似的方法：`find`、`replace`、`split`、`startswith`、`upper` 等，但操作对象是字节而非字符。
+
+```python
+b'Hello World'.split()          # [b'Hello', b'World']
+b'hello'.replace(b'l', b'L')   # b'heLLo'
+b'hello'.hex()                  # '68656c6c6f'
+```
+
+**可变版本：bytearray**
+
+如果需要原地修改字节序列，用 `bytearray`：
+
+```python
+ba = bytearray(b'hello')
+ba[0] = 72  # 修改第一个字节
+ba          # bytearray(b'Hello')
+```
+
+**关键区别：bytes vs str**
+
+|          | `str`        | `bytes`          |
+| -------- | ------------ | ---------------- |
+| 内容     | Unicode 字符 | 原始字节 (0-255) |
+| 索引返回 | 单字符字符串 | 整数             |
+| 字面量   | `'hello'`    | `b'hello'`       |
+| 可变版本 | 无           | `bytearray`      |
+| 用途     | 文本处理     | 二进制数据       |
+
+**典型使用场景**
+
+- 读写二进制文件（`open('file', 'rb')`）
+- 网络 socket 收发数据
+- 哈希和加密操作
+- 处理图片、音频等非文本数据
+- 与 C 扩展或系统调用交互
+
+###  转义序列
 
 如未标注 `'r'` 或 `'R'` 前缀，字符串和字节串字面值中，转义序列以类似 C 标准的规则进行解释。可用的转义序列如下：
 
@@ -99,18 +345,16 @@ bytesescapeseq ::= "\" <any ASCII character>
 | `\uxxxx`     | 16 位十六进制数 *xxxx* 码位的字符     | (6)  |
 | `\Uxxxxxxxx` | 32 位 16 进制数 *xxxxxxxx* 码位的字符 | (7)  |
 
-### 注释：
+### 忽略换行符
 
 1. 可以在行尾添加一个反斜杠来忽略换行符:
 
-   \>>>
-
    ```python
-   >>> 'This string will not include \
+>>> 'This string will not include \
    ... backslashes or newline characters.'
    'This string will not include backslashes or newline characters.'
    ```
-
+   
    同样的效果也可以使用 [三重引号字符串](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#strings)，或者圆括号和 [字符串字面值拼接](https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#string-concatenation) 来达成。
 
 2. 与 C 标准一致，接受最多三个八进制数字。
@@ -169,128 +413,9 @@ re.compile("[A-Za-z_]"       # 字母或下划线
 
 注意，此功能在句法层面定义，在编译时实现。在运行时，合并字符串表达式必须使用 '+' 运算符。还要注意，字面值合并可以为每个部分应用不同的引号风格（甚至混用原始字符串和三引号字符串)，格式字符串字面值也可以与纯字符串字面值合并。
 
+## 二进制序列类型(binary sequence type)
 
-
-### f 字符串
-
-*Added in version 3.6.*
-
-*格式字符串字面值* 或称 *f-string* 是标注了 `'f'` 或 `'F'` 前缀的字符串字面值。这种字符串可包含替换字段，即以 `{}` 标注的表达式。其他字符串字面值只是常量，格式字符串字面值则是可在运行时求值的表达式。
-
-除非字面值标记为原始字符串，否则，与在普通字符串字面值中一样，转义序列也会被解码。解码后，用于字符串内容的语法如下：
-
-```python
-f_string          ::= (literal_char | "{{" | "}}" | replacement_field)*
-replacement_field ::= "{" f_expression ["="] ["!" conversion] [":" format_spec] "}"
-f_expression      ::= (conditional_expression | "*" or_expr)
-                      ("," conditional_expression | "," "*" or_expr)* [","]
-                      | yield_expression
-conversion        ::= "s" | "r" | "a"
-format_spec       ::= (literal_char | replacement_field)*
-literal_char      ::= <any code point except "{", "}" or NULL>
-```
-
-双花括号 `'{{'` 或 `'}}'` 被替换为单花括号，花括号外的字符串仍按字面值处理。单左花括号 `'{'` 标记以 Python 表达式开头的替换字段。在表达式后加等于号 `'='`，可在求值后，同时显示表达式文本及其结果（用于调试）。 随后是用叹号 `'!'` 标记的转换字段。还可以在冒号 `':'` 后附加格式说明符。替换字段以右花括号 `'}'` 为结尾。
-
-格式化字符串字面值中的表达式会与用圆括号包围的常规 Python 表达式一样处理，但有少量例外。 空表达式是不被允许的，而 [`lambda`](https://docs.python.org/zh-cn/3/reference/expressions.html#lambda) 和赋值表达式 `:=` 都必须显式地用括号包围。 每个表达式都将在格式化字符串字面值出现的上下文中按从左到右的顺序进行求值。 替换表达式可在单引号和三引号f-字符串中包含换行符并可包含注释。 替换字段内 `#` 后面的所有内容都是注释（即使结尾花括号和引号也是）。 在这种情况下，替换字段必须在另一行中结束。
-
-```python
->>> f"abc{a # This is a comment }"
-... + 3}"
-'abc5'
-```
-
-*在 3.7 版本发生变更:* Python 3.7 以前， 因为实现的问题，不允许在格式字符串字面值表达式中使用 [`await`](https://docs.python.org/zh-cn/3/reference/expressions.html#await) 表达式与包含 [`async for`](https://docs.python.org/zh-cn/3/reference/compound_stmts.html#async-for) 子句的推导式。
-
-*在 3.12 版本发生变更:* 在 Python 3.12 之前，不允许在 f-字符串的替换字段中使用注释。
-
-表达式里含等号 `'='` 时，输出内容包括表达式文本、`'='` 、求值结果。输出内容可以保留表达式中左花括号 `'{'` 后，及 `'='` 后的空格。没有指定格式时，`'='` 默认调用表达式的 [`repr()`](https://docs.python.org/zh-cn/3/library/functions.html#repr)。指定了格式时，默认调用表达式的 [`str()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#str)，除非声明了转换字段 `'!r'`。
-
-*Added in version 3.8:* 等号 `'='`。
-
-指定了转换符时，表达式求值的结果会先转换，再格式化。转换符 `'!s'` 调用 [`str()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#str) 转换求值结果，`'!r'` 调用 [`repr()`](https://docs.python.org/zh-cn/3/library/functions.html#repr)，`'!a'` 调用 [`ascii()`](https://docs.python.org/zh-cn/3/library/functions.html#ascii)。
-
-然后使用 [`format()`](https://docs.python.org/zh-cn/3/library/functions.html#format) 协议对结果进行格式化。 格式说明符将传给表达式或转换结果的 [`__format__()`](https://docs.python.org/zh-cn/3/reference/datamodel.html#object.__format__) 方法。 如果省略格式说明符则将传入空字符串。 格式化后的结果将包括在整个字符串的最终值中。
-
-最高层级的格式说明符可以包括嵌套的替换字段。 这些嵌套字段也可以包括它们自己的转换字段和 [格式说明符](https://docs.python.org/zh-cn/3/library/string.html#formatspec)，但是不可再包括更深层嵌套的替换字段。 这里的 [格式说明符微语言](https://docs.python.org/zh-cn/3/library/string.html#formatspec) 与 [`str.format()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#str.format) 方法所使用的相同。
-
-格式化字符串字面值可以拼接，但是一个替换字段不能拆分到多个字面值。
-
-格式字符串字面值示例如下：
-
-\>>>
-
-```python
->>> name = "Fred"
->>> f"He said his name is {name!r}."
-"He said his name is 'Fred'."
->>> f"He said his name is {repr(name)}."  # repr() is equivalent to !r
-"He said his name is 'Fred'."
->>> width = 10
->>> precision = 4
->>> value = decimal.Decimal("12.34567")
->>> f"result: {value:{width}.{precision}}"  # nested fields
-'result:      12.35'
->>> today = datetime(year=2017, month=1, day=27)
->>> f"{today:%B %d, %Y}"  # using date format specifier
-'January 27, 2017'
->>> f"{today=:%B %d, %Y}" # using date format specifier and debugging
-'today=January 27, 2017'
->>> number = 1024
->>> f"{number:#0x}"  # using integer format specifier
-'0x400'
->>> foo = "bar"
->>> f"{ foo = }" # preserves whitespace
-" foo = 'bar'"
->>> line = "The mill's closed"
->>> f"{line = }"
-'line = "The mill\'s closed"'
->>> f"{line = :20}"
-"line = The mill's closed   "
->>> f"{line = !r:20}"
-'line = "The mill\'s closed" '
-```
-
-允许在替换字段中重用外层 f-字符串的引号类型:
-
-\>>>
-
-```python
->>> a = dict(x=2)
->>> f"abc {a["x"]} def"
-'abc 2 def'
-```
-
-*在 3.12 版本发生变更:* 在 Python 3.12 之前不允许在替换字段中重用与外层 f-字符串相同的引号类型。
-
-替换字段中也允许使用反斜杠并会以与在其他场景下相同的方式求值:
-
-\>>>
-
-```python
->>> a = ["a", "b", "c"]
->>> print(f"List a contains:\n{"\n".join(a)}")
-List a contains:
-a
-b
-c
-```
-
-*在 3.12 版本发生变更:* 在 Python 3.12 之前，f-字符串的替换字段内不允许使用反斜杠。
-
-即便未包含表达式，格式字符串字面值也不能用作文档字符串。
-
-\>>>
-
-```
->>> def foo():
-...     f"Not a docstring"
-...
->>> foo.__doc__ is None
-True
-```
-
-参阅 [**PEP 498**](https://peps.python.org/pep-0498/)，了解格式字符串字面值的提案，以及与格式字符串机制相关的 [`str.format()`](https://docs.python.org/zh-cn/3/library/stdtypes.html#str.format)。
+[binary sequence types|Built-in Types — Python documentation](https://docs.python.org/3/library/stdtypes.html#binary-sequence-types-bytes-bytearray-memoryview)
 
 ## `str` 类型概述
 
@@ -440,4 +565,3 @@ print(b.decode("utf-8"))  # '你好'
 - 提供丰富的方法进行大小写转换、查找、替换、分割、格式化等操作。
 - 支持 `bytes` 与 `str` 的编码和解码转换。
 
-这部分文档详细介绍了 `str` 类型的核心特性，掌握这些内容可以更高效地处理字符串操作！
