@@ -412,11 +412,13 @@ client = httpx.Client(verify="/path/to/ca-bundle.crt")
 
 ```python
 # requests
+# 使用get方法的stream=True参数来启用流式(分块)请求,配合response.iter_content分块读取
 with requests.get(url, stream=True) as resp:
     for chunk in resp.iter_content(chunk_size=8192):
         file.write(chunk)
 
 # httpx（同步）
+# 和requests启用流式请求的方式不同,使用.stream方法而不是.get方法.并且数据的分块读取的api变为iter_bytes()
 with httpx.stream("GET", url) as resp:
     for chunk in resp.iter_bytes(chunk_size=8192):
         file.write(chunk)

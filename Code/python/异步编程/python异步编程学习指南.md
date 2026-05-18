@@ -1195,7 +1195,7 @@ asyncio.run(main())
 1. **不要在协程里写耗时的计算任务**：协程擅长 I/O（网络、文件、数据库），但不擅长 CPU 密集型任务（如大型矩阵运算）。如果是后者，请使用 `run_in_executor` 交给线程池处理。
 2. **避免“影子阻塞”**：使用了 `async def` 却在内部调用了同步的阻塞库（比如 `requests` 或 `time.sleep`），这会导致异步程序失去意义，性能退化到同步水平。
 
-
+### 异步表达式
 
 ## 异步执行流程
 
@@ -1647,9 +1647,39 @@ async for earliest_connect in as_completed(tasks):
 
 
 
-## 异步迭代器与异步生成器
+## 异步迭代和异步上下文管理语法
+
+`async for` 和 `async with` 是 Python 中用于**异步迭代**和**异步上下文管理**的语法。
+
+**async for**
+
+用于遍历异步迭代器（实现了 `__aiter__` 和 `__anext__` 的对象）。典型场景是逐条读取异步数据流，比如数据库查询结果或网络消息。
+
+```python
+async for message in websocket:
+    print(message)
+```
+
+等价于手动调用 `await __anext__()`，在每次迭代时让出控制权。
+
+**async with**
+
+用于管理异步上下文（实现了 `__aenter__` 和 `__aexit__` 的对象是**异步上下文管理器对象**）。典型场景是需要异步获取/释放的资源，比如数据库连接、HTTP 会话。
+
+```python
+async with aiohttp.ClientSession() as session:
+    resp = await session.get(url)
+```
+
+进入时 `await __aenter__()`，退出时 `await __aexit__()`，确保资源正确释放。
+
+**核心区别于同步版本**
+
+它们和普通的 `for`/`with` 逻辑相同，区别仅在于协议方法是协程，会在进入、退出、迭代时挂起当前协程，让事件循环调度其他任务。两者都只能在 `async def` 函数内使用。
 
 ### 异步迭代器 (`async for`)
+
+- [async for|复合语句 — Python 文档](https://docs.python.org/zh-cn/3.13/reference/compound_stmts.html#the-async-for-statement)
 
 当数据源本身是异步的（如分页 API、数据库游标），使用 `async for`：
 
@@ -1674,7 +1704,7 @@ async def main():
         print(number)
 ```
 
-### 异步生成器（更简洁）
+#### 异步生成器
 
 ```python
 async def async_range(start: int, stop: int):
@@ -1688,6 +1718,8 @@ async def main():
 ```
 
 ### 异步上下文管理器 (`async with`)
+
+[async with|复合语句 — Python  文档](https://docs.python.org/zh-cn/3.13/reference/compound_stmts.html#the-async-with-statement)
 
 ```python
 class AsyncDatabaseConnection:

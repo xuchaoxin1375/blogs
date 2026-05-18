@@ -84,9 +84,9 @@ HTTP（HyperText Transfer Protocol）是一个**基于请求-响应模型的无�
 
 为了设计一种更匹配 HTTP 的传输协议，各种实验正在进行中。例如，Google 正在测试一种基于 UDP 构建，更可靠、高效的传输协议——[QUIC](https://zh.wikipedia.org/wiki/QUIC)。
 
-## [HTTP 流](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Overview#http_流)
+## HTTP 流
 
-当客户端想要和服务器——不管是最终的服务器还是中间的代理——进行信息交互时，过程表现为下面几步：
+当客户端想要和服务器(不管是最终的服务器还是中间的代理)进行信息交互时，过程表现为下面几步：
 
 1. 打开一个 TCP 连接：TCP 连接被用来发送一条或多条请求，以及接受响应消息。客户端可能打开一条新的连接，或重用一个已经存在的连接，或者也可能开几个新的与服务器的 TCP 连接。
 
