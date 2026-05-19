@@ -88,6 +88,8 @@ asyncio.run(main())
 
 两个库的顶层 API 几乎一致——`get`、`post`、`put`、`patch`、`delete`、`head`、`options` 都可以直接调用。
 
+> 使用httpx的异步支持,需要创建客户端(AsyncClient)对象,而如果要用到会话(session),则同步代码也要创建客户端(Client)对象.
+
 ------
 
 ## 请求参数详解
@@ -262,6 +264,8 @@ async with httpx.AsyncClient(base_url="https://api.example.com") as client:
 
 ### 连接池配置（httpx）
 
+通过设置`httpx.Limits`来配置连接池参数.
+
 ```python
 limits = httpx.Limits(
     max_connections=100,         # 连接池总大小
@@ -406,7 +410,7 @@ client = httpx.Client(verify="/path/to/ca-bundle.crt")
 
 ------
 
-## 流式处理
+## 流式处理(分块)
 
 处理大文件下载或服务器推送事件（SSE）时，流式读取避免将整个响应加载到内存：
 
@@ -467,11 +471,19 @@ async def fetch_all():
         "https://api.example.com/users/3",
     ]
     async with httpx.AsyncClient() as client:
+        # 通过异步客户端client连续发送多个请求(非阻塞并发)
         tasks = [client.get(url) for url in urls]
+        # 等待所有协程返回结果
         responses = await asyncio.gather(*tasks)
         return [r.json() for r in responses]
 
 results = asyncio.run(fetch_all())
+
+```
+
+对比同步顺序请求：3 个各耗时 1 秒的请求，同步需要 3 秒，异步并发约 1 秒。
+
+```mermaid
 sequenceDiagram
     participant App as 应用
     participant AC as AsyncClient
@@ -491,7 +503,7 @@ sequenceDiagram
     AC-->>App: [resp1, resp2, resp3]
 ```
 
-对比同步顺序请求：3 个各耗时 1 秒的请求，同步需要 3 秒，异步并发约 1 秒。
+
 
 ------
 
@@ -726,7 +738,7 @@ async def lifespan(app):
 | `Session()`             | `Client()`                  | 名称变化                                  |
 | `resp.ok`               | `resp.is_success`           | 属性名变化（httpx 也支持 `.ok` 作为别名） |
 | `allow_redirects=False` | `follow_redirects=False`    | 参数名变化                                |
-| `stream=True`           | `httpx.stream(method, url)` | 流式 API 不同                             |
+| `stream=True`           | `httpx.stream(method, url)` | **流式 API 不同**                         |
 | `resp.content` 自动加载 | 流式时需显式 `resp.read()`  | 流式行为更显式                            |
 
 主要注意点：

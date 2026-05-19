@@ -711,13 +711,15 @@ Proxy-Authorization: <type> <credentials>
 
 - [**Basic**](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Authentication#basic)
 
-  参见 [RFC 7617](https://datatracker.ietf.org/doc/html/rfc7617)，base64 编码凭据。详情请参阅下文。
+  参见 [RFC 7617](https://datatracker.ietf.org/doc/html/rfc7617)，base64 编码凭据。
 
 - [**Bearer**](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Authentication#bearer)
 
   参见 [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750)，bearer 令牌通过 OAuth 2.0 保护资源。
 
 ...
+
+详情另见它文
 
 ### 关于验证的标头
 
