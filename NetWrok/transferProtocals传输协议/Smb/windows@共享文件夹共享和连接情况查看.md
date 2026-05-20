@@ -87,11 +87,14 @@ Limit membership in, and assign the Full Control permission to, the Administrato
 - 防火墙可保护共享资源不被互联网访问。在 Windows XP 和 Windows Server 2003 系列中，您可以利用新的防火墙功能。
 - 有关详细信息，请参阅 Internet 连接防火墙, Windows 防火墙。
 
-## 查看共享情况👺
+## 查看和管理共享文件夹👺
 
 - [查看当前有哪些电脑在连接自己电脑的共享文件夹-百度经验 (baidu.com)](https://jingyan.baidu.com/article/49711c61a26824fa441b7cba.html#:~:text=在计算机管理中点击“共享文件夹”。 4%2F7 点击后，鼠标双击右侧的“会话”。,5%2F7 这样，就会列出当前正在通过windows系统的共享功能连接和访问自己电脑中共享文件夹的其他电脑的情况。 显示的信息从左至右依次为：其他电脑登录本电脑所用的用户账户名称、其他电脑在局域网中的名称、其他电脑访问用的系统、打开的文件、其他电脑连接本电脑的时间等。)
 
 - [Windows 10如何禁止专用于共享的账号从本地登录-百度经验 (baidu.com)](https://jingyan.baidu.com/article/6b97984de2c7441ca2b0bf16.html)
+
+
+使用`compmgmt.msc`命令可以直接打开"**计算机管理**器"控制面板;
 
 ## 文件夹共享工具👺
 
