@@ -39,6 +39,16 @@ pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simple/
 # pip config set global.extra-index-url "https://pypi.tuna.tsinghua.edu.cn/simple https://repo.huaweicloud.com/repository/pypi/simple/  https://mirrors.aliyun.com/pypi/simple/ https://pypi.org/simple"
 ```
 
+> ​    Tencent = "https://mirrors.cloud.tencent.com/pypi/simple/"
+>
+> ​    Aliyun  = "https://mirrors.aliyun.com/pypi/simple/" #官网给的是http链接,可能会被提示不安全.
+>
+> ​    PKU   = "https://mirrors.pku.edu.cn/pypi/web/simple"
+>
+> ​    ZJU   = "https://mirrors.zju.edu.cn/pypi/web/simple"
+>
+> ​    NJU   = "https://mirror.nju.edu.cn/pypi/web/simple"
+
 这里主镜像配置为ustc;
 
 还可以配置备用镜像,但是会拖慢速度,通常不建议添加,而是直接指定一个明确可用的作为主要镜像源即可
