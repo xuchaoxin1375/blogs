@@ -1758,6 +1758,8 @@ async def main():
 
 ### Semaphore 限制并发（最常用）
 
+异步并发的控制方式和线程池较为不同,详情参考其他章节
+
 ```python
 async def fetch_with_limit(sem: asyncio.Semaphore, url: str):
     async with sem:  # 最多同时允许 N 个协程进入
@@ -1806,9 +1808,168 @@ async def main():
 
 ---
 
+
+
+### 使用信号量控制异步并发数基本流程
+
+在 Python 中，异步并发控制的核心逻辑可以概括为：**“先圈定资源总量，再通过上下文管理器排队进场”**。
+
+为了让你最直观地理解它的运作方式，我们可以把这个流程分为**初始化、包装、分发、调度**四个步骤。
+
+异步并发控制的 4 步核心流程
+
+1. 初始化信号量(`asyncio.Semaphore()`)
+
+首先，在异步主函数中创建计数信号量 `asyncio.Semaphore(N)`。这个 `N` 就是你允许的最大并发数。它就像一个景区入口，放了 `N` 个旋转闸机，同一时间最多只能进去 `N` 个人。
+
+```python
+sem = asyncio.Semaphore(5) # 限制最大并发数为 5
+```
+
+2. 包装和定义单个任务(协程中使用信号量)
+
+在具体的异步任务函数中，使用 `async with sem:` 上下文管理器将**核心 IO 操作**包裹起来。
+
+- **当任务执行到这一步时：** 它会尝试去获取（acquire）一个信号量。如果 `N` 个名额没满，直接进去执行后面的 `await` 异步操作；如果名额满了，该任务就会在门口**挂起（进入等待队列）**，把 CPU 让给其他人。
+- **当任务执行完毕离开时：** `async with` 会自动释放（release）名额，并在排队队列里唤醒下一个等待的任务。
+
+```python
+# 在协程函数中设置信号量上下文管理器包装
+async def worker(task_id, sem):
+    async with sem: # <--- 核心控制点：名额满了就地排队，出来自动让位
+        # 这里放置需要限制并发的网络请求或数据库操作
+        await asyncio.sleep(1) 
+```
+
+3. 批量创建任务
+
+使用列表推导式等方式，把所有的参数连同刚刚创建的信号量 `sem` 一起传给任务函数，批量创建出所有的任务对象（Task/Coroutine）。**注意：此时任务只是被创建了，并没有真正开始限制或执行。**
+
+```python
+tasks = [worker(i, sem) for i in range(100)] # 创建 100 个任务
+```
+
+4. 提交事件循环
+
+最后，使用 `asyncio.gather(*tasks)` 或 `asyncio.as_completed(tasks)` 将这 100 个任务一次性提交给事件循环。
+
+- 事件循环会同时启动这 100 个任务。
+- 前 5 个任务顺利通过 `async with sem` 开始执行。
+- 剩余的 95 个任务全部在 `async with sem` 那行代码处“刹车”排队。
+- 随着前 5 个任务中某一个完成，空出一个位置，队列里的下一个任务立刻补上，直到 100 个任务全部轮流执行完毕。
+
+```python
+await asyncio.gather(*tasks) # 启动事件循环，看门狗（信号量）开始运作
+```
+
+
+
+## 多线程和异步并发控制方式对比
+
+在 Python 中，**多线程 (Multi-threading)** 和 **异步 IO (Asyncio)** 是两种最主流的并发方案。虽然它们都能实现“同时干多件事”的效果，但其底层原理、适用场景以及控制并发数的方式有着本质的区别。
+
+下面为你详细对比这两种方案的控制方式和各自特点。
+
+控制并发数的核心目的都是为了**防止资源过载**（如下载太快被封 IP、内存爆掉、数据库连接数不够等）。
+
+### 方案 A：多线程的并发控制
+
+多线程通常借助于线程池（`ThreadPoolExecutor`）或信号量（`Semaphore`）来控制并发。
+
+因为线程由操作系统调度，控制并发数实际上是在限制**同时活跃的操作系统线程数量**。
+
+- **推荐方式：线程池 (`ThreadPoolExecutor`)**
+
+  通过设定 `max_workers`，直接限制了同一时刻最多只有 N 个线程在执行任务。多余的任务会在队列中等待。
+
+- **底层控制：信号量 (`threading.Semaphore`)**
+
+  如果不用线程池，也可以用**信号量**来手动控制。初始化 `Semaphore(value=N)`，每次任务开始前 `acquire()`，结束后 `release()`。
+
+### 方案 B：异步 IO 的并发控制
+
+异步编程中，所有代码通常都运行在**单个线程**的事件循环（Event Loop）中。所谓的“并发数”，是指**同时处于“挂起并等待 IO”状态的任务（Task）数量**。
+
+- **核心方式：异步信号量 (`asyncio.Semaphore`)**
+
+  在异步中，我们**不能**通过限制线程来限制并发，因为只有一个线程。我们使用 `asyncio.Semaphore(N)` 来控制同时进入某个 IO 段的代码块数量。
+
+- **高级方式：任务限流器/上下文管理器**
+
+  利用 `async with semaphore:` 语法，优雅地包裹异步请求。
+
+### 代码实现对比
+
+这里分别用多线程和异步实现一个“限制最大并发数为 3，总共执行 10 个爬虫/请求任务”的场景。
+
+#### 多线程控制并发 (ThreadPoolExecutor)
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import time
+import random
+
+def fetch_url(url_id):
+    print(self_name := f"[线程] 任务 {url_id} 开始...")
+    # 模拟网络 IO 耗时
+    time.sleep(random.uniform(1, 2)) 
+    print(f"[线程] 任务 {url_id} 完成！")
+    return f"结果 {url_id}"
+
+# 限制最大并发数为 3
+with ThreadPoolExecutor(max_workers=3) as executor:
+    urls = range(10)
+    # map 会自动并发执行，但同一时间最多只有 3 个线程在动
+    results = executor.map(fetch_url, urls)
+```
+
+#### 异步 IO 控制并发 (asyncio.Semaphore)
+
+
+
+```python
+import asyncio
+import random
+
+async def fetch_url_async(url_id, semaphore):
+    # 使用信号量控制并发
+    async with semaphore:
+        print(f"[异步] 任务 {url_id} 开始...")
+        # 模拟异步 IO 耗时，释放 CPU
+        await asyncio.sleep(random.uniform(1, 2)) 
+        print(f"[异步] 任务 {url_id} 完成！")
+        return f"结果 {url_id}"
+
+async def main():
+    # 限制最大并发数为 3
+    sem = asyncio.Semaphore(3)
+    
+    # 创建 10 个任务，它们会同时被提交给事件循环，但受限于信号量
+    tasks = [fetch_url_async(i, sem) for i in range(10)]
+    await asyncio.gather(*tasks)
+
+# 运行异步主函数
+asyncio.run(main())
+```
+
+### 特点与核心差异对比
+
+表格能更清晰地展现它们在控制并发时的表现和底层逻辑：
+
+| **对比维度**        | **多线程并发 (Multi-threading)**                             | **异步 IO 并发 (Asyncio)**                                   |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **并发实现本质**    | **切换线程**。由操作系统强制在多个线程间切换（抢占式）。     | **协作式切换**。单线程内，遇到 `await` 时主动让出执行权。    |
+| **受不受 GIL 限制** | **受限制**。由于 Python 全局解释器锁 (GIL)，多线程无法利用多核 CPU 跑计算。 | **受限制**。本身就是单线程，完全无法利用多核 CPU。           |
+| **高并发承载力**    | **较低**（通常几百个）。每个线程占用独立内存（几M到十几M），开多了内存会爆。 | **极高**（轻松上万）。Task 是轻量级对象（几KB），内存占用极小。 |
+| **切换开销**        | **较高**。需要操作系统进行上下文切换（寄存器、栈指针等），频繁切换损耗性能。 | **极低**。只是单线程内的函数调用切换，开销微乎其微。         |
+| **代码编写复杂度**  | **看似简单，实则危险**。容易遇到死锁、线程安全问题（竞态条件），需要频繁加锁（Lock）。 | **陡峭的学习曲线**。需要全链路重构为 `async/await`，但由于是单线程，基本**没有线程安全问题**。 |
+| **最适合的场景**    | 适合**传统的阻塞式 IO 库**（如旧版 `requests`、`pymysql`），或数量不太大的并发任务。 | 适合**高频、海量连接的 IO 密集型**任务（如网络爬虫、WebSocket 服务器、高性能 Web API）。 |
+
+
+
 ## 异步与同步的桥接
 
-### 在异步中运行同步阻塞代码
+### 在异步中运行同步阻塞代码(asyncio.to_thread)
 
 有些库没有异步版本，直接在协程中调用会**阻塞整个事件循环**。使用 `asyncio.to_thread`（Python 3.9+）将其放到线程池：
 
@@ -2078,4 +2239,4 @@ graph LR
     style F fill:#ffccbc,stroke:#e64a19
 ```
 
-每个阶段确保能写出可运行的完整示例，再进入下一阶段。异步编程的直觉需要通过实践建立——**先跑通，再理解，最后优化**。
+​	

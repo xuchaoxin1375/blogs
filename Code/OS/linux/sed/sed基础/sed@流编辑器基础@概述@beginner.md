@@ -364,7 +364,16 @@ Use `-n` to suppress output,
 
   在 `sed` 命令中，`-n` 是一个非常重要的选项，它用于 **禁止自动打印模式空间（pattern space）**。
   
-  > 默认情况下，`sed` 会在处理完每一行后自动打印模式空间的内容，而 `-n` 选项会关闭这一行为，使得只有显式使用 `p`（print）命令时才会输出内容。
+
+> 默认情况下，`sed` 会在处理完每一行后自动打印模式空间的内容，而 `-n` 选项会关闭这一行为，使得只有显式使用 `p`（print）命令时才会输出内容。
+
+示例:查看文件`test.txt`中的第2行.
+
+```bash
+sed -n '2p' test.txt
+```
+
+
 
 ### `p`标记打印/查看指定的行
 
@@ -373,7 +382,7 @@ Use `-n` to suppress output,
   - 这里的`p`是**sed script**的语法,而不是**sed选项**,如果是选项应该有`-`开头
   - `p`可以作为一个标记(flag),用来指明script字符串中的那些字符是有特定含义
 
-### 示例
+示例
 
 #### 查看文件的指定行内容
 
@@ -385,8 +394,9 @@ Use `-n` to suppress output,
 
   - 这个命令中`-n`是选项,`45p`是sed script部分,表示打印第45行(标记p表示打印)
 
-
 #### 查看发生了替换的行
+
+准备一个txt文件作为演示素材.
 
 ```bash
 $ cat txt                    
@@ -395,7 +405,7 @@ hello,nihao
 end line
 ```
 
-替换nihao为world
+替换`nihao`为`world`
 
 默认输出所有
 
@@ -406,7 +416,7 @@ hello,world
 end line
 ```
 
-仅输出被替换的行
+使用`-n`以及`-p`仅输出被替换的行(输出替换完毕后的行)
 
 ```bash
 $ sed -n 's/nihao/world/p' ./txt
@@ -454,6 +464,51 @@ hello,world
 | **地址 `1`** | 仅指向第一个文件的第一行     | 指向**每个**文件的第一行    |
 | **地址 `$`** | 仅指向最后一个文件的最后一行 | 指向**每个**文件的最后一行  |
 | **行号计数** | 全局累加                     | 每个文件从 1 重新开始计数   |
+
+## 注释和头部字符处理
+
+以下面的配置代码片段(放在`com_com.conf`文件中)为例:
+
+```bash
+# com_com.conf
+# 引入cf可信ip配置(普通服务器建议定期自动调用更新脚本更新,特殊解析服务器不要使用)
+## 适用于cloudflare cdn解析.
+include /www/server/nginx/conf/cf-realip.conf;
+
+## 仅当特殊解析服务器才使用下面的方式:
+# include real_cdn_ip.conf;
+
+```
+
+变成:(注释掉第1个include,并且启用第2个include语句)
+
+```nginx
+# com_com.conf
+# 引入cf可信ip配置(普通服务器建议定期自动调用更新脚本更新,特殊解析服务器不要使用)
+## 适用于cloudflare cdn解析.
+# include /www/server/nginx/conf/cf-realip.conf;
+
+## 仅当特殊解析服务器才使用下面的方式:
+include real_cdn_ip.conf;
+```
+
+解决方案:(多种写法),直接原地修改
+
+```bash
+
+# 逐行处理
+sed -i '\|include /www/.*/cf-realip.conf;| s/^/# /' com_com.conf
+sed -i -E 's|#[[:space:]]*(include real_cdn_ip.conf;)|\1|' com_com.conf
+
+# 合并处理(换行符分隔不同的sed语句行,使用-E启用扩展正则,省去反斜杠转义括号组'()'):
+sed -i -E '
+  \|include /www/.*/cf-realip.conf;| s/^/# /
+  s|#[[:space:]]*(include real_cdn_ip\.conf;)|\1|
+' com_com.conf
+
+```
+
+
 
 ## 命令分组
 
