@@ -34,7 +34,7 @@ sed 's@old@new@标志'
 
 其他命令(非`s`):
 
-例如`d`**匹配/删除命令：** 必须以 `\` 开头来告知 `sed` 紧跟的字符是自定义分隔符(不需要每个位置都使用`\`修饰)。
+例如`d`**匹配/删除命令：** 必须以 `\` 开头来告知 `sed` 紧跟的字符是自定义分隔符(后续使用指定分隔符时,就**不需要每个位置**都使用`\`修饰)。
 
 - 例：`\|pattern|d` (正确)
 - 例：`|pattern|d` (**错误**，sed 会把第一个 `|` 当作一个未识别的命令)
@@ -61,6 +61,14 @@ echo "/usr/local/bin" | sed 's|/usr/local|/opt|'
 ```bash
 $ echo "/usr/loc|al/bin" | sed 's|/usr/loc\|al|/opt|'
 /opt/bin
+```
+
+打印正则匹配的行(下面使用自定义分隔符界定正则表达式,在表达式中包含大量斜杠时提供方便).
+
+```bash
+sed -n '\|include /www/.*/cf-realip\.conf;|p' com_com.conf
+# 示例输出:
+# include /www/server/nginx/conf/cf-realip.conf;
 ```
 
 
