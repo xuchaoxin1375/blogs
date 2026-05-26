@@ -2,678 +2,957 @@
 
 
 
-# Scrapling 爬虫全面指南
+## Scrapling 爬虫全面指南
 
-------
+Scrapling 是一个面向现代网页抓取的 Python 框架，定位不是“只解析 HTML”的小工具，而是从单次请求、动态页面抓取，到并发 Spider 爬取、代理轮换、暂停恢复、反爬处理都覆盖的一体化框架。官方描述中，Scrapling 的核心特色包括：自适应元素定位、HTTP 与浏览器 Fetcher、Spider 并发爬取、暂停恢复、代理轮换、实时统计与流式输出。([Scrapling documentation][1])
 
-## Scrapling 概览
+它尤其适合这几类场景：
 
-Scrapling 是由 **D4Vinci (Karim Shoair)** 开发的现代化 Python 网页抓取库，定位为「**高性能、自适应、反检测**」的一站式爬虫工具。它诞生于一个核心痛点——传统爬虫工具链中，解析器（BeautifulSoup）、请求器（requests/httpx）、浏览器驱动（Selenium/Playwright）、反检测手段各自为政，开发者需要在多个库之间反复粘合。Scrapling 将这些能力整合进统一接口，并引入了「**智能匹配**」这一独创机制，让选择器能在页面结构变化后自动重新定位目标元素。
+| 场景                | 推荐能力                               | 说明                                     |
+| ------------------- | -------------------------------------- | ---------------------------------------- |
+| 普通静态页面        | `Fetcher` / `AsyncFetcher`             | 快、轻量、适合大多数 HTML 页面           |
+| JavaScript 渲染页面 | `DynamicFetcher`                       | 使用浏览器渲染后再解析                   |
+| 有较强反爬的页面    | `StealthyFetcher`                      | 更强的指纹伪装、浏览器自动化与反检测能力 |
+| 多页面、大规模爬取  | `Spider`                               | 并发、调度、去重、暂停恢复、统计、输出   |
+| 页面结构经常变      | Adaptive scraping                      | 记住元素特征，结构变化后尝试重新定位     |
+| 长期维护项目        | Sessions、ProxyRotator、开发缓存、统计 | 更利于稳定运行和调试                     |
 
-> **一句话定位：Scrapling = 比 BeautifulSoup 更快的解析器 + 开箱即用的隐匿请求器 + 网页结构变化时的自适应选择器**
+---
 
-项目地址：`https://github.com/D4Vinci/Scrapling`
+## 安装与环境准备
 
-------
-
-## 核心架构与设计哲学
-
-```mermaid
-graph 
-    subgraph "Scrapling 架构"
-        direction         
-        
-        subgraph "Fetcher 层 — 页面获取"
-            F1["Fetcher<br/>(httpx 静态请求)"]
-            F2["StealthyFetcher<br/>(Camoufox 隐匿浏览器)"]
-            F3["PlayWrightFetcher<br/>(Playwright 浏览器渲染)"]
-        end
-
-        subgraph "Adaptor 层 — 解析引擎"
-            A1["CSS 选择器"]
-            A2["XPath 表达式"]
-            A3["自动匹配 Auto-Match"]
-            A4["相似元素发现"]
-            A5["DOM 导航与文本提取"]
-        end
-
-        subgraph "反检测层"
-            B1["浏览器指纹伪装"]
-            B2["TLS 指纹规避"]
-            B3["自动处理 Cookies/Headers"]
-        end
-
-        F1 & F2 & F3 -->|"返回 Adaptor 对象"| A1 & A2 & A3 & A4 & A5
-        F2 & F3 -.->|"内置"| B1 & B2 & B3
-    end
-```
-
-**三个设计哲学：**
-
-| 哲学           | 传统工具链的问题                                             | Scrapling 的解法                                             |
-| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| **统一接口**   | 解析用 BS4、请求用 requests、JS渲染用 Selenium，各库 API 风格不同 | 所有 Fetcher 统一返回 `Adaptor` 对象，解析方式完全一致       |
-| **自适应选择** | 目标网站改版后，CSS/XPath 选择器全部失效，需要手动修复       | `auto_match()` 通过多维特征匹配，在结构变化后依然能定位到等价元素 |
-| **默认隐匿**   | 反爬对抗需要额外引入 `undetected-chromedriver`、`fake-useragent` 等库 | `StealthyFetcher` 和 `PlayWrightFetcher` 开箱即用地处理指纹伪装 |
-
-------
-
-## 安装与环境配置
-
-### 基础安装
+基础安装：
 
 ```bash
 pip install scrapling
 ```
 
-这会安装核心解析引擎 `Adaptor` 和基础 `Fetcher`（基于 httpx）。
+如果你要使用交互式 Shell 或 CLI 的完整能力，可以安装额外依赖：
 
-### 浏览器引擎安装
+```bash
+pip install "scrapling[shell]"
+```
 
-如果需要使用 `StealthyFetcher` 或 `PlayWrightFetcher`，还需要执行：
+使用浏览器类 Fetcher 或 CLI 浏览器能力时，官方文档建议执行：
 
 ```bash
 scrapling install
 ```
 
-此命令会自动下载 Playwright 所需的浏览器二进制文件和 Camoufox 运行时。
+该命令会下载浏览器、系统依赖以及指纹处理相关依赖。Scrapling CLI 从 v0.3 开始提供交互式 Shell、终端提取命令和工具命令，例如 `scrapling shell`、`scrapling extract get`、`scrapling --help`。([Scrapling documentation][2])
 
-### 依赖关系说明
+---
 
-| 组件                | 底层依赖                 | 用途                                                 |
-| ------------------- | ------------------------ | ---------------------------------------------------- |
-| `Adaptor`           | `lxml`                   | HTML/XML 解析，性能远超 BeautifulSoup 的 html.parser |
-| `Fetcher`           | `httpx`                  | 异步 HTTP 请求，支持 HTTP/2                          |
-| `StealthyFetcher`   | `camoufox` (Firefox内核) | 基于真实 Firefox 配置的隐匿浏览器                    |
-| `PlayWrightFetcher` | `playwright`             | Chromium/Firefox/WebKit 浏览器自动化                 |
+## 整体架构
 
-------
-
-## Adaptor 解析引擎
-
-`Adaptor` 是 Scrapling 的核心，它接收 HTML 字符串或由 Fetcher 返回，提供比 BeautifulSoup 更快且更丰富的元素选择与操作能力。
-
-### 创建 Adaptor
-
-```python
-from scrapling import Adaptor
-
-# 从 HTML 字符串创建
-html = """
-<html>
-<body>
-  <div class="product" id="item-1">
-    <h2 class="title">Scrapling 指南</h2>
-    <span class="price">¥99</span>
-    <p class="desc">现代化爬虫工具</p>
-  </div>
-  <div class="product" id="item-2">
-    <h2 class="title">Python 手册</h2>
-    <span class="price">¥129</span>
-  </div>
-</body>
-</html>
-"""
-
-page = Adaptor(html, auto_match=True)  # auto_match 启用智能匹配
-```
-
-### 元素选择：四种方式
-
-Scrapling 提供了四种元素定位策略，按场景灵活选用：
-
-```python
-# ① CSS 选择器 — 最常用，语法简洁
-titles = page.css("div.product h2.title")
-first_title = page.css_first("div.product h2.title")
-
-# ② XPath 表达式 — 处理复杂层级关系或文本匹配时更强大
-prices = page.xpath("//span[@class='price']")
-
-# ③ find / find_all — 类 BeautifulSoup 风格，更直观
-item = page.find(id="item-1")
-all_products = page.find_all(class_="product")
-
-# ④ 文本搜索 — 根据文本内容定位
-element = page.find_by_text("Scrapling 指南")
-```
-
-**选择策略速查表：**
-
-| 方法                      | 适用场景                                             | 示例                                           |
-| ------------------------- | ---------------------------------------------------- | ---------------------------------------------- |
-| `.css()` / `.css_first()` | 按 class、id、层级关系选取，前端开发者最熟悉         | `page.css("ul.nav > li a")`                    |
-| `.xpath()`                | 需要按文本内容筛选、按轴关系（sibling/ancestor）定位 | `page.xpath("//a[contains(text(),'下一页')]")` |
-| `.find()` / `.find_all()` | 简单的 id/class/tag 查找                             | `page.find(tag="div", class_="main")`          |
-| `.find_by_text()`         | 已知元素的可见文本，但不确定其 HTML 结构             | `page.find_by_text("提交订单")`                |
-
-### 数据提取
-
-```python
-element = page.css_first("div.product")
-
-# 获取文本
-element.text                    # 直接文本内容（含子元素文本）
-element.clean_text              # 清理后的文本（去除多余空白）
-
-# 获取属性
-element.attrib                  # 所有属性的字典 {'class': 'product', 'id': 'item-1'}
-element.attrib['id']            # 单个属性
-element.has_class("product")    # 检查 class
-
-# 获取 HTML
-element.html_content            # 内部 HTML
-str(element)                    # 外部 HTML（含自身标签）
-```
-
-### DOM 导航
-
-```python
-element = page.css_first("#item-1")
-
-element.parent              # 父元素
-element.children            # 所有直接子元素列表
-element.next                # 下一个兄弟元素
-element.previous            # 上一个兄弟元素
-element.descendants         # 所有后代元素
-```
-
-------
-
-## 三大 Fetcher 详解
-
-三大 Fetcher 是 Scrapling 的网络请求层，它们的共同特征是：**无论使用哪个 Fetcher，返回值都是 `Adaptor` 对象，后续解析代码完全不需要改动**。这意味着你可以在开发阶段用轻量的 `Fetcher`，到生产环境遇到反爬时无缝切换为 `StealthyFetcher`。
-
-### Fetcher 对比总览
-
-| 特性                | Fetcher                | StealthyFetcher             | PlayWrightFetcher       |
-| ------------------- | ---------------------- | --------------------------- | ----------------------- |
-| **底层引擎**        | httpx                  | Camoufox (Firefox)          | Playwright (Chromium等) |
-| **JavaScript 渲染** | ❌                      | ✅                           | ✅                       |
-| **反检测能力**      | 基础（自定义 Headers） | 🔥 极强（真实浏览器指纹）    | ⚡ 强（stealth 补丁）    |
-| **性能/速度**       | 🚀 最快                 | 🐢 较慢                      | 🐇 中等                  |
-| **资源消耗**        | 极低                   | 高（启动真实浏览器）        | 中高                    |
-| **适用场景**        | 静态页面、API 接口     | 强反爬网站（Cloudflare 等） | 需要 JS 渲染的 SPA 页面 |
-| **代理支持**        | ✅                      | ✅                           | ✅                       |
-
-### Fetcher — 静态请求
-
-适用于不依赖 JavaScript 渲染的页面，速度最快、资源消耗最低。
-
-```python
-from scrapling import Fetcher
-
-fetcher = Fetcher(auto_match=True)
-
-# 基本 GET 请求
-page = fetcher.get("https://example.com")
-print(page.css_first("h1").text)
-
-# 带请求头和代理
-page = fetcher.get(
-    "https://example.com",
-    headers={"Accept-Language": "zh-CN"},
-    proxies={"https://": "http://proxy:8080"}
-)
-
-# POST 请求
-page = fetcher.post(
-    "https://example.com/api",
-    json={"query": "scrapling"}
-)
-```
-
-### StealthyFetcher — 隐匿浏览器
-
-基于 Camoufox（一个经过深度修改的 Firefox 分支），**专门为绕过高级反爬检测而设计**。它会：
-
-- 生成真实的浏览器指纹（Canvas、WebGL、Audio 指纹均为真实值）
-- 模拟真实的 TLS 握手特征
-- 自动处理 Cookie jar
-
-```python
-from scrapling import StealthyFetcher
-
-stealthy = StealthyFetcher(auto_match=True)
-
-# 基本用法
-page = stealthy.fetch("https://protected-site.com")
-
-# 使用代理
-page = stealthy.fetch(
-    "https://protected-site.com",
-    proxy="http://user:pass@proxy:8080"
-)
-
-# 等待特定元素出现后再提取（处理动态加载）
-page = stealthy.fetch(
-    "https://spa-site.com",
-    wait_selector="div.content-loaded"
-)
-```
-
-### PlayWrightFetcher — 浏览器渲染
-
-适用于需要执行 JavaScript、处理 SPA（单页应用）的场景，同时内置了反检测增强。
-
-```python
-from scrapling import PlayWrightFetcher
-
-pw = PlayWrightFetcher(auto_match=True)
-
-# 基本获取（默认使用 Chromium）
-page = pw.fetch("https://spa-site.com")
-
-# 等待网络空闲（确保 AJAX 请求完成）
-page = pw.fetch(
-    "https://spa-site.com",
-    wait_selector="div.data-ready",
-    network_idle=True
-)
-
-# 在页面中执行自定义 JavaScript
-page = pw.fetch(
-    "https://example.com",
-    js_code="window.scrollTo(0, document.body.scrollHeight);"
-)
-
-# 使用无头模式（默认）或有头模式（调试时）
-page = pw.fetch(
-    "https://example.com",
-    headless=False  # 会弹出浏览器窗口，方便调试
-)
-```
-
-### Fetcher 选型决策流
+可以把 Scrapling 理解为四层：
 
 ```mermaid
 flowchart TD
-    START["需要抓取网页"] --> Q1{"页面需要<br/>JavaScript 渲染？"}
-    Q1 -->|"否"| Q2{"是否有<br/>反爬检测？"}
-    Q1 -->|"是"| Q3{"反爬检测<br/>等级？"}
-    
-    Q2 -->|"无/弱"| R1["✅ Fetcher<br/>速度最快，资源最少"]
-    Q2 -->|"有"| Q4{"需要 JS 渲染？"}
-    Q4 -->|"否"| R1b["✅ Fetcher + 自定义 Headers<br/>尝试模拟浏览器请求头"]
-    Q4 -->|"是"| R2["✅ PlayWrightFetcher"]
-    
-    Q3 -->|"一般<br/>(简单 JS 检查)"| R2["✅ PlayWrightFetcher<br/>JS 渲染 + 基础反检测"]
-    Q3 -->|"强力<br/>(Cloudflare/Akamai)"| R3["✅ StealthyFetcher<br/>真实浏览器指纹"]
-    
-    style R1 fill:#2d6a4f,color:#fff
-    style R2 fill:#1d3557,color:#fff
-    style R3 fill:#6a040f,color:#fff
+    A["目标网站<br>HTML 或动态页面"] --> B["Fetcher 层<br>HTTP 请求或浏览器渲染"]
+    B --> C["Response 对象<br>响应信息加解析能力"]
+    C --> D["Selector 解析层<br>CSS XPath 文本 正则 DOM 遍历"]
+    D --> E["数据结果<br>dict JSON JSONL 数据库 管道"]
+
+    F["Spider 爬虫层"] --> G["Scheduler<br>优先级队列 去重 robots 速率控制"]
+    G --> H["Session Manager<br>HTTP Session 浏览器 Session Stealth Session"]
+    H --> B
+    F --> I["Checkpoint Cache Stats Hooks<br>暂停恢复 开发缓存 统计 生命周期"]
 ```
 
-------
+Spider 系统是 Scrapy 风格的异步爬虫框架，运行流程大致是：Spider 生成初始 `Request`，Scheduler 做优先级队列与去重，Crawler Engine 按并发和延迟规则取请求，Session Manager 根据 `sid` 选择具体会话，Fetcher 返回 `Response`，回调函数再产出数据或新的请求。官方文档还提到它支持并发、多 Session、暂停恢复、响应缓存和统计输出。([Scrapling documentation][3])
 
-## 智能匹配系统（Auto-Match）
+---
 
-这是 Scrapling **最具创新性的核心功能**，解决了爬虫开发中最令人痛苦的维护问题。
+## 核心对象速览
 
-### 问题场景
+| 对象                | 作用                             | 新手理解                                                     |
+| ------------------- | -------------------------------- | ------------------------------------------------------------ |
+| `Selector`          | 解析 HTML 的核心对象             | “一整个页面”或“某个元素”                                     |
+| `Selectors`         | 多个 `Selector` 的列表增强版     | 类似 `list[Selector]`，但多了提取、筛选等方法                |
+| `Response`          | Fetcher 或 Spider 返回的响应对象 | 既能查状态码、headers、cookies，又能像 `Selector` 一样选元素 |
+| `TextHandler`       | 增强版字符串                     | 可像字符串一样用，还支持正则、清洗、JSON 等辅助方法          |
+| `AttributesHandler` | 元素属性容器                     | 用来读取 `href`、`class`、`data-*` 等属性                    |
+| `Request`           | Spider 中的请求对象              | 描述要抓哪个 URL、用哪个回调、哪个 Session                   |
+| `Spider`            | 爬虫主体类                       | 定义入口、解析逻辑、并发策略、生命周期钩子                   |
 
-假设你写了一个爬虫，用 `div.price-box > span.amount` 定位商品价格。三天后目标网站改版，该元素变成了 `section.pricing p.value`。传统做法是：发现报错 → 打开网站 → 检查新结构 → 修改选择器 → 重新部署。**Auto-Match 让这个过程自动化。**
+官方文档明确说明，`Selector` 是 Scrapling 的核心解析引擎；在 Scrapling 中，页面本身、页面中的元素、再往下的子元素，本质上都可以作为 `Selector` 使用。`Response` 则是在 `Selector` 基础上增加了状态码、headers、cookies、body、history、XHR 捕获结果等响应信息。([Scrapling documentation][4]) ([Scrapling documentation][5])
 
-### 工作原理
+---
 
-Auto-Match 不依赖单一的 CSS 路径或 XPath，而是为每个元素构建一个**多维特征向量**，包括：
+## 最小可用示例
 
-| 特征维度       | 说明                                 |
-| -------------- | ------------------------------------ |
-| **文本内容**   | 元素及其子元素的文本内容相似度       |
-| **属性指纹**   | id、class、name、data-* 等属性的集合 |
-| **标签类型**   | 元素标签名（div、span、a 等）        |
-| **结构位置**   | 在 DOM 树中的相对深度和兄弟位置      |
-| **周围上下文** | 父元素、兄弟元素的特征               |
-
-当页面结构变化时，Scrapling 会在新的 DOM 中搜索与原始特征向量**最接近**的元素，从而实现自适应定位。
-
-### 使用方式
+### 抓取普通静态页面
 
 ```python
-from scrapling import Adaptor
+from scrapling.fetchers import Fetcher
 
-# ——— 第一次抓取 ———
-html_v1 = """
-<div class="product-card">
-    <h2 class="product-title">MacBook Pro</h2>
-    <span class="price">¥14999</span>
-</div>
-"""
-page_v1 = Adaptor(html_v1, auto_match=True)
-price = page_v1.css_first(".price")
-print(price.text)  # ¥14999
+page = Fetcher.get("https://quotes.toscrape.com")
 
-# ——— 网站改版后 ———
-html_v2 = """
-<section class="item-box">
-    <h3 class="item-name">MacBook Pro</h3>
-    <div class="pricing">
-        <p class="value">¥14999</p>
-    </div>
-</section>
-"""
-page_v2 = Adaptor(html_v2, auto_match=True)
-
-# 使用 auto_match 重新定位（传入之前的元素作为参照）
-matched = page_v2.auto_match(price)
-print(matched.text)  # ¥14999 — 成功！即使结构完全不同
-```
-
-> **原理洞察**：Auto-Match 本质上是将「基于路径的精确匹配」升级为「基于特征的模糊匹配」。这类似于人类识别网页——你不是通过 DOM 路径找到价格的，而是通过「看起来像价格的那个元素」找到的。
-
-### 相似元素发现
-
-另一个强大的相关功能是 `find_similar()`——找到与给定元素"长得像"的所有同类元素：
-
-```python
-page = Adaptor(html, auto_match=True)
-first_product = page.css_first("div.product")
-
-# 找到所有结构相似的产品卡片
-all_products = first_product.find_similar()
-for product in all_products:
-    print(product.css_first("h2").text)
-```
-
-这在抓取列表页时特别有用——你只需要精确定位一个列表项，Scrapling 会自动发现页面中所有同类项。
-
-------
-
-## 反检测机制深度解析
-
-现代网站的反爬体系是多层次的。Scrapling 在多个层面提供了对抗能力：
-
-```mermaid
-graph LR
-    subgraph "反爬检测层次"
-        L1["L1: HTTP 头检测<br/>User-Agent / Referer / Accept"]
-        L2["L2: TLS 指纹检测<br/>JA3/JA4 指纹"]
-        L3["L3: JS 行为检测<br/>navigator.webdriver"]
-        L4["L4: 浏览器指纹<br/>Canvas / WebGL / Audio"]
-        L5["L5: 行为分析<br/>鼠标轨迹 / 点击模式"]
-    end
-
-    subgraph "Scrapling 对抗"
-        S1["Fetcher:<br/>自定义 Headers"]
-        S2["StealthyFetcher:<br/>Camoufox 真实 TLS"]
-        S3["PlayWrightFetcher:<br/>stealth 补丁去除 webdriver 标记"]
-        S4["StealthyFetcher:<br/>真实 Firefox 指纹"]
-        S5["需要自行补充<br/>（结合 page action）"]
-    end
-
-    L1 --- S1
-    L2 --- S2
-    L3 --- S3
-    L4 --- S4
-    L5 --- S5
-```
-
-| 检测手段                 | 详细说明                                     | Fetcher      | StealthyFetcher    | PlayWrightFetcher   |
-| ------------------------ | -------------------------------------------- | ------------ | ------------------ | ------------------- |
-| **HTTP 头异常**          | 缺少正常浏览器的 Accept/Language/Encoding 头 | ⚠️ 需手动设置 | ✅ 自动伪装         | ✅ 自动伪装          |
-| **TLS 指纹 (JA3)**       | httpx/requests 的 TLS 握手特征与浏览器不同   | ❌ 无法规避   | ✅ 真实 Firefox TLS | ✅ 真实 Chromium TLS |
-| **navigator.webdriver**  | Selenium/Playwright 默认会暴露自动化标记     | N/A          | ✅ 已移除           | ✅ stealth 插件处理  |
-| **Canvas 指纹**          | 通过绘制图形获取设备唯一标识                 | N/A          | ✅ 真实渲染         | ⚠️ 部分可被检测      |
-| **Cloudflare Turnstile** | 综合挑战验证                                 | ❌            | ✅ 高通过率         | ⚠️ 视具体情况        |
-
-------
-
-## 实战案例
-
-### 案例一：抓取静态商品列表
-
-```python
-from scrapling import Fetcher
-
-fetcher = Fetcher()
-
-page = fetcher.get("https://books.toscrape.com/")
-
-# 提取所有书籍信息
-books = page.css("article.product_pod")
-for book in books:
-    title = book.css_first("h3 a").attrib["title"]
-    price = book.css_first("p.price_color").text
-    rating = book.css_first("p.star-rating").attrib["class"]  # "star-rating Three" 等
-    print(f"{title} | {price} | {rating}")
-```
-
-### 案例二：处理 JavaScript 渲染的 SPA
-
-```python
-from scrapling import PlayWrightFetcher
-
-pw = PlayWrightFetcher()
-
-# 抓取需要 JS 渲染的页面
-page = pw.fetch(
-    "https://quotes.toscrape.com/js/",
-    wait_selector="div.quote",     # 等待名言元素加载完成
-    network_idle=True              # 等待网络请求结束
-)
-
-quotes = page.css("div.quote")
-for quote in quotes:
-    text = quote.css_first("span.text").text
-    author = quote.css_first("small.author").text
-    tags = [tag.text for tag in quote.css("a.tag")]
-    print(f"「{text}」—— {author}  标签: {', '.join(tags)}")
-```
-
-### 案例三：突破反爬保护
-
-```python
-from scrapling import StealthyFetcher
-
-stealthy = StealthyFetcher()
-
-# 对付 Cloudflare 保护的网站
-page = stealthy.fetch(
-    "https://cloudflare-protected-site.com",
-    proxy="http://user:pass@residential-proxy:8080",  # 住宅代理效果最好
-)
-
-# 返回的依然是标准 Adaptor，操作方式完全一致
-data = page.css_first("div.main-content")
-print(data.text)
-```
-
-### 案例四：利用 Auto-Match 构建健壮爬虫
-
-```python
-from scrapling import Fetcher, Adaptor
-
-fetcher = Fetcher(auto_match=True)
-
-# 首次运行：正常抓取并"记住"目标元素
-page = fetcher.get("https://news-site.com")
-headline = page.css_first("h1.main-headline")
-print(headline.text)
-
-# 假设一周后网站改版了...
-# auto_match=True 的情况下，Scrapling 会在内部维护元素特征
-# 即使 CSS 类名变了，依然能基于文本/属性/位置特征找到对应元素
-page_new = fetcher.get("https://news-site.com")
-matched_headline = page_new.auto_match(headline)
-if matched_headline:
-    print(f"匹配成功: {matched_headline.text}")
-```
-
-------
-
-## 与其他框架对比
-
-| 维度         | Scrapling                        | BeautifulSoup  | Scrapy                                       | Selenium                     | Playwright             |
-| ------------ | -------------------------------- | -------------- | -------------------------------------------- | ---------------------------- | ---------------------- |
-| **定位**     | 一站式抓取+解析                  | 纯解析器       | 完整爬虫框架                                 | 浏览器自动化                 | 浏览器自动化           |
-| **解析速度** | 🚀 极快 (lxml)                    | 🐢 较慢         | 🚀 快 (lxml/parsel)                           | N/A                          | N/A                    |
-| **JS 渲染**  | ✅ 内置                           | ❌              | 需要 Splash/Playwright 中间件                | ✅                            | ✅                      |
-| **反检测**   | ✅ 内置                           | ❌              | 需要中间件                                   | 需要 undetected-chromedriver | 需要 stealth 插件      |
-| **智能匹配** | ✅ 独有                           | ❌              | ❌                                            | ❌                            | ❌                      |
-| **学习曲线** | 低                               | 低             | 高（需学习 Spider/Pipeline/Middleware 体系） | 中                           | 中                     |
-| **分布式**   | ❌ 不内置                         | N/A            | ✅ Scrapy-Redis 等                            | ❌                            | ❌                      |
-| **适合场景** | 中小规模抓取、反爬对抗、快速原型 | 简单 HTML 解析 | 大规模生产级爬虫                             | 功能测试/简单爬虫            | 功能测试/现代 Web 爬虫 |
-
-**关键洞察：**
-
-- **Scrapling vs BeautifulSoup**：Scrapling 在解析层面是 BeautifulSoup 的超集，速度更快、功能更多，且附带请求能力。新项目几乎没有选 BS4 的理由。
-- **Scrapling vs Scrapy**：Scrapy 是「工业级爬虫框架」，强在分布式调度、Pipeline 数据处理、中间件体系。如果你需要抓百万级页面，Scrapy 更合适。Scrapling 强在「单兵作战」和反检测。
-- **Scrapling vs Playwright**：如果你只需要浏览器自动化（比如 E2E 测试），用 Playwright 原生 API。但如果目标是「抓数据」，Scrapling 封装了更好的解析和反检测能力。
-
-------
-
-## 最佳实践指南
-
-### 请求策略
-
-```python
-import time
-import random
-
-fetcher = Fetcher(auto_match=True)
-
-urls = ["https://example.com/page/1", "https://example.com/page/2", ...]
-
-for url in urls:
-    page = fetcher.get(
-        url,
-        headers={
-            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-            "Accept": "text/html,application/xhtml+xml",
-        }
-    )
-    # ... 提取数据 ...
-    
-    # ✅ 随机延迟，模拟人类行为
-    time.sleep(random.uniform(1.5, 4.0))
-```
-
-### 错误处理与重试
-
-```python
-from scrapling import Fetcher
-
-fetcher = Fetcher()
-
-def safe_fetch(url, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            page = fetcher.get(url)
-            # 验证页面是否正常加载（而非反爬拦截页）
-            if page.css_first("div.main-content"):
-                return page
-            print(f"页面结构异常，重试 {attempt + 1}/{max_retries}")
-        except Exception as e:
-            print(f"请求失败: {e}，重试 {attempt + 1}/{max_retries}")
-        time.sleep(2 ** attempt)  # 指数退避
-    return None
-```
-
-### 渐进式 Fetcher 升级策略
-
-**核心思想：永远从最轻量的方案开始，遇到阻碍再逐步升级。**
-
-```mermaid
-flowchart LR
-    A["① Fetcher<br/>先尝试静态请求"] -->|"被拦截 / 内容为空"| B["② PlayWrightFetcher<br/>启用 JS 渲染"]
-    B -->|"仍被检测"| C["③ StealthyFetcher<br/>全隐匿模式"]
-    C -->|"仍有问题"| D["④ StealthyFetcher<br/>+ 住宅代理"]
-    
-    style A fill:#2d6a4f,color:#fff
-    style B fill:#1d3557,color:#fff
-    style C fill:#6a040f,color:#fff
-    style D fill:#3d0000,color:#fff
-```
-
-### 选择器健壮性原则
-
-```python
-# ❌ 脆弱：依赖完整路径和精确类名
-page.css_first("body > div.wrapper > main > section:nth-child(2) > div.row > div.col-md-8 > article > h2")
-
-# ✅ 健壮：使用语义化属性（id、data-*）
-page.css_first("[data-testid='article-title']")
-page.css_first("#main-article h2")
-
-# ✅ 更健壮：启用 auto_match 作为兜底
-page = Adaptor(html, auto_match=True)
-```
-
-**选择器健壮性优先级（从优到劣）：**
-
-| 优先级 | 策略                     | 示例                                 | 稳定性 |
-| ------ | ------------------------ | ------------------------------------ | ------ |
-| 最优   | `data-*` 属性或唯一 `id` | `[data-product-id]`, `#checkout-btn` | ⭐⭐⭐⭐⭐  |
-| 良好   | 语义化标签 + 简短路径    | `article h2`, `nav a`                | ⭐⭐⭐⭐   |
-| 一般   | 类名选择器               | `.product-title`                     | ⭐⭐⭐    |
-| 较差   | 长路径嵌套               | `div > div > div > span`             | ⭐⭐     |
-| 最差   | nth-child 位置依赖       | `tr:nth-child(3) > td:nth-child(2)`  | ⭐      |
-
-### 数据管道建议
-
-Scrapling 本身不提供数据存储能力（不像 Scrapy 的 Pipeline），建议自行组合：
-
-```python
-import json
-import csv
-from scrapling import Fetcher
-
-fetcher = Fetcher()
-results = []
-
-for url in urls:
-    page = fetcher.get(url)
+for quote in page.css("div.quote"):
     item = {
-        "title": page.css_first("h1").text,
-        "price": page.css_first(".price").text,
-        "url": url,
+        "text": quote.css("span.text::text").get(""),
+        "author": quote.css("small.author::text").get(""),
     }
-    results.append(item)
-
-# 存储为 JSON
-with open("output.json", "w", encoding="utf-8") as f:
-    json.dump(results, f, ensure_ascii=False, indent=2)
-
-# 或存储为 CSV
-with open("output.csv", "w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=results[0].keys())
-    writer.writeheader()
-    writer.writerows(results)
+    print(item)
 ```
 
-------
+这里 `Fetcher.get()` 返回的是 `Response`。它既有 `page.status`、`page.headers`、`page.cookies` 等响应字段，也可以直接使用 `.css()`、`.xpath()`、`.get()`、`.getall()` 做解析。([Scrapling documentation][5])
 
-## 注意事项与局限
+---
 
-| 方面                          | 说明                                                         |
-| ----------------------------- | ------------------------------------------------------------ |
-| **项目成熟度**                | Scrapling 相对年轻，生态和社区不如 Scrapy/BeautifulSoup 成熟，文档可能更新较快 |
-| **分布式支持**                | 不内置分布式调度，大规模抓取需要自行结合消息队列（Redis/RabbitMQ） |
-| **Auto-Match 不是万能的**     | 如果页面彻底重构（连文本内容都变了），智能匹配也可能失败，仍需人工干预 |
-| **浏览器 Fetcher 的资源消耗** | `StealthyFetcher` 和 `PlayWrightFetcher` 每次请求启动浏览器进程，不适合高并发场景 |
-| **法律合规**                  | 绕过反爬保护在某些法律管辖区可能存在法律风险，务必遵守目标网站的 robots.txt 和服务条款 |
+## Selector 解析基础
 
-------
+Scrapling 的选择器用法接近 Scrapy / Parsel，也容易被 BeautifulSoup 用户理解。常见方式如下：
 
-## 总结：何时选择 Scrapling
+| 需求             | 推荐写法                                          | 说明             |
+| ---------------- | ------------------------------------------------- | ---------------- |
+| 选所有商品块     | `page.css(".product")`                            | 返回 `Selectors` |
+| 选第一个标题文本 | `page.css("h1::text").get("")`                    | 空时返回默认值   |
+| 选所有链接       | `page.css("a::attr(href)").getall()`              | 返回所有 href    |
+| XPath 选文本     | `page.xpath("//h1/text()").get()`                 | XPath 风格       |
+| 取元素属性       | `element["href"]` 或 `element.attrib.get("href")` | 读取属性         |
+| 取元素下所有文本 | `element.get_all_text(strip=True)`                | 递归获取文本     |
+| 正则提取         | `text.re_first(r"\d+")`                           | 从文本里提数字   |
+
+从 v0.4 起，`Selector` 和 `Selectors` 都提供 `get()`、`getall()`，并保留 `extract_first`、`extract` 作为 Scrapy 风格别名；旧的 `get_all()` 已移除。CSS 的 `::text`、`::attr()` 和 XPath 的 `/text()`、`/@attr` 也会以 `Selector` 形式包装，便于 API 行为保持一致。([Scrapling documentation][4])
+
+---
+
+## `get()`、`getall()`、`.text` 的区别
+
+新手常见困惑是：为什么 `article.text` 为空？
+
+原因是 `.text` 通常表示当前元素的“直接文本”，不一定包含子元素文本。若想递归拿到内部所有文本，应使用 `get_all_text()`。官方文档示例中，`article.text` 可能为空，而 `article.get_all_text()` 会返回子节点中的标题、描述、价格、库存等文本。([Scrapling documentation][4])
+
+| 方法              | 返回内容                           | 适合场景                           |
+| ----------------- | ---------------------------------- | ---------------------------------- |
+| `.text`           | 当前节点直接文本                   | 标签内部直接就是文字               |
+| `.get()`          | 第一个匹配结果的序列化内容或文本值 | 提单个字段                         |
+| `.getall()`       | 所有匹配结果                       | 提列表                             |
+| `.get_all_text()` | 当前元素及子元素的文本             | 提整块内容                         |
+| `.json()`         | 把可 JSON 化文本解析为 Python 对象 | `<script type="application/json">` |
+
+---
+
+## DOM 遍历能力
+
+Scrapling 不只支持 CSS / XPath，也支持 DOM 关系导航：
+
+| 能力         | 示例                            | 说明               |
+| ------------ | ------------------------------- | ------------------ |
+| 父元素       | `element.parent`                | 找上一级           |
+| 子元素       | `element.children`              | 直接子节点         |
+| 后代元素     | `element.below_elements`        | 所有下级元素       |
+| 兄弟元素     | `element.siblings`              | 同级节点           |
+| 下一个元素   | `element.next`                  | 下一个兄弟         |
+| 上一个元素   | `element.previous`              | 上一个兄弟         |
+| 是否有 class | `element.has_class("product")`  | 快速判断           |
+| 查找祖先     | `element.find_ancestor(...)`    | 根据条件找父级链   |
+| 生成选择器   | `element.generate_css_selector` | 调试或持久化选择器 |
+
+官方文档强调，`Selectors` 是 `Selector` 的“列表版”，继承 Python 标准 `list`，同时增加了更方便的批量操作，例如继续 `.css()`、`.xpath()`、`.re()`、`.search()`、`.filter()`、`.first`、`.last`、`.length` 等。([Scrapling documentation][4]) ([Scrapling documentation][4])
+
+---
+
+## Fetcher 选择指南
+
+Scrapling 官方提供三类主要 Fetcher，并且每类都有对应 Session 类。官方文档给出的定位是：`Fetcher` 用于 HTTP 请求，`DynamicFetcher` 用于动态加载页面，`StealthyFetcher` 用于动态页面且反爬较强的场景。([Scrapling documentation][5])
+
+| Fetcher           | 是否执行 JS | 速度 | 资源占用 | 适合场景                       | 不适合场景             |
+| ----------------- | ----------: | ---: | -------: | ------------------------------ | ---------------------- |
+| `Fetcher`         |          否 |   快 |       低 | 静态 HTML、API、分页列表       | 必须浏览器渲染的站点   |
+| `AsyncFetcher`    |          否 | 很快 |       低 | 大量 HTTP 并发请求             | JS 渲染页面            |
+| `DynamicFetcher`  |          是 |   中 |     中高 | SPA、懒加载、简单浏览器自动化  | 强反爬站点             |
+| `StealthyFetcher` |          是 |   中 |     中高 | Cloudflare、指纹检测、复杂反爬 | 纯静态页面的大规模抓取 |
+
+官方文档还说明，`Fetcher` 使用 `curl_cffi` 作为高性能 HTTP 引擎，并支持浏览器 TLS 指纹模拟、真实浏览器 headers、HTTP/3、cookies、代理、重试、超时、证书验证等参数。([Scrapling documentation][6])
+
+---
+
+## `Fetcher` 常用参数
+
+| 参数                | 作用                       | 建议                                          |
+| ------------------- | -------------------------- | --------------------------------------------- |
+| `timeout`           | 请求超时                   | 生产环境必须设置合理值                        |
+| `retries`           | 失败重试次数               | 网络不稳定时开启                              |
+| `retry_delay`       | 重试间隔                   | 避免立即重试造成压力                          |
+| `headers`           | 自定义 headers             | 只覆盖必要字段                                |
+| `cookies`           | 传入 cookies               | 登录态或区域化内容                            |
+| `proxy` / `proxies` | 静态代理                   | 少量代理场景                                  |
+| `proxy_rotator`     | 代理轮换                   | 规模化抓取                                    |
+| `impersonate`       | 浏览器 TLS 指纹            | 建议优先用 `"chrome"`、`"firefox"` 等通用值   |
+| `stealthy_headers`  | 自动生成真实浏览器 headers | 默认启用，通常保留                            |
+| `follow_redirects`  | 跟随重定向                 | 默认 `"safe"`，会避免内部或私有 IP 重定向风险 |
+| `selector_config`   | 针对本次请求配置解析器     | 特定页面需要不同解析选项时用                  |
+
+官方文档提到，当启用 `impersonate` 或 `stealthy_headers` 时，Fetcher 会自动生成与浏览器版本匹配的真实浏览器 headers；`follow_redirects` 默认值为 `"safe"`，会跟随重定向但拒绝指向内部或私有 IP 的重定向，以降低 SSRF 风险。([Scrapling documentation][6])
+
+---
+
+## 动态页面抓取
+
+当页面源码里没有目标数据，数据由 JavaScript 后续加载时，需要浏览器 Fetcher。
+
+```python
+from scrapling.fetchers import DynamicFetcher
+
+page = DynamicFetcher.fetch(
+    "https://example.com/products",
+    headless=True,
+    wait_selector=".product",
+    network_idle=True,
+)
+
+for product in page.css(".product"):
+    print(product.css("h2::text").get(""))
+```
+
+常见判断标准：
+
+| 现象                                 | 解释                 | 解决                                                |
+| ------------------------------------ | -------------------- | --------------------------------------------------- |
+| 浏览器能看到，`Fetcher.get()` 抓不到 | 内容由 JS 渲染       | 用 `DynamicFetcher`                                 |
+| 页面会懒加载                         | 滚动或等待后才出现   | 用浏览器等待条件或页面动作                          |
+| 数据来自 XHR / Fetch                 | 前端请求 API         | 优先直接抓 API，或启用 XHR 捕获                     |
+| 页面有 Bot 验证                      | 普通浏览器也可能被拦 | 用 `StealthyFetcher` 或 Spider 中的 stealth session |
+
+Scrapling 的浏览器 Session 可以接收诸如 `wait_selector`、`network_idle`、`page_action`、`extra_headers` 等浏览器相关参数；文档中的 Spider Session 示例也展示了 `capture_xhr` 用于捕获后台 API 调用。([Scrapling documentation][7])
+
+---
+
+## 强反爬页面与 `StealthyFetcher`
+
+`StealthyFetcher` 面向“动态页面 + 较强保护”的场景。官方文档将它定位为用于 hard protections 的 Fetcher，并提供 Cloudflare、浏览器自动化、等待条件、Session 管理、Camoufox 引擎等相关用法入口。([Scrapling documentation][8])
+
+典型用法：
+
+```python
+from scrapling.fetchers import StealthyFetcher
+
+page = StealthyFetcher.fetch(
+    "https://example.com",
+    headless=True,
+    network_idle=True,
+)
+
+print(page.css("title::text").get(""))
+```
+
+注意：反爬能力不是“无限通行证”。更稳的工程策略通常是：
+
+| 策略                                 | 原因                       |
+| ------------------------------------ | -------------------------- |
+| 优先找公开 API 或页面内 JSON         | 比浏览器渲染稳定、便宜、快 |
+| 先用 `Fetcher`，失败后再升级到浏览器 | 节省资源                   |
+| 对不同域名设置并发和延迟             | 降低封禁概率               |
+| 识别 403、429、503 等状态            | 及时切换代理或降速         |
+| 记录每次请求使用的代理和 Session     | 方便排障                   |
+| 尊重 robots.txt、服务条款和法律边界  | 降低合规风险               |
+
+---
+
+## Response 对象
+
+`Response` 是 Scrapling 中非常重要的对象。它一方面是网页解析入口，另一方面保存 HTTP 响应元数据。
+
+常用字段：
+
+| 字段                       | 含义                                     |
+| -------------------------- | ---------------------------------------- |
+| `response.status`          | HTTP 状态码                              |
+| `response.reason`          | 状态描述                                 |
+| `response.headers`         | 响应 headers                             |
+| `response.request_headers` | 请求 headers                             |
+| `response.cookies`         | 响应 cookies                             |
+| `response.history`         | 重定向历史                               |
+| `response.body`            | 原始响应体，Fetcher 返回时始终是 `bytes` |
+| `response.encoding`        | 编码                                     |
+| `response.meta`            | 元信息，例如代理                         |
+| `response.captured_xhr`    | 浏览器 Session 捕获到的 XHR / Fetch 响应 |
+
+官方文档明确说明，所有 Fetcher 都返回 `Response` 对象；从 v0.4 开始，Fetcher 返回的 `Response.body` 始终是 bytes。([Scrapling documentation][5])
+
+---
+
+## Adaptive Scraping 自适应抓取
+
+Adaptive scraping 是 Scrapling 的招牌能力之一。它的目标是解决“页面改版后选择器失效”的问题。官方文档解释说，它会在首次选中元素时保存元素的独特属性；当未来同一选择器找不到元素时，再根据相似度在新页面中重新定位最相似的元素。([Scrapling documentation][9])
+
+基本思路：
+
+```python
+from scrapling.fetchers import Fetcher
+
+Fetcher.configure(adaptive=True)
+
+page = Fetcher.get("https://example.com/products")
+
+# 第一次：正常选择，并保存元素特征
+products = page.css(".product", auto_save=True)
+
+# 未来页面结构变了：原选择器失效时，尝试 adaptive 匹配
+products = page.css(".product", adaptive=True)
+```
+
+它大致分为两个阶段：
+
+| 阶段        | 发生时间       | 做什么                         |
+| ----------- | -------------- | ------------------------------ |
+| Save Phase  | 选择器还有效时 | 保存目标元素的特征             |
+| Match Phase | 选择器失效时   | 在新页面中寻找相似度最高的元素 |
+
+`adaptive_domain` 用于告诉 Scrapling：即使 URL 域名发生变化，也应把它当作同一个站点的自适应数据来使用。官方文档用 StackOverflow 旧版与新版页面示例说明了这个参数的用途。([Scrapling documentation][9])
+
+适合使用 Adaptive 的字段：
+
+| 字段类型           | 是否推荐 | 原因                     |
+| ------------------ | -------: | ------------------------ |
+| 商品卡片           |     推荐 | 结构容易改，但语义稳定   |
+| 标题、价格、作者   |     推荐 | 文本和上下文有特征       |
+| 登录按钮、导航按钮 |     推荐 | 页面改版后仍可能保留语义 |
+| 广告位、推荐位     |     谨慎 | 变化频繁，相似元素多     |
+| 无明显特征的空容器 |   不推荐 | 容易匹配错               |
+
+实践建议：不要把 Adaptive 当成替代工程维护的“魔法”。它适合提升鲁棒性，但仍应配合字段校验、日志、报警和测试。
+
+---
+
+## Spider 爬虫系统
+
+当你需要抓很多页、跟随链接、控制并发、保存结果、处理中断恢复时，就应该使用 Spider。
+
+最小 Spider：
+
+```python
+from scrapling.spiders import Spider, Response
+
+class QuotesSpider(Spider):
+    name = "quotes"
+    start_urls = ["https://quotes.toscrape.com"]
+
+    async def parse(self, response: Response):
+        for quote in response.css("div.quote"):
+            yield {
+                "text": quote.css("span.text::text").get(""),
+                "author": quote.css("small.author::text").get(""),
+            }
+
+result = QuotesSpider().start()
+
+for item in result.items:
+    print(item)
+
+result.items.to_json("quotes.json", indent=True)
+```
+
+官方文档说明，一个基础 Spider 需要 `name`、`start_urls` 和异步生成器 `parse()`；`start()` 会处理异步运行细节，并返回包含 items 和 stats 的 `CrawlResult`。结果支持导出为 JSON 和 JSONL。([Scrapling documentation][10])
+
+---
+
+## 跟随链接与分页
+
+```python
+from scrapling.spiders import Spider, Response
+
+class QuotesSpider(Spider):
+    name = "quotes"
+    start_urls = ["https://quotes.toscrape.com"]
+    allowed_domains = {"quotes.toscrape.com"}
+
+    async def parse(self, response: Response):
+        for quote in response.css("div.quote"):
+            yield {
+                "text": quote.css("span.text::text").get(""),
+                "author": quote.css("small.author::text").get(""),
+            }
+
+        next_page = response.css("li.next a::attr(href)").get()
+        if next_page:
+            yield response.follow(next_page, callback=self.parse)
+```
+
+`response.follow()` 会自动把相对 URL 和当前页面 URL 拼接，并默认设置当前页面为 `Referer`。官方文档也提醒，所有回调方法都必须是使用 `async def` 和 `yield` 的异步生成器。([Scrapling documentation][10])
+
+---
+
+## Spider 并发、限速与 robots.txt
+
+Spider 支持通过类属性控制抓取强度：
+
+| 属性                             |  默认值 | 作用                               |
+| -------------------------------- | ------: | ---------------------------------- |
+| `concurrent_requests`            |     `4` | 全局最大并发请求数                 |
+| `concurrent_requests_per_domain` |     `0` | 每个域名的最大并发，`0` 表示不限制 |
+| `download_delay`                 |   `0.0` | 每个请求前等待的秒数               |
+| `robots_txt_obey`                | `False` | 是否遵守 robots.txt                |
+
+示例：
+
+```python
+from scrapling.spiders import Spider, Response
+
+class PoliteSpider(Spider):
+    name = "polite"
+    start_urls = ["https://example.com"]
+
+    concurrent_requests = 4
+    concurrent_requests_per_domain = 2
+    download_delay = 1.0
+    robots_txt_obey = True
+
+    async def parse(self, response: Response):
+        yield {"title": response.css("title::text").get("")}
+```
+
+官方文档指出，`download_delay` 是简单的固定限速；启用 `robots_txt_obey` 后，Spider 会检查 robots.txt 的 `Disallow`，并尊重 `Crawl-delay` 和 `Request-rate`，但 robots.txt 遵守默认关闭。([Scrapling documentation][11]) ([Scrapling documentation][10])
+
+---
+
+## 多 Session 爬虫
+
+Scrapling Spider 的一个实用设计是：同一个 Spider 可以同时使用多个 Session。例如列表页用便宜快速的 HTTP 请求，详情页遇到保护时再切换到 stealth browser。
+
+```python
+from scrapling.spiders import Spider, Response
+from scrapling.fetchers import FetcherSession, AsyncStealthySession
+
+class ProductSpider(Spider):
+    name = "products"
+    start_urls = ["https://shop.example.com/products"]
+
+    def configure_sessions(self, manager):
+        manager.add("http", FetcherSession(), default=True)
+
+        manager.add(
+            "stealth",
+            AsyncStealthySession(
+                headless=True,
+                network_idle=True,
+                capture_xhr=r"https://api\.shop\.example\.com/.*",
+            ),
+            lazy=True,
+        )
+
+    async def parse(self, response: Response):
+        for link in response.css("a.product::attr(href)").getall():
+            yield response.follow(
+                link,
+                sid="stealth",
+                callback=self.parse_product,
+            )
+
+        next_page = response.css("a.next::attr(href)").get()
+        if next_page:
+            yield response.follow(next_page, callback=self.parse)
+
+    async def parse_product(self, response: Response):
+        yield {
+            "name": response.css("h1::text").get(""),
+            "price": response.css(".price::text").get(""),
+        }
+```
+
+官方文档说明，Session 是在爬取期间保持存活的预配置 Fetcher 实例，可避免每次请求都新建连接或浏览器；Spider 默认会创建一个 `FetcherSession`，也可以通过 `configure_sessions()` 添加多个 Session，并通过请求上的 `sid` 选择使用哪一个。([Scrapling documentation][7])
+
+---
+
+## ProxyRotator 与代理轮换
+
+规模化抓取时，代理管理非常重要。Scrapling 提供 `ProxyRotator`，可以把代理轮换逻辑交给框架。
+
+```python
+from scrapling.spiders import Spider, Response
+from scrapling.fetchers import FetcherSession, ProxyRotator
+
+class MySpider(Spider):
+    name = "proxy_demo"
+    start_urls = ["https://example.com"]
+
+    def configure_sessions(self, manager):
+        rotator = ProxyRotator([
+            "http://proxy1:8080",
+            "http://proxy2:8080",
+            "http://user:pass@proxy3:8080",
+        ])
+        manager.add("default", FetcherSession(proxy_rotator=rotator))
+
+    async def parse(self, response: Response):
+        print("Proxy used:", response.meta.get("proxy"))
+        yield {"title": response.css("title::text").get("")}
+```
+
+官方文档说明，`ProxyRotator` 默认按循环方式轮换代理，也可以自定义随机或加权策略；每次请求使用的代理会写入 `response.meta["proxy"]`，便于调试和统计。对于浏览器 Session，代理格式可以使用 Playwright 风格字典；同一个 Session 中不能同时使用 `proxy_rotator` 和静态 `proxy` / `proxies`。([Scrapling documentation][12])
+
+---
+
+## 被封禁检测与重试
+
+Spider 内置了 blocked request detection。默认会把 `401`、`403`、`407`、`429`、`444`、`500`、`502`、`503`、`504` 视为可能的 blocked 状态码，并调用 `is_blocked()` 与 `retry_blocked_request()` 处理重试。默认 blocked 重试次数是 `max_blocked_retries = 3`。([Scrapling documentation][12])
+
+实用策略：先用便宜 HTTP Session，发现被封后切换到 Stealth Session。
+
+```python
+from scrapling.spiders import Spider, Request, Response, SessionManager
+from scrapling.fetchers import FetcherSession, AsyncStealthySession
+
+class ResilientSpider(Spider):
+    name = "resilient"
+    start_urls = ["https://example.com"]
+    max_blocked_retries = 5
+
+    def configure_sessions(self, manager: SessionManager):
+        manager.add(
+            "http",
+            FetcherSession(impersonate=["chrome", "firefox", "safari"]),
+            default=True,
+        )
+        manager.add(
+            "stealth",
+            AsyncStealthySession(block_webrtc=True),
+            lazy=True,
+        )
+
+    async def is_blocked(self, response: Response) -> bool:
+        if response.status in {403, 429, 503}:
+            return True
+
+        body = response.body.decode("utf-8", errors="ignore").lower()
+        return "access denied" in body or "rate limit" in body
+
+    async def retry_blocked_request(
+        self,
+        request: Request,
+        response: Response,
+    ) -> Request:
+        request.sid = "stealth"
+        self.logger.info(f"Retrying with stealth session: {request.url}")
+        return request
+
+    async def parse(self, response: Response):
+        yield {"title": response.css("title::text").get("")}
+```
+
+官方文档也给出了类似思路：请求先用普通 Session 与便宜代理，被封后再切换到 stealth browser 或更高质量代理。([Scrapling documentation][12])
+
+---
+
+## 暂停恢复与开发缓存
+
+对于长时间运行的爬虫，Scrapling 支持 checkpoint。传入 `crawldir` 后，按 `Ctrl+C` 会优雅暂停，保存待抓请求和已见请求指纹；下次使用同一 `crawldir` 运行时会恢复队列并跳过 `start_requests()`。官方文档还说明，正常完成后 checkpoint 会自动清理，默认每 5 分钟也会周期性保存。([Scrapling documentation][11])
+
+```python
+spider = MySpider(crawldir="crawl_data/my_spider")
+result = spider.start()
+
+if result.paused:
+    print("Crawl paused. Run again to resume.")
+```
+
+开发阶段可以开启 `development_mode`，第一次运行正常抓取并缓存响应，后续运行直接从磁盘回放响应，避免反复打目标服务器，也方便调试解析逻辑。但官方明确提醒：开发缓存不会自动过期，且回放会绕过限速和 blocked retry，因此不要在生产环境开启。([Scrapling documentation][11])
+
+```python
+class MySpider(Spider):
+    name = "dev_demo"
+    start_urls = ["https://example.com"]
+    development_mode = True
+
+    async def parse(self, response: Response):
+        yield {"title": response.css("title::text").get("")}
+```
+
+---
+
+## 流式输出与生命周期钩子
+
+对于长爬虫、UI、数据管道，可以使用 `stream()` 实时消费数据：
+
+```python
+import anyio
+
+async def main():
+    spider = MySpider()
+
+    async for item in spider.stream():
+        print("Got item:", item)
+        print("Items so far:", spider.stats.items_scraped)
+
+anyio.run(main)
+```
+
+`stream()` 必须在异步上下文中调用，数据会逐条产生，而不是等全部爬完再返回列表。Scrapling 还提供多个生命周期钩子：`on_start()`、`on_close()`、`on_error()`、`on_scraped_item()`、`start_requests()`，可用于初始化资源、清理连接、记录错误、过滤或加工 item、自定义初始请求。([Scrapling documentation][11])
+
+常见用途：
+
+| 钩子                | 用途                                    |
+| ------------------- | --------------------------------------- |
+| `on_start()`        | 加载种子 URL、连接数据库、初始化状态    |
+| `on_close()`        | 关闭数据库连接、写入汇总文件            |
+| `on_error()`        | 保存失败 URL、接入错误监控              |
+| `on_scraped_item()` | 清洗字段、补充时间戳、丢弃无效 item     |
+| `start_requests()`  | 登录、POST 初始化、从数据库生成入口请求 |
+
+---
+
+## 结果与统计
+
+`start()` 返回的 `CrawlResult` 包含 items 和 stats：
+
+```python
+result = MySpider().start()
+
+result.items.to_json("output.json", indent=True)
+result.items.to_jsonl("output.jsonl")
+
+stats = result.stats
+print(stats.requests_count)
+print(stats.failed_requests_count)
+print(stats.blocked_requests_count)
+print(stats.items_scraped)
+print(stats.requests_per_second)
+```
+
+官方文档列出的统计项包括请求数、失败数、blocked 数、offsite 过滤数、robots.txt 禁止数、缓存命中与未命中、抓取 item 数、丢弃 item 数、响应字节数、耗时、速度、状态码分布、每域名下载字节、每 Session 请求数、使用过的代理和日志等级计数等。([Scrapling documentation][11])
+
+---
+
+## CLI 与交互式 Shell
+
+Scrapling CLI 适合快速验证页面、提取内容、调试选择器：
+
+```bash
+scrapling shell
+
+scrapling extract get "https://example.com" content.md
+
+scrapling --help
+scrapling extract --help
+```
+
+CLI 的价值在于：你不必每次都写脚本才能试选择器、看响应、抽取内容。新手可以先用 CLI / Shell 探索页面结构，再把稳定逻辑迁移到 Python 脚本或 Spider。官方文档说明 CLI 提供交互式 Shell、无代码终端提取和安装管理工具三类能力。([Scrapling documentation][2])
+
+---
+
+## 选择器编写最佳实践
+
+| 做法                                | 推荐程度 | 原因               |
+| ----------------------------------- | -------: | ------------------ |
+| 用语义化 class、id、data 属性       |       高 | 稳定、清晰         |
+| 从列表容器开始逐层提取              |       高 | 降低误匹配         |
+| 对字段设置默认值                    |       高 | 避免空结果报错     |
+| 对价格、日期、URL 做清洗            |       高 | 便于入库           |
+| 使用 `.first`、`.last` 防止索引错误 |     中高 | 比 `[0]` 更安全    |
+| 依赖完整绝对 XPath                  |       低 | 页面结构一变就失效 |
+| 依赖 nth-child 过深路径             |       低 | 可维护性差         |
+| 只看当前页面不做字段校验            |       低 | 改版后容易静默抓错 |
+
+推荐结构：
+
+```python
+for card in page.css(".product-card"):
+    name = card.css(".product-title::text").get("").strip()
+    price_text = card.css(".price::text").get("").strip()
+    url = card.css("a::attr(href)").get("")
+
+    if not name:
+        continue
+
+    yield {
+        "name": name,
+        "price_text": price_text,
+        "url": response.urljoin(url) if hasattr(response, "urljoin") else url,
+    }
+```
+
+---
+
+## Fetcher 选择原则
 
 ```mermaid
-quadrantChart
-    title 爬虫框架选型象限
-    x-axis "低复杂度" --> "高复杂度"
-    y-axis "弱反爬" --> "强反爬"
-    quadrant-1 "StealthyFetcher 主场"
-    quadrant-2 "Scrapling 理想区"
-    quadrant-3 "BS4 / requests 足矣"
-    quadrant-4 "Scrapy 更合适"
-    "简单静态页": [0.2, 0.15]
-    "JS 渲染页面": [0.45, 0.35]
-    "Cloudflare 站点": [0.4, 0.8]
-    "百万级采集": [0.85, 0.3]
-    "受保护的 SPA": [0.65, 0.75]
-    "API 对接": [0.15, 0.1]
+flowchart TD
+    A["开始抓取"] --> B{"页面源码里有目标数据吗"}
+    B -->|有| C["使用 Fetcher"]
+    B -->|没有| D{"数据是否来自可直接调用的 API"}
+    D -->|是| E["优先抓 API<br>仍用 Fetcher"]
+    D -->|否| F["使用 DynamicFetcher"]
+    F --> G{"是否出现强反爬或验证"}
+    G -->|否| H["优化等待条件<br>提取数据"]
+    G -->|是| I["升级 StealthyFetcher<br>代理 降速 blocked retry"]
+    C --> J{"是否需要爬很多页"}
+    E --> J
+    H --> J
+    I --> J
+    J -->|否| K["脚本即可"]
+    J -->|是| L["使用 Spider<br>并发 去重 Session 统计 暂停恢复"]
 ```
 
- 
+简单总结：
+
+| 优先级     | 策略                                            |
+| ---------- | ----------------------------------------------- |
+| 第一选择   | `Fetcher` 抓静态 HTML 或 API                    |
+| 第二选择   | `DynamicFetcher` 处理 JS 渲染                   |
+| 第三选择   | `StealthyFetcher` 处理强反爬                    |
+| 工程化选择 | `Spider` 管理多页面、并发、Session、代理、统计  |
+| 稳定性增强 | Adaptive scraping、字段校验、开发缓存、日志报警 |
+
+---
+
+## 项目结构建议
+
+小脚本可以一个文件解决：
+
+```text
+scrape_quotes.py
+```
+
+稍正式的项目建议这样组织：
+
+```text
+my_scraper/
+  spiders/
+    products.py
+    categories.py
+  pipelines/
+    clean.py
+    storage.py
+  configs/
+    settings.py
+  data/
+    output.jsonl
+  tests/
+    test_selectors.py
+  main.py
+```
+
+建议职责划分：
+
+| 文件 / 目录  | 作用                            |
+| ------------ | ------------------------------- |
+| `spiders/`   | 放 Spider 类                    |
+| `pipelines/` | 清洗、校验、入库                |
+| `configs/`   | 并发、代理、headers、数据库配置 |
+| `data/`      | 本地输出                        |
+| `tests/`     | 选择器回归测试                  |
+| `main.py`    | 启动入口                        |
+
+---
+
+## 数据清洗与字段校验
+
+抓取不是“取到字符串”就结束。建议每个字段至少经过：
+
+| 步骤       | 示例                              |
+| ---------- | --------------------------------- |
+| 去空白     | `.strip()`                        |
+| 标准化价格 | `$12.30` → `12.30`                |
+| 标准化 URL | 相对路径 → 绝对 URL               |
+| 类型转换   | 字符串 → `int` / `float` / `date` |
+| 必填校验   | 没有标题就丢弃                    |
+| 异常记录   | 保存失败 URL 和 HTML 片段         |
+
+示例：
+
+```python
+from decimal import Decimal
+import re
+
+def parse_price(value: str) -> Decimal | None:
+    match = re.search(r"[\d,.]+", value or "")
+    if not match:
+        return None
+    return Decimal(match.group(0).replace(",", ""))
+```
+
+---
+
+## 反爬与稳定性最佳实践
+
+| 问题           | 推荐做法                                             |
+| -------------- | ---------------------------------------------------- |
+| 403 / 429 增多 | 降低并发、增加 delay、切换代理、记录被封页面         |
+| 页面偶尔为空   | 增加等待条件、检查是否需要 JS、检查是否被重定向      |
+| 字段突然为空   | 开启日志，保存 HTML 样本，检查页面结构               |
+| 选择器经常失效 | 使用更语义化选择器，配合 Adaptive                    |
+| 浏览器资源过高 | 能用 HTTP 就不用浏览器，浏览器 Session 懒加载        |
+| 代理质量不稳定 | 记录 `response.meta["proxy"]`，剔除失败率高的代理    |
+| 长任务中断     | 使用 `crawldir` 开启 checkpoint                      |
+| 调试频繁打站点 | 使用 `development_mode` 缓存响应                     |
+| 多站点混爬     | 设置 `allowed_domains`、per-domain 并发、robots 规则 |
+| 生产排障困难   | 记录 stats、status 分布、失败 URL、Session、代理     |
+
+---
+
+## 新手学习路线
+
+| 阶段     | 学什么                                                  | 目标             |
+| -------- | ------------------------------------------------------- | ---------------- |
+| 入门     | `Fetcher.get()`、`.css()`、`.get()`、`.getall()`        | 能抓一个静态页面 |
+| 解析     | DOM 遍历、属性、文本、正则、JSON                        | 能稳定提字段     |
+| 动态页面 | `DynamicFetcher`、等待条件、XHR 思路                    | 能处理 JS 页面   |
+| 反爬基础 | headers、TLS impersonate、代理、降速                    | 能应对轻中度限制 |
+| 工程化   | `Spider`、分页、并发、导出、stats                       | 能爬多页         |
+| 稳定性   | 多 Session、blocked retry、checkpoint、development mode | 能长期运行       |
+| 鲁棒性   | Adaptive scraping、字段校验、测试                       | 能应对页面改版   |
+| 生产化   | 日志、监控、入库、去重、失败重试                        | 能维护真实项目   |
+
+---
+
+## 常见坑
+
+| 坑                              | 现象                        | 解决                                         |
+| ------------------------------- | --------------------------- | -------------------------------------------- |
+| 直接用浏览器 Fetcher 抓所有页面 | 慢、占内存                  | 静态页用 `Fetcher`，必要时才升级             |
+| 选择器太长                      | 页面小改就失效              | 使用语义化 class / data 属性                 |
+| 不设默认值                      | `.get()` 返回 `None` 后报错 | `.get("")`                                   |
+| 忽略分页边界                    | 无限循环或漏页              | 检查 next link，记录 seen URL                |
+| 忽略状态码                      | 把封禁页当正常页解析        | 检查 `response.status` 和页面内容            |
+| 开发缓存用于生产                | 数据过期、绕过限速          | 仅开发调试使用                               |
+| 代理和 Session 混用混乱         | 难以排错                    | 统一通过 Session 配置和 `response.meta` 记录 |
+| 只保存最终数据                  | 失败后无法复盘              | 保存失败 URL、状态码、代理、HTML 样本        |
+
+---
+
+## 一个较完整的实战骨架
+
+```python
+import logging
+from decimal import Decimal
+import re
+
+from scrapling.spiders import Spider, Response, Request, SessionManager
+from scrapling.fetchers import FetcherSession, AsyncStealthySession, ProxyRotator
+
+
+def parse_price(value: str) -> str | None:
+    match = re.search(r"[\d,.]+", value or "")
+    if not match:
+        return None
+    return str(Decimal(match.group(0).replace(",", "")))
+
+
+class ProductSpider(Spider):
+    name = "product_spider"
+    start_urls = ["https://shop.example.com/products"]
+    allowed_domains = {"shop.example.com"}
+
+    concurrent_requests = 4
+    concurrent_requests_per_domain = 2
+    download_delay = 1.0
+    robots_txt_obey = True
+
+    max_blocked_retries = 3
+    logging_level = logging.INFO
+    log_file = "product_spider.log"
+
+    def configure_sessions(self, manager: SessionManager):
+        cheap_proxies = ProxyRotator([
+            "http://proxy1:8080",
+            "http://proxy2:8080",
+        ])
+
+        manager.add(
+            "http",
+            FetcherSession(
+                impersonate=["chrome", "firefox", "safari"],
+                proxy_rotator=cheap_proxies,
+            ),
+            default=True,
+        )
+
+        manager.add(
+            "stealth",
+            AsyncStealthySession(
+                headless=True,
+                network_idle=True,
+                block_webrtc=True,
+            ),
+            lazy=True,
+        )
+
+    async def parse(self, response: Response):
+        for card in response.css(".product-card"):
+            detail_url = card.css("a::attr(href)").get()
+            if detail_url:
+                yield response.follow(
+                    detail_url,
+                    callback=self.parse_product,
+                    sid="http",
+                )
+
+        next_page = response.css("a.next::attr(href)").get()
+        if next_page:
+            yield response.follow(next_page, callback=self.parse)
+
+    async def parse_product(self, response: Response):
+        name = response.css("h1::text").get("").strip()
+        price_text = response.css(".price::text").get("").strip()
+
+        if not name:
+            self.logger.warning(f"Missing name: {response.url}")
+            return
+
+        yield {
+            "url": response.url,
+            "name": name,
+            "price": parse_price(price_text),
+            "raw_price": price_text,
+            "proxy": response.meta.get("proxy"),
+            "status": response.status,
+        }
+
+    async def is_blocked(self, response: Response) -> bool:
+        if response.status in {403, 429, 503}:
+            return True
+
+        body = response.body.decode("utf-8", errors="ignore").lower()
+        return "access denied" in body or "rate limit" in body
+
+    async def retry_blocked_request(
+        self,
+        request: Request,
+        response: Response,
+    ) -> Request:
+        request.sid = "stealth"
+        self.logger.info(f"Blocked, retrying with stealth: {request.url}")
+        return request
+
+    async def on_scraped_item(self, item: dict) -> dict | None:
+        if not item.get("name"):
+            return None
+        return item
+
+
+if __name__ == "__main__":
+    spider = ProductSpider(crawldir="crawl_data/product_spider")
+    result = spider.start(use_uvloop=True)
+
+    result.items.to_jsonl("data/products.jsonl")
+
+    print("Completed:", result.completed)
+    print("Paused:", result.paused)
+    print("Requests:", result.stats.requests_count)
+    print("Items:", result.stats.items_scraped)
+    print("Blocked:", result.stats.blocked_requests_count)
+```
+
+这个骨架体现了 Scrapling 的典型工程化用法：普通请求优先、被封后升级 stealth、多代理、并发限速、robots、字段校验、item hook、checkpoint、JSONL 输出和统计观察。
+
+---
+
+## 最后建议
+
+学 Scrapling 不要一开始就钻反爬参数。最稳的学习顺序是：先把 `Selector` 和 `Fetcher` 用熟，再掌握动态页面，再上 Spider，最后补代理、blocked retry、checkpoint 和 Adaptive。真正可维护的爬虫，核心不是“能抓一次”，而是“能稳定、礼貌、可观测、可恢复地抓很多次”。
+
+[1]: https://scrapling.readthedocs.io/en/latest/index.html "Index - Scrapling"
+[2]: https://scrapling.readthedocs.io/en/latest/cli/overview.html "Command Line Interface - Scrapling"
+[3]: https://scrapling.readthedocs.io/en/latest/spiders/architecture.html "Spiders architecture - Scrapling"
+[4]: https://scrapling.readthedocs.io/en/latest/parsing/main_classes.html "Parsing main classes - Scrapling"
+[5]: https://scrapling.readthedocs.io/en/latest/fetching/choosing.html "Fetchers basics - Scrapling"
+[6]: https://scrapling.readthedocs.io/en/latest/fetching/static.html "HTTP requests - Scrapling"
+[7]: https://scrapling.readthedocs.io/en/latest/spiders/sessions.html "Spiders sessions - Scrapling"
+[8]: https://scrapling.readthedocs.io/en/latest/fetching/stealthy.html "Fetching dynamic websites with hard protections - Scrapling"
+[9]: https://scrapling.readthedocs.io/en/latest/parsing/adaptive.html "Adaptive scraping - Scrapling"
+[10]: https://scrapling.readthedocs.io/en/latest/spiders/getting-started.html "Getting started - Scrapling"
+[11]: https://scrapling.readthedocs.io/en/latest/spiders/advanced.html "Advanced usages - Scrapling"
+[12]: https://scrapling.readthedocs.io/en/latest/spiders/proxy-blocking.html "Proxy management and handling Blocks - Scrapling"
