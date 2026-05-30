@@ -88,11 +88,44 @@ rsync -avP --no-compress -e "ssh -T -c aes128-gcm@openssh.com -o Compression=no"
 | `-c aes128-gcm@openssh.com` | 使用更快的加密算法（比默认快很多）                           |
 | `-o Compression=no`         | 禁用 SSH 层压缩                                              |
 
-### 一次性传输
+#### 速度优化参数
+
+| 参数                          | 作用               | 为什么更快             | 副作用 / 风险                                                |
+| ----------------------------- | ------------------ | ---------------------- | ------------------------------------------------------------ |
+| `--whole-file`                | 禁用 delta diff    | 不计算块差异           | 增量同步时流量暴增；公网小改动文件会浪费带宽                 |
+| `--no-compress`               | 禁止 rsync 压缩    | 千兆/万兆下 CPU 更重要 | 低带宽公网会明显变慢                                         |
+| `ssh -T`                      | 禁用 pseudo-tty    | 少一点 SSH 开销        | 某些依赖 tty 的远程 shell/profile 行为可能异常               |
+| `Compression=no`              | 禁 SSH 压缩        | 极重要                 | 弱网/高延迟场景传输量增加                                    |
+| `aes128-gcm@openssh.com`      | 更快 cipher        | CPU 更省               | 某些老旧 SSH/OpenSSH 不支持；ARM 某些设备未必最快            |
+| `--info=progress2`            | 单进度条           | 比 `-P` 更轻量         | 没有断点续传信息显示；不如 `-P` 直观                         |
+| `--size-only`                 | 仅比较文件大小     | 少算 checksum/stat     | 文件内容变了但大小没变会漏同步                               |
+| `--inplace`                   | 原地写入           | 避免临时文件           | 传输中断可能留下损坏文件；无法原子替换（atomic replace）；不适合生产热文件 |
+| `--ignore-times` (`-I`)       | 强制全部重传       | 跳过时间戳判断         | 会导致完全失去增量同步意义                                   |
+| `--inplace --whole-file` 组合 | 极限写入性能       | 几乎纯顺序写           | 中断时目标文件可能半坏状态                                   |
+| `--numeric-ids`               | 不解析用户名组名   | 少一次 uid/gid lookup  | 不同机器 uid/gid 不一致时权限可能错乱                        |
+| `--delete-delay`              | 延后删除           | 减少 I/O 抖动          | 同步期间旧文件短暂存在                                       |
+| `--omit-dir-times` (`-O`)     | 不同步目录时间     | 减少 metadata 更新     | 目录 mtime 不准确                                            |
+| `--no-perms`                  | 不同步权限         | 减少 chmod 操作        | 目标权限可能不正确                                           |
+| `--no-owner --no-group`       | 不同步属主属组     | 减少 chown 开销        | 权限体系可能失效                                             |
+| `--checksum-choice=xxh128`    | 更快 checksum      | 比 md5/sha1 更快       | 老版本 rsync 不支持                                          |
+| `--mkpath`                    | 自动创建远程目录   | 少一次 ssh mkdir       | 老 rsync 版本可能不支持                                      |
+| `--blocking-io`               | 阻塞 IO            | 某些网络更稳定         | 高并发时可能反而慢                                           |
+| `--bwlimit=0`                 | 不限速             | 跑满带宽               | 容易打爆业务网络                                             |
+| `--partial`                   | 保留中断文件       | 避免重新传输           | 占用磁盘；可能留下垃圾 partial 文件                          |
+| `--append`                    | 只追加文件尾部     | 大日志文件极快         | 文件中间修改会导致数据损坏                                   |
+| `--append-verify`             | 追加+校验          | 比 append 安全         | 仍不适合普通文件                                             |
+| `--sparse` (`-S`)             | 稀疏文件优化       | VM/DB 镜像更快更省空间 | 某些 FS 不支持 sparse                                        |
+| `--preallocate`               | 预分配空间         | 降低碎片               | 可能瞬间占满磁盘空间                                         |
+| `--delete-before`             | 先删除再同步       | 释放磁盘空间           | 同步失败可能导致数据缺失                                     |
+| `--delete-excluded`           | 删除 excluded 文件 | 减少目标垃圾           | 配错 exclude 会误删                                          |
+
+### 一次性传输加速参数(`--whole-file`)
 
 `--whole-file`: 跳过增量算法，"首次"传输时直接整文件复制更快
 
-但是该选项慎用(尤其是可能发生二次传输反而引起混乱),除非明确不会再次运行,或者再次运行时记得移除此选项
+但是该选项慎用(尤其是可能发生二次传输反而引起混乱)
+
+除非明确不会再次运行,**或者再次运行时记得移除此选项**
 
 ```bash
 # 完整优化版（大文件夹推荐）
