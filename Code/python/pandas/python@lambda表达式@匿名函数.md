@@ -6,9 +6,11 @@
 
 [更多控制流工具 — Python  文档 Lambda 表达式[¶](https://docs.python.org/zh-cn/3.13/tutorial/controlflow.html#lambda-expressions)](https://docs.python.org/zh-cn/3.13/tutorial/controlflow.html#lambda-expressions)
 
-[`lambda`](https://docs.python.org/zh-cn/3.13/reference/expressions.html#lambda) 关键字用于创建小巧的匿名函数。`lambda a, b: a+b` 函数返回两个参数的和。Lambda 函数可用于任何需要**函数对象**的地方。
+[`lambda`](https://docs.python.org/zh-cn/3.13/reference/expressions.html#lambda) 关键字用于创建小巧的匿名函数。`lambda a, b: a+b` 函数返回两个参数的和。
 
-在语法上，匿名函数只能是单个表达式。在语义上，它只是常规函数定义的**语法糖**。
+Lambda 函数可用于任何需要**函数对象**的地方。
+
+在语法上，匿名函数只能是**单个表达式**。在语义上，它只是常规函数定义的**语法糖**。
 
 与**嵌套函数定义**一样，lambda 函数可以引用包含作用域中的变量：
 
