@@ -4,9 +4,13 @@
 
 ## HTTP Header 是什么
 
-HTTP Header，也叫 HTTP 首部字段，是 HTTP 请求和响应中的“元信息”。它不直接代表页面正文、JSON 数据或图片内容，而是描述这次通信该如何理解、处理、缓存、认证、压缩、跨域或保护。
+HTTP Header，也叫 HTTP 首部字段，是 HTTP **请求和响应**中的“元信息”。
 
-HTTP 本身是无状态的应用层协议；现代 HTTP 语义由 RFC 9110 统一定义，缓存语义由 RFC 9111 定义。也就是说，不管底层是 HTTP/1.1、HTTP/2 还是 HTTP/3，很多 Header 的语义是共享的。([rfc-editor.org](https://www.rfc-editor.org/rfc/rfc9110.html?utm_source=chatgpt.com))
+它不直接代表页面正文、JSON 数据或图片内容，而是**描述这次通信该如何理解、处理、缓存、认证、压缩、跨域或保护**。
+
+HTTP 本身是**无状态的应用层协议**；现代 HTTP 语义由 RFC 9110 统一定义，缓存语义由 RFC 9111 定义。
+
+也就是说，不管底层是 HTTP/1.1、HTTP/2 还是 HTTP/3，很多 Header 的语义是共享的。([rfc-editor.org](https://www.rfc-editor.org/rfc/rfc9110.html?utm_source=chatgpt.com))
 
 一个典型 HTTP 交换可以这样理解：
 

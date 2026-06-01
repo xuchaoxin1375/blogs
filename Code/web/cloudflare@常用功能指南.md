@@ -20,17 +20,84 @@ Cloudflare API 采用 RESTful 设计风格，这意味着它遵循一套标准�
 
 ### 1.3 免费套餐包含哪些功能
 
+[Free Plan Overview | Cloudflare](https://www.cloudflare.com/plans/free/)
+
 Cloudflare 的免费套餐在业界以慷慨著称。以下是免费套餐中最有价值的功能清单：
 
 **完全免费的核心功能**包括：无限制的 DNS 托管服务，支持任意数量的域名；全球 CDN 加速，无带宽限制；基础的 DDoS 防护；SSL/TLS 证书自动签发与续期；基础的 WAF（Web 应用防火墙）规则。
 
-**带有免费额度的高级功能**包括：Workers 无服务器函数每天 100,000 次免费请求；Pages 静态站点托管每月 500 次构建；R2 对象存储每月 10GB 存储空间和 1000 万次读取操作；KV 键值存储每天 100,000 次读取操作；D1 数据库每天 500 万行读取。
-
-这些免费额度对于个人项目、学习实验、甚至中小型生产应用来说都是绑绑有余的。
+| 功能类别               | 免费版是否包含    | 说明                       |
+| ---------------------- | ----------------- | -------------------------- |
+| DNS 托管               | ✅                 | Cloudflare DNS 完全免费    |
+| CDN 全球加速           | ✅                 | 全球边缘节点缓存静态资源   |
+| SSL 证书               | ✅                 | Universal SSL 自动签发     |
+| HTTP/2                 | ✅                 | 支持                       |
+| HTTP/3                 | ✅                 | 支持                       |
+| IPv6                   | ✅                 | 支持                       |
+| DDoS 防护              | ✅                 | L3/L4/L7 基础防护          |
+| WAF 防火墙             | ✅                 | 免费托管规则集             |
+| Bot 防护               | ⚠️ 基础版          | 高级 Bot Management 需付费 |
+| 缓存规则               | ✅                 | 基础缓存控制               |
+| 页面规则（Page Rules） | ⚠️ 已被 Rules 替代 | 免费额度有限               |
+| 重定向规则             | ✅                 | 有数量限制                 |
+| Rate Limiting          | ⚠️ 有限            | 高级功能需付费             |
+| Analytics 分析         | ✅                 | 基础流量分析               |
+| Zero Trust             | ✅                 | 小规模免费                 |
+| Workers                | ✅                 | 每日 100,000 请求          |
+| Pages 静态托管         | ✅                 | 免费                       |
+| R2 对象存储            | ⚠️ 免费额度        | 超出计费                   |
+| Argo Smart Routing     | ❌                 | 付费                       |
+| APO（WordPress）       | ❌                 | 免费版需额外购买           |
+| Load Balancer          | ❌                 | 付费                       |
+| Cache Reserve          | ❌                 | 付费                       |
+| 企业级 WAF             | ❌                 | Business/Enterprise        |
 
 ---
 
 ## 第二章 API 基础架构与认证
+
+基于 HTTPS 请求和 JSON 响应的 RESTful API。
+
+- [创建 API 令牌 · Cloudflare 基础知识文档 --- Create API token · Cloudflare Fundamentals docs](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)了解如何使用api的准备;
+
+  - 认证方式分两种,token(令牌)和key(密钥),前者更安全且无需使用邮箱,填写更简单(但是要准确配置权限),后者更统一(包含全部权限,需要填写账号邮箱配合key使用)
+
+- [Cloudflare API ](https://developers.cloudflare.com/api/overview/) 了解可用的api以及详情
+
+- [发起 API 调用 · Cloudflare 基础知识文档 --- Make API calls · Cloudflare Fundamentals docs](https://developers.cloudflare.com/fundamentals/api/how-to/make-api-calls/)
+
+  - 每个 Cloudflare API 元素都固定对应一个版本号。最新版本为版本 4。所有版本 4 HTTPS 端点的稳定基本 URL 为： `https://api.cloudflare.com/client/v4/`
+
+  - [API Reference | Cloudflare API](https://developers.cloudflare.com/api/) 通用api描述
+
+    - python库[Cloudflare Python API library | Cloudflare API](https://developers.cloudflare.com/api/python)
+
+  - 根据用户选择的认证方案(token or key)的不同,api的使用方式也有所不同.但主要体现在http标头中的传递认证信息的部分.
+
+    - token模式
+
+      - 标头:`"Authorization: Bearer $CLOUDFLARE_API_TOKEN"`
+
+      ```shell
+      curl "https://api.cloudflare.com/client/v4/zones?account.id=$ACCOUNT_ID" \
+      --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+      ```
+
+      
+
+    - email+key模式示例
+
+      - 标头:
+
+        - `"X-Auth-Email: <EMAIL>"`
+
+        - ` "X-Auth-Key: <API_KEY>" `
+
+      ```shell
+      curl --request PATCH "https://api.cloudflare.com/client/v4/user/invites/{id}" --header "X-Auth-Email: <EMAIL>" --header "X-Auth-Key: <API_KEY>" --data "{""status"": ""accepted""}"
+      ```
+
+      
 
 ### 2.1 API 端点与版本
 
