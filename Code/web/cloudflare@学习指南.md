@@ -76,7 +76,7 @@ Cloudflare 的免费套餐在业界以慷慨著称。以下是免费套餐中最
 
     - token模式
 
-      - 标头:`"Authorization: Bearer $CLOUDFLARE_API_TOKEN"`
+      - 标头:`"Authorization: Bearer $CLOUDFLARE_API_TOKEN"`,其中`Authoerization`是http的标准标头
 
       ```shell
       curl "https://api.cloudflare.com/client/v4/zones?account.id=$ACCOUNT_ID" \
@@ -87,7 +87,7 @@ Cloudflare 的免费套餐在业界以慷慨著称。以下是免费套餐中最
 
     - email+key模式示例
 
-      - 标头:
+      - 标头:(`X-Auth...`标头是非标准的HTTP标头,下面两个标头可以理解为cloudflare自定义的扩展标头.)
 
         - `"X-Auth-Email: <EMAIL>"`
 
@@ -97,7 +97,8 @@ Cloudflare 的免费套餐在业界以慷慨著称。以下是免费套餐中最
       curl --request PATCH "https://api.cloudflare.com/client/v4/user/invites/{id}" --header "X-Auth-Email: <EMAIL>" --header "X-Auth-Key: <API_KEY>" --data "{""status"": ""accepted""}"
       ```
 
-      
+    
+    对比可以看出,前者调用方式更加简洁.默认get不需要指定请求方式(`--request PATCH`),且`--header`只需要指定一个`Authorizatioin`
 
 ### 2.1 API 端点与版本
 
