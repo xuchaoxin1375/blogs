@@ -721,7 +721,7 @@ cf_connecting_ip="真实访客IP"
 > 否则服务器a只能获得反代服务器b的ip,而导致所有请求都被识别为来自同一个ip,造成限流策略失常(比如不正常的429频率)
 >
 > ```bash
-> bash <(curl -SfL https://github.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_srv.sh) -f -R # 关键在于-R,启用后也要关闭宝塔自带的"cdn来源ip解析"(或者ton)
+> bash <(curl -SfL https://github.com/xuchaoxin1375/scripts/raw/main/wp/woocommerce/woo_df/sh/deploy_srv.sh) -f -R # 关键在于-R,启用后也要关闭宝塔自带的"cdn来源ip解析"(或者通过命令)
 > 
 > ```
 >
