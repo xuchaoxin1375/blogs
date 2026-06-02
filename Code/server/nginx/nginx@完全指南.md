@@ -136,14 +136,16 @@ docker run -d \
 
 ### 3.2 目录结构
 
+[Nginx/DirectoryStructure - Debian Wiki](https://wiki.debian.org/Nginx/DirectoryStructure)
+
 安装完成后，理解 Nginx 的目录结构至关重要：
 
-```
+```bash
 /etc/nginx/                    # 主配置目录
 ├── nginx.conf                 # 主配置文件
 ├── conf.d/                    # 额外配置文件目录（*.conf 自动加载）
-├── sites-available/           # 可用站点配置（Debian 风格）
-├── sites-enabled/             # 已启用站点（符号链接指向 sites-available）
+├── sites-available/           # 额外虚拟主机配置文件.Extra virtual host configuration files
+├── sites-enabled/             # 内容链接到sites-available
 ├── snippets/                  # 可复用的配置片段
 ├── mime.types                 # MIME 类型映射表
 ├── fastcgi_params             # FastCGI 参数
@@ -158,6 +160,39 @@ docker run -d \
 /var/cache/nginx/              # 缓存目录
 /run/nginx.pid                 # PID 文件
 ```
+
+真实安装目录示例
+
+```bash
+$ tree
+.
+├── conf.d
+│   └── default.conf
+├── fastcgi.conf
+├── fastcgi_params
+├── koi-utf
+├── koi-win
+├── mime.types
+├── modules -> /usr/lib/nginx/modules
+├── nginx copy.conf
+├── nginx.conf
+├── proxy_params
+├── scgi_params
+├── sites-available
+│   └── default
+├── sites-enabled
+│   └── default -> /etc/nginx/sites-available/default
+├── snippets
+│   ├── fastcgi-php.conf
+│   └── snakeoil.conf
+├── upgrade-nginx-ubt.sh
+├── upgrade-nginx-ubt24.sh
+├── uwsgi_params
+└── win-utf
+
+```
+
+
 
 ### 3.3 常用管理命令
 

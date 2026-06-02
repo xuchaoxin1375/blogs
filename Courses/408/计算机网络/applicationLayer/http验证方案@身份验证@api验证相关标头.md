@@ -316,6 +316,86 @@ Cache-Control: no-store
 
 对包含凭据的请求/响应禁用缓存，防止敏感信息被中间代理存储。
 
+## X-开头的非标准标头
+
+在这两个 `curl` 命令中，**“标头”指的是 `—header`（或简写为 `-H`）后面携带的键值对**。它们统称为 **HTTP Headers（HTTP 请求头）**，作用是向服务器传递元数据（比如身份验证信息、数据类型等）。
+
+以cloudflare的api请求的两个示例命令中的标头为例说明:
+
+```shell
+curl "https://api.cloudflare.com/client/v4/zones?account.id=$ACCOUNT_ID" \
+--header "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+```
+
+- **标头内容：** `"Authorization: Bearer $CLOUDFLARE_API_TOKEN"`
+- **它的作用：** * **键 (Key)：** `Authorization`（授权）
+  - **值 (Value)：** `Bearer $CLOUDFLARE_API_TOKEN`
+  - **解释：** 这是最常见的 **API Token 认证方式**。它告诉 Cloudflare 服务器：“我是持有这个令牌（Token）的人，请验证我的权限并允许我查看区域（Zones）列表。”
+
+```shell
+curl --request PATCH "https://api.cloudflare.com/client/v4/user/invites/{id}" \
+--header "X-Auth-Email: <EMAIL>" \
+--header "X-Auth-Key: <API_KEY>" \
+--data "{""status"": ""accepted""}"
+```
+
+这个命令里包含了**两个**标头：
+
+1. **第一个标头：** `"X-Auth-Email: <EMAIL>"`
+   - **键：** `X-Auth-Email`
+   - **值：** `<EMAIL>`（你的 Cloudflare 账户邮箱）
+2. **第二个标头：** `"X-Auth-Key: <API_KEY>"`
+   - **键：** `X-Auth-Key`
+   - **值：** `<API_KEY>`（你的 Cloudflare 全局 API 密钥，通常在后台 Global API Key 处获取）
+
+- **它们的作用：**
+  - 这是 Cloudflare 的**传统认证方式（Global API Key 认证）**。它需要将你的“账号邮箱”和“全局密钥”组合在一起发送，服务器才会允许你执行接受邀请（PATCH）的操作。
+
+💡 核心区别小结
+
+| **认证方式**            | **使用的标头 (Headers)**        | **安全性建议**                                               |
+| ----------------------- | ------------------------------- | ------------------------------------------------------------ |
+| **第一种 (API Token)**  | `Authorization: Bearer <TOKEN>` | **更安全**。权限是受限的（比如只能读，不能写），推荐使用。   |
+| **第二种 (Global Key)** | `X-Auth-Email` 和 `X-Auth-Key`  | **风险较高**。这个 Key 拥有你账户的最高全权，一旦泄露等于整个账号失控，非必要不推荐使用。 |
+
+以 `X-Auth-` 开头的标头（例如 `X-Auth-Email`、`X-Auth-Key`、`X-Auth-Token`）属于**自定义的、非标准的 HTTP 认证标头**。
+
+为了让你彻底明白它的来龙去脉，我们可以从以下几个维度来解构：
+
+### 1. 名字里的 “X-” 是什么意思？
+
+在过去的 HTTP 协议传统中，**`X-` 代表 “Extension”（扩展）或 “Experimental”（实验性）**。
+
+- **标准标头：** 像 `Authorization`、`Content-Type`、`User-Agent` 这些是 IETF（互联网工程任务组）官方定义的标准标头，全世界通用。
+- **自定义标头：** 如果某个公司（比如 Cloudflare、GitHub 等）想在 HTTP 请求中传递一些自己特有的数据，官方标准里又没有这个字段，他们就会自己发明一个以 `X-` 开头的标头。
+
+> ⚠️ **时代变迁：** > 尽管 RFC 6648 官方文档在多年前就已经**不推荐**新开发的系统再使用 `X-` 前缀（主张直接命名，如直接叫 `Auth-Token`），但由于历史惯性和兼容性，许多像 Cloudflare 这样的大厂依然在沿用 `X-Auth-` 系列标头。
+
+### 2. `X-Auth-` 的工作原理
+
+官方的标准认证通常使用 `Authorization` 标头（如 `Authorization: Bearer <token>`），它有严格的格式规范。
+
+而 `X-Auth-` 则是 API 开发者**自己制定规则**的产物。服务器端的校验流程如下：
+
+1. **客户端发送：** 你的 `curl` 命令把 `X-Auth-Email: user@example.com` 和 `X-Auth-Key: 123456` 塞进请求头发送出去。
+2. **网关/服务器拦截：** Cloudflare 的服务器收到请求，专门去读取这两个自定义标头的值。
+3. **数据库比对：** 服务器检查这个邮箱和 Key 是否匹配。如果匹配成功，放行请求；如果失败，返回 `401 Unauthorized`（未授权）或 `403 Forbidden`（拒绝访问）。
+
+### 3. 常见的 `X-Auth-` 变体与大厂应用
+
+除了你提到的 Cloudflare，很多著名的 API 服务都在使用类似的自定义认证标头：
+
+| **标头名称**       | **常见使用场景 / 巨头案例**    | **作用**                                               |
+| ------------------ | ------------------------------ | ------------------------------------------------------ |
+| **`X-Auth-Email`** | Cloudflare                     | 传递用户的登录邮箱账户                                 |
+| **`X-Auth-Key`**   | Cloudflare                     | 传递全局专用的 API 密钥                                |
+| **`X-Auth-Token`** | OpenStack / 各种私有云 API     | 传递一个临时生成的身份令牌                             |
+| **`X-API-Key`**    | AWS API Gateway / 多数现代 API | 虽然没带 Auth，但性质一样，用于传递应用专用的 API 密钥 |
+
+### 总结
+
+`X-Auth-` 标头就像是某些大型网站**自己家里定的“暗号”**。它不是国际通用的标准标准，但只要你用的是他们家的服务（比如 Cloudflare），你就必须按照他们的规矩，在请求头里带上这个“暗号”才能开门。
+
 ## 401 与 403 的区别
 
 这两个状态码经常被混淆：

@@ -9,61 +9,48 @@
 
 使用bash内置的语法和命令读取文件行的基本方案是使用`while` 循环和 `read` 命令最后配合文件输入重定向`< file`。
 
-下面是一个基本模板；另外,有许多变体将要讨论： 
+> bash额外有`mapfile`(`readarray`)可以快捷读取文件,但是zsh不提供此命令.
+>
+> 两类方案各有优缺点.本文主要介绍`read`方案,同时会讨论`IFS`环境变量.
+
+下面是一个基本模板；另外,有许多变体将要讨论：
+
+>  关于read命令,后续会展开.
+>
+> 注意,bash和zsh内置的read命令存在一定差异,部分选项效果不同.
+>
+> 我们主要讨论的是bash的read命令.
+
+## while -read读取文件的模板代码
 
 ```bash
+# 兼容末尾换行符缺失的文件逐行读取模板命令.
 while IFS= read -r line || [[ -n "$line" ]]; do
-  printf '%s\n' "$line"
-done < "$file"
+  # 定义对文本行的操作,例如打印,或者是其他操作.
+  printf '%s\n' "$line" 
+done < "$file" # 将标准输入重定向到文件.
 ```
 
 `line` 是一个变量名，由你自行选择。你可以使用任何有效的 shell 变量名； 
 
-`< "$file"` **将循环的输入重定向到一个文件**，该文件的名称存储在变量中；请参见下面的 [输入源选择 ](https://mywiki.wooledge.org/BashFAQ/001#source)。
+`< "$file"` **将循环的输入重定向到一个文件**，该文件的名称存储在变量中；
 
-如果你想将文件中的行读入到一个 [数组 ](https://mywiki.wooledge.org/BashFAQ/005)中，请参见 [FAQ 5](https://mywiki.wooledge.org/BashFAQ/005)。
+关于`IFS`(定义输入字段分隔符成员),和`read`分隔用户输入密切相关,将在后面介绍.
 
-### read -r
+> 这里的`IFS= read ...` 表示`IFS`对于`read`命令临时清空所有分隔符,这使得`read`命令每次读取整行内容,而不做行内的任何单词分割处理,确保每次读取一行内容.
 
->  -r        do not allow backslashes to escape any characters
+> 参见 [输入源选择 ](https://mywiki.wooledge.org/BashFAQ/001#source)。
 >
-> `-r`（raw mode）：禁止反斜杠 `\` 作为转义字符，将其视为普通字面字符。
-
-如果没有这个选项，**输入中的任何未转义的反斜杠都会被丢弃**(而不是对转义序列做解释)。
-
-在使用 read 时，**您几乎总是应该使用 `-r` 选项**。
-
-我们使用herestring来做read命令的小实验
-
-```bash
-# 不使用 -r（反斜杠被解释为转义字符）
-$ read line <<< 'hello\nworld';echo "$line"
-hellonworld    # \被直接丢弃,且没有将\n解释换行符处理
-
-# 使用 -r（保留原始反斜杠）
-$ read -r line <<< 'hello\nworld';echo "$line"
-hello\nworld   # \ 原样保留,\n也没有被解释为换行符
-```
-
-
-
-> 这个规则(使用`-r`)最常见的**例外情况**是当使用 `-e` 时，它通过 `Readline` 从交互式 shell 中获取行。
+> 如果你想将文件中的行读入到一个 [数组 ](https://mywiki.wooledge.org/BashFAQ/005)中，请参见 [FAQ 5](https://mywiki.wooledge.org/BashFAQ/005)。
 >
-> `-e`选项`(use Readline to obtain the line)`
->
-> 在这种情况下，**tab 补全会添加反斜杠来转义空格等字符**，而您不希望这些反斜杠被字面量地包含在变量中(不适用`-r`就可以移除这些`\`字符)。
->
-> 不过，当逐行读取内容时，这绝不会被使用，而且在这种情况下应该始终使用 `-r`。
 
-`IFS=`作用于`read`命令,让read文件行的时候不要执行任何行内分隔,确保行到完整性
 
-`[[ -n "$line" ]]`是为了防止结尾不是换行符的文件的处理出错.
-
-注意,如果只是出于判断文件末尾(最后一个回车符后的内容)是否为空,没有双引号也不影响结论,但是出于良好的变量引用习惯,不要漏掉双引号`""`(防止不必要的字段分割并忽略**通配符模式**展开,尤其是后者)
 
 ### 判断变量是否为空的表达式
 
-#### `[[ $line ]]`和`[[ -n $line ]]`,`[[ -n "$line" ]]`
+下面这个三个写法基本等价:
+
+> `[[ $line ]]`和`[[ -n $line ]]`,`[[ -n "$line" ]]`
 
 `[[ $line ]]`这是 `[[ -n $line ]]` 的简写形式。在 Bash 内部，如果变量名单独出现在 `[[ ]]` 中，它会测试该字符串是否非空。
 
@@ -109,9 +96,75 @@ read: read [-Eers] [-a array] [-d delim] [-i text] [-n nchars] [-N nchars] [-p p
 >
 > The line is **split into fields** as with **word splitting**, and the first word is assigned to the `first NAME`, the second word to the `second NAME`, and so on,with any **leftover words**(剩余单词) assigned to the `last NAME`. 
 >
->  Only the characters found in `$IFS` are recognized as word **delimiters**. By default, the backslash character escapes delimiter characters and newline. 
+> Only the characters found in `$IFS` are recognized as word **delimiters**. By default, the backslash character escapes **delimiter characters** and **newline**. 
+>
+> 只有环境变量 `$IFS` 中包含的字符才会被识别为单词**分隔符**（默认是**空格、制表符和换行符**）。
+>
+> > 值得注意的是,在shell中,**换行符**可以由回车键直接输入,而`\n`这个序列只有在有限的情况在被解释为换行符,例如启用命令的反斜杠序列转义解释,例如`echo -e "hello\nworld."`
+> >
+> > ```bash
+> > # 启用echo 的-e选项解释\n为换行
+> > $ echo -e "hello\nworld."
+> > hello
+> > world.
+> > ```
+>
+> 另一方面,如果反斜杠后面直接紧跟一个回车键,记为(`\newline`,这区别于`\n`),那么可以观察到输入会发生换行,但是shell在读取完输入后,会将输入中的`\newline`替换为空,仿佛输入是连续无换行那样).
+>
+> > ```bash
+> > bash-5.3$ echo "hello\
+> > > world"
+> > # 输出如下(没有发生换行)
+> > helloworld
+> > ```
+>
+> **默认情况下，反斜杠字符（`\`）用于转义[分隔符和换行符]**
+>
+> ```bash
+> #读取带有续行符(\newline)的输入.
+> $ read p
+> 123\
+> > 456
+> 
+> # 查看结果(\newline)被正确解释,从输入中被移除.
+> $ echo $p
+> 123456
+> 
+> # read默认行为转义分隔符中的空格
+> $ read var1 var2
+> hello\ world china     # 用户输入。注意 hello 后面的 "\ "
+> 
+> $ echo "$var1"
+> hello world            # var1 得到了 "hello world"（空格被保留，反斜杠消失）
+> $ echo "$var2"
+> china                  # var2 得到了 "china"
+> 
+> # 类似的,对于制表符(tab键),如果前导`\`,则反斜杠后紧跟的制表符不再被视为分隔符.
+> $ read y z
+> 12\     34 567
+> # 可以用declare -p 来查看read读取并赋值的变量y,z
+> $ declare -p y z
+> declare -- y=$'12\t34'
+> declare -- z="567"
+> ```
+>
+> > 注意,`read`命令的默认行为不会把`\n`解释为特殊序列(转义),反之,会把`\`移除掉(也就是说,不使用`-r`的情况下,read读取的输入中不再出现反斜杠`\`.
+> >
+> > **续行符：** 如果反斜杠后面直接跟着一个换行符（即你在输入时按了回车），`read` 会认为这一行还没结束，允许你在下一行继续输入，最终合并为一行。
 >
 > **If no NAMEs are supplied, the line read is stored in the `REPLY` variable.**
+
+### 默认行为小结
+
+在不使用 `-r` 参数时，`read` 命令会启用它默认的**反斜杠（`\`）转义机制**。
+
+在这种模式下，反斜杠变成了一个“功能字符”：
+
+1. 如果反斜杠后面紧跟一个**普通字符**，反斜杠会被去掉，只保留普通字符（例如 `\A` 变成 `A`,`\n`->`n`）。
+2. 如果反斜杠后面紧跟**续行符（换行）**，它会把两行拼接为一行。
+3. 如果反斜杠后面紧跟 **`IFS` 中的分隔符**，该分隔符的“分隔功能”就会被**剥夺（转义）**，变成一个**普通文本字面量**。
+
+### 常用选项
 
 | **参数** | **全称**      | **功能描述**                                 | **常用场景**                                   |
 | -------- | ------------- | -------------------------------------------- | ---------------------------------------------- |
@@ -124,18 +177,22 @@ read: read [-Eers] [-a array] [-d delim] [-i text] [-n nchars] [-N nchars] [-p p
 | **`-u`** | **Unit**      | 指定从某个文件描述符（FD）中读取。           | 同时读取多个不同的文件流。                     |
 | **`-d`** | **Delimiter** | 指定结束定界符（默认是换行符）。             | 读取到特定的结束符号为止。                     |
 
-将输入读取到一个普通变量中保存
+### read 基础用法
+
+将输入读取到**一个普通变量**中保存
 
 ```bash
 # cxxu@CxxuDesk 11:24:12> <~>
-$ read -p "input 3 words(separate by IFS chars):" narr2
-input 3 words(separate by IFS chars):b1 b2 b3,b4
+# 交互式用法,将输入保存到变量x
+$ read -p "input several words:" x
+input several words:b1 b2 b3,b4
+# 查看read处理输入的处理结果:
 # cxxu@CxxuDesk 11:24:41> <~>
-$ declare -p narr2
-declare -- narr2="b1 b2 b3,b4"
+$ declare -p x
+declare -- x="b1 b2 b3,b4"
 ```
 
-读取输入为数组(单词分割)
+读取输入为数组(单词分割,使用`-a`选项.)
 
 ```bash
 # cxxu@CxxuDesk 11:20:28> <~>
@@ -186,6 +243,8 @@ input in 2 seconds(auto close):
 
 ### read默认保存读取的值到REPLY环境变量
 
+> 存储用户输入的"回复"值.
+
 ```bash
 # cxxu@CxxuDesk 11:02:36> <~>
 $ read -r
@@ -212,18 +271,60 @@ abc123
 > | 1 或 2 | 变量赋值错误              |
 > | 1      | 无效的文件描述符（-u fd） |
 
-#### EOF
+### EOF
 
-> 一般来说,EOF **不是错误**，但返回码不为 0.
->
+一般来说,EOF **不是错误**，但返回码不为 0,利用这个特点便于判断文件读取结束.
+
 > **EOF（End Of File，文件结束）**
->  当输入流已耗尽，`read` 无法再读到任何数据。
->
-> 常见场景：
+>当输入流已耗尽，`read` 无法再读到任何数据。
+> 
+>  常见场景：
 >
 > - 从文件读取并读到末尾
-> - 管道输入结束
+>- 管道输入结束
 > - 标准输入被关闭
+
+## read -r
+
+>  -r        do not allow backslashes to escape any characters
+>
+>  `-r`（raw mode）：禁止反斜杠 `\` 作为转义字符，将其视为普通字面字符。
+
+如果没有这个选项，**输入中的任何未转义的反斜杠都会被丢弃**(而**不是对转义序列做解释**)。
+
+> 这意味着,带有`\`的输入,经过read处理(不启用`-r`)的情况下,结果一定和输入不同.
+
+通常,在使用 read 时，**您几乎总是应该使用 `-r` 选项**。
+
+### 对比实验
+
+我们使用herestring来做read命令的小实验
+
+```bash
+# 不使用 -r（反斜杠被解释为转义字符）
+$ read line <<< 'hello\nworld';echo "$line"
+hellonworld    # \被直接丢弃,且没有将\n解释换行符处理
+
+# 使用 -r（保留原始反斜杠）
+$ read -r line <<< 'hello\nworld';echo "$line"
+hello\nworld   # \ 原样保留,\n也没有被解释为换行符
+```
+
+
+
+> 这个规则(使用`-r`)最常见的**例外情况**是当使用 `-e` 时，它通过 `Readline` 从交互式 shell 中获取行。
+>
+> `-e`选项`(use Readline to obtain the line)`
+>
+> 在这种情况下，**tab 补全会添加反斜杠来转义空格等字符**，而您不希望这些反斜杠被字面量地包含在变量中(不适用`-r`就可以移除这些`\`字符)。
+>
+> 不过，当逐行读取内容时，这绝不会被使用，而且在这种情况下应该始终使用 `-r`。
+
+`IFS=`作用于`read`命令,让read文件行的时候不要执行任何行内分隔,确保行到完整性
+
+`[[ -n "$line" ]]`是为了防止结尾不是换行符的文件的处理出错.
+
+注意,如果只是出于判断文件末尾(最后一个回车符后的内容)是否为空,没有双引号也不影响结论,但是出于良好的变量引用习惯,不要漏掉双引号`""`(防止不必要的字段分割并忽略**通配符模式**展开,尤其是后者)
 
 ## read -u
 
@@ -354,8 +455,18 @@ afile:archived:ble.sh:err.log:file:file2:file.txt:output.log:proud2.log:proud.lo
 ```
 
 ```bash
+# IFS赋值语句后使用`;`,当前会话中的IFS将被彻底修改
 $ IFS='|'; echo "${fa[*]}"
 afile|archived|ble.sh|err.log|file|file2|file.txt|output.log|proud2.log|proud.log|sh
+
+```
+
+独立赋值语句**动作**：先修改了当前 Shell 环境中的 `IFS` 变量，**然后**执行 `echo`。
+
+**结果**：`IFS` 的改变是永久性的（直到下次修改），所以 `echo` 时数组会按新 `IFS` 连接。
+
+```bash
+# 如果这里将IFS定义为`;`,观察后续IFS='|'和echo语句连写的效果
 # cxxu@CxxuDesk 10:47:35> <~>
 $ IFS=';'; echo "${fa[*]}"
 afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.log;sh
@@ -363,21 +474,27 @@ afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.lo
 # cxxu@CxxuDesk 10:47:47> <~>
 $ IFS='|' echo "${fa[*]}"
 afile;archived;ble.sh;err.log;file;file2;file.txt;output.log;proud2.log;proud.log;sh
+# 发现输出中使用的分隔符仍然是上一条实验中定义的`;`
+
 ```
 
-独立赋值语句（前两个例子）**动作**：先修改了当前 Shell 环境中的 `IFS` 变量，**然后**执行 `echo`。
+命令前缀赋值**动作**：这是一个**“临时环境变量”语法**。它本意是：**仅在执行后面那个命令的过程中**改变环境变量。
 
-**结果**：`IFS` 的改变是永久性的（直到下次修改），所以 `echo` 时数组会按新 `IFS` 连接。
+> 典型的例子是`IFS=...`后面紧跟着`read`命令.
 
-命令前缀赋值（第三个例子）**动作**：这是一个**“临时环境变量”语法**。它本意是：**仅在执行后面那个命令的过程中**改变环境变量。
+但在这个例子中,并没有将`echo`命令输出中的分隔符更改为`|`：
 
-**失效原因**：
+> read命令和echo命令都受`IFS`的影响,但是作用方式和时机在命令的工作过程中大不相同.尤其是shell执行参数扩展的时机对命令的执行结果有关键影响.
 
-1. **解析顺序**：Bash 在真正执行 `echo` 之前，会先进行 **参数扩展（Parameter Expansion）**。
+1. **解析顺序**：Bash 在真正执行 `echo` 之前，会先进行 **参数扩展（Parameter Expansion）**。参数扩展（`$fa[*]`）的发生时机，早于临时变量赋值的生效时机;如果你想让临时 `IFS` 生效，必须让变量扩展在子进程或被调用命令内部发生.
 2. 也就是说，在 `IFS='|'` 生效之前，`${fa[*]}` 已经被当前环境（此时 `IFS` 还是上一步设置的 `;`）解析成了 `afile;archived;...`。
 3. 当 `echo` 拿到解析好的字符串准备运行时，临时修改的 `IFS='|'` 才进入 `echo` 的环境，但此时已经晚了，字符串已经生成。
 
-使用子shell可以解决此问题(其实是在子shell中使用`VAR=var;`的语法而不是`VAR=var command`的语法,子shell中更改`IFS`不会影响到父shell,以此模拟临时环境变量更改)
+使用子shell可以解决此问题
+
+> 其实是在子shell中使用`VAR=var;`的语法而不是`VAR=var command`的语法,
+>
+> 子shell中更改`IFS`不会影响到父shell,以此模拟临时环境变量更改
 
 ```bash
 # 括号会创建一个子进程，里面的 IFS 修改不会泄露到外面
@@ -628,13 +745,7 @@ $var
 EOF
 ```
 
-
-
 也可以从命令而不是普通文件中读取：
-
-
-
- 
 
 ```bash
 some command | while IFS= read -r line; do
