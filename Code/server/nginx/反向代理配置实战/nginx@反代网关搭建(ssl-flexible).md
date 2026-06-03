@@ -117,6 +117,43 @@ A     2.domain.com    b 的公网 IP    Proxied   # 可保留显式记录
 
 ------
 
+## 一键配置脚本
+
+本文大部分是在解释配置,实际上用到的代码或者配置不多,为了方便服务器管理员使用,本文也提供了配套的部署脚本:
+
+> 请事先安装好nginx.
+>
+> bash命令行后半段`#`号后面是命令参数示例
+
+```bash
+# 从github上获取一键部署脚本(适用于反代服务器上运行.)
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -h # 使用-h查看脚本帮助.然后构建你自己的命令行参数(如果需要自定义的话)
+
+
+```
+
+根据你的情况填写参数,如果你的反代服务器是ubuntu/nginx,则`-c,-d,-l`无需填写
+
+```bash
+# 对于宝塔安装的nginx(openresty),使用考虑使用下面的参数组代替脚本的默认值
+-c /www/server/nginx/conf -d /www/server/panel/vhost/nginx -l /www/logs/ 
+
+# 指定需要向客户端(包括cdn)隐藏的后端服务器ip
+-i <upstream_ip>
+```
+
+
+
+> 通常这个
+
+## 反代服务器ip利用说明
+
+本文仅涉及反代服务器是单ip的情况(即便有多个ip,也仅利用其中的一个)的最简单情况.
+
+关于如何将一个具有多个ip的反代服务器分别为不同的后端服务器做反代,以及如何只利用一个ip为多个后端服务器反代的问题,请参考另外的文档.
+
+
+
 # 阶段 1：确认 a 上业务站点本身可用
 
 先在 **a 服务器** 上确认nginx/OpenResty 能按 Host 正确返回站点。
