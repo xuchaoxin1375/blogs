@@ -6,7 +6,9 @@
 
 Nginx 的行为几乎全部由配置文件决定。
 
-官方文档说明，默认主配置文件通常叫 `nginx.conf`，位置取决于安装方式，常见路径包括 `/etc/nginx/nginx.conf`、`/usr/local/nginx/conf/nginx.conf` 或 `/usr/local/etc/nginx/nginx.conf`；
+官方文档说明，默认主配置文件通常叫 `nginx.conf`，位置取决于安装方式(不同系统的包管理器安装的版本及路径有所差异);
+
+> 常见路径包括 `/etc/nginx/nginx.conf`、`/usr/local/nginx/conf/nginx.conf` 或 `/usr/local/etc/nginx/nginx.conf`；
 
 可以用 `nginx -V` 查看编译时的 `--conf-path`。([docs.nginx.com](https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/))
 
