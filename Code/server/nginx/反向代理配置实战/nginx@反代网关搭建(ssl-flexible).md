@@ -132,19 +132,32 @@ bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/h
 
 ```
 
-根据你的情况填写参数,如果你的反代服务器是ubuntu/nginx,则`-c,-d,-l`无需填写
+根据你的情况填写参数,如果你的反代服务器是ubuntu/nginx,则`-c,-d,-l`无需填写;如果是宝塔安装的nginx,则通常使用下面这组参数
 
 ```bash
 # 对于宝塔安装的nginx(openresty),使用考虑使用下面的参数组代替脚本的默认值
 -c /www/server/nginx/conf -d /www/server/panel/vhost/nginx -l /www/logs/ 
 
+```
+
+最后指定需要被隐藏的后端服务器ip
+
+```bash
 # 指定需要向客户端(包括cdn)隐藏的后端服务器ip
 -i <upstream_ip>
 ```
 
+完整示例:
+
+```bash
+# 非宝塔方案(apt安装的情况)
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -i <upstream_ip>
+
+# 宝塔方案
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -c /www/server/nginx/conf -d /www/server/panel/vhost/nginx -l /www/logs/  -i <upstream_ip>
+```
 
 
-> 通常这个
 
 ## 反代服务器ip利用说明
 
