@@ -7,7 +7,7 @@
 假设有两个服务器,其中服务器`a`是普通服务器,`b`是用于反向代理的服务器,用来绑定cloudflare.
 目标网络架构为:`client->CF->b->a`
 
-1. 目前我已将域名`2.domain.com`(测试域名)的dns指向服务器b的ip,且使用的是`flexible`模式提供https服务(暂不考虑full). 
+1. 假设已经将域名`2.domain.com`(测试域名)的dns指向服务器b的ip,且使用的是`flexible`模式提供https服务(暂不考虑full). 
 
    > 已知服务器a此前购买了第三方的ip保护服务(记为c),使得我可以通过cf绑定c来让c反代a
    > 现在我希望自己实现类似效果,b反代a.
@@ -313,6 +313,7 @@ vim /etc/nginx/conf.d/cf-realip.conf
 写入：
 
 ```nginx
+# /etc/nginx/conf.d/cf-realip.conf
 # Cloudflare IPv4
 set_real_ip_from 173.245.48.0/20;
 set_real_ip_from 103.21.244.0/22;
