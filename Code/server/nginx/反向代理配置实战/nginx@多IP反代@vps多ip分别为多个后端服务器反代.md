@@ -27,6 +27,25 @@ b2--- a2--- domain-a2-1.com & domain-a2-2.com & dots2[...]
 
 ```
 
+```mermaid
+flowchart LR
+    U[Client / 浏览器用户] -->|HTTPS| CF[Cloudflare]
+
+    CF -->|HTTP / Flexible<br/>目标IP=b1| B1[b 服务器<br/>公网IP b1]
+    CF -->|HTTP / Flexible<br/>目标IP=b2| B2[b 服务器<br/>公网IP b2]
+
+    B1 -->|反向代理 HTTP<br/>保留 Host| A1[a1 服务器<br/>宝塔 / OpenResty]
+    B2 -->|反向代理 HTTP<br/>保留 Host| A2[a2 服务器<br/>宝塔 / OpenResty]
+
+    A1 --> S11[domain-a1-1.com]
+    A1 --> S12[domain-a1-2.com]
+    A1 --> S13[...未来新增站点]
+
+    A2 --> S21[domain-a2-1.com]
+    A2 --> S22[domain-a2-2.com]
+    A2 --> S23[...未来新增站点]
+```
+
 
 
 # 一、可行性分析
@@ -149,7 +168,7 @@ proxy_bind b2;
 
 ------
 
-完整示意图:
+#### 完整示意图:
 
 ```mermaid
 graph 
@@ -269,6 +288,31 @@ graph TD
     style A2 fill:#bbf,stroke:#333,stroke-width:1px
 ```
 
+#### 时序图
+
+> 这里以
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant CF as Cloudflare
+    participant B1 as b服务器(b1入口)
+    participant A1 as a1服务器
+    participant APP as a1上的目标站点
+
+    C->>CF: HTTPS 请求 domain-a1-1.com
+    CF->>B1: HTTP 请求到 b1:80<br/>Host=domain-a1-1.com
+    Note over CF,B1: Flexible 模式：CF 到源站是 HTTP
+
+    B1->>B1: 恢复真实IP<br/>读取 CF-Connecting-IP
+    B1->>A1: 反代到 a1:80<br/>保留 Host<br/>传递 X-Forwarded-For / X-Real-IP
+    A1->>APP: 按 Host=domain-a1-1.com 匹配站点
+    APP-->>A1: 返回页面
+    A1-->>B1: 返回响应
+    B1-->>CF: 返回响应
+    CF-->>C: HTTPS 响应
+```
+
 
 
 # 四、b 服务器 IP 配置检查
@@ -363,6 +407,30 @@ include /usr/local/openresty/nginx/conf/conf.d/*.conf;
 ------
 
 # 六、b 上统一反代配置
+
+```mermaid
+flowchart TB
+
+    IN1[监听 b1:80<br/>default_server]
+    IN2[监听 b2:80<br/>default_server]
+
+    P1[统一反代逻辑<br/>proxy_pass -> a1<br/>proxy_bind b1<br/>proxy_set_header Host $host]
+    P2[统一反代逻辑<br/>proxy_pass -> a2<br/>proxy_bind b2<br/>proxy_set_header Host $host]
+
+    LOG1[日志<br/>b1_to_a1_access.log]
+    LOG2[日志<br/>b2_to_a2_access.log]
+
+    IN1 --> P1
+    IN2 --> P2
+
+    P1 --> LOG1
+    P2 --> LOG2
+
+    P1 --> A1[a1:80]
+    P2 --> A2[a2:80]
+```
+
+
 
 假设：
 
@@ -540,60 +608,7 @@ proxy_bind 22.22.22.22;
 
 ------
 
-# 七、为什么这个配置可以“一次性配置”
-
-因为 b 不关心域名，只关心入口 IP。
-
-a1 的所有站点：
-
-```text
-domain-a1-1.com
-domain-a1-2.com
-new-domain-a1.com
-```
-
-都指向：
-
-```text
-b1
-```
-
-然后 b1 的 server 块统一转给 a1。
-
-a2 的所有站点：
-
-```text
-domain-a2-1.com
-domain-a2-2.com
-new-domain-a2.com
-```
-
-都指向：
-
-```text
-b2
-```
-
-然后 b2 的 server 块统一转给 a2。
-
-真正的站点区分发生在 a1/a2 上：
-
-```text
-a1 宝塔/OpenResty 根据 Host 选择站点
-a2 宝塔/OpenResty 根据 Host 选择站点
-```
-
-所以 b 上必须保留：
-
-```nginx
-proxy_set_header Host $host;
-```
-
-没有这一行，a1/a2 上的宝塔就无法按域名分发，容易返回默认站点。
-
-------
-
-# 八、验证步骤
+# 验证步骤
 
 ## 1. 验证 b 的 Nginx 配置
 
@@ -757,7 +772,7 @@ add_header X-Debug-Upstream-Status ...
 
 ------
 
-# 九、a1/a2 上恢复真实访客 IP
+# a1/a2 上恢复真实访客 IP
 
 因为 b 是反代，a1/a2 默认看到的是 b 的 IP。
 
@@ -817,7 +832,7 @@ systemctl reload nginx
 
 ------
 
-# 十、防火墙建议
+# 防火墙建议
 
 ## b 服务器
 
@@ -909,7 +924,7 @@ a2 内网 IP：172.16.0.12
 
 ------
 
-# 十一、日志设计建议
+# 日志设计建议
 
 当前日志里建议增加一个字段：
 
@@ -947,7 +962,7 @@ host="domain-a1-1.com" server_addr="B2_IP" upstream_addr="A2_IP:80"
 
 ------
 
-# 十二、常见故障判断
+# 常见故障判断
 
 | 现象                          | 大概率原因                     | 检查方法                                    |
 | ----------------------------- | ------------------------------ | ------------------------------------------- |
@@ -961,7 +976,43 @@ host="domain-a1-1.com" server_addr="B2_IP" upstream_addr="A2_IP:80"
 
 ------
 
-# 十三、后续新增站点流程
+# 后续新增站点流程
+
+```mermaid
+flowchart TB
+    subgraph DNS["Cloudflare DNS / 代理记录"]
+        D11[domain-a1-1.com -> b1]
+        D12[domain-a1-2.com -> b1]
+        D13[new-a1-site.com -> b1]
+
+        D21[domain-a2-1.com -> b2]
+        D22[domain-a2-2.com -> b2]
+        D23[new-a2-site.com -> b2]
+    end
+
+    subgraph B["反代服务器 b"]
+        B1[b1 监听 80<br/>统一转发到 a1]
+        B2[b2 监听 80<br/>统一转发到 a2]
+    end
+
+    subgraph A["后端业务服务器"]
+        A1[a1 按 Host 分发站点]
+        A2[a2 按 Host 分发站点]
+    end
+
+    D11 --> B1
+    D12 --> B1
+    D13 --> B1
+
+    D21 --> B2
+    D22 --> B2
+    D23 --> B2
+
+    B1 --> A1
+    B2 --> A2
+```
+
+
 
 ## 新增 a1 站点
 
@@ -1039,7 +1090,7 @@ upstream_addr="A2_IP:80"
 
 ------
 
-# 十四、最终建议
+# 最终建议
 
 你的场景不建议在 b 上维护一堆域名规则，而应该采用：
 
