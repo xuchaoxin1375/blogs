@@ -27,6 +27,8 @@ b2--- a2--- domain-a2-1.com & domain-a2-2.com & dots2[...]
 
 ```
 
+稍微具体一点.
+
 ```mermaid
 flowchart LR
     U[Client / 浏览器用户] -->|HTTPS| CF[Cloudflare]
@@ -67,7 +69,7 @@ bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/he
   -m 'B2_IP:A2_IP' 
 ```
 
-
+另一情况是宝塔用户:
 
 ```bash
 # 适用于宝塔安装的nginx(openresty)
@@ -247,7 +249,7 @@ flowchart LR
 
 ------
 
-#### 完整示意图:
+### 完整示意图:
 
 ```mermaid
 graph 
@@ -367,7 +369,7 @@ graph TD
     style A2 fill:#bbf,stroke:#333,stroke-width:1px
 ```
 
-#### 时序图
+### 时序图
 
 > 这里以访问服务器`a1`上的站点`domain-a1-1.com`为例(访问`a2`上的站点`domain-a2...com`类似.)
 
