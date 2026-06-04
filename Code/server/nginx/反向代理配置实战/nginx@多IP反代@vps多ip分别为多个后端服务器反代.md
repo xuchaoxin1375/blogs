@@ -34,8 +34,8 @@ flowchart LR
     CF -->|HTTP / Flexible<br/>目标IP=b1| B1[b 服务器<br/>公网IP b1]
     CF -->|HTTP / Flexible<br/>目标IP=b2| B2[b 服务器<br/>公网IP b2]
 
-    B1 -->|反向代理 HTTP<br/>保留 Host| A1[a1 服务器<br/>宝塔 / OpenResty]
-    B2 -->|反向代理 HTTP<br/>保留 Host| A2[a2 服务器<br/>宝塔 / OpenResty]
+    B1 -->|反向代理 HTTP<br/>保留 Host| A1[a1 服务器<br/>Nginx / OpenResty]
+    B2 -->|反向代理 HTTP<br/>保留 Host| A2[a2 服务器<br/>Nginx / OpenResty]
 
     A1 --> S11[domain-a1-1.com]
     A1 --> S12[domain-a1-2.com]
@@ -44,6 +44,43 @@ flowchart LR
     A2 --> S21[domain-a2-1.com]
     A2 --> S22[domain-a2-2.com]
     A2 --> S23[...未来新增站点]
+```
+
+
+
+## 一键配置方案
+
+为了方便服务器管理员使用,本文也提供了配套的部署脚本:
+
+```bash
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) -h # 通过-h选项获取脚本帮助(使用说明)
+```
+
+适用于宝塔安装的nginx(openresty),具体参数可以根据自己的情况调整.
+
+```bash
+# 包管理器标准安装:
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
+  -m 'B1_IP:A1_IP' \
+  -m 'B2_IP:A2_IP' 
+```
+
+
+
+```bash
+# 适用于宝塔安装的nginx(openresty)
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
+-c /www/server/nginx/conf \
+-d /www/server/panel/vhost/nginx \
+-l /www/wwwlogs/ \
+-M <(
+echo "
+# 一行一个映射关系,修改为真实映射组
+B1_IP:A1_IP
+B2_IP:A2_IP
+"
+)
+
 ```
 
 
