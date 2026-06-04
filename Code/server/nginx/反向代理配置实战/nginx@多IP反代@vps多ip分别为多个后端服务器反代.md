@@ -58,6 +58,8 @@ bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/he
 
 适用于宝塔安装的nginx(openresty),具体参数可以根据自己的情况调整.
 
+> `-m,-M`都是用来指定映射关系的,根据自己的喜好来使用就行.
+
 ```bash
 # 包管理器标准安装:
 bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
@@ -326,14 +328,14 @@ graph TD
 
     %% 反代服务器 B 层
     subgraph VPS_B [反代服务器 B]
-        B1[b:b1:80 <br>#40;监听 B1 端口#40;]
-        B2[b:b2:80 <br>#40;监听 B2 端口#40;]
+        B1[b:b1:80 <br>#40;监听 B1 端口#41;]
+        B2[b:b2:80 <br>#40;监听 B2 端口#41;]
     end
 
     %% 后端层
     subgraph Backends [后端服务器]
-        A1[a1:80 <br>#40;宝塔/OpenResty#40;]
-        A2[a2:80 <br>#40;宝塔/OpenResty#40;]
+        A1[a1:80 <br>#40;宝塔/OpenResty#41;]
+        A2[a2:80 <br>#40;宝塔/OpenResty#41;]
     end
 
     %% 站点分发层
@@ -419,69 +421,9 @@ ss -lntp | grep ':80'
 
 # 五、b 上 Cloudflare 真实 IP 配置
 
-> 这部分建议使用脚本定时更新
+> **这部分建议使用脚本定时更新,参考其他文档.**
 
-Cloudflare 代理后，b 默认看到的是 Cloudflare 节点 IP。Cloudflare 官方说明，真实访客 IP 会放在 `CF-Connecting-IP` 请求头中。([Cloudflare Docs](https://developers.cloudflare.com/support/troubleshooting/restoring-visitor-ips/restoring-original-visitor-ips/?utm_source=chatgpt.com))
-
-在 b 上创建：
-
-```bash
-mkdir -p /usr/local/openresty/nginx/conf/conf.d
-nano /usr/local/openresty/nginx/conf/conf.d/cloudflare-realip.conf
-```
-
-写入：
-
-```nginx
-# Cloudflare IPv4
-set_real_ip_from 173.245.48.0/20;
-set_real_ip_from 103.21.244.0/22;
-set_real_ip_from 103.22.200.0/22;
-set_real_ip_from 103.31.4.0/22;
-set_real_ip_from 141.101.64.0/18;
-set_real_ip_from 108.162.192.0/18;
-set_real_ip_from 190.93.240.0/20;
-set_real_ip_from 188.114.96.0/20;
-set_real_ip_from 197.234.240.0/22;
-set_real_ip_from 198.41.128.0/17;
-set_real_ip_from 162.158.0.0/15;
-set_real_ip_from 104.16.0.0/13;
-set_real_ip_from 104.24.0.0/14;
-set_real_ip_from 172.64.0.0/13;
-set_real_ip_from 131.0.72.0/22;
-
-# Cloudflare IPv6
-set_real_ip_from 2400:cb00::/32;
-set_real_ip_from 2606:4700::/32;
-set_real_ip_from 2803:f800::/32;
-set_real_ip_from 2405:b500::/32;
-set_real_ip_from 2405:8100::/32;
-set_real_ip_from 2a06:98c0::/29;
-set_real_ip_from 2c0f:f248::/32;
-
-real_ip_header CF-Connecting-IP;
-real_ip_recursive on;
-```
-
-确认主配置里包含了：
-
-```nginx
-include conf.d/*.conf;
-```
-
-或者：
-
-```nginx
-include /usr/local/openresty/nginx/conf/conf.d/*.conf;
-```
-
-检查：
-
-```bash
-/usr/local/openresty/nginx/sbin/nginx -T | grep -A5 -B5 CF-Connecting-IP
-```
-
-------
+在反代服务器 `b` 上创建`cf_real_ip.conf`,并定期更新.
 
 # 六、b 上统一反代配置
 
@@ -555,9 +497,11 @@ flowchart TB
 
 
 
-### 完整配置:
+### 完整配置
 
 > 仅演示2个ip的情况,并简单写在同一个文件中.
+>
+> 更多ip的映射建议使用脚本生成.
 
 ```nginx
 map $http_upgrade $connection_upgrade {
@@ -1219,34 +1163,3 @@ upstream_addr="A2_IP:80"
 
 ------
 
-# 最终建议
-
-你的场景不建议在 b 上维护一堆域名规则，而应该采用：
-
-```text
-b1 入口 = a1 网关
-b2 入口 = a2 网关
-```
-
-最终规则非常简单：
-
-```text
-DNS 指向 b1 的所有域名 → a1
-DNS 指向 b2 的所有域名 → a2
-```
-
-b 上只保留两个默认 server：
-
-```nginx
-server {
-    listen B1_IP:80 default_server;
-    proxy_pass http://a1_backend;
-}
-
-server {
-    listen B2_IP:80 default_server;
-    proxy_pass http://a2_backend;
-}
-```
-
-真正的站点管理继续放在 a1/a2 的宝塔里完成。这样后续新增站点时，b 服务器基本不需要再动。
