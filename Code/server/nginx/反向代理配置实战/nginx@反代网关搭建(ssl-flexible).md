@@ -698,9 +698,41 @@ ln -snfv /var/log/nginx /etc/nginx/log
 
 根据你的实际情况,确认nginx的日志保存目录,定期清空其中的内容.
 
-```
+> 创建清理脚本,内容参考如下(假设路径为:`~/sh/clean_reverse_server_logs.sh`):
+
+```bash
+#!/usr/bin/env bash
+# 使用truncate清空(指定文件)日志文件内容,会直接把文件大小变成 0，通常是最省心、最稳定的做法。
+# 对于持续写入中的 Nginx access/error 日志，这也是更合适的清理方式。
+dirs=(
+    /www/wwwlogs
+    /var/log/nginx
+)
+
+for logdir in "${dirs[@]}"; do
+    [ -d "$logdir" ] &&
+        find "$logdir" \
+            -type f \
+            \(-name "*access.log" -o -name "*error.log" \) \
+            -exec truncate -s 0 {} +
+
+done
 
 ```
+
+在crontab中的行(每天凌晨清除一次)
+
+```bash
+0 0 * * * bash ~/sh/clean_reverse_server_logs.sh >> ~/clean_log_actions.log 2>&1
+```
+
+其中
+
+```
+>> ~/clean_log_actions.log 2>&1
+```
+
+记录每次清理动作,可以追加重定向到指定文件中.
 
 
 
