@@ -6,11 +6,13 @@
 
 > 假设反代服务器`b`有2个公网ip,分别记为`b1`,`b2`；
 >
-> `a1`和`a2`都有多个互不相同的站点，配置成反代网关尽可能一次性配置，后续服务器`a1`和`a2`上面增加站点也不用修改vps;
+> 已知`a1`和`a2`都有多个互不相同的站点:
 >
 > > 例如`a1`上存在站点`domain-a1-1.com`,`domain-a1-2.com`,...;
 > >
 > > 而`a2`上存在站点`domain-a2-1.com`,`domain-a2-2.com`,...;
+
+现在要求把服务器`b`配置成反代网关,尽可能一次性配置,使得后续服务器`a1`和`a2`上面增加站点也不用修改`b`上的配置;
 
 我通过**cloudflare**代理(ssl加密方式采用flexible,且暂不考虑full模式),并且通过ip`b1`对服务器`a1`做反代,`b2`对应服务器`a2`做反代;
 
@@ -166,7 +168,7 @@ domain-a1-1.com   A   b2   Proxied
 
 因为 Cloudflare 对同一个 hostname 配多个 A/AAAA 记录会形成 DNS 级分发/轮询，官方文档也把这种方式描述为随机分发到多个服务器的 round-robin DNS。([Cloudflare Docs](https://developers.cloudflare.com/dns/manage-dns-records/how-to/round-robin-dns/?utm_source=chatgpt.com))
 
-你的需求不是负载均衡，而是：
+本例的需求不是负载均衡，而是：
 
 ```text
 b1 固定去 a1
