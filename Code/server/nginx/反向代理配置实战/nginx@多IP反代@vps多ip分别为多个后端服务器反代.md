@@ -164,7 +164,47 @@ proxy_bind b2;
 
 ------
 
-# 三、推荐最终架构
+# 三、网络架构示意图
+
+简图
+
+```mermaid
+flowchart LR
+    subgraph ClientSide["用户侧"]
+        U[浏览器 / Client]
+    end
+
+    subgraph CloudflareSide["Cloudflare"]
+        CF1[提供 HTTPS]
+        CF2[DNS 代理]
+        CF3[转发真实IP头<br/>CF-Connecting-IP]
+    end
+
+    subgraph Gateway["反代网关 b"]
+        B1[按入口 IP 分流<br/>b1 -> a1]
+        B2[按入口 IP 分流<br/>b2 -> a2]
+        B3[记录反代日志]
+        B4[传递 Host / XFF / X-Real-IP]
+    end
+
+    subgraph Backend["后端服务器"]
+        A1[a1：承载自己的一组站点]
+        A2[a2：承载自己的一组站点]
+        A3[按 Host 匹配站点]
+    end
+
+    U --> CF1
+    CF1 --> CF2
+    CF2 --> CF3
+    CF3 --> B1
+    CF3 --> B2
+    B1 --> A1
+    B2 --> A2
+    A1 --> A3
+    A2 --> A3
+```
+
+
 
 ------
 
@@ -290,7 +330,7 @@ graph TD
 
 #### 时序图
 
-> 这里以
+> 这里以访问服务器`a1`上的站点`domain-a1-1.com`为例(访问`a2`上的站点`domain-a2...com`类似.)
 
 ```mermaid
 sequenceDiagram
@@ -448,7 +488,39 @@ a2 = 10.10.10.2 或 a2公网IP
 nano /usr/local/openresty/nginx/conf/conf.d/reverse_multi_ip.conf
 ```
 
-写入：
+### 配置示意图
+
+```mermaid
+flowchart TB
+    subgraph CF["Cloudflare"]
+        DNS1[domain-a1-*.com -> b1]
+        DNS2[domain-a2-*.com -> b2]
+    end
+
+    subgraph B["b 上的 Nginx / OpenResty"]
+        S1[server块1<br/>listen b1:80 default_server]
+        S2[server块2<br/>listen b2:80 default_server]
+
+        U1[upstream a1_backend]
+        U2[upstream a2_backend]
+    end
+
+    subgraph A["后端"]
+        A1[a1:80]
+        A2[a2:80]
+    end
+
+    DNS1 --> S1
+    DNS2 --> S2
+    S1 --> U1 --> A1
+    S2 --> U2 --> A2
+```
+
+
+
+### 完整配置:
+
+> 仅演示2个ip的情况,并简单写在同一个文件中.
 
 ```nginx
 map $http_upgrade $connection_upgrade {
@@ -833,6 +905,26 @@ systemctl reload nginx
 ------
 
 # 防火墙建议
+
+```mermaid
+flowchart TB
+    U[普通互联网用户]
+    CF[Cloudflare]
+    B[b 服务器<br/>b1 / b2]
+    A1[a1]
+    A2[a2]
+
+    U -->|仅访问域名| CF
+    CF -->|仅 Cloudflare IP 可访问 80/443| B
+    B -->|b1 仅允许访问 a1:80| A1
+    B -->|b2 仅允许访问 a2:80| A2
+
+    X1[直接访问 b1/b2] -. 应被防火墙拦截 .-> B
+    X2[直接访问 a1/a2] -. 应被防火墙拦截 .-> A1
+    X2 -. 应被防火墙拦截 .-> A2
+```
+
+
 
 ## b 服务器
 
