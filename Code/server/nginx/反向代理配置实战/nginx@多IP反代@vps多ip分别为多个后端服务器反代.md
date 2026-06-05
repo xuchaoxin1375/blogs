@@ -67,7 +67,7 @@ bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/he
 > 有几组映射需要就指定几组,只有1组也行,超过2组也可以
 
 ```bash
-# 包管理器或标准安装:
+# 包管理器或官方nginx标准安装:
 bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
   -m 'B1_IP:A1_IP' \
   -m 'B2_IP:A2_IP' 
