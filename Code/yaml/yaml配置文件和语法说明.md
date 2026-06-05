@@ -26,17 +26,22 @@
 
 [YAML ---- YAML - Wikipedia](https://en.wikipedia.org/wiki/YAML)
 
-### 工具
+### 相关工具
 
-- 检查yaml语法问题:
-  - 权威检查:[YAMLlint - The YAML Validator](https://www.yamllint.com/)
-  - [learn-yaml - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=docsmsft.docs-yaml)
-- 在线转换:(yaml-json双向转换)
-  - 自动转换,更推荐[JSON to YAML Online Converter](https://www.bairesdev.com/tools/json2yaml/)
-  - 手动点击[在线YAML转JSON](https://www.lddgo.net/convert/yaml-to-json)
-- 本地转换:
-  - yaml转json[YAML ❤️ JSON - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hilleer.yaml-plus-json)
-  - linux系统上有yamlint
+#### 检查yaml语法问题:
+
+- 权威检查:[YAMLlint - The YAML Validator](https://www.yamllint.com/)
+- 相关插件[learn-yaml - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=docsmsft.docs-yaml)
+
+#### 在线转换:(yaml-json双向转换)
+
+- 自动转换,更推荐[JSON to YAML Online Converter](https://www.bairesdev.com/tools/json2yaml/)
+- 手动点击[在线YAML转JSON](https://www.lddgo.net/convert/yaml-to-json)
+
+#### 本地转换:
+
+- yaml转json[YAML ❤️ JSON - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hilleer.yaml-plus-json)
+- linux系统上有yamlint
 
 ### 概述
 
@@ -119,9 +124,9 @@ version: 1.0
 
 ### 2. 缩进表示层级
 
-- 使用**空格**（不能用 Tab）表示嵌套层级。
-- 同一级别的元素必须对齐。
-- 缩进数量无硬性规定，但需保持一致。
+- **只能使用空格，绝对不能使用 Tab 键**：这是 YAML 最容易报错的地方。如果混入 Tab 键，解析时会直接抛出语法错误。
+- **缩进的空格数没有严格限制，但必须对齐**：通常推荐使用 **2 个空格**或 **4 个空格**作为一级缩进。
+- **同级元素必须左对齐**：只要处于同一个层级，它们的开头空格数就必须完全一致。
 
 ✅ 正确：
 
@@ -141,6 +146,34 @@ server:
 
 ---
 
+当一个键的值是一个列表时，列表项（以 `- ` 开头）通常建议缩进(但是部分解析器也能接受其与父级对齐)。
+
+```yaml
+# 列表项整体缩进 2 个空格
+environments:
+  - development
+  - staging
+  - production
+```
+
+```yaml
+# 这种写法也可以
+users:
+- name: Alice
+  role: admin
+- name: Bob
+  role: user
+# 但推荐缩进列表项
+users:
+  - name: Alice
+    role: admin
+  - name: Bob
+    role: user
+
+```
+
+
+
 ### 3. 键值对（映射 / Mapping）
 
 - 格式：`key: value`
@@ -157,8 +190,8 @@ database:
 
 ### 4. 列表（Sequence）
 
-- 每个列表项以 `-` 开头，后跟空格
-- 列表可包含标量、映射或其他列表
+- 每个列表项以 `-` 开头，**后跟空格**
+- 列表可包含**标量、映射或其他列表**
 
 ```yaml
 services:
