@@ -930,6 +930,7 @@ Nginx `map` 可以根据变量生成另一个变量，并且支持 `hostnames`�
 `/etc/openresty/conf.d/routes.map`：
 
 ```nginx
+# hostsnames指令告诉 Nginx，接下来的左侧匹配项（Key）包含了“主机名/域名”，请启用针对域名的特殊匹配规则。
 hostnames;
 
 default "";
@@ -983,7 +984,9 @@ location / {
 }
 ```
 
-Nginx 的主机名匹配支持精确名、通配符和正则，且会按精确名、最长前缀通配符、最长后缀通配符、正则的优先级选择；特殊形式 `.example.org` 可同时匹配 `example.org` 和 `*.example.org`。([Nginx](https://nginx.org/en/docs/http/server_names.html))
+Nginx 的主机名匹配支持精确名、通配符和正则，且会按精确名、最长前缀通配符、最长后缀通配符、正则的优先级选择；
+
+特殊形式 `.example.org` 可同时匹配 `example.org` 和 `*.example.org`。([Nginx](https://nginx.org/en/docs/http/server_names.html))
 
 这个方案的缺点是：新增域名后需要：
 
@@ -991,7 +994,7 @@ Nginx 的主机名匹配支持精确名、通配符和正则，且会按精确�
 openresty -t && systemctl reload openresty
 ```
 
-优点是：性能好、概念简单、Nginx 原生支持。
+优点是：性能好、概念简单、**Nginx 原生支持**(普通nginx版本也支持本方案)。
 
 ## 防火墙与安全限制
 
@@ -1049,6 +1052,8 @@ ufw status numbered
 - 搜索引擎误收录
 - 证书或跳转混乱
 - 被人把陌生域名解析到你的 IP 后借站
+
+# 其他
 
 ## 日志与调试
 
