@@ -335,16 +335,21 @@ fi
 
 ```
 
-终端中运行`bash /etc/nginx/update_cf_ip_configs.sh -s /etc/nginx/conf.d/cf-realip.conf  && nginx -t && nginx -s reload `
+终端中运行`bash /etc/nginx/update_cf_ip_configs.sh -s /etc/nginx/conf.d/cf-realip.conf `
+
+> 脚本内含`nginx -t && nginx -s reload`代码,默认情况会执行,使用`-n`时会跳过nginx重载步骤.
 
 > 如果顺利运行,则继续配置自动任务,否则请修复运行方式,知道正确为止,然后配置到自动任务中
 
 然后配置定时任务,定期更新,以`crontab`为例:
 
+> 下面的路径仅供参考,实际应用时自行核对或修改:
+
 ```bash
 # 每天凌晨3点更新cf_realip.sh,并重载nginx.(路径适用于ubuntu/debian vps)
-0 3 * * * bash /etc/nginx/update_cf_ip_configs.sh -s /etc/nginx/conf.d/cf-realip.conf  && nginx -t && nginx -s reload 
-
+0 3 * * * bash /etc/nginx/update_cf_ip_configs.sh -s /etc/nginx/conf.d/cf-realip.conf
+# 如果nginx通过宝塔安装:
+0 3 * * * bash /www/server/nginx/conf/update_cf_ip_configs.sh -s /www/server/panel/vhost/nginx/cf-realip.conf
 ```
 
 > 前缀`0 3 * * * `加在bash命令前面.更严谨的,`bash`写成`/bin/bash`
