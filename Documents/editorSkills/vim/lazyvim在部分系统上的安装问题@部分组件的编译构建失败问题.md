@@ -279,6 +279,10 @@ cargo install --locked tree-sitter-cli --version 0.25.10
 
 ### 6. 确认 tree-sitter 路径
 
+> 上述依赖都顺利安装完好后,建议执行`exec bash`,进入到bash中执行`lazyvim`的安装重试操作.
+>
+> 否则即便`tree-sitter-cli`顺利安装,也可能不被lazyvim识别.
+
 ```bash
 which tree-sitter
 tree-sitter --version
