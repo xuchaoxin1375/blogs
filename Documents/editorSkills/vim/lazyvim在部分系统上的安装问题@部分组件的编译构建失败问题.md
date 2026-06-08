@@ -142,9 +142,9 @@ Ubuntu 22.04 的系统组件依赖 glibc 2.35，强行替换 glibc 很容易导�
 
 这样编译出来的 `tree-sitter` 会适配当前 Ubuntu 22.04 的系统库，而不是依赖 GLIBC_2.39。
 
-## 处理步骤
+## tree-sitter版本检查
 
-### 1. 检查当前 glibc 和 tree-sitter
+###  检查当前 glibc 和 tree-sitter
 
 ```bash
 ldd --version
@@ -195,7 +195,7 @@ tree-sitter 0.26.9
 
 
 
-### 2. 删除可能有问题的预编译版本
+###  删除可能有问题的预编译版本
 
 如果是 npm 安装的：
 
@@ -217,7 +217,22 @@ type -a tree-sitter
 
 确保之后不会继续调用旧的、不兼容的版本。
 
-### 3. 补齐 Ubuntu 22.04 编译依赖
+## 安装tree-sitter
+
+方案有多种:
+
+- 如果你的设备上有brew可用,考虑通过brew安装,快速而且版本较新;(其他包管理器如果提供较新版本也可以考虑)
+- 如果要自行补齐依赖,然后编译安装,则步骤稍多,可以总结为一个脚本.
+
+### 通过brew安装
+
+```bash
+brew install tree-sitter-cli
+```
+
+### 分步编译安装
+
+####  补齐 Ubuntu 22.04 编译依赖
 
 ```bash
 sudo apt update
@@ -244,7 +259,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 但真正原因通常在日志上方，比如缺少编译器、openssl、pkg-config、clang 等。
 
-### 4. 安装或更新 Rust
+####  安装或更新 Rust
 
 ```bash
 curl https://sh.rustup.rs -sSf | sh
@@ -257,7 +272,7 @@ rustc --version
 cargo --version
 ```
 
-### 5. 使用 cargo 编译安装 tree-sitter-cli
+####  使用 cargo 编译安装 tree-sitter-cli
 
 推荐使用：
 
@@ -277,7 +292,7 @@ cargo install --locked tree-sitter-cli --version 0.26.8
 cargo install --locked tree-sitter-cli --version 0.25.10
 ```
 
-### 6. 确认 tree-sitter 路径
+##  确认 tree-sitter 路径
 
 > 上述依赖都顺利安装完好后,建议执行`exec bash`,进入到bash中执行`lazyvim`的安装重试操作.
 >
@@ -295,7 +310,7 @@ ldd "$(which tree-sitter)" | grep libc
 /home/你的用户名/.cargo/bin/tree-sitter
 ```
 
-如果不是，把 cargo bin 放到 PATH 前面。
+如果不是，把 cargo bin 放到 PATH 前面(对应brew等包管理器安装的情况也遵循类似的要求)。
 
 bash：
 
@@ -311,7 +326,7 @@ echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-再次确认：
+在新到shell会话中,再次确认：
 
 ```bash
 type -a tree-sitter

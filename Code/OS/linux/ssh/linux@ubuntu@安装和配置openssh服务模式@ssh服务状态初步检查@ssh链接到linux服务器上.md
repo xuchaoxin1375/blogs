@@ -52,6 +52,8 @@ sudo apt install openssh-client -y
 
 完整和详细的检查方法另见它文
 
+#### 服务未激活的信息示例
+
 ```bash
 #( 02/16/25@11:03AM )( cxxu@CxxuDesk ):~
    sudo systemctl status ssh
@@ -61,7 +63,10 @@ sudo apt install openssh-client -y
 TriggeredBy: ● ssh.socket
        Docs: man:sshd(8)
              man:sshd_config(5)
+             
 ```
+
+> 可以从TriggeredBy中观察到工作模式`ssh`
 
 #### 启动ssh服务
 
