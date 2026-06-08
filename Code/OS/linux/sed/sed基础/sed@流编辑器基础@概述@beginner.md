@@ -465,50 +465,9 @@ hello,world
 | **地址 `$`** | 仅指向最后一个文件的最后一行 | 指向**每个**文件的最后一行  |
 | **行号计数** | 全局累加                     | 每个文件从 1 重新开始计数   |
 
-## 注释和头部字符处理
+## 添加注释和头部字符处理
 
-以下面的配置代码片段(放在`com_com.conf`文件中)为例:
-
-```bash
-# com_com.conf
-# 引入cf可信ip配置(普通服务器建议定期自动调用更新脚本更新,特殊解析服务器不要使用)
-## 适用于cloudflare cdn解析.
-include /www/server/nginx/conf/cf-realip.conf;
-
-## 仅当特殊解析服务器才使用下面的方式:
-# include real_cdn_ip.conf;
-
-```
-
-变成:(注释掉第1个include,并且启用第2个include语句)
-
-```nginx
-# com_com.conf
-# 引入cf可信ip配置(普通服务器建议定期自动调用更新脚本更新,特殊解析服务器不要使用)
-## 适用于cloudflare cdn解析.
-# include /www/server/nginx/conf/cf-realip.conf;
-
-## 仅当特殊解析服务器才使用下面的方式:
-include real_cdn_ip.conf;
-```
-
-解决方案:(多种写法),直接原地修改
-
-```bash
-
-# 逐行处理
-sed -i '\|include /www/.*/cf-realip.conf;| s/^/# /' com_com.conf
-sed -i -E 's|#[[:space:]]*(include real_cdn_ip.conf;)|\1|' com_com.conf
-
-# 合并处理(换行符分隔不同的sed语句行,使用-E启用扩展正则,省去反斜杠转义括号组'()'):
-sed -i -E '
-  \|include /www/.*/cf-realip.conf;| s/^/# /
-  s|#[[:space:]]*(include real_cdn_ip\.conf;)|\1|
-' com_com.conf
-
-```
-
-
+典型示例,另见它文
 
 ## 命令分组
 
