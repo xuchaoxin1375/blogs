@@ -4,7 +4,9 @@
 
 **Cloudflare 只指向 `b` 的公网 IP；`b` 上 Nginx 只开一个通用反代入口；用 `map $host $backend_origin` 根据访问域名选择后端服务器。以后新增站点时，通常只改 `/etc/nginx/gateway/maps/routes.map.conf` 一行。**
 
-Cloudflare 的 **Flexible** 模式表示：浏览器到 Cloudflare 是 HTTPS，Cloudflare 到源站 `b` 是 HTTP，因此 `b` 暂时只需要监听 80；但不要在 `b` 上强制把 HTTP 重定向到 HTTPS，否则容易产生 Cloudflare Flexible 常见的重定向循环。Cloudflare 官方也明确说明 Flexible 下 Cloudflare 到 origin 是 HTTP 明文连接。([Cloudflare Docs](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/flexible/))
+Cloudflare 的 **Flexible** 模式表示：浏览器到 Cloudflare 是 HTTPS，Cloudflare 到源站 `b` 是 HTTP，因此 `b` 暂时只需要监听 80；但不要在 `b` 上强制把 HTTP 重定向到 HTTPS，否则容易产生 Cloudflare Flexible 常见的重定向循环。
+
+Cloudflare 官方也明确说明 Flexible 下 Cloudflare 到 origin 是 HTTP 明文连接。([Cloudflare Docs](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/flexible/))
 
 ------
 
@@ -26,7 +28,7 @@ flowchart LR
     A2 --> S22[domain-a2-2.com]
 ```
 
-建议 `b -> a1/a2/...` 之间使用 **内网 IP、VPC 私网 IP、WireGuard、Tailscale、ZeroTier** 等固定地址。若只能走公网 IP，也要在 `a1/a2` 防火墙中只允许 `b` 的 IP 访问 80 端口。
+建议 `b -> a1/a2/...` 之间使用 **内网 IP** 等固定地址。若只能走公网 IP，也要在 `a1/a2` 防火墙中只允许 `b` 的 IP 访问 80 端口。
 
 ------
 
