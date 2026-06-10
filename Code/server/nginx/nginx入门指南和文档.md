@@ -1581,16 +1581,16 @@ location ~* \.html? {
 To find the location that best matches a URI, NGINX (Plus) first compares the URI to the locations with a prefix string. It then searches the locations with a regular expression.
 为了找到与 URI **最匹配的位置**，NGINX (Plus) 首先将 URI 与**带有前缀字符串的位置**进行比较。然后使用**正则表达式搜索位置**。(注意先搜索到的优先级不一定最高)
 
-> `=`,`^~`可以理解为特殊的前缀匹配
+> `=`,`^~`可以理解为特殊的**前缀匹配**
 
 Higher priority is given to regular expressions, unless the `^~` modifier is used. Among the prefix strings NGINX (Plus) selects the most specific one (that is, the longest and most complete string). The exact logic for selecting a location to process a request is given below:
 除非使用 `^~` 修饰符(显式指定**前缀匹配**优先于正则匹配)，否则**正则表达式的优先级更高**。NGINX (Plus) 会在前缀字符串中选择最具体的一个（即最长且最完整的字符串）。
 
 但是`=`修饰符优先级最高,他是**精准匹配**
 
-#### 优先级基本原则
+#### 优先级基本原则总结
 
-**精准匹配>正则匹配>(普通)前缀匹配**
+**精准匹配(`=`)>特殊前缀匹配(`^~`)>正则匹配(`~`,`~*`)>普通前缀匹配(无路径修饰符)**
 
 #### 处理逻辑
 
