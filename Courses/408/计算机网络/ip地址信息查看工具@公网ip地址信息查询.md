@@ -135,6 +135,12 @@ PConline 的 whois 页面公开列了多个接口，包括 `ip.jsp`、`ipJson.js
 
 纯真 IP 库在国内历史很长，常见于离线库和工具生态；不过目前公开搜索结果里更容易看到第三方介绍和工具封装，而不是清晰的官方免费 API 文档。可以作为对照源或离线库候选，但正式商用要确认授权。([IP77](https://ip77.net/czip/?utm_source=chatgpt.com))
 
+### mihomo客户端或网页版中的ip查询接口
+
+- ip.sb
+- ipapi.is
+- whoip.i
+
 ------
 
 ## 推荐排序
