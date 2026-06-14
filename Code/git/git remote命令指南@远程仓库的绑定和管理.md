@@ -178,6 +178,14 @@ git remote set-url --delete origin https://gitee.com/user/repo.git
 
 ---
 
+移除指定的推送链接
+
+```bash
+ git remote set-url --delete --push origin  https://gitee.com/user/repo.git
+```
+
+
+
 ## 四、数据同步命令
 
 ### 1. 获取远程数据
