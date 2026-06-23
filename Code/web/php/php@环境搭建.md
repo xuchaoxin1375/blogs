@@ -382,47 +382,7 @@ PHP 本身功能有限，很多高级功能是靠“外挂”实现的：
 
 **用户浏览器** → (HTTP协议) → **Nginx** → (FastCGI协议) → **PHP-FPM (Master → Worker)** → **PHP 解释器 (加载 OPcache)** → **执行结果返回**。
 
-## 配置php web编程环境🎈
 
-可以使用 Visual Studio Code、PHPStorm 等编辑器，它们支持语法高亮、调试插件等功能。  
-
-本节介绍vscode方案
-
-### vscode+php
-
-插件:
-
-- [Live Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
-- 配合浏览器插件辅助实现实时预览php修改结果
-  - 此插件还有另一个分支的插件,支持php热更新,但是有局限性(依赖于`.php`文件具有较完整的html结构,否则渲染会出问题,表现出更新迟缓甚至空白!)[Five Server- Visual Studio Marketplace --- Live Server (Five Server) - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=yandeu.five-server)
-
-- [PHP Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=brapifra.phpserver)
-  - vscode有php server插件,可以充当服务器的角色,并且支持切换不同的php版本
-  - 使用`php server:open`指令或者右键找到预览指令查看php运行结果
-
-- [Open I - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Kingleo.openurl)
-  - vscode中打开预览指定url链接,而不用跳转到外部浏览器
-
-### php代码片段|代码模板🎈
-
-- [PHP Awesome Snippets - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hakcorp.php-awesome-snippets)
-
-  - 提供了几种php标签的简写代码片段,通过tab/回车键接受片段展开(更多详见文档🎈)
-
-  - **php tags**
-
-    | Snippet | Note                   | Output        |
-    | :------ | ---------------------- | :------------ |
-    | php     | php tag (complete)     | `<?php ...?>` |
-    | po      | php tag **open** only  | `<?php...`    |
-    | pc      | php tag **close** only | `?>`          |
-    | peco    | php **echo** shorthand | `<?= ... ?>`  |
-
-  - 当然这个插件还有在php tags内部的代码片段
-
-- [PHP Snippets from PHPStorm - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=phiter.phpstorm-snippets)
-
-  - 这个插件主要在`<?php ?>`内部编写php代码时使用
 
 
 ## php和opcache
@@ -604,7 +564,47 @@ wget https://raw.githubusercontent.com/amnuts/opcache-gui/master/index.php -O op
 php -S localhost:5001 -d opcache.enable=0 -d display_errors=1
 ```
 
+## 配置php web编程环境配置指南🎈
 
+可以使用 Visual Studio Code、PHPStorm 等编辑器，它们支持语法高亮、调试插件等功能。  
+
+> 本节介绍vscode方案
+
+### vscode+php
+
+插件:
+
+- [Live Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+- 配合浏览器插件辅助实现实时预览php修改结果
+  - 此插件还有另一个分支的插件,支持php热更新,但是有局限性(依赖于`.php`文件具有较完整的html结构,否则渲染会出问题,表现出更新迟缓甚至空白!)[Five Server- Visual Studio Marketplace --- Live Server (Five Server) - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=yandeu.five-server)
+
+- [PHP Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=brapifra.phpserver)
+  - vscode有php server插件,可以充当服务器的角色,并且支持切换不同的php版本
+  - 使用`php server:open`指令或者右键找到预览指令查看php运行结果
+
+- [Open I - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Kingleo.openurl)
+  - vscode中打开预览指定url链接,而不用跳转到外部浏览器
+
+### php代码片段|代码模板🎈
+
+- [PHP Awesome Snippets - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hakcorp.php-awesome-snippets)
+
+  - 提供了几种php标签的简写代码片段,通过tab/回车键接受片段展开(更多详见文档🎈)
+
+  - **php tags**
+
+    | Snippet | Note                   | Output        |
+    | :------ | ---------------------- | :------------ |
+    | php     | php tag (complete)     | `<?php ...?>` |
+    | po      | php tag **open** only  | `<?php...`    |
+    | pc      | php tag **close** only | `?>`          |
+    | peco    | php **echo** shorthand | `<?= ... ?>`  |
+
+  - 当然这个插件还有在php tags内部的代码片段
+
+- [PHP Snippets from PHPStorm - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=phiter.phpstorm-snippets)
+
+  - 这个插件主要在`<?php ?>`内部编写php代码时使用
 
 --------------------------------------------------
 
@@ -612,9 +612,10 @@ php -S localhost:5001 -d opcache.enable=0 -d display_errors=1
 
 下面这些方案各有优缺点.
 
-方案0依赖最少,其他方案都是带自动重载php页面.
+方案0依赖最少,但是在源码发生更改时,不会自动刷新,其他方案都是带自动重载php页面.
 
-其他方案自动重载,但是如果文件变更过大或者某次变更导致语法错误,可能会导致自动重载失效,这时候可能要重启插件(php服务)
+> 虽然其他方案自动重载,但是如果文件变更过大或者某次变更导致语法错误,可能会导致自动重载失效,这时候可能要重启插件(php服务)
+>
 
 ### 方案0
 
@@ -635,9 +636,12 @@ php -S localhost:5001 -d opcache.enable=0 -d display_errors=1
 - [PHP-enabled Live Local Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=t-myk.php-enabled-live-local-server)
 - [PHP Built In Server - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davidfreer.php-built-in-server)
 
-这个插件调用php内置服务器,不同的是提供了源码变更后自动重载的效果,并且此方案不强制要求包含特定的html标签
+这个插件调用php内置服务器,不同的是提供了**源码变更后自动重载的效果**(热重载).
 
-但是一定要注意`opcache`的问题,开发/学习阶段建议停用此功能,并且通过`php -i`检查是否配置生效.
+> 并且此方案不强制要求包含特定的html标签
+
+> 但是一定要注意`opcache`的问题,开发/学习阶段建议停用此功能,并且通过`php -i`检查是否配置生效.
+>
 
 尤其是`opcache.revalidate_freq`设置为0,如果开发阶段启用`opcache`的话
 
