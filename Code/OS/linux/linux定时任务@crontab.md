@@ -97,8 +97,6 @@ Linux 中 cron 的配置分为**用户级**和**系统级**两类：
 
 如果你只想在本次操作中使用特定的编辑器，可以在命令前直接指定环境变量：
 
-Bash
-
 ```bash
 EDITOR=nano crontab -e #EDITOR=nano 环境变量赋值语句,后面是启动crontab -e 两个分句写在一起表示此赋值仅是一次性生效(作用于后面的crontab -e)
 # 或者
