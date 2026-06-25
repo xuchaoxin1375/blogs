@@ -26,41 +26,39 @@
 
 
 
-### scoop下载和安装
+### scoop安装脚本获取
 
 以国内gitee版为例,兼容原版安装方法和参数
 
 ```powershell
-irm scoop.201704.xyz -outfile 'install.ps1'
+irm scoop.201704.xyz -outfile 'scoop_install.ps1'
 
 ```
 
 而github版本
 
 ```powershell
-irm get.scoop.sh -outfile 'install.ps1'
+irm get.scoop.sh -outfile 'scoop_install.ps1'
 
 ```
 
 自定义安装需要先下载安装脚本文件到本地,做必要的修改或者指定必要的参数,实现自定义安装
 
-#### 国内网络下载原版scoop安装脚本
+#### 通过代理下载原版scoop安装脚本(可选)
 
-官方文档的简单命令行国内网络可能跑不成功或者很卡
-
-如果本地网络不行需要走代理的时候,对于`irm`建议使用`-proxy`参数指定可用代理(如果有的话)
+官方文档的简单命令行国内网络可能跑不成功或者很卡,如果本地网络不行需要走代理的时候,对于`irm`建议使用`-proxy`参数指定可用代理(如果有的话)
 
 或者使用curl.exe命令下载也可以
 
 ```powershell
-irm get.scoop.sh -outfile 'install.ps1' -Proxy http://localhost:10808 -Verbose
+irm get.scoop.sh -outfile 'scoop_install.ps1' -Proxy http://localhost:10808 -Verbose
 ```
 
 > 如果要让irm 走代理,还可以通过配置winhttp代理,但这往往不如直接使用irm的proxy参数指定代理
 
 ```powershell
 # [cxxu@CXXUFIREBAT][~\Desktop][10:33:13][UP:0.38Days]
-PS> irm get.scoop.sh -outfile 'install.ps1' -Proxy http://localhost:10808 -Verbose
+PS> irm get.scoop.sh -outfile 'scoop_install.ps1' -Proxy http://localhost:10808 -Verbose
 VERBOSE: Requested HTTP/1.1 GET with 0-byte payload
 VERBOSE: Received HTTP/1.1 response of content type text/plain of unknown size
 VERBOSE: File Name: install.ps1
@@ -72,6 +70,8 @@ VERBOSE: File Name: install.ps1
 ```bash
 curl -L get.scoop.sh -v --proxy http://localhost:10808 -o ./install.ps1
 ```
+
+#### 脚本文件检查
 
 然后检查文件是否成功下载`ls .\install.ps1`
 
@@ -108,26 +108,15 @@ Mode                 LastWriteTime         Length Name
 
 #### 两个版本的切换
 
-它们都支持相同的安装参数,对于gitee版,可以通过修改scoop config scoop_branch 为archive来使用和github版的scoop
+它们都支持相同的安装参数,对于gitee版,可以通过修改`scoop config scoop_branch` 为archive来使用和github版的scoop
 
-反之,如果是github版,则可以通过修改scoop config scoop_repo来指定scoop本身的源
+反之,如果是github版,则可以通过修改`scoop config scoop_repo`来指定scoop本身的源
 
 切换完config参数后,总是建议执行`scoop update`来应用更改
 
-### 添加常用的bucket
 
-为了让scoop可以安装更多包,这里推荐一个聚合了大量小bucket的大bucket
 
-[wlzwme/scoop-proxy-cn](https://gitee.com/wlzwme/scoop-proxy-cn)
-
-该仓库的github:[lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。从多个开源 bucket 仓库同步更新，包含应用 1.6w+。](https://github.com/lzwme/scoop-proxy-cn)
-
-```powershell
-# add spc bucket
-scoop bucket add spc https://gitee.com/wlzwme/scoop-proxy-cn.git
-```
-
-### 调用脚本进行安装操作
+### 调用脚本进行安装操作🎈
 
 下面的命令行是为管理员(或者在管理员权限的powershell下调用安装脚本时)安装的,并且假设用户已经将命令行当前目录cd到`install.ps1`脚本文件所在目录
 
@@ -153,9 +142,9 @@ scoop bucket add spc https://gitee.com/wlzwme/scoop-proxy-cn.git
 
 移除完毕后,启动windows powershell(系统自带),然后调用并运行scoop安装脚本进行新的安装
 
-#### 综合示例
+### 综合示例(安装scoop到指定目录)
 
-1.github版scoop:为管理员使用指定代理安装到指定目录
+1.github版scoop:为**管理员**使用指定代理安装到指定目录(例如`C:\scoop`)
 
 > 指定代理后可能会提示github中仓库无法访问,scoop会尝试备用方案
 
@@ -172,10 +161,38 @@ Scoop was installed successfully!
 Type 'scoop help' for instructions.
 ```
 
-2.gitee版scoop:为普通用户指定scoop安装目录
+2.gitee版scoop:为**普通用户**指定scoop安装目录(例如`C:\scoop`)
 
 ```powershell
 .\install.ps1 -ScoopDir C:\scoop -ScoopGlobalDir C:\scoopGlobal
+```
+
+### 整理
+
+```powershell
+# 适合于国外方案,官方源
+irm get.scoop.sh -outfile 'scoop_install.ps1'
+# 国内gitee方案,不宜配置多余代理
+irm scoop.201704.xyz -outfile '~/scoop_install.ps1' -verbose 
+# 开始安装
+~\scoop_install.ps1 -RunAsAdmin -ScoopDir C:\scoop -ScoopGlobalDir C:\scoopGlobal
+
+```
+
+
+
+## 添加常用的bucket
+
+为了让scoop可以安装更多包,这里推荐一个聚合了大量小bucket的大bucket
+
+[lzwme/scoop-proxy-cn: 适合中国大陆的 Scoop buckets 代理镜像库。从多个开源 bucket 仓库同步更新，包含应用 1.6w+。](https://github.com/lzwme/scoop-proxy-cn)
+
+```powershell
+# add spc bucket 
+# gitee方案可能被误判违规,但是git拉取一般不受影响
+# 添加 bucket，默认拉取 sync 分支
+scoop bucket add spc https://gitee.com/wlzwme/scoop-proxy-cn.git
+
 ```
 
 
@@ -189,7 +206,7 @@ Type 'scoop help' for instructions.
 If you want to have an advanced installation, you can download the installer and manually execute it with parameters.
 
 ```powershell
-irm get.scoop.sh -outfile 'install.ps1'
+irm get.scoop.sh -outfile 'scoop_install.ps1'
 ```
 
 
@@ -238,7 +255,7 @@ Installation under the administrator console has been disabled by default for se
 下面是示例：(github原版scoop)
 
 ```powershell
-irm get.scoop.sh -outfile 'install.ps1'
+irm get.scoop.sh -outfile 'scoop_install.ps1'
 .\install.ps1 -RunAsAdmin [-OtherParameters ...]
 
 ```
