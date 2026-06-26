@@ -67,7 +67,9 @@ flowchart LR
 
 ### 客户端配置读取顺序
 
-OpenSSH 客户端按以下顺序获取配置：命令行选项、用户配置文件 `~/.ssh/config`、系统配置文件 `/etc/ssh/ssh_config`；除非某个选项另有说明，**第一个获得的值会被使用**。这意味着更具体的 `Host` 块应该写在前面，通用默认值应该写在后面。([man.openbsd.org](https://man.openbsd.org/ssh_config))
+OpenSSH 客户端按以下顺序获取配置：命令行选项、用户配置文件 `~/.ssh/config`、系统配置文件 `/etc/ssh/ssh_config`；
+
+除非某个选项另有说明，**第一个获得的值会被使用**。这意味着更具体的 `Host` 块应该写在前面，通用默认值应该写在后面。([man.openbsd.org](https://man.openbsd.org/ssh_config))
 
 ```sshconfig
 Host prod
@@ -81,6 +83,33 @@ Host *
 ```
 
 上例中，`Host prod` 比 `Host *` 更具体，所以应放前面。`Host *` 适合放默认值。
+
+命中`prod`块后,`Host *`块也会命中.这两个配置块中的设置是**叠加（合并）**的关系，而不是覆盖的关系。
+
+1. **匹配过程**：
+   当你执行 `ssh prod` 时，SSH 会扫描整个文件。它发现 `Host prod` 匹配了你的命令，于是它会读取这个块内的所有设置（HostName, User, Port）。
+   然后，SSH **继续往下扫描**，它看到了 `Host *`（这是一个通配符，匹配**所有**主机），因为 `prod` 也属于“所有主机”的范畴，所以这个块也被**命中**了。
+2. **优先级与合并（关键点）**：
+   - **如果有冲突**：写在**更前面**（或更具体）的配置优先。在你的例子中，`Host prod` 在前，所以如果 `Host *` 里也写了 `User root`，那么系统会保留 `Host prod` 里的 `deploy`。
+   - **如果没有冲突**：配置会**合并**。`Host prod` 里没有定义 `ServerAliveInterval` 和 `IdentitiesOnly`，而 `Host *` 里定义了，所以这两个配置会被成功应用到 `prod` 上。
+
+合并结果:
+
+```ssh
+# 合并后的结果
+Host prod
+    # --- 来自 Host prod 的具体设置 ---
+    HostName 203.0.113.10
+    User deploy
+    Port 22
+
+    # --- 来自 Host * 的通用设置 (被继承下来了) ---
+    ServerAliveInterval 30
+    IdentitiesOnly yes
+
+```
+
+把具体主机写在前面，把通用设置（如 `Host *`）写在最后是 SSH 配置文件的**标准最佳实践**。可以在 `Host *` 里放一些全局的安全或优化设置（比如防掉线、禁用密码登录等）
 
 ### 服务端配置读取规则
 
@@ -100,7 +129,11 @@ PasswordAuthentication no
 
 ### 客户端 `Host`
 
-`Host` 用来限制后续配置只对匹配的目标主机生效，直到下一个 `Host` 或 `Match`；`*` 表示所有主机，模式可以用 `!` 否定。因为客户端通常采用第一个命中值，所以配置时应遵循“精确在前，通用在后”。([man.openbsd.org](https://man.openbsd.org/ssh_config))
+`Host` 用来**限制后续配置只对匹配的目标主机**生效，直到下一个 `Host` 或 `Match`；
+
+`*` 表示所有主机，模式可以用 `!` 否定。
+
+因为**客户端通常采用第一个命中值**，所以配置时应遵循“**精确在前，通用在后**”。([man.openbsd.org](https://man.openbsd.org/ssh_config))
 
 ```sshconfig
 Host github.com
@@ -204,6 +237,102 @@ Host *
 ```
 
 `ProxyJump` 可以指定一个或多个跳板，多个跳板用逗号分隔，客户端会先连跳板再建立到最终目标的 TCP 转发；命令行 `ssh -J jump target` 是 `ProxyJump` 的快捷方式。([man.openbsd.org](https://man.openbsd.org/ssh_config))
+
+### `Host`和`HostName`
+
+在 SSH 客户端的配置文件（通常位于 `~/.ssh/config`）中，`Host` 和 `HostName` 是最基础也是最重要的两个字段。虽然它们看起来都像是“地址”，但在 SSH 连接建立的过程中，它们扮演的角色完全不同。
+以下是这两个字段的**详细对比总结**：
+
+核心定义对比
+
+| 字段         | **Host**                       | **HostName**             |
+| :----------- | :----------------------------- | :----------------------- |
+| **中文名**   | 主机模式 / 别名                | 真实主机名 / 目标地址    |
+| **作用**     | 定义配置块的“匹配规则”或“别名” | 指定实际连接的服务器地址 |
+| **输入来源** | 命令行中你输入的内容           | DNS 解析的 IP 或域名     |
+| **是否必须** | 是（每个配置块必须有）         | 否（默认等于 Host 的值） |
+
+
+**Host (别名/匹配模式)**
+
+*   **它是“钥匙”**：当你执行 `ssh myserver` 时，SSH 客户端会读取 `myserver` 这个字符串，然后去配置文件里从头到尾找哪个 `Host` 定义能匹配它。
+*   **它可以是别名**：你不需要记住复杂的服务器地址，只需要定义一个简单的名字。
+*   **它支持通配符**：可以使用 `*` 或 `?` 来匹配一组服务器。
+    *   例如：`Host *.test.com` 可以匹配所有以 `.test.com` 结尾的连接请求。
+*   **使用场景**：简写命令、批量应用配置。
+
+**HostName (真实地址)**
+
+*   **它是“终点”**：这是最终 SSH 协议要连接的 IP 地址或域名。
+*   **解析过程**：SSH 客户端拿到 `HostName` 后，会通过 DNS 将其解析为 IP 地址，然后发起网络连接。
+*   **默认行为**：如果在配置文件中省略 `HostName`，SSH 会默认认为 `HostName` 的值与 `Host` 的值相同。
+*   **使用场景**：当 `Host` 是一个简短的别名（如 `server1`），而真实地址很复杂（如 `192.168.1.55` 或 `ec2-xx-xxx.compute.amazonaws.com`）时使用。
+---
+ 实例演示
+
+假设你有一台阿里云服务器，IP 是 `47.95.xxx.xxx`，用户名是 `root`。
+**如果不写配置文件**：
+你需要输入长命令：
+```bash
+ssh root@47.95.xxx.xxx
+```
+**使用配置文件 (`~/.ssh/config`)**：
+```ssh
+# 这里 Host 是别名
+Host myaliyun
+    # 这里 HostName 是真实 IP
+    HostName 47.95.xxx.xxx
+    User root
+    Port 22
+```
+**现在的连接方式**：
+你只需要输入 `ssh myaliyun`。
+**发生了什么？**
+
+1.  你输入 `ssh myaliyun`。
+2.  SSH 查找配置，发现 **`Host myaliyun`** 匹配了该命令。
+3.  SSH 读取该块下的 **`HostName`**，得到 `47.95.xxx.xxx`。
+4.  SSH 读取 `User`，得到 `root`。
+5.  SSH 开始向 `47.95.xxx.xxx` 的 22 端口发起连接。
+---
+高级用法：通配符与继承
+
+这是 `Host` 最强大的地方，而 `HostName` 在这种情况下通常用于动态替换。
+**场景**：你有很多跳板机，它们的 HostName 实际上是由 Host 名字决定的。
+```ssh
+# 匹配所有以 "server-" 开头的连接
+Host server-*
+    User admin
+    IdentityFile ~/.ssh/id_rsa
+    
+    # 这里 HostName 没有写死，而是用了 %h
+    
+# 实例 1
+Host server-prod
+    # 这里的 HostName 默认会推导为 server-prod
+    # 假设你的 DNS 里 server-prod 能解析，或者你可以利用 %h 修改
+    
+# 实例 2 (利用 SendEnv 或脚本处理更复杂的情况，这里仅演示逻辑)
+Host server-db
+    HostName 192.168.1.100  # 显式指定 IP，覆盖默认行为
+```
+**关于 `%h` 的特殊说明：**
+在 `HostName` 中，`%h` 代表命令行中输入的原始主机名（即匹配到的 `Host` 值）。
+例如：
+
+```ssh
+Host web1 web2 web3
+    HostName %h.example.com
+    User myuser
+```
+当你输入 `ssh web1` 时：
+1.  `Host` 匹配到了 `web1`。
+2.  `HostName` 变成了 `web1.example.com`（`%h` 被替换为 `web1`）。
+3.  实际连接的是 `web1.example.com`。
+---
+#### 总结
+*   **Host**：是你**敲命令时用的名字**（为了方便和记忆）。
+*   **HostName**：是**服务器真正的地址**（为了连接和定位）。
 
 ### 主机密钥与 `known_hosts`
 

@@ -757,15 +757,11 @@ done
 
 此方法对于处理使用一组命令对 [find](https://mywiki.wooledge.org/UsingFind) 的输出特别有用：
 
-
-
- 
-
 ```bash
-   1 find . -type f -print0 | while IFS= read -r -d '' file; do
-   2     dir=${file%/*} base=${file##*/}
-   3     mv "$file" "$dir/${base// /_}"
-   4 done
+find . -type f -print0 | while IFS= read -r -d '' file; do
+	dir=${file%/*} base=${file##*/}
+	mv "$file" "$dir/${base// /_}"
+done
 ```
 
 
@@ -775,10 +771,6 @@ done
 注意在 `find` 命令中使用 `-print0` 的方式，该命令使用空字节作为文件名分隔符；在 `read` 命令中使用 `-d ''` 来指示它将所有文本读入 `file` 变量，直到遇到空字节为止。默认情况下， `find` 和 `read` 使用换行符来分隔其输入；然而，由于文件名本身可能包含换行符，这种默认行为会在换行处分割文件名，导致循环体失败。此外，还需要将 `IFS` 设置为空字符串，否则 `read` 仍会去除首尾的空白（使用 `IFS` 的默认值）。如需更多细节，请参见 [FAQ #20](https://mywiki.wooledge.org/BashFAQ/020)。
 
 使用管道将 `find` '的输出传入一个 `while` 循环中，会使循环处于一个子 shell 中，这意味着你在循环中所做的任何状态更改（改变变量、 `cd` 、打开和关闭[文件](https://mywiki.wooledge.org/FileDescriptor)等）在循环结束后都会丢失。为了避免这种情况，你可以使用进程替换：[ProcessSubstitution](https://mywiki.wooledge.org/ProcessSubstitution)：
-
-
-
- 
 
 ```bash
 linecount=0
@@ -793,6 +785,21 @@ printf 'total lines: %d\n' "$linecount"
 
 
 参见 [FAQ 24](https://mywiki.wooledge.org/BashFAQ/024) 了解更多讨论。
+
+#### 遍历处理find过滤出来的路径
+
+> 通过重定向和进程替换find,将find名查询出来的路径传递给read读取,并赋值给item变量;
+>
+> `find`使用`-print0`确保路径之间安全分割.
+>
+> `read`命令使用`-r`,`-d ''`配合`find`的`-print0`选项,使用正确的分隔符将输入的路径字符串正确分开每个路径.
+
+```bash
+while read -r -d '' item; do
+    # do something for each "$item"
+done < <(find  ... -print0)
+
+```
 
 
 
