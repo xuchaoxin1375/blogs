@@ -80,29 +80,35 @@ Linux 的虚拟文件系统层（Virtual File System，VFS）向应用程序提�
 | 云块存储          | 网络后端呈现为块设备                 | 延迟抖动、吞吐和 IOPS 配额、故障域    |
 | NVMe over Fabrics | 通过网络访问 NVMe                    | 网络、路径冗余、连接恢复、端到端延迟  |
 
-NVMe 的高性能不仅来自介质，也来自其队列模型。blk-mq 允许多个 CPU 软件队列向一个或多个硬件队列并行提交请求，避免传统单队列模型成为瓶颈。([内核官方网站](https://www.kernel.org/doc/html/v6.0/block/blk-mq.html?utm_source=chatgpt.com))
+NVMe 的高性能不仅来自介质，也来自其**队列模型**。
+
+> blk-mq 允许多个 CPU 软件队列向一个或多个硬件队列并行提交请求，避免传统单队列模型成为瓶颈。([内核官方网站](https://www.kernel.org/doc/html/v6.0/block/blk-mq.html?utm_source=chatgpt.com))
 
 > - **SATA** 是 **Serial Advanced Technology Attachment** 的缩写，中文通常译为：**串行高级技术附件**
 > - **PCIe**是**Peripheral Component Interconnect Express** 直译为:**外围组件快速互连**,一种高速串行计算机扩展总线标准
 
 ### Linux 设备名称
 
-| 设备示例              | 含义                                     |
-| --------------------- | ---------------------------------------- |
-| `/dev/sda`            | SCSI/SATA/USB 等经 SCSI 子系统呈现的整盘 |
-| `/dev/sda1`           | `/dev/sda` 的第一个分区                  |
-| `/dev/nvme0`          | NVMe 控制器设备                          |
-| `/dev/nvme0n1`        | 控制器上的 namespace                     |
-| `/dev/nvme0n1p1`      | NVMe namespace 的第一个分区              |
-| `/dev/vda`            | 常见 virtio 虚拟磁盘                     |
-| `/dev/xvda`           | 某些虚拟化平台的虚拟磁盘                 |
-| `/dev/md0`            | Linux MD 软件 RAID                       |
-| `/dev/dm-0`           | Device Mapper 内核映射设备               |
-| `/dev/mapper/vg-data` | Device Mapper 的友好名称，常见于 LVM     |
-| `/dev/loop0`          | 文件映射出的 loop 块设备                 |
-| `/dev/zram0`          | 内存压缩块设备                           |
+| 设备示例              | 含义                                         |
+| --------------------- | -------------------------------------------- |
+| `/dev/sda`            | SCSI/SATA/USB 等经 **SCSI 子系统**呈现的整盘 |
+| `/dev/sda1`           | `/dev/sda` 的第一个分区                      |
+| `/dev/nvme0`          | NVMe 控制器设备                              |
+| `/dev/nvme0n1`        | 控制器上的 namespace                         |
+| `/dev/nvme0n1p1`      | NVMe namespace 的第一个分区                  |
+| `/dev/vda`            | 常见 virtio 虚拟磁盘                         |
+| `/dev/xvda`           | 某些虚拟化平台的虚拟磁盘                     |
+| `/dev/md0`            | Linux MD 软件 RAID                           |
+| `/dev/dm-0`           | Device Mapper 内核映射设备                   |
+| `/dev/mapper/vg-data` | Device Mapper 的友好名称，常见于 LVM         |
+| `/dev/loop0`          | 文件映射出的 loop 块设备                     |
+| `/dev/zram0`          | 内存压缩块设备                               |
 
-`/dev/sda` 这种名称并不是稳定的业务标识。磁盘探测顺序、控制器变化或启动时序都可能改变字母编号。持久配置通常应使用 UUID、PARTUUID、文件系统 LABEL、WWN 或 `/dev/disk/by-*` 下的稳定链接。
+`/dev/sda` 这种名称并不是稳定的业务标识。磁盘探测顺序、控制器变化或启动时序都可能改变字母编号。**持久配置**通常应使用 UUID、PARTUUID、文件系统 LABEL、WWN 或 `/dev/disk/by-*` 下的稳定链接。
+
+### 块设备命名规则
+
+> 详情另见它文
 
 ### 设备发现与盘点
 
