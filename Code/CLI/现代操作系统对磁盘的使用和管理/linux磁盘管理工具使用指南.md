@@ -28,7 +28,7 @@
 
 ## Linux 存储分层模型
 
-Linux 磁盘管理不是单层操作，而是一层套一层的结构。你看到的 `/data`、`/home`、`/var` 并不是“磁盘本身”，而是某个文件系统被挂载到目录树后的结果。
+Linux 磁盘管理不是单层操作，而是一层套一层的结构。你看到的 `/data`、`/home`、`/var` 并不是“磁盘本身”，而是**某个文件系统被挂载到目录树**后的结果。
 
 ```mermaid
 flowchart TB
@@ -47,28 +47,30 @@ flowchart TB
 
 | 术语           | 英文                                               | 简明解释                                                     |
 | -------------- | -------------------------------------------------- | ------------------------------------------------------------ |
-| 块设备         | Block Device                                       | Linux 中以固定大小块进行读写的设备，例如硬盘、SSD、NVMe、虚拟磁盘。 |
+| 块设备         | Block Device                                       | Linux 中**以固定大小块进行读写**的设备，例如硬盘、SSD、NVMe、虚拟磁盘。 |
 | 分区表         | Partition Table                                    | 记录磁盘如何被划分。常见类型是 GPT 和 MBR。                  |
-| 分区           | Partition                                          | 磁盘上的一段连续或逻辑区域，例如 `/dev/sda1`。               |
-| 文件系统       | File System                                        | 负责组织文件和目录的数据结构，例如 ext4、XFS、Btrfs。        |
-| 挂载           | Mount                                              | 把某个文件系统接入 Linux 目录树，例如挂载到 `/data`。        |
+| 分区           | Partition                                          | 磁盘上的一段连续区域或逻辑区域，例如 `/dev/sda1`。           |
+| 文件系统       | File System                                        | 负责**组织文件和目录的数据结构**，例如 ext4、XFS、Btrfs。    |
+| 挂载           | Mount                                              | **把某个文件系统接入 Linux 目录树**，例如挂载到 `/data`。    |
 | 挂载点         | Mount Point                                        | 被挂载的目录，例如 `/mnt/backup`、`/data`。                  |
 | UUID           | Universally Unique Identifier                      | 文件系统或分区的唯一标识，常用于 `/etc/fstab`，比 `/dev/sdb1` 更稳定。 |
 | LABEL          | Volume Label                                       | 文件系统标签，便于人类识别，如 `data`、`backup`。            |
 | PARTUUID       | Partition UUID                                     | 分区级别的唯一标识，和文件系统 UUID 不完全相同。             |
-| inode          | Index Node                                         | 文件系统中记录文件元数据的结构。磁盘空间没满但 inode 用完时，也无法创建新文件。 |
-| LVM            | Logical Volume Manager                             | 逻辑卷管理器，把物理磁盘抽象成可灵活分配的逻辑卷。           |
-| PV             | Physical Volume                                    | LVM 中的物理卷，通常是磁盘或分区。                           |
-| VG             | Volume Group                                       | LVM 中的卷组，由一个或多个 PV 组成。                         |
-| LV             | Logical Volume                                     | LVM 中最终给系统使用的逻辑卷，可创建文件系统并挂载。         |
+| inode          | Index Node                                         | 文件系统中记录文件元数据的结构。**磁盘空间没满但 inode 用完时，也无法创建新文件。** |
+| LVM            | Logical Volume Manager                             | **逻辑卷管理器**，把物理磁盘抽象成可灵活分配的**逻辑卷**。   |
+| PV             | Physical Volume                                    | LVM 中的**物理卷**，通常是磁盘或分区。                       |
+| VG             | Volume Group                                       | LVM 中的**卷组**，由一个或多个 PV 组成。                     |
+| LV             | Logical Volume                                     | LVM 中最终给系统使用的**逻辑卷**，可**创建文件系统并挂载**。 |
 | RAID           | Redundant Array of Independent Disks               | 多磁盘阵列，用于冗余、性能或容量聚合。                       |
-| LUKS           | Linux Unified Key Setup                            | Linux 常用磁盘加密格式。                                     |
+| LUKS           | Linux Unified Key Setup                            | Linux 磁盘加密规范(**Linux 统一密钥设置**)。                 |
 | SMART          | Self-Monitoring, Analysis and Reporting Technology | 磁盘自监控与健康信息机制。                                   |
 | TRIM / discard | TRIM / Discard                                     | 通知 SSD 或精简配置存储哪些块已经不再使用。                  |
 
 ## 新手最重要的安全原则
 
-磁盘管理命令分为“只读查看”和“会改变磁盘”的两类。新手学习时，应该先熟练掌握只读命令，再碰分区、格式化、清除签名等危险命令。
+磁盘管理命令分为“只读查看”和“会改变磁盘”的两类。
+
+>  新手学习时，应该先熟练掌握只读命令，再碰分区、格式化、清除签名等危险命令。
 
 | 危险等级   | 工具或命令                                                   | 风险说明                                         |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------ |
@@ -503,7 +505,9 @@ UUID=xxxx  /backup  ext4  noauto,x-systemd.automount,nofail  0  2
 
 ## LVM 逻辑卷管理
 
-LVM 的价值是把物理磁盘抽象成更灵活的池，再从池中分配逻辑卷。LVM 官方手册将它描述为从物理设备创建虚拟块设备的工具，虚拟设备比直接使用物理设备更易管理，并可提供超出物理设备本身的能力。([man7.org](https://man7.org/linux/man-pages/man8/lvm.8.html?utm_source=chatgpt.com))
+LVM 的价值是把**物理磁盘抽象成更灵活的池，再从池中分配逻辑卷**。
+
+LVM 官方手册将它描述为**从物理设备创建虚拟块设备的工具**，虚拟设备比直接使用物理设备**更易管理**，并可提供超出物理设备本身的能力。([man7.org](https://man7.org/linux/man-pages/man8/lvm.8.html?utm_source=chatgpt.com))
 
 ### LVM 分层
 
