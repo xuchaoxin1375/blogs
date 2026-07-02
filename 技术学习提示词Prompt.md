@@ -1,4 +1,6 @@
-**系统地介绍**[ python argparse命令行参数解析];
+## 技术指南
+
+**系统地介绍**[ readonly ];
 
 要求围绕主题规划详细大纲,然后针对核心概念,规则或原理进行解释,**内容现代化且准确**,包含最佳实践指导,实用性强,深入浅出,适合指导新手学习.对于关键术语或缩写,考虑标注出对应的(英文术语).
 
@@ -22,9 +24,20 @@
 
 - 可选补充2: 内容简练概括性强,结构清晰,在有限的篇幅内合理安排内容
 
+## api 中转站排行榜参考
 
+可以找多个榜单都有的中转站,降低评价偏差
 
-## ai agent脚本编写提示词
+- [AI API中转站收录与评测](https://hvoy.ai/APIreview.html)
+- [API中转平台测评_中转站测试工具_模型真伪检测【LLM大模型照妖镜】](https://llmtest.cn/leaderboard)
+- [AI中转站评测排名 · API中转站自费亲测·无中转赞助合作 | Help AIO](https://www.helpaio.com/transit)
+
+### 试用中的中转站
+
+- https://www.cctq.ai/
+- https://api.api2cn.com/
+
+## ai agent脚本编写
 
 > 以python为例,让agent编写一个规范且可维护的脚本
 
