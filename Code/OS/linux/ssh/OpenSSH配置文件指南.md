@@ -305,7 +305,7 @@ Host server-*
     User admin
     IdentityFile ~/.ssh/id_rsa
     
-    # 这里 HostName 没有写死，而是用了 %h
+
     
 # 实例 1
 Host server-prod
