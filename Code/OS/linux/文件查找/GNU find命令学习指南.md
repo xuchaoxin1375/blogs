@@ -380,6 +380,23 @@ find . -maxdepth 1 -type f -name "*.sh"
 find . -mindepth 2 -name "*.conf"
 ```
 
+### 符号链接和层级搜索
+
+```shell
+# cxxu @ CxxuDesk in ~ [8:38:38]
+$ ls -ld ~/sh
+lrwxrwxrwx 1 cxxu cxxu 39 Jun  7 16:42 /home/cxxu/sh -> /repos/scripts/wp/woocommerce/woo_df/sh
+(base)
+# cxxu @ CxxuDesk in ~ [8:38:57]
+$ find ~/sh -maxdepth 1 -name qps.sh
+(base)
+
+# 使用-L选项表示遇到符号链接时,如果指向的是目录,那么在需要的时候进入搜索内部内容
+# cxxu @ CxxuDesk in ~ [8:39:07]
+$ find -L ~/sh -maxdepth 1 -name qps.sh
+/home/cxxu/sh/qps.sh
+```
+
 
 
 ### 关于`-depth`
@@ -590,7 +607,7 @@ find . -mindepth 2 -name "*.conf"
 
 **`-type`**：检查文件**本身**的类型。如果是一个链接，它就告诉你这是个链接（`l`）。
 
-**`-xtype`**：**解引用（Dereference）**检查。它会跳过链接本身，去看看链接背后的“真身”是什么。
+**`-xtype`**：**解引用（Dereference）**检查。它会跳过链接本身，去看看链接背后的“真身”是什么。在启用`-L`的情况下,`-xtype`解引用功能关闭(或者解析方向取反,结果会和不用`-L`选项情况下的`-type`功能一致)
 
 | `-type` 参数 | 含义           | 说明   |
 | :----------: | -------------- | ------ |
@@ -613,11 +630,26 @@ find . -mindepth 2 -name "*.conf"
 
 如果链接是**断开**的（死链接）：`-xtype` 会表现得像 `-type` 一样，检查链接本身。
 
-与 `-L` 参数的配合
+#### `-xtype`与 `-L` 参数的配合
 
 当你使用了 `-L`（跟随符号链接）选项时，`-type` 和 `-xtype` 的行为会**互换**：
 
-在 `-L` 模式下：`-type` 检查目标，`-xtype` 检查链接本身
+> 在 `-L` 模式下,遇到符号链接时,`-type` 检查目标，`-xtype` 检查链接本身
+
+```shell
+$ find . -maxdepth 1 -type l -name 's*' |xargs ls -ld
+lrwxrwxrwx 1 cxxu cxxu 39 Jun  7 16:42 ./sh -> /repos/scripts/wp/woocommerce/woo_df/sh
+
+$ find . -maxdepth 1 -xtype d -name 's*' |xargs ls -ld
+lrwxrwxrwx 1 cxxu cxxu 39 Jun  7 16:42 ./sh -> /repos/scripts/wp/woocommerce/woo_df/sh
+
+# 启用-L的情况下,-type相当于启用了追踪功能,和单独使用-xtype的效果一样(但涉及搜索深度时必须使用-L,并且推荐配合-type)
+$ find -L . -maxdepth 1 -type d  -name 's*' |xargs ls -ld
+lrwxrwxrwx 1 cxxu cxxu 39 Jun  7 16:42 ./sh -> /repos/scripts/wp/woocommerce/woo_df/sh
+
+$ find -L . -maxdepth 1 -xtype l  -name 's*' |xargs ls -ld
+lrwxrwxrwx 1 cxxu cxxu 39 Jun  7 16:42 ./sh -> /repos/scripts/wp/woocommerce/woo_df/sh
+```
 
 `find` 命令在处理 `-xtype` 时，会尝试**彻底追踪（Follow）**链接链，直到找到那个“非链接”的真实目标
 
