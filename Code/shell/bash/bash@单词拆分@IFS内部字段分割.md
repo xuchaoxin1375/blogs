@@ -34,8 +34,7 @@ shell 将 `$IFS` 变量中的每个字符视为**分隔符**，并使用这些�
 
 ## 什么是 IFS
 
-**IFS（Internal Field Separator，内部字段分隔符）**
- 是 Bash 在进行 **单词分割 word splitting** 时使用的“分隔符集合”，决定哪些字符会把字符串切分成多个“字段（fields）”。
+**IFS（Internal Field Separator，内部字段分隔符）** 是 Bash 在进行 **单词分割 word splitting** 时使用的“分隔符集合”，决定哪些字符会把字符串切分成多个“字段（fields）”。
 
 默认值通常是：这里使用`$'...'`的语法引用三个常见的字符
 
