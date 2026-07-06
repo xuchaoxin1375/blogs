@@ -166,15 +166,18 @@ mysql -uroot -p1234 demo.com < demo.com.sql
 如果不免密
 
 ```bash
-mysql -u root -p1234 -e "CREATE DATABASE \`demo.com\` "
-mysql -uroot -p1234 demo.com < demo.com.sql  
+db_name="domain.com"
+pass=""
+mysql -u root -p"$pass" -e "CREATE DATABASE \`$db_name\` "
+mysql -u root -p"$pass" "$db_name" < db_file.sql  
 ```
 
 如果免密
 
-```
-mysql -u root -e "CREATE DATABASE \`demo.com\` "
-mysql -uroot  demo.com < demo.com.sql  
+```shell
+db_name="domain.com"
+mysql -u root  -e "CREATE DATABASE \`$db_name\` "
+mysql -u root "$db_name" < ./db_file.sql
 ```
 
 补充:
