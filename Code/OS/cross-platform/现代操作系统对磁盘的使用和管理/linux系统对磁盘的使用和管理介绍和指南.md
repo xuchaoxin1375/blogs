@@ -47,22 +47,32 @@ flowchart TB
     I --> J["控制器与介质<br>HDD、SSD、NVMe、云块存储"]
 ```
 
-Linux 的虚拟文件系统层（Virtual File System，VFS）向应用程序提供统一的 `open()`、`read()`、`write()`、`stat()` 等接口，再把操作分派给 ext4、XFS、Btrfs 等具体文件系统。
+Linux 的**虚拟文件系统层**（Virtual File System，VFS）向应用程序提供统一的 `open()`、`read()`、`write()`、`stat()` 等接口，再把操作分派给 ext4、XFS、Btrfs 等**具体文件系统**。
 
-块层位于文件系统和块设备驱动之间；现代 Linux 主要使用多队列块层 blk-mq，以利用 NVMe、多核处理器和高并发设备的并行能力。([Linux内核文档](https://docs.kernel.org/filesystems/vfs.html?utm_source=chatgpt.com))
+**块层**位于**文件系统**和**块设备驱动**之间；现代 Linux 主要使用**多队列块层 blk-mq**，以利用 NVMe、多核处理器和高并发设备的并行能力。([Linux内核文档](https://docs.kernel.org/filesystems/vfs.html?utm_source=chatgpt.com))
+
+> `bio` 是 `struct bio` 结构体的简称，它描述了来自上层（文件系统、应用程序）的一个I/O请求。可以把它看作是一个I/O操作的“说明书”，包含了数据要写入/读取的设备地址（`bi_sector`）、数据所在的物理内存页（`bio_vec`）、数据长度以及完成回调函数（`bi_end_io`）等关键信息。
+>
+> blk-mq:(Block Multi-Queue)  `blk-mq` 是 Linux 内核为了充分利用现代高速存储设备（如 SSD、NVMe 驱动器）的并行处理能力而引入的架构。它通过将传统的单队列拆分为多个队列，极大地减少了多核CPU在处理I/O时的锁竞争，从而提升了性能和扩展性.
+>
+> MD RAID 是 Linux 内核中的**多设备（Multiple Device）**驱动，也是大家常说的 **Linux 软件 RAID**。它是 Linux 内核自带的功能，让你不依赖硬件 RAID 卡，仅靠操作系统就能将**多块物理硬盘组合成一个虚拟的、具备特定性能或冗余特性的存储设备**。
+>
+> > RAID :Redundant Array of Independent Disks，独立磁盘冗余阵列
+> >
+> > MD RAID 支持多种经典的 RAID 级别，以平衡数据安全和性能。
 
 需要注意，图中的部分层次可以交换或省略。例如：
 
-```text
-磁盘 → GPT 分区 → ext4
-磁盘 → LUKS → ext4
-磁盘 → LUKS → LVM → XFS
-多块磁盘 → MD RAID → LUKS → LVM → ext4
-多块磁盘 → Btrfs 多设备文件系统
-云块设备 → LVM Thin → 虚拟机逻辑卷
-```
+- 磁盘 → GPT 分区 → ext4
+- 磁盘 → LUKS → ext4
+- 磁盘 → LUKS → LVM → XFS
+- 多块磁盘 → MD RAID → LUKS → LVM → ext4
+- 多块磁盘 → Btrfs 多设备文件系统
+- 云块设备 → LVM Thin → 虚拟机逻辑卷
 
 不存在对所有场景都最优的唯一顺序。设计时要明确每一层解决什么问题，以及它发生故障时会影响哪些上层。
+
+> **块设备映射层**(lvm等)的详细介绍参考其他文档
 
 ------
 
@@ -94,8 +104,8 @@ NVMe 的高性能不仅来自介质，也来自其**队列模型**。
 | `/dev/sda`            | SCSI/SATA/USB 等经 **SCSI 子系统**呈现的整盘 |
 | `/dev/sda1`           | `/dev/sda` 的第一个分区                      |
 | `/dev/nvme0`          | NVMe 控制器设备                              |
-| `/dev/nvme0n1`        | 控制器上的 namespace                         |
-| `/dev/nvme0n1p1`      | NVMe namespace 的第一个分区                  |
+| `/dev/nvme0n1`        | 控制器上的 `namespace`                       |
+| `/dev/nvme0n1p1`      | NVMe namespace 的第一个分区(`partition1`)    |
 | `/dev/vda`            | 常见 virtio 虚拟磁盘                         |
 | `/dev/xvda`           | 某些虚拟化平台的虚拟磁盘                     |
 | `/dev/md0`            | Linux MD 软件 RAID                           |
@@ -126,7 +136,9 @@ blkid
 cat /proc/partitions
 ```
 
-`lsblk` 主要从 sysfs 和 udev 数据库收集块设备信息；`findmnt` 可以从 `/proc/self/mountinfo`、`fstab` 等位置查看实际挂载关系。脚本中应显式指定输出列，最好使用 JSON 输出，而不是解析默认的人类可读格式。([man7.org](https://man7.org/linux/man-pages/man8/lsblk.8.html?utm_source=chatgpt.com))
+`lsblk` 主要从 sysfs 和 udev 数据库收集块设备信息；`findmnt` 可以从 `/proc/self/mountinfo`、`fstab` 等位置查看实际挂载关系。
+
+脚本中应显式指定输出列，最好使用 JSON 输出，而不是解析默认的人类可读格式。([man7.org](https://man7.org/linux/man-pages/man8/lsblk.8.html?utm_source=chatgpt.com))
 
 查看某个设备的 udev 属性：
 
