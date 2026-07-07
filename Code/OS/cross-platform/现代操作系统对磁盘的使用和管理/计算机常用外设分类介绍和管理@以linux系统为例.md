@@ -187,6 +187,25 @@ Linux 内核设备模型使用统一的数据模型描述 **总线 bus、设备 
 
 `lsusb` 用于显示系统中的 USB 总线和连接的 USB 设备；`lspci` 用于显示 PCI 总线和 PCI 设备；`lsblk` 会从 `sysfs` 和 udev 数据库读取块设备信息。([man7.org](https://man7.org/linux/man-pages/man8/lsusb.8.html?utm_source=chatgpt.com))
 
+常见的基础外设:
+
+| 外设分类            | 典型硬件     | Linux 中的设备路径         | 设备类型          | 常见操作/用途                      |
+| :------------------ | :----------- | :------------------------- | :---------------- | :--------------------------------- |
+| **存储 (块设备)**   | SATA 硬盘    | `/dev/sda`, `/dev/sda1`    | **b** (Block)     | 挂载 (`mount`)、分区、文件系统操作 |
+|                     | NVMe SSD     | `/dev/nvme0n1`             | **b** (Block)     | 高速存储读写                       |
+|                     | U 盘 / SD 卡 | `/dev/sdb`, `/dev/mmcblk0` | **b** (Block)     | 热插拔挂载                         |
+| **输入 (字符设备)** | 键盘         | `/dev/input/eventX`        | **c** (Character) | 捕获按键事件 (evdev)               |
+|                     | 鼠标         | `/dev/input/mouseX`        | **c** (Character) | 读取移动坐标                       |
+|                     | 终端         | `/dev/tty1`, `/dev/pts/0`  | **c** (Character) | Shell 交互                         |
+| **输出 (字符设备)** | 声卡         | `/dev/snd/...`             | **c** (Character) | 音频播放与录制 (ALSA)              |
+| **网络 (网络设备)** | 以太网       | `eth0`, `ens33`            | (无 /dev 节点)    | IP 配置 (`ip addr`)、数据传输      |
+|                     | 无线网卡     | `wlan0`, `wlp3s0`          | (无 /dev 节点)    | 连接 Wi-Fi                         |
+| **打印机**          | USB 打印机   | `/dev/usb/lp0`             | **c** (Character) | 后台打印队列                       |
+
+1.  **物理上**，外设分为输入、输出和存储三类。
+2.  **逻辑上（OS层面）**，Linux 将外设主要抽象为字符设备（流式 IO）、块设备（可寻址块 IO）和网络设备（包交换）。
+3.  **管理上**，Linux 通过 `/dev` 提供访问接口，通过 `/sys` 提供信息视图，并利用 `udev` 实现即插即用的自动化管理
+
 ------
 
 ## Linux 外设管理总体结构
@@ -219,6 +238,37 @@ flowchart TD
 
 ## Linux 识别外设的基本过程🎈
 
+> 有关本节内容的详细介绍(包括概念,识别和管理机制)，请参考额外的文档.
+
+Linux 使用一系列总线驱动和子系统来发现和识别连接的外设：
+
+* **sysfs 文件系统：**
+
+  * 挂载在 `/sys` 目录下，它是内核内存结构的直接映射。
+
+  * 用户可以查看设备的详细硬件信息（厂商 ID、产品 ID、驱动状态）。
+
+  * *例子：* 查看 USB 设备信息：
+
+    ```bash
+    ls /sys/bus/usb/devices/
+    ```
+
+* **udev (Device Manager)：**
+
+  *   当内核检测到新硬件插入（热插拔）时，内核会通过 `netlink` 广播事件。
+  *   `udevd` 守护进程监听这些事件，并根据规则文件（位于 `/etc/udev/rules.d/`）自动执行动作：
+      *   创建 `/dev` 下的设备节点。
+      *   设置文件权限（如允许普通用户访问摄像头）。
+      *   加载相应的内核模块。
+
+* **常用硬件信息查看命令：**
+
+  *   `lsusb`: 列出 USB 总线上的外设（键盘、鼠标、U盘、网卡）。
+  *   `lspci`: 列出 PCI 总线上的外设（显卡、内置网卡、SATA 控制器）。
+  *   `lsblk`: 列出所有块设备（硬盘、分区）。
+  *   `dmesg`: 查看内核启动和设备检测时的日志信息。
+
 以插入一个 USB 摄像头为例：
 
 ```mermaid
@@ -243,7 +293,9 @@ sequenceDiagram
     App->>Service: 请求使用设备
 ```
 
-`systemd-udevd` 会监听来自内核的设备事件，并根据 udev 规则执行匹配动作；udev 规则可以基于设备属性识别设备、补充属性、创建符号链接或设置权限。([man7.org](https://man7.org/linux/man-pages/man8/systemd-udevd.service.8.html?utm_source=chatgpt.com))
+`systemd-udevd` 会监听来自内核的设备事件，并根据 udev 规则执行匹配动作；
+
+udev 规则可以基于设备属性识别设备、补充属性、创建符号链接或设置权限。([man7.org](https://man7.org/linux/man-pages/man8/systemd-udevd.service.8.html?utm_source=chatgpt.com))
 
 ------
 

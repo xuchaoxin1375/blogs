@@ -407,7 +407,7 @@ SSH 对权限控制极其严格。如果 `~/.ssh` 目录或其中的文件权限
 #### 快速修复命令(关键目录权限设置)
 
 ```bash
-chmod 755 /home/opcxxu
+chmod 755 /home/
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
