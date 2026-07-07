@@ -247,6 +247,10 @@ Set-Service sshd -StartupType Automatic
 # (可选)设置默认shell为powershell;
 #To config default shell (use powershell as default):
 New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -Value 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -PropertyType String -Force
+# 又比如:
+New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -Value 'C:\scoop\apps\powershell\current\pwsh.exe' -PropertyType String -Force
+
+# (可选设置 OpenSSH 在执行“远程命令”时传给默认 Shell 的参数。(需要注意：/c 更适合 cmd.exe，不太适合 pwsh)
 New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShellCommandOption -Value '/c' -PropertyType String -Force
 ```
 
@@ -269,7 +273,7 @@ Stopped  sshd               OpenSSH SSH Server
 
 如果你无法启动sshd服务,请进入到执行`sshd -d`以调试模式执行查看输入打印的问题;
 
-如果是端口占用问题,尤其是系统上是否安装了**wsl**并启用了相关端口(默认22),网络模式如果是`mirror`会影响windows系统(默认绑定22端口,导致服务启动失败，这种情况在，考虑修改sshd_config配置文件,不要都用22端口即可)
+如果是端口占用问题,尤其是系统上是否安装了**wsl**并启用了相关端口(默认22),网络模式如果是`mirror`会影响windows系统(默认绑定22端口,导致服务启动失败，这种情况在，考虑修改`sshd_config`配置文件,不要都用22端口即可)
 
 ```powershell
 #⚡️[opcxxu@OP-XCX][<以:192.168.1.32>][~\scoop\apps\openssh\current]
@@ -295,24 +299,24 @@ Optional
 - To configure a default shell, see [here](https://github.com/PowerShell/Win32-OpenSSH/wiki/DefaultShell)
 - To migrate sshd configuration from older versions (0.0.X.X), see [here](https://github.com/PowerShell/Win32-OpenSSH/wiki/Migrate-sshd_config-from-older-versions)
 
-### 配置文件sshd_config
+### 配置文件sshd_config🎈
 
 在 Windows 中，sshd 默认从 `%programdata%\ssh\sshd_config` 中读取配置数据。 
 
-> 如果使用powershell,可以通过如下路径访问`$env:programdata\ssh\sshd_config`:
->
-> ```powershell
-> 
-> PS> gi $env:programdata\ssh\sshd_config
-> 
->     Directory: C:\ProgramData\ssh
-> 
-> Mode                 LastWriteTime         Length Name
-> ----                 -------------         ------ ----
-> -a---          2025/10/22    20:09           2230 sshd_config
-> ```
->
-> 
+如果使用powershell,可以通过如下路径访问`$env:programdata\ssh\sshd_config`:
+
+```powershell
+
+PS> gi $env:programdata\ssh\sshd_config
+
+ Directory: C:\ProgramData\ssh
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          2025/10/22    20:09           2230 sshd_config
+```
+
+
 
 可以通过使用`sshd.exe`参数运行`-f`来指定其他配置文件。 如果该文件缺失，sshd 会在服务启动时生成一个具有默认配置的文件。
 

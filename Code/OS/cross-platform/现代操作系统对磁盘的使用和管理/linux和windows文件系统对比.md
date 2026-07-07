@@ -46,6 +46,32 @@ ext4 与 NTFS 都是成熟的通用磁盘文件系统，基本功能十分相似
 
 ## ext4 与 NTFS 的显著差异
 
+```mermaid
+flowchart LR
+    subgraph L["Linux (ext4)"]
+        L1["单一根目录 /<br>分区挂载到子目录"]
+        L2["inode 表<br>记录文件元数据"]
+        L3["POSIX 权限<br>user/group/other + rwx"]
+        L4["大小写敏感<br>File.txt ≠ file.txt"]
+        L5["路径分隔符: /"]
+    end
+    subgraph W["Windows (NTFS)"]
+        W1["多盘符 C: D:<br>每个分区独立目录树"]
+        W2["MFT 主文件表<br>每文件一条记录"]
+        W3["ACL 权限<br>SID + 访问控制项"]
+        W4["大小写不敏感<br>视为同一文件"]
+        W5["路径分隔符: \\"]
+    end
+    L1 -- "结构差异" --- W1
+    L2 -- "元数据差异" --- W2
+    L3 -- "权限差异" --- W3
+    L4 -- "命名差异" --- W4
+    L5 -- "格式差异" --- W5
+	
+```
+
+
+
 ### 1. 权限模型不同
 
 #### ext4 在 Linux 中
