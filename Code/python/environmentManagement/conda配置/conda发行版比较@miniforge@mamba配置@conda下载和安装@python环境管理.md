@@ -423,7 +423,7 @@ modified      HKEY_CURRENT_USER\Software\Microsoft\Command Processor\AutoRun
 >
 > 可以通过修改`.condarc`配置文件来更改这一默认行为.
 
-### conda 配置检查
+## conda 配置
 
 ```shell
  conda config --help
@@ -454,43 +454,61 @@ channels:
   - defaults
 ```
 
-检查当前是否自动激活环境:
+通常我们关心`$HOME/.condarc`即可.
+
+如果配置了国内源,可能形如:
 
 ```shell
- conda config --show auto_activate
+(scrapling) #Admin[pwsh][Administrator@CXXUDESK][~][14:00:09]
+ conda config --show-source
+==> C:\scoop\apps\miniforge\current\.condarc <==
 auto_activate: False
-```
-
-如果是`False`说明shell加载后不会自动激活加载conda环境
-
-### mamba配置检查
-
-mamba命令和conda命令的语法有差异,使用`mamba config list`查看.
-
-```shell
-(main) # [pwsh][cxxu@CXXUFIREBAT][~\Desktop][1:22:10]
- mamba config list
-envs_dirs:
-  - C:\Users\cxxu\.conda\envs
-  - C:\Users\cxxu\.local\share\mamba\envs
 channels:
   - conda-forge
-mirrored_channels:
-  conda-forge:
-    - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
+
+==> C:\Users\Administrator\.condarc <==
+auto_activate: False
+envs_dirs:
+  - ~/.conda/envs
+channels:
+  - nodefaults
+custom_channels:
+  conda-forge: https://mirrors.pku.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.ustc.edu.cn/anaconda/cloud
+show_channel_urls: True
 ```
 
-> 注意,mamba用户使用的镜像源和conda有些区别,虽然mamba可利用conda的镜像源,但是效果不如专用的mamba源好.
+
+
+
+
+### 自动加载开关(auto_activate)
+
+> 默认安装设置了conda init后,可能会自动激活base环境.
 >
-> 但注意,选择了mamba后就不要和conda混用(使用mamba创建和管理环境,安装包等操作,而不混用conda),避免不必要的错误出现.
-
-Miniforge 是 conda-forge 官方维护的 Miniconda 替代品，默认使用 conda-forge 频道。
-
-如果使用 Miniforge 提供的 `conda`，请参考上述 Miniconda 的配置方法。不过，Miniforge 通常会搭配 mamba 一起使用。mamba 是 conda 的一个高性能替代实现，用来解决 conda 速度慢的问题。
-
-如果使用 `mamba`，其支持 `mirrored_channels` 选项，配置可以简化。
-
-### 自动加载开关
+> 可以关闭自动激活行为,存在其他环境时,也可以更改自动激活的环境(非base环境)
+>
+> ```shell
+> (scrapling) #Admin[pwsh][Administrator@CXXUDESK][~][14:00:17]
+>  conda config --describe auto_activate
+> # # auto_activate (bool)
+> # #   aliases: auto_activate_base
+> # #   Automatically activate the environment given at
+> # #   'default_activation_env' during shell initialization.
+> # #
+> # auto_activate: true
+> 
+> (scrapling) #Admin[pwsh][Administrator@CXXUDESK][~][14:16:04]
+>  conda config --describe default_activation_env
+> # # default_activation_env (str)
+> # #   The environment to be automatically activated on startup if
+> # #   'auto_activate' is True. Also sets the default environment to activate
+> # #   when 'conda activate' receives no arguments.
+> # #
+> # default_activation_env: base
+> ```
+>
+> 
 
 取消自动加载
 
@@ -506,6 +524,30 @@ conda config --set auto_activate false
 
 如果要配置为自动加载,则将`false`改为`true`
 
+### 更改默认激活的环境
+
+通过查看`conda config --describe`的输出,可以检索到环境激活的默认值配置项:`default_activation_env`
+
+假设我希望启动shell自动激活`scrapling`这个环境:
+
+```shell
+conda config --set default_activation_env scrapling
+conda config --set auto_activate true
+```
+
+
+
+### 检查自动激活的环境配置
+
+检查当前是否自动激活环境:
+
+```shell
+ conda config --show auto_activate
+auto_activate: False
+```
+
+如果是`False`说明shell加载后不会自动激活加载conda环境
+
 ### 为多个shell配置初始化代码片段
 
 > 以安装了多个shell的linux系统为例(包含了bash,zsh);
@@ -513,8 +555,8 @@ conda config --set auto_activate false
 > 以交互式安装的miniforge,在安装过程中可以选择配置初始化代码,以及加载shell时自动加载conda环境.
 >
 > 但是这个过程只会对一个shell做配置.如果你希望多个shell都注册conda初始化代码,考虑分别为他们执行`conda init`;
->
-> 例如
+
+例如
 
 ```shell
 # 为zsh注册:
@@ -655,6 +697,33 @@ CommandType     Name                                               Version    So
 -----------     ----                                               -------    ------
 Function        Invoke-Conda                                       0.0        Conda
 ```
+
+### mamba配置检查
+
+mamba命令和conda命令的语法有差异,使用`mamba config list`查看.
+
+```shell
+(main) # [pwsh][cxxu@CXXUFIREBAT][~\Desktop][1:22:10]
+ mamba config list
+envs_dirs:
+  - C:\Users\cxxu\.conda\envs
+  - C:\Users\cxxu\.local\share\mamba\envs
+channels:
+  - conda-forge
+mirrored_channels:
+  conda-forge:
+    - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
+```
+
+> 注意,mamba用户使用的镜像源和conda有些区别,虽然mamba可利用conda的镜像源,但是效果不如专用的mamba源好.
+>
+> 但注意,选择了mamba后就不要和conda混用(使用mamba创建和管理环境,安装包等操作,而不混用conda),避免不必要的错误出现.
+
+Miniforge 是 conda-forge 官方维护的 Miniconda 替代品，默认使用 conda-forge 频道。
+
+如果使用 Miniforge 提供的 `conda`，请参考上述 Miniconda 的配置方法。不过，Miniforge 通常会搭配 mamba 一起使用。mamba 是 conda 的一个高性能替代实现，用来解决 conda 速度慢的问题。
+
+如果使用 `mamba`，其支持 `mirrored_channels` 选项，配置可以简化。
 
 ## 使用uv代替pip
 
