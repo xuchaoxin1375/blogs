@@ -4,7 +4,13 @@
 
 > Screen 本质上是在“终端和程序之间加了一层管理器”
 
-GNU Screen 可以理解为一个运行在终端里的“文本窗口管理器”。它把一个真实终端复用给多个程序，让多个 shell、编辑器、日志查看器、远程任务同时存在于同一个 Screen 会话中。Screen 手册对它的定义是：Screen 是一个全屏窗口管理器，可以把一个物理终端复用给多个进程；每个虚拟终端都有自己的回滚缓冲区，并且窗口中的程序在窗口不可见、甚至整个 Screen 会话被分离时仍会继续运行。([Man7.org](https://man7.org/linux/man-pages/man1/screen.1.html))
+GNU Screen 可以理解为一个运行在终端里的“文本窗口管理器”。
+
+它把一个**真实终端复用给多个程序**，让多个 shell、编辑器、日志查看器、远程任务**同时存在于同一个 Screen 会话**中。
+
+> Screen 手册对它的定义是：Screen 是一个全屏窗口管理器，可以把一个物理终端复用给多个进程；
+>
+> 每个虚拟终端都有自己的回滚缓冲区，并且窗口中的程序在窗口不可见、甚至整个 Screen 会话被分离时**仍会继续运行**。([Man7.org](https://man7.org/linux/man-pages/man1/screen.1.html))
 
 先建立一个最重要的心智模型：
 
@@ -31,13 +37,13 @@ Screen 要解决的核心问题是：**一个真实终端不够用，而且终�
 
 | 概念     | 英文术语             | 解释                                                         |
 | -------- | -------------------- | ------------------------------------------------------------ |
+| 窗口     | window               | Screen 中的一个**全屏虚拟终端**                              |
 | 物理终端 | physical terminal    | 你当前真正连接的终端，可以是本地终端窗口，也可以是 SSH 登录后的终端 |
 | 虚拟终端 | virtual terminal     | Screen 为每个窗口模拟出来的终端环境                          |
 | 伪终端   | pseudo-terminal，PTY | Unix/Linux 中用于模拟终端设备的机制                          |
-| 会话     | session              | Screen 管理的一组窗口和状态                                  |
-| 窗口     | window               | Screen 中的一个全屏虚拟终端                                  |
+| 会话     | session              | Screen 管理的**一组窗口和状态**                              |
 | 前缀键   | command prefix       | Screen 默认用 `Ctrl-a` 进入命令模式                          |
-| 分离     | detach               | 离开 Screen 会话，但不结束其中程序                           |
+| 分离     | **detach**           | 离开 Screen 会话，但不结束其中程序                           |
 | 重连     | reattach             | 重新连接到之前的 Screen 会话                                 |
 
 普通 SSH 情况下，大致是这样：
@@ -70,7 +76,7 @@ flowchart LR
 
 ### 会话(session)是最重要的管理单位
 
-一个 Screen 会话可以理解为一个独立工作区。
+**一个 Screen 会话**可以理解为一个**独立工作区**。
 
 例如：
 
@@ -92,7 +98,7 @@ python train.py
 Ctrl-a d
 ```
 
-这表示分离当前 Screen 会话。
+这表示**分离当前 Screen 会话**。
 
 之后你可以退出 SSH，甚至网络断开。下次重新登录服务器后：
 
@@ -587,11 +593,9 @@ screen -d -m -S train python train.py
 
 含义是：
 
-```text
-创建一个名为 train 的 Screen 会话
-在里面运行 python train.py
-但不进入这个会话
-```
+- 创建一个名为 train 的 Screen 会话
+- 在里面运行 python train.py
+- 但不进入这个会话
 
 之后查看：
 
