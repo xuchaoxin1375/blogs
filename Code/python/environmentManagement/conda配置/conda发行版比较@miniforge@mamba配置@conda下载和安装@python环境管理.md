@@ -360,7 +360,7 @@ conda和mamba它们在很大程度上共用同一个配置文件，但也存在�
 
 > 处理基本信息还包括了channels信息.
 
-虽然 `mamba` 完美兼容 `.condarc`，但作为一个用 C++ 重写的加速版工具，它也支持一些 `conda` 没有的专属高级特性。
+mamba专属配置:
 
 - **专属配置文件：** **`.mambarc`**（同样位于用户主目录下，默认可能不存在，需要手动创建）。
 - **专属参数：** 比如用来控制并发下载线程数的 `max_downloads` 等。如果 `.mambarc` 和 `.condarc` 中有冲突的配置，`mamba` 会优先采用 `.mambarc` 中的设置。
@@ -506,6 +506,28 @@ conda config --set auto_activate false
 
 如果要配置为自动加载,则将`false`改为`true`
 
+### 为多个shell配置初始化代码片段
+
+> 以安装了多个shell的linux系统为例(包含了bash,zsh);
+>
+> 以交互式安装的miniforge,在安装过程中可以选择配置初始化代码,以及加载shell时自动加载conda环境.
+>
+> 但是这个过程只会对一个shell做配置.如果你希望多个shell都注册conda初始化代码,考虑分别为他们执行`conda init`;
+>
+> 例如
+
+```shell
+# 为zsh注册:
+conda init zsh
+# 为bash注册
+conda init zsh
+# 为powershell注册
+conda init powershell
+
+```
+
+
+
 ### 配置反初始化
 
 1. 删除 `$PROFILE` 中 `# >>> conda initialize >>>` 到 `# <<< conda initialize <<<` 之间的所有内容；
@@ -517,9 +539,10 @@ conda config --set auto_activate false
 
 两者仍然存在区别,虽然conda命令的求解器(solver默认已经是libmamba),但是conda的执行过程和mamba还是不完全一样.
 
-通常conda命令是首选(继承了libmamba的优点),且国内的镜像对conda支持较好,对于mamba,兼容性要差一些.
+**通常conda命令是首选**(继承了libmamba的优点),且国内的镜像对conda支持较好,对于mamba,兼容性要差一些.
 
-此外,安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要**激活虚拟环境后才能被shell找到**.
+> 此外,安装完miniforge后,conda命令可以被新开的shell找到,但是mamba如果不配置环境变量,可能需要**激活虚拟环境后才能被shell找到**.
+>
 
 ```shell
 
