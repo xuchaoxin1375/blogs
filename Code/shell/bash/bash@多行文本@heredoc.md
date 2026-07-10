@@ -21,9 +21,10 @@
 
 ### here doc
 
-This type of redirection instructs the shell to read input from the current source until it reads a line containing only delimiter (with no trailing blanks). 
-
-All of the lines read up to that point then become the standard input (or file descriptor n if n is specified) for a command.
+> This type of redirection instructs the shell to read input from the current source until it reads a line containing only delimiter (with no trailing blanks). 
+>
+> All of the lines read up to that point then become the standard input (or file descriptor n if n is specified) for a command.
+>
 
 这种类型的重定向指示 shell 从当前源读取输入，直到读取仅包含分隔符(定界符)（没有尾随空格）的行。
 
@@ -43,14 +44,32 @@ delimiter
 
 `<<[-]word`中,`<<`(包括`<<-`)与后面的部分可以有空格,如果关心空格数量,则使用引用,但是通常不会使用带有空格的哨兵词,而`<<-`中`-`前面不能有空格.
 
-- `<<eof`和`<< eof`指定的哨兵词都是`eof`,两个写法效果相同
-- 对于哨兵词前的`-`符号,用来移除heredoc中各行前的制表符(tab),注意,有的编辑器自动将**制表符**替换为若干数量的**空格**,而`-`是不会移除行前导的空格
+- `<<eof`和`<< eof`指定的**哨兵词**都是`eof`,两个写法效果相同(`<<`和哨兵词之间的空格会被忽略.)
+
+- 对于哨兵词前的`-`符号,用来移除heredoc中各行前的制表符(tab),注意,有的编辑器自动将**制表符**替换为若干数量的**空格**,而`-`是不会移除行前导的空格;
+
+  使用`-`标记修剪`Tab`键时,要和`<<`连在一起,也就是将`<<-`看作一个完整的记号,而不能有空格分隔.
+
+```shell
+# 修剪Tab键的正确写法
+cat <<- eof #或者 <<-eof
+1234
+	456
+abc
+eof
+
+# 修剪Tab键的错误写法:
+cat << -eof
+...
+```
+
+
 
 > 在 Bash 中，“**引用**”（Quoting）指的是对定界符 **`word`** 使用任何一种防止 shell 展开（Expansion）的机制。
 >
 > 对 **Here Document** 的起始标记 `word` 进行“引用”有三种常见方式：单引号（Single Quotes）,双引号（Double Quotes）,反斜杠（Backslash）
 >
-> 在简单的情况下,比如`word`取常见的`EOF`,则`delimiter`和`word`是相等的,而如果`word`取值带上引号,情况就不同,比如`word`取`"EOF"`(5个字符),那么此时根据规则,`delimiter`取值是去掉引号后的字符序列,也就是`EOF`(如果试图使用`"EOF"`作为结束标记,bash并不会结束here doc)
+> 在简单的情况下,比如`word`取常见的`EOF`,则`delimiter`和`word`是相等的,而如果`word`取值带上引号,情况就不同,比如`word`取值为`"EOF"`(5个字符),那么此时根据规则,`delimiter`取值是去掉引号后的字符序列,也就是`EOF`(如果试图使用`"EOF"`作为结束标记,bash并不会结束here doc)
 
 > 此外使用反斜杠也属于"引用"的一种,虽然这不如引号多见
 >
