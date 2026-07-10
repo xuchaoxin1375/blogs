@@ -46,11 +46,11 @@ part1${var}part2
 part1valuepart2
 ```
 
-可以发现,我们将内嵌的`${var}`标识为`'"..."'`的形式,也就是用`'"`,`"'`组合包裹需要安全扩展的变量
+可以发现,我们将内嵌的`${var}`标识为`'"..."'`的形式,也就是用`'"`,`"'`组合包裹需要安全扩展的变量;
 
-下面举一个更加有用的例子;
+> 如果`var`表示的是一个可能带有空格的路径,那么使用`'"'$var'"'`的方式包裹,可以在替换后留下`''`,防止空格阻断问题.
 
-
+### 例
 
 ```json
 
@@ -117,6 +117,102 @@ curl https://openrouter.ai/api/v1/chat/completions \
     ]
   }'
 ```
+
+### 例
+
+本例中,使用`'"'$var'"'`的方式包括路径变量,即便`var`取值包含空格,在shell解释和替换变量后也可以保留下来`''`,也可以正确识别.
+
+这里的文本片段内容中几乎不包含引号,可用此方案处理(如果包含很多`',"`,那么因为引号可能被shell解析,则不太适合;这种情况下应该考虑heredoc的方式,甚至将文本片段保存到单独的文件中,然后用`sed`这类工具来做针对性修改,会比直接嵌入在脚本中更加易于维护和阅读.)
+
+heredoc更加擅长包含很多引号的情况,但是如果有大量变量(`$var`)需要保留`$`字面量,则需要对这些`$`符号做引用(转义)
+
+```shell
+# 准备一些变量(将在复杂字符串中引用)
+mihomo_std_home="/usr/local/bin"
+mihomo_std="$mihomo_std_home/mihomo"
+config_std_home="/etc/mihomo"
+config_std="$config_std_home/config.yaml"
+```
+
+1. 使用`herestring`的方案
+
+```shell
+
+
+# 创建 systemd 配置文件,测试性的写入家目录的demo.txt文件中
+cat <<<'
+[Unit]
+Description=mihomo Daemon.
+After=network.target NetworkManager.service systemd-networkd.service iwd.service
+
+[Service]
+Type=simple
+LimitNPROC=500
+LimitNOFILE=1000000
+...
+Restart=always
+ExecStartPre=/usr/bin/sleep 1s
+ExecStart='"'$mihomo_std'"' -d '"'$config_std_home'"'
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+
+' > ~/demo.txt # 通过重定向的方式将构造的复杂字符串写入到文件中.
+```
+
+对应的内容如下:
+
+```ini
+
+[Unit]
+Description=mihomo Daemon.
+After=network.target NetworkManager.service systemd-networkd.service iwd.service
+
+[Service]
+Type=simple
+LimitNPROC=500
+LimitNOFILE=1000000
+...
+Restart=always
+ExecStartPre=/usr/bin/sleep 1s
+ExecStart='/usr/local/bin/mihomo' -d '/etc/mihomo'
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+```
+
+2. 使用`heredoc`的方案:
+
+```shell
+# 创建 systemd 配置文件
+cat << EOF > ~/demo-heredoc.txt
+[Unit]
+Description=mihomo Daemon.
+After=network.target NetworkManager.service systemd-networkd.service iwd.service
+
+[Service]
+Type=simple
+LimitNPROC=500
+LimitNOFILE=1000000
+...
+Restart=always
+ExecStartPre=/usr/bin/sleep 1s
+ExecStart="$mihomo_std" -d "$config_std"
+ExecReload=/bin/kill -HUP \$MAINPID
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
+```
+
+
 
 ## curl 调试api
 
