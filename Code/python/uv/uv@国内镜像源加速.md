@@ -8,7 +8,11 @@
 
 ------
 
-## 1. 全局配置
+## 国内源局限性说明
+
+> 部分源的包或者工具镜像不完整,如果安装过程中提示不可用,可能需要切换到不同源重试.
+
+## 1. 配置文件
 
 [Configuration files | uv](https://docs.astral.sh/uv/concepts/configuration-files/)
 
@@ -19,15 +23,17 @@
 - **Linux / macOS:** `~/.config/uv/uv.toml`
 - **Windows:** `%APPDATA%\uv\uv.toml`
 
-**操作步骤：**
+**操作步骤：**以ustc,aliyun,tuna源为例:
 
-ustc源:
+### 当前项目配置：
 
-**当前项目配置**：修改项目根目录下的 `uv.toml` 
+修改项目根目录下的 `uv.toml` 
 
 ```toml
 [[index]]
-url = "https://mirrors.ustc.edu.cn/pypi/simple"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+# url = "https://mirrors.ustc.edu.cn/pypi/simple"
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 default = true
 ```
 
@@ -35,24 +41,58 @@ default = true
 
 ```toml
 [[tool.uv.index]]
-url = "https://mirrors.ustc.edu.cn/pypi/simple"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+# url = "https://mirrors.ustc.edu.cn/pypi/simple"
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 default = true
 ```
 
-**全局配置**：修改全局配置文件 `~/.config/uv/uv.toml`（Linux/macOS）或 `%AppData%\uv\uv.toml`（Windows），内容同上。
+### 全局配置：
+
+修改全局配置文件 `~/.config/uv/uv.toml`（Linux/macOS）或 `%AppData%\uv\uv.toml`（Windows），内容同上。
 
 1. 如果目录不存在，先创建它：`mkdir -p ~/.config/uv`(linux/macos)或`mkdir $env:appdata/uv `(windows powershell)
 2. 编辑或创建 `uv.toml` 文件
 
-或者tuna
+aliyun源为例
 
 ```TOML
 [[index]]
-url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+# url = "https://mirrors.ustc.edu.cn/pypi/simple"
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 default = true
 ```
 
 > **注意：** 在全局 `uv.toml` 中，层级是直接从 `[[index]]` 开始的，不需要写 `[tool.uv]`。
+
+### 一键配置shell脚本
+
+以bash为例
+
+```shell
+#!/usr/bin/env bash
+
+uv_config=~/.config/uv/uv.toml
+uv_config_home="$(dirname $uv_config)"
+mkdir -pv "$uv_config_home"
+
+cat << eof > "$uv_config"
+
+[[index]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+# url = "https://mirrors.ustc.edu.cn/pypi/simple"
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true
+
+eof
+
+echo "检查配置文件[$uv_config]"
+nl "$uv_config"
+
+```
+
+
 
 ------
 
@@ -61,8 +101,6 @@ default = true
 如果你不想修改配置文件，或者想在 CI/CD 环境中使用，可以设置环境变量。
 
 在你的 `.bashrc` 或 `.zshrc` 中添加：
-
-
 
 ```bash
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
@@ -104,10 +142,12 @@ uv python install 3.12
 配置完成后，你可以运行以下命令观察输出的 URL：
 
 ```bash
+uv pip install requests --verbose
+# 或者:
 uv add requests --verbose
 ```
 
-在输出的日志中，你应该能看到正在从 `mirrors.tuna.tsinghua.edu.cn` 获取数据，而不是 `pypi.org`。
+在输出的日志中，你应该能看到正在从镜像源中获取数据，而不是 `pypi.org`。
 
 ## 常用国内镜像源地址
 
