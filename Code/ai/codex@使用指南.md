@@ -8,7 +8,7 @@
 
 现代 Codex 的核心能力是：读取项目、理解上下文、修改文件、运行命令、检查测试、生成 diff、协助 code review，必要时还能把任务委托到云端环境并行执行。OpenAI 官方把它定义为“帮助你编写、审查并发布代码的 AI agent”，并且目前覆盖 Codex App、IDE 扩展、CLI 和 Web/Cloud 等形态。([OpenAI](https://openai.com/codex/))
 
-### 相关教程
+相关教程
 
 - [Codex 使用教程：安装下载、登录与第一次对话 | 古程](https://www.studynil.com/ai/ai-tools/codex/quickstart.html)
 

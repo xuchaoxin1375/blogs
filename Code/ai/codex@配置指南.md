@@ -10,13 +10,24 @@ Codex 的配置体系可以分成三层来理解：
 | 启动时覆盖       | CLI flags，例如 `--model`、`--sandbox`、`-c key=value`、`--profile` | 只影响当前这一次 Codex 会话或命令                            |
 | VS Code 插件设置 | VS Code Settings 里的 `chatgpt.*`、`chat.*`                  | 主要控制 IDE 插件 UI、启动方式、字体、WSL 运行方式等         |
 
-最重要的一点：**VS Code Codex 插件和 Codex CLI 使用同一个 Codex agent，并共享同一套 `~/.codex/config.toml` 配置层**。模型、approval、sandbox、MCP 等核心设置，不是在 VS Code settings 里单独配置，而是放在 Codex 的 `config.toml` 中。官方文档明确说明 CLI 和 IDE extension 共享配置层，并且 VS Code 插件内部也使用 Codex CLI。([OpenAI开发者](https://developers.openai.com/codex/config-basic))
+最重要的一点：**VS Code Codex 插件和 Codex CLI 使用同一个 Codex agent，并共享同一套 `~/.codex/config.toml` 配置层**。
+
+> 模型、approval、sandbox、MCP 等核心设置，不是在 VS Code settings 里单独配置，而是放在 Codex 的 `config.toml` 中。官方文档明确说明 CLI 和 IDE extension 共享配置层，并且 VS Code 插件内部也使用 Codex CLI。([OpenAI开发者](https://developers.openai.com/codex/config-basic))
+>
+
+## api 中转站配置文档
+
+仅举例说明:
+
+- [Codex 配置教程 | CCTQ-Doc](https://doc.cctq.ai/guide/codex.html)
+- [在 Codex CLI 中使用 CUN.AI - CUN.AI Docs](https://doc.cun.ai/zh/guide/clients/codex-cli)
+- [UU 文档 - UU API](https://uuapi.net/docs#codex-guide)
 
 ------
 
 ## Codex 配置文件体系
 
-### 配置文件位置
+配置文件位置
 
 | 位置                                | 作用域           | 适合放什么                                             |
 | ----------------------------------- | ---------------- | ------------------------------------------------------ |
@@ -72,7 +83,7 @@ codex --model gpt-5.5 -c model_reasoning_effort="high"
 
 ------
 
-## 最小可用配置示例
+## 最小可用配置示例🎈
 
 适合大多数个人开发者的基础配置：
 
@@ -120,7 +131,7 @@ raw_output_mode = false
 
 | 配置项                           | 可选值/类型                             | 作用                                    |
 | -------------------------------- | --------------------------------------- | --------------------------------------- |
-| `model`                          | 字符串，例如 `"gpt-5.5"`                | 指定默认模型                            |
+| `model`                          | 字符串，例如 `"gpt-5.5"`                | 指定**默认模型**                        |
 | `review_model`                   | 字符串                                  | 指定 `/review` 使用的模型               |
 | `model_provider`                 | provider id，例如 `"openai"`、自定义 id | 指定模型服务商                          |
 | `model_context_window`           | 数字                                    | 手动指定上下文窗口 token 数             |
@@ -360,7 +371,7 @@ MCP 常用选项包括 `command`、`args`、`env`、`env_vars`、`cwd`、`url`�
 
 ------
 
-## 第三方模型/API provider 配置
+## 第三方模型/API provider 配置🎈
 
 ### OpenAI-compatible provider
 
@@ -772,7 +783,7 @@ exclude = ["*KEY*", "*SECRET*", "*TOKEN*", "*PASSWORD*"]
 
 注意：这个版本不要再写 `sandbox_mode`。
 
-### 第三方 provider 配置
+### 第三方 provider 配置🎈
 
 ```toml
 model = "my-coding-model"
