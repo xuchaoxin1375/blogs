@@ -280,7 +280,7 @@ chmod [who][operator][permission] 文件/目录
   - `u`：所有者（user）
   - `g`：所属组（group）
   - `o`：其他用户（others）
-  - `a`：所有人（all，等同于 ugo）
+  - `a`：所有人（all，等同于 **ugo**）
 
   > 所有者用user表示而不是owner表示,避免和others混淆
 
@@ -368,7 +368,7 @@ mode of 'log.log' retained as 1755 (rwxr-xr-t)
 
 
 
-## 目录上的执行权限含义
+## 目录上的执行权限位(x)的含义
 
 对于目录而言，**执行权限（Executable, `x`）** 的意义与普通文件完全不同。在文件上，`x` 代表运行程序；但在目录上，`x` 权限通常被称为 **“搜索权限”（Search bit）**。
 
