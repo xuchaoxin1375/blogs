@@ -135,11 +135,11 @@ PConline 的 whois 页面公开列了多个接口，包括 `ip.jsp`、`ipJson.js
 
 纯真 IP 库在国内历史很长，常见于离线库和工具生态；不过目前公开搜索结果里更容易看到第三方介绍和工具封装，而不是清晰的官方免费 API 文档。可以作为对照源或离线库候选，但正式商用要确认授权。([IP77](https://ip77.net/czip/?utm_source=chatgpt.com))
 
-### mihomo客户端或网页版中的ip查询接口
+## mihomo客户端或网页版中的ip查询接口
 
-- ip.sb
-- ipapi.is
-- whoip.i
+- ipwho.is (详细的json信息)
+- ip.sb (简单的ip信息) 
+- ipapi.is (详细) ` curl https://ipapi.co/country/`
 
 ------
 
@@ -177,7 +177,7 @@ PConline 的 whois 页面公开列了多个接口，包括 `ip.jsp`、`ipJson.js
 
 **最终建议：** 你如果是国内项目，预算为 0，就用 **ip2region + 百度/高德校验**；如果是正式商用，就用 **IPIP.NET 商业数据 + 本地缓存 + 百度/高德/腾讯兜底**。
 
-## 低频使用
+## 中文api
 
 你一天只查几次、主要在 **shell 里看出口 IP/归属地**，我推荐这几个就够了：
 
