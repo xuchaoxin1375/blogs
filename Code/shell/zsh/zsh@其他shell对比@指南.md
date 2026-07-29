@@ -4,8 +4,6 @@
 
 将zsh,fish,bash三者放在同一套“交互使用、脚本兼容、配置体系、插件生态”框架下比较。
 
-内容基线：截至 2026 年 7 月，Zsh 官方文档对应 5.9.2，GNU Bash 当前参考手册对应 Bash 5.3，Fish 当前文档对应 4.8.1。([Zsh](https://zsh.sourceforge.io/Doc/Release/Introduction.html))
-
 ## 编排思路
 
 学习 Shell 时，一个常见误区是先复制一份复杂的 `.zshrc`，安装十几个插件，再根据报错逐项修补。这样虽然可能很快得到一个“好看”的终端，却很难理解配置为什么生效，也很难处理启动缓慢、补全失效、环境变量不一致等问题。
@@ -146,16 +144,14 @@ Zsh 官方将其定位为既可作为交互式登录 Shell，也可作为脚本�
 
 一条命令通常会经历以下过程：
 
-```mermaid
-flowchart TD
-    A["读取命令行"] --> B["识别引号、操作符和保留字"]
-    B --> C["参数展开<br>Parameter Expansion"]
-    C --> D["命令替换<br>Command Substitution"]
-    D --> E["算术展开<br>Arithmetic Expansion"]
-    E --> F["文件名生成<br>Filename Generation"]
-    F --> G["处理重定向"]
-    G --> H["执行命令"]
-```
+1. 读取命令行
+2. 识别引号、操作符和保留字
+3. 参数展开（Parameter Expansion）
+4. 命令替换（Command Substitution）
+5. 算术展开（Arithmetic Expansion）
+6. 文件名生成（Filename Generation）
+7. 处理重定向
+8. 执行命令
 
 不同展开过程可能相互影响，因此 Shell 中的引号尤其重要。
 

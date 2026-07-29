@@ -69,7 +69,7 @@ PS> git rm -r --cached  __pycache__/
 fatal: pathspec '__pycache__/' did not match any files
 ```
 
-## 批量地移除git中的提交文件文件🎈
+## 批量地移除git中的提交内容🎈
 
 从 Git 存储库中删除所有 `.exe` 文件的缓存记录为例做介绍.
 
