@@ -6,6 +6,13 @@
 
 # 一、abstract
 
+## 官方文档
+
+- [config-sample|Configuration Reference | ChatGPT Learn](https://learn.chatgpt.com/docs/config-file/config-sample)
+- [Codex 配置参考 | 配置键与选项](https://www.codex-docs.com/docs/config-file/config-reference)
+
+## 接入第三方api
+
 Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事：
 
 1. `model_provider` 必须与 `[model_providers.<id>]` 的 `<id>` **完全一致**；
@@ -17,6 +24,8 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 >
 > 可以考虑使用cc switch进行兼容.
 
+## 基本配置模板
+
 此外，`model_provider` 和 `model_providers` 应放在用户级：
 
 ```text
@@ -25,50 +34,70 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 
 > 不要放在项目目录的 `.codex/config.toml` 中，因为当前 Codex 会**忽略项目级配置里的 provider 和鉴权相关字段**。([OpenAI开发者](https://developers.openai.com/codex/config-reference))
 
-```toml
-# 新的供应商主要替换2个值(但不只2个地方):
-# 1. model_provider="" # 使用批量替换而不是值替换第一个位置
-# 2. base_url=""
+最小可用配置示例如下:
 
-# cctq
-model_provider = "cctq" 
+```toml
+# profile.toml配置模板
+# 1. model_provider = "provider-id"  # 使用批量替换而不是仅替换第一个位置,可以自定义,后续引用保持一致即可
+# 2. model = "model-id" # 要求严格,只能填写供应商提供的可用模型型号名称
+# 3. base_url="" # 要求严格,按供应商提供的url填写.
+
+# provider-id
+model_provider = "provider-id" 
+# 安全和权限配置
+## cli_auth_credentials_store = "file" # auto,file,keyring
+## 默认的:workspace-write,读取整个电脑上的文件,但修改仅限当前 Workspace（打开的项目）
+sandbox_mode = "workspace-write" # read-only,workspace-write,danger-full-access
+## 默认的询问策略是on-request,模型自己判断是否询问用户,untrusted,大部分危险操作都询问
+approval_policy = "never" # 永远不要弹确认框。如果权限允许：直接执行。如果权限不允许：立即失败。
 
 # 模型配置
-model = "gpt-5.6-luna"
-model_reasoning_effort = "low" # medium high
+model = "model-id" # 例如:gpt-5.6-luna
+model_reasoning_effort = "low" # low medium high xhigh max
 
-[model_providers.cctq]
-name = "cctq"
-base_url = "https://www.cctq.ai/v1" # 替换位置2
+[model_providers.provider-id]
+name = "provider-id" 
+base_url = "" 
 wire_api = "responses"
-supports_websockets = false # 按需设置
+
+# 按需设置下面的属性,这些配置在model_providers.<id>块下,不能单独移到前面去!
+## 如果是主配置文件profile.toml,则下面的env_key可以不设置,可以通过配置.codex/auth.json中写入密钥代替,但是灵活度不高
+## 将密钥配置在shell或系统的环境变量中(变量名和这里配置的值对应),这样启动codex时指定profile后,能够读同名的环境变量作为api key.(而不是直接将密钥填写在此.toml配置文件中,这看起来有点繁琐,但是更加安全.)
+env_key = "API_KEY" 
+# experimental_bearer_token = "" # 密钥不推荐直接填写,优先考虑使用env_key
+## 这里的环境变量名取值要和env_key的取值要相同
+env_key_instructions = "请设置env_key配置字段所指的环境变量名取值来提供密钥." 
+supports_websockets = false 
 
 # requires_openai_auth = true
 ```
+
+
+
+## 常用字段和可用值
+
+### sandbox_mode 
+
+| 值                 | 能读 | 能写      |
+| ------------------ | ---- | --------- |
+| read-only          | 全部 | 无        |
+| workspace-write    | 全部 | Workspace |
+| danger-full-access | 全部 | 全部      |
+
+### approval_policy 
+
+| 值         | 是否询问                 |
+| ---------- | ------------------------ |
+| untrusted  | 大部分危险操作询问       |
+| on-request | 模型判断是否询问（推荐） |
+| never      | 从不询问                 |
+| on-failure | 已废弃                   |
 
 ## 最小配置模板
 
 > 以uuapi为例
 
-```toml
-# model_provider取名可以自定义,但是注意后面引用时要一致.
-model_provider = "uuapi"
 
-# 默认模型
-model = "gpt-5.6-terra" # 必须和供应商或中转站提供的一致
-# 默认推理强度
-model_reasoning_effort = "medium" # medium high
-
-disable_response_storage = true # 历史遗留配置
-
-# model_providers.<id>中的id来自于前面定义的model_provider
-[model_providers.uuapi]
-name = "uuapi" # 可自定义的用户友好名称
-base_url = "https://uuapi.net/v1" # 必须根据供应商/中转站要求的url填写
-wire_api = "responses"
-requires_openai_auth = true
-
-```
 
 
 

@@ -68,7 +68,9 @@ codex --model gpt-5.5 -c model_reasoning_effort="high"
 
 ## 项目配置的限制
 
-项目内 `.codex/config.toml` 很有用，但不是所有字段都能放进去。官方文档说明，项目级配置不能覆盖一些“机器本地”或“安全敏感”的配置，例如：
+项目内 `.codex/config.toml` 很有用，但不是所有字段都能放进去。
+
+官方文档说明，**项目级配置**不能覆盖一些“机器本地”或“安全敏感”的配置，例如：
 
 | 不能可靠放在项目 `.codex/config.toml` 的配置 | 原因                                                   |
 | -------------------------------------------- | ------------------------------------------------------ |
@@ -505,7 +507,7 @@ sandbox = "elevated"
 
 ------
 
-## profiles：为不同工作模式准备配置
+## profiles：为不同工作模式准备配置🎈
 
 profile 文件放在：
 
@@ -574,7 +576,7 @@ sandbox_mode = "read-only"
 
 ## CLI 常用参数与配置文件的关系
 
-Codex CLI 继承 `~/.codex/config.toml` 的大多数默认值，但 `-c key=value` 和各种 flags 会覆盖当前 invocation。([OpenAI开发者](https://developers.openai.com/codex/cli/reference))
+Codex CLI 继承 `~/.codex/config.toml` 的**大多数默认值**，但 `-c key=value` 和各种 flags 会覆盖当前 invocation。([OpenAI开发者](https://developers.openai.com/codex/cli/reference))
 
 | CLI 参数                 | 对应配置/作用              | 示例                                     |
 | ------------------------ | -------------------------- | ---------------------------------------- |
@@ -686,7 +688,7 @@ codex \
   "Explain the architecture and identify risky areas. Do not modify files."
 ```
 
-### 在 CI 或脚本中使用
+### 在 CI 或脚本中使用🎈
 
 ```bash
 codex exec \
@@ -697,7 +699,7 @@ codex exec \
   "Run the focused test suite and summarize failures."
 ```
 
-官方 CLI 建议在 CI 中组合 `--json` 和 `--output-last-message`，以便捕获机器可读进度和最后的自然语言总结。([OpenAI开发者](https://developers.openai.com/codex/cli/reference))
+官方 CLI 建议在 CI 中组合 `--json` 和 `--output-last-message`，以便捕获**机器可读进度**和**最后的自然语言总结**。([OpenAI开发者](https://developers.openai.com/codex/cli/reference))
 
 ------
 
