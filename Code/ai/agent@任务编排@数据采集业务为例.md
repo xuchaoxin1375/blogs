@@ -8,7 +8,9 @@
 
 以下把“Codex”理解为 OpenAI 的编码 Agent，并以 **2026 年 7 月的能力和文档**为基准。
 
-Codex 适合读取代码库、编写和修改代码、执行命令、运行测试；可以通过 `codex exec`、Codex SDK 或 MCP 嵌入**程序化工作流**。
+Codex 适合读取代码库、编写和修改代码、执行命令、运行测试；
+
+> 可以通过 `codex exec`、Codex SDK 或 MCP 嵌入**程序化工作流**。
 
 官方文档也明确建议：当 Codex 只是更大 Agent 系统中的“编码专家”时，可以将 Codex CLI 作为 MCP Server，再由 Agents SDK 或自己的编排器统一调度。([OpenAI Developers](https://developers.openai.com/codex/codex-sdk?utm_source=chatgpt.com))
 
@@ -91,7 +93,7 @@ flowchart
 - 输出结构化验证报告；
 - 提交可审核的规则版本。
 
-工作流编排器负责决定什么时候启动 Codex、使用哪个模型、允许调用哪些工具、最多循环多少次，以及是否可以发布规则。
+**工作流编排器**负责决定什么时候启动 Codex、使用哪个模型、允许调用哪些工具、最多循环多少次，以及是否可以发布规则。
 
 ------
 
@@ -112,7 +114,7 @@ flowchart
 | 评测       | Evals           | 判断结果是否真正满足要求               |
 | 追踪       | Tracing         | 记录模型调用、工具调用和阶段转换       |
 
-OpenAI Agents SDK 将 Agent 定义为带有指令、工具、护栏和委派能力的模型，并提供内置 Agent Loop、Handoff、Agents-as-tools 和追踪能力。([OpenAI GitHub](https://openai.github.io/openai-agents-python/?utm_source=chatgpt.com))
+OpenAI Agents SDK 将 Agent 定义为带有**指令、工具、护栏和委派能力**的模型，并提供内置 Agent Loop、Handoff、Agents-as-tools 和追踪能力。([OpenAI GitHub](https://openai.github.io/openai-agents-python/?utm_source=chatgpt.com))
 
 典型 Agent 循环是：
 
@@ -131,6 +133,8 @@ flowchart TD
     J --> B
     I -- "是" --> K["发布规则版本"]
 ```
+
+可见,这里按照是否需要调用工具,包含2种循环过程.
 
 ### 为什么外层流程应当由代码控制
 
@@ -421,7 +425,7 @@ Playwright 的 Locator 具有自动等待和重试能力，其官方建议优先
 
 ------
 
-## Codex 应该怎样接入
+## Codex 应该怎样接入🎈
 
 ### 可选接入方式
 
@@ -455,7 +459,9 @@ Codex SDK 面向“以编码任务为核心的 Codex Thread”；官方文档建
 | Subagents    | 在复杂站点内部并行做接口分析、DOM 分析等   |
 | MCP          | 将浏览器、规则仓库、测试平台暴露为受控工具 |
 
-Codex 会在工作前读取适用的 `AGENTS.md`；Skills 可以打包指令、资源和可选脚本，使特定工作流更稳定、可复用。([OpenAI Developers](https://developers.openai.com/codex/guides/agents-md?utm_source=chatgpt.com))
+Codex 会在工作前读取适用的 `AGENTS.md`；
+
+Skills 可以打包指令、资源和可选脚本，使特定工作流更稳定、可复用。([OpenAI Developers](https://developers.openai.com/codex/guides/agents-md?utm_source=chatgpt.com))
 
 建议创建以下 Skills：
 
@@ -470,6 +476,17 @@ skills/
   fixture-builder/
   rule-repair/
 ```
+
+这套架构明显分为**“发现阶段”**和**“提取阶段”**，中间由统一的Schema串联。
+
+- **site-reconnaissance（站点侦察兵）**：入口模块。负责分析目标网站的技术栈（如Vue/React/SSR）、反爬机制（Cloudflare/验证码）、站点地图（Sitemap）和Robots协议。它的输出是“该站点的基础指纹信息”。
+- **url-discovery-rule（URL发现规则器）**：负责发现“列表页”。对于产品采集，需要找到所有详情页的URL。它会分析分页逻辑、URL模式（Pattern），生成用于抓取链接的规则（如“点击‘加载更多’直到不再出现新链接”）。
+- **extraction-schema-mapping（抽取Schema映射器）**：**系统的“大脑”**。这里定义的是“目标数据结构”（如：产品名、SKU、价格、规格参数），而不是具体的抓取代码。它负责将用户的自然语言需求（“我要采集京东手机详情”）转化为结构化的JSON Schema。
+- **playwright-extractor（Playwright执行提取器）**：**执行手脚**。基于上一步的Schema，利用Playwright无头浏览器实际访问页面，执行JS渲染，并尝试从DOM中提取数据。它是物理采集的执行单元。
+- **discovery-evaluator（发现质量评估器）**：**自检机制A**。检查发现到的URL是否有效？是否重复？是否漏掉了关键的分页？它会计算“URL覆盖率”和“去重率”。
+- **extraction-evaluator（提取质量评估器）**：**自检机制B**。校验提取出的数据是否符合Schema定义（字段类型、非空、格式）。例如：提取出的“价格”字段是否真的是数字？是否包含乱码？
+- **fixture-builder（测试夹具构建器）**：**样本工厂**。它将每次成功采集的“正确数据”或“页面的HTML快照”保存为Fixture（固定数据集）。这些数据用于后续的回归测试，防止下次代码改动后提取规则失效。
+- **rule-repair（规则自修复器）**：**系统的“免疫系统”**。当`evaluator`发现提取质量不达标（如网站改版导致XPath失效）时，该模块会被触发。它会对比旧的Fixture和新的DOM，利用LLM（大语言模型）重新生成新的选择器，实现“越跑越稳定”。
 
 其中 Skill 不应只包含提示词，还应包含：
 
@@ -525,25 +542,35 @@ site_id + workflow_stage + risk_level
 
 ### Codex Profile 配置
 
-Codex 支持设置默认模型和 Provider，也支持自定义 Model Provider，包括 Base URL、认证、Wire API 和额外请求头。不同配置可以放入 Profile 文件，并通过 `--profile` 选择。需要特别注意：Provider 配置不应放在项目级 `.codex/config.toml`，当前配置规则会忽略项目级的 `model_provider` 和 `model_providers` 等机器级配置。([OpenAI Developers](https://developers.openai.com/codex/config-advanced))
+Codex 支持设置默认模型和 Provider，也支持自定义 Model Provider，包括 Base URL、认证、Wire API 和额外请求头。
+
+不同配置可以放入 Profile 文件，并通过 `--profile` 选择。需要特别注意：Provider 配置不应放在**项目级** `.codex/config.toml`，当前配置规则会忽略项目级的 `model_provider` 和 `model_providers` 等**机器级配置**。([OpenAI Developers](https://developers.openai.com/codex/config-advanced))
 
 示意配置：
 
 ```toml
 # ~/.codex/discovery.config.toml
 
-model = "DISCOVERY_MODEL"
-model_provider = "discovery_gateway"
-model_reasoning_effort = "high"
+model = "DISCOVERY_MODEL" # gpt-5.6-luna
+model_provider = "discovery_gateway" # cctq
+model_reasoning_effort = "high" # low,medium,high
 
-sandbox_mode = "workspace-write"
-approval_policy = "never"
+# 权限设置:
+## 默认的:workspace-write,读取整个电脑上的文件,但修改仅限当前 Workspace（打开的项目）
+sandbox_mode = "workspace-write" # read-only,workspace-write,danger-full-access
+approval_policy = "never" # 永远不要弹确认框。如果权限允许：直接执行。如果权限不允许：立即失败。
 
 [model_providers.discovery_gateway]
 name = "Discovery model gateway"
 base_url = "https://llm-gateway.example.com/v1"
 wire_api = "responses"
+# 在启动codex的shell中设置env_key指定的环境变量"DISCOVERY_API_KEY",然后启动codex 读取此profile.
 env_key = "DISCOVERY_API_KEY"
+
+
+```
+
+```toml
 # ~/.codex/extraction.config.toml
 
 model = "EXTRACTION_MODEL"
@@ -834,7 +861,7 @@ human_review_required: true
 | Request Efficiency | 有效产品数 / 请求数         | 控制抓取成本                 |
 | Pattern Coverage   | URL 模式覆盖的模板数量      | 防止只识别一种详情页         |
 
-由于完整 Ground Truth 往往不存在，Recall 可以通过以下代理方式估计：
+由于完整 Ground Truth (绝对正确的客观数据) 往往不存在，Recall 可以通过以下代理方式估计：
 
 - 与页面显示商品数比较；
 - 与分类统计数量比较；

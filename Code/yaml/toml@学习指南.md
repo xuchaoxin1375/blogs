@@ -2,9 +2,13 @@
 
 
 
-## 主题定位与学习目标
+## abstract
 
-TOML 是 **Tom’s Obvious, Minimal Language** 的缩写，定位是“清晰、极简、适合人类阅读的配置文件格式”。官方规范强调：TOML 应当能无歧义地映射到哈希表，也应当容易被各种编程语言解析为数据结构。当前官方规范已发布 **TOML v1.1.0**，发布日期是 **2025-12-18**；但实践中仍要注意兼容性，因为不少主流工具仍以 **TOML 1.0.0** 为基线，例如 Python 标准库 `tomllib` 仍声明解析 TOML 1.0.0，且只读不写。([toml.io](https://toml.io/en/v1.1.0))
+TOML 是 **Tom’s Obvious, Minimal Language** 的缩写，定位是“清晰、极简、适合人类阅读的配置文件格式”。
+
+> 官方规范强调：TOML 应当能无歧义地映射到哈希表，也应当容易被各种编程语言解析为数据结构。
+>
+> 当前官方规范已发布 **TOML v1.1.0**，发布日期是 **2025-12-18**；但实践中仍要注意兼容性，因为不少主流工具仍以 **TOML 1.0.0** 为基线，例如 Python 标准库 `tomllib` 仍声明解析 TOML 1.0.0，且只读不写。([toml.io](https://toml.io/en/v1.1.0))
 
 对于新手，可以把 TOML 理解为：**比 JSON 更适合写配置，比 YAML 更克制、更少“魔法”，比 INI 更规范、更有类型系统**。
 
@@ -42,7 +46,9 @@ flowchart TD
     H --> I["字符串、整数、浮点数、布尔值、日期时间、数组、内联表"]
 ```
 
-TOML 文件必须是有效的 UTF-8 文档；它区分大小写，空白主要是空格和制表符，换行可以是 LF 或 CRLF。注释使用 `#`，但字符串内部的 `#` 不会被当作注释。([toml.io](https://toml.io/en/v1.1.0))
+TOML 文件必须是有效的 UTF-8 文档；它区分大小写，空白主要是空格和制表符，换行可以是 LF 或 CRLF。
+
+注释使用 `#`，但字符串内部的 `#` 不会被当作注释。([toml.io](https://toml.io/en/v1.1.0))
 
 ------
 
@@ -78,14 +84,14 @@ enabled = false
 
 这个例子里：
 
-| 语法                    | 含义                     |
-| ----------------------- | ------------------------ |
-| `name = "demo-service"` | 根表中的键值对           |
-| `[server]`              | 普通表，表示一个嵌套对象 |
-| `[database]`            | 另一个普通表             |
-| `[[plugins]]`           | 表数组，表示多个同类对象 |
-| `debug = false`         | 布尔值，不是字符串       |
-| `port = 8080`           | 整数，不是字符串         |
+| 语法                    | 含义                                                         |
+| ----------------------- | ------------------------------------------------------------ |
+| `name = "demo-service"` | 根表中的键值对                                               |
+| `[server]`              | **普通表**，表示一个嵌套对象                                 |
+| `[database]`            | 另一个普通表                                                 |
+| `[[plugins]]`           | **表数组**，表示**多个同类对象**,可以重复出现,可以表示同类型但有区别的对象. |
+| `debug = false`         | 布尔值，不是字符串                                           |
+| `port = 8080`           | 整数，不是字符串                                             |
 
 对应到类似 JSON 的结构，大致是：
 
@@ -138,7 +144,9 @@ text = "# 这里不是注释，因为它在字符串里"
 
 ### 键值对
 
-键值对（Key/Value Pair）是 TOML 的基本构造。键在等号左边，值在等号右边。等号两侧的空白会被忽略；键、等号和值通常必须在同一行，除非值本身允许跨行。([toml.io](https://toml.io/en/v1.1.0))
+键值对（Key/Value Pair）是 TOML 的基本构造。键在等号左边，值在等号右边。
+
+**等号两侧的空白**会被忽略；键、等号和值通常必须在**同一行**，除非值本身允许跨行。([toml.io](https://toml.io/en/v1.1.0))
 
 ```toml
 name = "Alice"
@@ -153,21 +161,21 @@ enabled = true
 name =
 ```
 
-TOML 没有 `null` 类型。官方规范列出的值类型包括字符串、整数、浮点数、布尔值、日期时间、数组、内联表等，未指定值是非法的。([toml.io](https://toml.io/en/v1.1.0))
+TOML 没有 `null` 类型。官方规范列出的值类型包括**字符串、整数、浮点数、布尔值、日期时间、数组、内联表**等，**未指定值是非法的**。([toml.io](https://toml.io/en/v1.1.0))
 
 ------
 
 ## 键的写法
 
-TOML 的键（Key）主要有三类：裸键、引号键、点分键。
+TOML 的键（Key）主要有三类：**裸键、引号键、点分键**。
 
-| 类型   | 英文术语   | 示例                   | 说明                                              |
-| ------ | ---------- | ---------------------- | ------------------------------------------------- |
-| 裸键   | Bare Key   | `host = "localhost"`   | 最常用，只能包含 ASCII 字母、数字、下划线、短横线 |
-| 引号键 | Quoted Key | `"server.port" = 8080` | 适合包含空格、点号、特殊字符的键名                |
-| 点分键 | Dotted Key | `server.port = 8080`   | 用点号表达嵌套结构                                |
+| 类型   | 英文术语   | 示例                   | 说明                                                  |
+| ------ | ---------- | ---------------------- | ----------------------------------------------------- |
+| 裸键   | Bare Key   | `host = "localhost"`   | 最常用，只能包含 **ASCII 字母、数字、下划线、短横线** |
+| 引号键 | Quoted Key | `"server.port" = 8080` | 适合**包含空格、点号、特殊字符的键名**                |
+| 点分键 | Dotted Key | `server.port = 8080`   | 用点号表达**嵌套结构**                                |
 
-裸键只能包含 `A-Za-z0-9_-`，并且即使裸键全是数字，也仍然被解释为字符串键名。官方最佳实践也是：除非必要，优先使用裸键。([toml.io](https://toml.io/en/v1.1.0))
+裸键只能包含 `A-Za-z0-9_-`，并且即使裸键全是数字，也仍然被解释为字符串键名。官方最佳实践也是：除非必要，**优先使用裸键**。([toml.io](https://toml.io/en/v1.1.0))
 
 ```toml
 # 推荐
@@ -246,10 +254,10 @@ description = """
 
 ## 表与嵌套结构
 
-表（Table）可以理解为“对象”或“字典”。表头使用方括号。
+**表**（Table）可以理解为**“对象”或“字典”**。表头使用**方括号**。
 
 ```toml
-[server]
+[server] # 标头是server
 host = "127.0.0.1"
 port = 8080
 ```
@@ -265,11 +273,11 @@ port = 8080
 }
 ```
 
-表头下面的键值对属于该表，直到下一个表头或文件结束。官方规范也说明，表内键值对不保证具有特定顺序，所以不要依赖配置项出现顺序表达业务语义。([toml.io](https://toml.io/en/v1.1.0))
+**表头下面的键值对属于该表**，直到下一个表头或文件结束。官方规范也说明，**表内键值对不保证具有特定顺序**，所以不要依赖配置项出现顺序表达业务语义。([toml.io](https://toml.io/en/v1.1.0))
 
 ### 根表
 
-第一个表头之前的内容属于根表（Root Table）。
+第一个表头之前的内容属于**根表**（Root Table）。
 
 ```toml
 name = "demo"
@@ -310,13 +318,13 @@ port = 9090
 }
 ```
 
-TOML 不要求你先显式声明所有父表；例如可以直接写 `[x.y.z]`，父级表会被隐式创建。([toml.io](https://toml.io/en/v1.1.0))
+TOML 不要求你先显式声明所有父表；例如可以直接写 `[x.y.z]`，**父级表会被隐式创建**。([toml.io](https://toml.io/en/v1.1.0))
 
 ------
 
 ## 点分键与表头的选择
 
-同一个结构可以用点分键，也可以用表头。
+**同一个结构**可以用**点分键**，也可以用**表头**。
 
 ```toml
 # 点分键写法
@@ -354,7 +362,7 @@ point = { x = 1, y = 2 }
 user = { name = "Alice", email = "alice@example.com" }
 ```
 
-TOML v1.1.0 允许内联表跨多行，并允许最后一个键值对后有尾随逗号；这是 v1.1.0 实用性很强的改进之一。([toml.io](https://toml.io/en/v1.1.0))
+TOML v1.1.0 允许内联表跨多行，**并允许最后一个键值对后有尾随逗号**；这是 v1.1.0 实用性很强的改进之一。([toml.io](https://toml.io/en/v1.1.0))
 
 ```toml
 contact = {
@@ -385,7 +393,7 @@ type = { name = "book" }
 
 ## 表数组
 
-表数组（Array of Tables）用于表达多个同类对象。语法是双中括号。
+表数组（Array of Tables）用于表达**多个同类对象**。语法是双中括号。
 
 ```toml
 [[servers]]
@@ -550,7 +558,7 @@ local_start_at = 2026-07-01T10:00:00
 
 ### Python 的 `pyproject.toml`
 
-Python 生态中，`pyproject.toml` 已经成为非常重要的项目配置入口。官方 Python Packaging 文档说明，`pyproject.toml` 既用于打包相关工具，也可用于其他工具配置；当前规范定义了 `[build-system]`、`[project]` 和 `[tool]` 三类表，其他工具专属配置应放在 `[tool]` 下。([packaging.python.org](https://packaging.python.org/en/latest/specifications/pyproject-toml/))
+Python 生态中，`pyproject.toml` 已经成为非常重要的**项目配置入口**。官方 Python Packaging 文档说明，`pyproject.toml` 既用于打包相关工具，也可用于其他工具配置；当前规范定义了 `[build-system]`、`[project]` 和 `[tool]` 三类表，其他工具专属配置应放在 `[tool]` 下。([packaging.python.org](https://packaging.python.org/en/latest/specifications/pyproject-toml/))
 
 典型结构：
 
@@ -576,7 +584,7 @@ target-version = "py311"
 testpaths = ["tests"]
 ```
 
-Python Packaging 用户指南也说明，`[build-system]` 表强烈推荐出现，用于声明构建后端和构建依赖；`[project]` 用于项目基本元数据；`[tool]` 用于工具自己的子表，例如 `[tool.hatch]`、`[tool.black]`、`[tool.mypy]`。([packaging.python.org](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/))
+Python Packaging 用户指南也说明，`[build-system]` 表强烈推荐出现，用于**声明构建后端和构建依赖**；`[project]` 用于项目基本元数据；`[tool]` 用于工具自己的子表，例如 `[tool.hatch]`、`[tool.black]`、`[tool.mypy]`。([packaging.python.org](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/))
 
 Ruff 这类现代 Python 工具也支持通过 `pyproject.toml`、`ruff.toml` 或 `.ruff.toml` 配置。([docs.astral.sh](https://docs.astral.sh/ruff/configuration/?utm_source=chatgpt.com))
 

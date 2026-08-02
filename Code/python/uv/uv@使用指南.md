@@ -2,9 +2,13 @@
 
 
 
-## 学习目标与完整大纲
+## abstract
 
-这份笔记围绕 **uv：Python 包与项目管理工具** 展开。uv 由 Astral 维护，官方定位已经从“更快的 `pip` 替代品”扩展为更完整的 Python 项目管理工具：它覆盖依赖解析、虚拟环境、锁文件、Python 版本、脚本运行、命令行工具安装、构建与发布等场景。官方文档称 uv 提供 `pip`、`pip-tools`、`pipx`、`poetry`、`pyenv`、`twine`、`virtualenv` 等工具的部分替代能力，并提供跨平台锁文件、全局缓存、Python 版本管理和 `uvx` 工具运行能力。([GitHub](https://github.com/astral-sh/uv))
+这份笔记围绕 **uv：Python 包与项目管理工具** 展开。
+
+uv 由 Astral 维护，官方定位已经从“更快的 `pip` 替代品”扩展为更**完整的 Python 项目管理工具**：它覆盖依赖解析、虚拟环境、锁文件、Python 版本、脚本运行、命令行工具安装、构建与发布等场景。
+
+> 官方文档称 uv 提供 `pip`、`pip-tools`、`pipx`、`poetry`、`pyenv`、`twine`、`virtualenv` 等工具的部分替代能力，并提供跨平台锁文件、全局缓存、Python 版本管理和 `uvx` 工具运行能力。([GitHub](https://github.com/astral-sh/uv))
 
 下面的大纲可以作为新手学习路线：
 
