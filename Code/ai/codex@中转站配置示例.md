@@ -46,8 +46,10 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 model_provider = "provider-id" 
 # 安全和权限配置
 ## cli_auth_credentials_store = "file" # auto,file,keyring
-## 默认的:workspace-write,读取整个电脑上的文件,但修改仅限当前 Workspace（打开的项目）
-sandbox_mode = "workspace-write" # read-only,workspace-write,danger-full-access
+
+# 默认的:workspace-write,读取整个电脑上的文件,但修改仅限当前 Workspace（打开的项目）
+## sandbox_mode = "workspace-write" # read-only,workspace-write,danger-full-access
+
 ## 默认的询问策略是on-request,模型自己判断是否询问用户,untrusted,大部分危险操作都询问
 approval_policy = "never" # 永远不要弹确认框。如果权限允许：直接执行。如果权限不允许：立即失败。
 
@@ -57,7 +59,7 @@ model_reasoning_effort = "low" # low medium high xhigh max
 
 [model_providers.provider-id]
 name = "provider-id" 
-base_url = "" 
+base_url = "" # 记得填写
 wire_api = "responses"
 
 # 按需设置下面的属性,这些配置在model_providers.<id>块下,不能单独移到前面去!
