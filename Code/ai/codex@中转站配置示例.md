@@ -24,6 +24,10 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 >
 > 可以考虑使用cc switch进行兼容.
 
+### 第三方供应商和参考文档
+
+- [接入 Codex | DeepSeek API Docs](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/codex)
+
 ## 基本配置模板
 
 此外，`model_provider` 和 `model_providers` 应放在用户级：
@@ -44,6 +48,14 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 
 # provider-id
 model_provider = "provider-id" 
+
+# 上下文(可选,未必要用满,例如对于1M=1000k上下文,可以仅用到353k);两个字段要同时设置才有用.
+model_context_window = 372000
+model_auto_compact_token_limit = 330000
+effective_context_window_percent = 95
+# 其他
+preferred_auth_method = "apikey"
+forced_login_method = "api"
 # 安全和权限配置
 ## cli_auth_credentials_store = "file" # auto,file,keyring
 
@@ -61,17 +73,19 @@ model_reasoning_effort = "low" # low medium high xhigh max
 name = "provider-id" 
 base_url = "" # 记得填写
 wire_api = "responses"
+requires_openai_auth = true # openai 风控时可能需要此配置,和其读取auth.json配置与否有关.(如果接入非openai模型,可以不配置)
 
 # 按需设置下面的属性,这些配置在model_providers.<id>块下,不能单独移到前面去!
 ## 如果是主配置文件profile.toml,则下面的env_key可以不设置,可以通过配置.codex/auth.json中写入密钥代替,但是灵活度不高
 ## 将密钥配置在shell或系统的环境变量中(变量名和这里配置的值对应),这样启动codex时指定profile后,能够读同名的环境变量作为api key.(而不是直接将密钥填写在此.toml配置文件中,这看起来有点繁琐,但是更加安全.)
-env_key = "API_KEY" 
-# experimental_bearer_token = "" # 密钥不推荐直接填写,优先考虑使用env_key
+env_key = "API_KEY" # 多配置用户记得修改此处
+# experimental_bearer_token = "" # 密钥不推荐直接填写,优先考虑使用env_key;如果确实要集中用配置文件的方式管理,考虑在本地目录(主要安全,不要放在git可以提交的目录中)中创建一个类似于 ~/.config/model_credentials.local.env
+
 ## 这里的环境变量名取值要和env_key的取值要相同
 env_key_instructions = "请设置env_key配置字段所指的环境变量名取值来提供密钥." 
-supports_websockets = false 
+# supports_websockets = false 
 
-# requires_openai_auth = true
+
 ```
 
 
