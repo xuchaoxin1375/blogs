@@ -1,8 +1,8 @@
 [toc]
 
-## abstract
+# abstract
 
-在国内环境下，`uv` 的默认下载速度可能确实不理想。由于 `uv` 是为了性能设计的，它**故意不读取** `pip` 的全局配置文件（如 `pip.conf`），所以你需要专门为 `uv` 配置国内镜像源。
+由于 `uv` 是为了性能设计的，它**故意不读取** `pip` 的全局配置文件（如 `pip.conf`），所以你需要专门为 `uv` 配置**国内镜像源**。
 
 以下是三种最有效的方法：
 
@@ -10,13 +10,13 @@
 
 ## 国内源局限性说明
 
-> 部分源的包或者工具镜像不完整,如果安装过程中提示不可用,可能需要切换到不同源重试.
+> 部分源的**包**或者**工具镜像**不完整,如果安装过程中提示**不可用**,可能需要切换到**不同源**重试.
 
 ## 1. 配置文件
 
 [Configuration files | uv](https://docs.astral.sh/uv/concepts/configuration-files/)
 
-你可以创建一个全局配置文件，让所有的 `uv` 命令（包括 `uv add`、`uv run`、`uv tool`）默认都使用国内源。
+你可以创建一个**全局配置文件**，让所有的 `uv` 命令（包括 `uv add`、`uv run`、`uv tool`）默认都使用国内源。
 
 **配置文件路径：**
 
@@ -24,6 +24,27 @@
 - **Windows:** `%APPDATA%\uv\uv.toml`
 
 **操作步骤：**以ustc,aliyun,tuna源为例:
+
+
+
+### 全局配置：
+
+修改全局配置文件 `~/.config/uv/uv.toml`（Linux/macOS）或 `%AppData%\uv\uv.toml`（Windows），内容同上。
+
+1. 如果目录不存在，先创建它：`mkdir -p ~/.config/uv`(linux/macos)或`mkdir $env:appdata/uv `(windows powershell)
+2. 编辑或创建 `uv.toml` 文件
+
+aliyun源为例
+
+```TOML
+[[index]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+# url = "https://mirrors.ustc.edu.cn/pypi/simple"
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true
+```
+
+> **注意：** 在全局 `uv.toml` 中，层级是直接从 `[[index]]` 开始的，不需要写 `[tool.uv]`。
 
 ### 当前项目配置：
 
@@ -47,24 +68,7 @@ url = "https://mirrors.aliyun.com/pypi/simple/"
 default = true
 ```
 
-### 全局配置：
 
-修改全局配置文件 `~/.config/uv/uv.toml`（Linux/macOS）或 `%AppData%\uv\uv.toml`（Windows），内容同上。
-
-1. 如果目录不存在，先创建它：`mkdir -p ~/.config/uv`(linux/macos)或`mkdir $env:appdata/uv `(windows powershell)
-2. 编辑或创建 `uv.toml` 文件
-
-aliyun源为例
-
-```TOML
-[[index]]
-url = "https://mirrors.aliyun.com/pypi/simple/"
-# url = "https://mirrors.ustc.edu.cn/pypi/simple"
-# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
-default = true
-```
-
-> **注意：** 在全局 `uv.toml` 中，层级是直接从 `[[index]]` 开始的，不需要写 `[tool.uv]`。
 
 ### 一键配置shell脚本
 
@@ -96,9 +100,9 @@ nl "$uv_config"
 
 ------
 
-## 2. 使用环境变量（临时加速或系统级配置）
+## 2. 使用环境变量
 
-如果你不想修改配置文件，或者想在 CI/CD 环境中使用，可以设置环境变量。
+如果你不想修改配置文件，或者想在 CI/CD 环境中使用，可以设置**环境变量**。
 
 在你的 `.bashrc` 或 `.zshrc` 中添加：
 
@@ -106,13 +110,13 @@ nl "$uv_config"
 export UV_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
-设置后执行 `source ~/.bashrc` 即可生效。
+设置后执行 `source`对应的shell rc配置文件 即可生效。
 
 ------
 
 ## 3. 项目级配置
 
-如果你只想让某个特定项目使用特定的镜像源，可以在该项目的 `pyproject.toml` 中添加：
+如果你只想让**某个特定项目使用特定的镜像源**，可以在该**项目**的 `pyproject.toml` 中添加：
 
 ```TOML
 [[tool.uv.index]]
@@ -126,7 +130,7 @@ default = true
 
 ## 4. 解决 Python 解释器下载慢的问题
 
-`uv` 除了下载包，还会自动下载 Python 解释器。如果这部分也慢，可以设置 Python 下载镜像。
+`uv` 除了下载包，还会自动下载 **Python 解释器**。如果这部分也慢，可以设置 Python 下载镜像。
 
 目前国内尚无完美的 `uv` Python 解释器全量镜像，但你可以通过环境变量强制 `uv` 使用特定的安装源（如果该源支持）：
 
@@ -160,7 +164,7 @@ uv add requests --verbose
 
 ------
 
-## 详解
+# 详解
 
 下面按“链路拆分、加速覆盖面、Python 版本切换、配置方案、团队与 CI 最佳实践、排障方法”展开。示例以官方 uv 文档及国内镜像站当前公开说明为依据。
 

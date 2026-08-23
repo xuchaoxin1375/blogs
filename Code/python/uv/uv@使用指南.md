@@ -35,7 +35,7 @@ uv 由 Astral 维护，官方定位已经从“更快的 `pip` 替代品”扩�
 
 官方文档明确说明，`uv pip` 提供了对常见 `pip`、`pip-tools`、`virtualenv` 命令的替代接口，同时增加了平台无关解析、可复现解析、依赖覆盖、替代解析策略等能力；官方也强调 uv 并不是 `pip` 的逐 bug 克隆，在一些复杂或边缘行为上会有差异。([docs.astral.sh](https://docs.astral.sh/uv/))
 
-### uv 的核心价值
+## uv 的核心价值
 
 | 价值     | 解释                                                         |
 | -------- | ------------------------------------------------------------ |
@@ -43,7 +43,7 @@ uv 由 Astral 维护，官方定位已经从“更快的 `pip` 替代品”扩�
 | 统一     | 一个工具覆盖 `pip`、`venv`、`pip-tools`、`pipx`、`pyenv`、`twine`、Poetry/PDM 的一部分场景。([GitHub](https://github.com/astral-sh/uv)) |
 | 可复现   | 使用 `uv.lock` 锁定精确依赖版本，让团队、CI、部署环境使用一致依赖。([docs.astral.sh](https://docs.astral.sh/uv/concepts/projects/layout/)) |
 | 跨平台   | `uv.lock` 是 universal lockfile，会捕获不同操作系统、架构、Python 版本等 marker 下可能安装的包。([docs.astral.sh](https://docs.astral.sh/uv/concepts/projects/layout/)) |
-| 现代标准 | 以 `pyproject.toml` 为中心，支持依赖组（Dependency Groups）、脚本内联元数据（Inline Script Metadata）等现代 Python 打包规范。([Python 包装指南](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)) |
+| 现代标准 | 以 `pyproject.toml` 为中心，支持依赖组（Dependency Groups）、脚本内联元数据（Inline Script Metadata）等现代 Python 打包(build)规范。([Python 包装指南](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)) |
 
 ------
 
