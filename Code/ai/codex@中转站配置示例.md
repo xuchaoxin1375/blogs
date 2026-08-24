@@ -27,6 +27,11 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 ### 第三方供应商和参考文档
 
 - [接入 Codex | DeepSeek API Docs](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/codex)
+- [Codex CLI 集成 - OpenRouter --- Codex CLI Integration - OpenRouter](https://openrouter.ai/docs/cookbook/coding-agents/codex-cli)
+
+### 身份认证和auth块配置
+
+简单的 `env_key = "OPENROUTER_API_KEY"` 也可用于身份验证，但 Codex 在这种模式下，不会获取 OpenRouter 模型目录。非 OpenAI 模型将会 显示“未知模型”备用元数据警告。建议使用基于命令行的方法。 以上是 `auth` 块。
 
 ## 基本配置模板
 
