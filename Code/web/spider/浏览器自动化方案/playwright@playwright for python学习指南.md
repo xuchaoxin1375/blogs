@@ -55,7 +55,11 @@ pip install playwright
 playwright install
 ```
 
-`playwright install` 会下载 Chromium、Firefox、WebKit 三个浏览器二进制文件。如果只需要特定浏览器：
+默认情况下(缺省浏览器名)`playwright install` 会下载 Chromium、Firefox、WebKit 三个浏览器二进制文件。
+
+> 不同版本的playwright可能包括: chromium       chromium-headless-shell       firefox       webkit   
+
+如果只需要特定浏览器：
 
 ```bash
 playwright install chromium
