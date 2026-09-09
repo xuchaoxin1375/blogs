@@ -321,13 +321,28 @@ model_auto_compact_token_limit = 330000
 
 ## model_catlog_json
 
-`model_catalog_json` 可以理解为 **Codex 的“模型元数据目录文件”**。
+`config.toml`(或者`profile-name.config.toml`配置文件中的`model_catalog_json` 可以理解为 **Codex 的“模型元数据目录文件”**。
+
+> 在使用非gpt系列模型时,为了提高使用体验,建议配置此字段(但关键在于对应路径的文件内容的编写. 内容格式是json,而且很长,官方有一个模板文件.
+
+> 您可以在[此处](https://learn.chatgpt.com/docs/config-schema.json)找到 `config.toml` 的最新 JSON 模板文件(`config-schema.json`)。
+
+可以考虑用agent来配置.
+
+### 相关字段
+
+| Key                                 | Type / Values   | Details                                                      |
+| :---------------------------------- | :-------------- | :----------------------------------------------------------- |
+| `model_catalog_json`                | `string (path)` | 启动时加载的 JSON 模型目录的可选路径。所选的 `$CODEX_HOME/profile-name.config.toml` 配置方案文件可以针对相应配置方案覆盖此设置。 |
+| `model_providers.<id>.auth.command` | `string`        | Codex 需要 Bearer Token 时要运行的命令。该命令必须将 Token 输出到 stdout。 |
 
 它不是上下文窗口本身，而是告诉 Codex：
 
 > “有哪些模型，以及这些模型分别具有什么能力、上下文大小、reasoning 级别、工具能力、UI 展示信息等。”
 
-官方配置定义是：`model_catalog_json = "路径"`，Codex 会在**启动时加载这个 JSON 模型目录**。([OpenAI Developers](https://developers.openai.com/codex/config-reference))
+官方配置定义是：`model_catalog_json = "路径"`，Codex 会在**启动时加载这个 JSON 模型目录**。
+
+- [配置参考资料 | ChatGPT Learn](https://learn.chatgpt.com/zh-Hans/docs/config-file/config-reference)|[OpenAI Developers](https://developers.openai.com/codex/config-reference)
 
 例如：
 

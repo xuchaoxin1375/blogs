@@ -29,9 +29,49 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 - [接入 Codex | DeepSeek API Docs](https://api-docs.deepseek.com/zh-cn/quick_start/agent_integrations/codex)
 - [Codex CLI 集成 - OpenRouter --- Codex CLI Integration - OpenRouter](https://openrouter.ai/docs/cookbook/coding-agents/codex-cli)
 
-### 身份认证和auth块配置
+### 身份认证和auth块配置🎈
 
-简单的 `env_key = "OPENROUTER_API_KEY"` 也可用于身份验证，但 Codex 在这种模式下，不会获取 OpenRouter 模型目录。非 OpenAI 模型将会 显示“未知模型”备用元数据警告。建议使用基于命令行的方法。 以上是 `auth` 块。
+最简单的配置方案是使用`env_key`字段:
+
+```toml
+env_key = "OPENROUTER_API_KEY"
+```
+
+虽然简单的 `env_key = "OPENROUTER_API_KEY"` 也可用于身份验证，但 Codex 在这种模式下，不会获取 OpenRouter **模型目录**(model_catalog)。
+
+| Key                                         | Type / Values | Details                               |
+| ------------------------------------------- | ------------- | ------------------------------------- |
+| `model_providers.<id>.env_key`              | `string`      | 提供商 API 密钥所在的环境变量。       |
+| `model_providers.<id>.env_key_instructions` | `string`      | 提供商 API 密钥的可选设置说明。(可选) |
+
+非 OpenAI 模型将会 显示“未知模型”备用元数据警告。建议使用**基于命令行的方法**。
+
+```toml
+[model_providers.openrouter]
+name = "openrouter"
+base_url="https://openrouter.ai/api/v1"
+
+[model_providers.openrouter.auth]
+command = "sh"
+args = ["-c", "echo $OPENROUTER_API_KEY"]
+```
+
+从云端获取**模型目录**(model_catalog)
+
+| Key                                 | Type / Values   | Details                                                      |
+| ----------------------------------- | :-------------- | :----------------------------------------------------------- |
+| `model_providers.<id>.auth.command` | `string`        | Codex 需要 Bearer Token 时要**运行的命令**。该命令必须将 Token 输出到 **stdout**。 |
+| `model_providers.<id>.auth.args`    | `array<string>` | 传递给 Token 获取命令的参数。                                |
+
+`[model_providers.openrouter.auth]`：定义 Codex 如何获取 API 密钥。
+
+> `command = "sh"`、`args = ["-c", "echo $OPENROUTER_API_KEY"]`：Codex 会执行 `sh -c "echo $OPENROUTER_API_KEY"`，从环境变量 `OPENROUTER_API_KEY` 中读取密钥作为认证凭据。
+
+这种"命令式"认证方式（而非简单的 `env_key = "OPENROUTER_API_KEY"`）会**触发 Codex 拉取 OpenRouter 的模型目录**，使非 OpenAI 模型显示正确的元数据，否则会出现 "Unknown model" 的回退警告。效果如下:
+
+- Codex 通过实际执行一条 shell 命令来"取"密钥，而不是静态读取变量名。
+- 这种动态取值方式会顺带触发 Codex 向 OpenRouter 请求模型目录，从而获得各模型的真实元数据。
+- 结果：非 OpenAI 模型能正确显示名称、能力等信息，不再出现 "Unknown model" 警告。
 
 ## 基本配置模板
 
@@ -54,10 +94,10 @@ Codex 接入第三方 API 时，真正决定能不能用的核心只有四件事
 # provider-id
 model_provider = "provider-id" 
 
-# 上下文(可选,未必要用满,例如对于1M=1000k上下文,可以仅用到353k);两个字段要同时设置才有用.
-model_context_window = 372000
-model_auto_compact_token_limit = 330000
-effective_context_window_percent = 95
+# 上下文(可选,未必要用满,例如对于1M=1000k上下文,可以仅用到353k);通常两个字段要同时设置,并且关键的models-catalog.json中要有对应的配置,否则可能不生效并且部分功能不可用(例如模型名称自定义和思考深度)
+# model_context_window = 372000
+# model_auto_compact_token_limit = 330000
+
 # 其他
 preferred_auth_method = "apikey"
 forced_login_method = "api"
@@ -73,10 +113,16 @@ approval_policy = "never" # 永远不要弹确认框。如果权限允许：直�
 # 模型配置
 model = "model-id" # 例如:gpt-5.6-luna
 model_reasoning_effort = "low" # low medium high xhigh max
+show_raw_agent_reasoning = true # 显示原始推理
+
+# OpenRouter 的 command auth 可在联网环境刷新官方目录;
+# 这里同时提供确定性本地元数据,避免目录刷新失败时回退为无元数据。
+# 注意,必须在默认配置config.toml中设置auth.command方式才有效,在-p 参数中指定配置不生效.
+# model_catalog_json = "/home/opcxxu/.codex/openrouter-models.json"
 
 [model_providers.provider-id]
 name = "provider-id" 
-base_url = "" # 记得填写
+base_url = "" # 记得填写,否则提示builder error这类错误,更不可能配置成功.
 wire_api = "responses"
 requires_openai_auth = true # openai 风控时可能需要此配置,和其读取auth.json配置与否有关.(如果接入非openai模型,可以不配置)
 
@@ -90,7 +136,16 @@ env_key = "API_KEY" # 多配置用户记得修改此处
 env_key_instructions = "请设置env_key配置字段所指的环境变量名取值来提供密钥." 
 # supports_websockets = false 
 
+# 其他验证(密钥传递)方式: 参考openrouter 配置的元数据块,信息更完善,代替env_key(不同系统平台使用不同的shell,command和args数组上有差异)
+## windows powershell
+# [model_providers.<provider-id>.auth]
+# command = "powershell"
+# args = ["-NoProfile", "-Command", "Write-Output $env:OPENROUTER_API_KEY"]
 
+## unix shell
+# [model_providers.<provider-id>.auth]
+# command = "sh"
+# args = ["-c", "echo $OPENROUTER_API_KEY"]
 ```
 
 
