@@ -2,51 +2,49 @@
 
 ## abstract
 
-假设我有一个服务器P具有2个公网ip(a,b); 
+假设我有一个服务器`P`具有2个公网ip(`a,b`); 
 
-我使用cloudflare将网站和P的ip绑定起来.(目前仅考虑使用flex的加密方式,而非full) 我打算分别分配给两个网站管理员(A,B),做nginx反向代理; 
+我使用`cloudflare`将网站和P的ip绑定起来.(目前仅考虑使用`flex`的加密方式,而非`full`) 
 
-A,B两人各自有许多网站服务器(A1,A2,...),(B1,B2,...) 我希望能够实现通过a为A的网站做反代;通过b为B的网站做反代
+我打算分别分配给两个网站管理员(`A,B`),做`nginx`反向代理; 
 
-> 此前我使用nginx的map将访问的host(例如url中的域名)和其代理目标(网站所在的服务器)ip关联起来; 
+A,B两人各自有许多网站服务器`(A1,A2,...),(B1,B2,...)` 我希望能够实现通过a为A的网站做反代;通过b为B的网站做反代
+
+> 此前我使用`nginx`的`map`将访问的`host`(例如`url`中的域名,例如`domain.com`)和其代理目标(网站所在的服务器)ip关联起来(`HOST->BACKEND`); 
 >
-> 但现在要复杂一些,要把进入P的流量分流给两个人
-
-下面给出一套可以直接落地的设计。先说结论：
-
-> **不要再把“IP a/b 的分流”也塞进原来的 Host→Backend `map` 里。**
->
-> 最清晰的做法是把路由拆成两层：
->
-> 1. **第一层：由 Cloudflare DNS + P 上 Nginx 的监听地址决定属于 A 还是 B**
->    - A 的网站在 Cloudflare 中把源站地址指向公网 IP `a`
->    - B 的网站把源站地址指向公网 IP `b`
->    - P 上 Nginx 分别监听 `a:80`、`b:80`
-> 2. **第二层：进入对应 IP 后，再使用各自独立的 `map` 根据 Host 决定最终后端**
->    - `a:80` 只查询 A 的映射表
->    - `b:80` 只查询 B 的映射表
->
-> 因此，即使有人把一个属于 B 的 Host 请求故意发送到 `a`，也不会被路由到 B 的后端，而是直接拒绝。
-
-Nginx 官方的请求选择机制恰好非常适合这种架构：它首先根据请求到达的 **IP 地址和端口** 匹配 `listen`，然后才在这一组 Server 中根据 `Host`/`server_name` 继续选择。([Nginx](https://nginx.org/en/docs/http/request_processing.html))
+> 但现在要复杂一些,要把进入P的流量分流给两个人;
 
 下面假定：
 
-| 对象 | 示例值             | 用途           |
-| ---- | ------------------ | -------------- |
-| P    | 反向代理服务器     | 统一入口       |
-| `a`  | `203.0.113.10`     | 分配给管理员 A |
-| `b`  | `203.0.113.11`     | 分配给管理员 B |
-| A1   | `10.10.10.11:80`   | A 的后端服务器 |
-| A2   | `10.10.10.12:8080` | A 的后端服务器 |
-| B1   | `10.20.20.11:80`   | B 的后端服务器 |
-| B2   | `10.20.20.12:8080` | B 的后端服务器 |
+| 对象   | 示例值             | 用途           |
+| ------ | ------------------ | -------------- |
+| P      | 反向代理服务器     | 统一入口       |
+| IP `a` | `203.0.113.10`     | 分配给管理员 A |
+| IP `b` | `203.0.113.11`     | 分配给管理员 B |
+| A1     | `10.10.10.11:80`   | A 的后端服务器 |
+| A2     | `10.10.10.12:8080` | A 的后端服务器 |
+| B1     | `10.20.20.11:80`   | B 的后端服务器 |
+| B2     | `10.20.20.12:8080` | B 的后端服务器 |
 
 这里使用 RFC 文档地址作为示例，实际配置时替换成你的真实 IP。
 
 ------
 
 ## 整体架构
+
+最清晰的做法是把路由拆成两层：
+
+1. **第一层：由 Cloudflare DNS + P 上 Nginx 的监听地址决定属于 A 还是 B**
+   - A 的网站在 Cloudflare 中把源站地址指向公网 IP `a`
+   - B 的网站把源站地址指向公网 IP `b`
+   - P 上 Nginx 分别监听 `a:80`、`b:80`
+2. **第二层：进入对应 IP 后，再使用各自独立的 `map` 根据 Host 决定最终后端**
+   - `a:80` 只查询 A 的映射表
+   - `b:80` 只查询 B 的映射表
+
+因此，即使有人把一个属于 B 的 Host 请求故意发送到 `a`，也不会被路由到 B 的后端，而是直接拒绝。
+
+Nginx 官方的请求选择机制恰好非常适合这种架构：它首先根据请求到达的 **IP 地址和端口** 匹配 `listen`，然后才在这一组 Server 中根据 `Host`/`server_name` 继续选择。([Nginx](https://nginx.org/en/docs/http/request_processing.html))
 
 推荐架构如下：
 
@@ -97,7 +95,9 @@ flowchart LR
     P -->|"HTTP 或 HTTPS<br>由你决定"| O
 ```
 
-Cloudflare 当前文档明确说明，**Flexible 只加密访客到 Cloudflare 的这一段；Cloudflare 到源站使用 HTTP**。因此 P 上实际上只需要接收 HTTP `80` 即可。Cloudflare 也明确警告：如果源站在 Flexible 模式下强制把 HTTP 重定向到 HTTPS，会形成重定向循环。([Cloudflare Docs](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/flexible/?utm_source=chatgpt.com))
+> Cloudflare 当前文档明确说明，**Flexible 只加密访客到 Cloudflare 的这一段；Cloudflare 到源站使用 HTTP**。因此 P 上实际上只需要接收 HTTP `80` 即可。
+>
+> Cloudflare 也明确警告：如果源站在 Flexible 模式下强制把 HTTP 重定向到 HTTPS，会形成重定向循环。([Cloudflare Docs](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/flexible/?utm_source=chatgpt.com)),这一点容易理解.
 
 这也意味着：**不要在 P 上做普通的 `http -> https` 301/308 强制跳转。**
 
@@ -221,8 +221,12 @@ ip route
 临时测试可以：
 
 ```bash
+# 这里的ip仅为模拟的,根据真实ip填写
 sudo ip addr add 203.0.113.10/32 dev eth0
 sudo ip addr add 203.0.113.11/32 dev eth0
+# 或者直接用ip addr 查看所有可用ip
+ip addr
+
 ```
 
 但是**不要盲目把这一段作为永久网络配置使用**。

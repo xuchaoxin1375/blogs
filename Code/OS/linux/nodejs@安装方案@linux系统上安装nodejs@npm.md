@@ -204,9 +204,9 @@ curl -fsSLo /tmp/nvm-install.sh \
   "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh"
 # 查看(可选)
 # less /tmp/nvm-install.sh
-# 安装
+# 运行安装脚本
 bash /tmp/nvm-install.sh
-# 清理an
+# 清理安装脚本
 rm -f /tmp/nvm-install.sh
 ```
 
