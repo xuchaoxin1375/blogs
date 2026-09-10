@@ -7,6 +7,11 @@
 - 在powershell命令行获取加速后的链接(可以获取多个加速链接,提高可用性)
 - 使用合适的下载方式下载链接资源
 
+### 公益站
+
+- [GitHub文件加速](https://yishijie.gitlab.io/ziyuan/)
+- [【镜像站点搜集】 · Issue #116 · hunshcn/gh-proxy](https://github.com/hunshcn/gh-proxy/issues/116)
+
 ### 安装powershell模块
 
 获取github资源的加速链接文件/仓库加速
