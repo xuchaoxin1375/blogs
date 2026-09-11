@@ -174,9 +174,9 @@ git config --global credential.helper /usr/share/doc/git/contrib/credential/libs
 ```bash
 # 记住 1 小时（3600 秒）
 git config --global credential.helper 'cache --timeout=3600'
-
+git config --global credential.helper 'cache --timeout=3600000'
 # 永久缓存（不推荐，不安全）
-git config --global credential.helper 'cache --timeout=9999999'
+    git config --global credential.helper 'cache --timeout=9999999'
 ```
 
 **优点**：无需安装额外工具  
