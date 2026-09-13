@@ -2050,3 +2050,4 @@ flowchart TD
 - **安装、认证、config、runtime 健康问题优先使用 `codex doctor`，而不是乱用 debug 子命令。**
 
 本文版本基线是 **Codex CLI 0.153.4**；GitHub 在 2026-09-04 将其标记为 Latest，而 0.154.0-alpha.6 是 2026-09-07 发布的预发布版。Codex CLI 更新较快，因此尤其是隐藏命令，今后最好再次以 `codex debug --help` 和对应版本源码为准。([GitHub](https://github.com/openai/codex/releases))
+
