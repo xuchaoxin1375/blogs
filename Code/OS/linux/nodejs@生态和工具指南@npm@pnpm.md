@@ -6,7 +6,9 @@
 
 ### 什么是 Node.js
 
-**Node.js** 是一个**开源、跨平台的 JavaScript 运行时**（Runtime），构建在 Google 的 V8 JavaScript 引擎之上，使 JavaScript 能够脱离浏览器在服务器端运行。它采用**事件驱动**（Event-Driven）、**非阻塞 I/O**（Non-blocking I/O）模型，天然适合构建高并发的网络应用。
+**Node.js** 是一个**开源、跨平台的 JavaScript 运行时**（Runtime），构建在 Google 的 V8 JavaScript 引擎之上，**使 JavaScript 能够脱离浏览器在服务器端运行**。
+
+它采用**事件驱动**（Event-Driven）、**非阻塞 I/O**（Non-blocking I/O）模型，天然适合构建**高并发的网络应用**。
 
 Node.js 的核心价值：
 
@@ -45,7 +47,7 @@ graph LR
 - **Active LTS**（Long-Term Support）：**生产环境推荐**，持续获得 bug 修复和安全补丁
 - **Maintenance LTS**：仅接收关键安全修复
 
-#### 重大变化：新版发布策略
+#### 重大变化：新版发布策略(简单了解)
 
 Node.js 项目宣布了一项根本性的发布策略变更：从 Node.js 27 开始，将从每年两个大版本改为每年一个，取消了延续十多年的奇偶版本模型。关键变化：
 
@@ -53,15 +55,6 @@ Node.js 项目宣布了一项根本性的发布策略变更：从 Node.js 27 开
 - 引入 **Alpha 通道**用于早期测试，使用 semver 预发布格式（如 `27.0.0-alpha.1`），版本号与日历年对齐
 - 总支持周期：从首次 Current 发布到 EOL 为 36 个月
 - Node.js 26 是现有发布模型下的最后一个版本
-
-#### Node.js 26 新特性亮点
-
-Node.js 26 于 2026 年 5 月 5 日发布，主要新特性：
-
-- **Temporal API** 默认启用——这是一个现代日期/时间 API，提供了比遗留 `Date` 对象更健壮和功能更丰富的替代方案
-- V8 引擎升级至 **14.6** 版本（Chromium 146 的一部分）
-- 移除了多个已弃用多个大版本的遗留 API
-- 新的 ES 特性：`Map.prototype.getOrInsert()`、`Iterator.concat()` 等
 
 ---
 
@@ -175,6 +168,7 @@ Node.js 生态中有三大包管理器：**npm**、**pnpm**、**Yarn**。
 | **Monorepo 支持**       | **workspaces**（基础）                                       | **workspaces**（优秀，`--filter` 过滤）                      | **workspaces**（优秀，Plug'n'Play）            |
 | **严格性**              | 较宽松                                                       | **默认严格**（禁止幽灵依赖）                                 | 可配置                                         |
 | **锁文件**              | `package-lock.json`                                          | `pnpm-lock.yaml`                                             | `yarn.lock`                                    |
+| 全局安装指定包          | 推荐(`npm install -g <pkgname>`)                             | `pnpm install -g <pkgname>`(可能要做额外配置)                | `yarn global add <pkgname>`(可能要做额外配置)  |
 
 #### 推荐策略
 
@@ -206,6 +200,18 @@ corepack use pnpm@latest  # 在当前项目设置 pnpm 并写入 package.json
 ```
 
 #### pnpm 快速上手
+
+> - **Windows 用户注意**：官方明确**不推荐**在 Windows 上使用独立脚本，因为 **Windows Defender 经常会误杀** pnpm 的可执行文件。在 Windows 上请优先使用 **Corepack** 或 **npm** 安装(`npm install -g pnpm`)。
+>
+> - **Docker / CI 场景**：在 Docker 镜像（如 `node:20-alpine`）中，推荐直接用 Corepack 并配合 `--frozen-lockfile` 保证依赖不漂移。更简单的做法是使用 `pnpm/action-setup`（GitHub Actions）或直接在脚本中运行上述独立安装命令。
+>
+> - **镜像加速**：如果你在国内网络环境，安装完 pnpm 后，建议设置镜像源来提升依赖下载速度：
+>
+>   ```shell
+>   pnpm config set registry https://registry.npmmirror.com
+>   ```
+>
+> **总结**：**已有 Node.js 就用 `corepack enable pnpm`**；**纯 CI 或无 Node 环境就用 `curl` 脚本**；**Windows 用户请避开独立脚本，直接用 Corepack**。
 
 ```bash
 # 安装（推荐独立安装方式，不依赖 Corepack）
@@ -242,6 +248,43 @@ pnpm -r run test                          # 递归在所有包中执行 test
 ```
 
 ---
+
+### 警告问题
+
+```shell
+npm warn install-scripts 1 package had install scripts blocked because they are not covered by allowScripts:
+npm warn install-scripts   pnpm@12.4.1 (preinstall: node install.js; postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install -g --allow-scripts=pnpm` to allow these scripts once, or `npm config set allow-scripts=pnpm --location=user` to allow them for all global installs.
+```
+
+这个警告是 npm 出于安全考虑，默认阻止了依赖包的安装脚本执行。`pnpm` 需要运行它的 `preinstall` 和 `postinstall` 脚本来完成自身设置，所以需要你手动“放行”。
+
+📌 为什么会出现这个警告？
+
+从 npm 11.16.0 开始，为了防范供应链攻击，npm 默认禁止执行依赖包的 `preinstall`、`install`、`postinstall` 等生命周期脚本。`pnpm` 的安装脚本被阻止后，其必要设置可能未完成，会导致后续使用出现问题。
+
+### 🔧 如何解决？
+根据你的使用场景，有两种处理方式：
+
+**方案一：为所有全局安装永久允许（推荐）**
+如果你经常使用 npm 全局安装，建议将 `pnpm` 加入永久允许列表，这样后续所有全局安装都不会再被阻止：
+```bash
+npm config set allow-scripts=pnpm --location=user
+```
+执行后，npm 会将此配置写入用户级的 `.npmrc` 文件。之后**重新运行**你之前的全局安装或更新命令即可。
+
+**方案二：仅本次安装临时允许**
+如果你只是偶尔遇到，可以在安装命令中临时添加 `--allow-scripts` 参数：
+```bash
+npm install -g --allow-scripts=pnpm @deepseek-ai/dsh
+```
+注意：`--allow-scripts` 是**安装时**的参数，需要和包名一起使用。
+
+💡 补充说明
+
+*   **安全提示**：`pnpm` 是 npm 生态中非常知名且被广泛使用的包管理器，其安装脚本是安全的，可以放心允许。
+*   **权限问题**：如果你之前使用 `sudo` 安装的全局包，那么执行上述允许命令时也可能需要加上 `sudo`，以确保配置在正确的权限范围内生效。
 
 ### 模块系统：CJS vs ESM
 
