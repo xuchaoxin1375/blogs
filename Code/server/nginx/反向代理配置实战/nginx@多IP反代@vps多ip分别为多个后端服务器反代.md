@@ -57,7 +57,7 @@ flowchart LR
 为了方便服务器管理员使用,本文也提供了配套的部署脚本:
 
 ```bash
-bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) -h # 通过-h选项获取脚本帮助(使用说明)
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/multi.sh) -h # 通过-h选项获取脚本帮助(使用说明)
 ```
 
 适用于宝塔安装的nginx(openresty),具体参数可以根据自己的情况调整.
@@ -68,7 +68,7 @@ bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/he
 
 ```bash
 # 包管理器或官方nginx标准安装:
-bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/multi.sh) \
   -m 'B1_IP:A1_IP' \
   -m 'B2_IP:A2_IP' 
 ```
@@ -77,7 +77,7 @@ bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/he
 
 ```bash
 # 适用于宝塔安装的nginx(openresty)
-bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps_multi.sh) \
+bash <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/multi.sh) \
 -c /www/server/nginx/conf \
 -d /www/server/panel/vhost/nginx \
 -l /www/wwwlogs/ \

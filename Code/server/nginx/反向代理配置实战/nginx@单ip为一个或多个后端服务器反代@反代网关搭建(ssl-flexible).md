@@ -129,7 +129,7 @@ A     2.domain.com    b 的公网 IP    Proxied   # 可保留显式记录
 
 ```bash
 # 从github上获取一键部署脚本(适用于反代服务器上运行.)
-bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -h # 使用-h查看脚本帮助.然后构建你自己的命令行参数(如果需要自定义的话)
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/base.sh) -h # 使用-h查看脚本帮助.然后构建你自己的命令行参数(如果需要自定义的话)
 
 
 ```
@@ -153,10 +153,10 @@ bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/h
 
 ```bash
 # 非宝塔方案(apt安装的情况)
-bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -i <upstream_ip>
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/base.sh) -i <upstream_ip>
 
 # 宝塔方案
-bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/update_repos_vps.sh) -c /www/server/nginx/conf -d /www/server/panel/vhost/nginx -l /www/logs/  -i <upstream_ip>
+bash  <(curl -SfL https://raw.githubusercontent.com/xuchaoxin1375/scripts/refs/heads/main/wp/woocommerce/woo_df/sh/nginx_conf/reverse_proxy/scripts/base.sh) -c /www/server/nginx/conf -d /www/server/panel/vhost/nginx -l /www/logs/  -i <upstream_ip>
 ```
 
 
