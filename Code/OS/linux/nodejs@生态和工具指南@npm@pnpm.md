@@ -304,7 +304,7 @@ npm install -g --allow-scripts=pnpm @deepseek-ai/dsh
 
 ```json
 {
-  "type": "module"
+  "type": "module"   
 }
 ```
 

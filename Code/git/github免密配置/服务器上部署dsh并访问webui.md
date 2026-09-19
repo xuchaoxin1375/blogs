@@ -55,3 +55,116 @@ ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:13080:127.0.0.1:3080 user@YOUR_S
 **安全提醒：不建议为了打开页面直接把 Harness 暴露到公网。** 官方说明它仍处于开发预览、尚未经过安全审计，而且能够执行命令、访问文件及凭据；建议以最小权限在专用环境运行。
 
 如果你是 **Docker 部署**，或者照做后仍打不开，贴出你的**启动命令和具体报错**即可；**API Key、token 请打码**。
+
+
+
+**DeepSeek Harness（dsh）的 WebUI 设计上只绑定到 `127.0.0.1`，并且拒绝 `--host 0.0.0.0`**，CLI 也没有提供网络部署模式，所以正确的做法不是开放端口，而是**用 SSH 本地端口转发**把**远端的 loopback 地址引到你本地**的浏览器。
+
+这个设计是有意为之：**port 3080 本身没有密码保护**，如果把它暴露到公网，任何找到它的人都能拿到一个能读你文件、跑 shell 命令的 agent。
+
+---
+
+## 正确的访问方法：SSH 本地端口转发
+
+### 第一步：确认服务器上 dsh 已在运行
+
+在服务器上启动 dsh，注意加 `--no-open`（服务器是无头机器，不需要它试着打开浏览器）：
+
+```bash
+npx @deepseek-ai/dsh web --no-open
+```
+
+最快的启动方式是 `npx @deepseek-ai/dsh web`，需要 Node.js `^22.19` 或 `≥24`，启动后 WebUI 监听在 `http://127.0.0.1:3080`。
+
+如果是前台直接运行，退出 shell 时 dsh 也会终止。应该把它放进 `tmux` 或 `systemd` 用户服务中长期运行。
+
+用 `tmux` 让它在后台持续运行的示意：
+
+```bash
+tmux new-session -d -s dsh 'npx @deepseek-ai/dsh web --no-open'
+```
+
+确认是否已经在监听：
+
+```bash
+ss -ltnp | grep 3080
+```
+
+输出应类似：`LISTEN 0 511 127.0.0.1:3080 0.0.0.0:*`，表示已正常监听。
+
+---
+
+### 第二步：本地建立 SSH 端口转发
+
+在**你的本地机器**上执行：
+
+```bash
+ssh -N -L 127.0.0.1:3080:127.0.0.1:3080 user@your-server
+```
+
+然后在**本地浏览器**中访问：
+
+```
+http://127.0.0.1:3080
+```
+
+直接把服务器输出的 `http://127.0.0.1:3080` 粘贴到本地浏览器是没用的，因为本地的 `127.0.0.1` 是你自己的机器，而 dsh 监听的是远端服务器自己的 loopback，两台机器各有独立的 loopback。
+
+如果本地的 3080 端口已经被占用，可以换一个本地端口：
+
+如果 3080 在本地已被占用，换左边的数字：`ssh -N -L 3180:127.0.0.1:3080 user@your-server`，然后访问 `http://127.0.0.1:3180`。
+
+---
+
+### 推荐：写进 `~/.ssh/config`，之后一条命令搞定
+
+```ssh_config
+Host dsh-server
+    HostName your-server-ip-or-domain
+    User your-user
+    IdentityFile ~/.ssh/id_ed25519
+    LocalForward 3080 127.0.0.1:3080
+```
+
+配置好后，`ssh -N dsh-server` 就能直接开启隧道。
+
+---
+
+## 首次打开 WebUI 的注意事项
+
+### 启动 token 机制
+
+每次 dsh 启动都会生成一个随机 startup token，并在终端打印一条带 `?token=` 的 URL，**只有通过这个 URL 首次访问才能把 token 换成浏览器 cookie**；没有有效 cookie 的请求一律返回 401。
+
+所以首次访问时，**不要直接输 `http://127.0.0.1:3080`**，要找到终端里打印的那条带 `?token=...` 的完整 URL，把它贴到浏览器里打开，之后就会正常重定向到主界面。
+
+### 配置模型 API Key
+
+进入 Settings → Models，把从 `platform.deepseek.com` 获取的 API Key 填进 DeepSeek 那栏保存即可，下一次请求就生效，无需重启。Key 在 UI 里是只写的，实际值存放在 `$DSH_HOME/.credentials.yaml` 中。
+
+---
+
+## 常见问题排查
+
+| 现象                       | 原因                                | 处理方式                                  |
+| -------------------------- | ----------------------------------- | ----------------------------------------- |
+| 浏览器打开直接 401         | startup token 没有正确兑换成 cookie | 用终端里打印的完整 `?token=` URL 访问一次 |
+| 隧道建好，浏览器连接被拒绝 | dsh 没有在服务器上跑，或端口不同    | 服务器执行 `ss -ltnp \| grep 3080` 检查   |
+| 退出 SSH 后 dsh 也停了     | 没有放进 tmux 或 systemd            | 用 `tmux` 或 `systemd --user` 管理进程    |
+| 填 `--host 0.0.0.0` 报错   | 官方明确不支持                      | 只能用 SSH 转发，不要强行绑定             |
+
+---
+
+## 想要直接对外开放（非 SSH 方式）？
+
+**官方目前不推荐，但社区有方案：**
+
+社区插件 `dsh-web-lan-access` 提供了对 LAN 和远程访问的支持，它解决了 WebUI 在非 loopback 地址（LAN IP、Tailscale IP）的 plain HTTP 环境下 `crypto.randomUUID()` 未定义导致 session 和模型无法渲染的问题。
+
+启用该插件后，无需加 `--host` 参数，插件会自动把 webserver 绑定到 `0.0.0.0`，并从非内部 IPv4 地址推导出 `/api` 的 trust fence，包括 LAN `192.168.x`、Tailscale `100.x` 和 VPN 接口。
+
+但对于**公网服务器**，**强烈不建议直接对外开放**：port 3080 没有自己的登录页，任何找到它的人都能拿到一个能读文件、执行命令的 agent。
+
+如果你确实需要从外部多设备访问，更推荐的方式是使用：
+- **Tailscale / Headscale**：将服务器和客户端加入同一私有网络，通过 MagicDNS 访问，不暴露公网端口
+- 官方 `deepseek-harness-remote` 插件，支持桌面端、网页端和 Android 客户端通过账号登录远程连接到 Harness 实例，核心通信走端到端加密，**不需要开放公网端口**。
