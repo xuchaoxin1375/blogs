@@ -1,0 +1,475 @@
+[toc]
+
+
+
+> **知识截止日期：** 本文信息基于 2026 年 9 月 20 日的联网搜索结果，主要来源包括：官方文档 opencode.ai、GitHub `anomalyco/opencode`、npmjs.com、releasebot.io、deepwiki.com 及社区 Issues。
+
+---
+
+## opencode 项目背景与版本演进
+
+### 项目归属与分叉历史
+
+2025 年，原 opencode 仓库由 Charm 维护。后因项目方向分歧，项目发生分裂：由 SST/Anomaly（Dax Raad 和 Adam Doty）维护的 opencode 成为活跃主线，代码库用 TypeScript + Bun 重写。
+
+Charm 方面则继续维护 Crush，是具有 Charm 美学风格的 TUI，但社区规模较小。
+
+> 因此，**现在大家提到的 "opencode" 默认指 `anomalyco/opencode`（原 `sst/opencode`）**，而 `opencode-ai/opencode` 仓库已于 2025 年 9 月 18 日被原作者归档，变为只读状态。
+
+### 项目定性
+
+opencode 是一个开源的、终端原生的 AI 编程 agent，可连接 75+ AI 提供商。它在本地运行，会话存储于 SQLite，完全由用户掌控模型选择。MIT 许可证，可审计、修改和自托管。
+
+---
+
+## 版本发布策略
+
+### 版本号与发布节奏
+
+```mermaid
+timeline
+    title opencode 版本演进时间线
+    section 早期（2025 年初中期）
+        v0.x 系列 : 快速迭代探索期
+        v0.1 ~ v0.15 : 每周多次发布
+    section 稳定期（2025 年末）
+        v1.0 : 2025 年 10 月达到 v1.0 里程碑
+        v1.x 系列 : 持续频繁小版本更新
+    section 当前（2026 年 9 月）
+        v1.18.31 : 2026 年 9 月 14 日（v1 最新稳定版）
+        v2.0.x : 2026 年 9 月 16 日起正式发布
+        v2.0.9 : 2026 年 9 月 19 日（v2 最新）
+```
+
+根据 mise-versions 的历史记录，opencode 从 v0.0 开始，经历 v0.1 到 v0.15 的早期版本，于 2025 年 10 月达到 v1 里程碑，当时一天内就密集发布了多个 v1.0.x 修订。
+
+目前（截至 2026 年 9 月 19 日），GitHub `anomalyco/opencode` 的最新标签已推进到 v2.0.9（2026-09-19），而 v1 系列的最后版本为 v1.18.31（2026-09-14）。
+
+发布特点总结：
+
+| 阶段     | 版本系列 | 发布节奏            | 特征                              |
+| -------- | -------- | ------------------- | --------------------------------- |
+| 探索期   | v0.x     | 每周多次            | 功能快速迭代，接口不稳定          |
+| 稳定期   | v1.x     | 几乎每天            | 小版本密集修复，语义化版本        |
+| 新架构期 | v2.x     | 密集（每天 1~2 个） | 重大重写/重构，v1/v2 并行一段时间 |
+
+opencode 内部有升级机制（`Installation.Service` + `upgrade.ts`），会将 semver 版本分类为 patch / minor / major；对于 patch 版本，在未禁用 `autoupdate` 配置的情况下，会自动执行后台升级。
+
+### v1 与 v2 的关系
+
+v1.x 的新版本已经开始向前兼容读取 v2 配置字段，以便在混合使用场景下旧版本配置文件也能正常工作。
+
+近期更新中，opencode 加入了 V2 Desktop Sidecar（桌面边车服务），采用内嵌的 CLI 服务作为后端。
+
+---
+
+## npm 安装方案
+
+### npm 包基本信息
+
+`opencode-ai` 是 npm 上的官方包名，截至 2026 年 9 月（4 天前），最新版本为 **1.18.31**，安装命令为 `npm i opencode-ai`，另有 76 个其他项目依赖此包。
+
+> 注意：**npm 包名是 `opencode-ai`**，而不是 `opencode`。
+
+npm 包通过 postinstall 脚本为当前平台选取对应的原生二进制文件。使用 Bun 或 pnpm 时需要显式允许该脚本（`--trust`）；而 Windows 包管理器暂不受支持。
+
+
+
+上一轮我说"npm 包名是 `opencode-ai`，最新 1.18.31"。这在 **v1 线**上是正确的：`opencode-ai` 最新版本为 1.18.31，4 天前发布，安装命令 `npm i opencode-ai`。
+
+但 **v2 走的是全新的包名**：v2 文档给出的安装命令为 `curl -fsSL https://opencode.ai/v2/install | bash`、`brew install anomalyco/tap/opencode-v2`、`npm install -g @opencode/cli`、`bun install -g --trust @opencode/cli`、`pnpm add -g --allow-build=@opencode/cli @opencode/cli`、`yarn global add @opencode/cli`、`paru -S opencode-beta`。
+
+因此对"npm 现在默认装的是什么版本"的准确回答是：
+
+| 你执行的命令                | 得到的产品线                  | 说明                              |
+| --------------------------- | ----------------------------- | --------------------------------- |
+| `npm i -g opencode-ai`      | **v1**（当前 1.18.31）        | 老包名，`latest` 标签仍指向 v1 线 |
+| `npm i -g @opencode/cli`    | **v2**（当前 2.0.x）          | v2 正式包名，2026-09-16 起 GA     |
+| `npm i -g @opencode-ai/cli` | v2 **beta**（`0.0.0-beta-*`） | 过渡期包名，不建议再用            |
+
+> 注意二者不能默认并存：OpenCode 1 和 2 都使用 `opencode` 命令，默认不再并排安装；安装 V2 前需先移除由包管理器管理的 V1 安装，V2 的 curl 安装器会直接替换 V1 二进制。而 beta 期间的情况不同：`opencode` 与 `opencode2` 在 beta 期间可以共存，评估 V2 不需要替换或卸载 V1——这也解释了为何网上不少教程会提到 `opencode2` 命令。
+
+### 安装命令
+
+**全局安装（推荐）：**
+
+```bash
+# 安装最新版本
+npm install -g opencode-ai
+
+# pnpm（需允许脚本）
+pnpm add -g opencode-ai --trust
+
+# bun（需允许脚本）
+bun add -g opencode-ai --allow-scripts
+```
+
+**安装指定版本：**
+
+```bash
+npm install -g opencode-ai@1.1.10
+npm install -g opencode-ai@0.1.48
+```
+
+> 可在 [npmjs.com/package/opencode-ai](https://www.npmjs.com/package/opencode-ai) 查看全部历史版本（该包目前有 12,130 个版本，版本数量相当多，说明发布极为频繁）。
+
+**验证安装：**
+
+```bash
+opencode --version
+which opencode
+```
+
+### 更新 / 回退
+
+opencode **内置了 `upgrade` 子命令**，这是最推荐的更新方式：
+
+```bash
+# 升级到最新版本
+opencode upgrade
+
+# 升级/降级到指定版本（支持带或不带 v 前缀）
+opencode upgrade 1.1.10
+opencode upgrade v0.1.48
+
+# 指定安装方式
+opencode upgrade --method npm
+```
+
+upgrade 命令会将 opencode 更新至最新版本或指定目标版本，并自动检测当前安装方式，调用相应的升级机制。
+
+支持的安装方式选项（`--method` / `-m`）包括：`curl`、`npm`、`pnpm`、`bun`、`brew`、`choco`、`scoop`。
+
+也可以直接用 npm 操作：
+
+```bash
+# 更新到最新
+npm install -g opencode-ai@latest
+
+# 回退到旧版本（指定版本号即可"降级"）
+npm install -g opencode-ai@1.0.6
+```
+
+对于生产团队，建议先在测试仓库验证新版本，再大范围推广；保留之前批准的软件包或二进制以便回滚。版本锁定可提升可复现性，但也带来了持续监控安全和兼容性更新的责任。
+
+**卸载：**
+
+```bash
+# 预览卸载（不实际删除）
+opencode uninstall --dry-run
+
+# 卸载但保留配置
+opencode uninstall --keep-config
+```
+
+---
+
+## 代理配置：新旧版本差异与解决方案
+
+这是国内用户最关键的痛点，值得详细分析。
+
+### 旧版本（v0.x 早期）代理方式
+
+早期 opencode 使用 TypeScript/Node.js 运行时，Node.js 原生 `fetch` / `http` 模块天然遵从标准环境变量，设置以下环境变量即可生效：
+
+```bash
+export HTTPS_PROXY=http://127.0.0.1:7890
+export HTTP_PROXY=http://127.0.0.1:7890
+export NO_PROXY=localhost,127.0.0.1
+```
+
+### v1/v2 版本的代理问题根因
+
+有用户报告在 v1.1.2（Linux 环境）中，尽管正确配置了 `HTTP_PROXY` / `HTTPS_PROXY` 环境变量，opencode 仍然绕过代理直接建立连接。
+
+经过 `strace -f -e trace=connect` 网络追踪验证，二进制文件确实尝试直接连接外部 IP（如 104.26.x.x, 172.65.x.x）的 443 端口，而非经过代理服务器。
+
+问题根因分析如下：
+
+```mermaid
+flowchart TD
+    A["opencode npm 包"] --> B["postinstall 脚本"]
+    B --> C["下载平台原生二进制\n（Native Binary）"]
+    C --> D{"运行时类型"}
+    D -->|"旧版: Node.js/TypeScript"| E["自动继承环境变量\n✓ HTTP_PROXY 有效"]
+    D -->|"新版: Go/Bun 原生二进制"| F["独立网络栈\n部分情况不继承代理变量"]
+    F --> G["代理设置失效\n连接超时"]
+    F --> H["TUI 内部本地通信\n如果不排除 localhost\n则内部通信也被代理\n导致路由循环"]
+```
+
+桌面版依赖 Node.js 的 `fetch` 实现，只遵从 `HTTP_PROXY` / `HTTPS_PROXY` 环境变量。在 Windows 上，Electron/Node.js 应用没有自动获取系统代理设置的原生机制（即 Windows 设置 → 网络和 Internet → 代理 中配置的代理不会被自动读取）。
+
+这意味着：从终端设置环境变量后启动应用 → 有效；直接双击桌面图标（无环境变量）→ 失效；使用 TUN 模式的网络层代理 → 有效（绕过此问题）。
+
+### 官方文档的标准配置
+
+opencode 遵从标准代理环境变量。官方推荐配置如下：
+
+**Linux / macOS（终端）：**
+
+```bash
+# 推荐使用 HTTPS_PROXY
+export HTTPS_PROXY=http://127.0.0.1:7890
+# 若代理不支持 HTTPS，则用 HTTP_PROXY
+export HTTP_PROXY=http://127.0.0.1:7890
+# 必须排除本地地址，防止 TUI 内部通信被代理
+export NO_PROXY=localhost,127.0.0.1
+```
+
+**Windows（PowerShell）：**
+
+```powershell
+$env:HTTPS_PROXY = "http://127.0.0.1:7890"
+$env:HTTP_PROXY  = "http://127.0.0.1:7890"
+$env:NO_PROXY    = "localhost,127.0.0.1"
+```
+
+**Windows（CMD）：**
+
+```cmd
+set HTTPS_PROXY=http://127.0.0.1:7890
+set HTTP_PROXY=http://127.0.0.1:7890
+set NO_PROXY=localhost,127.0.0.1
+```
+
+> **关键提醒：** TUI 与本地 HTTP 服务器之间存在内部通信，必须将本地地址加入代理绕过列表（`NO_PROXY`），否则会造成路由循环，导致 TUI 无法启动。
+
+**带认证的代理：**
+
+```bash
+export HTTPS_PROXY=http://username:password@proxy.example.com:8080
+```
+
+如果代理需要 Basic 认证，直接将凭证包含在 URL 中即可；不建议将密码硬编码，推荐使用环境变量或安全凭证存储。
+
+### 已知未解决问题（社区 Issues）
+
+| 问题编号 | 描述                                                | 状态                             |
+| -------- | --------------------------------------------------- | -------------------------------- |
+| #6953    | v1.1.2 在 Linux 下忽略 `HTTP_PROXY`/`HTTPS_PROXY`   | 已报告，根源为原生二进制绕过代理 |
+| #8822    | `NO_PROXY` 变量未被正确遵守，内部流量仍被路由到代理 | 已报告                           |
+| #27892   | Windows 桌面版 webfetch 工具不遵守系统代理          | 已报告，功能请求中               |
+| #24981   | 请求在 `opencode.json` 中支持显式代理配置           | 功能请求中                       |
+
+企业内网场景下，有用户需要 npm 注册表通过代理访问，同时本地 LiteLLM 服务绕过代理，但 opencode 对 `NO_PROXY` 的处理存在问题，而同类工具（如 Claude Code）在相同配置下工作正常。
+
+opencode 目前支持通过 `HTTPS_PROXY`、`HTTP_PROXY` 和 `NO_PROXY` 等标准环境变量配置代理，但在企业/VPN 环境下使用仍较困难，社区希望未来在配置文件中提供一级（first-class）代理配置支持。
+
+### 当前最佳实践与变通方案
+
+针对代理失效的情况，按推荐优先级排列：
+
+**方案 A（最推荐）：TUN 模式代理**
+
+使用 mihomo（Clash Meta）/ sing-box 等支持 TUN 模式的代理工具。TUN 模式在网络层拦截所有流量，无需应用层配置，可以绕过环境变量不生效的问题。
+
+适用场景：本地开发机，代理软件已安装并支持 TUN。
+
+**方案 B：从终端（而非 GUI）启动，并在同一会话中设置环境变量**
+
+```bash
+# 一次性设置并启动（Shell 会话内有效）
+HTTPS_PROXY=http://127.0.0.1:7890 NO_PROXY=localhost,127.0.0.1 opencode
+```
+
+或写入 Shell 配置文件（`~/.zshrc` / `~/.bashrc`）使其持久化：
+
+```bash
+export HTTPS_PROXY=http://127.0.0.1:7890
+export HTTP_PROXY=http://127.0.0.1:7890
+export NO_PROXY=localhost,127.0.0.1
+```
+
+适用场景：终端 TUI 模式，代理工具运行在本地。
+
+**方案 C：通过 `baseURL` 绕过代理问题**
+
+opencode 配置文件（`opencode.json`）支持为提供商设置 `baseURL`，并可使用 `{env:VAR_NAME}` 语法读取环境变量，无需硬编码 key。
+
+将 AI 请求指向一个可以访问的中转端点（例如国内可用的 API 中继站、本地的 API 代理服务），从根本上避开 GFW 问题：
+
+```jsonc
+// ~/.config/opencode/opencode.json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "openai": {
+      "api_key": "{env:OPENAI_API_KEY}",
+      "options": {
+        "baseURL": "https://your-relay.example.com/v1"
+      }
+    }
+  }
+}
+```
+
+适用场景：有可用的 API 中继服务，彻底不依赖 HTTP 代理。
+
+**方案 D（Windows 桌面版）：固化环境变量到系统层**
+
+Windows 下通过终端命令行设置环境变量后启动可以生效；或在"系统属性 → 高级 → 环境变量"中添加系统级 `HTTPS_PROXY` 变量，之后双击启动桌面版也可生效。
+
+**方案 E：本地 API 代理工具**
+
+使用类似 [opencode-claude-max-proxy](https://github.com/rynfar/opencode-claude-max-proxy) 的中间层工具：
+
+opencode 只需要两个环境变量将 API 请求重定向到代理服务器；`ANTHROPIC_API_KEY` 的值可以是任意字符串——opencode 会校验其存在性，但代理服务器会忽略其内容。
+
+```bash
+export ANTHROPIC_BASE_URL=http://localhost:4000
+export ANTHROPIC_API_KEY=fake-key
+opencode
+```
+
+---
+
+## 快速参考卡
+
+```mermaid
+flowchart LR
+    subgraph s1["npm 版本管理"]
+        A1["安装最新\nnpm i -g opencode-ai"] --> A2["指定版本\nnpm i -g opencode-ai@1.x.x"]
+        A2 --> A3["内置升降级\nopencode upgrade 1.x.x"]
+    end
+
+    subgraph s2["代理配置优先级"]
+        B1["TUN 模式\n最推荐，无需配置"] 
+        B2["环境变量\nHTTPS_PROXY\nNO_PROXY=localhost"]
+        B3["baseURL 中转\n彻底绕过"]
+        B1 -.- B2 -.- B3
+    end
+    s1 ~~~ s2
+```
+
+| 操作                       | 命令                                         |
+| -------------------------- | -------------------------------------------- |
+| 安装最新版                 | `npm install -g opencode-ai`                 |
+| 安装指定版                 | `npm install -g opencode-ai@1.1.10`          |
+| 内置升级                   | `opencode upgrade`                           |
+| 升级/降级到指定版          | `opencode upgrade 1.0.6`                     |
+| 指定方法升级               | `opencode upgrade --method npm`              |
+| 查看版本                   | `opencode --version`                         |
+| 代理（Linux/macOS）        | `export HTTPS_PROXY=http://127.0.0.1:7890`   |
+| 代理绕过本地（必须）       | `export NO_PROXY=localhost,127.0.0.1`        |
+| 代理（Windows PowerShell） | `$env:HTTPS_PROXY = "http://127.0.0.1:7890"` |
+
+---
+
+> **遗漏审计 / 可继续深挖的方向（供下轮对话参考）：**
+> - `opencode.json` 中 v2 版本新增/变更的完整配置字段（`proxy` 字段是否已落地）
+> - opencode Go 订阅版（"OpenCode Go"）与开源版的关系和功能区别
+> - v2 架构重写的具体技术变化（服务端 ACP 协议、V2 Desktop Sidecar 工作机制）
+> - Issue #24981 关于配置文件内置代理字段的进展
+> - `opencode upgrade` 的自动更新（`autoupdate` 配置）禁用方法
+
+
+
+## 双线链接总览
+
+```mermaid
+flowchart LR
+    subgraph V1["v1 线（稳定维护，1.18.x）"]
+        A1["文档 opencode.ai/docs"]
+        A2["npm: opencode-ai"]
+        A3["安装脚本 opencode.ai/install"]
+        A4["brew: anomalyco/tap/opencode"]
+    end
+    subgraph V2["v2 线（2.0.x，2026-09 GA）"]
+        B1["文档 opencode.ai/v2/docs"]
+        B2["npm: @opencode/cli"]
+        B3["安装脚本 opencode.ai/v2/install"]
+        B4["brew: anomalyco/tap/opencode-v2"]
+        B5["迁移指南 /v2/docs/migrate-v1"]
+    end
+    R["GitHub anomalyco/opencode<br>Tags: v1.18.31 与 v2.0.x 同仓库"]
+    R --> V1
+    R --> V2
+    A1 -. "顶部横幅: v2 is now available" .-> B1
+```
+
+### 官方文档入口
+
+| 链接                                    | 所属 | 介绍                                                         |
+| --------------------------------------- | ---- | ------------------------------------------------------------ |
+| https://opencode.ai/docs/               | v1   | v1 文档主站。页面顶部有"OpenCode v2 is now available"横幅；OpenCode 是开源 AI 编程 agent，提供终端界面、桌面应用或 IDE 扩展。安装方式为 `curl -fsSL https://opencode.ai/install \| bash` 或 `npm install -g opencode-ai` |
+| https://opencode.ai/v2                  | v2   | v2 文档跳转页，仅显示"Continue to the OpenCode docs"，实际内容在 `/v2/docs` |
+| https://opencode.ai/v2/docs             | v2   | v2 文档首页。OpenCode 是开源 AI 编程 agent，提供终端界面、桌面应用或 Web 应用（注意 v1 写的是"IDE 扩展"，v2 写的是"Web 应用"）。npm 包用 postinstall 脚本为平台选择原生二进制；Bun 和 pnpm 命令需显式允许该脚本，Vite+ 不需要额外标志；不支持 Windows 包管理器。同时提供各平台独立 CLI 二进制下载 |
+| https://opencode.ai/v2/docs/migrate-v1/ | v2   | **v1 到 v2 迁移指南**（最重要的桥梁文档），详见下文          |
+| https://opencode.ai/v2/docs/config      | v2   | v2 配置总览。完整配置 schema 位于 opencode.ai/config.json；在配置文件中加入 `$schema` 字段可在编辑器中获得校验和自动补全；应将 schema 作为可用字段的事实来源。在项目中创建 `opencode.jsonc` 进行配置。**更新策略字段**：全局配置中的 `update` 控制更新检查，`"disable"` 跳过、`"notify"` 安装前提示、`"auto"` 自动安装——这回答了上一轮"如何关闭自动更新"的遗留问题 |
+| https://opencode.ai/v2/docs/providers/  | v2   | v2 提供商配置。示例采用 `providers` 复数键、`package` 与 `settings.baseURL` 结构；V2 会拒绝已退役的提供商 ID 并给出直接替代 |
+| https://opencode.ai/v2/docs/models      | v2   | v2 模型配置。支持带路径前缀的代理（path-prefixed proxies），对走中转站的国内用户有用 |
+| https://opencode.ai/v2/docs/tools/      | v2   | v2 内置工具（`edit`/`write`/`patch`/`shell` 等）与权限说明   |
+| https://opencode.ai/docs/network/       | v1   | **v1 网络/代理文档**。支持标准代理环境变量与企业自定义证书；示例为 `HTTPS_PROXY`、`HTTP_PROXY`、`NO_PROXY=localhost,127.0.0.1`，并警告 TUI 与本地 HTTP 服务器通信，必须绕过代理以防路由循环 |
+| https://opencode.ai/docs/providers/     | v1   | v1 提供商文档，可通过 `baseURL` 选项自定义任意提供商的基础 URL，适用于代理服务或自定义端点；`/connect` 添加的密钥存于 `~/.local/share/opencode/auth.json` |
+
+> **诚实说明：** 我这一轮未能搜到 `opencode.ai/v2/docs/network` 这样的 v2 专属网络/代理页面，无法确认 v2 是否已有对应文档。这本身就是一个值得下一轮核实的点。
+
+### 安装脚本与包管理器
+
+| 链接 / 标识                                        | 所属    | 介绍                                                         |
+| -------------------------------------------------- | ------- | ------------------------------------------------------------ |
+| `https://opencode.ai/install`                      | v1      | v1 一键安装脚本                                              |
+| `https://opencode.ai/v2/install`                   | v2      | v2 一键安装脚本，会替换 v1 二进制                            |
+| https://opencode.ai/download                       | 混合    | 下载页。列出了 `curl -fsSL https://opencode.ai/v2/install \| bash`、`npm install -g @opencode/cli`、`bun install -g --trust @opencode/cli`、`brew install anomalyco/tap/opencode-v2`、`paru -S opencode-beta`、`yay -S opencode-beta`，说明**官方下载页已默认导向 v2** |
+| https://www.npmjs.com/package/opencode-ai          | v1      | v1 npm 包。共 12,130 个版本                                  |
+| https://www.jsdelivr.com/package/npm/@opencode/cli | v2      | v2 包在 jsDelivr 的镜像页（npmjs 直接页面未在结果中出现，可自行访问 `npmjs.com/package/@opencode/cli`） |
+| https://npmx.dev/org/opencode-ai                   | v1/beta | `@opencode-ai` 组织下的包一览。包括各平台二进制子包 `@opencode-ai/cli-linux-x64`、`cli-darwin-arm64` 等（v1.18.x），以及 `@opencode-ai/cli` 的 `v0.0.0-beta-17823`，还标注了为 opencode schema 和 protocol 预留的包名 |
+| GitHub Issue #37039                                | beta    | 一个典型踩坑记录：用户安装 `@opencode-ai/cli` 1.18.1 后只得到了 `lildax`——说明 `@opencode-ai/cli` 这个包名在 v1 版本号下并非完整的 CLI，**不要把它当作 v1 的安装包**。（`lildax` 是什么组件，来源未说明，我不做猜测） |
+
+### GitHub 仓库与发布
+
+| 链接                                                         | 介绍                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| https://github.com/anomalyco/opencode                        | 主仓库，v1/v2 共用。README 给出全套安装方式：curl 脚本、`npm i -g opencode-ai@latest`、scoop/choco（Windows）、`brew install anomalyco/tap/opencode`（推荐，更新最快）、`brew install opencode`（官方 formula，更新较慢）、`pacman`/`paru`（Arch）、`mise use -g opencode`、`nix run nixpkgs#opencode`。桌面版可从 releases 或 opencode.ai/download 下载，macOS 用 `brew install --cask opencode-desktop`，Windows 用 scoop extras bucket |
+| https://github.com/anomalyco/opencode/tags                   | 版本标签。v2.0.9（9月19日）、v2.0.8（18日）、v2.0.7/v2.0.6（17日）、v2.0.5/v2.0.4（16日），其下为 v1.18.31（9月14日）；仓库 208k Star、27.4k Fork。可见 **v2 GA 后以日更节奏推进** |
+| https://github.com/anomalyco/opencode/releases               | 发布说明（v1 线为主）。v1.18.31 于 9月14日发布，恢复了 ACP 会话的模型、effort、mode 及推理分块边界；V1 现在能读取受支持的 V2 配置字段，使新配置文件在混合环境下继续工作 |
+| https://github.com/anomalyco/opencode-beta/releases          | **v2 beta 专用发布仓库**。最新为 v0.0.0-beta-19723，由 opencode-agent 于 9月17日发布——GA 后 beta 通道仍在继续 |
+| https://github.com/anomalyco/opencode/tree/v2 、`/tree/opencode-2-0` | v2 开发分支（README 内容与主分支相同，主要用于看源码）       |
+| https://github.com/anomalyco/opencode/issues                 | Issue 列表。注意"Issue creation is restricted in this repository"，即当前限制了普通用户新建 Issue |
+
+### 变更日志
+
+| 链接                                   | 介绍                                                         |
+| -------------------------------------- | ------------------------------------------------------------ |
+| https://opencode.ai/changelog          | 官方 release notes 与 changelog（搜索快照内容极少，建议直接访问） |
+| https://www.opencode.asia/changelog/   | 第三方整理的按主题归类 changelog。记录了 V1 读取 V2 配置字段（v1.18.24）、未知顶层配置字段被忽略而非解析失败（v1.18.16） |
+| https://opencode.gr.com/changelog.html | **注意甄别**：该站使用 `2026.4`、`2026.3` 这类日期式版本号，声称收录 2026.4 到 2025.12 的发布说明，与官方 semver（1.18.x / 2.0.x）完全不符，且提到的 `stream.mode` 等配置键未在官方文档中出现，**疑为同名/仿冒站点，不建议作为依据** |
+
+## v1 到 v2：迁移指南要点（读链接前先知道什么变了）
+
+官方迁移页的核心结论：
+
+- **兼容承诺**：V1 配置格式仍被支持，原生 V2 格式是可选的，只是让若干设置更显式、更符合人体工学。现有服务端配置字段、agent 定义、command 定义、skills 及 `.opencode/` 下的其他文件应无需修改继续工作；若受支持的行为在 V2 中失效，应视为兼容性 bug 而非预期迁移要求。
+- **不兼容的三块**：插件使用新的插件 API；服务端 API 与客户端有新契约；终端客户端配置从分层的 `tui.json(c)` 迁移为单一全局 `cli.json`（自动迁移）。调用 V1 服务端 API 的集成必须迁移到 V2 API，使用 `@opencode/client` 包。
+- **配置键改名示例**：单数 `provider` 改为 `providers`；V1 的 `npm` 变为 `package`，AI SDK 包加 `aisdk:` 前缀；`api` 变为 `settings.baseURL`；provider options 按请求角色拆分为 `settings`、`headers`、`body`。
+- **推荐迁移方式**：让 OpenCode 自己动手——给它一句提示词"Migrate my OpenCode configuration, including file-based definitions, from the V1 format to the native V2 format"。转换不必一次完成，V1 与 V2 字段可在顶层共存；当两者设置同一值时，有效的 V2 值优先，与 JSON 键顺序无关。
+
+以下是迁移页中 provider 配置改写的对照（占位符说明见表）：
+
+```jsonc
+// V1
+{ "provider": { "acme": { "npm": "@ai-sdk/openai-compatible",
+  "api": "https://llm.example.com/v1",
+  "options": { "apiKey": "{env:ACME_API_KEY}" } } } }
+
+// V2
+{ "providers": { "acme": { "package": "aisdk:@ai-sdk/openai-compatible",
+  "settings": { "baseURL": "https://llm.example.com/v1",
+  "apiKey": "{env:ACME_API_KEY}" } } } }
+```
+
+| 占位符 / 字段        | 含义                                                         |
+| -------------------- | ------------------------------------------------------------ |
+| `acme`               | 你自定义的提供商 ID，之后在 `model` 中以 `acme/<模型名>` 引用 |
+| `package`            | 驱动该提供商的运行时包；`aisdk:` 前缀表示 Vercel AI SDK 生态的包 |
+| `settings.baseURL`   | API 端点，**国内用户接中转站/本地网关就改这里**              |
+| `{env:ACME_API_KEY}` | 从环境变量读取密钥的模板语法，避免把 key 写进配置文件        |
+
+## v2 架构变化与代理问题的关联
+
+这一点与你观察到的"v2 环境变量代理难以生效"直接相关。据 2.0 发布相关报道，核心重写包括：从 Bun 迁移到 Node 以解决内存问题、桌面客户端从 Tauri 切换到 Electron、多标签并行 AI 会话；早期版本因服务端依赖 Bun 特有 API 而必须捆绑 CLI，迁移后移除了这些 API，服务端得以运行在 Node.js 环境。
+
+**我的推断（非官方结论，请以实测为准）：** Node.js 内置的 `fetch`（基于 undici）**默认不读取 `HTTP_PROXY`/`HTTPS_PROXY` 环境变量**，需要程序显式设置 `EnvHttpProxyAgent` 之类的全局 dispatcher；而 Bun 的 `fetch` 是原生遵从这些变量的。若 v2 在 Bun 到 Node 迁移中未补上这一层，就会出现"v1 环境变量有效、v2 无效"的现象。这与你的观察吻合，但**需要核实 v2 源码或 Issue 才能坐实**。v1 网络文档明确承诺遵从环境变量（见上表 `/docs/network/`），v2 是否有同等承诺我这一轮未找到对应页面。
+
+在此推断成立的前提下，v2 用户当前最稳的绕行方案仍是上一轮给出的：**TUN 模式代理**（网络层拦截，不依赖应用行为）或 **`settings.baseURL` 指向可达的中转端点**。
+

@@ -429,6 +429,29 @@ flowchart LR
 	
 ```
 
+### 控件布局排列
+
+以并排两个子图为例:
+
+```mermaid
+flowchart LR
+    subgraph s1["npm 版本管理"]
+        A1["安装最新\nnpm i -g opencode-ai"] --> A2["指定版本\nnpm i -g opencode-ai@1.x.x"]
+        A2 --> A3["内置升降级\nopencode upgrade 1.x.x"]
+    end
+
+    subgraph s2["代理配置优先级"]
+        B1["TUN 模式\n最推荐，无需配置"] 
+        B2["环境变量\nHTTPS_PROXY\nNO_PROXY=localhost"]
+        B3["baseURL 中转\n彻底绕过"]
+        B1 -.- B2 -.- B3
+    end
+    s1 ~~~ s2
+```
+
+
+
+## 案例
 
 ### 集线器@交换机@路由器@网络混合系统(color demo)
 
