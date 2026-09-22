@@ -1,9 +1,110 @@
-# DSH 接入 opencode go 订阅：模型目录缺失问题与解决方案
+## DeepSeek Harness 接入 OpenCode Go 报 `MissingSessionID` — 原因与解决方案
 
-> 排查日期：2026-09（对应 DSH 包内 pi-ai 目录快照 2026-09-15）
-> 涉及环境：Windows，DSH_HOME = `C:\Users\cxxu1375\.dsh`
+###  问题根源
+
+自 2026-09-05 起，OpenCode Go 要求每个推理请求携带一个稳定的 `x-opencode-session` header（用于路由和 prompt 缓存）。
+
+DeepSeek Harness ≤ 0.1.2-rc.1 在任何 adapter 路径上都不发送该 header，因此所有 opencode-go 模型调用都会失败，报 `400 MissingSessionID`。
+
+根本原因是 `@deepseek-ai/dsh-llm-pi-ai` 从未在 opencode-go 请求上发送 `x-opencode-session`。pi-ai 0.85.1 只有在模型的 compat 设置了 `sendSessionAffinityHeaders` 标志时才把 `sessionId` 映射为亲和 header，而 opencode-go 的 catalog 条目没有设置这个标志，所以 header 从未生效。
+
+OpenCode Go 方面也确认，约 25,000 个用户组织通过 deepseek-harness 调用他们的 API，并且他们测量到近期所有 harness 版本的 header 存在率接近零，因此 harness 用户在 Go 上会全面中断。
+
+**官方修复尚未发布**，上游修复在 deepseek-harness discussion #5495 中跟踪，但还没有正式发版。
 
 ---
+
+###  解决方案（按推荐顺序）
+
+#### 方案一：安装社区插件（最简单，推荐）
+
+社区已经做了一个插件来本地填补这个空缺。
+
+**步骤：**
+
+自动:
+
+> (windows用户,注意nodejs安装方式,标准安装包安装的没事,但是scoop这类方式可能会遇到错误.)
+
+```shell
+dsh plugin --profile web add dsh-opencode-session-header
+```
+
+手动:
+
+```bash
+# 1. 克隆插件到 DSH 插件目录
+cd ~/.dsh/plugins
+git clone https://github.com/beihzb/dsh-opencode-session-header.git
+
+# 2. 重启 dsh web
+dsh web
+```
+
+启动日志应该显示：`[dsh-opencode-session-header] loaded: header=x-opencode-session hosts=opencode.ai fallback=dsh-default`
+
+这个插件的优点是：能修复 400 错误 ✅、使用真实的 DSH session id 做 per-conversation 标识 ✅、其他 provider 不受影响 ✅。
+
+---
+
+#### 方案二：在 `settings.yaml` 中手动添加静态 header
+
+在你的 DSH 配置文件中（通常在 `~/.dsh/settings.yaml`），给 opencode-go 模型添加自定义 header：
+
+```yaml
+providers:
+  opencode-go:
+    headers:
+      x-opencode-session: "my-fixed-session-id-12345"
+```
+
+> ⚠️ 但这个方式的缺点是：所有对话共享一个固定 ID → cache 命中率低，更慢且更贵。
+
+---
+
+#### 方案三：使用社区 Fork 分支（源码级修复）
+
+如果你是从源码构建 DSH，可以使用已有 PR 的 fork：
+
+分支 `feat/llm-pi-ai-session-header`（在 gabriel-ferraresi/deepseek-harness 上，单个 commit，290 个包测试通过）。
+
+```bash
+git clone https://github.com/gabriel-ferraresi/deepseek-harness.git
+cd deepseek-harness
+git checkout feat/llm-pi-ai-session-header
+pnpm install
+pnpm run build
+pnpm dsh web
+```
+
+实测 OpenCode Go 的 deepseek-v4-flash 请求在应用补丁后返回 OK 并成功停止。
+
+---
+
+#### 方案四：通过 Aurora Gateway 代理中转
+
+如果你需要一个即时的基础设施级修复，可以通过 Aurora Gateway 的 fork 路由流量。它的 Session Hub（map 模式）会自动将缺失或不稳定的 header 转换为稳定的出站 `x-opencode-session` 令牌，防止 400 报错并保留 Prompt Cache。完全开源且支持 Docker 部署。
+
+---
+
+###  快速对照表
+
+| 方案                      | 修复 400 | Per-conversation 缓存 | 不影响其他 Provider | 难度   |
+| ------------------------- | -------- | --------------------- | ------------------- | ------ |
+| 社区插件                  | ✅        | ✅                     | ✅                   | ⭐ 最低 |
+| settings.yaml 静态 header | ✅        | ❌                     | ✅                   | ⭐      |
+| Fork 分支源码构建         | ✅        | ✅                     | ✅                   | ⭐⭐⭐    |
+| Aurora Gateway 代理       | ✅        | ✅                     | ✅                   | ⭐⭐     |
+
+---
+
+### 🕐 等官方修复
+
+上游修复在 deepseek-harness discussion #5495 中跟踪，建议关注该 discussion 和后续版本发布。一旦官方 merge 了会话 header 支持，升级 DSH 版本后就可以移除插件/临时方案。
+
+
+
+## DSH 接入 opencode go 订阅：模型目录缺失问题与解决方
 
 ## 1. 问题现象
 
