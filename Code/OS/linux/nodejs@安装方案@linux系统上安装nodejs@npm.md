@@ -99,6 +99,8 @@ Ubuntu 的包版本通常围绕操作系统发行周期进行集成，而不是�
 
 ## 推荐方案：使用 nvm 安装
 
+先介绍工作方式,[安装](https://github.com/nvm-sh/nvm#install--update-script)见后面小节;
+
 ### nvm 的工作原理
 
 nvm 是一个按用户安装、按 Shell 加载的 Node.js 版本管理器。不同 Node.js 版本通常放在：
@@ -195,7 +197,14 @@ sudo apt install -y build-essential python3
 
 ### 正式安装 nvm
 
-与直接执行 `curl ... | bash` 相比，下面先下载、检查、再执行，透明度更高：
+直接安装:
+
+```shell
+# 国内网络可以用镜像加速,例如https://gh-proxy.com/
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+```
+
+分步安装: 与直接执行 `curl ... | bash` 相比，下面先下载、检查、再执行，透明度更高,也可以指定版本：
 
 ```bash
 NVM_VERSION="v0.40.6" #根据仓库实际最新版本填写
@@ -494,7 +503,7 @@ corepack enable
 
 ---
 
-## fnm：更快的替代方案
+## fnm：更快的替代方案🎈
 
 fnm 是使用 Rust 编写的 Node.js 版本管理器，特点包括：
 
@@ -503,6 +512,16 @@ fnm 是使用 Rust 编写的 Node.js 版本管理器，特点包括：
 - 支持 Linux、macOS 和 Windows。
 - 支持 `.nvmrc` 与 `.node-version`。
 - 支持进入目录时自动切换版本。
+
+### 安装fnm
+
+[Schniz/fnm: 🚀 Fast and simple Node.js version manager, built in Rust](https://github.com/Schniz/fnm#installation)
+
+以`*nix`平台`bash`运行安装为例:
+
+```shell
+curl -fsSL https://fnm.vercel.app/install | bash
+```
 
 安装脚本也建议先下载、检查，再执行：
 
