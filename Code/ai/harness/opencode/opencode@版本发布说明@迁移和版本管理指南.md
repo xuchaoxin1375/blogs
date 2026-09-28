@@ -1,6 +1,7 @@
 [toc]
 
-
+> **本文定位：** 版本运维手册（装什么版本、怎么升降级、代理排障、双线链接、迁移对照）。设计动机、架构图、日常 agent 用法、是否升级决策见姊妹篇《v2版本的设计和使用指南》。
+> 姊妹篇：`./opencode@v2版本的设计和使用指南.md`
 
 > **知识截止日期：** 本文信息基于 2026 年 9 月 20 日的联网搜索结果，主要来源包括：官方文档 opencode.ai、GitHub `anomalyco/opencode`、npmjs.com、releasebot.io、deepwiki.com 及社区 Issues。
 
@@ -67,19 +68,15 @@ v1.x 的新版本已经开始向前兼容读取 v2 配置字段，以便在混�
 
 ### npm 包基本信息
 
-`opencode-ai` 是 npm 上的官方包名，截至 2026 年 9 月（4 天前），最新版本为 **1.18.31**，安装命令为 `npm i opencode-ai`，另有 76 个其他项目依赖此包。
+`opencode-ai` 是 v1 线官方包名（截至 2026-09 最新 1.18.31），另有 76 个项目依赖此包。
 
 > 注意：**npm 包名是 `opencode-ai`**，而不是 `opencode`。
 
 npm 包通过 postinstall 脚本为当前平台选取对应的原生二进制文件。使用 Bun 或 pnpm 时需要显式允许该脚本（`--trust`）；而 Windows 包管理器暂不受支持。
 
+**v2 走全新包名**：`curl -fsSL https://opencode.ai/v2/install | bash`、`brew install anomalyco/tap/opencode-v2`、`npm install -g @opencode/cli`、`bun install -g --trust @opencode/cli`、`pnpm add -g --allow-build=@opencode/cli @opencode/cli`、`yarn global add @opencode/cli`、`paru -S opencode-beta`。
 
-
-上一轮我说"npm 包名是 `opencode-ai`，最新 1.18.31"。这在 **v1 线**上是正确的：`opencode-ai` 最新版本为 1.18.31，4 天前发布，安装命令 `npm i opencode-ai`。
-
-但 **v2 走的是全新的包名**：v2 文档给出的安装命令为 `curl -fsSL https://opencode.ai/v2/install | bash`、`brew install anomalyco/tap/opencode-v2`、`npm install -g @opencode/cli`、`bun install -g --trust @opencode/cli`、`pnpm add -g --allow-build=@opencode/cli @opencode/cli`、`yarn global add @opencode/cli`、`paru -S opencode-beta`。
-
-因此对"npm 现在默认装的是什么版本"的准确回答是：
+对“npm现在默认装什么版本”的准确回答是：
 
 | 你执行的命令                | 得到的产品线                  | 说明                              |
 | --------------------------- | ----------------------------- | --------------------------------- |
@@ -355,12 +352,12 @@ flowchart LR
 
 ---
 
-> **遗漏审计 / 可继续深挖的方向（供下轮对话参考）：**
-> - `opencode.json` 中 v2 版本新增/变更的完整配置字段（`proxy` 字段是否已落地）
-> - opencode Go 订阅版（"OpenCode Go"）与开源版的关系和功能区别
-> - v2 架构重写的具体技术变化（服务端 ACP 协议、V2 Desktop Sidecar 工作机制）
-> - Issue #24981 关于配置文件内置代理字段的进展
-> - `opencode upgrade` 的自动更新（`autoupdate` 配置）禁用方法
+> **待核实（截至 2026-09-20 未确认）：**
+> - `opencode.json` v2完整配置字段（`proxy`是否已落地）
+> - 订阅版“OpenCode Go”与开源版关系
+> - 服务端ACP协议、V2 Desktop Sidecar机制
+> - Issue #24981 配置内置代理进展
+> - `update:disable/notify/auto`外 `autoupdate`旧字段是否仍有效
 
 
 
@@ -437,6 +434,8 @@ flowchart LR
 
 ## v1 到 v2：迁移指南要点
 
+> `mcp/model/skills`字段形状差异与混用故障点见姊妹篇 v1与v2核心差异对比节。本节只保留包名、`providers`键改名与换线步骤。
+
 ### 版本检查(npm view)
 
 ```
@@ -483,36 +482,19 @@ flowchart LR
 | `settings.baseURL`   | API 端点，**国内用户接中转站/本地网关就改这里**              |
 | `{env:ACME_API_KEY}` | 从环境变量读取密钥的模板语法，避免把 key 写进配置文件        |
 
-是的，`opencode-ai@1.18.31` 和 `@opencode/cli` 确实会冲突，**强烈不建议直接安装**。
+### 二进制冲突与换线步骤
 
-### 不直接覆盖安装
+`opencode-ai@1.18.31` 和 `@opencode/cli` 都提供 `opencode` 命令，同时全局安装会 EEXIST bin conflict，**不要直接覆盖安装**。
 
-这两个包都提供了名为 `opencode` 的命令行入口，如果同时安装到全局环境，npm 会因为“二进制文件已存在”（EEXIST bin conflict）而报错。
-*   **`opencode-ai`**：对应的是 **v1** 版本（稳定版）。
-*   **`@opencode/cli`**：对应的是 **v2** 版本（新版）。
+1. 先卸载旧版：`npm uninstall -g opencode-ai`
+2. 再装新版：`npm install -g @opencode/cli`
+3. 有自定义配置时按本节官方迁移对照调整（`command→commands`等破坏性变更）。
 
-### 推荐做法
-如果你确实想用新的 `@opencode/cli`（v2），请按以下步骤操作：
-
-1.  **先卸载旧版**：在终端执行 `npm uninstall -g opencode-ai`，确保全局环境里没有残留的 v1 版本。
-2.  **再安装新版**：执行 `npm install -g @opencode/cli` 进行安装。
-3.  **注意配置迁移**：v2 有一些破坏性变更（比如 `command` 变成了 `commands`），如果之前有自定义配置文件，升级后可能需要参照官方迁移指南调整一下。
-
-**补充提醒**：如果你遇到“package manager failed to install the right version”之类的报错，通常是因为用了未同步的国内镜像源。可以尝试临时指定官方源安装：`npm install -g @opencode/cli --registry=https://registry.npmjs.org`。
-
-### 冲突抢救
-
-npm 安装过的 `opencode-ai` 现在要安装@opencode/cli 会冲突,**强烈不建议直接安装**。
-
-如果你确实想用新的 `@opencode/cli`（v2），请按以下步骤操作：
-
-1.  **先卸载旧版**：在终端执行 `npm uninstall -g opencode-ai`，确保全局环境里没有残留的 v1 版本。
-2.  **再安装新版**：执行 `npm install -g @opencode/cli` 进行安装。
-3.  **注意配置迁移**：v2 有一些破坏性变更（比如 `command` 变成了 `commands`），如果之前有自定义配置文件，升级后可能需要参照官方迁移指南调整一下。
-
-**补充提醒**：如果你遇到“package manager failed to install the right version”之类的报错，通常是因为用了未同步的国内镜像源。可以尝试临时指定官方源安装：`npm install -g @opencode/cli --registry=https://registry.npmjs.org`。
+**补充提醒**：遇“package manager failed to install the right version”多为国内镜像未同步，临时指定官方源：`npm install -g @opencode/cli --registry=https://registry.npmjs.org`。
 
 ## OpenCode v2 要点总结
+
+> 设计动机、三重写细节、架构图见姊妹篇 v2设计动机与理念节。本节只保留运维视角（权限/上下文/桌面）。
 
 核心变化：从工具到平台
 
@@ -575,6 +557,8 @@ v2 的默认行为是：启动时自动发现或创建一个属于你用户账�
 简单说：**v1 天然就是“独立”的（每次运行都是孤立进程）；v2 的 `--standalone` 是在“默认共享”的大前提下，手动退回类似 v1 那种“用完即走、互不干扰”的孤岛状态。**
 
 ## v2 架构变化与代理问题的关联
+
+> 架构图与 Bun→Node、Tauri→Electron、常驻服务、Skill热加载见姊妹篇。本节只保留代理相关的推断。
 
 这一点与你观察到的"v2 环境变量代理难以生效"直接相关。据 2.0 发布相关报道，核心重写包括：**从 Bun 迁移到 Node** 以解决内存问题、桌面客户端从 Tauri 切换到 Electron、多标签并行 AI 会话；
 
