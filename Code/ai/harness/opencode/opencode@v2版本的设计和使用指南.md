@@ -1,5 +1,8 @@
 [toc]
 
+> **本文定位：** 设计动机与日常使用（为什么升、怎么用）。完整安装矩阵、npm包管理、`upgrade`升降级、代理深排障、双线链接、`--standalone`见姊妹篇《版本发布说明@迁移和版本管理指南》。
+> 姊妹篇：`./opencode@版本发布说明@迁移和版本管理指南.md`
+
 
 
 ## opencode 特点
@@ -110,23 +113,15 @@ v1 和 v2 **读取相同的配置文件路径**,但少数同名字段的"形状"
 
 ## 安装与从 v1 迁移
 
-### 安装方式
+> 完整安装矩阵（`opencode-ai=v1` / `@opencode/cli=v2` / beta包）、`upgrade`升降级、双线文档/脚本/brew对照，见姊妹篇 npm安装方案与双线链接总览节。本文只保留决策必需的最小结论。
 
-v1 时代的通用安装入口(v2 沿用同一脚本入口,GA 后分发 v2):
+### 安装方式（最小结论）
 
-```bash
-# 官方一键脚本
-curl -fsSL https://opencode.ai/install | bash
+- v1：`npm i -g opencode-ai`、`curl -fsSL https://opencode.ai/install | bash`
+- v2（GA后默认，2026-09-16起）：`npm i -g @opencode/cli`、`curl -fsSL https://opencode.ai/v2/install | bash`
+- 两者都提供 `opencode` 命令，默认不可并存；装 v2 前先移除包管理器安装的 v1。beta期曾以 `opencode2` 并存试用，GA后已回归单一命令。
 
-# 包管理器
-npm i -g opencode-ai@latest      # npm / bun / pnpm / yarn
-brew install opencode            # macOS 和 Linux
-scoop bucket add extras; scoop install extras/opencode   # Windows
-choco install opencode           # Windows
-paru -S opencode-bin             # Arch Linux
-```
-
-以上渠道覆盖 npm、scoop、choco、brew、paru、mise、nix 等;OpenCode 同时提供桌面应用,可从 releases 页或 opencode.ai/download 直接下载。
+桌面应用可从 releases 页或 opencode.ai/download 直接下载。
 
 安装脚本支持的**环境变量(占位符解释)**:安装路径按优先级依次为 `$OPENCODE_INSTALL_DIR`(自定义安装目录)、`$XDG_BIN_DIR`(符合 XDG Base Directory 规范的路径)、`$HOME/bin`(标准用户二进制目录,存在或可创建时):
 
@@ -136,6 +131,8 @@ paru -S opencode-bin             # Arch Linux
 | `XDG_BIN_DIR`          | XDG 规范下的用户 bin 目录   | `XDG_BIN_DIR=$HOME/.local/bin curl -fsSL ... \| bash`        |
 
 ### v1 → v2 迁移要点(官方口径)
+
+> `provider→providers`、`npm→package`、`api→settings.baseURL`等键改名对照与 JSONC 示例，见姊妹篇 v1到v2迁移指南要点节。本文保留形状差异与决策流程。
 
 这是本文最重要的实操部分,依据官方迁移文档:
 
@@ -176,13 +173,11 @@ flowchart LR
 
 ## 国内网络环境注意事项
 
-- **一键安装脚本**:`curl -fsSL https://opencode.ai/install | bash` 的二进制通常托管于 GitHub Releases,国内直连可能缓慢或失败。方案:
-  - *nix 下临时走代理:`export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890` 后再执行 curl(端口以你的 mihomo/Clash 实际混合端口为准);
-  - Windows PowerShell 下:`$env:HTTPS_PROXY="http://127.0.0.1:7890"`;
-  - 无代理时优先改用 **npm 渠道 + 国内镜像**:`npm i -g opencode-ai@latest --registry=https://registry.npmmirror.com`(npmmirror 同步 npm 官方源,通常是国内最稳的路径);
-  - GitHub 直链可尝试 gh-proxy 类加速前缀包裹原始下载链接(使用前自行核实所选镜像当下可用性)。
-- **模型访问**:OpenCode 的供应商中立性在国内是加分项——可以接 DeepSeek、Qwen、Kimi、GLM 等提供 OpenAI 兼容 API 的国产模型,避免海外 API 的网络与支付门槛;生产环境若部署在国外服务器则无此顾虑。
-- **中文显示**:TUI 应用对 CJK 宽字符的对齐依赖终端与字体。建议 Windows 用户使用 **Windows Terminal + 等宽 CJK 字体**(如 Sarasa Mono SC / Maple Mono NF CN),并确保 `chcp 65001`(UTF-8)环境,避免中文提示词或文件名渲染错位。
+> 深排障（根因分析、Issue编号、TUN/环境变量/baseURL/系统变量/本地代理五方案）见姊妹篇代理配置节。本文只留最小可用结论。
+
+- **一键安装脚本**：GitHub Releases直连慢时，优先 `npm i -g @opencode/cli --registry=https://registry.npmmirror.com`（v2）或临时 `https_proxy` 后再 curl。
+- **模型访问**：优先用国产模型OpenAI兼容API或 `settings.baseURL` 指中转站，避开海外API网络与支付门槛。
+- **中文显示**：Windows用 Windows Terminal + 等宽CJK字体（如 Sarasa Mono SC / Maple Mono NF CN），`chcp 65001`。
 
 ---
 
@@ -209,15 +204,3 @@ flowchart LR
   - 有 v1 插件或调用 v1 Server API 的团队:**先改造插件与集成再切**,这是仅有的硬性断裂面;
   - 保守生产用户:v1.18.x 仍在维护,可再观望,同时避免在共享配置中引入纯 V2 字段形状。
 
-### 遗漏审计与建议的下一轮搜索词
-
-本轮为单轮搜索,以下线索未能深挖,如需我可在下轮继续:
-
-- **v2 正式版(GA)的确切发布公告与 2.0.x 详细 changelog**:`opencode 2.0 GA release notes`、`anomalyco opencode v2 branch`
-- **新 Server API/SDK 细节**:`@opencode/client API reference`、`opencode v2 plugin API`
-- **orchestrator 编排模型机制**(访谈中提及但细节不明):`opencode orchestrator model`
-- **Skills 体系与 Claude Code Skills 的异同**:`opencode skills vs claude code skills`
-- **组织变更背景**(sst → anomalyco):`opencode anomaly company Dax`
-- **横向对比**:`opencode 2.0 vs claude code vs codex CLI 2026`
-
- 
