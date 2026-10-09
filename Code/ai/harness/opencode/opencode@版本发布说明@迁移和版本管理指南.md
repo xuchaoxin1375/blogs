@@ -62,6 +62,35 @@ v1.x 的新版本已经开始向前兼容读取 v2 配置字段，以便在混�
 
 近期更新中，opencode 加入了 V2 Desktop Sidecar（桌面边车服务），采用内嵌的 CLI 服务作为后端。
 
+### 单仓双大版本：现象与核验（2026-09-28实测）
+
+同仓 `anomalyco/opencode` 同时发行 v1（1.18.x）与 v2（2.0.x），现象集中在分支与 tag 上：
+
+- **分支格局**：默认分支 `dev`（v1线）；v2活线为 `v2` / `opencode-2-0`，`2.0` 分支停留在 2026-04-13（`2.0 exploration`），已不跟进。
+- **悬空发版提交**：如 `v2.0.18 = cd9a14a6b688d4021bee381dfd39d2cef9c0f862`（`release: v2.0.18`，作者 `opencode@sst.dev`，父 `041885d...`），改动仅为 `2.0.17→2.0.18` 版本号（`package.json` + `bun.lock`）。机器人从 v2 线父提交切出该提交、打 tag 后不合回分支。
+- **GitHub黄条**：用 `blob/<SHA>/package.json` 打开会报“This commit does not belong to any branch...may belong to a fork”。实测 commit 即在本仓（`ls-remote --tags` 与 commit API 均可命中），该提示是分支可达性检查模板，不代表 fork。`compare cd9a14a...v2` 为 `diverged 29/1`、merge-base 即父提交，说明 tag 不在任何分支 tip 上。
+- **只有tag、无Release对象**：`releases/tags/v2.0.18` 返回 404。v2分发走 `npm @opencode/cli` 与 `opencode.ai/v2/install`，不依赖 Releases 页。
+- **配套双线**：npm（`opencode-ai=v1` / `@opencode/cli=v2`，同名 `opencode` 入口互斥）、文档（`/docs`=v1 / `/v2/docs`=v2，下载页默认 v2）、配置（v1.18.24+ 可读受支持的 V2 字段）。
+
+核验与引用规范：
+
+```bash
+git ls-remote --tags https://github.com/anomalyco/opencode.git | grep -E 'v2\.0\.18|v1\.18'
+# 引用用tag名，不用SHA，避免黄条：
+# https://github.com/anomalyco/opencode/tree/v2.0.18
+# https://github.com/anomalyco/opencode/blob/v2.0.18/package.json
+# https://github.com/anomalyco/opencode/commit/cd9a14a6b688d4021bee381dfd39d2cef9c0f862
+```
+
+团队影响：切版本、bisect、审计时以 tag 名为准；共享配置中有 v1 用户时不引入纯 V2 形状；`pair` 链、`/auth/connect` 一次性语义与 5 分钟过期见代理/运行模式节。
+
+#### 2026-10-09补充：`/releases`为何看起来全是v1（实测）
+
+- 第一页只有v1：`/releases?page=1` 为 `v1.18.35（2026-10-06，Latest）` 起至 `v1.18.26`，共88页中的前87页基本被v1占据。
+- 并非全是v1：`/releases?page=88` 到底可见 `v0.0.51…v0.0.45（2025-05）`，属早期探索期版本。
+- v2在Tags不在Releases：`/tags` 首屏即 `v2.0.26（2026-10-08）`、`v2.0.25`、`v2.0.24` 与 `v1.18.35` 交错并存；v2 tag页只有 `zip/tar.gz`，无 `Notes/Downloads`、无 `Immutable` 标记，即只有tag、无Release对象，故不进 `/releases` 列表。
+- 原因：v2走 `npm @opencode/cli` / `brew anomalyco/tap/opencode-v2` / `paru opencode-beta` / `ghcr.io/anomalyco/opencode:2.0.0` / `v2/install` 分发，不依赖Releases附件；v1稳定维护线继续用Releases发二进制+changelog。查v2以tag名为准，见双线链接总览节。
+
 ---
 
 ## npm 安装方案
@@ -428,7 +457,9 @@ flowchart LR
 
 | 链接                                   | 介绍                                                         |
 | -------------------------------------- | ------------------------------------------------------------ |
-| https://opencode.ai/changelog          | 官方 release notes 与 changelog（搜索快照内容极少，建议直接访问） |
+| https://github.com/anomalyco/opencode/blob/v2/CHANGELOG.md | **v2唯一正源（2026-10-09实测）**：`v2`分支根下文件，`newest first`，当前 `v2.0.26（2026-10-08）`。直链 `https://raw.githubusercontent.com/anomalyco/opencode/v2/CHANGELOG.md`，`curl … \| head -n 60` 即看。 |
+| https://opencode.ai/changelog          | 官方 release notes 与 changelog，但**当前只收v1**（至v1.18.35），无v2内容，不要在此找v2 |
+| https://github.com/anomalyco/opencode/releases/tag/v2.0.26 | 反例：v2 tag页只有一句 `release: v2.0.26` +2个源码包，无正文；两版差异用 `.../compare/v2.0.25...v2.0.26` 看 |
 | https://www.opencode.asia/changelog/   | 第三方整理的按主题归类 changelog。记录了 V1 读取 V2 配置字段（v1.18.24）、未知顶层配置字段被忽略而非解析失败（v1.18.16） |
 | https://opencode.gr.com/changelog.html | **注意甄别**：该站使用 `2026.4`、`2026.3` 这类日期式版本号，声称收录 2026.4 到 2025.12 的发布说明，与官方 semver（1.18.x / 2.0.x）完全不符，且提到的 `stream.mode` 等配置键未在官方文档中出现，**疑为同名/仿冒站点，不建议作为依据** |
 
