@@ -4,6 +4,7 @@
 - 环境：WSL2，OpenCode CLI v2.0.18，代理 `http://localhost:7897`
 - 涉及模型：`opencode/muse-spark-1.3-contributor-free`（OpenCode Zen 免费档）
 - 现象：切换该模型后提示地区不可用；已在 shell 中导出 `http_proxy` / `https_proxy`，但问题依旧
+- 关联记录：[Windows 原生环境排查（2026-10-07，v2.0.24）](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md)
 
 ---
 
