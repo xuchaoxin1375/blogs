@@ -12,7 +12,7 @@ description: >
 
 > 先填写**开发目标**，再将开发目标至交付报告的内容交给agent；按项目范围删除不适用的可选要求。
 >
-> 从零构建且尚未明确产品方案时，可先结合[技术学习与信息调研方案探索提示词](技术学习@信息调研方案探索Prompt.md)明确需求与选型。
+> 从零构建且尚未明确产品方案时，可先结合[技术学习与信息调研方案探索提示词](tech-learning-research@prompt.md)([在线链接](https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/tech-learning-research%40prompt.md))明确需求与选型。
 
 ---
 
