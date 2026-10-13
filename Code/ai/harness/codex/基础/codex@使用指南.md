@@ -44,7 +44,9 @@ flowchart LR
     C --> X[MCP / Skills / Plugins<br>外部工具与可复用流程]
 ```
 
-把 Codex 理解成一个“带工具的工程师助手”会更准确：你给它目标，它会读取上下文、制定计划、调用工具、改代码、运行检查，然后把变更以 diff、提交或 PR 的形式交给你审查。官方文档描述 Codex 的 prompt 循环时，也明确提到它会调用模型并根据模型输出执行读文件、编辑文件、工具调用等动作，直到任务完成或被取消。([OpenAI开发者](https://developers.openai.com/codex/prompting))
+把 Codex 理解成一个“带工具的工程师助手”会更准确：你给它目标，它会读取上下文、制定计划、调用工具、改代码、运行检查，然后把变更以 diff、提交或 PR 的形式交给你审查。
+
+官方文档描述 Codex 的 prompt 循环时，也明确提到它(codex)会调用模型并根据模型输出执行读文件、编辑文件、工具调用等动作，直到任务完成或被取消。([OpenAI开发者](https://developers.openai.com/codex/prompting))
 
 ------
 
