@@ -1,8 +1,18 @@
+---
+name: tech-learning-research
+description: >
+  技术学习、信息调研与方案探索：围绕指定话题做系统讲解、全面调研或选型推荐。
+  当用户要求学习介绍某项技术、联网调研、对比竞品方案、给出推荐选型，
+  或提及详略等级、搜索深度时使用。
+---
+
 ## 话题
 
 > 这行替换/填写本轮讨论的话题:Subject to chat.(readonly) 
 >
-> 如果要构建代码项目,请参考 [arena.ai-code构建web应用提示词参考.md](arena.ai-code构建web应用提示词参考.md) 
+> 如果要构建代码项目,请参考 [arena.ai-code构建web应用提示词参考.md](arena.ai-code构建web应用提示词参考.md) ([在线链接为构建web应用提示词参考](https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code构建web应用提示词参考.md) )
+
+---
 
 - 联网搜索深度:a 
 - 默认详略等级: 1 
