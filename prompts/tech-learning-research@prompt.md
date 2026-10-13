@@ -10,7 +10,7 @@ description: >
 
 > 这行替换/填写本轮讨论的话题:Subject to chat.(readonly) 
 >
-> 如果要构建代码项目,请参考 [arena.ai-code构建web应用提示词参考.md](arena.ai-code构建web应用提示词参考.md) ([在线链接为构建web应用提示词参考](https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code构建web应用提示词参考.md) )
+> 如果要构建代码项目,请参考 [arena.ai-code@prompt.md](arena.ai-code@prompt.md) ([在线链接](https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code%40prompt.md))
 
 ---
 
