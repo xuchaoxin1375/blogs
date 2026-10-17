@@ -158,7 +158,10 @@ OpenCode 支持嵌套会话（子对话），可以在它们之间切换。子 A
 | 动作名     | 默认快捷键（斜杠命令） | 说明                        |
 | ---------- | ---------------------- | --------------------------- |
 | 切换模型   | `/models`              | 列出并切换可用模型          |
+| 切换 Agent | `/agents` 或 `Ctrl+X` → `A` | 列出并切换主 Agent（`build`/`plan`），`Shift+Tab` 快速循环 |
 | 连接提供商 | `/connect`             | 添加 AI 提供商及其 API 密钥 |
+
+> **主 Agent 分工**（依据 V2 官方 Agents 文档，2026-10-15 核验）：`build` 为默认编码 Agent，工具默认放行；`plan` 只探索规划，不改正常项目文件。固定新会话默认 Agent 在 `opencode.json(c)` 配 `"default_agent": "plan"`（已有会话不受影响）；非交互式用 `opencode run --agent plan "…"` 指定。
 
 #### 输入区域编辑（Input）快捷键
 
@@ -232,6 +235,7 @@ OpenCode 支持嵌套会话（子对话），可以在它们之间切换。子 A
 | `/new`      | `/clear`      | 新建会话                    | `<leader>n` |
 | `/sessions` | —             | 列出所有会话                | `<leader>l` |
 | `/models`   | —             | 列出/切换模型               | —           |
+| `/agents`   | —             | 列出/切换 Agent（build/plan） | `Ctrl+X` → `A`，`Shift+Tab` 循环 |
 | `/compact`  | `/summarize`  | 压缩当前会话                | `<leader>c` |
 | `/editor`   | —             | 用外部编辑器编写消息        | `<leader>e` |
 | `/export`   | —             | 导出对话为 Markdown         | `<leader>x` |
