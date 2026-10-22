@@ -54,9 +54,7 @@ Scrapling 的 API 设计非常统一，但底层逻辑会根据你的类选择�
 
 如果你希望一劳永逸，建议直接安装 Scrapling 的所有依赖：
 
-Bash
-
-```
+```bash
 pip install "scrapling[all]"
 scrapling install  # 这通常会同时处理浏览器补丁和必要的下载
 ```

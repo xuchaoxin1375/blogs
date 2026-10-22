@@ -700,29 +700,25 @@ flowchart TD
 
 ## 项目结构建议
 
-小脚本可以一个文件解决：
-
-```text
-scrape_quotes.py
-```
+小脚本可以一个文件解决，例如 `scrape_quotes.py`。
 
 稍正式的项目建议这样组织：
 
-```text
+```
 my_scraper/
-  spiders/
-    products.py
-    categories.py
-  pipelines/
-    clean.py
-    storage.py
-  configs/
-    settings.py
-  data/
-    output.jsonl
-  tests/
-    test_selectors.py
-  main.py
+├── spiders/
+│   ├── products.py
+│   └── categories.py
+├── pipelines/
+│   ├── clean.py
+│   └── storage.py
+├── configs/
+│   └── settings.py
+├── data/
+│   └── output.jsonl
+├── tests/
+│   └── test_selectors.py
+└── main.py
 ```
 
 建议职责划分：
@@ -745,9 +741,9 @@ my_scraper/
 | 步骤       | 示例                              |
 | ---------- | --------------------------------- |
 | 去空白     | `.strip()`                        |
-| 标准化价格 | `$12.30` → `12.30`                |
-| 标准化 URL | 相对路径 → 绝对 URL               |
-| 类型转换   | 字符串 → `int` / `float` / `date` |
+| 标准化价格 | `$12.30` 变为 `12.30`                |
+| 标准化 URL | 相对路径变为绝对 URL               |
+| 类型转换   | 字符串转为 `int` / `float` / `date` |
 | 必填校验   | 没有标题就丢弃                    |
 | 异常记录   | 保存失败 URL 和 HTML 片段         |
 

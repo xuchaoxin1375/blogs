@@ -177,7 +177,7 @@ Cloudflare会设置带有 `SameSite=None; Secure; Partitioned` 等属性的 `cf_
 
 Cloudflare明确指出，Challenge Page 响应会包含：
 
-```text
+```http
 cf-mitigated: challenge
 ```
 
@@ -563,12 +563,10 @@ Cloudflare明确指出，Challenge Page 会打断正常请求流程；对于期�
 
 例如并发为 3 时，三个任务可能在同一毫秒启动。因此还应加入固定启动间隔：
 
-```text
-页面 A 在 0.0 秒启动
-页面 B 在 0.8 秒启动
-页面 C 在 1.6 秒启动
-页面 D 等待前面任务释放并发槽位
-```
+- 页面 A：0.0 秒启动。
+- 页面 B：0.8 秒启动。
+- 页面 C：1.6 秒启动。
+- 页面 D：等待前面任务释放并发槽位。
 
 这种做法的目的不是模拟人类，而是：
 
@@ -696,11 +694,11 @@ If-Modified-Since: previous-date
 
 即使任务涉及多个域名，也应按 Host 分别限流：
 
-```text
-www.example.com      并发 2
-api.example.com      并发 1
-static.example.com   并发 4
-```
+| Host | 并发上限 |
+| --- | --- |
+| `www.example.com` | 2 |
+| `api.example.com` | 1 |
+| `static.example.com` | 4 |
 
 不要因为总并发只有 5，就允许 5 个请求同时冲向同一个敏感 API 路径。
 
@@ -745,20 +743,16 @@ Skip Rule 应结合：
 
 Cloudflare的 Skip action 可以让明确匹配的合法流量跳过指定安全功能，但不应创建过宽的全站绕过规则。([Cloudflare Docs](https://developers.cloudflare.com/waf/custom-rules/skip/))
 
-推荐匹配思想：
+推荐的匹配思想是同时满足以下四个条件：
 
-```text
-请求来自可信网络
-并且携带机器身份
-并且只访问 /internal-api/*
-并且请求方法为 GET
-```
+1. 请求来自可信网络。
+2. 携带机器身份。
+3. 只访问 `/internal-api/*`。
+4. 请求方法为 `GET`。
 
 而不是：
 
-```text
-只要带某个普通 User-Agent 就跳过全部安全检查
-```
+"只要带某个普通 User-Agent 就跳过全部安全检查"。
 
 ## 不推荐的做法
 

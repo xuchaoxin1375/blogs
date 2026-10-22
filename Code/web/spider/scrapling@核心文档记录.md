@@ -14,7 +14,7 @@
 
 无论是 `Fetcher` 还是 `StealthyFetcher`，它们都属于**静态工具类（Static Utility Classes）**，而带有 `Session` 后缀的类则是用于**管理持久化状态的上下文对象**。
 
-## 一、 Fetcher VS FetcherSession
+## Fetcher 与 FetcherSession 的对比
 
 这两者都属于 **纯 HTTP 请求引擎**（不加载 JavaScript，速度极快，内存占用极低），支持 TLS 指纹伪装。
 
@@ -49,7 +49,7 @@ with FetcherSession(impersonate='chrome') as session:
     page = session.get('https://example.com/dashboard')
 ```
 
-## 二、 StealthyFetcher VS StealthySession
+## StealthyFetcher 与 StealthySession 的对比
 
 这两者属于 **高级防检测浏览器引擎**（基于 Playwright/Chromium 深度定制，支持全自动化 JS 加载、Canvas 噪点伪装、WebRTC/CDP 漏洞修复，可直接过 Cloudflare Turnstile 等强抗爬系统）。
 
