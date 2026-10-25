@@ -64,7 +64,7 @@ flowchart TB
 | 共享 app-server daemon | daemon 启动 | `codex app-server daemon restart`，或 `stop` 后等下次自动拉起 | 关终端不会停它 |
 | VS Code 扩展 | 扩展自己的 app-server 启动 | `Developer: Reload Window`；不行再完全退出 VS Code | 关窗口不一定退出扩展宿主 |
 | Desktop App | 应用内 app-server 启动 | 菜单退出（含托盘）再启动 | 点窗口关闭按钮通常只是收进托盘 |
-| 远程 app-server | 远端服务启动 | 在远端执行 `daemon restart`，客户端重连 | 重启本地 TUI 对远端无效 |
+| 远程 app-server | 远端服务启动 | 在远端重启 app-server（daemon 管理时用 `daemon restart`），客户端重连 | 重启本地 TUI 对远端无效 |
 
 判断当前有没有 daemon，最直接的入口是 `codex doctor` 的 `Background Server` 段：
 
@@ -84,6 +84,8 @@ codex app-server daemon version
 - `codex doctor` 显示 `not running (ephemeral mode)`：没有常驻后端，重开 TUI 就够了。
 
 以下情况本来就不会有常驻 daemon，不要误判成启动失败：`[features] daemon_auto_start = false`、本次启动带了 `--no-daemon`、当前是 Windows 提权终端。
+
+还要注意：`codex doctor` 的 `Background Server` 段只反映**共享 daemon**。VS Code 扩展会自己拉起 `codex.exe ... app-server`，不同扩展版本可能各有一份；扩展层是否换了进程，要单独看进程列表和扩展的 Output 面板。
 
 ---
 
@@ -195,7 +197,7 @@ codex --profile <name> exec --skip-git-repo-check -s read-only -c approval_polic
 | --- | --- | --- |
 | 退出 TUI 重开，模型或窗口仍是旧值 | 共享 daemon 还活着 | `daemon version` 确认，`daemon restart` 后新会话 |
 | 换代理后 Codex 仍走旧出口 | daemon 固定了启动时的环境变量 | 在同一终端设好代理变量，再 `daemon restart` |
-| VS Code `Reload Window` 后仍旧 | 扩展宿主没真正退出，或仍连着旧 daemon | 完全退出 VS Code；再 `daemon restart` |
+| VS Code `Reload Window` 后仍旧 | 扩展宿主或它自带的 app-server 没真正退出 | 完全退出 VS Code，确认扩展的 app-server 进程退出；共享 daemon 也在用时再 `daemon restart` |
 | Desktop 关窗口后仍旧 | 应用还在托盘运行 | 菜单退出，确认进程 |
 | `resume --last` 后仍旧 | 恢复的是旧 thread | `/new` 新会话 |
 | 改了 `<profile>.config.toml` 但没带 `--profile` | 读的是默认配置 | 启动时带 `--profile <name>` |
