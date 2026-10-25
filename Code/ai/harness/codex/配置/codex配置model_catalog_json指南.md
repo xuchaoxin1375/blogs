@@ -241,6 +241,26 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 
 这些模型可能尚未进入内置目录:Codex CLI 0.124.0 默认模型表里只有 GPT-5 / GPT-5-Codex。运行 /model 看不到 gpt-5.5,直接在 config.toml 里写 model = "gpt-5.5" 会报错。扩展注册表的官方方式是 model-catalog.json。——**同样的机制也适用于第三方新模型**,你需要给它写一条 catalog 条目。
 
+### 托管 web_search 不生效:先查 use_responses_lite
+
+0.164.0 实测。现象:profile 里已经写了 `web_search = "live"`,但模型从没发起过搜索,回答靠 shell `curl` 抓网页。
+
+原因不在 `web_search` 开关,而在目录条目的 `use_responses_lite`。该字段为 `true` 时请求走 Responses Lite:整份工具清单被挪进 `input[]` 的 `additional_tools` 条目,顶层 `tools` 为空或省略,托管 `web_search` 根本不出现。第三方网关通常只实现 `/v1/responses` 的顶层 `tools`,也没有 `/v1/alpha/search`,于是搜索静默失效。
+
+判定(三层,由软到硬):
+
+1. 配置层:`codex -c model_catalog_json='"/abs/<profile>-models.json"' debug models`,看该 slug 的 `use_responses_lite`。
+2. 请求层:把 `base_url` 临时指向本地回显代理跑一次 `codex exec`,看 `/v1/responses` 请求。Lite 生效时请求头带 `x-openai-internal-codex-responses-lite: true`、顶层无 `tools`、`parallel_tool_calls: false`;关掉后这三项反过来。
+3. 行为层:`codex exec --json "<时效问题>"`,输出里应出现 `"type":"web_search"` 的 item 事件,最终回答带 `url_citation`。
+
+修法:目录里该条改 `"use_responses_lite": false`,顶层保持 `web_search = "live"`,完全退出后重启。用 `--clone-from` 克隆旗舰骨架会把 `true` 一起继承,合成后要显式改回。网关须原样透传顶层 `tools`;透传后上游仍拒收,按上游拒收处理关搜索或换 MCP 搜索。
+
+负对照:`web_search = "disabled"` 时顶层 `tools` 应无 `web_search`,搜索事件消失;改回 `live` 恢复。回滚删掉 `model_catalog_json` 或把字段改回 `true`。`codex --search` 只在 TUI 生效,`codex exec` 不接受该参数。
+
+证据来源:字段取值见官方 `models.json`;Lite 把工具挪进 `additional_tools`、省略顶层 `tools` 见 openai/codex#32086(源码 `codex-rs/core/src/client.rs`)。公开配置文档未描述这层影响,以上结论来自抓包对照。
+
+顺带修正:上面字段表把 `supports_search_tool` 写成"是否具备原生 web_search 工具",实际它管的是延迟工具发现(MCP / app 扩展的 `tool_search`),与托管搜索无关。
+
 ---
 
 ## 最佳实践 Checklist
@@ -276,5 +296,7 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 - DeepWiki 对 `models-manager` 模块的源码级说明
 - 第三方接入官方指南:MiniMax、Xiaomi MiMo、QwenCloud、AIHubMix、QCode 等
 - 社区实践:dalenguyen 关于本地 Ollama 接入的记录
+- `openai/codex` issue #32086:Responses Lite 把整份工具清单挪进 `additional_tools` 并省略顶层 `tools`(附源码位置 `codex-rs/core/src/client.rs`)
+- 社区实践:WangChuDi/codex-enable-web-search-catalog,用 `model_catalog_json` 关掉 Responses Lite 以恢复托管 web_search
 
-**总体知识截止**:本文所依据的公开资料时间点最新至 **2026 年 8 月**;字段命名与行为以 Codex CLI **0.125.x** 为主要参照。由于该字段集会随版本演进,请以你本机的 `codex debug models --bundled` 输出与 GitHub 上对应 tag 的 `models.json` 为最终事实来源。
+**总体知识截止**:本文所依据的公开资料时间点最新至 **2026 年 8 月**;字段命名与行为以 Codex CLI **0.125.x** 为主要参照。由于该字段集会随版本演进,请以你本机的 `codex debug models --bundled` 输出与 GitHub 上对应 tag 的 `models.json` 为最终事实来源。其中 `use_responses_lite` 一节为后续增补,以 CLI **0.164.0** 实测为准。
