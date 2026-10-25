@@ -237,6 +237,17 @@ base_instructions:Codex 使用此模型时追加的基础系统提示。用它�
 
 Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache.json`——刷新行为由 RefreshStrategy 枚举控制。models_cache.json 中包含 fetched_at 时间戳,决定 TTL 新鲜度。缓存包含 client_version 字段,存储写入缓存时的 API 客户端版本。当 ModelsManager 加载缓存时,会验证缓存版本是否与运行中二进制的 client_version 一致。如果版本不同,缓存被视为过时。所以改完记得:退出所有会话再重启 Codex,必要时 `codex debug models --bundled` 对比。
 
+补充:只退出 TUI 不一定生效,配置由宿主进程在启动时读取一次。
+
+| 宿主 | 何时读配置 | 怎么做 |
+| --- | --- | --- |
+| `codex` TUI / `codex exec` | 进程启动 | 退出重开;要完全隔离用 `codex --no-daemon` |
+| 共享 app-server daemon | daemon 启动 | `codex app-server daemon restart`;`stop` 也行,下次自动拉起 |
+| VSCode 扩展 | 扩展自己的 app-server 启动 | `Developer: Reload Window`,或直接关窗口 |
+| Desktop App | 应用内 app-server 启动 | 完全退出(含托盘)再启动 |
+
+判断当前有没有 daemon:跑 `codex app-server daemon version`。报连接失败说明没有,退出 TUI 重开即可;有输出说明 daemon 还活着,只重开 TUI 仍会用旧配置。改前改后各跑一次,看运行版本或启动时间是否变化即可确认换新。残留 socket 让该命令报错时先 `daemon restart`,仍不行再按 PID 结束那一个 `codex.exe`,不要批量杀。
+
 ### 用了 GPT-5.5、GPT-5.6 这类新模型仍报错
 
 这些模型可能尚未进入内置目录:Codex CLI 0.124.0 默认模型表里只有 GPT-5 / GPT-5-Codex。运行 /model 看不到 gpt-5.5,直接在 config.toml 里写 model = "gpt-5.5" 会报错。扩展注册表的官方方式是 model-catalog.json。——**同样的机制也适用于第三方新模型**,你需要给它写一条 catalog 条目。
@@ -245,15 +256,21 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 
 0.164.0 实测。现象:profile 里已经写了 `web_search = "live"`,但模型从没发起过搜索,回答靠 shell `curl` 抓网页。
 
-原因不在 `web_search` 开关,而在目录条目的 `use_responses_lite`。该字段为 `true` 时请求走 Responses Lite:整份工具清单被挪进 `input[]` 的 `additional_tools` 条目,顶层 `tools` 为空或省略,托管 `web_search` 根本不出现。第三方网关通常只实现 `/v1/responses` 的顶层 `tools`,也没有 `/v1/alpha/search`,于是搜索静默失效。
+原因不只在 `web_search` 开关,还在目录条目的 `use_responses_lite`。该字段为 `true` 时请求走 Responses Lite:整份工具清单被挪进 `input[]` 的 `additional_tools` 条目,顶层 `tools` 为空或省略,托管 `web_search` 根本不出现。第三方网关通常只实现 `/v1/responses` 的顶层 `tools`,也没有 `/v1/alpha/search`,于是搜索静默失效。
+
+---
 
 判定(三层,由软到硬):
 
 1. 配置层:`codex -c model_catalog_json='"/abs/<profile>-models.json"' debug models`,看该 slug 的 `use_responses_lite`。
 2. 请求层:把 `base_url` 临时指向本地回显代理跑一次 `codex exec`,看 `/v1/responses` 请求。Lite 生效时请求头带 `x-openai-internal-codex-responses-lite: true`、顶层无 `tools`、`parallel_tool_calls: false`;关掉后这三项反过来。
-3. 行为层:`codex exec --json "<时效问题>"`,输出里应出现 `"type":"web_search"` 的 item 事件,最终回答带 `url_citation`。
+3. 行为层:`codex exec --json "<时效问题>"` (例如"google下个月可能要推出什么产品/服务 相关爆料"),输出里应出现 `"type":"web_search"` 的 item 事件(之所以这里指定`json`格式输出,是其能够比较清楚的看到工具调用时间),最终回答带 `url_citation`。
 
-修法:目录里该条改 `"use_responses_lite": false`,顶层保持 `web_search = "live"`,完全退出后重启。用 `--clone-from` 克隆旗舰骨架会把 `true` 一起继承,合成后要显式改回。网关须原样透传顶层 `tools`;透传后上游仍拒收,按上游拒收处理关搜索或换 MCP 搜索。
+---
+
+修法:目录里该条改 `"use_responses_lite": false`,顶层保持 `web_search = "live"`,完全退出后重启。
+
+用 `--clone-from` 克隆旗舰骨架会把 `true` 一起继承,合成后要显式改回。网关须原样透传顶层 `tools`;透传后上游仍拒收,按上游拒收处理关搜索或换 MCP 搜索。
 
 负对照:`web_search = "disabled"` 时顶层 `tools` 应无 `web_search`,搜索事件消失;改回 `live` 恢复。回滚删掉 `model_catalog_json` 或把字段改回 `true`。`codex --search` 只在 TUI 生效,`codex exec` 不接受该参数。
 
