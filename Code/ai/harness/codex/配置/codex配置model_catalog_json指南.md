@@ -290,7 +290,7 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 - **`shell_type: "shell_command"`是保守可用选项**:让 Codex 通过 shell 执行 `apply_patch` 而不是走 native tool,兼容性最好。
 - **`supports_parallel_tool_calls` 默认写 false**:绝大多数第三方 Chat/Responses 兼容层都不支持真正的并发工具调用。
 - **用 profile 隔离实验**:把新加的第三方目录挂在 `~/.codex/experimental.config.toml` 的 `model_catalog_json` 上,用 `codex --profile experimental` 试跑,不污染主配置。在 profile 文件中示例:model_catalog_json = "/Users/me/.codex/model-catalogs/deep-review.json",然后 codex --profile deep-review。
-- **改完必重启**:模型解析在启动期发生,热改无效。
+- **改完必重启**:模型解析在启动期发生,热改无效。各宿主的分层动作、判定证据与常见"假重启"见 [codex@配置生效与重启指南](codex@配置生效与重启指南.md)。
 - **持续对齐官方**:官方文档:Advanced Configuration|Configuration Reference;官方内置目录格式参考:codex-rs/models-manager/models.json。
 
 ---
