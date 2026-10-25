@@ -7,6 +7,8 @@
 > 主要来源：OpenAI 开发者文档的 Codex 站点（配置参考、沙盒与审批、AGENTS.md、MCP、Hooks、权限档案、Memories、Models、Cloud、斜杠命令参考，均于 2026-10-25 抓取）、`openai/codex` 仓库源码与文档、本机 `codex --help` / `codex debug models` / `codex features list` 输出，以及 Check Point、Linux Foundation 等第三方公开材料。逐条来源与未决问题见文末“资料依据与待确认事项”。
 >
 > Codex 迭代极快：模型名、命令参数与配置键都会变。本文的**原理与结构长期有效**，具体取值请以 `codex --help`、`codex features list` 和官方配置参考为准。
+>
+> 本文同时吸收了同目录两份补充稿中关于 Rust 实现、App Server 协议与容器化部署的内容，并按 0.164.0 的实际命令与 `codex app-server generate-json-schema` 输出校正过时说法；被替换的旧结论在正文中直接给出正确版本，不保留错误示例。
 
 本文中的 **Codex** 默认指当前的 Codex coding agent；单独谈到模型时会写成 **模型**、**Responses API**、**GPT-6.1 Sol** 等。**Codex CLI** 指终端客户端，**Codex Cloud** 指云端任务，**Codex harness** 指把用户、模型与工具串起来的智能体运行框架。
 
@@ -21,6 +23,7 @@ Codex 是“面向软件工程的智能体运行系统”，由若干职责清�
 | 模型 | Model | 理解需求、规划、推理、生成代码或工具调用 | 大脑，但不直接操作你的机器 |
 | 工具 | Tools | shell、文件补丁、计划、搜索、MCP、子代理、插件 | 手脚，能做什么取决于工具是否启用 |
 | 执行环境 | Execution environment | 本地工作区、OS 沙箱、云端容器、Dev Container、WSL2 | 施工现场 |
+| 实现层 | Implementation | Rust workspace `codex-rs`、crate 分工、单一二进制 | 代码怎么组织、为何用 Rust |
 | 安全与隔离 | Sandbox / Approval / Network policy | 限制能读写哪里、能否联网、何时必须问你 | 安全边界 |
 | 配置与状态 | Config & State | `config.toml`、认证、会话、日志、记忆 | 自定义故障的主要来源 |
 | 项目指令与扩展 | AGENTS.md / Skills / Hooks / Plugins | 给模型的项目约定、可复用流程、生命周期自动化、能力打包 | 团队手册与插件生态 |
@@ -88,6 +91,37 @@ Codex 的多个入口共享同一套模型、配置层与 harness，差异主要
 
 运行形态的选择与安全边界直接相关：本地形态由 OS 级沙箱兜底，Cloud 形态由容器隔离兜底，浏览器形态则受独立的站点策略约束。后文“执行环境”一节会展开这些差异。
 
+### 实现层：Rust 内核与 crate 布局
+
+Codex CLI 于 2025 年 4 月以 TypeScript / Node 开源，其后重写为 Rust；当前代码位于 `openai/codex` 仓库的 `codex-rs/`，是一个包含数十个 crate 的 Cargo workspace。迁移动机集中在三点：**长时间运行的会话不适合托管运行时的 GC 停顿**、**安全边界需要直接调用 Seatbelt / Landlock / bwrap / seccomp 这类 OS 原语**、**单一静态二进制便于分发**。
+
+> 读旧教程时要留意：Node 版时代的 `~/.codex/config.json` 与 `--approval-mode` 已不适用；现行版本使用 `~/.codex/config.toml` 与 `--ask-for-approval` / `--sandbox`。
+
+主要 crate 的分工如下（目录名随重构变化，以仓库当前状态为准）：
+
+| Crate 或目录 | 职责 | 谁需要关心 |
+| --- | --- | --- |
+| `cli/` | 多命令入口与子命令分发：`exec`、`login`、`mcp`、`app-server`、`sandbox`、`debug` | 高 |
+| `core/` | **Agent Loop、会话与配置解析、模型客户端、沙箱编排** | 极高 |
+| `protocol/` | 共享线协议类型：`Op`、`Event`、`ResponseItem` | 做集成必读 |
+| `tui/` | 基于 Ratatui 的终端界面，流式渲染 Markdown | 中；CJK 宽度问题多在这一层 |
+| `exec/` | 无头执行，输出 JSONL 事件流 | 高 |
+| `app-server/` | JSON-RPC 2.0 服务端，处理 Thread、Turn、Item | 做 IDE 或编排必读 |
+| `app-server-protocol/` | app-server 协议类型，可导出 TypeScript 与 JSON Schema | 中 |
+| `mcp-client/`、`mcp-types/` | 作为 MCP 客户端连接外部服务器 | 中 |
+| `sandboxing/` | 统一沙箱接口与策略抽象 | 高 |
+| `linux-sandbox/` | Linux 沙箱辅助程序（bubblewrap、seccomp；旧路径含 Landlock） | Linux 用户 |
+| `windows-sandbox-rs/` | 受限令牌、ACL、Job Objects 与 MXC 相关实现 | Windows 用户 |
+| `apply-patch/` | `apply_patch` 的补丁解析与落盘 | 中 |
+| `execpolicy/` | 命令解析与“哪些命令看起来安全”的策略判定 | 中 |
+| `login/` | ChatGPT OAuth、设备码与 API Key 认证 | 中 |
+| `otel/` | OpenTelemetry 导出 | 企业可观测性 |
+| `arg0/` | 通过 `argv[0]` 多重分发，让同一二进制充当沙箱 helper | 排查进程树时有用 |
+
+`arg0` 值得单独说明：在 Linux 上，Codex 需要一个“先施加隔离、再 `exec` 目标命令”的 helper。与其分发两个二进制，不如让同一个 `codex` 根据 `argv[0]` 自我再执行。因此在 `ps` 里看到形如 `codex-linux-sandbox` 的进程时，它很可能就是 `codex` 自己，不是额外安装的程序（该细节来自第三方源码分析，排障时可结合进程树判断）。
+
+协议层同样是对外接口：`codex app-server generate-ts --out <DIR>` 与 `codex app-server generate-json-schema --out <DIR>` 能导出**当前版本**的协议契约。这意味 app-server 不只是官方 IDE 的内部实现，而是可被第三方宿主复用的集成点；也意味着升级 CLI 后应重新生成 schema 再做兼容性检查。
+
 ## Agent Loop：一次任务如何变成代码修改
 
 ### 核心循环
@@ -128,6 +162,32 @@ sequenceDiagram
 | 结果回填 | 工具输出作为新消息回到模型 | 输出过长会挤占上下文 |
 | 终止与交付 | 模型总结，等待你确认、追问或回滚 | 交付质量取决于你的验证能力 |
 
+### 会话模型：Thread、Turn、Item 与 Rollout
+
+CLI 内部与 App Server 协议共享同一套会话语义，理解这四个词能少走很多弯路。
+
+| 概念 | 中文 | 含义 | 类比 |
+| --- | --- | --- | --- |
+| Thread | 会话线程 | 一次完整对话；可持久化、恢复、分叉、归档 | 一个聊天窗口 |
+| Turn | 回合 | 一次用户输入到代理给出“本轮结束”最终回复之间的全过程 | 你问一句，它忙一阵后回一句 |
+| Item | 条目 | Turn 内的最小事件单元：用户消息、代理消息、推理、命令执行、文件变更、MCP 调用等 | 聊天记录里的每一条 |
+| Rollout | 执行记录 | Thread 的落盘形式，JSONL 记录加 SQLite 状态索引，用于恢复与分叉 | 聊天记录文件加索引 |
+
+**Turn 不等于一次模型调用**。一个 Turn 内可能有十几次“推理 → 工具 → 推理”的往返，直到模型输出不带工具调用的 assistant 消息才结束；计费、上下文增长与延迟主要发生在这些内部循环里。Rollout 会原样保存命令输出：如果代理 `cat` 过 `.env`，密钥就落到磁盘上了，因此 `~/.codex` 要按凭据级资产对待。SQLite 状态库的位置可用 `sqlite_home` 单独指定，便于把状态盘与工作盘分开。
+
+### 内核契约：提交队列与事件队列
+
+v1 协议把内核抽象成一对队列：UI 向 **SQ（Submission Queue，提交队列）** 提交 `Op`，内核向 **EQ（Event Queue，事件队列）** 推送 `Event`。这是**异步提交/事件模型**，不是同步请求-响应：提交之后，结果以事件流的形式陆续回来。
+
+| 字段或概念 | 含义 | 易混淆点 |
+| --- | --- | --- |
+| `sub_id` | UI 生成的字符串提交标识 | 不是内核生成；后续事件用它回指同一次提交 |
+| `Op` | 提交载荷枚举 | “一次用户发言”只是其中一种，还包括中断、审批回执、压缩 |
+| `Event.id` | 与触发它的 `sub_id` 相同 | 客户端并发多个提交时靠它分流 |
+| `EventMsg` | 事件载荷枚举 | 增量（`*Delta`）与终稿成对出现，渲染时不要重复叠加 |
+
+代表性成员：`Op` 侧有 `UserInput` / `UserTurn`、`ExecApproval` / `PatchApproval`、`Interrupt`、`Compact`、`Shutdown`；`EventMsg` 侧有 `SessionConfigured`、`AgentMessageDelta` / `AgentMessage`、`ExecCommandBegin` / `OutputDelta` / `End`、`ExecApprovalRequest`、`TurnDiff`、`McpToolCallBegin` / `End`、`TokenCount`、`TaskComplete` / `Error`。v2 协议用 `thread` / `turn` / `item` 的对象模型包装了同一套内核语义：做集成读 v2，理解内核读 v1。无论读哪套，**都要对未知变体做向前兼容**，否则一次升级就可能打爆解析器。
+
 ### Prompt 不只是你输入的那句话
 
 很多排障卡在一个误解上：用户以为 Codex 只看到了刚输入的那句话。实际发给模型的是结构化上下文。
@@ -143,6 +203,8 @@ sequenceDiagram
 | 压缩摘要 | Compaction | 长会话被压缩后的摘要 | Codex / Responses API |
 
 请求里三个核心字段是 `instructions`（模型指令）、`tools`（可调用工具列表）、`input`（文本、图片、文件等输入）。要确认“模型到底看到了什么”，用 `codex debug prompt-input` 直接导出这份输入列表，比让 Codex 自己复述可靠得多，详见同目录《codex debug 系列命令解析》。
+
+补充一个容易忽略的细节：不同模型可能使用不同的基础提示词变体（源码中集中在 `core/prompt.md` 及其模型相关分支）。所以**换模型时行为差异不只来自模型权重**，也可能来自配套提示词与工具描述的差异；排查“换了模型就不听话”时要连这条一起看。
 
 ### Harness 的八项职责
 
@@ -192,7 +254,7 @@ Codex 的“聪明”不只来自模型，也来自 harness 对上下文、工�
 - **Max**：给单个任务更多推理时间，深度优先于速度。
 - **Ultra**：不只是单代理，而是用子代理并行推进，适合可切分的复杂任务。
 
-速度档独立于推理强度：`fast` 与 `ultrafast` 由模型目录与账户套餐共同决定，会话内可用 `/fast` 切换。
+速度档独立于推理强度：`fast` 与 `ultrafast` 由模型目录与账户套餐共同决定，会话内可用 `/fast` 切换。`model_reasoning_summary` 控制推理摘要的详略，主要影响 TUI 的可读性，不影响实际推理量。
 
 ### 端点、认证与供应商
 
@@ -209,6 +271,38 @@ Codex 的“聪明”不只来自模型，也来自 harness 对上下文、工�
 
 凭据存储方式由 `cli_auth_credentials_store` 控制：`file`（默认）、`keyring`（系统钥匙链）、`auto`。凭据文件是 `~/.codex/auth.json`，不要手动编辑，也不要分享。
 
+### 自定义模型供应商
+
+`[model_providers.<id>]` 让 Codex 接到自建网关、企业网关或本地模型：
+
+| 字段 | 含义 | 说明 |
+| --- | --- | --- |
+| `name` | 展示名 | 仅用于界面 |
+| `base_url` | API 基地址 | Responses 端点，通常写到 `/v1` 为止 |
+| `env_key` | 存放密钥的环境变量名 | 推荐方式，避免密钥入库 |
+| `wire_api` | 协议 | **当前只支持 `responses`**，也是省略时的默认值 |
+| `http_headers` / `env_http_headers` | 静态请求头 / 从环境变量取值的请求头 | 后者适合网关鉴权 |
+| `query_params` | URL 查询参数 | 例如 Azure 的 `api-version` |
+| `request_max_retries` / `stream_max_retries` | 请求与流式重试次数 | 弱网或经代理时调大 |
+| `stream_idle_timeout_ms` | 流空闲超时 | 长连接被中间设备掐断时调大 |
+
+```toml
+# ~/.codex/config.toml
+[model_providers.corp-gateway]
+name = "Corp Gateway"
+base_url = "https://gateway.example.com/v1"
+env_key = "CORP_CODEX_KEY"
+wire_api = "responses"
+```
+
+```toml
+# ~/.codex/gateway.config.toml —— 用 codex --profile gateway 选择
+model = "gpt-6.1-sol"
+model_provider = "corp-gateway"
+```
+
+只兼容 Chat Completions 的端点不能直接接，需要网关侧做 Responses 适配。所谓“换了国产模型后 Codex 变笨、不调用工具”，多数是协议能力差异（推理摘要、内建工具、流式项）而非模型本身。本地模型走 `--oss --local-provider ollama|lmstudio`，端点同样要暴露 Responses 兼容接口。
+
 ### 上下文窗口与压缩
 
 每个模型都有上下文窗口，包含输入与输出 Token。Codex 在 Token 数超过阈值时进行 **compaction**，用更小但能代表对话状态的条目列表替换原始上下文，使代理能带着“已发生什么”的理解继续工作。
@@ -218,6 +312,12 @@ Codex 的“聪明”不只来自模型，也来自 harness 对上下文、工�
 - 兜底路径：窗口耗尽时，模型先把检查点写入 `notes`，再开新窗口，通过只读的历史工具回读细节。
 
 压缩能提高续航，但不是无损的。复杂改动建议把关键状态外置：Git 提交、测试结果、明确的 TODO 文件，都比“指望摘要记住”可靠。
+
+### 请求是无状态的
+
+Responses API 支持用 `previous_response_id` 让服务端保存上下文，但 Codex 刻意不用它，每次请求都带上完整历史。官方给出的理由是保持请求完全无状态，并支持**零数据保留（Zero Data Retention，ZDR）**；此前轮次的推理内容以 `encrypted_content` 形式带回，由服务端用客户密钥解密，所以 ZDR 客户也不会丢失推理连续性。
+
+代价是传输量随会话增长，收益是**可复现与可审计**：同一份请求可以在任何机器上重放。配合 prompt caching，“旧请求是新请求的精确前缀”时实际计算量接近线性；反过来，中途换模型、增删 MCP 或改沙箱配置都会破坏前缀，具体见“上下文工程”一节的缓存说明。
 
 ## 工具系统
 
@@ -236,6 +336,16 @@ Codex 的“聪明”不只来自模型，也来自 harness 对上下文、工�
 | 图像与视觉 | view image / image generation | 读截图、生成图像 | 输入可能含敏感信息 |
 
 一个常被忽略的事实：**模型本身不直接改文件系统**。真正读写文件、跑命令、访问网络的是 harness 暴露的工具，而这些工具都受沙箱与审批约束。
+
+### 为什么单独设计 `apply_patch`
+
+模型完全可以自己拼一条 `cat > file` 或 heredoc 来改文件，但 Codex 仍然提供结构化的 `apply_patch`，理由有三条：
+
+- **可审查**：补丁在落盘前能生成 diff 预览，审批看到的是“改了什么”，而不是一段需要人脑解析的 shell。
+- **可移植**：避免 heredoc 在 bash、zsh、PowerShell、cmd 之间的转义差异。
+- **可二次校验**：内核对“哪些路径可写”的检查独立于 shell，不依赖命令本身是否老实。
+
+与之配套的还有 `execpolicy`：它按命令前缀判断“安全只读 / 需要提示 / 明确禁止”，与 OS 沙箱形成互补——一个管“这条命令像不像危险操作”，一个管“即使跑了也只能碰到哪里”。
 
 ### 扩展机制怎么选
 
@@ -601,6 +711,45 @@ project_doc_max_bytes = 65536
 
 不建议放进项目配置：私人 API Key、`model_provider`、`openai_base_url`、OTel 端点、个人通知命令，以及任何能让仓库影响本机认证或出站网络的设置。
 
+### 进阶键：可写根目录、环境变量与历史
+
+**可写根目录**：`workspace-write` 下除工作区外，还可用 `[sandbox_workspace_write] writable_roots` 精确放开少数目录（如构建缓存），比切到完全访问安全得多。
+
+```toml
+[sandbox_workspace_write]
+network_access = false
+writable_roots = ["/home/dev/.cache/pip", "/home/dev/.cargo"]
+# exclude_slash_tmp = false
+# exclude_tmpdir_env_var = false
+```
+
+`exclude_slash_tmp` 与 `exclude_tmpdir_env_var` 决定是否把 `/tmp` 与 `$TMPDIR` 排除出可写范围；需要收紧时打开。
+
+**环境变量继承**：`shell_environment_policy` 决定代理派生的子进程能看到哪些变量，这是最容易被低估的泄密通道。
+
+```toml
+[shell_environment_policy]
+inherit = "core"
+set = { HTTPS_PROXY = "http://127.0.0.1:7890", HTTP_PROXY = "http://127.0.0.1:7890", NO_PROXY = "localhost,127.0.0.1,::1" }
+ignore_default_excludes = false
+
+[shell_environment_policy.filters]
+"AWS_*" = "exclude"
+"AZURE_*" = "exclude"
+```
+
+| 键 | 作用 | 注意 |
+| --- | --- | --- |
+| `inherit` | `all` / `core` / `none` | `core` 只带 `PATH`、`HOME` 等基础集合，是常见默认 |
+| `filters` | 大小写不敏感的通配过滤，支持 `*` 与 `?` | 出现任一 `include` 就变成白名单；不能恢复已被排除的值 |
+| `set` | 在排除之后显式注入 | 可覆盖被排除项；随后仍可能被白名单移除 |
+| `ignore_default_excludes` | 默认 `true` | 为 `true` 时**不会**自动剔除名字含 `KEY`、`SECRET`、`TOKEN` 的变量；要自动剔除需设为 `false` |
+| `exclude` / `include_only` | 旧式数组 | 仍可用，但不要与 `filters` 同层混用，否则配置被拒 |
+
+执行顺序是：自动剔除（若开启）→ 自定义 `exclude` → `set` → `include` 白名单。注意 `inherit = "core"` 通常**不包含** `HTTPS_PROXY`，这是“我在 shell 里配了代理，代理跑 `pip install` 还是超时”的常见原因；同时即使变量齐全，`network_access = false` 仍会在系统调用层阻断连接，两道门必须一起开。
+
+**历史与状态**：`[history] persistence = "save-all" | "none"` 控制是否写入 `history.jsonl`；`sqlite_home` 可把 SQLite 状态库放到别的目录。CI 里常设 `persistence = "none"`，避免把任务内容留在 runner 上。
+
 ## 项目指令：AGENTS.md
 
 ### 它解决什么问题
@@ -608,6 +757,8 @@ project_doc_max_bytes = 65536
 AGENTS.md 是 Codex 动手前读取的指令文件，告诉它项目如何安装依赖、如何运行测试与 lint、代码风格与架构约定、哪些目录不要碰、修改后必须做哪些验证、代码评审应关注什么。
 
 它是**给模型看的软约束**，不是安全边界。把“不要访问网络”写进 AGENTS.md 并不能限制网络，真正的限制要靠沙箱与网络策略。反过来，AGENTS.md 写得好，能省掉大量“纠正本可避免的错误”的会话时间。
+
+它同时是一个**提示注入面**：在完全访问模式下，仓库里被注入的 AGENTS.md 内容会被当作指令执行；因此不要把不受信任仓库的 AGENTS.md 当无害文档，先在只读模式下看一眼再决定是否信任。
 
 AGENTS.md 由 OpenAI 于 2025 年 8 月发布，现由 Linux Foundation 下的 Agentic AI Foundation（AAIF）与 MCP、goose 一并治理，已被数万个开源项目与多种编码代理采用。
 
@@ -808,6 +959,111 @@ Hooks 是挂在生命周期事件上的自动化脚本，可用 `hooks.json` 或
 
 插件是可分发的“Skills + 应用 + MCP 服务器”打包集合。`features.plugins` 与 `features.remote_plugin` 默认开启，插件市场与默认启用状态可由云端托管配置或系统配置设定。插件本身不被“调用”，实际生效的是它带来的技能、MCP 工具与应用工具。
 
+## 集成与协议：把 Codex 嵌进别的系统
+
+### 先选入口
+
+| 需求 | 入口 | 关键点 |
+| --- | --- | --- |
+| 人在终端交互 | `codex` | 需要真 TTY；审批与 diff 体验完整 |
+| CI、批处理、定时任务 | `codex exec` | 不需要 TTY；`--json`、`-o`、退出码 |
+| 自研 GUI 或 IDE 插件 | `codex app-server` | JSON-RPC 双向请求，需要处理审批回调 |
+| 远程环境中的独立执行服务 | `codex exec-server` | 实验性；`forward` 可注册已有远端环境 |
+| 跨会话浏览本机代理 | `codex agents` | 依赖常驻 app-server daemon |
+| 远程控制本机 daemon | `codex remote-control` | 实验性；先确认认证与暴露面 |
+
+> 历史入口说明：老版本曾提供 `codex proto` 直接走裸 SQ/EQ 流、`codex mcp-server` 把 Codex 暴露成 MCP 工具供其他代理调用。0.164.0 的顶层帮助中两者都已不可见；做新集成请以 app-server 为准，旧概念主要用于理解协议演进。
+
+### exec：把 Codex 放进流水线
+
+| 参数 | 作用 |
+| --- | --- |
+| `--json` | 以 JSONL 输出 thread、turn、item 事件，便于上层编排与审计 |
+| `-o, --output-last-message <FILE>` | 把最后一条代理消息写入文件，适合写进 PR 评论 |
+| `--output-schema <FILE>` | 用 JSON Schema 约束最终回复结构 |
+| `--skip-git-repo-check` | 允许在非 Git 目录运行 |
+| `--ephemeral` | 不把会话文件落盘 |
+| `--ignore-user-config` / `--ignore-rules` | 不加载用户配置或 execpolicy 规则，用于隔离复现 |
+| `resume --last` / `fork` | 继续或分叉上一次无头会话 |
+| `review` | 对当前仓库做非交互代码审查 |
+
+```bash
+# 只读审查，结果写入文件（适合 CI 评论 PR）
+codex exec --sandbox read-only -o review.md \
+  "审查当前分支相对 main 的改动，按严重程度列出问题并给出文件与行号"
+
+# 机器可读事件流
+codex exec --json --sandbox workspace-write "运行测试并修复失败用例" > events.jsonl
+
+# 继续上一次无头会话
+codex exec resume --last "再补充对应的单元测试"
+```
+
+`exec` 没有人可以回答审批，越界操作会直接失败并把错误交回模型。CI 中推荐 `read-only` 或 `workspace-write`，除非 runner 本身就是用完即弃的隔离环境。
+
+提示词可以省略或写成 `-`，此时从 stdin 读取；如果既给了参数又从管道传入，管道内容会作为 `<stdin>` 块追加。退出码用于判定成败，流水线里要显式检查 `$?`。
+
+### app-server：一次最小握手
+
+App Server 使用 JSON-RPC 2.0，线格式是换行分隔的 JSON（JSONL），传输时**省略 `"jsonrpc":"2.0"` 字段**。默认传输是 stdio；先发 `initialize` 请求，再发 `initialized` 通知，之后才能创建 Thread 与 Turn。
+
+```json
+{"id":1,"method":"initialize","params":{"clientInfo":{"name":"my_tool","version":"0.1.0"}}}
+{"method":"initialized"}
+{"id":2,"method":"thread/start","params":{"cwd":"/home/dev/repo"}}
+{"id":3,"method":"turn/start","params":{"threadId":"thr_...","input":[{"type":"text","text":"运行测试并总结失败原因"}]}}
+```
+
+`thread/start` 的结果里带 `thread` 对象，`threadId` 取自 `thread.id`；`turn/start` 的 `threadId` 与 `input` 是必填项。服务端随后推送 `turn/started`、`item/started`、`item/completed`、`turn/completed` 等通知。
+
+```mermaid
+sequenceDiagram
+    participant C as 客户端
+    participant A as app-server
+    participant M as 模型
+    C->>A: initialize
+    C->>A: initialized
+    C->>A: thread/start
+    A-->>C: thread.id
+    C->>A: turn/start
+    A->>M: Responses 请求
+    M-->>A: 工具调用
+    A->>C: item/commandExecution/requestApproval
+    C-->>A: 批准
+    A->>C: item/started / item/completed
+    A->>C: turn/completed
+```
+
+需要审批时，**由服务端主动向客户端发 JSON-RPC 请求**，而不是客户端轮询。当前 schema 中的服务端请求包括：
+
+| 服务端请求 | 用途 |
+| --- | --- |
+| `item/commandExecution/requestApproval` | 命令执行审批 |
+| `item/fileChange/requestApproval` | 文件变更审批 |
+| `item/permissions/requestApproval` | 权限升级审批 |
+| `mcpServer/elicitation/request` | MCP 服务器向用户索取信息 |
+| `item/tool/requestUserInput` | 工具请求用户输入 |
+
+这是自研宿主最容易踩的坑：**只有内核知道某条命令何时触碰了沙箱边界**，所以审批必须由服务端反向发起。客户端若不实现反向请求处理，会在第一次越界写入或联网时永久挂起。常用通知方法包括 `thread/started`、`turn/started`、`item/agentMessage/delta`、`item/commandExecution/outputDelta`、`turn/diff/updated`、`thread/tokenUsage/updated`、`turn/completed`。
+
+传输与暴露面：
+
+| `--listen` 取值 | 行为 | 注意 |
+| --- | --- | --- |
+| `stdio://`（默认） | 单客户端，stdin 关闭即退出 | IDE 与桌面端各自拉起自己的实例 |
+| `unix://` 或 `unix://PATH` | 本地套接字 | 适合本机多客户端或 SSH 隧道 |
+| `ws://IP:PORT` | WebSocket | 仍是实验性传输，必须配置认证 |
+| `off` | 不启动传输 | 由外层进程自行接管 |
+
+WebSocket 认证由 `--ws-auth` 选择：`capability-token` 配合 `--ws-token-file` 或 `--ws-token-sha256`；`signed-bearer-token` 配合 `--ws-shared-secret-file`、`--ws-issuer`、`--ws-audience` 与 `--ws-max-clock-skew-seconds`。客户端侧用 `codex --remote ws://host:port`、`wss://` 或 `unix://PATH` 连接，令牌用 `--remote-auth-token-env` 指定环境变量。**只绑定回环地址，或放在受认证保护的隧道后面**；绑到 `0.0.0.0` 再暴露公网，等于把“能在这台机器上执行命令的代理”交出去。
+
+协议本身在演进：`v1` 是 `Op` / `Event` 的提交队列与事件队列模型，`v2` 是 `thread` / `turn` / `item` 的对象模型，两套 schema 同时存在。做集成时**必须容忍未知字段与未知变体**（Rust 侧参考 `#[serde(other)]` 思路，TS 侧保留 `default` 分支），否则一次 CLI 升级就可能打爆解析器。方法名与字段以本机生成的 schema 为准：
+
+```bash
+codex app-server generate-json-schema --experimental --out ./codex-schema
+codex app-server generate-ts --out ./codex-ts
+```
+
 ## Codex Cloud：端到端流程
 
 Cloud 不是本地的替代，而是分工：**本地适合需要本机文件、本机服务与快速迭代的任务；Cloud 适合耗时长、可并行、不依赖本机环境的任务**。
@@ -845,6 +1101,139 @@ sequenceDiagram
 - 桌面端、Web 与移动端之间切换不会获得另一台机器的访问权限。
 - 终端里可用 `codex cloud` 浏览与提交云端任务，并把结果应用到本地仓库。
 
+## 服务化部署：容器、systemd 与多实例
+
+### 先把边界定清楚
+
+| 部署形态 | 安全边界 | 适用场景 | 不要做什么 |
+| --- | --- | --- | --- |
+| 本机交互 | OS 沙箱加审批 | 日常开发、调试 | 不要长期 `approval_policy = "never"` |
+| CI runner | 一次性 VM 或容器 | 每 PR 只读审查 | 不要把个人 `auth.json` 拷进共享 runner |
+| 定时任务 | 一次性容器 | 依赖升级、周期性巡检 | 不要写成 `Type=simple` 的常驻服务 |
+| 长期远程 app-server | 认证加网络隔离 | 团队共享执行环境 | 不要把 WebSocket 直接暴露到公网 |
+
+“容器壁就是安全边界”这句话只在容器**真的是边界**时成立：不挂载 `~/.ssh`、`~/.aws` 与 Docker socket，容器内不放生产凭证，使用非 root 用户，限制出网到模型端点与包管理镜像，并且不使用 `--privileged`。满足这些条件时，容器内用 `danger-full-access` 加 `approval_policy = "never"` 是合理范式；不满足时，它只是把宿主暴露给了一个能执行任意命令的代理。
+
+### systemd：oneshot 加 timer，而不是常驻服务
+
+TUI 需要真 TTY，在 systemd 下跑 `codex`（无子命令）会立即异常或渲染错乱；`exec` 才是无头入口。因此定时任务应写成 **oneshot unit 加 timer**，由 systemd 拉起一次性容器，任务结束即退出。
+
+```bash
+#!/usr/bin/env bash
+# /opt/codex/weekly-deps.sh —— 定时依赖升级任务（一次性容器）
+set -euo pipefail
+
+REPO_URL="${REPO_URL:-git@github.com:acme/monorepo.git}"
+BASE_BRANCH="${BASE_BRANCH:-main}"
+WORK_ROOT="${WORK_ROOT:-/var/lib/codex-runs}"
+IMAGE="${IMAGE:-ghcr.io/acme/codex-runner:1.4.0}"   # 预装 codex 与工具链，锁定版本
+
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+RUN_DIR="${WORK_ROOT}/${STAMP}"
+BRANCH="chore/deps-${STAMP}"
+mkdir -p "${RUN_DIR}/repo" "${RUN_DIR}/codex-home" "${RUN_DIR}/out"
+
+git clone --depth 50 --branch "${BASE_BRANCH}" "${REPO_URL}" "${RUN_DIR}/repo"
+git -C "${RUN_DIR}/repo" switch -c "${BRANCH}"
+
+install -m 600 /etc/codex/auth.json "${RUN_DIR}/codex-home/auth.json"
+cat > "${RUN_DIR}/codex-home/config.toml" <<'TOML'
+approval_policy = "never"
+sandbox_mode = "danger-full-access"   # 容器壁即边界
+[history]
+persistence = "none"
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+TOML
+
+PROMPT='把依赖升级到最新的兼容小版本，先跑基线测试，升级后再跑；失败则逐个修复。
+提交到当前分支，并在 /out/report.md 写升级清单、风险点与未修复项。
+不要修改 db/migrations/ 与 .github/workflows/，不要推送。'
+
+timeout --signal=TERM --kill-after=60s 3600 \
+  docker run --rm --name "codex-deps-${STAMP}" \
+    --network bridge --cpus 4 --memory 8g --pids-limit 2048 \
+    -v "${RUN_DIR}/repo:/work" \
+    -v "${RUN_DIR}/codex-home:/codex-home" \
+    -v "${RUN_DIR}/out:/out" \
+    -e CODEX_HOME=/codex-home -w /work \
+    "${IMAGE}" \
+    codex exec --json --output-last-message /out/last-message.md "${PROMPT}" \
+  > "${RUN_DIR}/out/events.jsonl" 2> "${RUN_DIR}/out/stderr.log"
+
+# 代理不推送；由宿主脚本只推分支，PR 与合并仍走人工闸门
+git -C "${RUN_DIR}/repo" push origin "${BRANCH}"
+```
+
+```ini
+# /etc/systemd/system/codex-weekly-deps.service
+[Unit]
+Description=Codex weekly dependency upgrade agent
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=codexrunner
+Environment=REPO_URL=git@github.com:acme/monorepo.git
+Environment=IMAGE=ghcr.io/acme/codex-runner:1.4.0
+ExecStart=/opt/codex/weekly-deps.sh
+TimeoutStartSec=4200
+# 超时时连同整个 cgroup 清理，避免 MCP 或命令子进程变孤儿
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+```
+
+```ini
+# /etc/systemd/system/codex-weekly-deps.timer
+[Unit]
+Description=Run Codex dependency upgrade weekly
+
+[Timer]
+OnCalendar=Mon *-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=900
+
+[Install]
+WantedBy=timers.target
+```
+
+启用方式：`sudo systemctl daemon-reload && sudo systemctl enable --now codex-weekly-deps.timer`，用 `systemctl list-timers codex-weekly-deps.timer` 确认下一次触发时间。
+
+这个例子里每个设计都对应一条原理：
+
+| 设计 | 对应原理 |
+| --- | --- |
+| `Type=oneshot` 加 timer | Codex 的会话不是守护进程，不该长驻 |
+| 独立 `CODEX_HOME` | 避免 `history.jsonl`、SQLite 与 `auth.json` 争用 |
+| 容器内 `danger-full-access` 加 `never` | 容器壁作为边界，而不是关掉沙箱裸奔 |
+| `KillMode=control-group` 加 `timeout --kill-after` | 防止 MCP 与命令子进程残留 |
+| `shell_environment_policy` 收紧 | 防止密钥沿环境变量流入代理命令 |
+| `--json` 加 `--output-last-message` | 结构化审计加人类可读摘要 |
+| 只推分支、不建 PR、不碰 `main` | 代理产物必须经过人工闸门 |
+| 镜像锁定 `1.4.0` | 避免 `latest` 带来的不可复现性 |
+
+### 多实例与共享状态
+
+| 场景 | 风险 | 对策 |
+| --- | --- | --- |
+| 同一仓库开两个 Codex | 互相覆盖编辑，Git 状态混乱 | 每个实例一个 `git worktree` 目录 |
+| 多实例共享 `~/.codex` | `history.jsonl` 写入竞争、档案误用 | 用 `CODEX_HOME=/path/to/job-a` 完全隔离 |
+| 多账号或多组织 | `auth.json` 只有一份 | 同上，独立 `CODEX_HOME` 是最干净的隔离手段 |
+| CI 并行 job | 临时目录与缓存冲突 | 每个 job 独立 `CODEX_HOME` 与工作目录 |
+| 跨机器同步 `~/.codex` | SQLite 与 JSONL 不适合双向同步，且可能含密钥 | 只同步配置模板，不同步状态与凭据 |
+
+```bash
+# 为代理开一个独立工作树，互不干扰
+git worktree add ../proj-agent-a -b agent/refactor-auth
+cd ../proj-agent-a
+codex --profile dev "把 auth 模块从回调式改成 async/await，并补齐单测"
+```
+
+进程归属也要分清：shell 命令子进程只活在单次调用内；MCP stdio 服务器活在整个会话期；沙箱 helper 随命令进程退出；代理自己用 `&` 起的后台任务不受控，最容易在会话结束后残留。**避免让代理启动常驻服务**，需要时在 `AGENTS.md` 里明确要求由人在另一个终端启动，或要求写 PID 文件并在任务末尾清理。
+
 ## 会话、状态与可观测性
 
 Codex 的每一步都留痕，这是它比纯聊天工具可靠的根本原因。
@@ -865,6 +1254,84 @@ Codex 的每一步都留痕，这是它比纯聊天工具可靠的根本原因�
 
 OTel 默认关闭。开启后可导出会话开始、API 请求、流事件、用户提示（默认脱敏）、工具审批决策与工具结果等事件，并附带 `service.name`、CLI 版本与环境标签。事件样例包括 `codex.conversation_starts`、`codex.api_request`、`codex.sse_event`、`codex.tool_decision`、`codex.tool_result`。`log_user_prompt` 保持 `false` 是默认的安全选择：提示里可能有源码与敏感数据。
 
+`notify` 是另一条不依赖 OTel 的旁路：配置 `notify = ["python3", "/path/to/notify.py"]` 后，Codex 在回合完成时以单个 JSON 参数调用该脚本，字段包括 `type`（当前为 `agent-turn-complete`）、`thread-id`、`turn-id`、`cwd`、`input-messages` 与 `last-assistant-message`。它适合桌面通知、IM webhook 与 CI 状态更新；`tui.notifications` 则是 TUI 内置的通知开关，两者不要混淆。
+
+需要临时提高日志级别时，用 `RUST_LOG`（例如 `RUST_LOG=codex_core=debug`）；具体 target 名随 crate 重构变化，先用 `RUST_LOG=debug` 拿到全量日志再缩小范围。
+
+## 国内网络、代理与中文环境
+
+### 安装与升级
+
+| 方式 | 命令 | 备注 |
+| --- | --- | --- |
+| npm 镜像 | `npm i -g @openai/codex --registry=https://registry.npmmirror.com` | 最简单；新版会额外下载平台二进制，镜像滞后时临时切回官方源或走代理 |
+| Homebrew | `brew install codex` | macOS / Linuxbrew |
+| GitHub Releases | 下载对应平台二进制 | 直连困难时可用公共加速前缀，但镜像可用性波动大，使用前自行验证 |
+| 源码构建 | `cargo build --release -p codex-cli` | 需完整 Rust 工具链，可配 `RUSTUP_DIST_SERVER` 与 crates.io 镜像 |
+
+`codex update` 与包管理器（WinGet、Nix 等）的版本锁定语义可能冲突；同时 app-server daemon 会自行检查更新，两类升级路径要选一个作为准，否则容易出现“CLI 与后端版本不一致”。
+
+### 代理：主进程与子进程是两条路
+
+Codex 自身的模型请求与认证请求走标准代理环境变量：
+
+```bash
+# Linux / macOS
+export HTTPS_PROXY="http://127.0.0.1:7890"
+export HTTP_PROXY="http://127.0.0.1:7890"
+export NO_PROXY="localhost,127.0.0.1,::1,.internal"
+codex
+```
+
+```powershell
+# Windows PowerShell：当前会话
+$env:HTTPS_PROXY = "http://127.0.0.1:7890"
+$env:HTTP_PROXY  = "http://127.0.0.1:7890"
+$env:NO_PROXY    = "localhost,127.0.0.1,::1"
+codex
+
+# 持久化到用户环境变量，新开终端生效
+[Environment]::SetEnvironmentVariable("HTTPS_PROXY", "http://127.0.0.1:7890", "User")
+```
+
+三点提醒：
+
+- **`NO_PROXY` 要包含 `localhost`**，否则登录回调或本地 app-server 连接可能被错误转发给代理。
+- **主进程能联网不等于沙箱内命令能联网**：后者还要过 `shell_environment_policy` 与 `network_access` 两道门。`inherit = "core"` 常常不带 `HTTPS_PROXY`，这是“代理在 shell 里明明能用，代理跑的 `pip install` 却超时”的典型原因。
+- **换代理后重启常驻 daemon**：它沿用首个启动它的会话的环境变量，不重启就仍走旧出口。
+
+企业自签 CA 可能不被 Rust 侧的根证书集合采纳；遇到 TLS 校验失败，可尝试用 `SSL_CERT_FILE` 指向企业 CA 包（是否生效随版本而异，需实测）。经代理时 SSE 长连接容易被中断，可调大 `model_providers.<id>.stream_idle_timeout_ms` 与 `stream_max_retries`。
+
+### 中文与 Windows 终端
+
+| 问题 | 表现 | 处置 |
+| --- | --- | --- |
+| 控制台代码页 | 旧终端默认 GBK（936），UTF-8 输出变乱码 | 用 Windows Terminal 加 PowerShell 7；必要时 `chcp 65001` 或设置 `[Console]::OutputEncoding = [Text.Encoding]::UTF8` |
+| TUI 宽字符对齐 | 中文为全角，边框或光标错位 | 安装等宽 CJK 字体，如 Maple Mono NF CN、Sarasa Gothic（更纱黑体） |
+| 换行风格 | 代理生成的脚本带 CRLF，在 WSL / Linux 报 `bad interpreter: /bin/bash^M` | 仓库放 `.gitattributes`，并在 `AGENTS.md` 要求新建脚本用 LF |
+| 远程会话 | SSH 下中文显示异常 | 确保 `LANG` 或 `LC_ALL` 是 UTF-8 locale |
+
+```gitattributes
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+```
+
+更高收益的做法是把确定性工具接进概率性生成：在 `AGENTS.md` 里要求“生成 shell 脚本后必须运行 `shellcheck` 与 `shfmt -d` 并修复所有告警”。
+
+### 登录与无头机器
+
+| 场景 | 做法 |
+| --- | --- |
+| 本机交互 | `codex login`，走浏览器授权 |
+| CI / 自动化 | `printenv OPENAI_API_KEY \| codex login --with-api-key`，或用环境变量直接提供 |
+| 企业自动化 | `codex login --with-access-token`，从 stdin 读访问令牌 |
+| 无浏览器服务器 | `codex login --device-auth`；或在本机登录后把 `auth.json` 通过加密通道传过去并 `chmod 600` |
+| 必须走浏览器回调 | 用 SSH 本地端口转发把回调端口映射回本机，端口号以登录时输出为准 |
+
+不要把个人 ChatGPT 的 `auth.json` 复制到共享 runner；它含刷新令牌，等同凭据。CI 应使用权限受限的 API Key 或访问令牌。
+
 ## 排障方法论
 
 ### 先判断问题属于哪一层
@@ -880,6 +1347,13 @@ OTel 默认关闭。开启后可导出会话开始、API 请求、流事件、�
 | `git commit` 失败 | `.git` 在 `workspace-write` 下只读，或命令需要审批 |
 | Windows 行为异常 | MXC 可用性、elevated 预配、WSL2 语义差异 |
 | Docker 内沙箱失败 | 缺少 namespace、setuid `bwrap` 或 seccomp 能力 |
+| 中文乱码或边框错位 | 控制台代码页、终端字体缺少 CJK 等宽字形 |
+| 脚本在 WSL 报 `bad interpreter` | 文件是 CRLF 换行 |
+| 子进程看不到代理变量 | `shell_environment_policy` 未放行 |
+| 多个实例互相覆盖 | 同目录并发、共享 `CODEX_HOME` |
+| 远程服务无浏览器登不上 | 未用设备码或端口转发 |
+| 自研 app-server 客户端卡住 | 未处理服务端发起的审批请求 |
+| 连不上远端 app-server | 传输地址、令牌环境变量、绑定地址 |
 | 长会话变慢 | 上下文过长、缓存未命中、工具集变化、压缩 |
 | 关闭终端后仍有进程 | 0.157.0 起默认常驻 app-server daemon |
 
@@ -893,7 +1367,7 @@ OTel 默认关闭。开启后可导出会话开始、API 请求、流事件、�
 | 最小复现 | 把变量降到最少 | 空目录跑最小命令；临时换空的 `CODEX_HOME`；禁用 MCP 与 hooks |
 | 逐层加回 | 定位污染源 | 依次加回用户配置、profile、项目配置、MCP、hooks |
 
-两条辅助手段：用 `-c` 临时覆盖可疑键验证判断；用 `codex sandbox macos|linux|windows` 单独测试某条命令在沙箱下的行为（该命令也以 `codex debug` 形式提供）。
+两条辅助手段：用 `-c` 临时覆盖可疑键验证判断；用 `codex sandbox` 单独跑一条命令验证沙箱行为（macOS / Linux 构建可带平台子命令，Windows 构建直接 `codex sandbox -- <命令>`）。注意 `-c` 的取值先按 TOML 解析，解析失败才退化为原始字符串，所以字符串值要写成 `-c model="gpt-6.1-sol"`。
 
 ### 高频故障与处置
 
@@ -916,10 +1390,19 @@ OTel 默认关闭。开启后可导出会话开始、API 请求、流事件、�
 | 关闭终端后仍有 `codex` 进程 | 0.157.0 起默认常驻 daemon 与更新器 | 见“后台进程”一节 |
 | 长任务中途被打断 | daemon 每小时自更新并重启后端 | 长任务前先 `codex app-server daemon stop` |
 | 换代理后仍走旧出口 | daemon 固定了首个会话的环境变量 | 停止 daemon 后重新打开会话 |
+| 代理命令连不上网但 `codex` 能连 | `shell_environment_policy` 没放行代理变量，或 `network_access = false` | 用 `set` 注入代理变量，并确认沙箱网络开关 |
+| `pip install` / `npm install` 超时 | 沙箱默认无网络，或 `inherit = "core"` 丢了代理变量 | 同时检查 `network_access` 与子进程环境 |
+| 中文乱码 | 控制台代码页不是 UTF-8 | `chcp 65001`，或改用 Windows Terminal |
+| TUI 边框错位 | 字体缺少 CJK 等宽字形 | 换用等宽中文字体 |
+| WSL 里脚本报 `bad interpreter` | CRLF 换行 | 配 `.gitattributes`，转成 LF |
+| 同仓库两个会话互相覆盖 | 共用同一工作目录 | 每个实例用独立 `git worktree` |
+| `~/.codex` 同步后状态错乱 | SQLite 与 JSONL 不适合跨机双向同步 | 只同步配置模板，不同步状态与凭据 |
+| 自研客户端第一次审批就卡死 | 没有处理服务端发起的 JSON-RPC 请求 | 实现反向请求处理并回复批准或拒绝 |
+| 远程登录回调打不开 | 服务器无浏览器，回调端口未映射 | 用 `--device-auth`，或 SSH 端口转发 |
 | `401` / `403` | Key 错误、过期、无模型权限、环境变量被覆盖 | 重新登录或换 Key，检查 provider 地址 |
 | `404` 模型不存在 | 模型名写错或已退役 | 用 `codex debug models` 核对可用模型 |
 
-### 两个具体案例
+### 五个具体案例
 
 **案例一：加了一个数据库 MCP 后每次启动卡 30 秒。**
 
@@ -932,6 +1415,14 @@ OTel 默认关闭。开启后可导出会话开始、API 请求、流事件、�
 **案例三：在新克隆的仓库里直接运行 `codex`，本机出现异常外连。**
 
 这对应 CVE-2025-61260 的成因：旧版本会自动加载仓库内的 `.env` 与 `.codex/config.toml`。当前版本已修复并引入项目信任控制，但正确习惯不变：**在不受信任的仓库里，先只读、先看配置，再决定是否信任**。
+
+**案例四：自研 IDE 插件接 app-server，第一次批准就整条链路卡死。**
+
+客户端按文档发完 `initialize`、`thread/start`、`turn/start`，能收到流式文本，但模型第一次要执行命令后就再无响应。原因是**审批是服务端主动发起的 JSON-RPC 请求**（`item/commandExecution/requestApproval`），客户端只写了“发请求、收通知”，没有写“处理服务端发来的请求”。补上反向请求处理并回传批准或拒绝后，Turn 才继续。教训是**集成 app-server 时，客户端必须同时是服务端**。
+
+**案例五：容器里用 `danger-full-access` 跑得很顺，直到挂载了 Docker socket。**
+
+“容器壁即边界”成立的前提是容器里没有能跳出容器的资源。挂载 `docker.sock`、`~/.ssh` 或生产凭证后，代理在容器内执行一条命令就能控制宿主或外泄凭据。教训是**先检查挂载与出网，再决定是否关沙箱**，而不是反过来。
 
 ## 最佳实践
 
@@ -958,11 +1449,12 @@ Codex 最适合配合版本控制使用，官方安全文档给出的建议与�
 
 更好的日常默认是 `sandbox_mode = "workspace-write"` 加 `approval_policy = "on-request"`；嫌审批太多，加 `approvals_reviewer = "auto_review"`，而不是关掉沙箱。
 
-### 进阶三条线
+### 进阶四条线
 
 - **上下文线**：写好 AGENTS.md、拆分 Skills、用 profile 切换场景、及时开新会话。
 - **工具线**：只接稳定 MCP，为每个外部工具设超时与失败预案，定期做 `codex mcp list` 健康检查。
 - **安全线**：默认工作区可写加按需审批，脚本更严，只有容器里才考虑放开。
+- **部署线**：定时任务用 oneshot 加 timer，CI 用 `exec` 加独立 `CODEX_HOME`，不要为代理写常驻服务。
 
 一句话总结进阶心法：**把重复的判断写成配置，把项目的经验写成文档，把外部能力接成工具，把每次执行留成日志。配置越显式，排障越轻松。**
 
@@ -975,8 +1467,13 @@ Codex 最适合配合版本控制使用，官方安全文档给出的建议与�
 - **把 AGENTS.md 当安全边界**：自然语言约束不等于强制策略，网络与文件边界要靠沙箱。
 - **以为 `--yolo` 只是“少弹几个窗”**：它同时取消沙箱与审批。
 - **以为 MCP 受 shell 沙箱保护**：MCP 连接、app 工具与浏览器活动都走各自的策略通道。
+- **以为 `-c` 后面一定是字符串**：取值先按 TOML 解析，字符串要自己加引号，布尔与数字不要加。
+- **以为容器一定安全**：挂了 `docker.sock`、`~/.ssh` 或生产凭证的容器，壁已经漏了。
+- **以为 app-server 是个网络服务**：默认是 stdio 单客户端；开放 WebSocket 必须配认证并只绑回环。
+- **以为 `~/.codex` 可以随意同步**：里面有 `auth.json`、SQLite 与全部命令输出，不能当普通配置备份。
+- **以为在 shell 里 `export` 了代理就万事大吉**：子进程还要过 `shell_environment_policy` 与沙箱网络两道门。
 
-## 心智模型：九条硬规则
+## 心智模型：十二条硬规则
 
 | 规则 | 解释 |
 | --- | --- |
@@ -989,6 +1486,9 @@ Codex 最适合配合版本控制使用，官方安全文档给出的建议与�
 | 子代理继承权限也放大并发风险 | 读任务适合并行，写任务要收敛到主代理 |
 | 长会话不是越长越好 | 上下文污染、缓存失效与压缩都会影响表现 |
 | 组织策略可能覆盖个人偏好 | 受管设备上 `requirements.toml` 可禁用 `never` 或完全访问 |
+| 状态目录是凭据级资产 | `~/.codex` 含 `auth.json`、SQLite 与全部命令输出，不跨机同步 |
+| 集成必须实现反向请求 | 审批由服务端发起，客户端不处理就会永久挂起 |
+| 环境变量也是泄密通道 | 子进程继承策略与沙箱网络是两道独立的门 |
 
 ## 术语表
 
@@ -997,8 +1497,11 @@ Codex 最适合配合版本控制使用，官方安全文档给出的建议与�
 | 智能体框架 | Agent harness | 组织上下文、调度工具、维持循环的运行时 |
 | 代理循环 | Agent loop | 推理、工具调用、观察、再推理的循环 |
 | 回合 | Turn | 一次用户输入到一次最终回复之间的过程，内部可能有多轮工具往返 |
+| 条目 | Item | 回合内的最小事件单元，如消息、推理、命令执行、文件变更 |
 | 会话 | Thread / Session | 多轮回合的集合，可恢复、可分叉 |
 | 执行记录 | Rollout | 全量操作流水账，排障第一手资料 |
+| 提交队列与事件队列 | SQ / EQ | UI 与内核之间的异步提交、事件回传模型（v1 协议） |
+| 应用服务端 | App Server | 以 JSON-RPC 暴露 Thread、Turn、Item 的集成后端 |
 | 上下文压缩 | Compaction | 历史过长时用摘要替换原始上下文 |
 | 项目指令 | AGENTS.md | 仓库给代理看的说明书，属软约束 |
 | 技能 | Skills | 按需加载的流程与脚本包 |
@@ -1055,6 +1558,25 @@ codex mcp list
 # 查看模型目录与特征开关
 codex debug models
 codex features list
+
+# 非交互：结构化事件流、最后消息、Schema 约束
+codex exec --json "运行测试并修复失败用例" > events.jsonl
+codex exec -o summary.md "总结本次改动"
+codex exec --output-schema ./reply.schema.json "按 schema 输出审查结论"
+
+# 非 Git 目录与不落盘
+codex exec --skip-git-repo-check "整理这批日志"
+codex exec --ephemeral "只回答，不保存会话"
+
+# 集成：协议契约与本机 daemon
+codex app-server
+codex app-server generate-json-schema --experimental --out ./codex-schema
+codex app-server generate-ts --out ./codex-ts
+codex agents
+codex --remote wss://codex.example.com --remote-auth-token-env CODEX_REMOTE_TOKEN
+
+# 单独验证沙箱行为（Windows 直接传命令；macOS/Linux 可带平台子命令）
+codex sandbox -- cmd.exe /d /c echo SANDBOX_OK
 ```
 
 ### 斜杠命令
@@ -1091,8 +1613,11 @@ Goal 模式（`/goal`）值得单独说明：目标是一个持久目标，代�
 | 安全 | 为什么它有时要我批准、为什么不能联网 | 沙箱、审批策略、网络策略 |
 | 配置 | 为什么改了配置没生效 | 配置层级、profile、项目信任、`CODEX_HOME` |
 | 项目化 | 如何让 Codex 理解我的仓库 | AGENTS.md、项目配置、验证与评审规则 |
+| 实现 | 它内部由哪些组件构成 | Rust workspace、crate 分工、Thread / Turn / Item |
+| 集成 | 如何把代理嵌进 IDE、GUI 或流水线 | `codex exec`、app-server 握手、反向审批、schema |
 | 扩展 | 如何接数据库、文档、浏览器、内部工具 | MCP、插件、Skills、Hooks |
 | 进阶 | 如何排查“它为什么这样做” | `/status`、`debug prompt-input`、日志、OTel、最小复现 |
+| 服务化 | 如何安全地定时跑、在容器里跑、并行跑 | oneshot 加 timer、容器边界、独立 `CODEX_HOME` |
 | 团队 | 如何安全落地到真实工程流程 | 分支、CI、权限最小化、审查与治理 |
 
 ## 资料依据与待确认事项
@@ -1111,6 +1636,12 @@ Goal 模式（`/goal`）值得单独说明：目标是一个持久目标，代�
 | 模型阵容、上下文窗口、退役时间 | 同上站点“Models”页；本机 `codex debug models` | 2026-10-25 |
 | 斜杠命令清单 | 同上站点“Slash commands”参考 | 2026-10-25 |
 | 守护进程、daemon 命令与更新节奏 | `openai/codex` 仓库 `codex-rs` 源码与 README；本机 `codex app-server daemon --help` | 2026-10-25 |
+| Rust 工作区与 crate 职责 | 仓库 `codex-rs/` 结构与第三方源码分析 | 2026-10-25 |
+| app-server 方法名、请求与通知 | 本机 `codex app-server generate-json-schema --experimental` 输出 | 2026-10-25 |
+| exec 参数、app-server 传输与认证参数 | 本机 `codex exec --help`、`codex app-server --help` | 2026-10-25 |
+| 配置档案文件与 `shell_environment_policy` | 同上站点“Config advanced”页 | 2026-10-25 |
+| `notify` 事件与字段 | 同上站点“Config advanced”页 | 2026-10-25 |
+| 登录方式与无头登录 | 同上站点“Auth”页；本机 `codex login --help` | 2026-10-25 |
 | CVE-2025-61260 成因与修复版本 | Check Point Research、NVD / GitHub Advisory | 2026-10-25 |
 | AGENTS.md 的基金会治理现状 | Linux Foundation 与 AAIF 公告 | 2026-10-25 |
 
@@ -1122,3 +1653,8 @@ Goal 模式（`/goal`）值得单独说明：目标是一个持久目标，代�
 - **旧版 `--print-instructions`**：该参数在早期版本中存在，当前版本已由 `codex debug prompt-input` 承担同类用途，其他版本的可用性未逐一验证。
 - **沙箱逃逸研究的官方公告细节**：Heapjack 与 Overpatch 的修复范围与影响版本目前主要来自第三方研究机构报道，官方安全公告未逐条核对。
 - **`agents` 表的并发相关键**：配置参考确认了子代理默认模型与推理强度键，并发上限类键名随版本变动，未在本文固定写法。
+- **app-server 协议的版本化**：`v1`（`Op` / `Event`）与 `v2`（thread / turn / item）schema 同时存在，方法名与字段以 `codex app-server generate-json-schema --experimental` 输出为准；`--experimental` 会包含可能变动的实验方法。
+- **WebSocket 传输的成熟度**：本机帮助已提供 `--ws-auth`、`--ws-token-*` 与 `--listen ws://`，但官方仍将其标注为实验能力；生产暴露前需单独评估认证、限流与版本升级策略。
+- **登录回调端口**：官方文档只说明“浏览器把凭据交回 Codex”，未固定端口；以 `codex login` 实际输出为准，不要把某个端口号当常量。
+- **旧入口的移除时间线**：`codex proto` 与 `codex mcp-server` 在 0.164.0 的顶层帮助中不可见，但具体从哪个版本移除未逐一核对；旧版本行为不代表当前行为。
+- **systemd 与容器示例**：属于通用运维范式与社区实践，不是官方发布物；`IMAGE`、路径与用户需按实际环境替换。
