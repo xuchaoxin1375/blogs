@@ -36,44 +36,64 @@ Codex 是“面向软件工程的智能体运行系统”，由若干职责清�
 
 ### 整体结构
 
-下图把本地 CLI 的组成关系画在一起。Cloud 任务可以理解为把同一套核心搬到远端容器，再加上仓库快照与 Git 同步。
+下图把客户端、接入层、内核、工具与安全边界放在一起，并补上模型与会话状态。Cloud 任务可以理解为把同一套核心搬到远端容器，再加上仓库快照与 Git 同步。
 
 ```mermaid
 flowchart TB
-    subgraph UI["交互层"]
-        A["TUI 终端"]
-        B["exec 非交互"]
-        C["IDE / 桌面应用"]
-        D["Cloud / Web 任务"]
+    subgraph CLIENT["外部客户端"]
+        IDE["IDE 扩展"]
+        DESK["桌面应用"]
+        SDK["SDK / 自研宿主"]
     end
-    subgraph CORE["本地 Agent 核心"]
-        E["Agent Loop"]
-        F["上下文组装"]
-        G["策略与审批"]
+    subgraph SURFACE["接入层（同一二进制）"]
+        TUI["codex（TUI）"]
+        EXEC["codex exec"]
+        AS["codex<br>app-server"]
+        ES["codex<br>exec-server"]
+        CLOUD["Codex Cloud<br>云端容器"]
     end
-    subgraph EXEC["工具与执行"]
-        H["shell<br>补丁<br>计划"]
-        I["MCP<br>子代理<br>插件"]
-        J["沙箱与网络策略"]
+    subgraph CORE["codex-core（Harness）"]
+        LOOP["Agent Loop"]
+        TH["Thread / Turn<br>Item"]
+        CTX["上下文注入<br>AGENTS.md / 环境 / 权限"]
+        CMP["Compaction"]
     end
-    subgraph BACKEND["模型与云端"]
-        K["模型推理<br>Responses API"]
-        L["Cloud 环境<br>Git 同步"]
+    subgraph TOOL["工具层"]
+        SH["shell"]
+        AP["apply_patch"]
+        MC["MCP 客户端"]
+        WEB["web search 等"]
     end
-    A --> E
-    B --> E
-    C --> E
-    D --> L
-    E --> F
-    E --> G
-    E --> H
-    E --> I
-    H --> J
-    I --> J
-    E --> K
+    subgraph SAFE["审批与 OS 沙箱"]
+        APR["审批策略<br>自动审查"]
+        SBX["macOS Seatbelt<br>Linux bwrap + seccomp<br>Windows MXC"]
+    end
+    MODEL["模型服务<br>Responses API"]
+    STATE["CODEX_HOME<br>config / auth / sessions / SQLite"]
+
+    IDE --> AS
+    DESK --> AS
+    SDK --> AS
+    TUI --> LOOP
+    EXEC --> LOOP
+    AS --> LOOP
+    ES --> LOOP
+    CLOUD -.->|"同一套内核"| LOOP
+    LOOP --> TH
+    LOOP --> CTX
+    LOOP --> CMP
+    LOOP --> SH
+    LOOP --> AP
+    LOOP --> MC
+    LOOP --> WEB
+    SH --> APR
+    AP --> APR
+    APR -->|"放行"| SBX
+    LOOP <-->|"HTTPS / SSE"| MODEL
+    TH --> STATE
 ```
 
-读图要点有三条：**本地客户端即使断网，界面仍在，但没有模型就无法继续推理**；**工具调用一定先过策略与沙箱，才真正执行**；**Cloud 走的是另一条路径，由云端编排，本地只做提交与取回**。
+读图要点有四条：**外部客户端与接入层不是一层**，IDE、桌面端与 SDK 通过 app-server 接入，TUI、`exec`、`exec-server` 直接驱动同一内核；**工具调用先过审批**，命令与补丁再进 OS 沙箱；**MCP 连接与 web search 走各自的策略通道**，不受 shell 沙箱保护；**会话状态落在 `CODEX_HOME`**，Thread 与 Rollout 可恢复、可分叉。Cloud 则是把同一套内核搬到云端容器，不属于本地进程的一部分。
 
 ## 运行形态：同一个内核，不同的入口
 
