@@ -83,6 +83,8 @@ codex app-server daemon version
 - 报连接失败（如 Windows 的 `os error 10050`）：通常是没有 daemon；如果你确信它应该在跑，按“残留 socket”处理。
 - `codex doctor` 显示 `not running (ephemeral mode)`：没有常驻后端，重开 TUI 就够了。
 
+以下情况本来就不会有常驻 daemon，不要误判成启动失败：`[features] daemon_auto_start = false`、本次启动带了 `--no-daemon`、当前是 Windows 提权终端。
+
 ---
 
 ## 标准操作：一次干净的重启
