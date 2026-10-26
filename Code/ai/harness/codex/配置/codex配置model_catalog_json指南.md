@@ -248,9 +248,11 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 
 判断当前有没有 daemon:跑 `codex app-server daemon version`。报连接失败说明没有,退出 TUI 重开即可;有输出说明 daemon 还活着,只重开 TUI 仍会用旧配置。改前改后各跑一次,看运行版本或启动时间是否变化即可确认换新。残留 socket 让该命令报错时先 `daemon restart`,仍不行再按 PID 结束那一个 `codex.exe`,不要批量杀。
 
-### 用了 GPT-5.5、GPT-5.6 这类新模型仍报错
+### 用了新模型仍报错
 
-这些模型可能尚未进入内置目录:Codex CLI 0.124.0 默认模型表里只有 GPT-5 / GPT-5-Codex。运行 /model 看不到 gpt-5.5,直接在 config.toml 里写 model = "gpt-5.5" 会报错。扩展注册表的官方方式是 model-catalog.json。——**同样的机制也适用于第三方新模型**,你需要给它写一条 catalog 条目。
+这些模型可能尚未进入内置目录:Codex CLI 老版本 默认模型表里只有老模型。运行 /model 看不到新模型,直接在 `config.toml` 里写 model = "新模型" 会报错。
+
+**扩展注册表**的官方方式是通过**模型目录**配置文件 `model-catalog.json`。——**同样的机制也适用于第三方新模型**,你需要给它写一条 catalog 条目。
 
 ### 托管 web_search 不生效:先查 use_responses_lite
 
@@ -277,6 +279,166 @@ Codex 会在启动时读一次 catalog,并把远端结果缓存到 `models_cache
 证据来源:字段取值见官方 `models.json`;Lite 把工具挪进 `additional_tools`、省略顶层 `tools` 见 openai/codex#32086(源码 `codex-rs/core/src/client.rs`)。公开配置文档未描述这层影响,以上结论来自抓包对照。
 
 顺带修正:上面字段表把 `supports_search_tool` 写成"是否具备原生 web_search 工具",实际它管的是延迟工具发现(MCP / app 扩展的 `tool_search`),与托管搜索无关。
+
+#### codex --json 发起搜索测试
+
+```shell
+ codex exec --json --skip-git-repo-check  "不使用任何skill,直接做一次简单一次性的搜索:新兴的爬虫管理框架"
+```
+
+
+
+```json
+{
+    "type": "item.started",
+    "item": {
+        "id": "item_5",
+        "type": "web_search",
+        "id": "ws_08ced15d6a537d93016ade9ff0d34887d18eeba72208810dad",
+        "query": "",
+        "action": {
+            "type": "other"
+        }
+    }
+}
+{
+    "type": "item.completed",
+    "item": {
+        "id": "item_5",
+        "type": "web_search",
+        "id": "ws_08ced15d6a537d93016ade9ff0d34887d18eeba72208810dad",
+        "query": "开源 爬虫管理 平台 新兴 Crawlab Crawlee Scrapling",
+        "action": {
+            "type": "search",
+            "query": "开源 爬虫管理 平台 新兴 Crawlab Crawlee Scrapling",
+            "queries": [
+                "开源 爬虫管理 平台 新兴 Crawlab Crawlee Scrapling",
+                "open source crawler orchestration management framework 2026 scheduling monitoring GitHub"
+            ]
+        }
+    }
+}
+{
+    "type": "item.completed",
+    "item": {
+        "id": "item_6",
+        "type": "agent_message",
+        "text": "这轮搜索（2026-10-26）里，**Estela 最贴近“爬虫管理平台”这个需求**：集中部署、调度和监控爬虫。([estela.dev](https://estela.dev/?utm_source=openai))\n\n| 项目 | 定位与主要能力 | 适合关注的场景 |\n|---|---|---|\n| **Estela** | 开源爬虫编排平台，支持自托管，覆盖部署、调度和监控 | 希望统一管理多个爬虫任务。([estela.dev](https://estela.dev/open-source?utm_source=openai)) |\n| **mocra** | Rust 分布式采集框架，支持定时任务、中间件、单机与分布式运行，内置只读监控面板 | 想把采集、调度和观测集成到代码里。([docs.rs](https://docs.rs/crate/mocra/latest?utm_source=openai)) |\n| **Crawlab**（对照候选） | 多语言分布式爬虫管理平台，支持节点、任务、定时调度、结果导出和通知 | 已有 Python、Node.js 等不同技术栈的爬虫，需要统一管理。([github.com](https://github.com/crawlab-team/crawlab?utm_source=openai)) |\n\n按需求初筛，我会先看 **Estela**；偏 Rust 开发则看 **mocra**。这是一次搜索的候选清单，尚未核验发布时间、近期维护情况或实际部署体验。"
+    }
+}
+{
+    "type": "turn.completed",
+    "usage": {
+        "input_tokens": 153568,
+        "cached_input_tokens": 101248,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1161,
+        "reasoning_output_tokens": 391
+    }
+}
+```
+
+#### 在codex内部要求自检网络搜索能力
+
+**测试1**
+
+**User**
+
+> 不使用skills,也不需要实际请求,你能看到有这个工具吗?我还想指导工具列表.
+
+**Assistant**
+
+> 能看到，当前会话有 **`web.run`** 工具，支持搜索和网页访问。没有单独名为 `web_search` 的工具，搜索通过 `web.run` 的 `search_query` 参数调用。
+>
+
+当前可见的工具按用途分为：
+
+| 类别       | 工具 / 功能                                                |
+| ---------- | ---------------------------------------------------------- |
+| 网络搜索   | `web.run → search_query`                                   |
+| 网页访问   | `web.run → open、click、find`                              |
+| 图片与截图 | `web.run → image_query、screenshot`（截图限 PDF）          |
+| 专项查询   | 天气、金融行情、体育、时间、计算器                         |
+| 本地执行   | `functions.exec`，可调用终端命令、文件补丁、查看本地图片等 |
+| 交互       | 用户输入请求工具                                           |
+| 多代理协作 | 创建代理、发送任务、等待结果等                             |
+| 等待       | `functions.wait`、`clock.sleep`                            |
+
+**测试2**
+
+**User**
+
+> 不用任何skills,你检查一下能否**看到**`web_search`这类工具吗? 能否尝试调用一次
+
+**Assistant**
+
+> 我会检查当前工具列表，并实际调用一次搜索来确认可用性。
+> • Browsing the web
+> • Searched the web for OpenAI
+> 能看到，也能实际调用。本次未使用任何 skills。
+>
+> - 工具名是 web.run，通过 search_query 参数执行联网搜索。
+> - 刚才已搜索 OpenAI，成功返回结果。
+> - 当前没有看到独立名为 web_search 的工具；对应搜索能力由 web.run 提供。
+> - 同一工具还支持打开网页（open）、点击链接（click）、查找文本（find）等操作
+
+#### app-server daemon后端服务版本对齐
+
+`npm` install的codex cli版本在这方面有同步更新的设计缺口.
+
+社区已经多次报告了这个问题，并指出理想情况下 CLI 升级后应当自动检测版本不匹配并触发 daemon 更新，但目前的行为是：升级 CLI 并不保证会更新 managed app-server。官方文档也承认，对于 brew/npm 等包管理器安装方式，daemon“不会自动将运行中的 app-server 迁移到更新的二进制文件上”。
+
+所以，你遇到的情况是当前版本的一个已知局限。要解决它，需要手动执行 `codex app-server daemon update --from-cli`（将当前 CLI 的版本复制给 daemon）并重启，或者确保 daemon 的自动更新机制在正确的前提下被启用。
+
+> 直接手动更新可能会失败(国内网络问题)
+
+```shell
+$ codex app-server daemon update
+
+Error: failed to fetch standalone Codex updater: error sending request for url (https://chatgpt.com/codex/install.sh): client error (Connect): tcp connect error: Operation timed out (os error 110)
+^CError: failed to connect to /home/opcxxu/.codex/app-server-control/app-server-control.sock
+```
+
+使用`--frome-cli`或许可以,但是这会锁定版本.
+
+```shell
+codex app-server daemon update --from-cli
+```
+
+混用 npm CLI 和 daemon 管理命令的根源，在于安装方式与 daemon 的设计假设不匹配。
+
+> 官方 daemon 的自动更新和生命周期管理，是围绕 `install.sh` 独立安装 + `bootstrap` 来设计的。如果你需要 daemon 的稳定版本管理，可以考虑改用官方独立安装方式：
+
+```shell
+# 如果能访问 install.sh，用它安装(或者配置一下网络代理)
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+
+# 然后用新安装的 codex 执行 bootstrap
+~/.codex/packages/standalone/current/codex app-server daemon bootstrap --remote-control
+```
+
+这样 daemon 就会带有内置的更新循环，后续 CLI 升级时版本脱节的问题会减轻很多。但前提是你需要先解决 `chatgpt.com` 的访问问题。如果网络环境确实无法直连，你可能需要为 daemon 的更新流程配置代理，或者接受手动管理版本的现状。
+
+#### 彻底重启codex
+
+即便正确更改完所有配置,如果重新进入codex也可能因为后台服务没有重启而新配置不生效.
+
+> 以linux系统为例
+
+```shell
+pgrep -fl codex #查看codex进程/服务
+pkill codex #结束codex相关进程/服务
+codex #重新启动
+
+```
+
+也可以仅尝试
+
+```shell
+codex app-server daemon restart # 重启服务
+```
+
+
 
 ---
 

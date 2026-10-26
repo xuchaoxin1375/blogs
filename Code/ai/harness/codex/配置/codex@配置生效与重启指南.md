@@ -6,7 +6,7 @@ Codex 的配置是**启动期读取**的：改完 `config.toml`、profile 或 `m
 
 三件事要分清：
 
-1. **退出 TUI ≠ 重启后台**。0.157.0 起，交互式 `codex` 默认会自动拉起常驻 app-server daemon；关掉终端窗口后 daemon 仍在，继续使用旧配置。
+1. **退出 TUI ≠ 重启后台**。0.157.0 起，交互式 `codex` 默认会自动拉起常驻 `app-server daemon`；关掉终端窗口后 daemon 仍在，继续使用旧配置。
 2. **重开客户端 ≠ 新会话**。`resume` / `fork` 恢复的是旧 thread，旧 thread 保留启动时的模型目录、上下文窗口与工具装配。
 3. **Windows 上管理员终端不能启动 daemon**。会报 `shared clients must not inherit administrator privileges`，此时 Codex 走 ephemeral 模式，重启策略随之不同。
 

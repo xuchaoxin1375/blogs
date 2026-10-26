@@ -4,12 +4,18 @@
 
 
 
-# 一、abstract
+# abstract
 
 ## 官方文档
 
 - [config-sample|Configuration Reference | ChatGPT Learn](https://learn.chatgpt.com/docs/config-file/config-sample)
+- [OpenAI开发者|config-reference](https://developers.openai.com/codex/config-reference)
+- [模型目录|learn.chatgpt.com/docs/config-schema.json](https://learn.chatgpt.com/docs/config-schema.json)
+
+汉化中文版:
+
 - [Codex 配置参考 | 配置键与选项](https://www.codex-docs.com/docs/config-file/config-reference)
+- [示例配置 | 配置文件 | ChatGPT 文档 --- Sample Configuration | Config file | ChatGPT Docs](https://www.codex-docs.com/en/docs/config-file/config-sample)
 
 ## 接入第三方api
 
@@ -81,7 +87,7 @@ args = ["-c", "echo $OPENROUTER_API_KEY"]
 ~/.codex/config.toml
 ```
 
-> 不要放在项目目录的 `.codex/config.toml` 中，因为当前 Codex 会**忽略项目级配置里的 provider 和鉴权相关字段**。([OpenAI开发者](https://developers.openai.com/codex/config-reference))
+> 不要放在项目目录的 `.codex/config.toml` 中，因为当前 Codex 会**忽略项目级配置里的 provider 和鉴权相关字段**。
 
 最小可用配置示例如下:
 
@@ -119,6 +125,10 @@ show_raw_agent_reasoning = true # 显示原始推理
 # 注意,必须在默认配置config.toml中设置auth.command方式才有效,在-p 参数中指定配置不生效.
 # model_catalog_json = "/home/opcxxu/.codex/openrouter-models.json"
 
+# 工具配置(网络搜索)
+web_search=live # disabled | cached | indexed | live(实时性)
+
+# 供应商配置
 [model_providers.provider-id]
 name = "provider-id" 
 base_url = "" # 记得填写,否则提示builder error这类错误,更不可能配置成功.
@@ -178,7 +188,7 @@ env_key_instructions = "请设置env_key配置字段所指的环境变量名取�
 
 ------
 
-# 二、配置项可以分成三类
+# 配置项可以分成三类
 
 ## 第一类：名称可以自定义，但引用必须完全一致
 

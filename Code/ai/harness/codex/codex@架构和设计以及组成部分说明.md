@@ -39,7 +39,7 @@ Codex 是“面向软件工程的智能体运行系统”，由若干职责清�
 下图把客户端、接入层、内核、工具与安全边界放在一起，并补上模型与会话状态。Cloud 任务可以理解为把同一套核心搬到远端容器，再加上仓库快照与 Git 同步。
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph CLIENT["外部客户端"]
         IDE["IDE 扩展"]
         DESK["桌面应用"]
