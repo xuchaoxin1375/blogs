@@ -9,7 +9,7 @@
 
 OpenCode 是一个开源的 AI 编程智能体(AI coding agent),提供终端界面(TUI)、桌面应用和 IDE 扩展三种形态。它由 SST 团队(创始人 Dax Raad 等)打造,与 Claude Code 同类,但核心差异在于:
 
-- **供应商无关(provider-agnostic)**:不绑定任何模型供应商——虽然官方推荐通过 OpenCode Zen 提供的模型,但它可以配合 Claude、OpenAI、Google 甚至本地模型使用;团队认为随着模型演进、差距缩小和价格下降,保持供应商中立很重要。
+- **供应商无关(provider-agnostic)**:不绑定任何模型供应商——虽然官方推荐通过 OpenCode 自营网关(OpenCode Console,曾用名 Zen)提供的模型,但它可以配合 Claude、OpenAI、Google 甚至本地模型使用;团队认为随着模型演进、差距缩小和价格下降,保持供应商中立很重要。
 - **TUI 优先**:团队由 neovim 用户和 terminal.shop 的作者组成,致力于把终端体验推向极限。
 - **客户端/服务器架构(client/server)**:这是 v1 就有的设计底子,也是 v2 得以大幅演进的基础。
 
@@ -65,7 +65,7 @@ flowchart TB
     end
 
     subgraph providers["模型供应商(可插拔)"]
-        zen["OpenCode Zen"]
+        zen["OpenCode Console<br>(原 Zen)"]
         anthropic["Anthropic / OpenAI / Google"]
         local["本地模型"]
     end
@@ -96,6 +96,7 @@ flowchart TB
 | **插件**           | v1 插件 API               | 全新插件 API                                           | **不兼容,需迁移**                 |
 | **终端客户端配置** | 分层的 `tui.json(c)` 文件 | 单一全局 `cli.json`(自动迁移)                          | 简化配置                          |
 | **配置格式**       | V1 JSON schema            | V1 格式仍受支持,原生 V2 格式为可选项、更显式更符合直觉 | 平滑过渡                          |
+| **凭据存储**       | 明文 `auth.json`(用户数据目录) | 服务端 SQLite 数据库(迁移时导入一次 `auth.json`)       | 支持多账号与活动账号切换          |
 
 ### 配置字段形状差异(易踩坑,重点)
 
@@ -108,6 +109,65 @@ v1 和 v2 **读取相同的配置文件路径**,但少数同名字段的"形状"
 | `skills` | `{ paths, urls }` 对象(本地路径 + 远程 URL 分列) | 字符串数组(统一列出技能来源)                                | 技能(Skill)加载来源                       |
 
 **缓解措施已落地**:v1.18.24 起,V1 能读取受支持的 V2 配置字段,使较新的配置文件在混合环境中继续可用。而典型的混用事故场景是:用户从一份合法的 V1 配置文件开始,运行了某个 V2 命令(如 `opencode2 mcp add`),产生了一份 V2 能接受但 V1 无法加载的混合文档——如果你团队里有人还在用 v1,**不要**急着把共享的项目配置转成纯 V2 形状。
+
+### 凭据存储变化与 API key 过期排查(V2 实操)
+
+V1 把密钥明文写在 `~/.local/share/opencode/auth.json`；V2 改由服务端 SQLite 数据库托管，用 `opencode debug paths db` 查路径（常见为 `~/.local/share/opencode/opencode.db`）。旧 `auth.json` 只在数据库迁移时被导入一次，之后**改它无效**，官方也明确不要直接改数据库，凭据一律通过 `/connect` 或 `opencode auth` 管理。
+
+| 命令 | 作用 |
+| --- | --- |
+| `opencode auth list` | 列出集成与凭据来源（`stored` = 数据库账号，`environment` = 环境变量） |
+| `opencode auth login <集成> --method key` | 新增 API key 账号（需交互终端，粘贴时隐藏输入） |
+| `opencode auth export [集成]` | 导出账号（含 ID、label、`active` 标记），用于确认生效对象 |
+| `opencode auth switch <集成> <label\|cred_id>` | 切换活动账号 |
+| `opencode auth logout <集成> <label>` | 删除账号 |
+
+**过期报错的定位思路**：报错原文形如
+
+```text
+AI.Error.Authentication: This API key has expired. Create a new API key in OpenCode Console
+and replace it in your client or secret store. Signing in again will not renew this key.
+```
+
+正文只说了 "Console"，但一台机器上可以同时存有 OpenCode Console（集成 `opencode`）和 OpenCode Go（集成 `opencode-go`）等多套凭据，别急着替换错的那个。定位看两点：
+
+1. 会话实际用的模型属于哪个集成：`opencode/<model>` 走 Console，`opencode-go/<model>` 走 Go；
+2. 日志 `~/.local/share/opencode/log/opencode.log` 里紧邻报错的前置告警，例如 `failed to load OpenCode provider config ... 401 GET https://opencode.ai/console/api/v2/config` 指向 Console 凭据。
+
+**替换步骤**（TUI 优先）：
+
+1. 在 Console 新建 API key，留意有效期设置——原文已提示重新登录不会续期，必须换新 key；
+2. TUI 内 `/connect` → 选对应集成 → 选 **API key** 方法 → 粘贴新 key；新账号自动成为 active，可在同一账号列表里删掉过期的那条；
+3. 命令行等价写法：`opencode auth login "<集成名>" --method key`（API key 与表单类型必须交互终端，在非交互 shell 里会卡住）；
+4. 验证：`opencode auth list` 状态仍为 `stored`，`opencode auth export <集成>` 的凭据 `id`/`label` 已更新；若旧 401 仍刷屏，用 `opencode service restart` 让常驻服务重新加载凭据。
+
+> 多套凭据共存时，环境变量来源（如 `OPENROUTER_API_KEY`、`YUJIAN_API_KEY`）不会被 `auth logout` 清除，要改环境变量本身；同一集成上，数据库账号的优先级高于环境变量。
+
+#### Zen 与 Console：同一网关的改名与密钥换代（2026-10 实测）
+
+早先叫 **OpenCode Zen**（`opencode.ai/auth`），现在文档与服务端统一叫 **OpenCode Console**（`opencode.ai/console`）；**provider id 始终是 `opencode`，模型前缀仍是 `opencode/<model-id>`**，Go 订阅仍是独立 provider `opencode-go`。
+
+| 现象 | 实测结果 |
+| --- | --- |
+| `/v2/docs/zen` | 404；V2 文档 llms.txt 全文 0 处 "zen" |
+| 旧页 `opencode.ai/docs/zen` | 内容与 `/v2/docs/console/models` 几乎逐字节相同（55826 vs 55825，标题均为 Models，55 处 console、0 处 zen） |
+| 旧格式 key `sk-…`（67 字符，Zen 时代） | 调 Console / Go 端点均 **401** `ServiceAPIKey.Expired / api_key_expired`，即本节的报错原文 |
+| 新格式 key `oc_sk_…`（51 字符，Console 服务账号密钥） | 调 `/inference/go/...`、`/inference/anthropic/...` 均 **200** |
+
+- 现在建 key 的位置是 Console → **Keys** → Add Service Account → Add API Key：可设 key 名称、权限（`Inference only` / `All`）与**可选有效期**；过期或被吊销立即 401。
+- Console 另提供 OAuth device flow 用户令牌（带 `x-org-id`）；工作区配置 API 是 `GET https://opencode.ai/console/api/v2/config`，返回 providers / models / websearch / mcp / policies，Console 与 Go 两个 provider 都用环境变量 `OPENCODE_CONSOLE_TOKEN`，并带 header `x-opencode-org-id: wrk_…`。
+- 端点归拢：Console 走 `/inference/{openai,anthropic,google}/…`，Go 走 `/inference/go/…`；旧路径 `/zen/go/v1/…` 仍返回 200（兼容别名）。
+- 命名处于过渡态：官网营销页 `opencode.ai/zen` 与旧文档仍写 Zen；第三方客户端 2026-07 还在修 “OpenCode Zen Go → OpenCode Go” 的显示名。
+- 官方文档没有 changelog，以上为可实测/可查阅的现状，未附精确发布时间。
+
+#### 只用 Go 订阅时，免费模型要不要再填 Console key？
+
+**不需要。** 一把工作区 key 同时授权 Console 与 Go 两个 provider：用 Go key 调 `GET /console/api/v2/config` 返回的是 `opencode`（本工作区 84 个模型）与 `opencode-go`（29 个模型）两套，其中 `opencode/*` 含 11 个 `*-free` 免费模型（`beam-free`、`deepseek-v4.1-flash-free`、`glm-5.3-flash-free`、`longcat-2.5-preview-free`、`mimo-v2.6-flash-free`、`nemotron-3-ultra-free` 等）。
+
+- 所以 `/connect` 只连 **OpenCode Go** 即可，`opencode/<model>-free` 会随同一份工作区配置出现，不必再单独连 “OpenCode Console” 或另填 key。
+- 免费档**按客户端身份放行，不按 key**：同一把 key 从 OpenCode 之外调用免费模型被拒（`403 FreeTierError: OpenCode's free tier can only be used from within OpenCode`），在 OpenCode 内可用；付费模型从外部调用正常（实测 `claude-opus-5-5` 走 `/inference/anthropic/v1/messages` 返回 200）。
+- 若另外连过 “OpenCode Console”（按量付费 / 团队工作区），记得清理过期账号：残留的过期凭据会让服务反复拉取工作区配置失败、持续刷 401 日志，删除后即恢复。
+- 无 key 时仍可查模型目录（`GET /inference/v1/models`、`/inference/go/v1/models`、models.dev），只有 `GET /console/api/v2/config` 与推理调用需要凭据；测速与命令见 `Code/ai/opencode@免费api资源利用指南.md` 的“无 key 也能查最新模型目录”一节。
 
 ---
 

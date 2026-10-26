@@ -64,6 +64,42 @@ Zen是OpenCode团队维护的**模型网关**。OpenCode Zen是团队精选并�
 
 **Big Pickle**值得单独一提：它是Zen长期提供的免费模型，多次出现在"免费"栏目，在社区配置中也常被当作**兜底项**——例如有人的配置里保留opencode-zen仅作为omni/opencode-zen/big-pickle的回退参考。
 
+### 命名与密钥现状（2026-10 实测更新）
+
+- **Zen 已改称 OpenCode Console**：旧页 `opencode.ai/docs/zen` 现在返回的就是 Console 的 Models 页面，V2 文档已无 Zen 页（`/v2/docs/zen` → 404）；provider id 仍是 `opencode`，模型前缀仍是 `opencode/<model-id>`，Go 仍是 `opencode-go`。官网营销页与旧文档仍留 Zen 字样，属过渡期。
+- **密钥换代**：Zen 时代的 `sk-…` key 已失效，调用返回 `api_key_expired`（即 “This API key has expired. Create a new API key in OpenCode Console…” 那段报错）；现在在 Console → **Keys** → Add Service Account → Add API Key 建 `oc_sk_…` 服务账号密钥，可设权限与**可选有效期**，过期或被吊销立即 401。
+- **免费模型不需要单独填 Console key**：一把工作区密钥（只订阅 Go 时就是那把 `opencode-go` 的 key）同时授权 Console 与 Go 两个 provider，`opencode/<model>-free` 随同一份工作区配置出现，`/connect` 只连 OpenCode Go 就够了；免费档按客户端身份放行，**只在 OpenCode 内可用**（外部调用 403 `FreeTierError`），付费模型则在 OpenCode 之外也能调。
+- 完整实测记录（含端点变化 `/zen/go/v1` → `/inference/go/...`、`OPENCODE_CONSOLE_TOKEN`、工作区配置 API）见 `Code/ai/harness/opencode/opencode@v2版本的设计和使用指南.md` 的“凭据存储变化与 API key 过期排查”一节。
+
+### 无 key 也能查最新模型目录（含 Console 与 Go，2026-10 实测）
+
+模型目录本身是**公开**的，不带任何凭据即可查询；只有“你的工作区实际能用哪些”需要 key。
+
+| 来源 | 实测 | 内容 |
+| --- | --- | --- |
+| `GET https://opencode.ai/inference/v1/models` | 200，85 条 | Console 目录（含全部 `*-free` 免费模型） |
+| `GET https://opencode.ai/inference/go/v1/models` | 200，37 条 | Go 目录（订阅可用模型） |
+| `GET https://models.dev/api.json` | 200，5.8 MB，232 个 provider | `opencode` 127 个、`opencode-go` 32 个模型，且带 `cost`、`limit` 元数据 |
+| 文档页 `/v2/docs/console/models`、`/v2/docs/console/go` | 公开 HTML | 模型 + 价格 + 端点 + 弃用表 + Go 额度/隐私表 |
+| `opencode models`（客户端内，用空数据库 `--standalone` 实测） | 409 条，其中 `opencode/*` 12 条、`opencode-go/*` **0 条** | 只列出无需订阅即可直接用的免费模型 |
+
+```bash
+curl -s https://opencode.ai/inference/v1/models    | jq -r '.data[].id'   # Console 目录
+curl -s https://opencode.ai/inference/go/v1/models | jq -r '.data[].id'   # Go 目录
+curl -s https://opencode.ai/inference/v1/models    | jq -r '.data[].id' | grep -- '-free$'
+curl -s https://models.dev/api.json | jq -r '."opencode-go".models | keys[]'
+```
+
+Windows 用 `curl.exe`（本机 `Invoke-WebRequest` 对同一端点会莫名 401，属环境/代理怪癖，不能拿来判断鉴权）：
+
+```powershell
+(& curl.exe -s https://opencode.ai/inference/go/v1/models | ConvertFrom-Json).data.id
+```
+
+**仍然需要 key 的三件事**：① `GET https://opencode.ai/console/api/v2/config`（工作区视角的启用模型/策略，免 key 返回 401 `{"_tag":"Unauthorized"}`）；② 推理调用本身（Go 还要求 `x-opencode-session`）；③ 免费档还额外要求“请求来自 OpenCode 客户端”，否则 403 `FreeTierError`。
+
+**两个坑**：① 公开目录 ≠ 你的可用范围——同一天实测公开为 Console 85 / Go 37，而本工作区配置里是 **84 / 29**（差额通常是地区限制或未开通）；② 口径有差——models.dev 的 `opencode` 有 127 个（含旧/弃用模型），公开端点只返回当前目录 85 个；models.dev 里该 provider 的环境变量名仍是 V1 的 `OPENCODE_API_KEY`，而 Console 工作区配置用的是 `OPENCODE_CONSOLE_TOKEN`。
+
 ---
 
 ## 官方层之二：OpenCode Go 订阅——低成本的主力方案

@@ -164,7 +164,7 @@ opencode service start
 | --- | --- | --- |
 | 端口配置 | `opencode service get port` | `49375` ✅ |
 | 服务状态 | `opencode service status` | `http://127.0.0.1:49375` ✅ |
-| 端口监听 | `ss -tlnp \| grep 49375` | `opencode.exe serve --service` 正常 LISTEN ✅ |
+| 端口监听 | `ss -tlnp | grep 49375` | `opencode.exe serve --service` 正常 LISTEN ✅ |
 | 端到端运行 | `opencode run "reply with exactly: OK"` | exit 0，模型正常回复 `OK` ✅ |
 
 端到端测试输出（节选）：
@@ -205,8 +205,8 @@ OK
 | WSL 网络模式配置 | `/mnt/c/Users/opcxxu/.wslconfig` |
 | opencode 日志 | `~/.local/share/opencode/log/opencode.log` |
 | opencode 服务端口配置 | `opencode service get port` / `opencode service set port <p>` |
-| 服务管理 | `opencode service start \| stop \| restart \| status` |
-| Windows 侧端口排查 | `netstat.exe -ano \| findstr <port>`、`powershell.exe Get-NetTCPConnection` |
+| 服务管理 | `opencode service start | stop | restart | status` |
+| Windows 侧端口排查 | `netstat.exe -ano | findstr <port>`、`powershell.exe Get-NetTCPConnection` |
 | mirrored 模式确认 | `wslinfo --networking-mode` |
 
 ---

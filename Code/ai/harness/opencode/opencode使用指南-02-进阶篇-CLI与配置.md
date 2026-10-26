@@ -29,7 +29,7 @@
 | `opencode plugin <模块>` | 安装插件 | `opencode plugin my-plugin -g` |
 | `opencode pr <编号>` | 拉取并检出 PR 后进入 | `opencode pr 123` |
 | `opencode github install/run` | GitHub 自动化 agent | `opencode github install` |
-| `opencode db [query]` | 查询本地数据库 | `opencode db path` |
+| `opencode debug paths [名称]` | 查看全局路径(data/config/log/db) | `opencode debug paths db` |
 | `opencode debug` | 调试工具 | `opencode debug config` |
 | `opencode upgrade [版本]` | 升级 | `opencode upgrade v0.1.48` |
 | `opencode uninstall` | 卸载 | `opencode uninstall --keep-config` |
@@ -92,7 +92,7 @@ opencode import https://opncd.ai/s/abc123   # 导入分享链接
 opencode stats --days 30                    # 30 天 token/成本
 opencode stats --models 5                   # 按模型统计 Top5
 opencode stats --tools 10 --project .       # 工具使用、按项目统计
-opencode db path                            # 数据文件位置
+opencode debug paths db                     # 数据文件位置(会话与凭据库)
 ```
 
 > `export --sanitize` 会脱敏 transcript 与文件内容,适合分享前导出。
@@ -100,13 +100,18 @@ opencode db path                            # 数据文件位置
 ### 1.5 凭据与模型
 
 ```bash
-opencode auth login -p anthropic            # 指定 provider 登录
-opencode auth ls                            # 列出已登录
-opencode auth logout                        # 退出
-opencode models                             # 全部模型
-opencode models --refresh                   # 刷新 models.dev 缓存(新增模型后)
-opencode models --verbose                   # 含价格等元数据
+opencode auth login "OpenCode Console" --method key   # 指定集成与认证方法登录
+opencode auth list                                    # 列集成与凭据来源(stored/environment)
+opencode auth export [集成]                           # 导出账号(含 ID/label/active)
+opencode auth switch <集成> <label>                   # 切换活动账号
+opencode auth logout <集成> [label]                   # 删除账号
+opencode models                                       # 全部模型(provider/model)
 ```
+
+> V2 的变化:`auth login` 用 `--method key` 选认证方法(不是 V1 的 `-p provider`),
+> 列表命令是 `auth list`(没有 `auth ls`);`opencode models` **没有**
+> `--refresh`/`--verbose`(V1 才有)。API key 与表单类型必须交互终端输入,非交互 shell 会卡住。
+> 凭据存放在服务端 SQLite(路径用 `opencode debug paths db` 查),不再写回 `auth.json`。
 
 ### 1.6 agent 与 MCP 的 CLI
 
@@ -129,7 +134,7 @@ opencode pr 123            # fetch + checkout PR 分支并启动 opencode
 opencode github install    # 在仓库安装 GitHub Actions 工作流
 opencode github run        # 在 CI 中运行(配合 --event/--token)
 opencode debug config      # 查看最终解析出的配置(排查配置问题)
-opencode db path           # 数据库路径
+opencode debug paths db    # 数据库路径
 opencode upgrade           # 升级
 opencode uninstall         # 卸载
 ```

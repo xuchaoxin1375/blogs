@@ -44,8 +44,12 @@ opencode auth list               # 查看已登录的 provider
 opencode auth logout             # 退出登录
 ```
 
-> 凭据保存在 `~/.local/share/opencode/auth.json`,同时支持环境变量
-> (如 `ANTHROPIC_API_KEY`)和项目 `.env` 文件。
+> **凭据存放位置随版本变化**:V1 明文写在 `~/.local/share/opencode/auth.json`;V2 改由
+> 服务端 SQLite 托管(用 `opencode debug paths db` 查路径),旧 `auth.json` 只在数据库
+> 迁移时被导入一次,之后改它无效,凭据统一用 `/connect` 或 `opencode auth` 管理
+> (详见《opencode@v2版本的设计和使用指南》的"凭据存储变化与 API key 过期排查"一节)。
+> 环境变量(如 `ANTHROPIC_API_KEY`)两种版本都支持;V1 文档提到的项目 `.env`
+> 在 V2 文档中未见确认,以环境变量为准。
 
 **没有 API Key?** 推荐 [OpenCode Zen](https://opencode.ai/docs/zen):官方精选
 模型列表,一个账号用多种模型。
