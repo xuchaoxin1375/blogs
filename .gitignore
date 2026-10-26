@@ -1,9 +1,12 @@
 # Operating system files
 .DS_Store
 Thumbs.db
-
+# 忽略临时文件和草稿
 tmp
 temp
+tmp.*
+tmp.temp*
+
 math_j
 *.jpg
 *.png

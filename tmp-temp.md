@@ -1,1 +1,0 @@
-[bd](https://www.baidu.com)
