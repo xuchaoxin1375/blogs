@@ -245,6 +245,8 @@ Specifies an amount of time between each restart of the task. The task will run,
 $Triggers = 0..23 | ForEach-Object { New-ScheduledTaskTrigger -Daily -At "$($_):00" }
 ```
 
+### 一次性任务案例
+
 
 
 ### 总结
