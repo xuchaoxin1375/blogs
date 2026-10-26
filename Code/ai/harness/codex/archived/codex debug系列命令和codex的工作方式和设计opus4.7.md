@@ -1,10 +1,4 @@
-
-
-## 资料依据与知识日期
-
-- 综合搜索日期：**2026-09-09**
-- 主要来源：`openai/codex` GitHub 仓库源码（`codex-rs/cli/src/debug_sandbox.rs`、`codex-rs/core/src/landlock.rs`、`codex-rs/cli/src/doctor.rs`）、GitHub issue 讨论、OpenAI 帮助中心 Codex 页面、Codex CLI v0.131.0 发行说明相关报道，以及第三方技术博客对 Codex 内部机制的分析
-- 我的模型训练知识截止早于 2026，因此本篇涉及具体子命令、参数、版本行为的部分**以本次联网检索到的资料为准**，我的先验知识用于组织框架和解释原理
+[toc]
 
 ## 为什么 `codex debug` 值得单独讲
 
