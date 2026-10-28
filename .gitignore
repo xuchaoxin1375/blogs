@@ -1,6 +1,28 @@
-# Operating system files
+# 系统文件痕迹（OS generated files）
+# macOS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.AppleDouble
+.LSOverride
+Icon?
+__MACOSX/
+
+# Windows
 Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+*~
+
 # 忽略临时文件和草稿
 tmp
 temp
