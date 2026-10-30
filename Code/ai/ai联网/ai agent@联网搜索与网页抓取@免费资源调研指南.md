@@ -6,7 +6,7 @@ AI agent(智能体)要回答时效性问题、核对版本与价格、采集产�
 
 调研方法:首轮按决策档预算完成 16 次联网检索,应用户要求解除预算限制后追加核验,合计 32 次检索(含 3 次超时重试)与 10 次正文读取;优先采用官方定价页与官方文档,社区口径均明确标注;数字档位为撰写时点快照,各厂商额度调整频繁,落地前应以官方页面复核。
 
-复核记录(2026-10-30,全程经本机代理出口):逐项对照官方页面重查核心数字,并实际跑通一个免 key 单文件 MCP 项目。据此修正了 Google CSE 停服、Gemini grounding 档位、Jina 免费 key 速率、Parallel 免费口径等条目,补充了 ddgs 自带 API/MCP、Anthropic web fetch 免按次计费、Brave LLM Context 端点等此前遗漏的通道;仍未复核的条目集中列在 **证据与缺口** 一节。
+复核记录(2026-10-30,全程经本机代理出口):逐项对照官方页面重查核心数字,并实际跑通一个免 key 单文件 MCP 项目。据此修正了 Google CSE 停服、Gemini grounding 档位、Jina 免费 key 速率、Parallel 免费口径等条目,补充了 ddgs 自带 API/MCP、Anthropic web fetch 免按次计费、Brave LLM Context 端点等此前遗漏的通道;另按 DeepSeek 官方 Search 文档补核了计价、账号级 QPS 与 Codex/OpenCode 接入态,更正了此前沿用首日报道的 5 QPS 口径。仍未复核的条目集中列在 **证据与缺口** 一节。
 
 ## 五类免费通道总览
 
@@ -17,7 +17,7 @@ agent 获取网页信息的免费资源可归为五类通道,各自解决不同�
 | 通用搜索 API | Tavily、Brave、Exa、Parallel | 月度额度或一次性赠额 | 检索发现"该看哪些网页" |
 | 免 key 与自建搜索 | ddgs、SearXNG、Whoogle、免 key 单文件 MCP | 零注册、零费用 | 无账号成本、完全可控的兜底 |
 | 网页抓取与 Reader | Jina Reader、Firecrawl、Crawl4AI | 免 key 限流、月度积分、开源自建 | 把"已知 URL"变成干净正文 |
-| 大模型内置联网 | Gemini grounding、国产模型搜索工具 | 按天免费档或赠送资源包 | 已有模型 API 时顺带获得搜索 |
+| 大模型内置联网 | Gemini grounding、DeepSeek Search 与 Fetch、国产模型搜索工具 | 按天免费档、赠送资源包,或按次付费 | 已有模型 API 时顺带获得搜索;DeepSeek 是独立接口,要客户端接好或自己挂 |
 | 垂直开放数据源 | Wikipedia、GitHub、arXiv、HN | 完全免费 | 结构化领域数据直连 |
 
 推荐阅读顺序:只想要结论就看 **速查:免费区与低价高性价比区**;要建立整体路由思路看 **通道选型决策**;再按需查阅各通道细节,落地配置参考 **场景化选型建议**。
@@ -75,7 +75,7 @@ flowchart TD
 | 抓取 | Firecrawl Hobby | $16/月(年付)5000 credits | 约 $3.2/1000 页,含渲染与结构化 |
 | 抓取 | ZenRows 与 ScraperAPI | $49/月起 | 反爬强的商业站才值得,先用免费档实测成功率 |
 | 抓取 | Apify | 每月 $5 平台额度 | 按执行秒计费,适合直接复用现成 actor |
-| 模型内置 | DeepSeek Search 与 Fetch | $0.75/1000 次 | 约 0.005 元/次,已在用 DeepSeek 时零迁移 |
+| 模型内置 | DeepSeek Search 与 Fetch | 5 元/1000 次(约 $0.7) | 仅成功请求计费,约 0.005 元/次;Codex 可开箱启用,OpenCode 要自己挂 |
 | 模型内置 | Gemini grounding | $14/1000 次(含每月 5000 次免费) | 已在用 Gemini 3 时顺带就有,别为它单独采购 |
 | 模型内置 | 元宝、豆包、百炼 | 0.014 至 0.03 元/次 | 有对应云账号时最省事,元宝另有每月 2000 次免费 |
 | 模型内置 | OpenRouter web 插件 | $4/1000 条结果 | 一次默认 5 条,约 $0.02/次;多模型聚合场景才用 |
@@ -85,7 +85,7 @@ flowchart TD
 - **先用免费额度跑通**:检索 Tavily,正文 Jina Reader 或 Crawl4AI,兜底 ddgs 与自建 SearXNG;
 - **额度不够就加免费通道**:TinyFish(搜索 500 次/时、取页 1000 页/天)与 AnySearch(1000 次/天)接力,先别急着付费;
 - **确实要花钱**:检索按"批量走 DataForSEO、实时走 Serper"分工,抓取先试 Firecrawl Hobby,量大再转自建 Crawl4AI;
-- **已经在用某个模型 API**:优先用平台自带联网与取页工具(DeepSeek、Gemini、Claude),不为同一件事再搭一套检索栈。
+- **已经在用某个模型 API**:优先用平台自带联网与取页工具(Gemini、Claude),不为同一件事再搭一套检索栈;DeepSeek 只在 Codex 或 Claude Code 里能"顺带"用上,OpenCode 需另挂 MCP。
 
 换算提醒:各家"一次"对应的条数与计费单位不同(搜索按请求、抓取按页、模型内置按查询并叠加 token),人民币与美元口径也别直接混算;上表折算统一按 1 美元约合 7.1 元。
 
@@ -235,6 +235,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 | AnySearch MCP | 统一搜索与垂直域检索 | 免费档 1000 次/天 |
 | Jina Remote MCP | 搜索、抽取、截图 | 免 key 低速可用 |
 | Bocha Search MCP(官方) | 博查中文搜索 | 按次计费约 0.03 元,无月费 |
+| deepseek-mcp(社区) | DeepSeek 官方 Search 与 Fetch,stdio 或 streamable HTTP | 按次计费 5 元/1000 次,无免费档;OpenCode 等无原生服务端搜索的客户端用它 |
 | mcp-searxng(社区) | 自建 SearXNG | 自建免费,需开启 JSON 输出 |
 | ddgs(官方) | ddgs 多后端搜索 + URL 正文抽取 | 装 `ddgs[mcp]` 后 `ddgs mcp`,自托管免费,受上游限流影响 |
 | agent-web-search(社区) | ddgs 搜索 + 前几条正文抽取 | 免费,单文件二进制,免 Python 环境(详见下一小节) |
@@ -269,7 +270,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 | 方案 | 免费额度 | 超出后 |
 | --- | --- | --- |
 | Gemini API grounding(谷歌搜索接地) | 免费档不提供;付费档每月 5000 次免费(所有 Gemini 3 及以上模型共享) | 超出 $14/1000 次查询;Gemini 2.5 时代的 $35/1000 与 1500 次/天口径已作废 |
-| DeepSeek Search 与 Fetch API | 无长期免费档;2026-11-01 前经 harness 的 server-side 调用不单独计费 | $0.75/1000 次成功请求(约合 0.005 元/次),空结果、错误与超时不计费;限流约 5 QPS |
+| DeepSeek Search 与 Fetch API | 无长期免费档;2026-11-01 00:00(北京时间)前,经 Harness、Claude Code、Codex 触发的服务端搜索不计费 | 5 元/1000 次成功请求(约合 0.005 元/次),空结果、错误与超时不计费;账号级 QPS:Search 100、Fetch 25 |
 | OpenAI web_search 工具 | 无 | $10/1000 次(较 2025 年的 $25 至 $30/1000 次明显下调) |
 | Anthropic web search | 无 | $10/1000 次 |
 | Anthropic web fetch | 不按次收费 | 只计抓回正文产生的输入 token,是同类里少见的"取页免费"通道 |
@@ -282,7 +283,24 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 
 - 国际厂商的搜索单价集中在 $10 至 $14/1000 次,但抓回的网页正文按模型输入 token 另行计费,这部分常比搜索本身更贵;Anthropic 的 web fetch 是例外,取页本身不按次收费,只算正文 token。
 - 内置联网的免费空间正在收缩:Gemini 免费档已不含 grounding,OpenAI 没有免费档,Anthropic 只做到取页免费;轻量使用更多依赖国产平台的赠送资源包,以及付费档内的月度免费量(Gemini 3 及以上每月 5000 次)。
-- DeepSeek 的搜索形态发生了转变:消费级 App 早已内置联网搜索,而 API 侧长期只有模型能力,直到 2026-10 中旬(官方文档 2026-10-18)随 V4.1-Flash 发布独立的 Search 与 Fetch API 才补齐;单价 $0.75/1000 次成功请求、限流约 5 QPS,2026-11-01 起正式计费,此前经 harness 的 server-side tool 调用暂不单独收费。
+- DeepSeek 的搜索形态发生了转变:消费级 App 早已内置联网搜索,API 侧长期只有模型能力,直到 2026-10 中旬随 V4.1-Flash 发布独立的 Search 与 Fetch API 才补齐。与 OpenAI、Anthropic 的"模型内置搜索"不同,它是两个原始 JSON 接口(`/v1/tools/search`、`/v1/tools/fetch`),由客户端直接调用,或由 Codex、Claude Code 这类已接好服务端搜索的客户端代为触发;单价 5 元/1000 次成功请求,2026-11-01 起正式计费。
+
+### 接进现成 agent:Codex 开箱,OpenCode 要自己挂
+
+DeepSeek 官方文档给出了 Claude Code、Codex、OpenCode 的接入页,但三者的"联网搜索"能力并不对等:
+
+| 客户端 | 原生服务端搜索 | 接法 | 计费 |
+| --- | --- | --- | --- |
+| Codex(CLI、ChatGPT 桌面端、VS Code 插件共用同一份配置) | 支持,仅 `deepseek-v4-pro` | `~/.codex/config.toml` 中设 `model = "deepseek-v4-pro"` 与 `web_search = "live"`,并提供方用 `wire_api = "responses"` | 按 Search 计费,另加模型 token |
+| Claude Code | 支持 | `ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic` 加 `ANTHROPIC_AUTH_TOKEN` | 按 Search 计费,另加一轮总结的 token |
+| OpenCode | 不支持 | 官方接入页只讲 `/connect` 选 DeepSeek 与选模型;要用 DeepSeek 搜索需挂 MCP 或自写工具直调 `/v1/tools/*` | 同按次计费,多一层本地进程 |
+| 自研或其他 OpenAI 兼容客户端 | 不支持 | 直接 `POST /v1/tools/search`、`POST /v1/tools/fetch`,Bearer 鉴权 | 同按次计费 |
+
+几个容易踩的点:
+
+- Responses API 的 `web_search` 只在 `deepseek-v4-pro` 下生效,`deepseek-flash` 会静默忽略该工具;官方一键脚本默认写 `deepseek-flash` 与 `web_search = "disabled"`,想联网要同时改这两项。
+- OpenCode 确实内置了 `websearch`,但它只在 OpenCode 或 OpenCode Go 供应商下可用(或显式设 `OPENCODE_ENABLE_EXA`、`OPENCODE_ENABLE_PARALLEL`),背后是 Exa 与 Parallel 的托管 MCP,不经过 DeepSeek,也不消耗 DeepSeek 额度;换成 DeepSeek 模型后该工具默认不可用,只剩 `webfetch` 能取已知 URL。
+- Codex 换到第三方 API 后历史会话按登录方式分组,原 ChatGPT 订阅的会话不会丢失,只是当前配置下不显示;恢复原配置即可看到。
 
 ## 垂直与开放数据源
 
@@ -373,7 +391,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 
 | 平台 | 单价 | 免费口径 |
 | --- | --- | --- |
-| DeepSeek Search 与 Fetch API | $0.75/1000 次成功请求,约合 0.005 元/次 | 空结果、错误与超时不计费;2026-11-01 起计费 |
+| DeepSeek Search 与 Fetch API | 5 元/1000 次成功请求(约 $0.7),约合 0.005 元/次 | 空结果、错误与超时不计费;2026-11-01 起计费 |
 | 智谱 Search-Std | 0.01 元/次 | 平台赠送资源包 |
 | 火山方舟豆包 web-search | 约 0.02 元/次;订阅 5.9 元/1000 次 | 订阅档有每日上限 |
 | 腾讯云元宝搜索 | 约 0.014 至 0.026 元/次 | 每月 2000 次免费 |
@@ -396,6 +414,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 | 中文内容为主 | 博查或智谱(约 0.01 至 0.03 元/次)承担搜索,垂类数据直连官方 API |
 | 生产 agent,长期运行 | Brave 或 Tavily 主搜 + 自建 SearXNG 冗余 + Crawl4AI 自建抓取 + 垂直 API 直连 |
 | 现成 agent 快速接入 | 挂载 fetch、Tavily MCP、Firecrawl MCP,复用各自免费档 |
+| 已用 DeepSeek 模型 | Codex 切 `deepseek-v4-pro` 并开 `web_search = "live"` 用官方服务端搜索;OpenCode 挂 deepseek-mcp 或自写工具调 `/v1/tools/*` |
 
 **总体推荐**:默认组合为 Tavily(月度 1000 次,agent 导向、接入最省事)承担检索,Jina Reader 或自建 Crawl4AI 承担正文,自建 SearXNG 作为额度耗尽与限流时的冗余兜底,垂类需求(Wikipedia、GitHub、arXiv 等)一律直连官方 API 不占搜索额度。预算敏感场景把主搜换成 TinyFish 的免费 Search 与 Fetch,并以 ddgs、自建 SearXNG 兜底;已有 Claude API 时,取正文优先用 Anthropic web fetch(不按次收费)。中文重度场景把主搜换成博查或智谱并接受按次计费。
 
@@ -416,7 +435,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 | AnySearch 免费档 | 1000 次/天,10 QPS;付费 $3/1000 次 | 一级(官网定价页);基准与隐私声明为厂商自报 |
 | Linkup | 注册赠约 4000 次,合规账户每月补足至 $20 | 一级(官方文档) |
 | 智谱搜索工具 | Search-Std 0.01 元/次 | 一级(官方定价文档) |
-| DeepSeek Search 与 Fetch API | $0.75/1000 次成功请求,空结果与错误不计费,约 5 QPS | 一级(官方文档)+ 二级(媒体与官方文档一致) |
+| DeepSeek Search 与 Fetch API | 5 元/1000 次成功请求(约 $0.7);账号级 QPS:Search 100、Fetch 25;2026-11-01 00:00(北京时间)起计费 | 一级(官方文档) |
 | 国产云厂商联网搜索 | 豆包约 0.02、百炼约 0.03、元宝 0.014 至 0.026 元/次 | 二级(官方计费文档链接,横评口径) |
 | 低价 SERP | DataForSEO $0.6/1000 次起 | 一级(官方定价页)+ 二级 |
 | Bing Search API 退役 | 2025-08-11 | 二级(多家媒体一致) |
@@ -433,7 +452,7 @@ MCP(Model Context Protocol,模型上下文协议)服务器把上述能力封装�
 已知缺口与下一轮补搜方向:
 
 - 博查官网定价页未能直接打开,精确单价以 open.bochaai.com 为准;
-- DeepSeek Search 与 Fetch API 的每日/月度总量上限未核对,已确认的只有约 5 QPS 与 2026-11-01 起计费;
+- DeepSeek Search 与 Fetch API 的每日/月度总量上限未核对;计价、QPS 与计费起点已按官方文档确认(2026-10 上线首日报道的 5 QPS 已过时,现文档为 Search 100、Fetch 25),Fetch 的目标域名级 QPS 未给具体数字,只说明超限返回 429;
 - ScrapeOps 的免费档数字为第三方口径,建议核对官网;
 - 腾讯元宝搜索单价为区间口径,精确值以其计费文档为准;
 - ScrapingBee 的免费试用额度各来源报道不一(100 至 1000),以官网为准;
