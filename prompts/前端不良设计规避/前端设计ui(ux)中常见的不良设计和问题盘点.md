@@ -1,25 +1,27 @@
-# 前端设计 UI/UX 中常见的不良设计和问题盘点（合并版）
+[toc]
 
-> 合并来源：`前端设计ui(ux)中常见的不良设计和问题盘点fable.md`（叙事型，感知链路 8 章，`product-grid` 健壮示例见长）
-> + `前端设计ui(ux)中常见的不良设计和问题盘点opus.md`（清单型，`L/C/S/V/A/F/N/I/D/P/G` 编号体系，可执行脚本见长）。
-> 合并原则：**以 opus 编号体系为骨（可追溯、可进 CI/`AGENTS.md`），以 fable 示例与辨析为血肉**。fable 的 `L1/A1/M1/P1/C1/D1` 旧编号全部废弃，统一映射到新编号；阈值冲突以联网核实为准。
+**前端设计 UI/UX 中常见的不良设计和问题盘点**
+
+> 本文面向交付 Web 界面的开发者与 coding agent，按用户感知链路盘点 12 类高频 UI/UX 缺陷。每条缺陷有固定编号（`L-02`、`A-08`、`S-04` 等），编号可直接写入 Issue、`AGENTS.md` 与 CI 检查项，便于从“看到现象”追到“验收动作”。
 
 ## 信息获取情况与来源声明
 
 | 分类 | 是否联网核实 | 说明 |
 |---|---|---|
-| 响应式失效根因、WCAG Reflow/文本间距、Core Web Vitals 阈值、WebAIM Million、无障碍统计 | 是 | 见文末来源；本次合并前复核（2026-10-01）：CWV 阈值未变（`LCP≤2.5s / INP≤200ms / CLS≤0.1`），“CLS 收紧到 0.08”无官方依据，不采用；WebAIM 2025 数据两稿一致可信（`50,960,288 / 均值51/页 / 同比-10.3%`）；WCAG 2.2 `2.5.8 24×24 / 2.4.11 Focus Not Obscured` 与 W3C 原文一致 |
-| 表单 Baymard 实证、CLS 成因（2025 Web Almanac 转引）、AI 生成界面缺陷特征 | 是（opus 轮） | Baymard 16 年结算研究、standardbeagle 2025 回顾、UX Planet `DESIGN.md` 文章；转引数据已标注 |
+| 响应式失效根因、WCAG Reflow/文本间距、Core Web Vitals 阈值、WebAIM Million、无障碍统计 | 是 | 见文末来源；复核日期 2026-10-30：CWV 阈值未变（`LCP≤2.5s / INP≤200ms / CLS≤0.1`），“CLS 收紧到 0.08”无官方依据，不采用；WebAIM 2025 与 2026 两轮统计均已核对；WCAG 2.2 `2.5.8 24×24 / 2.4.11 Focus Not Obscured` 与 W3C 原文一致 |
+| 表单 Baymard 实证、CLS 成因（2025 Web Almanac 转引）、AI 生成界面缺陷特征 | 是 | Baymard 16 年结算研究、standardbeagle 2025 回顾、UX Planet `DESIGN.md` 文章；转引数据已标注原机构 |
+| WebAIM Million 2026 报告 | 是（2026-10-30 复核） | `56,114,377` 错误 / 均值 56.1/页（同比 +10.1%）/ 95.9% 首页存在 A/AA 失败 / 六类仍占 96%；正文缺陷出现率仍列 2025 基线与 2026 趋势 |
 | 表单细节、暗黑模式具体数值（`#121212` 等）、动效时长区间、微信/国产内核行为、`text-autospace` 等 CSS 兼容性 | 否（训练知识/经验共识） | 视为经验值而非实证，使用前以 caniuse/MDN 实测为准；深色模式色值仅为起点 |
-| WebAIM 2026 报告 | 部分 | 2026 报告已发布（约 56.1/页，回升 ~10%）；正文仍以 2025 为基准，新报告仅作趋势注记 |
 
-本话题属于相对稳定的知识领域，核心规范（WCAG、CWV、Nielsen 启发式）已核实，可展开正文。未核实部分已逐节标注。
+本话题属于相对稳定的知识领域：核心规范（WCAG、CWV、Nielsen 启发式）已核实，经验值类内容均已标注，可直接作为评审与验收依据。
+
+---
 
 ## 阅读指引与缺陷分类框架
 
-本文按**用户感知链路**组织（fable 视角）：能不能看到完整内容（L/C）→ 页面稳不稳快不快（V）→ 知不知道系统在干什么（S）→ 能不能顺利操作（F/N/I）→ 所有人是否都能用（A/P）→ 是否尊重用户（H）→ AI 产物如何约束（G/D）。
+本文按**用户感知链路**组织，章节顺序与链路顺序一致：能不能看到完整内容（L/C）→ 知不知道系统在干什么（S）→ 页面稳不稳快不快（V）→ 所有人是否都能用（A）→ 能不能顺利操作（F/N/I）→ 视觉是否专业、跨端是否一致（D/P）→ AI 产物如何约束（G）→ 是否尊重用户（H）。
 
-每条缺陷统一四要素：**现象、根因、复现、验收**，编号可直接写入 Issue/`AGENTS.md`。
+编号条目以四要素为模板：**现象、根因、复现、验收**，编号可直接写入 Issue、`AGENTS.md` 与 CI 检查项。表格化的类别至少给出现象与根因、验收要点两项，复现动作并入文末验收方法论。
 
 | 前缀 | 类别 | 核心关注 | 可自动化程度 |
 |---|---|---|---|
@@ -36,36 +38,64 @@
 | `G` | AI 生成代码特有缺陷 | 同质化、脆弱交互、规范失效 | 中 |
 | `H` | 诚实设计 | 欺骗性模式 | 低（人工评审） |
 
-核心判断：**左上象限（自动化可查且影响大）最不可原谅**——表单无标签、低对比、无尺寸图片、焦点环被删，axe-core+Lighthouse 几秒可查，却是全网违例率最高项，应先进 CI 闸门。
+下图把**发现成本**（能否自动化查出）与**用户影响**放在一起，用于决定先修什么：
+
+```mermaid
+quadrantChart
+    title "前端缺陷象限:发现成本 vs 用户影响"
+    x-axis "发现成本低(自动化可查)" --> "发现成本高(需人工/真机)"
+    y-axis "用户影响小" --> "用户影响大"
+    quadrant-1 "必须真机矩阵覆盖"
+    quadrant-2 "优先级最高:应进CI闸门"
+    quadrant-3 "可容忍/低优先"
+    quadrant-4 "易遗漏的长尾"
+    "表单无标签": [0.08, 0.95]
+    "横向溢出": [0.12, 0.82]
+    "图片无尺寸": [0.14, 0.66]
+    "焦点环被删": [0.28, 0.88]
+    "低对比文字": [0.32, 0.74]
+    "中间宽度挤压": [0.5, 0.8]
+    "空状态缺失": [0.66, 0.7]
+    "IME输入法冲突": [0.93, 0.6]
+    "iOS视口抖动": [0.75, 0.5]
+    "深色模式失真": [0.62, 0.38]
+    "滚动条占位抖动": [0.86, 0.3]
+    "动效时长过长": [0.45, 0.22]
+```
+
+核心判断：**发现成本低、用户影响大的那一格最不可原谅**——表单无标签、低对比、无尺寸图片、焦点环被删，axe-core 加 Lighthouse 几秒可查，却是全网违例率最高项，应先进 CI 闸门；需要真机与窗口矩阵才能发现的那一格（中间宽度挤压、IME 冲突、iOS 视口抖动）是本文重点补足的部分；影响小且难自动化的那几项可在项目成熟后再收敛。
 
 ---
 
 ## 类别 L：布局与响应式崩坏（最高频）
 
-问题现象（fable 归纳）：拖窄窗口出现横向滚动条/内容被裁；中等宽度下多列既不换行也不缩小，文字压成竖排、按钮折行、图标错位；绝对定位/固定高度元素压住下方内容；超宽屏（2560px+）行长超 100 字符；200%~400% 缩放下布局崩塌或需二维滚动。
+问题现象：拖窄窗口出现横向滚动条/内容被裁；中等宽度下多列既不换行也不缩小，文字压成竖排、按钮折行、图标错位；绝对定位/固定高度元素压住下方内容；超宽屏（2560px+）行长超 100 字符；200%~400% 缩放下布局崩塌或需二维滚动。
 
 核心原理：响应式失效是因为布局中**某个部分拒绝收缩、换行、堆叠或尊重视口**。刚性来源：写死宽度的容器、永不换行的 flex 行、过宽子元素、缺失视口设置、触发太晚的断点。真正的修复是找到**强迫小屏执行桌面行为的刚性元素**，而不是再加一个媒体查询。判断信号：**只要看到横向滚动条，哪怕一点点，就说明有东西溢出**。
 
+下方的排障顺序从现象出发，逐层逼近真正把容器撑开的刚性元素；每个分支给出的都是修复动作，而不是再加一段媒体查询。
+
 ```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 340}}}%%
 flowchart TD
-    A["出现横向滚动或挤压"] --> B{"整页溢出还是局部溢出?"}
-    B -->|整页| C{"根元素有宽于视口的子元素?"}
-    C -->|是| D["定位溢出元素：诊断脚本/DevTools"]
-    C -->|否| E["检查100vw与滚动条宽度/负margin/transform"]
+    A["出现横向滚动或挤压"] --> B{"整页溢出<br>还是局部溢出?"}
+    B -->|整页| C{"根元素有宽于<br>视口的子元素?"}
+    C -->|是| D["定位溢出元素<br>诊断脚本/DevTools"]
+    C -->|否| E["检查 100vw 与滚动条宽<br>检查负 margin/transform"]
     B -->|局部| D
     D --> F{"宽度来源?"}
-    F -->|"写死width:Npx"| G["改max-width + width:100%"]
-    F -->|"flex/grid子项"| H{"min-width:0?"}
-    H -->|未设置| I["加min-width:0，min-width:auto是头号元凶"]
+    F -->|"写死 width:Npx"| G["改 max-width<br>+ width:100%"]
+    F -->|"flex/grid 子项"| H{"min-width:0?"}
+    H -->|未设置| I["加 min-width:0<br>默认 auto 是元凶"]
     H -->|已设置| J{"含不可断长串?"}
-    J -->|是| K["overflow-wrap:anywhere 或省略号"]
-    J -->|否| L["查nowrap/flex-wrap/固定列数"]
-    F -->|"媒体元素"| M["max-width:100%;height:auto，保宽高比"]
-    F -->|"表格/代码"| N["overflow-x:auto容器 + 滚动提示"]
-    F -->|"绝对/固定定位"| O["改Flex/Grid对齐，避固定像素坐标"]
+    J -->|是| K["overflow-wrap:anywhere<br>或省略号"]
+    J -->|否| L["查 nowrap<br>flex-wrap/固定列数"]
+    F -->|"媒体元素"| M["max-width:100%; height:auto<br>保留宽高比"]
+    F -->|"表格/代码"| N["overflow-x:auto 容器<br>+ 滚动提示"]
+    F -->|"绝对/固定定位"| O["改 Flex/Grid 对齐<br>避固定像素坐标"]
 ```
 
-### 健壮示例：商品卡片网格（fable 示例，并入 L-07/L-08）
+### 健壮示例：商品卡片网格
 
 场景：电商后台商品网格，商品名中英混排、图片尺寸不一、窗口任意拖动。
 
@@ -114,7 +144,7 @@ flowchart TD
 
 **`L-06` 移动端视口抖动（`100vh` 问题）**：iOS/Android 地址栏收放导致跳变、底栏被遮。`100vh` 取大视口高度。`dvh`实时跟随、`svh`取最小（UI 全展开，最安全）、`lvh`等价旧 `vh`。修复：`min-height:100svh; min-height:100dvh; padding-bottom:env(safe-area-inset-bottom)`，viewport 加 `viewport-fit=cover`。另需测软键盘顶起输入框、横竖屏切换（WCAG 1.3.4 不得锁定方向）。验收：真机 iOS Safari + Android Chrome（含微信内置）滑动验证，刘海屏安全区已处理。
 
-**`L-07` 断点位置错误与“中间宽度挤压”**：375 与 1440 正常，768/960/1180 崩坏（三列挤成一列半）。根因：按设备设断点而非按内容崩坏宽度。做法：连续拖动记录变难看的精确宽度设断点；优先容器查询与内在布局：`@container card(min-width:24rem)` 横排，`.auto-grid{repeat(auto-fit,minmax(min(18rem,100%),1fr))}`。验收：320/360/390/414/480/600/768/834/1024/1180/1280/1440/1920/2560 截图，重点查 768~1100 被遗忘区间。
+**`L-07` 断点位置错误与“中间宽度挤压”**：375 与 1440 正常，768/960/1180 崩坏（三列挤成一列半）。根因：按设备设断点而非按内容崩坏宽度。做法：连续拖动记录变难看的精确宽度设断点；优先容器查询与内在布局：`@container card (min-width: 24rem)` 横排，`.auto-grid{repeat(auto-fit,minmax(min(18rem,100%),1fr))}`。验收：320/360/390/414/480/600/768/834/1024/1180/1280/1440/1920/2560 截图，重点查 768~1100 被遗忘区间。
 
 **`L-08` `flex-wrap` 缺失与固定列数**：导航/标签/筛选条窄屏挤成压扁行。`flex` 默认 `nowrap`，`repeat(3,1fr)` 永不降列。数量不固定的横排必须 `flex-wrap:wrap+gap`，固定网格必须有降列断点或改 `auto-fit`。
 
@@ -146,9 +176,9 @@ flowchart TD
 | `C-04` | 数字金额 | 计时器跳动、缺千分位、`19.990000000000002` | `Intl.NumberFormat`，表格/计时器 `tabular-nums`，金额整数分存 |
 | `C-05` | 日期本地化 | UTC 直展、`2026/3/5` 歧义 | `Intl.DateTimeFormat` + `zh-CN`，跨时区标时区 |
 | `C-06` | i18n 膨胀 | “保存”→德语 `Speichern` 折行溢出 | 按钮 `min-width` 非固定宽，按中文 1.8× 留西文余量；伪本地化拉长 30%~50% 验证 |
-| `C-07` | 截断无全文 | 省略后无法查看 | 截断必给 tooltip/`title`/展开（纯装饰除外） |
+| `C-07` | 截断无全文 | 省略后无法查看；用 `direction: rtl` 等技巧做单行截断会让中文标点错乱 | 截断必给 tooltip/`title`/展开（纯装饰除外）；需保留末尾（如文件扩展名）用中间截断，不用 `direction: rtl` |
 | `C-08` | UGC 样式污染 | 粘贴 HTML 带内联样式、超宽图 | 作用域重置 + 服务端消毒 |
-| `C-09` | 中文排版 | `<em>`伪斜体、行高 1.4 拥挤 | 正文行高 1.6~1.8，`em`映射加粗/变色，`text-align`不用 `justify`；字体栈 `"PingFang SC","Microsoft YaHei","Noto Sans CJK SC"` |
+| `C-09` | 中文排版 | `<em>`伪斜体、行高 1.4 拥挤、正文 12px 以下笔画难辨 | 正文 ≥14px、行高 1.6~1.8，`em`映射加粗/变色，`text-align`不用 `justify`；字体栈 `"PingFang SC","Microsoft YaHei","Noto Sans CJK SC"` |
 | `C-10` | emoji/特殊字符 | 昵称 emoji 行高跳变、零宽字符截断乱码 | 行高固定值，截断按字形簇（`Intl.Segmenter`） |
 
 实例：SaaS 项目卡片用“示例项目/3人/2小时前”开发，上线遇 47 字项目名折 4 行顶出头像组 + 62 成员无 `+N` 溢出 + 新建 `null` 渲染 `Invalid Date`，一组极值 Fixture 即可暴露。
@@ -242,7 +272,7 @@ new PerformanceObserver((list) => {
 | 编号 | 缺陷 | 验收 |
 |---|---|---|
 | `V-08` | 长任务阻塞 | 单任务 ≤50ms，重算进 Worker，`scheduler.yield()` 让出 |
-| `V-09` | 长列表未虚拟化 | ~100~200 密集项即虚拟滚动（如 TanStack Virtual） |
+| `V-09` | 长列表未虚拟化 | 约 100~200 行密集 DOM 项即启用虚拟滚动（如 TanStack Virtual） |
 | `V-10` | 输入即重算 | 防抖 ~300ms，`startTransition` 降级非紧急更新 |
 | `V-11` | scroll 做重活 | `IntersectionObserver`，或 `passive:true+rAF` 节流，避强制同步布局 |
 | `V-12` | 昂贵特效 | 限毛玻璃面积/阴影模糊半径，`will-change` 慎用即时移除，低端 Android 重点测 |
@@ -254,26 +284,29 @@ new PerformanceObserver((list) => {
 
 ## 类别 A：无障碍（最值得做硬闸门）
 
-WebAIM Million 2025（100 万首页自动化检测）：50,960,288 错误，均值 51/页（同比 -10.3%）；94.8% 首页存在 WCAG2 A/AA 失败；**六类占全部错误 96%，五年未变**；页面元素 6 年 +61%，4.1% 元素含错（约每 24 个元素一障）；复杂度与 ARIA 用量同错误数正相关。注：2026 报告错误回升至约 56/页，趋势恶化，修六类仍性价比最高。
+WebAIM Million 2025（100 万首页自动化检测）：50,960,288 错误，均值 51/页（同比 -10.3%）；94.8% 首页存在 WCAG 2 A/AA 失败；**六类占全部错误 96%，连续多年未变**；页面元素 6 年 +61%，4.1% 元素含错（约每 24 个元素一障）；复杂度与 ARIA 用量同错误数正相关。
 
-| 编号 | 缺陷 | 出现率 2025 | 验收 |
+2026 报告（2026-02 采样）显示趋势转差：56,114,377 错误、均值 56.1/页（同比 +10.1%）；95.9% 首页仍有可检测失败；元素数升至 1,437/页（同比 +22.5%），3.9% 元素含错（约每 26 个元素一障）；使用 ARIA 的页面均值 59.1 个错误，不用 ARIA 的为 42 个。**六类仍是那六类**：低对比 83.9%、缺 `alt` 53.1%、缺表单标签 51.0%、空链接 46.3%、空按钮 30.6%、缺 `lang` 13.5%，除缺 `alt` 与缺 `lang` 略降外均较 2025 上升。六类问题修一次就吃掉大部分无障碍债务，性价比不降反升。
+
+| 编号 | 缺陷 | 出现率（2025 → 2026） | 验收 |
 |---|---|---|---|
-| `A-01` | 低对比文字 | 79.1%（均值29.6处，同比-14.4%） | 正文 ≥4.5:1，大字 ≥3:1，UI 边框/图标 ≥3:1；令牌层预验证色对 |
-| `A-02` | 图片缺 alt | 55.5% | 信息图写含义，装饰 `alt=""`，功能图述动作非外观 |
-| `A-03` | 表单无标签 | 48.2% | `<label for>/aria-label/aria-labelledby`，placeholder 不算标签 |
-| `A-04` | 空链接 | 45.4% | 必有可访问名，图标加隐藏文本/`aria-label` |
-| `A-05` | 空按钮 | 29.6% | 同上；`×`字符需 `aria-label="关闭"` 且字符 `aria-hidden` |
-| `A-06` | 缺文档语言 | 15.8% | `<html lang="zh-CN">`，异语段落局部 `lang` |
-| `A-07` | ARIA 滥用 | 用量与错误正相关 | No ARIA 优于 Bad ARIA；原生优先，对照 APG |
+| `A-01` | 低对比文字 | 79.1% → 83.9%（2025 均值 29.6 处/页，同比 -14.4%） | 正文 ≥4.5:1，大字 ≥3:1，UI 边框/图标 ≥3:1；令牌层预验证色对 |
+| `A-02` | 图片缺 alt | 55.5% → 53.1% | 信息图写含义，装饰 `alt=""`，功能图述动作非外观 |
+| `A-03` | 表单无标签 | 48.2% → 51.0% | `<label for>/aria-label/aria-labelledby`，placeholder 不算标签 |
+| `A-04` | 空链接 | 45.4% → 46.3% | 必有可访问名，图标加隐藏文本/`aria-label` |
+| `A-05` | 空按钮 | 29.6% → 30.6% | 同上；`×`字符需 `aria-label="关闭"` 且字符 `aria-hidden` |
+| `A-06` | 缺文档语言 | 15.8% → 13.5% | `<html lang="zh-CN">`，异语段落局部 `lang` |
+| `A-07` | ARIA 滥用 | 用量与错误正相关（2026：用 ARIA 59.1 vs 不用 42） | No ARIA 优于 Bad ARIA；原生优先，对照 APG |
 | `A-08` | 焦点不可见 | — | `:focus-visible` ≥3:1、周长 2px+；禁裸 `outline:none` |
 | `A-09` | 非语义交互 | — | 禁 `<div onClick>` 当控件，一律 button/a |
 | `A-10` | 键盘陷阱/焦点管理 | — | 浮层移入焦点+Tab 循环+Esc+关闭返回触发元 |
 | `A-11` | 仅颜色传达 | — | 加图标/文字/形状，错误不只红边框 |
 | `A-12` | 目标过小 | — | ≥24×24（WCAG 2.2 2.5.8 AA，有间距/等效/行内等例外），触屏建议 ≥44 |
-| `A-13` | 标题跳跃 | — | 层级连续且唯一 h1，字号用 CSS |
-| `A-14` | 跳转链接缺失 | — | “跳到主内容”（隐藏，聚焦显现） |
+| `A-13` | 标题跳跃 | 2026：41.8% 跳级、18.1% 多个 h1 | 层级连续且唯一 h1，字号用 CSS |
+| `A-14` | 跳转链接缺失 | 2026：仅 17.1% 页面有 | “跳到主内容”（隐藏，聚焦显现） |
 | `A-15` | 动态无播报 | — | `aria-live/role=status/alert` |
 | `A-16` | 忽略减少动效 | — | `prefers-reduced-motion` 下关位移/缩放/视差，留透明度 |
+| `A-17` | 地标与页结构缺失 | 2026：仅 46.1% 页面有 `main` 地标 | 每页唯一 `<main>`，配 `<header>/<nav>/<footer>`；地标不得包裹无关内容 |
 
 国内合规：政府/金融/教育/公共服务另核 GB/T 37668-2019（训练知识，未联网核实）。
 
@@ -302,7 +335,8 @@ Baymard 16 年结算测试：结算设计常为弃购唯一原因；70% 加车�
 | `F-15` | 破坏性确认草率 | 写明对象后果，按钮用动词，优先 Undo 而非事前确认 |
 | `F-16` | IME 冲突（中文特有高频） | `compositionstart/end` 期间不回车提交/即时搜 |
 | `F-17` | 地址/日期难用 | 整段粘贴解析地址；日期选择器+允许键盘输入 |
-| `F-18` | 必填标识不清 | 少数必填标必填/少数可选标选填，不只靠红星 |
+| `F-18` | 必填标识不清 | 少数必填标必填/少数可选标选填，不只靠红星（对应 A-11） |
+| `F-19` | 本地化输入解析过严 | 强制英文标点、拒收带空格的银行卡号、身份证末位 `X` 大小写不认、全角数字报错；输入宽松解析（去空格、全角转半角、大小写归一），提交时标准化，错误提示给出正确格式 |
 
 ---
 
@@ -320,6 +354,8 @@ Baymard 16 年结算测试：结算设计常为弃购唯一原因；70% 加车�
 | `N-08` | 深链接失效 | 登录保留 `returnUrl`，公开内容可预览 |
 | `N-09` | 外链无提示 | 新窗口须告知，`target=_blank` 必配 `rel=noopener noreferrer` |
 | `N-10` | 404 死胡同 | 搜索+首页+相近推荐 |
+
+---
 
 ## 类别 I：交互反馈与动效
 
@@ -374,6 +410,14 @@ AI 同质化（有观察依据）：紫渐变+Inter+圆角卡片+柔和阴影+�
 | `D-19` | 切换闪白 | `<head>` 内联脚本早设主题类，`color-scheme:light dark`，`theme-color` 随模式 |
 | `D-20` | 仅跟随无手动 | 跟随/浅/深三态+持久化；全站无硬编码色，对比度重验；`prefers-reduced-motion/contrast` 与 `forced-colors` 另验 |
 
+一致性与可读性补充（同属 D 类）：
+
+| 编号 | 缺陷 | 现象与根因 | 验收 |
+|---|---|---|---|
+| `D-21` | 称法不一致 | 同一操作在不同页面写作“删除/移除/清空”，图标与位置各异 | 每类操作全站一个动词、一个图标、一个位置；术语进文案表，组件库统一实现（Nielsen 一致性启发式） |
+| `D-22` | 行长失控 | 超宽屏正文行超 100 字符，或窄栏里一行只有七八个字 | 正文容器 `max-width: 65ch` 量级（中文约 35~45 字），流式区间用 `clamp()` |
+| `D-23` | 正文过小、行高过紧 | 12px 正文、行高 1.2、密集小字 | 正文 ≥14px 且行高 1.6~1.8；移动端输入框 ≥16px（见 P-03） |
+
 ---
 
 ## 类别 P：跨平台与环境差异（国内重点）
@@ -386,7 +430,7 @@ AI 同质化（有观察依据）：紫渐变+Inter+圆角卡片+柔和阴影+�
 | `P-02` | 中文字体回退 | 栈 `system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif`，按钮 `min-width`，Win+Mac 各验 |
 | `P-03` | iOS 聚焦缩放 | input/textarea/select `font-size≥16px`（视觉小用 transform 变通） |
 | `P-04` | 安全区 | `viewport-fit=cover` + `env(safe-area-inset-*)` |
-| `P-05` | 微信内置 | 相对单位容忍 1.3× 字号，能力检测降级 |
+| `P-05` | 微信内置 | 相对单位容忍 1.3× 字号，必要时铺 `-webkit-text-size-adjust:100%`，能力检测降级 |
 | `P-06` | 国产内核落后 | `@supports` 渐进，Browserslist+PostCSS 明确矩阵（容器查询/`:has`/dvh/oklch） |
 | `P-07` | 系统缩放/最小字号 | 字号间距用 rem，125%/150% 验收 |
 | `P-08` | 高 DPI 1px | `0.5px` 或 `scaleY(0.5)` 技法 |
@@ -414,11 +458,13 @@ uxplanet 诊断：团队建了 `DESIGN.md` 仍改善小，根因是文件写成�
 | `G-09` | 绕过令牌 | stylelint 禁颜色间距字面值 |
 | `G-10` | 称完未验 | 任务定义客观完成标准（见闸门/DoD） |
 
-fable 8 警示已并入：单一宽度→G-07；div 当控件→A-09；`overflow:hidden` 掩盖→L-09（必须找刚性根因）；缺状态→S；硬编码/i18n→G-09/C-06；去焦点/禁缩放→A-08/L-13（明确禁止）；自造组件→G-06；ARIA 堆砌→A-07。
+**面向 coding agent 的八条专项警示**（均可在本文找到验收口）：单一只宽度设计→G-07；`<div>` 当控件→A-09；用 `overflow:hidden` 掩盖溢出→L-09（必须找刚性根因）；只写成功路径→S；硬编码色值/文案绕过 i18n→G-09/C-06；删焦点样式或禁缩放→A-08/L-13（明确禁止）；自造组件→G-06；ARIA 堆砌→A-07。
+
+---
 
 ## 类别 H：诚实设计（欺骗性模式）
 
-非技术缺陷而是伦理缺陷，agent 被令“提转化”时易产出。参考 deceptivepatterns（Harry Brignull）及国内个保法/工信部整治（监管动态需另行联网补查）。
+非技术缺陷而是伦理缺陷：agent 被要求“提转化”时容易产出。参考 deceptivepatterns（Harry Brignull）及国内个保法/工信部整治（监管动态需另行联网补查）。
 
 | 编号 | 模式 | 替代 |
 |---|---|---|
@@ -436,22 +482,14 @@ fable 8 警示已并入：单一宽度→G-07；div 当控件→A-09；`overflow
 
 ## 验收方法论
 
-```mermaid
-flowchart LR
-    A["开发完成"] --> B["闸1 静态：jsx-a11y/stylelint令牌"]
-    B -->|失败| A
-    B --> C["闸2 无障碍：axe零违例/Lighthouse≥95"]
-    C -->|失败| A
-    C --> D["闸3 性能：LCP/INP/CLS预算"]
-    D -->|失败| A
-    D --> E["闸4 宽度缩放矩阵：截图+溢出脚本"]
-    E -->|失败| A
-    E --> F["闸5 极值状态枚举：Storybook全快照"]
-    F -->|失败| A
-    F --> G["闸6 人工：键盘/读屏/真机"]
-    G -->|失败| A
-    G --> H["合并"]
-```
+六道闸按序执行，任一闸失败即回到开发修复：
+
+1. **闸 1 静态检查**：`eslint-plugin-jsx-a11y`、`stylelint` 令牌规则。
+2. **闸 2 运行时无障碍**：axe-core 零违例、Lighthouse 无障碍 ≥95。
+3. **闸 3 性能预算**：LCP/INP/CLS 达阈值。
+4. **闸 4 宽度与缩放矩阵**：多宽度截图比对 + 溢出脚本。
+5. **闸 5 内容极值与状态枚举**：Storybook 全状态快照。
+6. **闸 6 人工走查**：键盘、读屏、真机。
 
 闸 1~3 全自动阻断合并；闸 4~5 需 Playwright+Storybook 投入；闸 6 不可省（焦点顺序、文案、空引导自动化无法判）。禁 `overflow:hidden` 掩盖，回根因修复。
 
@@ -483,7 +521,36 @@ flowchart LR
 
 要点：`clientWidth` 非 `innerWidth`（不含滚动条，对应 L-11）；容差 1px 防亚像素误报；左溢出同捕（负 margin/transform）；内描边防高亮引新溢出。局限：找出的多为受害者，真凶常为其父（不换行 flex 行），仍需决策树上溯。
 
-Playwright CI（初期可只取 320/768/1180/1440 四档，另加高 400 矮视口查 L-10；`networkidle` 长轮询改显式等待；容差 ≤2px）：断言 `scrollWidth<=clientWidth+1` 且溢出元素列表为空，覆盖最复杂页（表/长表单/仪表盘）而非仅首页。
+同一套判定可进 CI，初期只取四档宽度控制用时：
+
+```js
+// tests/overflow.spec.js —— 多宽度断言无横向溢出
+import { test, expect } from '@playwright/test';
+
+const WIDTHS = [320, 768, 1180, 1440];
+const PAGES = ['/', '/dashboard', '/checkout'];
+
+for (const path of PAGES) {
+  for (const width of WIDTHS) {
+    test(`${path} @ ${width}px 无横向溢出`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(path, { waitUntil: 'networkidle' });
+      const offenders = await page.evaluate(() => {
+        const w = document.documentElement.clientWidth;
+        return [...document.querySelectorAll('*')]
+          .filter((el) => {
+            const r = el.getBoundingClientRect();
+            return r.width > 0 && (r.right > w + 1 || r.left < -1);
+          })
+          .map((el) => `${el.tagName.toLowerCase()}.${el.className?.toString().slice(0, 30)}`);
+      });
+      expect(offenders, `溢出元素: ${offenders.join(', ')}`).toHaveLength(0);
+    });
+  }
+}
+```
+
+`PAGES` 取最复杂页（表/长表单/仪表盘）而非仅首页；另加一组 `height: 400` 矮视口用例查 L-10；`networkidle` 在长轮询页面会超时，改显式等待选择器；容差 1px，最多放宽到 2px 以免漏检。
 
 ### 动作二：缩放与文本间距矩阵
 
@@ -502,7 +569,7 @@ Minimal（全空最短）/Typical（真实）/Maximal（上限+中英+长 URL）
 
 ### 工具链
 
-静态 `eslint-plugin-jsx-a11y/vuejs-accessibility`；样式 `stylelint+declaration-strict-value`（D-02/G-09）；运行时 `axe-core/@axe-core/playwright/addon-a11y/pa11y-ci`；插件 axe DevTools/WAVE/Lighthouse；性能 Lighthouse CI + `web-vitals` RUM；视觉 Playwright 截图比对（免费自托管，Chromatic/Argos 备选）；真机自备 Win+Mac+iOS+低端 Android；对比度 WebAIM Checker/`culori` CI。国内：npm `registry.npmmirror.com`，`PLAYWRIGHT_DOWNLOAD_HOST` 指镜像；Win 注意 `core.autocrlf` 误判快照。
+静态 `eslint-plugin-jsx-a11y/vuejs-accessibility`；样式 `stylelint+declaration-strict-value`（D-02/G-09）；运行时 `axe-core/@axe-core/playwright/@axe-core/react/addon-a11y/pa11y-ci`；插件 axe DevTools/WAVE/Lighthouse/ARC Toolkit；性能 Lighthouse CI + `web-vitals` RUM；视觉 Playwright 截图比对（免费自托管，Chromatic/Argos 备选）；真机自备 Win+Mac+iOS+低端 Android；对比度 WebAIM Checker/`culori` CI。国内：npm `registry.npmmirror.com`，`PLAYWRIGHT_DOWNLOAD_HOST` 指镜像；Win 注意 `core.autocrlf` 误判快照。
 
 ### Definition of Done（粘贴到 AGENTS.md/DESIGN.md）
 
@@ -516,6 +583,7 @@ Minimal（全空最短）/Typical（真实）/Maximal（上限+中英+长 URL）
 - [ ] Label for all controls; placeholder != label. [A-03,F-01]
 - [ ] Name for all link/button; icon-only aria-label. [A-04,A-05]
 - [ ] <html lang> correct. [A-06]
+- [ ] Skip link present; exactly one main landmark per page. [A-14,A-17]
 - [ ] :focus-visible present, never obscured. [A-08,L-10]
 - [ ] No div/span onClick as control. [A-09]
 - [ ] img/video/iframe sized; no global img{width:auto}. [V-01,V-02]
@@ -545,18 +613,34 @@ Minimal（全空最短）/Typical（真实）/Maximal（上限+中英+长 URL）
 
 阈值依据：320px=1.4.10 基准；4.5:1/3:1=1.4.3/1.4.11 AA；CWV 按 75 分位；A11y≥95 仅自动项不等于合规；须节流冷缓存测；1180=最易崩窄窗；400 高=暴露固定头。
 
-### 如果只能做三件事
+---
 
-1. axe-core 进 CI 零违例闸门（消灭六类 96%）。
-2. 宽度扫描（初期四档，消灭拖动挤压与 `min-width:auto`/固定宽）。
-3. 极值+全状态 Story + 截图比对（消灭假数据长尾与 AI 只写 happy path）。再补真机/深色/性能预算。
+## 优先级建议：如果只能做三件事
+
+- **axe-core 进 CI 零违例闸门**：一举消灭六类错误（占全部无障碍错误 96%）。
+- **宽度扫描**：初期四档，消灭拖动挤压与 `min-width:auto`/固定宽问题。
+- **极值 + 全状态 Story 与截图比对**：消灭假数据长尾与 AI 只写 happy path。
+
+这三件之后再补真机矩阵、深色模式专项与性能预算。
+
+---
+
+## 待确认事项
+
+- WebAIM 2026 报告中 `main` 地标（46.1%）、跳转链接（17.1%）、标题跳级（41.8%）的比例取自第三方汇总页，官方报告分节表格建议逐项比对后再引用。
+- GB/T 37668-2019 的具体条款与测试方法未联网核对，落地到政府/金融/教育项目时需查标准原文。
+- 深色模式色值（`#121212`、`#E6E6E6`）与动效时长区间为经验值，需按产品实际配色复验对比度。
+- `text-autospace`、`interpolate-size`、`text-wrap: balance/pretty` 的浏览器支持度需按 caniuse 实测，尤其国产内核与微信内置浏览器。
+- 微软 AI 无障碍评估（最佳模型约 1/3 通过 WCAG）为转引数据，原始报告未取得。
 
 ---
 
 ## 信息来源与下一轮补查
 
-联网核实：WebAIM Million 2025 官方及解读；WCAG 阈值整理 + W3C MATF 草案；NN/g 启发式；corewebvitals.io；FrontFixer/404 Marketing/PixelFree 实践；TestParty 1.4.10 指南（C31/C33/C34、F102）；Baymard 结算研究；standardbeagle 2025、UX Planet DESIGN.md。
+联网核实（复核日期 2026-10-30）：WebAIM Million 2025 与 2026 官方报告（`50,960,288 / 51 每页` 与 `56,114,377 / 56.1 每页 / 95.9% 失败页` 及六类出现率）；WCAG 阈值整理 + W3C MATF 草案；NN/g 启发式；corewebvitals.io；FrontFixer/404 Marketing/PixelFree 实践；TestParty 1.4.10 指南（C31/C33/C34、F102）；Baymard 结算研究；standardbeagle 2025、UX Planet `DESIGN.md` 文章。
 
-训练知识：flex `min-width:auto`/`minmax(0,1fr)`；dvh/svh/lvh、`scrollbar-gutter`、容器查询、`:has`/oklch/`text-autospace` 支持度；深色数值；动效区间；WCAG 2.2 条款号；GB/T 37668；微信/国产内核；iOS 16px；镜像地址；工具最新 API。
+第三方转引（未取得原始报告）：WebAIM 2026 的页结构与 ARIA 分项统计（`main` 地标、跳转链接、标题层级、ARIA 用量与错误数对比）。
+
+训练知识：flex `min-width:auto`/`minmax(0,1fr)`；dvh/svh/lvh、`scrollbar-gutter`、容器查询、`:has`/oklch/`text-autospace` 支持度；深色数值；动效区间；GB/T 37668；微信/国产内核；iOS 16px；镜像地址；工具最新 API。
 
 建议补查：`2025 Web Almanac accessibility/CSS` 一手统计；微软 AI 无障碍基准原报告；Google Labs DESIGN.md 规范；W3C C31/C33/C34 范例；LoAF/INP 诊断；React SPA 反模式 + View Transitions；deceptivepatterns/EU DSA 罚则 + 工信部 App 侵害权益规范；Baymard 最新；`container queries anti-patterns`、`interpolate-size`、`text-wrap:balance/pretty`。
