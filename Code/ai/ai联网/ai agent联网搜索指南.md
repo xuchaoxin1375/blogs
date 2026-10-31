@@ -25,7 +25,7 @@ OpenAI 的 BrowseComp 评测给出了直观的量级差距：GPT-4o 不联网的
 下图标出流水线各环节的典型失效方式，后文逐一展开。
 
 ```mermaid
-flowchart LR
+flowchart 
     A["用户问题"] --> B["查询生成"]
     B --> C["搜索引擎/API"]
     C --> D["结果筛选与阅读"]
