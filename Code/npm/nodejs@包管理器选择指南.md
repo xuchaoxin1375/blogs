@@ -120,13 +120,13 @@ Corepack 是自 Node.js v16.9.0 起内置的实验性功能，用于解决跨团
 
 **重大变动**：2025 年 3 月 19 日，Node.js TSC 投票决定在 Node.js v25+ 中停止分发 Corepack。
 
-Corepack 已从 Node.js 25+ 发行版中移除，但仍捆绑在 Node.js 24 LTS 及更早版本中。在较新的 Node.js 版本中，可通过 `npm install -g corepack` 独立安装。
+Corepack 已从 Node.js 25+ 发行版中移除，但仍捆绑在 Node.js 24 及更早版本中。在较新的 Node.js 版本中，可通过 `npm install -g corepack` 独立安装。
 
 **对实际工作流的影响**：
 
 Corepack 随 Node.js v14.19.0 到 v25.0.0（不含）一起分发。 这意味着：
 
-- **Node.js 24 LTS**（当前 LTS）：Corepack 仍然内置，`corepack enable` 即可使用
+- **Node.js 24 及更早**：Corepack 仍然内置，`corepack enable` 即可使用
 - **Node.js 25+**：需要先执行 `npm install -g corepack`，然后才能使用
 - Yarn 和 pnpm 的文档已经推荐**从 npm 全局安装 Corepack**。
 
@@ -165,7 +165,7 @@ graph TD
 # 方式一：通过 npm 全局安装（最通用）
 npm install -g pnpm
 
-# 方式二：通过 Corepack（Node.js 24 LTS 内置）
+# 方式二：通过 Corepack（Node.js 24 及更早内置）
 corepack enable
 corepack prepare pnpm@latest --activate
 

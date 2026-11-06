@@ -14,7 +14,7 @@ npm config set registry https://registry.npmmirror.com
 - 镜像只代理 registry，哪些依赖仍然会走 GitHub 或独立下载站。
 - 镜像不是官方源，发布、私有包和锁文件分别要注意什么。
 
-本指南按“快速配置 → 配置层级 → 包管理器差异 → 镜像边界 → 排障”的顺序展开。Node.js 与 npm 的安装不在本文范围，见[Linux 上安装 Node.js 与 npm](../OS/linux/nodejs@安装方案@linux系统上安装nodejs@npm.md)和[npm、pnpm 等包管理器选择](nodejs@包管理器选择指南.md)。
+本指南按“快速配置 → 配置层级 → 包管理器差异 → 镜像边界 → 排障”的顺序展开。Node.js 与 npm 的安装不在本文范围：Windows 见[Windows 上安装 Node.js 与版本管理](nodejs@windows安装与版本管理@国内网络环境.md)，Linux 见[Linux 上安装 Node.js 与 npm](../OS/linux/nodejs@安装方案@linux系统上安装nodejs@npm.md)，包管理器选型见[npm、pnpm 等包管理器选择](nodejs@包管理器选择指南.md)。
 
 ## 快速开始
 

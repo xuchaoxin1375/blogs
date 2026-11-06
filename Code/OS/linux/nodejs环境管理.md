@@ -4,6 +4,8 @@
 
 # Node.js 环境管理完全指南
 
+> Windows 上的安装、镜像与 PATH 排障另见[Windows 上安装 Node.js 与版本管理](../../npm/nodejs@windows安装与版本管理@国内网络环境.md)。
+
 ---
 
 ## 为什么需要 Node.js 环境管理
@@ -57,10 +59,11 @@ graph LR
 
 | 版本         | 代号    | 状态                                       | EOL 日期           |
 | ------------ | ------- | ------------------------------------------ | ------------------ |
-| Node.js 20.x | Iron    | Maintenance LTS                            | 2026 年 4 月 30 日 |
-| Node.js 22.x | Jod     | Active LTS → 将于 2025-10 转为 Maintenance | 2027 年 4 月 30 日 |
-| Node.js 24.x | Krypton | Active LTS（2025-10-28 起）                | 2028 年 4 月 30 日 |
-| Node.js 25.x | —       | Current（奇数版，不会进入 LTS）            | 2026 年 6 月 1 日  |
+| Node.js 26.x | Lithium | Active LTS（2026-10-28 起）                | 2029 年 4 月 30 日 |
+| Node.js 24.x | Krypton | Maintenance LTS（2026-10-20 起）           | 2028 年 4 月 30 日 |
+| Node.js 22.x | Jod     | Maintenance LTS                            | 2027 年 4 月 30 日 |
+| Node.js 25.x | —       | EOL（奇数版，未进入 LTS）                  | 2026 年 6 月 1 日  |
+| Node.js 20.x | Iron    | EOL                                        | 2026 年 4 月 30 日 |
 
 💡 **重大变化预告**：从 Node.js 27 开始，发布策略将改为每年一个主版本（4 月发布），并且每个版本都会成为 LTS，不再区分奇偶。这是 Node.js 发布体系 10 年来最大的一次调整。
 
@@ -215,6 +218,8 @@ curl -fsSL https://fnm.vercel.app/install | bash
 # 通过 Cargo (Rust 包管理器)
 cargo install fnm
 ```
+
+Windows 上还需要开启开发者模式（符号链接权限），且 PowerShell 的初始化写法与国内镜像配置不同；完整步骤见[Windows 上安装 Node.js 与版本管理](../../npm/nodejs@windows安装与版本管理@国内网络环境.md)。
 
 安装后，需要在 Shell 配置文件中添加初始化脚本：
 
@@ -460,5 +465,5 @@ Node.js 版本管理工具已经走过了很长的路。nvm 是最早也是最�
 1. **安装 fnm** —— 安装最简单、速度最快、跨平台兼容
 2. **配置自动切换** —— `eval "$(fnm env --use-on-cd)"`，一劳永逸
 3. **每个项目创建 `.node-version` 文件** —— 和代码一起提交
-4. **选择当前 Active LTS 版本** 作为新项目起点（目前推荐 Node.js 24.x）
+4. **选择当前 Active LTS 版本** 作为新项目起点（目前推荐 Node.js 26.x）
 5. 如果未来加入团队，按团队规范选择 Volta 或其他工具即可 —— 概念相通，迁移成本极低
