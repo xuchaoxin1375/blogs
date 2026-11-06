@@ -36,10 +36,11 @@ https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/te
 <一句话说明构建什么、给谁用、解决什么问题，例如：为个人记账做的单页工具，支持导入导出 CSV>
 
 参考以下链接中的提示词.
+https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code%40prompt.md
+
+关于资料调研,生成的文档规范等参考意见
 https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/tech-learning-research%40prompt.md
 
-其他要求:
-https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code%40prompt.md
 
 ```
 
