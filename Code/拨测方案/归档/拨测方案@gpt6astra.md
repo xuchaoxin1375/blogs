@@ -2,11 +2,15 @@
 
 
 
+## abstract
 
+我通过一个或多个vps作为反向代理服务器为一批后端服务网站做反向代理。但是vps的稳定性和可靠性不如一般的服务器，遇到网络波动过宕机的几率和风险不可忽视。
+
+我打算在一台相对稳定的服务器上长期和持续检测vps是否存活甚至健康状况，信息程度用户可以灵活配置选择方案(从无依赖或少依赖,到有依赖,免费成熟的方案也可以推荐,简单易用直观优先)。为我构思和推荐方案，并对比。
 
 ## 核心结论
 
-对于你描述的场景，我最推荐采用\*\*“稳定监控服务器上的Uptime Kuma + 按需部署的VPS主机监控 + 可选异地监测”\*\*这一渐进式架构。
+对于你描述的场景，我最推荐采用 **“稳定监控服务器上的Uptime Kuma + 按需部署的VPS主机监控 + 可选异地监测”**这一渐进式架构。
 
 它的优点是：初期安装简单、无需在VPS上部署Agent、可以集中管理多台VPS和多个网站、可以报警、可以长期积累状态历史。以后想查看CPU、内存、磁盘、网络吞吐量，或者分析网络丢包、抖动，再补充专门工具即可。
 
@@ -27,12 +31,6 @@
 用于持续观察网络时延、丢包，或积累更详细的探测指标及趋势。
 
 以上不是按照功能数量简单排名，而是按你的实际运维目标、管理成本与部署侵入性进行选择。Uptime Kuma的官方仓库证实了多种探测方式和通知能力；Beszel的官方文档明确采用Hub/Agent架构，并提供主机与网络指标。
-
-[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
-
-GitHub+3
-
-
 
 最重要的设计原则：VPS存活，不等于代理服务正常；代理服务正常，也不等于用户能够访问网站。 整套方案需要围绕这一区别展开。
 
@@ -77,7 +75,7 @@ GitHub+3
 
 ### 监控拓扑与数据流
 
-示意图候选评估：采用一张架构拓扑图展示多代理分支、主动探测与Agent指标的并行路径，以及异地核验。这些关系仅用线性列表不够直观；图中也不加入报警阈值等细节，避免过载，因此符合非线性、非重复、可承载三个条件。
+示意图候选评估：采用一张架构拓扑图展示多代理分支、主动探测与Agent指标的并行路径，以及异地核验。
 
 ```mermaid
 
@@ -105,7 +103,7 @@ flowchart
 
 ```
 
-真实用户公共域名 / DNS / 可选CDN代理VPS A代理VPS B后端源站稳定监控服务器 MUptime Kuma可选 Beszel Hub第二监控点 / 托管监控公网端到端检查单节点主动探测单节点主动探测可选Agent指标可选Agent指标外部网络核验监测中心存活检查
+
 
 图中的连接有三类，不能混淆：
 
@@ -135,12 +133,6 @@ flowchart
 适用结论： 只需要判断在线/离线时，脚本足够；需要友好的统一面板和通知时，Uptime Kuma更合适；如果喜欢声明式、可复制的配置方式，Gatus值得优先考虑。
 
 依据：[Uptime Kuma官方仓库](https://github.com/louislam/uptime-kuma?utm_source=chatgpt.com)、[Gatus官方端点文档](https://gatus.io/docs/endpoints?utm_source=chatgpt.com)、[SmokePing官方说明](https://oss.oetiker.ch/smokeping/?utm_source=chatgpt.com)，以及独立于项目开发团队的[Better Stack横向比较](https://betterstack.com/community/comparisons/uptime-kuma-alternative/?utm_source=chatgpt.com)。
-
-[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
-
-GitHub+3
-
-
 
 ### 内部健康与完整可观测性方案
 
@@ -201,7 +193,7 @@ Uptime Kuma最大的优势是不用先学习完整的可观测性体系，就能
 
 以下命令基于[Uptime Kuma官方Docker部署说明](https://github.com/louislam/uptime-kuma?utm_source=chatgpt.com)，但特意将后台监听限制在服务器回环接口，避免直接暴露管理页面。
 
-```
+```shell
 
 docker volume create uptime-kuma
 
