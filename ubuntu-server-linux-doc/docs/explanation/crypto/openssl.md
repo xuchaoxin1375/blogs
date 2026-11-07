@@ -1,0 +1,239 @@
+# OpenSSL
+
+OpenSSL is probably the most well known cryptographic library, used by thousands of projects and applications.
+
+The OpenSSL configuration file is located at `/etc/ssl/openssl.cnf` and is used both by the library itself and the command-line tools included in the package. It is simple in structure, but quite complex in the details, and it won’t be fully covered here. In particular, we will only cover the settings that control which cryptographic algorithms will be allowed by default.
+
+## Structure of the config file
+
+The OpenSSL configuration file is very similar to a standard INI file. It starts with a nameless default section, not inside any `[section]` block, and after that we have the traditional `[section-name]` followed by the `key = value` lines. The *[SSL config manual page](https://manpages.ubuntu.com/manpages/resolute/man5ssl/config.5ssl.html)* has all the details.
+
+This is what it looks like:
+
+```INI
+openssl_conf = <name-of-conf-section>
+
+[name-of-conf-section]
+ssl_conf = <name-of-ssl-section>
+
+[name-of-ssl-section]
+server = <name of section>
+client = <name of section>
+system_default = <name of section>
+```
+
+See how it’s like a chain, where a key (`openssl_conf`) points at the name of a section, and that section has a key that points to another section, and so on.
+
+To adjust the algorithms and ciphers used in a SSL/TLS connection, we are interested in the “SSL Configuration” section of the library, where we can define the behavior of server, client, and the library defaults.
+
+For example, in an Ubuntu Jammy installation, we have (omitting unrelated entries for brevity):
+
+```INI
+openssl_conf = openssl_init
+
+[openssl_init]
+ssl_conf = ssl_sect
+
+[ssl_sect]
+system_default = system_default_sect
+
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=2
+```
+
+This gives us our first information about the default set of ciphers and algorithms used by OpenSSL in an Ubuntu installation: `DEFAULT:@SECLEVEL=2`. What that means is detailed inside the *[SSL_CTX_set_security_level(3)](https://manpages.ubuntu.com/manpages/resolute/man3/SSL_CTX_set_security_level.3.html)* manual page.
+
+> **Note**
+>
+> In Ubuntu Jammy, TLS versions below 1.2 are **disabled** in OpenSSL’s `SECLEVEL=2` due to [this patch](https://git.launchpad.net/ubuntu/+source/openssl/tree/debian/patches/tls1.2-min-seclevel2.patch?h=ubuntu/jammy-devel).
+
+That default is also set at package building time, and in the case of Ubuntu, it’s [set to `SECLEVEL=2`](https://git.launchpad.net/ubuntu/+source/openssl/tree/debian/rules?h=ubuntu/jammy-devel#n15).
+
+The list of allowed ciphers in a security level can be obtained with the [`openssl ciphers`](https://docs.openssl.org/3.0/man1/openssl-ciphers/) command (output truncated for brevity):
+
+```console
+$ openssl ciphers -s -v DEFAULT:@SECLEVEL=2
+```
+
+> **Note**
+>
+> The `openssl ciphers` command will output even ciphers that are not allowed, unless the `-s` switch is given. That option tells the command to list only **supported** ciphers.
+
+All the options that can be set in the `system_default_sect` section are detailed in the *[SSL_CONF_cmd(3)](https://manpages.ubuntu.com/manpages/resolute/man3/SSL_CONF_cmd.3.html)* manual page.
+
+## Cipher strings, cipher suites, cipher lists
+
+Encrypting data (or signing it) is not a one step process. The whole transformation applied to the source data (until it is in its encrypted form) has several stages, and each stage typically uses a different cryptographic algorithm. The combination of these algorithms is called a cipher suite.
+
+Similar to GnuTLS, OpenSSL also uses the concept of cipher strings to group several algorithms and cipher suites together. The full list of cipher strings is shown in the [`openssl ciphers`](https://docs.openssl.org/3.0/man1/openssl-ciphers/) manual page.
+
+OpenSSL distinguishes the ciphers used with TLSv1.3, and those used with TLSv1.2 and older. Specifically for the `openssl ciphers` command, we have:
+
+- `-ciphersuites`: used for the TLSv1.3 cipher suites. So far, there are only five listed in the [upstream documentation](https://docs.openssl.org/3.0/man1/openssl-ciphers/), and the defaults are:
+
+  TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256
+
+- *cipherlist*: this is a plain argument in the command line of the `openssl ciphers` command, without a specific parameter, and is expected to be a list of cipher strings used in TLSv1.2 and lower. The default in Ubuntu Jammy 22.04 LTS is `DEFAULT:@SECLEVEL=2`.
+
+These defaults are built-in in the library, and can be set in `/etc/ssl/openssl.cnf` via the corresponding configuration keys `CipherString` for TLSv1.2 and older, and `CipherSuites` for TLSv1.3. For example:
+
+```INI
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=2
+CipherSuites = TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+```
+
+In the end, without other constraints, the library will merge both lists into one set of supported crypto algorithms. If the crypto negotiation in a connection settles on TLSv1.3, then the list of *`CipherSuites`* is considered. If it’s TLSv1.2 or lower, then *`CipherString`* is used.
+
+### `openssl ciphers` examples
+
+This will list all supported/enabled ciphers, with defaults taken from the library and `/etc/ssl/openssl.cnf`. Since no other options were given, this will include TLSv1.3 ciphersuites and TLSv1.2 and older cipher strings:
+
+```console
+$ openssl ciphers -s -v
+```
+
+Let’s filter this a bit, and just as an example, remove all [AES128](../../reference/glossary.md#term-AES) ciphers and [SHA1](../../reference/glossary.md#term-SHA) hashes:
+
+```console
+$ openssl ciphers -s -v 'DEFAULTS:-AES128:-SHA1'
+```
+
+Since we didn’t use `-ciphersuites`, the TLSv1.3 list was unaffected by our filtering, and still contains the **AES128** cipher. But TLSv1.2 and older no longer have **AES128** or **SHA1**. This type of filtering with ‘`+`’, ‘`-`’ and ‘`!`’ can be done with the TLSv1.2 and older protocols and is detailed in the [`openssl ciphers` manual page](https://docs.openssl.org/3.0/man1/openssl-ciphers/).
+
+To filter out TLSv1.3 algorithms, there is no such mechanism, and we must list explicitly what we want by using `-ciphersuites`:
+
+```console
+$ openssl ciphers -s -v -ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256 'DEFAULTS:-AES128:-SHA1'
+```
+
+## Config file examples
+
+Let’s see some practical examples of how we can use the configuration file to tweak the default cryptographic settings of an application linked with OpenSSL.
+
+Note that applications can still override these settings: what is set in the configuration file merely acts as a default that is used when nothing else in the application command line or its own config says otherwise.
+
+### Only use TLSv1.3
+
+To configure the OpenSSL library to consider TLSv1.3 as the minimum acceptable protocol, we add a `MinProtocol` parameter to the `/etc/ssl/openssl.cnf` configuration file like this:
+
+```INI
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=2
+MinProtocol = TLSv1.3
+```
+
+If you then try to connect securely to a server that only offers, say TLSv1.2, the connection will fail:
+
+```console
+$ curl https://j-server.lxd/stats
+```
+
+```console
+$ wget https://j-server.lxd/stats
+```
+
+### Use only AES256 with TLSv1.3
+
+As an additional constraint, besides forcing TLSv1.3, let’s only allow AES256. This would do it for OpenSSL applications that do not override this elsewhere:
+
+```INI
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=2
+CipherSuites = TLS_AES_256_GCM_SHA384
+MinProtocol = TLSv1.3
+```
+
+Since we are already forcing TLSv1.3, there is no need to tweak the `CipherString` list, since that applies only to TLSv1.2 and older.
+
+The OpenSSL `s_server` command is very handy to test this (see [the Troubleshooting section](troubleshooting-tls-ssl.md#troubleshooting-tls-ssl) for details on how to use it):
+
+```console
+$ sudo openssl s_server -cert j-server.pem -key j-server.key -port 443 -www
+```
+
+> **Note**
+>
+> Be sure to use another system for this server, or else it will be subject to the same `/etc/ssl/openssl.cnf` constraints you are testing on the client, and this can lead to very confusing results.
+
+As expected, a client will end up selecting TLSv1.3 and the `TLS_AES_256_GCM_SHA384` cipher suite:
+
+```console
+$ wget https://j-server.lxd/stats -O /dev/stdout -q | grep Cipher -w
+```
+
+To be sure, we can tweak the server to only offer `TLS_CHACHA20_POLY1305_SHA256` for example:
+
+```console
+$ sudo openssl s_server -cert j-server.pem -key j-server.key -port 443 -www -ciphersuites TLS_CHACHA20_POLY1305_SHA256
+```
+
+And now the client will fail:
+
+```console
+$ wget https://j-server.lxd/stats -O /dev/stdout
+```
+
+### Drop AES128 entirely
+
+If we want to still allow TLS v1.2, but just drop AES128, then we need to configure the ciphers separately for TLS v1.3 and v1.2 or lower:
+
+```INI
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=2:!AES128
+CipherSuites = TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+MinProtocol = TLSv1.2
+```
+
+To test, let’s force our test `s_server` server to only offer TLSv1.2:
+
+```console
+$ sudo openssl s_server -cert j-server.pem -key j-server.key -port 443 -www -tls1_2
+```
+
+And our client picks AES256:
+
+```console
+$ wget https://j-server.lxd/stats -O /dev/stdout -q | grep Cipher -w
+```
+
+But that could also be just because AES256 is stronger than AES128. Let’s not offer AES256 on the server, and also jump ahead and also remove CHACHA20, which would be the next one preferable to AES128:
+
+```console
+$ sudo openssl s_server -cert j-server.pem -key j-server.key -port 443 -www -tls1_2 -cipher 'DEFAULT:!AES256:!CHACHA20'
+```
+
+Surely `wget` should fail now. Well, turns out it does select AES128:
+
+```console
+$ wget https://j-server.lxd/stats -O /dev/stdout -q | grep Cipher -w
+```
+
+It’s unclear why. Maybe it’s a safeguard, or maybe AES128 is always allowed in TLSv1.2 and we produced an invalid configuration. This case shows how crypto is complex, and also applications can override any such configuration setting that comes from the library. As a counter example, OpenSSL’s `s_client` tool follows the library config, and fails in this case:
+
+```console
+$ echo | openssl s_client -connect j-server.lxd:443  | grep -w -i cipher
+```
+
+But we can override that as well with a command-line option and force `s_client` to allow AES128:
+
+```console
+$ echo | openssl s_client -connect j-server.lxd:443 --cipher DEFAULT:AES128 2>&1| grep -w -i cipher
+```
+
+## Further reading
+
+- [OpenSSL home page](https://www.openssl.org)
+
+- SECLEVEL description:
+
+  - <https://docs.openssl.org/3.0/man3/SSL_CTX_set_security_level/>
+
+  - <https://www.feistyduck.com/library/openssl-cookbook/online/openssl-command-line/understanding-security-levels.html>
+
+- Configuration directives that can be used in the `system_default_sect` section are in the *[SSL_CONF_cmd(3)](https://manpages.ubuntu.com/manpages/resolute/man3/SSL_CONF_cmd.3.html)* manual page
+
+---
+
+> 来源：https://ubuntu.com/server/docs/explanation/crypto/openssl/  
+> 站点：Ubuntu Server documentation（canonical/ubuntu-server-documentation）

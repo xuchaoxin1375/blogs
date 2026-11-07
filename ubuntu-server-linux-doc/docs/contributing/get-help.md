@@ -1,0 +1,36 @@
+<a id="get-help"></a>
+
+# Getting help
+
+You might occasionally run into problems – this is normal and expected! We will do our best to help.
+
+## Directly on GitHub issues
+
+Each issue should contain a description of the task to be completed, and some suggestions for how you might want to tackle it if there are several options. You can always leave a question on an issue to ask for more information if you need more details or for something to be clarified.
+
+If you have not been able to work on the issue for a while, please leave a comment on it. This helps us know if you intend to complete the task, and to reassign the task to someone else if you know you will not be able to finish it.
+
+If you want help from another contributor, that’s also fine! Leave a comment describing the problem you’re facing and what help you need to resolve it.
+
+## Help with your submission
+
+Your pull request will be assigned a reviewer from among the repository maintainers. You can contact them by leaving a comment on your own PR – you can also “ping” them in that comment to send them a notification by using `@<their username>`.
+
+## Community forums
+
+For more general questions about Ubuntu Server, you’re welcome to [create a post](https://discourse.ubuntu.com/c/project/server/17) on the Ubuntu Server forum.
+
+The Canonical Open Documentation Academy (CODA) [also has a forum](https://discourse.ubuntu.com/c/community/open-documentation-academy/166), which is the hub for questions specifically about documentation.
+
+## Chat to us
+
+For more interactive chat, you can use Matrix:
+
+- [To chat to the Server team](https://matrix.to/#/#server:ubuntu.com)
+
+- [To talk to technical authors about documentation](https://matrix.to/#/#documentation:ubuntu.com)
+
+---
+
+> 来源：https://ubuntu.com/server/docs/contributing/get-help/  
+> 站点：Ubuntu Server documentation（canonical/ubuntu-server-documentation）

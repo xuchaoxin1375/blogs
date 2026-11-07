@@ -1,0 +1,187 @@
+<a id="mount-cifs-shares-permanently"></a>
+
+# How to mount CIFS shares permanently
+
+Common Internet File System (CIFS) shares are a file-sharing protocol used (mainly) in Windows for accessing files and resources (such as printers) over a network.
+
+Permanently mounting CIFS shares involves configuring your system to automatically connect to these shared resources when the system boots, which is useful when network users need consistent and regular access to them.
+
+In this guide, we will show you how to permanently mount and access CIFS shares. The shares can be hosted on a Windows computer/server, or on a Linux/UNIX server running Samba. If you want to know how to host shares, see [Introduction to Samba](../../explanation/intro-to/samba.md#introduction-to-samba).
+
+## Prerequisites
+
+In order to use this guide, you will need to ensure that your network connections have been configured properly. Throughout this guide, we will use the following naming conventions:
+
+- The local (Ubuntu) username is `ubuntuusername`
+
+- The share username on the Windows computer is `msusername`
+
+- The share password on the Windows computer is `mspassword`
+
+- The Windows computer’s name is `servername` (this can be either an IP address or an assigned name)
+
+- The name of the share is `sharename`
+
+- The shares are to be mounted in `/media/windowsshare`
+
+## Install CIFS
+
+To install CIFS, run the following command:
+
+```console
+$ sudo apt-get install cifs-utils
+```
+
+## Mount unprotected (guest) network folders
+
+First, let’s create the mount directory. You will need a separate directory for each mount:
+
+```console
+$ sudo mkdir /media/windowsshare
+```
+
+Then edit your `/etc/fstab` file (with root privileges) to add this line:
+
+```text
+//servername/sharename /media/windowsshare cifs guest,uid=1000 0 0
+```
+
+Where:
+
+- `servername` is the server [hostname](../../reference/glossary.md#term-hostname) or IP address,
+
+- `guest` indicates you don’t need a password to access the share,
+
+- `uid=1000` makes the Linux user (specified by the ID) the owner of the mounted share, allowing them to rename files, and
+
+- If there is any space in the server path, you need to replace it by `\040`, for example: `//servername/My\040Documents`
+
+After you add the entry to `/etc/fstab`, type:
+
+```console
+$ sudo systemctl daemon-reload
+```
+
+And then mount the share:
+
+```console
+$ sudo mount /media/windowsshare
+```
+
+Due to the `/etc/fstab` entry, it will also be automatically mounted at boot time.
+
+## Mount password-protected network folders
+
+To auto-mount a password-protected share, we will use a credentials file to avoid storing the password in `/etc/fstab`, which everyone on the system can read.
+
+Using a text editor, create the file `~/.smbcredentials` with the following content:
+
+```text
+username=msusername
+password=mspassword
+```
+
+And change its permissions to prevent unwanted access to your credentials:
+
+```console
+$ chmod 0600 ~/.smbcredentials
+```
+
+Then edit the `/etc/fstab` file (with root privileges) to add this line:
+
+```text
+//servername/sharename /media/windowsshare cifs credentials=/home/ubuntuusername/.smbcredentials 0 0
+```
+
+Run `systemctl daemon-reload` again:
+
+```console
+$ sudo systemctl daemon-reload
+```
+
+Finally, test mounting the share by running:
+
+```console
+$ sudo mount /media/windowsshare
+```
+
+If there are no errors, you should test how it works after a reboot. Your remote share should mount automatically. However, if the remote server goes offline, the boot process could present errors because it won’t be possible to mount the share.
+
+## Changing the share ownership
+
+If you need to change the owner of a share, you’ll need to add a **UID** (short for ‘User ID’) or **[GID](../../reference/glossary.md#term-GID)** (short for ‘Group ID’) parameter to the share’s mount options:
+
+```text
+//servername/sharename /media/windowsshare cifs uid=ubuntuusername,credentials=/home/ubuntuusername/.smbcredentials 0 0
+```
+
+## Mount network folders with authd
+
+If you use Samba and authd at the same time, you must specify user and group mapping. Otherwise, you will encounter permission issues due to mismatched user and group identifiers.
+
+If you *are* using Samba with authd, follow the instructions in the [steps for the client](https://documentation.ubuntu.com/authd/edge-docs/howto/use-with-samba/#steps-for-the-client) guide in the authd documentation.
+
+## Mount password-protected shares at login time
+
+This method uses the `libpam-mount` package to mount the network share at login time, using the same password you use to log in to your Ubuntu system. It’s convenient, and arguably more secure, because you don’t have to store your password in a file. But it can only be used if the password for both is the same.
+
+### Install `libpam-mount`
+
+```console
+$ sudo apt-get install libpam-mount
+```
+
+Edit `/etc/security/pam_mount.conf.xml` using your preferred text editor.
+
+```console
+$ sudo gedit /etc/security/pam_mount.conf.xml
+```
+
+First, we’re moving the user-specific config parts to a file which users can actually edit themselves.
+
+Remove the commenting tags `(<!--` and `-->)` surrounding the section called `<luserconf name=".pam_mount.conf.xml" />`. We also need to enable some extra mount options to be used. For that, edit the “`<mntoptions allow=...`” tag and add `uid,gid,dir_mode,credentials` to it.
+
+Save the file when done. With this in place, users can create their own `~/.pam_mount.conf.xml`.
+
+```console
+$ gedit ~/.pam_mount.conf.xml
+```
+
+Add the following:
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+
+<pam_mount>
+
+<volume options="uid=%(USER),gid=100,dir_mode=0700,nosuid,nodev" user="*" mountpoint="/media/windowsshare" path="sharename" server="servername" fstype="cifs" />
+
+</pam_mount>
+```
+
+Now when the user logs in, the share will be mounted automatically. And when logging out, the share will be unmounted.
+
+## Troubleshooting
+
+### Login errors
+
+If you get the error “mount error(13) permission denied”, then the server denied your access. Here are the first things to check:
+
+- Are you using a valid username and password? Does that account really have access to this folder?
+
+- Do you have blank space in your credentials file? It should be `password=mspassword`, not `password = mspassword`.
+
+- Do you need a domain? For example, if you are told that your username is `SALES\sally`, then actually your username is `sally` and your domain is `SALES`. You can add a `domain=SALES` line to the `~/.smbcredentials` file.
+
+## Further reading
+
+- The *[mount.cifs(8)](https://manpages.ubuntu.com/manpages/resolute/man8/mount.cifs.8.html)* manual page
+
+- The *[pam_mount.conf(5)](https://manpages.ubuntu.com/manpages/resolute/man5/pam_mount.conf.5.html)* manual page
+
+- The *[pam_mount(8)](https://manpages.ubuntu.com/manpages/resolute/man8/pam_mount.8.html)* manual page
+
+---
+
+> 来源：https://ubuntu.com/server/docs/how-to/samba/mount-cifs-shares-permanently/  
+> 站点：Ubuntu Server documentation（canonical/ubuntu-server-documentation）

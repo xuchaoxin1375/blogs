@@ -1,0 +1,90 @@
+<a id="install-dovecot"></a>
+
+# Install and configure Dovecot
+
+## Install Dovecot
+
+To install a basic Dovecot server with common POP3 and IMAP functions, run the following command:
+
+```console
+$ sudo apt install dovecot-imapd dovecot-pop3d
+```
+
+There are various other Dovecot modules including `dovecot-sieve` (mail filtering), `dovecot-solr` (full text search), `dovecot-antispam` (spam filter training), `dovecot-ldap` (user directory).
+
+## Configure Dovecot
+
+To configure Dovecot, edit the file `/etc/dovecot/dovecot.conf` and its included config files in `/etc/dovecot/conf.d/`. By default, all installed protocols will be enabled via an *include* directive in `/etc/dovecot/dovecot.conf`.
+
+```text
+!include_try /usr/share/dovecot/protocols.d/*.protocol
+```
+
+IMAPS and POP3S are more secure because they use SSL encryption to connect. A basic self-signed SSL certificate is automatically set up by package `ssl-cert` and used by Dovecot in `/etc/dovecot/conf.d/10-ssl.conf`.
+
+`Mbox` format is configured by default, but you can also use `Maildir` if required. More details can be found in the comments in `/etc/dovecot/conf.d/10-mail.conf`. Also see [the Dovecot web site](https://doc.dovecot.org/main/) to learn about further benefits and details.
+
+Make sure to also configure your chosen Mail Transport Agent (MTA) to transfer the incoming mail to the selected type of mailbox.
+
+### Restart the Dovecot daemon
+
+Once you have configured Dovecot, restart its daemon in order to test your setup using the following command:
+
+```console
+$ sudo service dovecot restart
+```
+
+Try to log in with the commands `telnet localhost pop3` (for POP3) or `telnet localhost imap2` (for IMAP). You should see something like the following:
+
+```console
+bhuvan@rainbow:~$ telnet localhost pop3
+```
+
+## Dovecot SSL configuration
+
+By default, Dovecot is configured to use SSL automatically using the package `ssl-cert` which provides a self signed certificate.
+
+You can instead generate your own custom certificate for Dovecot using `openssh`, for example:
+
+```console
+$ sudo openssl req -new -x509 -days 1000 -nodes -out "/etc/dovecot/dovecot.pem" \
+>     -keyout "/etc/dovecot/private/dovecot.pem"
+```
+
+Next, edit `/etc/dovecot/conf.d/10-ssl.conf` and amend following lines to specify that Dovecot should use these custom certificates :
+
+```text
+ssl_cert = </etc/dovecot/private/dovecot.pem
+ssl_key = </etc/dovecot/private/dovecot.key
+```
+
+You can obtain an SSL certificate from Let’s Encrypt, from a commercial Certificate Authority (CA), or create a self-signed one. Once you have the certificate, you will have a key file and a certificate file to reference in the configuration above.
+
+> **See also**
+>
+> See [Obtain TLS certificates](../security/obtain-tls-certificates.md#obtain-tls-certificates) for how to get a trusted certificate or set up your own CA.
+
+## Configure a firewall for an email server
+
+To access your mail server from another computer, you must configure your firewall to allow connections to the server on the necessary ports.
+
+- IMAP - 143
+
+- IMAPS - 993
+
+- POP3 - 110
+
+- POP3S - 995
+
+## Further reading
+
+- The [Dovecot website](https://dovecot.org/) has more general information about Dovecot.
+
+- The [Dovecot manual](https://doc.dovecot.org/latest/) provides full documentation for Dovecot use.
+
+- The [Dovecot Ubuntu Wiki](https://help.ubuntu.com/community/Dovecot) page has more details on configuration.
+
+---
+
+> 来源：https://ubuntu.com/server/docs/how-to/mail-services/install-dovecot/  
+> 站点：Ubuntu Server documentation（canonical/ubuntu-server-documentation）

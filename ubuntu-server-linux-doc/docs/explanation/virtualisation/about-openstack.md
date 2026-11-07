@@ -1,0 +1,42 @@
+# About OpenStack
+
+OpenStack is the most popular open source cloud computing platform that enables the management of distributed compute, network and storage resources in the data center.
+
+While the reference virtualisation stack (consisting of [QEMU/KVM](../../how-to/virtualisation/qemu.md#qemu) and [libvirt](../../how-to/virtualisation/libvirt.md#libvirt)) enables hardware virtualisation and the management of virtual machines (VMs) on a single host, in most cases the computing, network and storage resources are distributed across multiple hosts in the data center.
+
+This creates an obvious challenge with centralised management of those resources, scheduling VMs, etc. OpenStack solves this problem by aggregating distributed pools of resources, allocating them to VMs on-demand and enabling automated VM provisioning through a self-service portal.
+
+OpenStack consists of the following primary components:
+
+- **Keystone**: Serves as an identity service, providing authentication and authorisation functions for the users and enabling multi-tenancy.
+
+- **Glance**: Manages cloud images for VMs, handling uploading, retrieval and storage of images across OpenStack.
+
+- **Nova**: Serves as the primary compute engine of OpenStack, responsible for VM scheduling, creation and termination.
+
+- **Neutron**: Provides network connectivity between VMs, enabling multi-VM deployments.
+
+- **Cinder**: Manages provisioning, operation and termination of persistent block storage devices.
+
+- **Swift**: Provides highly available and scalable object storage service.
+
+There are also many other [OpenStack components](https://www.openstack.org/software/project-navigator/openstack-components#openstack-services) and supporting services available in the OpenStack ecosystem, enabling more advanced functions such as load balancing and secrets management.
+
+## OpenStack installation
+
+The most straightforward way to get started with OpenStack on Ubuntu is to use [Canonical OpenStack](https://canonical-openstack.readthedocs-hosted.com/en/latest/tutorial/get-started-with-openstack/) since the entire installation process requires only a few commands and takes around 20 minutes.
+
+Apart from Canonical OpenStack, multiple installation methods for OpenStack on Ubuntu are available. These include:
+
+- [OpenStack Charms](https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/)
+
+- [OpenStack Ansible](https://docs.openstack.org/project-deploy-guide/openstack-ansible/latest/)
+
+- [Manual Installation](https://docs.openstack.org/install-guide/)
+
+- [DevStack](https://docs.openstack.org/devstack/latest/)
+
+---
+
+> 来源：https://ubuntu.com/server/docs/explanation/virtualisation/about-openstack/  
+> 站点：Ubuntu Server documentation（canonical/ubuntu-server-documentation）
