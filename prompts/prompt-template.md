@@ -22,7 +22,7 @@ description: >
 https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/tech-learning-research%40prompt.md
 
 本次设置:
-联网搜索深度：a
+联网搜索轮次：1
 默认详略等级：1
 
 ```
