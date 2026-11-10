@@ -5,6 +5,7 @@
 - 涉及模型：`opencode/muse-spark-1.3-contributor-free`（OpenCode Zen 免费档；ID 拼写为 **spark**，非 spart）
 - 现象：使用者已「在 shell 中设置代理」，切换该模型仍提示地区不可用
 - 关联文档：[WSL2 环境排查记录](./opencode-V2-Muse模型地区限制与代理排查.md)（2026-09-26，v2.0.18）
+- 文档状态：**历史排查记录（v2.0.24，2026-10-07）**，机制与证据保留。现行配置与验证步骤见 [服务端代理配置与排障](./opencode@服务端代理@让V2走代理的配置验证与排障.md)。模型 ID 已变更：今日（v2.2.6）目录为 `opencode-go/muse-spark-1.3-contributor`，`-free` 档已不存在，照抄旧 ID 会报「找不到模型」。
 
 ---
 

@@ -5,6 +5,7 @@
 - 涉及模型：`opencode/muse-spark-1.3-contributor-free`（OpenCode Zen 免费档）
 - 现象：切换该模型后提示地区不可用；已在 shell 中导出 `http_proxy` / `https_proxy`，但问题依旧
 - 关联记录：[Windows 原生环境排查（2026-10-07，v2.0.24）](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md)
+- 文档状态：**历史排查记录（v2.0.18，2026-09-26）**，机制与证据保留。现行配置与验证步骤见 [服务端代理配置与排障](./opencode@服务端代理@让V2走代理的配置验证与排障.md)。模型 ID 已变更：今日（v2.2.6）目录为 `opencode-go/muse-spark-1.3-contributor`，`-free` 档已不存在。
 
 ---
 

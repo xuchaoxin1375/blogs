@@ -59,7 +59,7 @@ opencode service start   # set env 会停掉服务，这步把它按新环境拉
 | 服务进程层 | `opencode api get /api/info` 取 `pid`，再 `(Get-Process -Id <pid>).StartTime` | 启动时间晚于最后一次 `set env` 才是新快照；`api get /api/info` 本身健康说明回环没被代理吃掉 |
 | 链路层 | 正常发一次模型请求 | 唯一能证明「服务真的用上了代理」的方式 |
 
-Windows 读不到别的进程的 environ，服务端是否持有代理变量只能间接判断；Linux 上可以直接看进程快照：
+Windows 没有内置命令读别的进程环境，常规用「启动时间 + 回环健康 + 代理可达」间接判断；要拿到精确证据可用 PEB + `ReadProcessMemory` 读环境块（同权限进程，脚本见 [Windows 原生环境排查记录](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md) 第六节）。Linux 上直接看进程快照：
 
 ```bash
 tr '\0' '\n' < /proc/<pid>/environ | grep -i proxy
@@ -74,6 +74,7 @@ tr '\0' '\n' < /proc/<pid>/environ | grep -i proxy
 | `SELF_SIGNED_CERT_IN_CHAIN` / `CERT_NOT_YET_VALID` | 代理或杀软做 HTTPS 解密 | 排除扫描域名，或设 `NODE_EXTRA_CA_CERTS` |
 | `407 Proxy Authentication Required` | 代理要认证 | 凭据写进代理 URL 并百分号编码 |
 | 某个供应商反而变慢或不通 | 它本该直连 | 域名加进 `NO_PROXY` |
+| `This model is not available in your country` | 代理生效了，但出口节点在受限地区 | 换节点重试，不要继续调代理变量；见「地区限制」一节 |
 | `get env` 有值但行为没变 | 存储层与进程快照不同步 | 重启服务后再验；可用 `run --standalone` 带 shell 变量隔离验证配置与密钥是否本身有问题 |
 | 执行 `set env` 被中断、只写进一半变量 | 服务重启打断了同一条命令 | 变量合并成一次写入；Windows 用 detached 写法（见下） |
 
@@ -86,6 +87,64 @@ opencode service get env   # 只读确认（含密钥，展示前打码）
 
 脱离服务进程树后，`set env` 与 `service start` 能连着做完，不会被重启变成「写了一半」。
 
+## 为什么「设了代理却不生效」
+
+V2 的 LLM 请求由常驻后台服务发出，服务只在被拉起的那一刻继承一次环境，之后 shell 里怎么改都不影响它。按实际踩坑频率排：
+
+- **设置与重启不在同一条进程链**：A 窗口设变量、B 窗口（或 TUI 内置 shell）重启服务，新服务继承的是 B 的环境。在 OpenCode 会话内的 shell 里重启尤其无效——父链是「无代理的服务 → shell → CLI → 新服务」。
+- **时序反了**：先重启后设变量，或设完又重开窗口，都无效。
+- **作用域错位**：`setx` 与 `[Environment]::SetEnvironmentVariable(...,'User')` 只写注册表，既不回填当前窗口，也不会让已运行的服务重新读取。
+- **变量名大小写**：见下一节。
+
+本文推荐 `opencode service set env` 的原因就在这里：它把变量写进服务的持久化 env，服务从存储层读取，不再赌「哪条进程链先拉起它」。
+
+## 代理变量名的存储大小写陷阱
+
+PowerShell 的 `env:` 驱动大小写不敏感，但**存储名取首次创建时的大小写**，子进程继承的也是那个名字。于是「`$env:https_proxy = ...` 小写创建」在本窗口回读 `$env:HTTPS_PROXY` 一切正常，而 OpenCode（bun 运行时）按大写名读取，读不到就静默走直连——不报错、不提示。
+
+自查方法与正确写法：
+
+```powershell
+Get-ChildItem Env: | Where-Object Name -match 'proxy' | Format-Table Name,Value -AutoSize
+cmd /c 'set | findstr /i proxy'        # 子进程视角的真实名字
+```
+
+`Name` 列必须是大写 `HTTP_PROXY` / `HTTPS_PROXY`。用 `$env:` 回读通过不能作为验收依据；换大小写只改值不改名，所以修复要先 `Remove-Item Env:https_proxy` 再以大写名重建。
+
+```powershell
+function Set-Proxy {
+    param([string]$Proxy = 'http://localhost:7897')
+    foreach ($n in 'HTTP_PROXY','HTTPS_PROXY','http_proxy','https_proxy') {
+        Remove-Item "Env:$n" -ErrorAction SilentlyContinue
+    }
+    $env:HTTP_PROXY  = $Proxy
+    $env:HTTPS_PROXY = $Proxy
+    $env:NO_PROXY    = 'localhost,127.0.0.1,::1'
+}
+```
+
+## `service stop` / `start` 的竞态
+
+`service stop` 只杀服务进程，不杀客户端。停服空窗里，任何还活着的 OpenCode 入口（别的窗口 TUI、`run`、编辑器扩展）发现服务不可用都会自己拉起一个，环境取它自己的；你随后的 `service start` 看到服务已存活即成空操作。日志里表现为 `Background service is unresponsive` 紧跟 `background service starting reason=missing role=cli`。
+
+消除竞态按可靠性排：
+
+- 用 `opencode service set env` 写持久 env（本文推荐）：谁抢到都一样。
+- 关掉所有 OpenCode 入口，再 `service stop` → `service start`。
+- 杀光全部进程后从带代理的窗口冷启动：结果确定，但仍依赖那条进程链。
+
+## 地区限制：出口 IP 决定模型可用性
+
+OpenCode Zen / Go 的部分模型按请求出口 IP 判定可用地区，出口落在不受支持的地区时返回 `This model is not available in your country`。这与「网络不通」是两回事：`opencode.ai` 直连 200 也照样被拒，所以极易被误读成「代理没生效」。
+
+判别与处置：
+
+- 对比直连与经代理的出口 IP：`curl.exe -s https://api.ipify.org` 与 `curl.exe -s -x http://localhost:7897 https://api.ipify.org`。
+- 出口在受限地区就换节点重试，别继续折腾代理变量。
+- 模型 ID 会随目录调整：2026-11 的 v2.2.6 里是 `opencode-go/muse-spark-1.3-contributor`，早期记录写的 `opencode/muse-spark-1.3-contributor-free` 已不在目录中。报「找不到模型」先 `opencode models | findstr <关键词>` 核对，别按地区问题排查。
+
+原始证据见下方两篇排查记录。
+
 ## 本机实测记录
 
 - 首次逐条执行时，`HTTP_PROXY` 已落盘、`HTTPS_PROXY` 丢失：服务重启让同一条命令中断，不是写入失败，而是后半段没跑到。
@@ -95,6 +154,8 @@ opencode service get env   # 只读确认（含密钥，展示前打码）
 
 ## 关联文档
 
-- [OpenCode V2 在 Windows 原生环境下的地区限制与代理排查](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md)：为什么「shell 里设了代理」不生效的端到端证据。
-- [OpenCode V2 中免费模型地区限制排查（WSL2）](./opencode-V2-Muse模型地区限制与代理排查.md)：WSL 侧的同一现象。
+本文是「OpenCode V2 走代理」的现行正本；下面两篇是 2026-09 / 2026-10 的排查记录，机制与证据仍然有效，模型 ID、版本与处置建议以本文为准。
+
+- [OpenCode V2 在 Windows 原生环境下的地区限制与代理排查](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md)：端到端对照、PEB 读服务进程环境、大小写陷阱与竞态的原始证据。
+- [OpenCode V2 中免费模型地区限制排查（WSL2）](./opencode-V2-Muse模型地区限制与代理排查.md)：WSL 侧的同一现象与 `--standalone` 对照。
 - skill `opencode-provider-config` → `references/service-env.md`：服务端 env 的三层状态、按域名分流、密钥错位等维护规则。
