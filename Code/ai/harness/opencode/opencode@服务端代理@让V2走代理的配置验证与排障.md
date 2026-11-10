@@ -168,37 +168,4 @@ OpenCode Zen / Go 的部分模型按请求出口 IP 判定可用地区，出口�
 
 ## 附录：读取 Windows 服务进程的环境块
 
-同权限进程可以用 `NtQueryInformationProcess` 取 PEB、再 `ReadProcessMemory` 读环境块，比间接判据更硬。脚本来自 2026-10 的排查记录，本次未复跑：
-
-```powershell
-Add-Type -TypeDefinition @'
-using System; using System.Runtime.InteropServices; using System.Text; using System.Collections.Generic;
-public static class SvcEnv {
-  [StructLayout(LayoutKind.Sequential)] public struct PBI { public IntPtr R1; public IntPtr Peb; public IntPtr A; public IntPtr B; public IntPtr P; public IntPtr C; }
-  [DllImport("ntdll.dll")] public static extern int NtQueryInformationProcess(IntPtr h,int c,ref PBI p,int l,out int r);
-  [DllImport("kernel32.dll",SetLastError=true)] public static extern IntPtr OpenProcess(int a,bool i,int p);
-  [DllImport("kernel32.dll",SetLastError=true)] public static extern bool ReadProcessMemory(IntPtr h,IntPtr a,[Out] byte[] b,int s,out IntPtr n);
-  [DllImport("kernel32.dll",SetLastError=true)] public static extern bool CloseHandle(IntPtr h);
-  public static string[] Entries(int pid,out int total){ total=0;
-    IntPtr h=OpenProcess(0x0410,false,pid); if(h==IntPtr.Zero) return new string[0];
-    try{ var p=new PBI(); int rl; NtQueryInformationProcess(h,0,ref p,Marshal.SizeOf(typeof(PBI)),out rl);
-      byte[] q=new byte[8]; IntPtr n;
-      ReadProcessMemory(h,IntPtr.Add(p.Peb,0x20),q,8,out n); IntPtr pa=(IntPtr)BitConverter.ToInt64(q,0);
-      ReadProcessMemory(h,IntPtr.Add(pa,0x80),q,8,out n); IntPtr ea=(IntPtr)BitConverter.ToInt64(q,0);
-      var sb=new StringBuilder();
-      for(int i=0;i<128;i++){ byte[] c=new byte[4096];
-        if(!ReadProcessMemory(h,IntPtr.Add(ea,i*4096),c,4096,out n)) break;
-        int g=(int)n.ToInt64(); if(g<=0) break; sb.Append(Encoding.Unicode.GetString(c,0,g));
-        if(sb.ToString().IndexOf("\0\0",StringComparison.Ordinal)>=0) break; }
-      string raw=sb.ToString(); int e=raw.IndexOf("\0\0",StringComparison.Ordinal); if(e>=0) raw=raw.Substring(0,e);
-      var l=new List<string>(); foreach(var x in raw.Split('\0')) if(x.Length>0){ total++; l.Add(x); }
-      return l.ToArray(); } finally { CloseHandle(h); } } }
-'@
-$svc = (Get-CimInstance Win32_Process -Filter "Name='opencode.exe'" |
-        Where-Object CommandLine -match 'serve --service').ProcessId
-$total = 0; $vars = [SvcEnv]::Entries([int]$svc, [ref]$total)
-"服务 PID=$svc，环境变量总数=$total"
-$vars | Where-Object { $_ -match '^(?i)(http_proxy|https_proxy|all_proxy|no_proxy)=' }
-```
-
-两个坑：`IndexOf("\0\0")` 必须显式用 `StringComparison.Ordinal`，否则文化敏感比较会把 NUL 当可忽略字符、恒返回 0，环境块被截成空串误判为「没有变量」；脚本要先对本进程自检（条目数应为几十上百），确认读取逻辑本身没问题。
+同权限进程可以用 `NtQueryInformationProcess` 取 PEB、再 `ReadProcessMemory` 读环境块，比间接判据更硬。
