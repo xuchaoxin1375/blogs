@@ -10,7 +10,7 @@
 | 代理入口 | `http://localhost:7897`（Clash 系 mixed 端口，示例值） |
 | 记录日期 | 2026-11-10 |
 
-OpenCode 没有「代理」配置项，只有进程环境变量；而真正发出 LLM 请求的是后台服务，不是 TUI 进程，所以变量必须落在服务上。同一个结论在 [Windows 原生环境 MUSE 排查记录](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md) 里被端到端对照验证过（客户端设变量对共享服务无效）。
+OpenCode 没有「代理」配置项，只有进程环境变量；而真正发出 LLM 请求的是后台服务，不是 TUI 进程，所以变量必须落在服务上。本文由 2026-09、2026-10 两次端到端排查（WSL2 v2.0.18、Windows v2.0.24）合并而来，机制部分按 v2.2.6 复核，模型 ID 与处置建议已更新。
 
 长期维护的规则以 skill `opencode-provider-config` 的 `references/service-env.md` 为准，本文是可照抄的操作顺序与实测记录。
 
@@ -46,6 +46,7 @@ opencode service start   # set env 会停掉服务，这步把它按新环境拉
 - **`NO_PROXY` 用逗号分隔**，PowerShell 里含逗号的值必须加双引号，否则被拆成数组、落盘变成空格分隔。
 - **只增合并不覆盖**：改之前先 `opencode service get env` 抄下既有值。代理变量对设备上所有 provider 全局生效，覆盖会顺带打断原本能连通的模型。
 - **按域名分流**：直连可达的域名（国内中转站等）加进 `NO_PROXY`，其余自动走代理。
+- **不读系统代理**：OpenCode 只看进程环境变量，不读 Windows 的 WinINET（注册表 `ProxyEnable`/`ProxyServer`）与 WinHTTP（`netsh winhttp show proxy`）。「代理软件开了系统代理开关」对 OpenCode 无效。
 - **前台进程不吃服务端 env**：`opencode --standalone` 和 `opencode serve` 读自身进程环境，要在启动那条命令里设 `$env:HTTP_PROXY` / `$env:HTTPS_PROXY`。
 - **代理认证**：账号密码写进代理 URL 并对 `@`、`:`、`/` 百分号编码，如 `http://user:p%40ssword@localhost:7897`；回 `407 Proxy Authentication Required` 即此情形。
 - **TLS 解密**：代理或杀软做 HTTPS 扫描时报 `SELF_SIGNED_CERT_IN_CHAIN`、`CERT_NOT_YET_VALID`，先把 `opencode.ai`、`*.opencode.ai` 与 provider 域名排除扫描，其次导出其 CA 为 PEM 设 `NODE_EXTRA_CA_CERTS` 并随服务持久化。
@@ -59,7 +60,7 @@ opencode service start   # set env 会停掉服务，这步把它按新环境拉
 | 服务进程层 | `opencode api get /api/info` 取 `pid`，再 `(Get-Process -Id <pid>).StartTime` | 启动时间晚于最后一次 `set env` 才是新快照；`api get /api/info` 本身健康说明回环没被代理吃掉 |
 | 链路层 | 正常发一次模型请求 | 唯一能证明「服务真的用上了代理」的方式 |
 
-Windows 没有内置命令读别的进程环境，常规用「启动时间 + 回环健康 + 代理可达」间接判断；要拿到精确证据可用 PEB + `ReadProcessMemory` 读环境块（同权限进程，脚本见 [Windows 原生环境排查记录](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md) 第六节）。Linux 上直接看进程快照：
+Windows 没有内置命令读别的进程环境，常规用「启动时间 + 回环健康 + 代理可达」间接判断；要拿到精确证据可按附录的 PEB 脚本读环境块（限同权限进程）。Linux 上直接看进程快照：
 
 ```bash
 tr '\0' '\n' < /proc/<pid>/environ | grep -i proxy
@@ -77,6 +78,7 @@ tr '\0' '\n' < /proc/<pid>/environ | grep -i proxy
 | `This model is not available in your country` | 代理生效了，但出口节点在受限地区 | 换节点重试，不要继续调代理变量；见「地区限制」一节 |
 | `get env` 有值但行为没变 | 存储层与进程快照不同步 | 重启服务后再验；可用 `run --standalone` 带 shell 变量隔离验证配置与密钥是否本身有问题 |
 | 执行 `set env` 被中断、只写进一半变量 | 服务重启打断了同一条命令 | 变量合并成一次写入；Windows 用 detached 写法（见下） |
+| 服务端日志里找不到对应报错 | 部分错误由 CLI 直接打到 stderr，不落 `opencode.log` | 现场复现并捕获 stderr，不能只翻日志 |
 
 ### Windows：被重启打断时的 detached 写法
 
@@ -133,6 +135,8 @@ function Set-Proxy {
 - 关掉所有 OpenCode 入口，再 `service stop` → `service start`。
 - 杀光全部进程后从带代理的窗口冷启动：结果确定，但仍依赖那条进程链。
 
+从多个入口启动 OpenCode（编辑器扩展、独立窗口等）时，还可写用户级变量兜底：`[Environment]::SetEnvironmentVariable('HTTPS_PROXY','http://localhost:7897','User')`。它让任何入口拉起的服务都带代理，代价是影响本机所有程序，且不覆盖已经运行的服务——写完仍需重启一次服务。
+
 ## 地区限制：出口 IP 决定模型可用性
 
 OpenCode Zen / Go 的部分模型按请求出口 IP 判定可用地区，出口落在不受支持的地区时返回 `This model is not available in your country`。这与「网络不通」是两回事：`opencode.ai` 直连 200 也照样被拒，所以极易被误读成「代理没生效」。
@@ -143,7 +147,7 @@ OpenCode Zen / Go 的部分模型按请求出口 IP 判定可用地区，出口�
 - 出口在受限地区就换节点重试，别继续折腾代理变量。
 - 模型 ID 会随目录调整：2026-11 的 v2.2.6 里是 `opencode-go/muse-spark-1.3-contributor`，早期记录写的 `opencode/muse-spark-1.3-contributor-free` 已不在目录中。报「找不到模型」先 `opencode models | findstr <关键词>` 核对，别按地区问题排查。
 
-原始证据见下方两篇排查记录。
+原始证据（上述现象与竞态、大小写陷阱的现场记录）来自 2026-09-26（WSL2，v2.0.18）与 2026-10-07（Windows，v2.0.24）两次排查，两篇原始文档已并入本文。
 
 ## 本机实测记录
 
@@ -154,8 +158,45 @@ OpenCode Zen / Go 的部分模型按请求出口 IP 判定可用地区，出口�
 
 ## 关联文档
 
-本文是「OpenCode V2 走代理」的现行正本；下面两篇是 2026-09 / 2026-10 的排查记录，机制与证据仍然有效，模型 ID、版本与处置建议以本文为准。
+本文是「OpenCode V2 走代理」的现行正本，合并了 2026-09（WSL2，v2.0.18）与 2026-10（Windows，v2.0.24）两次 MUSE 地区限制排查记录。
 
-- [OpenCode V2 在 Windows 原生环境下的地区限制与代理排查](./opencode-V2-Muse模型地区限制与代理排查@Windows原生环境.md)：端到端对照、PEB 读服务进程环境、大小写陷阱与竞态的原始证据。
-- [OpenCode V2 中免费模型地区限制排查（WSL2）](./opencode-V2-Muse模型地区限制与代理排查.md)：WSL 侧的同一现象与 `--standalone` 对照。
 - skill `opencode-provider-config` → `references/service-env.md`：服务端 env 的三层状态、按域名分流、密钥错位等维护规则。
+- [OpenCode V2 版本发布说明与迁移指南](./opencode@版本发布说明@迁移和版本管理指南.md)：V2 客户端与服务端架构背景。
+- [在 WSL2 上启动故障排查](./opencode在WSL2上启动故障排查与修复报告.md)：服务起不来时的另一类问题。
+
+## 附录：读取 Windows 服务进程的环境块
+
+同权限进程可以用 `NtQueryInformationProcess` 取 PEB、再 `ReadProcessMemory` 读环境块，比间接判据更硬。脚本来自 2026-10 的排查记录，本次未复跑：
+
+```powershell
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices; using System.Text; using System.Collections.Generic;
+public static class SvcEnv {
+  [StructLayout(LayoutKind.Sequential)] public struct PBI { public IntPtr R1; public IntPtr Peb; public IntPtr A; public IntPtr B; public IntPtr P; public IntPtr C; }
+  [DllImport("ntdll.dll")] public static extern int NtQueryInformationProcess(IntPtr h,int c,ref PBI p,int l,out int r);
+  [DllImport("kernel32.dll",SetLastError=true)] public static extern IntPtr OpenProcess(int a,bool i,int p);
+  [DllImport("kernel32.dll",SetLastError=true)] public static extern bool ReadProcessMemory(IntPtr h,IntPtr a,[Out] byte[] b,int s,out IntPtr n);
+  [DllImport("kernel32.dll",SetLastError=true)] public static extern bool CloseHandle(IntPtr h);
+  public static string[] Entries(int pid,out int total){ total=0;
+    IntPtr h=OpenProcess(0x0410,false,pid); if(h==IntPtr.Zero) return new string[0];
+    try{ var p=new PBI(); int rl; NtQueryInformationProcess(h,0,ref p,Marshal.SizeOf(typeof(PBI)),out rl);
+      byte[] q=new byte[8]; IntPtr n;
+      ReadProcessMemory(h,IntPtr.Add(p.Peb,0x20),q,8,out n); IntPtr pa=(IntPtr)BitConverter.ToInt64(q,0);
+      ReadProcessMemory(h,IntPtr.Add(pa,0x80),q,8,out n); IntPtr ea=(IntPtr)BitConverter.ToInt64(q,0);
+      var sb=new StringBuilder();
+      for(int i=0;i<128;i++){ byte[] c=new byte[4096];
+        if(!ReadProcessMemory(h,IntPtr.Add(ea,i*4096),c,4096,out n)) break;
+        int g=(int)n.ToInt64(); if(g<=0) break; sb.Append(Encoding.Unicode.GetString(c,0,g));
+        if(sb.ToString().IndexOf("\0\0",StringComparison.Ordinal)>=0) break; }
+      string raw=sb.ToString(); int e=raw.IndexOf("\0\0",StringComparison.Ordinal); if(e>=0) raw=raw.Substring(0,e);
+      var l=new List<string>(); foreach(var x in raw.Split('\0')) if(x.Length>0){ total++; l.Add(x); }
+      return l.ToArray(); } finally { CloseHandle(h); } } }
+'@
+$svc = (Get-CimInstance Win32_Process -Filter "Name='opencode.exe'" |
+        Where-Object CommandLine -match 'serve --service').ProcessId
+$total = 0; $vars = [SvcEnv]::Entries([int]$svc, [ref]$total)
+"服务 PID=$svc，环境变量总数=$total"
+$vars | Where-Object { $_ -match '^(?i)(http_proxy|https_proxy|all_proxy|no_proxy)=' }
+```
+
+两个坑：`IndexOf("\0\0")` 必须显式用 `StringComparison.Ordinal`，否则文化敏感比较会把 NUL 当可忽略字符、恒返回 0，环境块被截成空串误判为「没有变量」；脚本要先对本进程自检（条目数应为几十上百），确认读取逻辑本身没问题。
