@@ -35,13 +35,14 @@ https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/te
 开发目标：
 <一句话说明构建什么、给谁用、解决什么问题，例如：为个人记账做的单页工具，支持导入导出 CSV>
 
-参考以下链接中的提示词.
+#参考以下链接中的提示词.
 https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/arena.ai-code%40prompt.md
 
-关于资料调研,生成的文档规范等参考意见
+#关于资料调研,生成的文档规范等参考意见
 https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/tech-learning-research%40prompt.md
 
+#开发应用是可以参考的一些skills(clone到开发环境/本地并部署,对于非交互式静默式开发的环境下,安装基础档依赖,并着重于开发指导相关的skill,跳过交互式skill,例如grill-me)
+https://github.com/xuchaoxin1375/skills-for-developer
 
 ```
 
-- 开发目标后可继续填写该提示词“请根据以下信息构建应用”表格中的行（用户与主流程、必须实现、范围边界、数据与能力、参考与风格、运行与适配），不填的非关键项 AI 会取合理默认值并声明假设。
