@@ -41,7 +41,7 @@ https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/ar
 #关于资料调研,生成的文档规范等参考意见
 https://raw.githubusercontent.com/xuchaoxin1375/blogs/refs/heads/main/prompts/tech-learning-research%40prompt.md
 
-#开发应用是可以参考的一些skills(clone到开发环境/本地并部署,对于非交互式静默式开发的环境下,安装基础档依赖,并着重于开发指导相关的skill,跳过交互式skill,例如grill-me)
+#开发应用是可以参考的一些skills(clone到开发环境/本地并部署,对于非交互式静默式开发的环境下,注意仓库中全局规则和我的用户偏好skill,安装基础档依赖,并着重于开发指导相关的skill)
 https://github.com/xuchaoxin1375/skills-for-developer
 
 ```
