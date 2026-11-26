@@ -403,7 +403,7 @@ curl -fsSL https://opencode.ai/browse/install | bash
 # Windows PowerShell: irm https://opencode.ai/browse/install.ps1 | iex
 # 或: npm install -g @opencode/browse && browse install
 
-browse install -a opencode claude   # 写入对应客户端的 MCP 配置
+browse install -a opencode claude codex   # 写入对应客户端的 MCP 配置
 browse status                       # 查看 relay、扩展、浏览器与标签页状态
 browse navigate https://example.com # 打开后台标签页，返回 tab id
 browse snapshot --tab <tab-id>      # 获取带 ref 的快照
@@ -415,6 +415,64 @@ browse uninstall                    # 移除 MCP 配置、停止 relay、删除�
 ```
 
 > 以上命令与行为来自 0.1.1 的公开实测；版本升级后以 `browse --help`、`browse tools` 和官方文档为准。
+
+---
+
+### Codex 的浏览器入口：CLI 走 MCP + 扩展，桌面 App 走原生
+
+先纠正一个常见误解：**Codex CLI 没有官方内置浏览器，不等于它不能驱动真实浏览器**。浏览器能力取决于接入层，而不是 Codex 自己有没有内置 Chromium。OpenCode Browse 已把 Codex 作为显式支持的客户端：`browse install -a codex` 会把 browse MCP 写入 Codex 配置，和 OpenCode 共用同一套扩展与配对；Codex 侧通常只暴露 `execute`/`status`/`tabs` 三个工具，在一次 `execute` 里用 Playwright 风格的 `page` 组合多步操作。
+
+#### 几条可用路径
+
+| 路径 | 接入方式 | 浏览器归属与登录态 | 适合 | 边界 |
+| ---- | -------- | ------------------ | ---- | ---- |
+| **桌面 App 内置浏览器** | `@Browser` | App 自带独立 profile | localhost 预览、视觉走查、页面评论 | 仅桌面 App；不共享日常登录；不能自动上传文件 |
+| **桌面 App + Chrome 扩展** | `@Chrome` | 你正在用的 Chrome/Edge/Brave/Opera/Vivaldi | 已登录 SaaS、内部系统、真实 profile | 仅桌面 App；扩展权限大；受 rollout 与工作区设置影响 |
+| **OpenCode Browse MCP** | `browse install -a codex` | 真实浏览器 + 扩展 relay，复用登录态 | 已登录 SaaS、SSO、需要人工接管 | 工具面按客户端裁剪；护栏不是安全边界 |
+| **Playwright MCP + 扩展** | `codex mcp add playwright -- npx -y @playwright/mcp@latest --extension` | 现有浏览器标签页 | 想要 Playwright 生态、又不想新开干净实例 | 需要安装 Playwright Extension；仍受扩展权限约束 |
+| **Browser MCP** | `codex mcp add browsermcp -- npx -y @browsermcp/mcp@latest` | 现有 Chrome + 扩展 | 通用 MCP 客户端、快速接管当前标签页 | 第三方扩展；首次调用需在扩展里确认配对码 |
+| **Chrome DevTools MCP** | `codex mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest --autoConnect` | 已运行的 Chrome（144+），CDP 接入 | 调 Console、网络、性能 trace、DOM/样式 | 偏调试，不是通用 UI 测试 runner；需用户授权 |
+| **Playwright CLI + Skills** | `npm i -g @playwright/cli@latest`；`playwright-cli install --skills=agents -g` | Agent 自建干净浏览器 | 日常 UI 测试、截图、表单、可重复验证 | 不直接复用真实登录态；默认无头，需 `--headed` 观察 |
+
+#### 怎么选
+
+- **已经在用 OpenCode Browse**：直接 `browse install -a codex`，最省事。它和 OpenCode 共用同一套扩展、relay 与配对，不需要再装第二套浏览器通道。
+- **不想绑定 OpenCode**：用 Playwright MCP `--extension` 或 Browser MCP。前者与 Playwright 生态一致，后者更轻、专做“接管现有 Chrome 标签页”。
+- **要调试而不是回归**：用 Chrome DevTools MCP `--autoConnect`，看 Console、网络和性能轨迹；不要拿它替代 Playwright 断言。
+- **日常开发验证 / CI**：仍用 Playwright CLI + Skills 或 Playwright 脚本，跑干净实例；真实浏览器扩展只用于“必须复用登录态”的探索与人工接管。
+- **用的是 Codex 桌面 App**：优先 `@Browser` / `@Chrome` 原生能力，不必再为浏览器装 MCP。
+
+#### 最小接入
+
+```bash
+# 方案 A：复用 OpenCode Browse（Codex 是 browse 显式支持的 agent）
+browse install -a codex
+browse status
+codex mcp list
+
+# 方案 B：Playwright MCP + 现有浏览器扩展
+codex mcp add playwright -- npx -y @playwright/mcp@latest --extension
+
+# 方案 C：Browser MCP + Chrome 扩展
+codex mcp add browsermcp -- npx -y @browsermcp/mcp@latest
+
+# 方案 D：Chrome DevTools MCP，连接已运行的 Chrome
+codex mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest --autoConnect
+
+# 方案 E：干净实例 + token 更省的 CLI/Skill 路径
+npm install -g @playwright/cli@latest
+playwright-cli install --skills=agents -g
+```
+
+`browse install -a none` 只打印 MCP 配置，不写任何客户端；需要手工接入其他 MCP 客户端时可以用它取配置。Codex 的 MCP 配置落在 `~/.codex/config.toml`，项目级可放 `.codex/config.toml`，CLI、IDE 扩展和桌面 App 共享同一套配置。
+
+#### 边界
+
+- **不要混淆 surface**：桌面 App 的 `@Browser`/`@Chrome` 不是 CLI 能力；CLI 侧要么走 MCP + 扩展，要么走 Playwright CLI + Skills。
+- **真实浏览器扩展不是沙箱**：它默认共享你的浏览器权限，适合专用 profile、最小权限账号和单标签页借出；不要装进日常主 profile，也不要拿它做 CI 门禁。
+- **Codex Cloud 是另一条路**：云端任务有 Browser Use / Computer Use 时可直接在云浏览器里操作；可重复测试仍在云环境跑 headless Playwright。
+
+> 核对：`browse --help`（本机，2026-11-26，明确列出 `codex`）；OpenAI Browser / Chrome extension / Codex MCP 文档；Playwright CLI 与 MCP 文档；Chrome DevTools MCP 文档。`browse` 的工具面与行为按 0.1.x 记录，升级后以 `browse tools` 与官方文档为准。
 
 ---
 
